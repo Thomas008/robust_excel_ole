@@ -62,6 +62,8 @@ module WrapExcel
         file_format = WrapExcel::XlExcel8
       when '.xlsx'
         file_format = WrapExcel::XlOpenXMLWorkbook
+      when '.xlsm'
+        file_format = WrapExcel::XlOpenXMLWorkbookMacroEnabled
       end
       @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format)
     end

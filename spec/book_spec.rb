@@ -215,6 +215,33 @@ describe WrapExcel::Book do
       end
     end
 
+    context "with macros" do
+      before do
+        @book = WrapExcel::Book.open(@simple_file, :read_only => false) 
+      end
+      
+      after do
+        @book.close
+      end
+
+      it "should save to 'simple_save.xlsm'" do
+        save_path = "C:" + "/" + "simple_save.xlsm"
+        p save_path
+        File.delete save_path rescue nil
+        @book.save(save_path)
+        File.exist?(save_path).should be_true
+        book_neu = WrapExcel::Book.open(save_path, :read_only => true) 
+        book_neu.should be_a WrapExcel::Book
+      end
+
+      it "should save to 'simple_save.xlsx'" do
+        save_path = @dir + "/" + "simple_save.xlsx"
+        File.delete save_path rescue nil
+        @book.save(save_path)
+        File.exist?(save_path).should be_true
+      end
+    end
+
   end
 
 end

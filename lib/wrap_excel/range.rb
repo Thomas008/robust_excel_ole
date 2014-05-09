@@ -14,7 +14,8 @@ module WrapExcel
     end
 
     def values(range = nil)
-      result = self.map(&:value).flatten
+#+#      result = self.map(&:value).flatten
+      result = self.map{|x| x.value}.flatten
       range ? result.each_with_index.select{ |row_or_column, i| range.include?(i) }.map{ |i| i[0] } : result
     end
 

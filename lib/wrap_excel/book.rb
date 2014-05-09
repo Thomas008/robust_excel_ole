@@ -1,4 +1,12 @@
 # -*- coding: utf-8 -*-
+
+class Hash
+  def first
+    to_a.first
+  end
+end
+
+
 module WrapExcel
 
   class Book
@@ -79,7 +87,7 @@ module WrapExcel
 
       after_or_before, base_sheet = options.first || [:after, WrapExcel::Sheet.new(@book.Worksheets.Item(@book.Worksheets.Count))]
       base_sheet = base_sheet.sheet
-      sheet ? sheet.Copy({ after_or_before => base_sheet }) : @book.WorkSheets.Add({ after_or_before => base_sheet })
+      sheet ? sheet.Copy({ after_or_before.to_s => base_sheet }) : @book.WorkSheets.Add({ after_or_before.to_s => base_sheet })
 
       new_sheet = WrapExcel::Sheet.new(@winapp.Activesheet)
       new_sheet.name = new_sheet_name if new_sheet_name

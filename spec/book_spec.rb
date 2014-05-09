@@ -64,12 +64,14 @@ describe WrapExcel::Book do
   end
 
   describe ".new" do
+=begin
     it 'should output deprecation warning' do
       capture(:stderr) {
         book = WrapExcel::Book.new(@simple_file)
         book.close
       }.should match /DEPRECATION WARNING: WrapExcel::Book.new and WrapExcel::Book.open will be split. If you open existing file, please use WrapExcel::Book.open.\(call from #{File.expand_path(__FILE__)}:#{__LINE__ - 2}.+\)\n/
     end
+=end
   end
 
   describe 'access sheet' do

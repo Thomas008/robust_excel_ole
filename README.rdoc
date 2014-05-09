@@ -1,12 +1,16 @@
 = WrapExcel
 
+This is a simple fork from tomiacannondale's wrap_excel adapted to Ruby 1.8.6.
+
+
 == Description
 
 WrapExcel is a to wrap the win32ole, and easy to use Excel operations with ruby.
 
 == Requirements
 
-* ruby 1.9.2 or higher (platform is windows)
+* Ruby 1.9.2 or higher (platform is windows)
+* also works with Ruby 1.8.6
 
 == Install
 

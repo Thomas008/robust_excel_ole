@@ -232,13 +232,29 @@ describe WrapExcel::Book do
         File.exist?(save_path).should be_true
         book_neu = WrapExcel::Book.open(save_path, :read_only => true) 
         book_neu.should be_a WrapExcel::Book
+        book_neu.close
       end
 
       it "should save to 'simple_save.xlsx'" do
-        save_path = @dir + "/" + "simple_save.xlsx"
+        save_path = "C:" + "/" + "simple_save.xlsx"
+        p save_path
         File.delete save_path rescue nil
         @book.save(save_path)
         File.exist?(save_path).should be_true
+        book_neu = WrapExcel::Book.open(save_path, :read_only => true) 
+        book_neu.should be_a WrapExcel::Book
+        book_neu.close
+      end
+
+      it "should save to 'simple_save.xls'" do
+        save_path = "C:" + "/" + "simple_save.xls"
+        p save_path
+        File.delete save_path rescue nil
+        @book.save(save_path)
+        File.exist?(save_path).should be_true
+        book_neu = WrapExcel::Book.open(save_path, :read_only => true) 
+        book_neu.should be_a WrapExcel::Book
+        book_neu.close
       end
     end
 

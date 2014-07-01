@@ -50,7 +50,7 @@ module WrapExcel
       @winapp.Quit
     end
 
-    def save(file = nil)
+    def save(file = nil, options = {} )
       raise IOError, "Not opened for writing(open with :read_only option)" if @options[:read_only]
       return @book.save unless file
 
@@ -65,7 +65,16 @@ module WrapExcel
       when '.xlsm'
         file_format = WrapExcel::XlOpenXMLWorkbookMacroEnabled
       end
-      @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format)
+
+      case options[:if_exists]
+      when :overwrite
+        @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format)  
+      when :raise
+        @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format)  
+      when :excel 
+        @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format)
+      end
+      
     end
 
     def [] sheet

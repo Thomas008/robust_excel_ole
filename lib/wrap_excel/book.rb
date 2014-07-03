@@ -65,16 +65,27 @@ module WrapExcel
       when '.xlsm'
         file_format = WrapExcel::XlOpenXMLWorkbookMacroEnabled
       end
-
-      case options[:if_exists]
-      when :overwrite
-        @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format)  
-      when :raise
-        @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format)  
-      when :excel 
-        @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format)
+ 
+      # speichere fraglos
+      if options == {} 
+        @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format) 
+      else
+        # speichere kontrolliert
+        if File.exist?(file) then
+          case options[:if_exists]
+          when :overwrite
+            @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format)   
+          when :excel then #nix
+          when :raise
+            raise RuntimeError, "Mappe existiert bereits: #{basename}"
+          else
+            raise RuntimeError, "Bug: Ungültige Option (#{options[:if_exists]})"
+          end
+        else
+          #speichere fraglos
+          @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format) 
+        end
       end
-      
     end
 
     def [] sheet
@@ -103,7 +114,7 @@ module WrapExcel
       new_sheet = WrapExcel::Sheet.new(@winapp.Activesheet)
       new_sheet.name = new_sheet_name if new_sheet_name
       new_sheet
-    end
+    end        
 
     private
     def absolute_path(file)
@@ -112,4 +123,7 @@ module WrapExcel
       WIN32OLE.new('Scripting.FileSystemObject').GetAbsolutePathName(file)
     end
   end
+
 end
+
+

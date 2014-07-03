@@ -197,6 +197,7 @@ describe WrapExcel::Book do
         @book = WrapExcel::Book.open(@simple_file)
       end
 
+
       it {
         expect {
           @book.save
@@ -260,7 +261,7 @@ describe WrapExcel::Book do
       end
     end
 
-    context "save with options"
+    context "save with options" do
       before do
         @book = WrapExcel::Book.open(@simple_file, :read_only => false) 
       end
@@ -273,34 +274,27 @@ describe WrapExcel::Book do
         save_path = "C:" + "/" + "simple_save.xlsm"
         p save_path
         File.delete save_path rescue nil
-        @book.save(save_path)
+        File.open(save_path,"w") do | file |
+          file.puts "garbage"
+        end
         @book.save(save_path, :if_exists => :overwrite)
         File.exist?(save_path).should be_true
         book_neu = WrapExcel::Book.open(save_path, :read_only => true) 
         book_neu.should be_a WrapExcel::Book
         book_neu.close
       end
-      it "should save to 'simple_save.xlsm' with excel" do
-        save_path = "C:" + "/" + "simple_save.xlsm"
-        p save_path
-        File.delete save_path rescue nil
-        @book.save(save_path)
-        @book.save(save_path, :if_exists => :excel )
-        File.exist?(save_path).should be_true
-        book_neu = WrapExcel::Book.open(save_path, :read_only => true) 
-        book_neu.should be_a WrapExcel::Book
-        book_neu.close
-      end
+
       it "should save to 'simple_save.xlsm' with raise" do
         save_path = "C:" + "/" + "simple_save.xlsm"
         p save_path
         File.delete save_path rescue nil
         @book.save(save_path)
-        @book.save(save_path, :if_exists => :raise) rescue nil
+        @book.save(save_path, :if_exists => :raise) rescue nil 
         File.exist?(save_path).should be_true
         book_neu = WrapExcel::Book.open(save_path, :read_only => true) 
         book_neu.should be_a WrapExcel::Book
         book_neu.close
       end
+    end  
   end
 end

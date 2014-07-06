@@ -288,11 +288,30 @@ describe WrapExcel::Book do
         save_path = "C:" + "/" + "simple_save.xlsm"
         p save_path
         File.delete save_path rescue nil
+        File.open(save_path,"w") do | file |
+          file.puts "garbage"
+        end
         @book.save(save_path)
-        @book.save(save_path, :if_exists => :raise) rescue nil 
         File.exist?(save_path).should be_true
+        booklength = File.size?(save_path)
+        puts booklength
+        #@book.close
+        #book_new = WrapExcel::Book.open(save_path, :read_only => true) 
+        #book_new.should be_a WrapExcel::Book
+        #File.open(save_path,"w") do | file |
+        #  file.puts "something els"
+        #end
+        #puts File.size?(save_path)
+        #book_new.save(save_path, :if_exists => :raise) rescue nil
+        @book.save(save_path, :if_exists => :raise) rescue nil
+        expect { raise ExcelErrorSave, "Mappe existiert bereits"
+          }.to raise_error(ExcelErrorSave, 'Mappe existiert bereits')
+        puts File.size?(save_path)
+        File.exist?(save_path).should be_true
+        (File.size?(save_path) == booklength).should be_true
+        #book_new.close
         book_neu = WrapExcel::Book.open(save_path, :read_only => true) 
-        book_neu.should be_a WrapExcel::Book
+        book_neu.should be_a WrapExcel::Book 
         book_neu.close
       end
     end  

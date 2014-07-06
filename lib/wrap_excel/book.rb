@@ -75,11 +75,13 @@ module WrapExcel
           case options[:if_exists]
           when :overwrite
             @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format)   
+          # bei Excel: übergebe Kontrolle an Excels
           when :excel then #nix
           when :raise
-            raise RuntimeError, "Mappe existiert bereits: #{basename}"
+            #raise RuntimeError, "Mappe existiert bereits: #{basename}"
+            raise ExcelErrorSave, "Mappe existiert bereits"
           else
-            raise RuntimeError, "Bug: Ungültige Option (#{options[:if_exists]})"
+            raise ExcelErrorSave, "Bug: Ungültige Option (#{options[:if_exists]})"
           end
         else
           #speichere fraglos
@@ -126,4 +128,6 @@ module WrapExcel
 
 end
 
+class ExcelErrorSave < RuntimeError
+end
 

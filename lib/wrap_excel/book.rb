@@ -50,7 +50,7 @@ module WrapExcel
       @winapp.Quit
     end
 
-    def save(file = nil, options = {} )
+    def save(file = nil, opts = {:if_exists => :raise} )
       raise IOError, "Not opened for writing(open with :read_only option)" if @options[:read_only]
       return @book.save unless file
 
@@ -65,29 +65,23 @@ module WrapExcel
       when '.xlsm'
         file_format = WrapExcel::XlOpenXMLWorkbookMacroEnabled
       end
- 
-      # speichere fraglos
-      if options == {} 
-        @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format) 
+      
+      # überflüssig?: Fall: wenn File nicht existiert
+      #if not File.exist?(file) then
+      #  opts[:if_exists] = :overwrite
+      #end
+
+      case opts[:if_exists]
+      when :overwrite 
+        # reiche durch
+      when :excel 
+        return
+      when :raise
+        raise ExcelErrorSave, "Mappe existiert bereits: #{basename}"
       else
-        # speichere kontrolliert
-        if File.exist?(file) then
-          case options[:if_exists]
-          when :overwrite
-            @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format)   
-          # bei Excel: übergebe Kontrolle an Excels
-          when :excel then #nix
-          when :raise
-            #raise RuntimeError, "Mappe existiert bereits: #{basename}"
-            raise ExcelErrorSave, "Mappe existiert bereits"
-          else
-            raise ExcelErrorSave, "Bug: Ungültige Option (#{options[:if_exists]})"
-          end
-        else
-          #speichere fraglos
-          @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format) 
-        end
+        raise ExcelErrorSave, "Bug: Ungültige Option (#{opts[:if_exists]})"
       end
+       @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format) 
     end
 
     def [] sheet

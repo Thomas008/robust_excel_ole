@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 require File.join(File.dirname(__FILE__), './spec_helper')
 
-describe WrapExcel::Sheet do
+describe RobustExcelOle::Sheet do
   before do
     @dir = create_tmpdir
-    @book = WrapExcel::Book.open(@dir + '/simple.xls')
+    @book = RobustExcelOle::Book.open(@dir + '/simple.xls')
     @sheet = @book[0]
   end
 
@@ -16,7 +16,7 @@ describe WrapExcel::Sheet do
   describe ".initialize" do
     context "when open sheet protected(with password is 'protect')" do
       before do
-        @book_protect = WrapExcel::Book.open(@dir + '/protected_sheet.xls', :visible => true)
+        @book_protect = RobustExcelOle::Book.open(@dir + '/protected_sheet.xls', :visible => true)
         @protected_sheet = @book_protect['protect']
       end
 
@@ -35,7 +35,7 @@ describe WrapExcel::Sheet do
 
   shared_context "sheet 'open book with blank'" do
     before do
-      @book_with_blank = WrapExcel::Book.open(@dir + '/book_with_blank.xls')
+      @book_with_blank = RobustExcelOle::Book.open(@dir + '/book_with_blank.xls')
       @sheet_with_blank = @book_with_blank[0]
     end
 
@@ -62,7 +62,7 @@ describe WrapExcel::Sheet do
   describe 'access cell' do
     describe "#[]" do
       context "access [0,0]" do
-        it { @sheet[0, 0].should be_kind_of WrapExcel::Cell }
+        it { @sheet[0, 0].should be_kind_of RobustExcelOle::Cell }
         it { @sheet[0, 0].value.should eq 'simple' }
       end
 
@@ -124,9 +124,9 @@ describe WrapExcel::Sheet do
     end
 
     describe "#each_row" do
-      it "items should WrapExcel::Range" do
+      it "items should RobustExcelOle::Range" do
         @sheet.each_row do |rows|
-          rows.should be_kind_of WrapExcel::Range
+          rows.should be_kind_of RobustExcelOle::Range
         end
       end
 
@@ -196,9 +196,9 @@ describe WrapExcel::Sheet do
     end
 
     describe "#each_column" do
-      it "items should WrapExcel::Range" do
+      it "items should RobustExcelOle::Range" do
         @sheet.each_column do |columns|
-          columns.should be_kind_of WrapExcel::Range
+          columns.should be_kind_of RobustExcelOle::Range
         end
       end
 
@@ -238,7 +238,7 @@ describe WrapExcel::Sheet do
 
       context "read sheet which last cell is merged" do
         before do
-          @book_merge_cells = WrapExcel::Book.open(@dir + '/merge_cells.xls')
+          @book_merge_cells = RobustExcelOle::Book.open(@dir + '/merge_cells.xls')
           @sheet_merge_cell = @book_merge_cells[0]
         end
 
@@ -297,7 +297,7 @@ describe WrapExcel::Sheet do
           @row_range = @sheet.row_range(0, 1..2)
         end
 
-        it { @row_range.should be_kind_of WrapExcel::Range }
+        it { @row_range.should be_kind_of RobustExcelOle::Range }
 
         it "should get range cells of second argument" do
           @row_range.values.should eq ['workbook', 'sheet1']
@@ -322,7 +322,7 @@ describe WrapExcel::Sheet do
           @col_range = @sheet.col_range(0, 1..2)
         end
 
-        it { @col_range.should be_kind_of WrapExcel::Range }
+        it { @col_range.should be_kind_of RobustExcelOle::Range }
 
         it "should get range cells of second argument" do
           @col_range.values.should eq ['foo', 'matz']

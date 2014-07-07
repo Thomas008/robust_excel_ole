@@ -2,9 +2,9 @@
 require "rspec"
 require 'tmpdir'
 require "fileutils"
-require File.join(File.dirname(__FILE__), '../lib/wrap_excel')
+require File.join(File.dirname(__FILE__), '../lib/robust_excel_ole')
 
-module WrapExcel::SpecHelpers
+module RobustExcelOle::SpecHelpers
   def create_tmpdir
     tmpdir = Dir.mktmpdir
     FileUtils.cp_r(File.join(File.dirname(__FILE__), 'data'), tmpdir)
@@ -31,5 +31,5 @@ module WrapExcel::SpecHelpers
 end
 
 RSpec.configure do |config|
-  config.include WrapExcel::SpecHelpers
+  config.include RobustExcelOle::SpecHelpers
 end

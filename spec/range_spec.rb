@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 require File.join(File.dirname(__FILE__), './spec_helper')
 
-describe WrapExcel::Range do
+describe RobustExcelOle::Range do
   before do
     @dir = create_tmpdir
-    @book = WrapExcel::Book.open(@dir + '/simple.xls')
+    @book = RobustExcelOle::Book.open(@dir + '/simple.xls')
     @sheet = @book[1]
-    @range = WrapExcel::Range.new(@sheet.sheet.UsedRange.Rows(1))
+    @range = RobustExcelOle::Range.new(@sheet.sheet.UsedRange.Rows(1))
   end
 
   after do
@@ -15,9 +15,9 @@ describe WrapExcel::Range do
   end
 
   describe "#each" do
-    it "items is WrapExcel::Cell" do
+    it "items is RobustExcelOle::Cell" do
       @range.each do |cell|
-        cell.should be_kind_of WrapExcel::Cell
+        cell.should be_kind_of RobustExcelOle::Cell
       end
     end
   end
@@ -42,14 +42,14 @@ describe WrapExcel::Range do
     context "when instance is column range" do
       before do
         @sheet = @book[0]
-        @range = WrapExcel::Range.new(@sheet.sheet.UsedRange.Columns(1))
+        @range = RobustExcelOle::Range.new(@sheet.sheet.UsedRange.Columns(1))
       end
       it { @range.values.should eq ['simple', 'foo', 'matz'] }
     end
 
     context "read 'merge_cells.xls'" do
       before do
-        @merge_cells_book = WrapExcel::Book.open("#{@dir}/merge_cells.xls")
+        @merge_cells_book = RobustExcelOle::Book.open("#{@dir}/merge_cells.xls")
         @merge_cells_sheet = @merge_cells_book[0]
       end
 
@@ -91,7 +91,7 @@ describe WrapExcel::Range do
 
   describe "#[]" do
     context "access [0]" do
-      it { @range[0].should be_kind_of WrapExcel::Cell }
+      it { @range[0].should be_kind_of RobustExcelOle::Cell }
       it { @range[0].value.should eq 'simple' }
     end
 

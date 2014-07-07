@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 require File.join(File.dirname(__FILE__), './spec_helper')
 
-describe WrapExcel::Cell do
+describe RobustExcelOle::Cell do
   before do
     @dir = create_tmpdir
   end
@@ -12,7 +12,7 @@ describe WrapExcel::Cell do
 
   context "open simple.xls" do
     before do
-      @book = WrapExcel::Book.open(@dir + '/simple.xls')
+      @book = RobustExcelOle::Book.open(@dir + '/simple.xls')
       @sheet = @book[1]
       @cell = @sheet[0, 0]
     end
@@ -44,7 +44,7 @@ describe WrapExcel::Cell do
 
   context "open merge_cells.xls" do
     before do
-      @book = WrapExcel::Book.open(@dir + '/merge_cells.xls')
+      @book = RobustExcelOle::Book.open(@dir + '/merge_cells.xls')
       @sheet = @book[0]
     end
 

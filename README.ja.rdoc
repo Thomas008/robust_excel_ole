@@ -1,8 +1,8 @@
-= WrapExcel
+= RobustExcelOle
 
 == 概要
 
-WrapExcelはwin32oleをラップし、rubyによるExcelオペレーションを簡単にします。
+RobustExcelOleはwin32oleをラップし、rubyによるExcelオペレーションを簡単にします。
 
 == 必要なもの
 
@@ -10,20 +10,20 @@ WrapExcelはwin32oleをラップし、rubyによるExcelオペレーションを
 
 == インストール
 
-  gem install wrap_excel
+  gem install robust_excel_ole
 
 == 使い方
 === bookへのアクセス
 
 ブロックを使用する場合
 
-  WrapExcel::Book.open('./sample.xls') do |book|
+  RobustExcelOle::Book.open('./sample.xls') do |book|
     # do something
   end
 
 ブロックを使用しない場合
 
-  book = WrapExcel::Book.open('./sample.xls')
+  book = RobustExcelOle::Book.open('./sample.xls')
   book.close
 
 オプションは以下の通りです。
@@ -74,20 +74,20 @@ rangeオブジェクトからのアクセス。
 
 既存のファイルは保存可能です。
 
-  WrapExcel::Book.open('./sample.xls', :read_only => false) do |book|
+  RobustExcelOle::Book.open('./sample.xls', :read_only => false) do |book|
     # do something
     book.save
   end
 
 もしくは
 
-  book = WrapExcel::Book.open('./sample.xls', :read_only => false)
+  book = RobustExcelOle::Book.open('./sample.xls', :read_only => false)
   book.save
   book.close
 
 別のファイル名を保存することができます。
 
-  WrapExcel::Book.open('./sample.xls', :read_only => false) do |book|
+  RobustExcelOle::Book.open('./sample.xls', :read_only => false) do |book|
     # do something
     book.save './another_file.xls'
   end
@@ -98,11 +98,11 @@ another_file.xlsに保存します。
 
 === Want to do more things
 
-全てのWrapExcelオブジェクトはwin32oleインスタンスを含んでいます。もし、あなたが、WrapExcelライブラリが提供していない機能を使用したい場合、win32oleのメソッドが使用出来ます。
+全てのRobustExcelOleオブジェクトはwin32oleインスタンスを含んでいます。もし、あなたが、RobustExcelOleライブラリが提供していない機能を使用したい場合、win32oleのメソッドが使用出来ます。
 
 == サポート
 
-問題を報告したり、機能追加の要望する場合はgithubのIssuesに登録してください。 https://github.com/tomiacannondale/wrap_excel/issues
+問題を報告したり、機能追加の要望する場合はgithubのIssuesに登録してください。 https://github.com/tomiacannondale/robust_excel_ole/issues
 
 == 共同作業
 

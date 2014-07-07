@@ -1,11 +1,11 @@
-= WrapExcel
+= RobustExcelOle
 
-This is a simple fork from tomiacannondale's wrap_excel adapted to Ruby 1.8.6.
+This is a simple fork from tomiacannondale's robust_excel_ole adapted to Ruby 1.8.6.
 
 
 == Description
 
-WrapExcel is a to wrap the win32ole, and easy to use Excel operations with ruby.
+RobustExcelOle is a to wrap the win32ole, and easy to use Excel operations with ruby.
 
 == Requirements
 
@@ -14,20 +14,20 @@ WrapExcel is a to wrap the win32ole, and easy to use Excel operations with ruby.
 
 == Install
 
-  gem install wrap_excel
+  gem install robust_excel_ole
 
 == Usage
 === access book
 
 Read with block.
 
-  WrapExcel::Book.open('./sample.xls') do |book|
+  RobustExcelOle::Book.open('./sample.xls') do |book|
     # do something
   end
 
 Read without block.
 
-  book = WrapExcel::Book.open('./sample.xls')
+  book = RobustExcelOle::Book.open('./sample.xls')
   book.close
 
 Options are the following.
@@ -78,20 +78,20 @@ Read from range object
 
 Can save an existing file.
 
-  WrapExcel::Book.open('./sample.xls', :read_only => false) do |book|
+  RobustExcelOle::Book.open('./sample.xls', :read_only => false) do |book|
     # do something
     book.save
   end
 
 or
 
-  book = WrapExcel::Book.open('./sample.xls', :read_only => false)
+  book = RobustExcelOle::Book.open('./sample.xls', :read_only => false)
   book.save
   book.close
 
 Can save an another file name.
 
-  WrapExcel::Book.open('./sample.xls', :read_only => false) do |book|
+  RobustExcelOle::Book.open('./sample.xls', :read_only => false) do |book|
     # do something
     book.save './another_file.xls'
   end
@@ -102,11 +102,11 @@ Can not save new file.
 
 === Want to do more things
 
-All WrapExcel object include win32ole instance. If you want to do something that not provide a function, you can use win32ole methods.
+All RobustExcelOle object include win32ole instance. If you want to do something that not provide a function, you can use win32ole methods.
 
 == Support
 
-Report issues and feature requests to github Issues. https://github.com/tomiacannondale/wrap_excel/issues
+Report issues and feature requests to github Issues. https://github.com/tomiacannondale/robust_excel_ole/issues
 
 == Collaborate
 

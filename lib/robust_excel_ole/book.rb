@@ -55,28 +55,17 @@ module RobustExcelOle
       return @book.save unless file
 
       dirname, basename = File.split(file)
-      #puts "basename: #{basename}"
-      extname = File.extname(basename)
-      basename = File.basename(basename)
-      #puts "basename: #{basename}"
-      case extname
-      when '.xls'
-        file_format = RobustExcelOle::XlExcel8
-      when '.xlsx'
-        file_format = RobustExcelOle::XlOpenXMLWorkbook
-      when '.xlsm'
-        file_format = RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
-      end
-      #puts "file: #{file}"
-      #puts "dirname: #{dirname}"
-      #puts "extname: #{extname}"
-      #puts "absolute: #{absolute_path(File.join(dirname, basename))}"
-      #puts "absolute: #{absolute_path(file)}"
+      file_format =
+        case File.extname(basename)
+        when '.xls' : RobustExcelOle::XlExcel8
+        when '.xlsx': RobustExcelOle::XlOpenXMLWorkbook
+        when '.xlsm': RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
+        end
       if File.exist?(file) then
         case opts[:if_exists]
-        when :overwrite 
-          File.delete(absolute_path(File.join(dirname, basename)))
-          #File.delete(file)
+        when :overwrite
+          File.delete(file) 
+          #File.delete(absolute_path(File.join(dirname, basename)))
         when :excel 
           raise ExcelErrorSave, "Option nicht implementiert"
         when :raise
@@ -85,8 +74,7 @@ module RobustExcelOle
           raise ExcelErrorSave, "Bug: Ungültige Option (#{opts[:if_exists]})"
         end
       end
-      #@book.SaveAs(file, file_format) 
-      @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format) 
+      @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format)
     end
 
     def [] sheet
@@ -100,15 +88,15 @@ module RobustExcelOle
       end
     end
 
-    def add_sheet(sheet = nil, options = { })
+    def add_sheet(sheet = nil, opts = { })
       if sheet.is_a? Hash
-        options = sheet
+        opts = sheet
         sheet = nil
       end
 
-      new_sheet_name = options.delete(:as)
+      new_sheet_name = opts.delete(:as)
 
-      after_or_before, base_sheet = options.first || [:after, RobustExcelOle::Sheet.new(@book.Worksheets.Item(@book.Worksheets.Count))]
+      after_or_before, base_sheet = opts.first || [:after, RobustExcelOle::Sheet.new(@book.Worksheets.Item(@book.Worksheets.Count))]
       base_sheet = base_sheet.sheet
       sheet ? sheet.Copy({ after_or_before.to_s => base_sheet }) : @book.WorkSheets.Add({ after_or_before.to_s => base_sheet })
 

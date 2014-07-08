@@ -1,0 +1,347 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"rub",
+				"rubygems"
+			],
+			[
+				"module_",
+				"module_eval"
+			],
+			[
+				"Schm",
+				"SchmiebaSub_TempModule"
+			],
+			[
+				"schm",
+				"SchmiebaMain_TempModule"
+			],
+			[
+				"req",
+				"require"
+			],
+			[
+				"wrap",
+				"wrap_in_module"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "book.rb",
+			"settings":
+			{
+				"buffer_size": 2756,
+				"line_ending": "Windows"
+			}
+		}
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 196.0,
+		"selected_items":
+		[
+			[
+				"INST",
+				"Package Control: Install Package"
+			],
+			[
+				"pack",
+				"Package Control: Upgrade/Overwrite All Packages"
+			],
+			[
+				"upg",
+				"Package Control: Upgrade/Overwrite All Packages"
+			],
+			[
+				"",
+				"Package Control: Upgrade Package"
+			],
+			[
+				"ins",
+				"Package Control: Install Package"
+			],
+			[
+				"pa",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 386.0
+	},
+	"console":
+	{
+		"height": 126.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/C/Dokumente und Einstellungen/Zauberthomas/Eigene Dateien/robust_excel_ole/spec/book_spec.rb",
+		"/C/Dokumente und Einstellungen/Zauberthomas/Eigene Dateien/robust_excel_ole/lib/robust_excel_ole.rb",
+		"/C/Dokumente und Einstellungen/Zauberthomas/Eigene Dateien/robust_excel_ole/lib/robust_excel_ole/book.rb",
+		"/C/Dokumente und Einstellungen/Zauberthomas/Eigene Dateien/ruby/einmaleins_test.rb",
+		"/C/Dokumente und Einstellungen/Zauberthomas/Eigene Dateien/robust_excel_ole/spec/spec_helper.rb",
+		"/C/Dokumente und Einstellungen/Zauberthomas/Eigene Dateien/aSrc/test/unit/wandler/wandler_hr5_test.rb",
+		"/C/Dokumente und Einstellungen/Zauberthomas/Eigene Dateien/aSrc/test/unit/system_fkt/excel_zugriff/exlzug_ats_test.rb",
+		"/C/Dokumente und Einstellungen/sound/Anwendungsdaten/Sublime Text 3/Packages/User/RubyTest.sublime-settings",
+		"/C/Dokumente und Einstellungen/Zauberthomas/Eigene Dateien/aSrc/app/models/system_fkt/excel_zugriff/exlzug_basis.rb",
+		"/C/Dokumente und Einstellungen/Zauberthomas/Eigene Dateien/ruby/einmaleins_v07.rb",
+		"/C/Dokumente und Einstellungen/Zauberthomas/Eigene Dateien/aSrc/test/unit/dbf_boxes/v_objekte/rk_test.rb",
+		"/C/Dokumente und Einstellungen/Zauberthomas/Eigene Dateien/aSrc/app/models/dbf_boxes/v_objekte/rk.rb",
+		"/C/Dokumente und Einstellungen/Zauberthomas/Eigene Dateien/aSrc/test/schmiedebasis_test.rb",
+		"/C/Dokumente und Einstellungen/Zauberthomas/Eigene Dateien/aSrc/app/controllers/gui_apollo/schmiedebasis.rb",
+		"/C/Dokumente und Einstellungen/Zauberthomas/Eigene Dateien/aSrc/app/galaxy_script/g_script/galaxy_object.rb",
+		"/C/Dokumente und Einstellungen/sound/Anwendungsdaten/Sublime Text 3/Packages/User/Preferences.sublime-settings",
+		"/C/Dokumente und Einstellungen/sound/Anwendungsdaten/Sublime Text 3/Packages/Default/Preferences.sublime-settings",
+		"/C/Dokumente und Einstellungen/sound/Anwendungsdaten/Sublime Text 3/Packages/RubyTest/RubyTest.sublime-settings",
+		"/C/Dokumente und Einstellungen/sound/Anwendungsdaten/Sublime Text 3/Packages/User/Distraction Free.sublime-settings",
+		"/C/Dokumente und Einstellungen/sound/Anwendungsdaten/Sublime Text 3/Packages/User/JSON.sublime-settings",
+		"/I/gim/ats/TodoListe.txt",
+		"/C/Dokumente und Einstellungen/sound/Anwendungsdaten/Sublime Text 3/Packages/User/RubyTest.last-run",
+		"/I/gim/ats/aSrc/test/testbasis.rb",
+		"/I/gim/ats/aSrc/test/fixture_generell.rb",
+		"/C/ProgLang/Ruby-1.8.6/lib/ruby/site_ruby/1.8/rubygems/custom_require.rb",
+		"/I/gim/ats/aSrc/app/controllers/prozesse/diener.rb",
+		"/C/Dokumente und Einstellungen/sound/Lokale Einstellungen/Temp/tar2rubyscript.d.3800.1/tsExpo/app/controllers/prozesse/diener.rb",
+		"/I/gim/ats/aSrc/app/controllers/ats_konsole.rb",
+		"/I/gim/ats/aSrc/test/controllers/prozesse/dienstherr_test.rb",
+		"/I/gim/ats/aSrc/lib/controllers/prozesse/dienstherr.rb",
+		"/I/gim/ats/aSrc/lib/schmiedebasis.rb",
+		"/C/ProgLang/Ruby-1.8.6/lib/ruby/gems/1.8/gems/autotest-standalone-4.5.11/lib/autotest/notify.rb",
+		"/C/Dokumente und Einstellungen/sound/Anwendungsdaten/Sublime Text 3/Installed Packages/RubyTest.sublime-package",
+		"/I/gim/ats/aSrc/app/.loadpath",
+		"/I/gim/ats/aSrc/app/iconv.rb",
+		"/I/gim/ats/aSrc/app/init_x.rb",
+		"/I/gim/ats/aSrc/app/schmiedebasis.rb",
+		"/I/gim/ats/aSrc/app/temp_app.rb",
+		"/I/gim/ats/aSrc/app/testhilfe.rb",
+		"/I/gim/ats/aSrc/app/version.rb",
+		"/I/gim/ats/aSrc/app/models/wandler/dbf2exl.rb",
+		"/I/gim/ats/aSrc/app/models/wandler/excel_zuordnung.rb",
+		"/I/gim/ats/aSrc/app/models/wandler/satz_split.rb",
+		"/I/gim/ats/aSrc/app/models/wandler/wandler_allgemein.rb",
+		"/I/gim/ats/aSrc/app/models/wandler/wandler_hr5.rb",
+		"/I/gim/ats/aSrc/app/models/wandler/wandler_zu_excel.rb",
+		"/I/gim/ats/aSrc/app/models/wandler/excel_zuordnung/zuord_hr5.rb",
+		"/I/gim/ats/aSrc/app/models/wandler/excel_zuordnung/zuord_hr6.rb",
+		"/I/gim/ats/aSrc/app/models/wandler/excel_zuordnung/zuord_ng1.rb",
+		"/I/gim/ats/aSrc/app/models/system_fkt/speicherung/eintrag_persistenz.rb",
+		"/I/gim/ats/aSrc/app/models/system_fkt/speicherung/haupt_konfig_hash.rb",
+		"/I/gim/ats/aSrc/app/models/system_fkt/speicherung/inifile_hash.rb",
+		"/I/gim/ats/aSrc/app/models/system_fkt/speicherung/konfig_option.rb",
+		"/I/gim/ats/aSrc/app/models/system_fkt/speicherung/konfig_optionen.rb",
+		"/I/gim/ats/aSrc/app/models/system_fkt/speicherung/konfig_opts.rb",
+		"/I/gim/ats/aSrc/app/models/system_fkt/speicherung/ort_persistenz.rb",
+		"/I/gim/ats/aSrc/app/models/system_fkt/speicherung/schmiedebasis.rb",
+		"/I/gim/ats/aSrc/app/models/system_fkt/speicherung/vergleichs_ergebnis.rb",
+		"/I/gim/ats/aSrc/app/models/system_fkt/excel_zugriff/exlzug_ats.rb",
+		"/I/gim/ats/aSrc/app/models/system_fkt/excel_zugriff/exlzug_basis.rb",
+		"/I/gim/ats/aSrc/app/models/system_fkt/excel_zugriff/exlzug_openclose.rb",
+		"/I/gim/ats/aSrc/app/models/system_fkt/datei_aufraeumer.rb",
+		"/I/gim/ats/aSrc/app/models/system_fkt/dbase_zugriff.rb",
+		"/I/gim/ats/aSrc/app/models/system_fkt/excel_prozesse.rb",
+		"/I/gim/ats/aSrc/app/models/system_fkt/excel_zugriff.rb",
+		"/I/gim/ats/aSrc/app/models/system_fkt/protokollierer.rb",
+		"/I/gim/ats/aSrc/app/models/system_fkt/schmiedebasis.rb",
+		"/I/gim/ats/aSrc/app/models/system_fkt/speicherung.rb",
+		"/I/gim/ats/aSrc/app/models/system_fkt/tasten_sender.rb",
+		"/I/gim/ats/aSrc/app/models/dbf_boxes/v_objekt.rb",
+		"/I/gim/ats/aSrc/app/models/dbf_boxes/v_objekte.rb",
+		"/I/gim/ats/aSrc/app/models/dbf_boxes/v_objekte/va.rb",
+		"/I/gim/ats/aSrc/app/models/dbf_boxes/v_objekte/vb.rb",
+		"/I/gim/ats/aSrc/app/models/dbf_boxes/v_objekte/vd.rb",
+		"/I/gim/ats/aSrc/app/models/dbf_boxes/v_objekte/vk.rb",
+		"/I/gim/ats/aSrc/app/models/dbf_boxes/v_objekte/vt.rb",
+		"/I/gim/ats/aSrc/app/models/dbf_boxes/v_objekte/rk.rb",
+		"/I/gim/ats/aSrc/app/models/basis_logik/zeit.rb",
+		"/I/gim/ats/aSrc/app/controllers/teste_tv2_a03.rb",
+		"/I/gim/ats/aSrc/app/controllers/teste_tv2.rb",
+		"/I/gim/ats/aSrc/app/controllers/schmiedebasis.rb",
+		"/I/gim/ats/aSrc/app/controllers/orte_controller.rb",
+		"/I/gim/ats/aSrc/app/controllers/mathstar_per_tasten.rb",
+		"/I/gim/ats/aSrc/app/controllers/mathstar_per_dll.rb",
+		"/I/gim/ats/aSrc/app/controllers/iterator.rb",
+		"/I/gim/ats/aSrc/app/controllers/galaxy_script.rb",
+		"/I/gim/ats/aSrc/app/controllers/dbf_vergleicher.rb",
+		"/I/gim/ats/aSrc/app/controllers/controller.rb",
+		"/I/gim/ats/aSrc/app/controllers/gui_apollo/gui_ap.rb",
+		"/I/gim/ats/aSrc/app/controllers/gui_apollo/gui_basis_ap.rb",
+		"/I/gim/ats/aSrc/app/controllers/gui_apollo/guikonfig_ap.rb",
+		"/I/gim/ats/aSrc/app/controllers/gui_apollo/guivertr_ap.rb",
+		"/I/gim/ats/aSrc/app/controllers/gui_apollo/schmiedebasis.rb",
+		"/I/gim/ats/aSrc/app/controllers/prozesse/aufgaben.rb",
+		"/I/gim/ats/aSrc/app/controllers/prozesse/dienstherr.rb",
+		"/I/gim/ats/aSrc/app/controllers/prozesse/dienstkontakt.rb",
+		"/I/gim/ats/aSrc/app/controllers/prozesse/schmiedebasis.rb",
+		"/I/gim/ats/aSrc/app/controllers/teste_tv2_prober2.rb",
+		"/C/ProgLang/Ruby-1.8.6/lib/ruby/gems/1.8/gems/wrap_in_module-0.1.0/lib/wrap_in_module.rb",
+		"/I/gim/ats/aSrc/app/oldandnewlocation.rb",
+		"/I/gim/ats/aSrc/app/models/dbf_boxes/monkeypatch_dbf_gem.rb",
+		"/I/gim/ats/aSrc/test/schmiedebasis_test.rb",
+		"/I/gim/ats/aSrc/test/unit/ort_haupt_test.rb",
+		"/I/gim/ats/aSrc/app/models/ort_exlist.rb",
+		"/I/gim/ats/aSrc/app/models/ort_haupt.rb",
+		"/I/gim/ats/aSrc/app/models/orte.rb",
+		"/I/gim/ats/aSrc/app/models/schmiedebasis.rb",
+		"/I/gim/ats/aSrc/app/models/ort_excel.rb",
+		"/I/gim/ats/aSrc/app/models/dbf_boxes.rb",
+		"/I/gim/ats/aSrc/app/models/generali.rb",
+		"/I/gim/ats/aSrc/init.rb",
+		"/I/gim/ats/rakefile.rb"
+	],
+	"find":
+	{
+		"height": 27.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+			"C:\\D,C:\\Dokumente und Einstellungen\\Zauberthomas\\Eigene Dateien\\aSrc\\app"
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"&",
+			"&:",
+			"ExcelApplicationHelfer",
+			"flex",
+			"flexm",
+			"SchmiebaSub_TempModule",
+			"SchmiebaMain_TempModule"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"SB_Sub_TempModule",
+			"SB_Main_TempModule"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 0,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "book.rb",
+					"settings":
+					{
+						"buffer_size": 2756,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Ruby/Ruby.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 27.0
+	},
+	"input":
+	{
+		"height": 37.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 301.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"replace":
+	{
+		"height": 50.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 132.0,
+	"status_bar_visible": true
+}

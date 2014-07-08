@@ -62,12 +62,14 @@ module RobustExcelOle
         when '.xlsm': RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
         end
       if File.exist?(file) then
+        displayalerts_value = @options[:displayalerts]
         case opts[:if_exists]
         when :overwrite
           File.delete(file) 
           #File.delete(absolute_path(File.join(dirname, basename)))
         when :excel 
-          raise ExcelErrorSave, "Option nicht implementiert"
+          @options[:displayalerts] = true 
+          #raise ExcelErrorSave, "Option nicht implementiert"
         when :raise
           raise ExcelErrorSave, "Mappe existiert bereits: #{basename}"
         else
@@ -75,6 +77,7 @@ module RobustExcelOle
         end
       end
       @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format)
+      @options[:displayalerts] = displayalerts_value 
     end
 
     def [] sheet

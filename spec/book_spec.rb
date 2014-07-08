@@ -218,7 +218,7 @@ describe RobustExcelOle::Book do
       end
     end
 
-    context "with file name" do
+    context "with different extensions" do
       before do
         @book = RobustExcelOle::Book.open(@simple_file, :read_only => false) 
       end
@@ -227,34 +227,17 @@ describe RobustExcelOle::Book do
         @book.close
       end
 
-      it "should save to 'simple_save.xlsm'" do
-        save_path = "C:" + "/" + "simple_save.xlsm"
-        File.delete save_path rescue nil
-        @book.save(save_path, :if_exists => :overwrite)
-        File.exist?(save_path).should be_true
-        book_neu = RobustExcelOle::Book.open(save_path, :read_only => true) 
-        book_neu.should be_a RobustExcelOle::Book
-        book_neu.close
-      end
-
-      it "should save to 'simple_save.xlsx'" do
-        save_path = "C:" + "/" + "simple_save.xlsx"
-        File.delete save_path rescue nil
-        @book.save(save_path, :if_exists => :overwrite)
-        File.exist?(save_path).should be_true
-        book_neu = RobustExcelOle::Book.open(save_path, :read_only => true) 
-        book_neu.should be_a RobustExcelOle::Book
-        book_neu.close
-      end
-
-      it "should save to 'simple_save.xls'" do
-        save_path = "C:" + "/" + "simple_save.xls"
-        File.delete save_path rescue nil
-        @book.save(save_path, :if_exists => :overwrite)
-        File.exist?(save_path).should be_true
-        book_neu = RobustExcelOle::Book.open(save_path, :read_only => true) 
-        book_neu.should be_a RobustExcelOle::Book
-        book_neu.close
+      possible_extensions = ["xls", "xlsm", "xlsx"]
+      possible_extensions.each do |extensions_value|
+        it "should save to 'simple_save.#{extensions_value}'" do
+          save_path = "C:" + "/" + "simple_save." + extensions_value
+          File.delete save_path rescue nil
+          @book.save(save_path, :if_exists => :overwrite)
+          File.exist?(save_path).should be_true
+          book_neu = RobustExcelOle::Book.open(save_path, :read_only => true) 
+          book_neu.should be_a RobustExcelOle::Book
+          book_neu.close
+        end
       end
     end
 

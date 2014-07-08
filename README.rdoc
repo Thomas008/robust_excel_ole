@@ -106,7 +106,7 @@ All RobustExcelOle object include win32ole instance. If you want to do something
 
 == Support
 
-Report issues and feature requests to github Issues. https://github.com/tomiacannondale/robust_excel_ole/issues
+Report issues and feature requests to github Issues. https://github.com/Thomas008/robust_excel_ole/issues
 
 == Collaborate
 
@@ -114,7 +114,7 @@ Please pull request on github.
 
 == Author
 
-tomi mailto:tomiacannondale@gmail.com
+thomas mailto:traths@cs.uni-potsdam.de
 
 == License
 

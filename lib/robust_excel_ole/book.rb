@@ -55,8 +55,10 @@ module RobustExcelOle
       return @book.save unless file
 
       dirname, basename = File.split(file)
+      #puts "basename: #{basename}"
       extname = File.extname(basename)
       basename = File.basename(basename)
+      #puts "basename: #{basename}"
       case extname
       when '.xls'
         file_format = RobustExcelOle::XlExcel8
@@ -65,23 +67,26 @@ module RobustExcelOle
       when '.xlsm'
         file_format = RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
       end
-      
-      # überflüssig?: Fall: wenn File nicht existiert
-      #if not File.exist?(file) then
-      #  opts[:if_exists] = :overwrite
-      #end
-
-      case opts[:if_exists]
-      when :overwrite 
-        # reiche durch
-      when :excel 
-        return
-      when :raise
-        raise ExcelErrorSave, "Mappe existiert bereits: #{basename}"
-      else
-        raise ExcelErrorSave, "Bug: Ungültige Option (#{opts[:if_exists]})"
+      #puts "file: #{file}"
+      #puts "dirname: #{dirname}"
+      #puts "extname: #{extname}"
+      #puts "absolute: #{absolute_path(File.join(dirname, basename))}"
+      #puts "absolute: #{absolute_path(file)}"
+      if File.exist?(file) then
+        case opts[:if_exists]
+        when :overwrite 
+          File.delete(absolute_path(File.join(dirname, basename)))
+          #File.delete(file)
+        when :excel 
+          raise ExcelErrorSave, "Option nicht implementiert"
+        when :raise
+          raise ExcelErrorSave, "Mappe existiert bereits: #{basename}"
+        else
+          raise ExcelErrorSave, "Bug: Ungültige Option (#{opts[:if_exists]})"
+        end
       end
-       @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format) 
+      #@book.SaveAs(file, file_format) 
+      @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format) 
     end
 
     def [] sheet

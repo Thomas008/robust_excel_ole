@@ -105,19 +105,19 @@ Otherwise proceed acocording to the options.
 
 Options are the following:
 
-[if_exist] :overwrite, :excel, :raise (default)
+[:if_exist] :overwrite, :excel, :raise (default)
 
 :overwrite: 
 
-delete the old file and write the new file
+Delete the old file and write the file.
 
 :excel
 
-give the control to Excel
+Give the control to Excel.
 
 :raise
 
-throw an exception
+Throw an exception. Don't write the file.
 
 === Want to do more things
 

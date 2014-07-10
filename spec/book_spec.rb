@@ -281,7 +281,29 @@ describe RobustExcelOle::Book do
           (File.size?(save_path) == booklength).should be_true
         end
 
-         it "should save to 'simple_save.xlsm' with excel" do
+        it "should save to 'simple_save.xlsm' with invalid_option" do
+          save_path = "C:" + "/" + "simple_save.xlsm"
+          File.delete save_path rescue nil
+          @book.save(save_path)
+          expect { 
+            @book.save(save_path, :if_exists => :invalid_option)
+            }.to raise_error(ExcelErrorSave, 'Bug: Ungültige Option (invalid_option)')
+        end
+      end  
+    end
+
+    possible_displayalerts = [false, true]
+    possible_displayalerts.each do |displayalert_value|
+      context "save with option excel displayalerts=#{displayalert_value}" do
+        before do
+          @book = RobustExcelOle::Book.open(@simple_file, :read_only => false, :displayalerts => displayalert_value) 
+        end
+          
+        after do
+          @book.close
+        end
+
+        it "should save to 'simple_save.xlsm' with excel" do
           save_path = "C:" + "/" + "simple_save.xlsm"
           File.delete save_path rescue nil
           File.open(save_path,"w") do | file |
@@ -293,16 +315,7 @@ describe RobustExcelOle::Book do
           book_neu.should be_a RobustExcelOle::Book
           book_neu.close
         end
-
-        it "should save to 'simple_save.xlsm' with invalid_option" do
-          save_path = "C:" + "/" + "simple_save.xlsm"
-          File.delete save_path rescue nil
-          @book.save(save_path)
-          expect { 
-            @book.save(save_path, :if_exists => :invalid_option)
-            }.to raise_error(ExcelErrorSave, 'Bug: Ungültige Option (invalid_option)')
-        end
-      end  
-    end
+      end
+    end 
   end
 end

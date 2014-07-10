@@ -63,6 +63,7 @@ module RobustExcelOle
         end
       if File.exist?(file) then
         displayalerts_value = @options[:displayalerts]
+        puts "displayalerts: #{@options[:displayalerts]}"
         case opts[:if_exists]
         when :overwrite
           File.delete(file) 
@@ -76,8 +77,10 @@ module RobustExcelOle
           raise ExcelErrorSave, "Bug: Ungültige Option (#{opts[:if_exists]})"
         end
       end
+      puts "displayalerts: #{@options[:displayalerts]}"
       @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format)
       @options[:displayalerts] = displayalerts_value 
+      puts "displayalerts: #{@options[:displayalerts]}"
     end
 
     def [] sheet

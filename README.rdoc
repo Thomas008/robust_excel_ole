@@ -78,7 +78,9 @@ Read from range object
 === write excel
 
 Can save an existing file.
+
 Saves a file, if no file with the same name exists.
+
 Proceeds acocording to the options, otherwise.
 
   RobustExcelOle::Book.open('./sample.xls', :read_only => false) do |book|

@@ -78,6 +78,8 @@ Read from range object
 === write excel
 
 Can save an existing file.
+Saves a file, if no file with the same name exists.
+Proceeds acocording to the options, otherwise.
 
   RobustExcelOle::Book.open('./sample.xls', :read_only => false) do |book|
     # do something
@@ -93,19 +95,16 @@ or
 Can save with an another file name.
 
   RobustExcelOle::Book.open('./sample.xls', :read_only => false) do |book|
-    # do something
+    # do something  
     book.save './another_file.xls'
   end
 
 
-Save to another_file.xls
-
-Save the file, if no file with the same name already exists.
-Otherwise proceed acocording to the options.
+Save to another_file.xls.
 
 Options are the following:
 
-[:if_exist] :overwrite, :excel, :raise (default)
+[:if_exists] :overwrite, :excel, :raise (default)
 
 :overwrite: 
 
@@ -118,6 +117,13 @@ Give the control to Excel.
 :raise
 
 Throw an exception. Don't write the file.
+
+Example:
+
+ RobustExcelOle::Book.open('./sample.xls', :read_only => false) do |book|
+    # do something
+    book.save('./another_file.xls', :if_exists => :overwrite)
+  end
 
 === Want to do more things
 

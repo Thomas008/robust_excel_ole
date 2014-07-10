@@ -241,6 +241,7 @@ describe RobustExcelOle::Book do
       end
     end
 
+    # options :overwrite, :raise, no option, invalid option
     possible_displayalerts = [true, false]
     possible_displayalerts.each do |displayalert_value|
       context "save with options displayalerts=#{displayalert_value}" do
@@ -281,6 +282,22 @@ describe RobustExcelOle::Book do
           (File.size?(save_path) == booklength).should be_true
         end
 
+        it "should save to 'simple_save.xlsm' with no option" do
+          save_path = "C:" + "/" + "simple_save.xlsm"
+          dirname, basename = File.split(save_path)
+          File.delete save_path rescue nil
+          File.open(save_path,"w") do | file |
+            file.puts "garbage"
+          end
+          File.exist?(save_path).should be_true
+          booklength = File.size?(save_path)
+          expect { 
+            @book.save(save_path)
+            }.to raise_error(ExcelErrorSave, 'Mappe existiert bereits: ' + basename)
+          File.exist?(save_path).should be_true
+          (File.size?(save_path) == booklength).should be_true
+        end
+
         it "should save to 'simple_save.xlsm' with invalid_option" do
           save_path = "C:" + "/" + "simple_save.xlsm"
           File.delete save_path rescue nil
@@ -292,6 +309,7 @@ describe RobustExcelOle::Book do
       end  
     end
 
+    # option :excel
     possible_displayalerts = [false, true]
     possible_displayalerts.each do |displayalert_value|
       context "save with option excel displayalerts=#{displayalert_value}" do
@@ -316,6 +334,6 @@ describe RobustExcelOle::Book do
           book_neu.close
         end
       end
-    end 
+    end
   end
 end

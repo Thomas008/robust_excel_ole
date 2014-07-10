@@ -5,9 +5,9 @@ require "robust_excel_ole/version"
 Gem::Specification.new do |s|
   s.name        = "robust_excel_ole"
   s.version     = RobustExcelOle::VERSION
-  s.authors     = ["tomi"]
-  s.email       = ["tomiacannondale@gmail.com"]
-  s.homepage    = "https://github.com/tomiacannondale/robust_excel_ole"
+  s.authors     = ["traths"]
+  s.email       = ["traths@cs.uni-potsdam.de"]
+  s.homepage    = "https://github.com/Thomas008/robust_excel_ole"
   s.summary     = "RobustExcelOle is a wrapper library that specializes in the operation of Excel win32ole."
   s.description = "RobustExcelOle is to wrap the win32ole, and easy to use Excel operations with ruby. Detailed description please see the README."
 

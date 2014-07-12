@@ -16,9 +16,6 @@ module RobustExcelOle
 
     # opens a book. 
     # options: 
-    # :if_not_exists   if a file with this name does not exist:
-    #                    :new   -> create a new file,  
-    #                    :raise -> raise an exception
     # :if_not_saved    if a file with this name is not saved
     #                    :raise ->
     #                    :forget ->
@@ -43,16 +40,15 @@ module RobustExcelOle
         :read_only => true,
         :displayalerts => false,
         :visible => false,
-        :if_not_exists => :new,
         :if_not_saved => :raise
       }.merge(options)
       @winapp = WIN32OLE.new('Excel.Application')
       @winapp.DisplayAlerts = @options[:displayalerts]
       @winapp.Visible = @options[:visible]
       WIN32OLE.const_load(@winapp, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
-      #if not File.exist?(file)
-      #  raise ExcelErrorOpen, "Datei #{file} nicht gefunden"
-      #end
+      if not File.exist?(file)
+        raise ExcelErrorOpen, "Datei #{file} nicht gefunden"
+      end
       @book = @winapp.Workbooks.Open(absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
 
       if block

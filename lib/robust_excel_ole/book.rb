@@ -13,10 +13,26 @@ module RobustExcelOle
     attr_reader :book
 
     class << self
+
+    # opens a book. 
+    # options: 
+    # :if_not_exists   if a file with this name does not exist:
+    #                    :new   -> create a new file,  
+    #                    :raise -> raise an exception
+    # :if_not_saved    if a file with this name is not saved
+    #                    :raise ->
+    #                    :forget ->
+    #                    :accept ->
+    #                    :read_only ->
+    #  :read_only     (boolean)  open in read-only mode
+    #  :displayalerts (boolean)  allow display alerts in excel
+    #  :visible       (boolean)  make visibe in Excel
+    # if the file name is nil then return
       def open(file, options={ }, &block)
         new(file, options, &block)
       end
     end
+
 
     def initialize(file, options={ }, &block)
       unless caller[1] =~ /book.rb:\d+:in\s+`open'$/
@@ -26,12 +42,17 @@ module RobustExcelOle
       @options = {
         :read_only => true,
         :displayalerts => false,
-        :visible => false
+        :visible => false,
+        :if_not_exists => :new,
+        :if_not_saved => :raise
       }.merge(options)
       @winapp = WIN32OLE.new('Excel.Application')
       @winapp.DisplayAlerts = @options[:displayalerts]
       @winapp.Visible = @options[:visible]
       WIN32OLE.const_load(@winapp, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
+      #if not File.exist?(file)
+      #  raise ExcelErrorOpen, "Datei #{file} nicht gefunden"
+      #end
       @book = @winapp.Workbooks.Open(absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
 
       if block
@@ -50,6 +71,13 @@ module RobustExcelOle
       @winapp.Quit
     end
 
+
+    # saves a book
+    # if a file with the same name, exists, then proceed according to :if_exists 
+    #   :raise     -> raise an exception, dont't write the file
+    #   :overwrite -> write the file, delete the old file
+    #   :excel     -> give control to Excel 
+    # if file is nil, then return
     def save(file = nil, opts = {:if_exists => :raise} )
       raise IOError, "Not opened for writing(open with :read_only option)" if @options[:read_only]
       return @book.save unless file
@@ -61,13 +89,13 @@ module RobustExcelOle
         when '.xlsm': RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
         end
       if File.exist?(file) then
-        displayalerts_value = @options[:displayalerts]
+        displayalerts_value = @winapp.DisplayAlerts
         case opts[:if_exists]
         when :overwrite
           File.delete(file) 
           #File.delete(absolute_path(File.join(dirname, basename)))
         when :excel 
-          @options[:displayalerts] = true 
+          @winapp.DisplayAlerts = true 
           #raise ExcelErrorSave, "Option nicht implementiert"
         when :raise
           raise ExcelErrorSave, "Mappe existiert bereits: #{basename}"
@@ -76,7 +104,7 @@ module RobustExcelOle
         end
       end
       @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format)
-      @options[:displayalerts] = displayalerts_value 
+      @winapp.DisplayAlerts = displayalerts_value 
     end
 
     def [] sheet
@@ -120,3 +148,5 @@ end
 class ExcelErrorSave < RuntimeError
 end
 
+class ExcelErrorOpen < RuntimeError
+end

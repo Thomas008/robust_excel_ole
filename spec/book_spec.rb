@@ -14,6 +14,20 @@ describe RobustExcelOle::Book do
     rm_tmp(@dir)
   end
 
+
+
+
+
+  #describe "open" do
+  #  context "when file does not exist" do
+  #    it "should create a new one" do
+  #      save_path = "C:" + "/" + "simple_save.xls"
+  #      book = RobustExcelOle::Book.new(save_path)
+  #      book.close
+  #    end
+  #  end
+  #end
+
   describe ".open" do
     context "exist file" do
       it "simple file with default" do
@@ -191,7 +205,7 @@ describe RobustExcelOle::Book do
     end
   end
 
-  describe "#save" do
+  describe "save" do
     context "when open with read only" do
       before do
         @book = RobustExcelOle::Book.open(@simple_file)

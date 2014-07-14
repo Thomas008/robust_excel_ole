@@ -16,11 +16,11 @@ module RobustExcelOle
 
     # opens a book. 
     # options: 
-    # :if_not_saved    if a file with this name is not saved
-    #                    :raise ->
-    #                    :forget ->
-    #                    :accept ->
-    #                    :read_only ->
+    # :if_book_not_saved  if a book b with this name is already open:
+    #                    :read_only -> let b open
+    #                    :raise -> raise an exception,             if b is not saved
+    #                    :accept -> let b open,                    if b is not saved
+    #                    :forget -> open the new book and close b, if b is not saved
     #  :read_only     (boolean)  open in read-only mode
     #  :displayalerts (boolean)  allow display alerts in excel
     #  :visible       (boolean)  make visibe in Excel
@@ -40,24 +40,64 @@ module RobustExcelOle
         :read_only => true,
         :displayalerts => false,
         :visible => false,
-        :if_not_saved => :raise
+        :if_book_not_saved => :raise
       }.merge(options)
       @winapp = WIN32OLE.new('Excel.Application')
       @winapp.DisplayAlerts = @options[:displayalerts]
       @winapp.Visible = @options[:visible]
       WIN32OLE.const_load(@winapp, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
       if not File.exist?(file)
-        raise ExcelErrorOpen, "Datei #{file} nicht gefunden"
+        raise ExcelErrorOpen, "file #{file} not found"
       end
-      @book = @winapp.Workbooks.Open(absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
+      #puts "file: #{file}"
+      #book_already_open = begin
+      #  # findet file nicht
+      #  book_open = @app.Workbooks(File.basename(file))
+      #  true
+      #rescue WIN32OLERuntimeError
+      #  false
+      #end
 
-      if block
-        begin
-          yield self
-        ensure
-          close
-        end
-      end
+      #puts "book already open = #{book_already_open}"
+
+      #if book_already_open then 
+      #  if @options[:if_book_not_saved] == :read_only then
+      #    puts "do nothing, keep the old one open"
+      #  elsif true 
+      #    #not mappe.Saved then 
+      #    case @options[:if_book_not_saved]
+      #    when :raise : 
+      #      raise ExcelErrorOpen, "A book with the same name is already open, and has unsaved changes (#{file})"
+      #    when :accept : 
+      #    when :forget :  
+      #      book_already_open = false
+      #    else
+      #      raise ExcelErrorOpen, "bug: invalid option (#{opts[:if_book_not_saved]})"
+      #    end
+      #  end
+      #end
+      #
+      #if not book_already_open then
+      #  begin
+          @book = @winapp.Workbooks.Open(absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
+          if block
+            begin
+              yield self
+            ensure
+              close
+            end
+          end
+      #    if :if_book_not_saved == :read_only then
+      #      # do something?
+      #    end
+      #  rescue WIN32OLERuntimeError
+      #    raise ExcelErrorOpen, "file not found"
+      #  end
+      #end
+    
+      #if @book.nil?
+      #  raise ExcelErrorOpen, "Excel has not opened the book, but also did not raised an error (file name=#{file})"
+      #end
 
       @book
     end
@@ -94,9 +134,9 @@ module RobustExcelOle
           @winapp.DisplayAlerts = true 
           #raise ExcelErrorSave, "Option nicht implementiert"
         when :raise
-          raise ExcelErrorSave, "Mappe existiert bereits: #{basename}"
+          raise ExcelErrorSave, "book already exists: #{basename}"
         else
-          raise ExcelErrorSave, "Bug: Ungültige Option (#{opts[:if_exists]})"
+          raise ExcelErrorSave, "bug: invalid option (#{opts[:if_exists]})"
         end
       end
       @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format)

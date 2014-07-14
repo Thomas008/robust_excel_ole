@@ -14,17 +14,131 @@ describe RobustExcelOle::Book do
     rm_tmp(@dir)
   end
 
-  describe "open" do
-    context "when file does not exist" do
-      it "should raise an exception" do
-        save_path = "C:" + "/" + "simple_save.xls"
-        File.delete save_path rescue nil
+  save_path = "C:" + "/" + "simple_save.xls"
+
+  describe ".new" do
+    context "create file" do
+      it "simple file with default" do
         expect {
-          RobustExcelOle::Book.open(save_path)
-        }.to raise_error(ExcelErrorOpen, "Datei #{save_path} nicht gefunden")
+          book = RobustExcelOle::Book.new(@simple_file)
+          book.close
+        }.to_not raise_error
       end
     end
   end
+
+  describe "open" do
+
+    context "when file does not exist" do
+      it "should raise an exception" do 
+        File.delete save_path rescue nil
+        expect {
+          RobustExcelOle::Book.open(save_path)
+        }.to raise_error(ExcelErrorOpen, "file #{save_path} not found")
+      end
+    end
+  end
+
+
+=begin
+    context "a book is already open and saved" do
+
+      before do
+        @book = RobustExcelOle::Book.open(@simple_file)
+        @book.save(save_path, :if_exists => :overwrite)
+      end
+
+      after do
+        @book.close
+      end
+
+      it "if_book_not_saved is read_only" do
+        book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => :read_only)
+        @book.should be_is_a RobustExcelOle::Book
+        #book_neu.should be_is_a RobustExcelOle::Book
+        #oder: expect{book_neu.close}.error
+      end
+
+      it "if_book_not_saved is raise" do
+        expect { 
+          book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => :raise)
+            }.to_not raise_error
+        book_neu.close
+      end
+
+      it "if_book_not_saved is accept" do
+        expect { 
+          book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => :accept)
+            }.to_not raise_error
+        book_neu.close
+      end
+
+      it "if_book_not_saved is forget" do
+        expect { 
+          book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => :forget)
+            }.to_not raise_error
+        book_neu.close
+      end
+
+      it "if_book_not_saved is invalid_option" do
+        expect { 
+          book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => :invalid_option)
+            }.to raise_error(ExcelErrorOpen, 'bug: invalid option (invalid_option)')
+      end
+    end
+
+=end
+
+=begin
+    context "a book is already open and not saved" do
+
+      before do
+        @book = RobustExcelOle::Book.open(@simple_file)
+      end
+
+      after do
+        @book.close
+      end
+
+      it "if_book_not_saved is read_only" do
+        book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => :read_only)
+        @book.should be_is_a RobustExcelOle::Book
+        #book_neu.should be_is_a RobustExcelOle::Book
+        #oder: expect{book_neu.close}.error
+      end
+
+      it "if_book_not_saved is raise" do
+        expect { 
+          book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => :raise)
+            }.to raise_error(ExcelErrorOpen, 'A book with the same name is already open, and has unsaved changes (#{@simple_file})')
+      end
+
+      it "if_book_not_saved is accept" do
+        expect { 
+          book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => :accept)
+            }.to_not raise_error
+        #book_neu.should be_is_a RobustExcelOle::Book
+        #oder: expect{book_neu.close}.error
+        book_neu.close
+      end
+
+      it "if_book_not_saved is forget" do
+        expect { 
+          book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => :forget)
+            }.to_not raise_error 
+        book_neu.should be_is_a RobustExcelOle::Book
+        book_neu.close
+      end
+
+      it "if_book_not_saved is invalid_option" do
+        expect { 
+          book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => :invalid_option)
+            }.to raise_error(ExcelErrorOpen, 'bug: invalid option (invalid_option)')
+      end
+    end
+  end
+
+=end
 
   describe ".open" do
     context "exist file" do
@@ -64,7 +178,7 @@ describe RobustExcelOle::Book do
         expected_path = Regexp.new(File.expand_path(path).gsub(/\//, "."))
         expect {
           RobustExcelOle::Book.open(path)
-        }.to raise_error(ExcelErrorOpen, "Datei #{path} nicht gefunden")
+        }.to raise_error(ExcelErrorOpen, "file #{path} not found")
       end
     end
 
@@ -266,7 +380,6 @@ describe RobustExcelOle::Book do
         end
 
         it "should save to 'simple_save.xlsm' with overwrite" do
-          save_path = "C:" + "/" + "simple_save.xlsm"
           File.delete save_path rescue nil
           File.open(save_path,"w") do | file |
             file.puts "garbage"
@@ -279,7 +392,6 @@ describe RobustExcelOle::Book do
         end
 
         it "should save to 'simple_save.xlsm' with raise" do
-          save_path = "C:" + "/" + "simple_save.xlsm"
           dirname, basename = File.split(save_path)
           File.delete save_path rescue nil
           File.open(save_path,"w") do | file |
@@ -289,13 +401,12 @@ describe RobustExcelOle::Book do
           booklength = File.size?(save_path)
           expect { 
             @book.save(save_path, :if_exists => :raise)
-            }.to raise_error(ExcelErrorSave, 'Mappe existiert bereits: ' + basename)
+            }.to raise_error(ExcelErrorSave, 'book already exists: ' + basename)
           File.exist?(save_path).should be_true
           (File.size?(save_path) == booklength).should be_true
         end
 
         it "should save to 'simple_save.xlsm' with no option" do
-          save_path = "C:" + "/" + "simple_save.xlsm"
           dirname, basename = File.split(save_path)
           File.delete save_path rescue nil
           File.open(save_path,"w") do | file |
@@ -305,18 +416,17 @@ describe RobustExcelOle::Book do
           booklength = File.size?(save_path)
           expect { 
             @book.save(save_path)
-            }.to raise_error(ExcelErrorSave, 'Mappe existiert bereits: ' + basename)
+            }.to raise_error(ExcelErrorSave, 'book already exists: ' + basename)
           File.exist?(save_path).should be_true
           (File.size?(save_path) == booklength).should be_true
         end
 
         it "should save to 'simple_save.xlsm' with invalid_option" do
-          save_path = "C:" + "/" + "simple_save.xlsm"
           File.delete save_path rescue nil
           @book.save(save_path)
           expect { 
             @book.save(save_path, :if_exists => :invalid_option)
-            }.to raise_error(ExcelErrorSave, 'Bug: Ungültige Option (invalid_option)')
+            }.to raise_error(ExcelErrorSave, 'bug: invalid option (invalid_option)')
         end
       end  
     end
@@ -334,7 +444,6 @@ describe RobustExcelOle::Book do
         end
 
         it "should save to 'simple_save.xlsm' with excel" do
-          save_path = "C:" + "/" + "simple_save.xlsm"
           File.delete save_path rescue nil
           File.open(save_path,"w") do | file |
             file.puts "garbage"

@@ -37,80 +37,65 @@ describe RobustExcelOle::Book do
         }.to raise_error(ExcelErrorOpen, "file #{save_path} not found")
       end
     end
-  end
 
-
-=begin
     context "a book is already open and saved" do
 
       before do
-        @book = RobustExcelOle::Book.open(@simple_file)
+        @book = RobustExcelOle::Book.open(@simple_file, :read_only => false)
+        File.delete save_path rescue nil
         @book.save(save_path, :if_exists => :overwrite)
+        File.exist?(save_path).should be_true
       end
 
       after do
         @book.close
       end
 
-      it "if_book_not_saved is read_only" do
-        book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => :read_only)
-        @book.should be_is_a RobustExcelOle::Book
-        #book_neu.should be_is_a RobustExcelOle::Book
-        #oder: expect{book_neu.close}.error
-      end
+      possible_options = [:read_only, :raise, :accept, :forget, nil]
+      possible_options.each do |options_value|
 
-      it "if_book_not_saved is raise" do
-        expect { 
-          book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => :raise)
-            }.to_not raise_error
-        book_neu.close
-      end
-
-      it "if_book_not_saved is accept" do
-        expect { 
-          book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => :accept)
-            }.to_not raise_error
-        book_neu.close
-      end
-
-      it "if_book_not_saved is forget" do
-        expect { 
-          book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => :forget)
-            }.to_not raise_error
-        book_neu.close
-      end
-
-      it "if_book_not_saved is invalid_option" do
-        expect { 
-          book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => :invalid_option)
-            }.to raise_error(ExcelErrorOpen, 'bug: invalid option (invalid_option)')
+        it "if_book_not_saved is #{options_value}" do
+          expect{
+            book_neu = RobustExcelOle::Book.open(save_path, :if_book_not_saved => options_value) 
+            # sollte nicht ein neues Buch öffnen. sollte also KEIN Buch sein!
+            book_neu.should be_a RobustExcelOle::Book
+            book_neu.close
+          }.to_not raise_error
+        end
       end
     end
 
-=end
-
-=begin
     context "a book is already open and not saved" do
 
       before do
-        @book = RobustExcelOle::Book.open(@simple_file)
+        @book = RobustExcelOle::Book.open(@simple_file, :read_only => false)
+        File.delete save_path rescue nil
+        File.exist?(save_path).should be_false
       end
 
       after do
         @book.close
       end
 
+      it "if_book_not_saved is :raise" do
+        expect { 
+          book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => :raise)
+           }.to raise_error(ExcelErrorOpen, 'A book with the same name is already open, and has unsaved changes (#{@simple_file})')
+        #book_neu sollte kein Buch sein
+        #book_neu.should.not be_is_a RobustExcelOle::Book
+        #oder: expect{book_neu.close}.to raise_error
+        book_neu.close
+      end
+    end
+  end
+
+=begin
+
       it "if_book_not_saved is read_only" do
         book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => :read_only)
         @book.should be_is_a RobustExcelOle::Book
         #book_neu.should be_is_a RobustExcelOle::Book
         #oder: expect{book_neu.close}.error
-      end
-
-      it "if_book_not_saved is raise" do
-        expect { 
-          book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => :raise)
-            }.to raise_error(ExcelErrorOpen, 'A book with the same name is already open, and has unsaved changes (#{@simple_file})')
       end
 
       it "if_book_not_saved is accept" do

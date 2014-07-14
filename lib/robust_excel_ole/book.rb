@@ -50,15 +50,18 @@ module RobustExcelOle
         raise ExcelErrorOpen, "file #{file} not found"
       end
       #puts "file: #{file}"
-      #book_already_open = begin
+      #puts "File.basename(file): #{File.basename(file)}"
+      book_already_open = begin
       #  # findet file nicht
-      #  book_open = @app.Workbooks(File.basename(file))
-      #  true
-      #rescue WIN32OLERuntimeError
-      #  false
-      #end
+        book_open = @winapp.Workbooks(File.basename(file))
+        true
+      rescue WIN32OLERuntimeError
+        false
+      end
 
-      #puts "book already open = #{book_already_open}"
+      puts "book already open = #{book_already_open}"
+      puts "option:#{options[:if_book_not_saved]}"
+
 
       #if book_already_open then 
       #  if @options[:if_book_not_saved] == :read_only then

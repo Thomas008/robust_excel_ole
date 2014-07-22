@@ -42,9 +42,9 @@ describe RobustExcelOle::Book do
 
       before do
         @book = RobustExcelOle::Book.open(@simple_file, :read_only => false)
-        File.delete save_path rescue nil
-        @book.save(save_path, :if_exists => :overwrite)
-        File.exist?(save_path).should be_true
+        #File.delete save_path rescue nil
+        #@book.save(save_path, :if_exists => :overwrite)
+        #File.exist?(save_path).should be_true
       end
 
       after do
@@ -56,7 +56,8 @@ describe RobustExcelOle::Book do
 
         it "if_book_not_saved is #{options_value}" do
           expect{
-            book_neu = RobustExcelOle::Book.open(save_path, :if_book_not_saved => options_value) 
+            book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => options_value)             
+            #book_neu = RobustExcelOle::Book.open(save_path, :if_book_not_saved => options_value) 
             # sollte nicht ein neues Buch öffnen. sollte also KEIN Buch sein!
             book_neu.should be_a RobustExcelOle::Book
             book_neu.close
@@ -69,8 +70,9 @@ describe RobustExcelOle::Book do
 
       before do
         @book = RobustExcelOle::Book.open(@simple_file, :read_only => false)
-        File.delete save_path rescue nil
-        File.exist?(save_path).should be_false
+        # mappe ändern
+        @sheet = @book[0]        
+        @book.add_sheet(@sheet, :as => 'copyed_name')
       end
 
       after do
@@ -294,7 +296,7 @@ describe RobustExcelOle::Book do
         expect { @book.add_sheet }.to change{ @book.book.Worksheets.Count }.from(3).to(4)
       end
 
-      it "shoule return copyed sheet" do
+      it "should return copyed sheet" do
         sheet = @book.add_sheet
         copyed_sheet = @book.book.Worksheets.Item(@book.book.Worksheets.Count)
         sheet.name.should eq copyed_sheet.name
@@ -417,7 +419,7 @@ describe RobustExcelOle::Book do
     end
 
     # option :excel
-    possible_displayalerts = [false, true]
+    possible_displayalerts = [false]
     possible_displayalerts.each do |displayalert_value|
       context "save with option excel displayalerts=#{displayalert_value}" do
         before do

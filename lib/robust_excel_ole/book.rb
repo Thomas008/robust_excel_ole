@@ -51,6 +51,7 @@ module RobustExcelOle
       end
       #puts "file: #{file}"
       #puts "File.basename(file): #{File.basename(file)}"
+
       book_already_open = begin
       #  # findet file nicht
         book_open = @winapp.Workbooks(File.basename(file))
@@ -59,8 +60,13 @@ module RobustExcelOle
         false
       end
 
-      puts "book already open = #{book_already_open}"
-      puts "option:#{options[:if_book_not_saved]}"
+      #a = @winapp.Open
+      #puts "a:#{a}"
+      #saved = @winapp.Saved
+      #puts "saved: #{saved}"
+
+      #puts "book already open = #{book_already_open}"
+      #puts "option:#{options[:if_book_not_saved]}"
 
 
       #if book_already_open then 
@@ -128,12 +134,12 @@ module RobustExcelOle
         when '.xlsm': RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
         end
       if File.exist?(file) then
-        displayalerts_value = @winapp.DisplayAlerts
         case opts[:if_exists]
         when :overwrite
           File.delete(file) 
           #File.delete(absolute_path(File.join(dirname, basename)))
         when :excel 
+          displayalerts_value = @winapp.DisplayAlerts
           @winapp.DisplayAlerts = true 
           #raise ExcelErrorSave, "Option nicht implementiert"
         when :raise
@@ -142,8 +148,12 @@ module RobustExcelOle
           raise ExcelErrorSave, "bug: invalid option (#{opts[:if_exists]})"
         end
       end
+      puts "displayalerts: #{@winapp.DisplayAlerts}"
       @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format)
-      @winapp.DisplayAlerts = displayalerts_value 
+      if opts[:if_exists] == :excel then 
+        @winapp.DisplayAlerts = displayalerts_value
+      end
+      puts "displayalerts: #{@winapp.DisplayAlerts}"
     end
 
     def [] sheet

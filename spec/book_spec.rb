@@ -38,13 +38,19 @@ describe RobustExcelOle::Book do
       end
     end
 
+    context "open test" do
+      it "already open" do
+        @book = RobustExcelOle::Book.open("C:\\simple_save.xlsx")
+        book_neu = RobustExcelOle::Book.open("C:\\simple_save.xlsx")
+        @book.close
+        book_neu.close
+      end
+    end
+
     context "a book is already open and saved" do
 
       before do
         @book = RobustExcelOle::Book.open(@simple_file, :read_only => false)
-        #File.delete save_path rescue nil
-        #@book.save(save_path, :if_exists => :overwrite)
-        #File.exist?(save_path).should be_true
       end
 
       after do
@@ -419,7 +425,7 @@ describe RobustExcelOle::Book do
     end
 
     # option :excel
-    possible_displayalerts = [false]
+    possible_displayalerts = [false,true]
     possible_displayalerts.each do |displayalert_value|
       context "save with option excel displayalerts=#{displayalert_value}" do
         before do

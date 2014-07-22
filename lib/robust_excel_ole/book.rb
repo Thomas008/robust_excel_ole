@@ -52,22 +52,19 @@ module RobustExcelOle
       #puts "file: #{file}"
       #puts "File.basename(file): #{File.basename(file)}"
 
-      book_already_open = begin
-      #  # findet file nicht
-        book_open = @winapp.Workbooks(File.basename(file))
-        true
-      rescue WIN32OLERuntimeError
-        false
-      end
+      books_open = @winapp.Workbooks
+      #puts "books_open: #{books_open}"
+  
+      #book_saved = @winapp.Workbooks.Saved
+      #puts "book saved: #{book_saved}"
+      
 
-      #a = @winapp.Open
-      #puts "a:#{a}"
-      #saved = @winapp.Saved
-      #puts "saved: #{saved}"
-
-      #puts "book already open = #{book_already_open}"
-      #puts "option:#{options[:if_book_not_saved]}"
-
+      #book_already_open = begin
+      #  #book_open = @winapp.Workbooks(File.basename(file))
+      #  true
+      #rescue WIN32OLERuntimeError
+      #  false
+      #end
 
       #if book_already_open then 
       #  if @options[:if_book_not_saved] == :read_only then
@@ -148,12 +145,10 @@ module RobustExcelOle
           raise ExcelErrorSave, "bug: invalid option (#{opts[:if_exists]})"
         end
       end
-      puts "displayalerts: #{@winapp.DisplayAlerts}"
       @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format)
       if opts[:if_exists] == :excel then 
         @winapp.DisplayAlerts = displayalerts_value
       end
-      puts "displayalerts: #{@winapp.DisplayAlerts}"
     end
 
     def [] sheet

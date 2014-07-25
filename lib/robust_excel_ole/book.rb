@@ -52,7 +52,20 @@ module RobustExcelOle
       #puts "file: #{file}"
       #puts "File.basename(file): #{File.basename(file)}"
 
-      books_open = @winapp.Workbooks
+      open_books = @winapp.Workbooks
+
+
+      #open_books.each do |open_book|
+      #  puts "hallo!"
+      #  a = open_book.Name
+      #  puts "a:#{a}"
+      #  b = open_book.Saved
+      #  puts "b:#{b}"
+      #end
+      #puts "hallo2!"
+      #c = open_books.Item(File.basename(file))
+      #d = open_books.Item(1)
+
       #puts "books_open: #{books_open}"
   
       #book_saved = @winapp.Workbooks.Saved
@@ -78,7 +91,7 @@ module RobustExcelOle
       #    when :forget :  
       #      book_already_open = false
       #    else
-      #      raise ExcelErrorOpen, "bug: invalid option (#{opts[:if_book_not_saved]})"
+      #      raise ExcelErrorOpen, "invalid option (#{opts[:if_book_not_saved]})"
       #    end
       #  end
       #end
@@ -138,15 +151,18 @@ module RobustExcelOle
         when :excel 
           displayalerts_value = @winapp.DisplayAlerts
           @winapp.DisplayAlerts = true 
-          #raise ExcelErrorSave, "Option nicht implementiert"
         when :raise
           raise ExcelErrorSave, "book already exists: #{basename}"
         else
-          raise ExcelErrorSave, "bug: invalid option (#{opts[:if_exists]})"
+          raise ExcelErrorSave, "invalid option (#{opts[:if_exists]})"
         end
       end
       @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format)
-      if opts[:if_exists] == :excel then 
+        rescue WIN32OLERuntimeError => msg
+          if not msg.message.include? "Die SaveAs-Eigenschaft des Workbook-Objektes kann nicht zugeordnet werden." then
+            raise ExcelErrorSave, "unknown WIN32OELERuntimeError"
+          end             
+      if opts[:if_exists] == :excel then
         @winapp.DisplayAlerts = displayalerts_value
       end
     end

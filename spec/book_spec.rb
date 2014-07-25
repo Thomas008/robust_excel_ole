@@ -40,10 +40,10 @@ describe RobustExcelOle::Book do
 
     context "open test" do
       it "already open" do
-        @book = RobustExcelOle::Book.open("C:\\simple_save.xlsx")
-        book_neu = RobustExcelOle::Book.open("C:\\simple_save.xlsx")
+        @book = RobustExcelOle::Book.open(@simple_file)
+        book_neu = RobustExcelOle::Book.open(@simple_file)
         @book.close
-        book_neu.close
+        book_neu.close        
       end
     end
 
@@ -126,7 +126,7 @@ describe RobustExcelOle::Book do
       it "if_book_not_saved is invalid_option" do
         expect { 
           book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => :invalid_option)
-            }.to raise_error(ExcelErrorOpen, 'bug: invalid option (invalid_option)')
+            }.to raise_error(ExcelErrorOpen, 'invalid option (invalid_option)')
       end
     end
   end
@@ -360,7 +360,7 @@ describe RobustExcelOle::Book do
       end
     end
 
-    # options :overwrite, :raise, no option, invalid option
+    # options :overwrite, :raise, :excel, no option, invalid option
     possible_displayalerts = [true, false]
     possible_displayalerts.each do |displayalert_value|
       context "save with options displayalerts=#{displayalert_value}" do
@@ -399,6 +399,17 @@ describe RobustExcelOle::Book do
           (File.size?(save_path) == booklength).should be_true
         end
 
+        it "should save to 'simple_save.xlsm' with excel" do
+          File.delete save_path rescue nil
+          File.open(save_path,"w") do | file |
+            file.puts "garbage"
+          end
+          expect {
+            @book.save(save_path, :if_exists => :excel)
+            }.to_not raise_error
+          File.exist?(save_path).should be_true
+        end
+
         it "should save to 'simple_save.xlsm' with no option" do
           dirname, basename = File.split(save_path)
           File.delete save_path rescue nil
@@ -419,35 +430,9 @@ describe RobustExcelOle::Book do
           @book.save(save_path)
           expect { 
             @book.save(save_path, :if_exists => :invalid_option)
-            }.to raise_error(ExcelErrorSave, 'bug: invalid option (invalid_option)')
+            }.to raise_error(ExcelErrorSave, 'invalid option (invalid_option)')
         end
       end  
-    end
-
-    # option :excel
-    possible_displayalerts = [false,true]
-    possible_displayalerts.each do |displayalert_value|
-      context "save with option excel displayalerts=#{displayalert_value}" do
-        before do
-          @book = RobustExcelOle::Book.open(@simple_file, :read_only => false, :displayalerts => displayalert_value) 
-        end
-          
-        after do
-          @book.close
-        end
-
-        it "should save to 'simple_save.xlsm' with excel" do
-          File.delete save_path rescue nil
-          File.open(save_path,"w") do | file |
-            file.puts "garbage"
-          end
-          @book.save(save_path, :if_exists => :excel)
-          File.exist?(save_path).should be_true
-          book_neu = RobustExcelOle::Book.open(save_path, :read_only => true) 
-          book_neu.should be_a RobustExcelOle::Book
-          book_neu.close
-        end
-      end
     end
   end
 end

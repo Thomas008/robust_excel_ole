@@ -43,7 +43,7 @@ describe RobustExcelOle::Book do
         @book = RobustExcelOle::Book.open(@simple_file)
         book_neu = RobustExcelOle::Book.open(@simple_file)
         @book.close
-        book_neu.close        
+        book_neu.close
       end
     end
 

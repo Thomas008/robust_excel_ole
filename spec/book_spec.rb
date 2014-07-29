@@ -2,6 +2,8 @@
 
 require File.join(File.dirname(__FILE__), './spec_helper')
 
+require File.join(File.dirname(__FILE__), '/helpers/key_sender')
+
 $VERBOSE = nil
 
 describe RobustExcelOle::Book do
@@ -30,7 +32,7 @@ describe RobustExcelOle::Book do
   describe "open" do
 
     context "when file does not exist" do
-      it "should raise an exception" do 
+      it "should raise an exception" do
         File.delete save_path rescue nil
         expect {
           RobustExcelOle::Book.open(save_path)
@@ -62,8 +64,8 @@ describe RobustExcelOle::Book do
 
         it "if_book_not_saved is #{options_value}" do
           expect{
-            book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => options_value)             
-            #book_neu = RobustExcelOle::Book.open(save_path, :if_book_not_saved => options_value) 
+            book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => options_value)
+            #book_neu = RobustExcelOle::Book.open(save_path, :if_book_not_saved => options_value)
             # sollte nicht ein neues Buch öffnen. sollte also KEIN Buch sein!
             book_neu.should be_a RobustExcelOle::Book
             book_neu.close
@@ -77,7 +79,7 @@ describe RobustExcelOle::Book do
       before do
         @book = RobustExcelOle::Book.open(@simple_file, :read_only => false)
         # mappe ändern
-        @sheet = @book[0]        
+        @sheet = @book[0]
         @book.add_sheet(@sheet, :as => 'copyed_name')
       end
 
@@ -86,7 +88,7 @@ describe RobustExcelOle::Book do
       end
 
       it "if_book_not_saved is :raise" do
-        expect { 
+        expect {
           book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => :raise)
            }.to raise_error(ExcelErrorOpen, 'A book with the same name is already open, and has unsaved changes (#{@simple_file})')
         #book_neu sollte kein Buch sein
@@ -107,7 +109,7 @@ describe RobustExcelOle::Book do
       end
 
       it "if_book_not_saved is accept" do
-        expect { 
+        expect {
           book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => :accept)
             }.to_not raise_error
         #book_neu.should be_is_a RobustExcelOle::Book
@@ -116,15 +118,15 @@ describe RobustExcelOle::Book do
       end
 
       it "if_book_not_saved is forget" do
-        expect { 
+        expect {
           book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => :forget)
-            }.to_not raise_error 
+            }.to_not raise_error
         book_neu.should be_is_a RobustExcelOle::Book
         book_neu.close
       end
 
       it "if_book_not_saved is invalid_option" do
-        expect { 
+        expect {
           book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => :invalid_option)
             }.to raise_error(ExcelErrorOpen, 'bug: invalid option (invalid_option)')
       end
@@ -339,9 +341,9 @@ describe RobustExcelOle::Book do
 
     context "with different extensions" do
       before do
-        @book = RobustExcelOle::Book.open(@simple_file, :read_only => false) 
+        @book = RobustExcelOle::Book.open(@simple_file, :read_only => false)
       end
-      
+
       after do
         @book.close
       end
@@ -353,7 +355,7 @@ describe RobustExcelOle::Book do
           File.delete save_path rescue nil
           @book.save(save_path, :if_exists => :overwrite)
           File.exist?(save_path).should be_true
-          book_neu = RobustExcelOle::Book.open(save_path, :read_only => true) 
+          book_neu = RobustExcelOle::Book.open(save_path, :read_only => true)
           book_neu.should be_a RobustExcelOle::Book
           book_neu.close
         end
@@ -365,9 +367,9 @@ describe RobustExcelOle::Book do
     possible_displayalerts.each do |displayalert_value|
       context "save with options displayalerts=#{displayalert_value}" do
         before do
-          @book = RobustExcelOle::Book.open(@simple_file, :read_only => false, :displayalerts => displayalert_value) 
+          @book = RobustExcelOle::Book.open(@simple_file, :read_only => false, :displayalerts => displayalert_value)
         end
-        
+
         after do
           @book.close
         end
@@ -379,7 +381,7 @@ describe RobustExcelOle::Book do
           end
           @book.save(save_path, :if_exists => :overwrite)
           File.exist?(save_path).should be_true
-          book_neu = RobustExcelOle::Book.open(save_path, :read_only => true) 
+          book_neu = RobustExcelOle::Book.open(save_path, :read_only => true)
           book_neu.should be_a RobustExcelOle::Book
           book_neu.close
         end
@@ -392,7 +394,7 @@ describe RobustExcelOle::Book do
           end
           File.exist?(save_path).should be_true
           booklength = File.size?(save_path)
-          expect { 
+          expect {
             @book.save(save_path, :if_exists => :raise)
             }.to raise_error(ExcelErrorSave, 'book already exists: ' + basename)
           File.exist?(save_path).should be_true
@@ -407,7 +409,7 @@ describe RobustExcelOle::Book do
           end
           File.exist?(save_path).should be_true
           booklength = File.size?(save_path)
-          expect { 
+          expect {
             @book.save(save_path)
             }.to raise_error(ExcelErrorSave, 'book already exists: ' + basename)
           File.exist?(save_path).should be_true
@@ -417,11 +419,11 @@ describe RobustExcelOle::Book do
         it "should save to 'simple_save.xlsm' with invalid_option" do
           File.delete save_path rescue nil
           @book.save(save_path)
-          expect { 
+          expect {
             @book.save(save_path, :if_exists => :invalid_option)
             }.to raise_error(ExcelErrorSave, 'bug: invalid option (invalid_option)')
         end
-      end  
+      end
     end
 
     # option :excel
@@ -429,21 +431,49 @@ describe RobustExcelOle::Book do
     possible_displayalerts.each do |displayalert_value|
       context "save with option excel displayalerts=#{displayalert_value}" do
         before do
-          @book = RobustExcelOle::Book.open(@simple_file, :read_only => false, :displayalerts => displayalert_value) 
+          @book = RobustExcelOle::Book.open(@simple_file, :read_only => false, :displayalerts => displayalert_value, :visible => true)
         end
-          
+
         after do
           @book.close
         end
 
-        it "should save to 'simple_save.xlsm' with excel" do
+        while not "should save to 'simple_save.xlsm' with excel" do
           File.delete save_path rescue nil
           File.open(save_path,"w") do | file |
             file.puts "garbage"
           end
           @book.save(save_path, :if_exists => :excel)
           File.exist?(save_path).should be_true
-          book_neu = RobustExcelOle::Book.open(save_path, :read_only => true) 
+          book_neu = RobustExcelOle::Book.open(save_path, :read_only => true)
+          book_neu.should be_a RobustExcelOle::Book
+          book_neu.close
+        end
+
+        it "should save with :excel" do
+          File.delete save_path rescue nil
+          File.open(save_path,"w") do | file |
+            file.puts "garbage"
+          end
+          key_sender = KeySender.new(:timeout => 2)
+          excel_save_thread = Thread.new do
+            p :"or_save #{displayalert_value}"
+             @book.save(save_path, :if_exists => :excel)
+            p :nach_save
+          end
+           p :vor_hauptteil
+          if true #displayalert_value then
+           p :vor_sleep
+           sleep 0.3
+           p :vor_senden
+           #key_sender.send("simple.xls [Kompatibilitätsmodus] - Microsoft Excel", "%{n}", :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
+           key_sender.send("Microsoft Excel", "%{J}", :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
+           #key_sender.send("Excel", "%{n}", :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
+           p :nach_senden
+         end
+           excel_save_thread.join
+          File.exist?(save_path).should be_true
+          book_neu = RobustExcelOle::Book.open(save_path, :read_only => true)
           book_neu.should be_a RobustExcelOle::Book
           book_neu.close
         end

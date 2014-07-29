@@ -27,22 +27,78 @@ module RobustExcelOle
       #                    :forget -> open the new book and close b, if b is not saved
       # if the file name is nil then return
  
-      def open(file, options={ }, &block)
+      def open(file, options={ :recycled => true}, &block)
+        if options[:recycled] then
+          begin
+            connect(file, options, &block)
+          rescue 
+            nil
+          end
+        end
         new(file, options, &block)
       end
     end
 
-    def initialize(file, options={ }, &block)
-      unless caller[1] =~ /book.rb:\d+:in\s+`open'$/
-        warn "DEPRECATION WARNING: WrapExcel::Book.new and WrapExcel::Book.open will be split. If you open existing file, please use WrapExcel::Book.open.(call from #{caller[1]})"
+=begin
+    def connect(file, options={ }, &block)
+      @options = {
+        :read_only => true,
+        :if_book_not_saved => :raise
+      }.merge(options)
+      # was ist, wenn @winapp noch gar nicht existiert?
+      open_books = @winapp.Workbooks
+      if open_books.Count == 0 then
+        raise ExcelOpen "connect: no open books"
       end
+      open_book = 
+        begin
+          open_books.Item(basename(file))
+        rescue
+          nil
+        end
+      # application is open, but not this book
+      if open_book == nil then
+        @book = @winapp.Workbooks.Open(absolute_path(file), { 'ReadOnly' => @options[:read_only] })
+      # book is already open
+      else
+        if @options[:if_book_not_saved] == :read_only then
+          @book = open_book
+        else
+          if not open_book.Saved then
+          case @options[:if_book_not_saved]
+          when :raise
+            raise ExcelOpen "book is already open but not saved"
+          when :accept
+            open_book
+          when :forget
+            @winapp.Workbooks.Close(absolute(file))
+            @book = @winapp.Workbooks.Open(absolute_path(file), { 'ReadOnly' => @options[:read_only] })
+          end
+        end
+      end
+      if block
+        begin
+          yield self
+        ensure
+          close
+        end
+      end
+
+      @book
+    end
+=end
+
+    def initialize(file, options={ }, &block)
+      #unless caller[1] =~ /book.rb:\d+:in\s+`open'$/
+      #  warn "DEPRECATION WARNING: ::Book.new RobustExcelOle and RobustExcelOle::Book.open will be split. If you open existing file, please use RobustExcelOle::Book.open.(call from #{caller[1]})"
+      #end
 
       @options = {
         :read_only => true,
         :displayalerts => false,
-        :visible => false
+        :visible => false,
       }.merge(options)
-      @winapp = WIN32OLE.new('Excel.Application')
+      @winapp = WIN32OLE.new('Excel.application')
       @winapp.DisplayAlerts = @options[:displayalerts]
       @winapp.Visible = @options[:visible]
       WIN32OLE.const_load(@winapp, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
@@ -50,7 +106,6 @@ module RobustExcelOle
         raise ExcelErrorOpen, "file #{file} not found"
       end
       @book = @winapp.Workbooks.Open(absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
-
       if block
         begin
           yield self

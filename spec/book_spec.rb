@@ -461,7 +461,7 @@ describe RobustExcelOle::Book do
           book_neu.close
         end
 
-        it "should save with :excel" do
+        while not "should save with :excel" do
           File.delete save_path rescue nil
           File.open(save_path,"w") do | file |
             file.puts "garbage"

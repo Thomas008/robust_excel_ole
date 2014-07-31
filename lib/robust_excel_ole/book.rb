@@ -49,25 +49,18 @@ module RobustExcelOle
         raise ExcelErrorOpen, "file #{file} not found"
       end
              
-      #supply_app(options)
-
-      @options = {
-        :displayalerts => false,
-        :visible => false,
-      }.merge(options)
-      @winapp = WIN32OLE.new('Excel.application')
-      @winapp.DisplayAlerts = @options[:displayalerts]
-      @winapp.Visible = @options[:visible]
-      WIN32OLE.const_load(@winapp, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
-
+      supply_app(options)
       workbooks = @winapp.Workbooks
       @book = workbooks.Item(File.basename(file)) rescue nil
+      p "@book:#{@book}"
       if @book then
         # book open and not saved
+        p "book open"
         if (not @book.Saved) then
+          p "book not saved"
           case @options[:if_not_saved]
           when :raise
-            raise ExcelOpen, "book is already open but not saved"
+            raise ExcelOpen, "book is already open but not saved (#{File.basename(file)})"
           when :accept
             #nothing
           when :forget
@@ -78,7 +71,8 @@ module RobustExcelOle
         end
       end
       # book not open (was not open or was closed with option :forget
-      if not @book then                  
+      if not @book then
+        p "book not open"                  
         @book = @winapp.Workbooks.Open(absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
       end
       if block
@@ -92,17 +86,22 @@ module RobustExcelOle
     end
 
     def supply_app(options={ })
+      p "supply_app"
       if @options[:recycle] then
-        @winapp = WIN32OLE.connect('Excel.Application') 
+        p "recycle"
+        @winapp = WIN32OLE.connect('Excel.Application') rescue nil 
         # hier noch abfragen mit Visible, ob die Application noch reagiert 
         # (siehe extzug_basis)
+        p "@winapp:#{@winapp}"
         if @winapp
+          p "@winapp existiert"
           @winapp.DisplayAlerts = @options[:displayalerts] unless @options[:displayalerts]==nil
           @winapp.Visible = @options[:visible] unless @options[:visible]==nil
-          #WIN32OLE.const_load(@winapp, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
+          WIN32OLE.const_load(@winapp, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
           return
         end
       end
+      p "kreiere neue application"
       @options = {
         :displayalerts => false,
         :visible => false,

@@ -2,7 +2,7 @@
 
 require File.join(File.dirname(__FILE__), './spec_helper')
 
-require File.join(File.dirname(__FILE__), '/helpers/key_sender')
+
 
 $VERBOSE = nil
 
@@ -466,12 +466,13 @@ describe RobustExcelOle::Book do
           File.open(save_path,"w") do | file |
             file.puts "garbage"
           end
-          key_sender = KeySender.new(:timeout => 2)
           excel_save_thread = Thread.new do
             p :"or_save #{displayalert_value}"
              @book.save(save_path, :if_exists => :excel)
             p :nach_save
           end
+          #key_sender = KeySender.new(:timeout => 2)
+          key_sender = IO.popen  File.join(File.dirname(__FILE__), '/helpers/key_sender.rb')
            p :vor_hauptteil
           if true #displayalert_value then
            p :vor_sleep

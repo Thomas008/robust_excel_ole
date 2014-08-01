@@ -442,7 +442,7 @@ describe RobustExcelOle::Book do
     possible_displayalerts.each do |displayalert_value|
       context "save with option excel displayalerts=#{displayalert_value}" do
         before do
-          @book = RobustExcelOle::Book.open(@simple_file, :read_only => false, :displayalerts => displayalert_value, :visible => true)
+          @book = RobustExcelOle::Book.open(@simple_file, :read_only => false, :displayalerts => displayalert_value, :visible => false)
         end
 
         after do
@@ -461,33 +461,43 @@ describe RobustExcelOle::Book do
           book_neu.close
         end
 
-        it "should save with :excel" do
-          File.delete save_path rescue nil
-          File.open(save_path,"w") do | file |
-            file.puts "garbage"
+        context "with if_exists => :excel" do
+          before do
+            File.delete save_path rescue nil
+            File.open(save_path,"w") do | file |
+              file.puts "garbage"
+            end
+            @garbage_length = File.size?(save_path)
+            @key_sender = IO.popen  'ruby ' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '  "Microsoft Excel" '  , "w"
           end
-          excel_save_thread = Thread.new do
-            p :"or_save #{displayalert_value}"
-             @book.save(save_path, :if_exists => :excel)
-            p :nach_save
+
+          after do
+            @key_sender.close
           end
-          #key_sender = KeySender.new(:timeout => 2)
-          key_sender = IO.popen  File.join(File.dirname(__FILE__), '/helpers/key_sender.rb')
-           p :vor_hauptteil
-          if true #displayalert_value then
-           p :vor_sleep
-           sleep 0.3
-           p :vor_senden
-           #key_sender.send("simple.xls [Kompatibilitätsmodus] - Microsoft Excel", "%{n}", :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
-           key_sender.send("Microsoft Excel", "%{J}", :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
-           #key_sender.send("Excel", "%{n}", :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
-           p :nach_senden
-         end
-           excel_save_thread.join
-          File.exist?(save_path).should be_true
-          book_neu = RobustExcelOle::Book.open(save_path, :read_only => true)
-          book_neu.should be_a RobustExcelOle::Book
-          book_neu.close
+
+          it "should save if user answers 'yes'" do
+            # "Yes" is to the left of "No", which is the  default. --> language independent
+            @key_sender.puts "{left}{enter}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
+            @book.save(save_path, :if_exists => :excel)
+            File.exist?(save_path).should be_true
+            File.size?(save_path).should > @garbage_length
+            book_neu = RobustExcelOle::Book.open(save_path, :read_only => true)
+            book_neu.should be_a RobustExcelOle::Book
+            book_neu.close
+          end
+
+          it "should not save if user answers 'no'" do
+            # Just give the "Enter" key, because "No" is the default. --> language independent
+            # strangely, in the "no" case, the question will sometimes be repeated three times
+            @key_sender.puts "{enter}"
+            @key_sender.puts "{enter}"
+            @key_sender.puts "{enter}"
+            #@key_sender.puts "%{n}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
+            @book.save(save_path, :if_exists => :excel)
+            File.exist?(save_path).should be_true
+            File.size?(save_path).should == @garbage_length
+          end
+
         end
       end
     end

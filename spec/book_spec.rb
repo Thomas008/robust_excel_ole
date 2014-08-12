@@ -18,7 +18,7 @@ describe RobustExcelOle::Book do
 
   save_path = "C:" + "/" + "simple_save.xls"
 
-  describe ".new" do
+  context "class methods" do
     context "create file" do
       it "simple file with default" do
         expect {
@@ -27,11 +27,38 @@ describe RobustExcelOle::Book do
         }.to_not raise_error
       end
     end
+
+    context "close excel instances" do
+      it "simple file with default" do
+        RobustExcelOle::Book.close_all_excel_apps
+        expect { WIN32OLE.connect("Excel.Application") }.to raise_error
+        #exl_con = WIN32OLE.connect("Excel.Application") rescue nil
+        #exl_con.Visible = true
+        sleep 1        
+        #exl_con.Quit
+        #sleep 2
+
+        #exl_con.should be_nil
+        #expect { WIN32OLE.connect("Excel.Application") }.to raise_error
+        exl1 = WIN32OLE.new("Excel.Application")
+        #exl1.Workbooks.Add 
+        exl2 = WIN32OLE.new("Excel.Application")
+        exl2.Workbooks.Add 
+        expect { WIN32OLE.connect("Excel.Application") }.to_not raise_error
+        RobustExcelOle::Book.close_all_excel_apps
+        sleep 0.3
+        expect { WIN32OLE.connect("Excel.Application") }.to raise_error
+      end
+    end
   end
 
   describe "open" do
 
-    context "when file does not exist" do
+    after do
+      RobustExcelOle::Book.close_all_excel_apps
+    end
+
+    context "if file does not exist" do
       it "should raise an exception" do
         File.delete save_path rescue nil
         expect {
@@ -40,13 +67,23 @@ describe RobustExcelOle::Book do
       end
     end
 
-    context "open test" do
-      it "already open" do
+    context "if file exists" do
+      before do
         @book = RobustExcelOle::Book.open(@simple_file)
-        book_neu = RobustExcelOle::Book.open(@simple_file)
+      end
+
+      after do
         @book.close
+      end
+
+      it "already open" do
+        book_neu = RobustExcelOle::Book.open(@simple_file)
         book_neu.close
       end
+
+      it "should say that it lives" do
+        @book.alive?.should be_true
+      end      
     end
 
     context "a book is already open and saved" do

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+require 'weakref'
 
 class Hash
   def first
@@ -30,6 +31,73 @@ module RobustExcelOle
       def open(file, options={ :recycled => true}, &block)
         new(file, options, &block)
       end
+
+      def close_all_excel_apps
+        while running_excel_app do
+          close_one_excel_app
+          GC.start
+        end
+      end
+
+      def close_one_excel_app
+        excel = running_excel_app
+        if excel then 
+          excel.Workbooks.Close
+          excel_hwnd = excel.HWnd
+          excel.Quit
+          weak_excel_ref = WeakRef.new(excel)
+          excel = nil
+          GC.start
+          if weak_excel_ref.weakref_alive? then
+            #if WIN32OLE.ole_reference_count(weak_xlapp) > 0
+            begin
+              weak_xlapp.ole_free
+            rescue
+              puts "could not do ole_free on #{weak_excel_ref}"
+            end
+          end
+        end
+        process_id = Win32API.new("user32", "GetWindowThreadProcessId", ["I","P"], "I")
+        pid_puffer = " " * 32
+        process_id.call(excel_hwnd, pid_puffer)
+        pid = pid_puffer.unpack("L")[0]
+        Process.kill("KILL", pid)
+        anz_objekte = 0
+        ObjectSpace.each_object(WIN32OLE) do |o|
+          anz_objekte += 1
+          p [:ole_object_name, o, (o.Name rescue nil)]
+          #trc_info :ole_type, o.ole_obj_help rescue nil
+          #trc_info :obj_hwnd, o.HWnd rescue   nil
+          #trc_info :obj_Parent, o.Parent rescue nil
+          begin
+            o.ole_free
+          rescue
+            puts "olefree_error: #{$!}"
+          end
+        end
+      end
+
+=begin
+
+        
+=end
+
+
+      # returns nil, if no excel is running or connected to a dead Excel app
+      def running_excel_app
+        result = WIN32OLE.connect('Excel.Application') rescue nil 
+        if result 
+          begin
+            result.Visible    # send any method, just to see if it responds
+          rescue 
+            puts "Window-handle = #{result.HWnd}"
+            # dead!!!
+            return nil
+          end
+        end
+        result
+      end
+
     end
 
 
@@ -55,7 +123,7 @@ module RobustExcelOle
       p "@book:#{@book}"
       if @book then
         # book open and not saved
-        p "book open"
+        p "book already open"
         if (not @book.Saved) then
           p "book not saved"
           case @options[:if_not_saved]
@@ -70,9 +138,9 @@ module RobustExcelOle
           end
         end
       end
-      # book not open (was not open or was closed with option :forget
+      # book not open (was not open or was closed with option :forget)
       if not @book then
-        p "book not open"                  
+        p "open a book"                  
         @book = @winapp.Workbooks.Open(absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
       end
       if block
@@ -89,7 +157,7 @@ module RobustExcelOle
       p "supply_app"
       if @options[:recycle] then
         p "recycle"
-        @winapp = WIN32OLE.connect('Excel.Application') rescue nil 
+        @winapp = self.class.running_excel_app
         # hier noch abfragen mit Visible, ob die Application noch reagiert 
         # (siehe extzug_basis)
         p "@winapp:#{@winapp}"
@@ -113,10 +181,19 @@ module RobustExcelOle
     end
 
     def close
-      @book.Close
+      @book.close if alive?  
       #@winapp.Workbooks.Close
       #@winapp.Quit
     end
+
+    def alive?
+      @book.Name
+      true
+    rescue 
+      puts $!.message
+      false
+    end
+
 
     # saves a book
     # if a file with the same name, exists, then proceed according to :if_exists 

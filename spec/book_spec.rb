@@ -27,35 +27,12 @@ describe RobustExcelOle::Book do
         }.to_not raise_error
       end
     end
-
-    context "close excel instances" do
-      it "simple file with default" do
-        RobustExcelOle::Book.close_all_excel_apps
-        expect { WIN32OLE.connect("Excel.Application") }.to raise_error
-        #exl_con = WIN32OLE.connect("Excel.Application") rescue nil
-        #exl_con.Visible = true
-        sleep 1        
-        #exl_con.Quit
-        #sleep 2
-
-        #exl_con.should be_nil
-        #expect { WIN32OLE.connect("Excel.Application") }.to raise_error
-        exl1 = WIN32OLE.new("Excel.Application")
-        #exl1.Workbooks.Add 
-        exl2 = WIN32OLE.new("Excel.Application")
-        exl2.Workbooks.Add 
-        expect { WIN32OLE.connect("Excel.Application") }.to_not raise_error
-        RobustExcelOle::Book.close_all_excel_apps
-        sleep 0.3
-        expect { WIN32OLE.connect("Excel.Application") }.to raise_error
-      end
-    end
   end
 
   describe "open" do
 
     after do
-      RobustExcelOle::Book.close_all_excel_apps
+      RobustExcelOle::ExcelApp.close_all
     end
 
     context "if file does not exist" do
@@ -67,18 +44,13 @@ describe RobustExcelOle::Book do
       end
     end
 
-    context "if file exists" do
+    context "with standard options" do
       before do
         @book = RobustExcelOle::Book.open(@simple_file)
       end
 
       after do
         @book.close
-      end
-
-      it "already open" do
-        book_neu = RobustExcelOle::Book.open(@simple_file)
-        book_neu.close
       end
 
       it "should say that it lives" do
@@ -98,20 +70,37 @@ describe RobustExcelOle::Book do
 
       possible_options = [:read_only, :raise, :accept, :forget, nil]
       possible_options.each do |options_value|        
-        it "if_not_saved is #{options_value}" do
-          p "option: #{options_value}"
-          expect{
-            book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => options_value)
-            #book_neu = RobustExcelOle::Book.open(save_path, :if_book_not_saved => options_value)
-            # sollte nicht ein neues Buch öffnen. sollte also KEIN Buch sein!
-            book_neu.should be_a RobustExcelOle::Book
-            book_neu.close
-          }.to_not raise_error
+        context "with :if_not_saved => #{options_value}" do
+          before do
+            @new_book = RobustExcelOle::Book.open(@simple_file, :reuse=> true, :if_not_saved => options_value)
+          end
+          after do
+            @new_book.close
+          end
+          it "should open without problems " do
+              @new_book.should be_a RobustExcelOle::Book
+          end
+          it "should belong to the same Excel application" do
+            @new_book.excel_app.should == @book.excel_app
+          end
         end
       end
     end
 
-    
+    context "with excel_app" do
+      before do
+        @new_book = RobustExcelOle::Book.open(@simple_file)
+      end
+      after do
+        @new_book.close
+      end
+      it "should provide the excel application of the book" do
+        excel_app = @new_book.excel_app
+        excel_app.class.should == RobustExcelOle::ExcelApp
+        excel_app.should be_a RobustExcelOle::ExcelApp
+      end
+    end
+
     context "a book is already open and not saved" do
 
       before do
@@ -234,7 +223,6 @@ describe RobustExcelOle::Book do
     end
   end
 
-# errors
   describe "#add_sheet" do
     before do
       @book = RobustExcelOle::Book.open(@simple_file)
@@ -245,7 +233,6 @@ describe RobustExcelOle::Book do
       @book.close
     end
     
-    #error
     context "only first argument" do
       it "should add worksheet" do
         expect { @book.add_sheet @sheet }.to change{ @book.book.Worksheets.Count }.from(3).to(4)
@@ -306,6 +293,7 @@ describe RobustExcelOle::Book do
 
     end
 
+    #error: @book.book : nil  , sth. wrong with attr_reader?
     context "without argument" do
       it "should add empty sheet" do
         expect { @book.add_sheet }.to change{ @book.book.Worksheets.Count }.from(3).to(4)

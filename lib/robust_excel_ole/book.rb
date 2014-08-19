@@ -11,13 +11,17 @@ end
 module RobustExcelOle
 
   class Book
-    attr_reader :book
+    attr_reader :workbook
+    def book
+      @workbook_ole
+    end
+
 
     class << self
 
       # opens a book. 
       # options: 
-      #  :recycled      (boolean)  use an already open application
+      #  :reuse      (boolean)  use an already open application
       #  :read_only     (boolean)  open in read-only mode
       #  :displayalerts (boolean)  allow display alerts in excel
       #  :visible       (boolean)  make visibe in Excel
@@ -28,85 +32,18 @@ module RobustExcelOle
       #                 :forget -> open the new book and close b, if b is not saved
       # if the file name is nil then return
  
-      def open(file, options={ :recycled => true}, &block)
+      def open(file, options={ :reuse => true}, &block)
         new(file, options, &block)
       end
 
-      def close_all_excel_apps
-        while running_excel_app do
-          close_one_excel_app
-          GC.start
-        end
-      end
-
-      def close_one_excel_app
-        excel = running_excel_app
-        if excel then 
-          excel.Workbooks.Close
-          excel_hwnd = excel.HWnd
-          excel.Quit
-          weak_excel_ref = WeakRef.new(excel)
-          excel = nil
-          GC.start
-          if weak_excel_ref.weakref_alive? then
-            #if WIN32OLE.ole_reference_count(weak_xlapp) > 0
-            begin
-              weak_xlapp.ole_free
-            rescue
-              puts "could not do ole_free on #{weak_excel_ref}"
-            end
-          end
-        end
-        process_id = Win32API.new("user32", "GetWindowThreadProcessId", ["I","P"], "I")
-        pid_puffer = " " * 32
-        process_id.call(excel_hwnd, pid_puffer)
-        pid = pid_puffer.unpack("L")[0]
-        Process.kill("KILL", pid)
-        anz_objekte = 0
-        ObjectSpace.each_object(WIN32OLE) do |o|
-          anz_objekte += 1
-          #p [:ole_object_name, o, (o.Name rescue nil)]
-          #trc_info :ole_type, o.ole_obj_help rescue nil
-          #trc_info :obj_hwnd, o.HWnd rescue   nil
-          #trc_info :obj_Parent, o.Parent rescue nil
-          begin
-            o.ole_free
-          rescue
-            puts "olefree_error: #{$!}"
-          end
-        end
-      end
-
-=begin
-
-        
-=end
-
-
-      # returns nil, if no excel is running or connected to a dead Excel app
-      def running_excel_app
-        result = WIN32OLE.connect('Excel.Application') rescue nil 
-        if result 
-          begin
-            result.Visible    # send any method, just to see if it responds
-          rescue 
-            puts "Window-handle = #{result.HWnd}"
-            # dead!!!
-            return nil
-          end
-        end
-        result
-      end
-
     end
-
 
     def initialize(file, options={ }, &block)
       #unless caller[1] =~ /book.rb:\d+:in\s+`open'$/
       #  warn "DEPRECATION WARNING: ::Book.new RobustExcelOle and RobustExcelOle::Book.open will be split. If you open existing file, please use RobustExcelOle::Book.open.(call from #{caller[1]})"
       #end
       @options = {
-        :recycle => true,
+        :reuse => true,
         :if_not_saved => :raise,
         :read_only => true
         #:displayalerts => false,
@@ -115,10 +52,9 @@ module RobustExcelOle
 
       if not File.exist?(file)
         raise ExcelErrorOpen, "file #{file} not found"
-      end
-             
-      supply_app(options)
-      workbooks = @winapp.Workbooks
+      end      
+      @excel_app = ExcelApp.new
+      workbooks = @excel_app.Workbooks
       @workbook_ole = workbooks.Item(File.basename(file)) rescue nil
       if @workbook_ole then
         # book open and not saved
@@ -131,7 +67,7 @@ module RobustExcelOle
           when :accept
             #nothing
           when :forget
-            @winapp.Workbooks.Close(absolute_path(file))           
+            @excel_app.Workbooks.Close(absolute_path(file))           
           else
             raise ExcelErrorOpen, "invalid option"
           end
@@ -140,7 +76,7 @@ module RobustExcelOle
       # book not open (was not open or was closed with option :forget)
       if not @workbook_ole then
         p "open a book"                  
-        @workbook_ole = @winapp.Workbooks.Open(absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
+        @workbook_ole = @excel_app.Workbooks.Open(absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
       end
       if block
         begin
@@ -151,38 +87,11 @@ module RobustExcelOle
       end
       @workbook_ole
     end
-
-    def supply_app(options={ })
-      p "supply_app"
-      if @options[:recycle] then
-        p "recycle"
-        @winapp = self.class.running_excel_app
-        # hier noch abfragen mit Visible, ob die Application noch reagiert 
-        # (siehe extzug_basis)
-        p "@winapp:#{@winapp}"
-        if @winapp
-          p "@winapp existiert"
-          @winapp.DisplayAlerts = @options[:displayalerts] unless @options[:displayalerts]==nil
-          @winapp.Visible = @options[:visible] unless @options[:visible]==nil
-          WIN32OLE.const_load(@winapp, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
-          return
-        end
-      end
-      p "kreiere neue application"
-      @options = {
-        :displayalerts => false,
-        :visible => false,
-      }.merge(options)
-      @winapp = WIN32OLE.new('Excel.application')
-      @winapp.DisplayAlerts = @options[:displayalerts]
-      @winapp.Visible = @options[:visible]
-      WIN32OLE.const_load(@winapp, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
-    end
-
+    
     def close
       @workbook_ole.close if alive?  
-      #@winapp.Workbooks.Close
-      #@winapp.Quit
+      #@excel_app.Workbooks.Close
+      #@excel_app.Quit
     end
 
     def alive?
@@ -192,6 +101,8 @@ module RobustExcelOle
       puts $!.message
       false
     end
+
+    attr_reader :excel_app
 
 
     # saves a book
@@ -216,8 +127,8 @@ module RobustExcelOle
           File.delete(file) 
           #File.delete(absolute_path(File.join(dirname, basename)))
         when :excel 
-          displayalerts_value = @winapp.DisplayAlerts
-          @winapp.DisplayAlerts = true 
+          displayalerts_value = @excel_app.DisplayAlerts
+          @excel_app.DisplayAlerts = true 
         when :raise
           raise ExcelErrorSave, "book already exists: #{basename}"
         else
@@ -230,7 +141,7 @@ module RobustExcelOle
             raise ExcelErrorSave, "unknown WIN32OELERuntimeError"
           end             
       if opts[:if_exists] == :excel then
-        @winapp.DisplayAlerts = displayalerts_value
+        @excel_app.DisplayAlerts = displayalerts_value
       end
     end
 
@@ -257,7 +168,7 @@ module RobustExcelOle
       base_sheet = base_sheet.sheet
       sheet ? sheet.Copy({ after_or_before.to_s => base_sheet }) : @workbook_ole.WorkSheets.Add({ after_or_before.to_s => base_sheet })
 
-      new_sheet = RobustExcelOle::Sheet.new(@winapp.Activesheet)
+      new_sheet = RobustExcelOle::Sheet.new(@excel_app.Activesheet)
       new_sheet.name = new_sheet_name if new_sheet_name
       new_sheet
     end        

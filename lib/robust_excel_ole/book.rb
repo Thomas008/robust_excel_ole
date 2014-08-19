@@ -46,14 +46,12 @@ module RobustExcelOle
         :reuse => true,
         :if_not_saved => :raise,
         :read_only => true
-        #:displayalerts => false,
-        #:visible => false,
       }.merge(options)
 
       if not File.exist?(file)
         raise ExcelErrorOpen, "file #{file} not found"
       end      
-      @excel_app = ExcelApp.new
+      @excel_app = ExcelApp.new(@options)
       workbooks = @excel_app.Workbooks
       @workbook_ole = workbooks.Item(File.basename(file)) rescue nil
       if @workbook_ole then

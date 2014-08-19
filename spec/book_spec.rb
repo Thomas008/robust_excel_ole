@@ -70,9 +70,9 @@ describe RobustExcelOle::Book do
 
       possible_options = [:read_only, :raise, :accept, :forget, nil]
       possible_options.each do |options_value|        
-        context "with :if_not_saved => #{options_value}" do
+        context "with :if_unsaved => #{options_value}" do
           before do
-            @new_book = RobustExcelOle::Book.open(@simple_file, :reuse=> true, :if_not_saved => options_value)
+            @new_book = RobustExcelOle::Book.open(@simple_file, :reuse=> true, :if_unsaved => options_value)
           end
           after do
             @new_book.close
@@ -114,9 +114,9 @@ describe RobustExcelOle::Book do
         @book.close
       end
 
-      it "if_not_saved is :raise" do
+      it "if_unsaved is :raise" do
         expect {
-          book_neu = RobustExcelOle::Book.open(@simple_file, :if_not_saved => :raise)
+          book_neu = RobustExcelOle::Book.open(@simple_file, :if_unsaved => :raise)
           book_neu.close
            }.to raise_error(ExcelErrorOpen, "book is already open but not saved (#{File.basename(@simple_file)})")
         #book_neu sollte kein Buch sein

@@ -111,7 +111,7 @@ describe RobustExcelOle::Book do
       end
     end
 
-    #error
+    
     context "a book is already open and not saved" do
 
       before do
@@ -128,11 +128,12 @@ describe RobustExcelOle::Book do
       it "if_not_saved is :raise" do
         expect {
           book_neu = RobustExcelOle::Book.open(@simple_file, :if_not_saved => :raise)
-           }.to raise_error(ExcelErrorOpen, 'book is already open but not saved (#{@simple_file})')
+          book_neu.close
+           }.to raise_error(ExcelErrorOpen, "book is already open but not saved (#{File.basename(@simple_file)})")
         #book_neu sollte kein Buch sein
         #book_neu.should.not be_is_a RobustExcelOle::Book
         #oder: expect{book_neu.close}.to raise_error
-        book_neu.close
+        
       end
 
     end

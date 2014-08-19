@@ -65,7 +65,7 @@ module RobustExcelOle
         anz_objekte = 0
         ObjectSpace.each_object(WIN32OLE) do |o|
           anz_objekte += 1
-          p [:ole_object_name, o, (o.Name rescue nil)]
+          #p [:ole_object_name, o, (o.Name rescue nil)]
           #trc_info :ole_type, o.ole_obj_help rescue nil
           #trc_info :obj_hwnd, o.HWnd rescue   nil
           #trc_info :obj_Parent, o.Parent rescue nil
@@ -120,7 +120,6 @@ module RobustExcelOle
       supply_app(options)
       workbooks = @winapp.Workbooks
       @workbook_ole = workbooks.Item(File.basename(file)) rescue nil
-      p "@workbook_ole:#{@workbook_ole}"
       if @workbook_ole then
         # book open and not saved
         p "book already open"
@@ -128,13 +127,13 @@ module RobustExcelOle
           p "book not saved"
           case @options[:if_not_saved]
           when :raise
-            raise ExcelOpen, "book is already open but not saved (#{File.basename(file)})"
+            raise ExcelErrorOpen, "book is already open but not saved (#{File.basename(file)})"
           when :accept
             #nothing
           when :forget
             @winapp.Workbooks.Close(absolute_path(file))           
           else
-            raise ExcelOpen, "invalid option"
+            raise ExcelErrorOpen, "invalid option"
           end
         end
       end

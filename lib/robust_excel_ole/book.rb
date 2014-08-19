@@ -21,11 +21,11 @@ module RobustExcelOle
       #  :read_only     (boolean)  open in read-only mode
       #  :displayalerts (boolean)  allow display alerts in excel
       #  :visible       (boolean)  make visibe in Excel
-      # :if_book_not_saved  if a book b with this name is already open:
-      #                    :read_only -> let b open
-      #                    :raise -> raise an exception,             if b is not saved
-      #                    :accept -> let b open,                    if b is not saved
-      #                    :forget -> open the new book and close b, if b is not saved
+      # :if_not_saved   if a book b with this name is already open:
+      #                 :read_only -> let b open
+      #                 :raise -> raise an exception,             if b is not saved
+      #                 :accept -> let b open,                    if b is not saved
+      #                 :forget -> open the new book and close b, if b is not saved
       # if the file name is nil then return
  
       def open(file, options={ :recycled => true}, &block)
@@ -119,12 +119,12 @@ module RobustExcelOle
              
       supply_app(options)
       workbooks = @winapp.Workbooks
-      @book = workbooks.Item(File.basename(file)) rescue nil
-      p "@book:#{@book}"
-      if @book then
+      @workbook_ole = workbooks.Item(File.basename(file)) rescue nil
+      p "@workbook_ole:#{@workbook_ole}"
+      if @workbook_ole then
         # book open and not saved
         p "book already open"
-        if (not @book.Saved) then
+        if (not @workbook_ole.Saved) then
           p "book not saved"
           case @options[:if_not_saved]
           when :raise
@@ -139,9 +139,9 @@ module RobustExcelOle
         end
       end
       # book not open (was not open or was closed with option :forget)
-      if not @book then
+      if not @workbook_ole then
         p "open a book"                  
-        @book = @winapp.Workbooks.Open(absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
+        @workbook_ole = @winapp.Workbooks.Open(absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
       end
       if block
         begin
@@ -150,7 +150,7 @@ module RobustExcelOle
           close
         end
       end
-      @book
+      @workbook_ole
     end
 
     def supply_app(options={ })
@@ -181,13 +181,13 @@ module RobustExcelOle
     end
 
     def close
-      @book.close if alive?  
+      @workbook_ole.close if alive?  
       #@winapp.Workbooks.Close
       #@winapp.Quit
     end
 
     def alive?
-      @book.Name
+      @workbook_ole.Name
       true
     rescue 
       puts $!.message
@@ -203,7 +203,7 @@ module RobustExcelOle
     # if file is nil, then return
     def save(file = nil, opts = {:if_exists => :raise} )
       raise IOError, "Not opened for writing(open with :read_only option)" if @options[:read_only]
-      return @book.save unless file
+      return @workbook_ole.save unless file
       dirname, basename = File.split(file)
       file_format =
         case File.extname(basename)
@@ -225,7 +225,7 @@ module RobustExcelOle
           raise ExcelErrorSave, "invalid option (#{opts[:if_exists]})"
         end
       end
-      @book.SaveAs(absolute_path(File.join(dirname, basename)), file_format)
+      @workbook_ole.SaveAs(absolute_path(File.join(dirname, basename)), file_format)
         rescue WIN32OLERuntimeError => msg
           if not msg.message.include? "Die SaveAs-Eigenschaft des Workbook-Objektes kann nicht zugeordnet werden." then
             raise ExcelErrorSave, "unknown WIN32OELERuntimeError"
@@ -237,11 +237,11 @@ module RobustExcelOle
 
     def [] sheet
       sheet += 1 if sheet.is_a? Numeric
-      RobustExcelOle::Sheet.new(@book.Worksheets.Item(sheet))
+      RobustExcelOle::Sheet.new(@workbook_ole.Worksheets.Item(sheet))
     end
 
     def each
-      @book.Worksheets.each do |sheet|
+      @workbook_ole.Worksheets.each do |sheet|
         yield RobustExcelOle::Sheet.new(sheet)
       end
     end
@@ -254,9 +254,9 @@ module RobustExcelOle
 
       new_sheet_name = opts.delete(:as)
 
-      after_or_before, base_sheet = opts.first || [:after, RobustExcelOle::Sheet.new(@book.Worksheets.Item(@book.Worksheets.Count))]
+      after_or_before, base_sheet = opts.first || [:after, RobustExcelOle::Sheet.new(@workbook_ole.Worksheets.Item(@workbook_ole.Worksheets.Count))]
       base_sheet = base_sheet.sheet
-      sheet ? sheet.Copy({ after_or_before.to_s => base_sheet }) : @book.WorkSheets.Add({ after_or_before.to_s => base_sheet })
+      sheet ? sheet.Copy({ after_or_before.to_s => base_sheet }) : @workbook_ole.WorkSheets.Add({ after_or_before.to_s => base_sheet })
 
       new_sheet = RobustExcelOle::Sheet.new(@winapp.Activesheet)
       new_sheet.name = new_sheet_name if new_sheet_name

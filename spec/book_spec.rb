@@ -111,6 +111,7 @@ describe RobustExcelOle::Book do
       end
     end
 
+    #error
     context "a book is already open and not saved" do
 
       before do
@@ -124,9 +125,9 @@ describe RobustExcelOle::Book do
         @book.close
       end
 
-      it "if_book_not_saved is :raise" do
+      it "if_not_saved is :raise" do
         expect {
-          book_neu = RobustExcelOle::Book.open(@simple_file, :if_book_not_saved => :raise)
+          book_neu = RobustExcelOle::Book.open(@simple_file, :if_not_saved => :raise)
            }.to raise_error(ExcelErrorOpen, 'book is already open but not saved (#{@simple_file})')
         #book_neu sollte kein Buch sein
         #book_neu.should.not be_is_a RobustExcelOle::Book
@@ -232,6 +233,7 @@ describe RobustExcelOle::Book do
     end
   end
 
+# errors
   describe "#add_sheet" do
     before do
       @book = RobustExcelOle::Book.open(@simple_file)
@@ -241,7 +243,8 @@ describe RobustExcelOle::Book do
     after do
       @book.close
     end
-
+    
+    #error
     context "only first argument" do
       it "should add worksheet" do
         expect { @book.add_sheet @sheet }.to change{ @book.book.Worksheets.Count }.from(3).to(4)
@@ -320,7 +323,6 @@ describe RobustExcelOle::Book do
       before do
         @book = RobustExcelOle::Book.open(@simple_file)
       end
-
 
       it {
         expect {

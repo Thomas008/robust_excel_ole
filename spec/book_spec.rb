@@ -420,12 +420,8 @@ describe RobustExcelOle::Book do
               file.puts "garbage"
             end
             @garbage_length = File.size?(save_path)
-            path = File.join(File.dirname(__FILE__), '/helpers/key_sender.rb')
-            p "path:#{path}"
-            filename = 'C:/key_sender.rb'
-            @key_sender = IO.popen  'ruby ' + filename + '  "Microsoft Excel" '  , "w"
-            # findet directory nicht - zu lang?
-            #@key_sender = IO.popen  'ruby ' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '  "Microsoft Excel" '  , "w"
+            @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
+
           end
 
           after do

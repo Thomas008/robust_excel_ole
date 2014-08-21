@@ -96,7 +96,7 @@ module RobustExcelOle
       @workbook.Name
       true
     rescue 
-      puts $!.message
+      #puts $!.message
       false
     end
 

@@ -35,7 +35,7 @@ describe RobustExcelOle::Book do
       RobustExcelOle::ExcelApp.close_all
     end
 
-    context "if file does not exist" do
+    context "with non-existing file" do
       it "should raise an exception" do
         File.delete save_path rescue nil
         expect {
@@ -58,7 +58,56 @@ describe RobustExcelOle::Book do
       end      
     end
 
-    context "a book is already open and saved" do
+    context "with excel_app" do
+      before do
+        @new_book = RobustExcelOle::Book.open(@simple_file)
+      end
+      after do
+        @new_book.close
+      end
+      it "should provide the excel application of the book" do
+        excel_app = @new_book.excel_app
+        excel_app.class.should == RobustExcelOle::ExcelApp
+        excel_app.should be_a RobustExcelOle::ExcelApp
+      end
+    end
+
+
+    context "with options writable, visible" do
+      it "simple file with writable" do
+        expect {
+          book = RobustExcelOle::Book.open(@simple_file, :read_only => false)
+          book.close
+        }.to_not raise_error
+      end
+
+      it "simple file with visible = true" do
+        expect {
+          book = RobustExcelOle::Book.open(@simple_file, :visible => true)
+          book.close
+        }.to_not raise_error
+      end
+    end
+
+    context "with block" do
+      it 'block parameter should be instance of RobustExcelOle::Book' do
+        RobustExcelOle::Book.open(@simple_file) do |book|
+          book.should be_is_a RobustExcelOle::Book
+        end
+      end
+    end
+
+    context "with WIN32OLE#GetAbsolutePathName" do
+      it "'~' should be HOME directory" do
+        path = '~/Abrakadabra.xlsx'
+        expected_path = Regexp.new(File.expand_path(path).gsub(/\//, "."))
+        expect {
+          RobustExcelOle::Book.open(path)
+        }.to raise_error(ExcelErrorOpen, "file #{path} not found")
+      end
+    end
+
+    context "with an already opened and saved book" do
 
       before do
         @book = RobustExcelOle::Book.open(@simple_file, :read_only => false)
@@ -87,21 +136,7 @@ describe RobustExcelOle::Book do
       end
     end
 
-    context "with excel_app" do
-      before do
-        @new_book = RobustExcelOle::Book.open(@simple_file)
-      end
-      after do
-        @new_book.close
-      end
-      it "should provide the excel application of the book" do
-        excel_app = @new_book.excel_app
-        excel_app.class.should == RobustExcelOle::ExcelApp
-        excel_app.should be_a RobustExcelOle::ExcelApp
-      end
-    end
-
-    context "a book is already open and not saved" do
+    context "with an already opened book that is not saved" do
 
       before do
         @book = RobustExcelOle::Book.open(@simple_file, :read_only => false)
@@ -116,79 +151,14 @@ describe RobustExcelOle::Book do
 
       it "if_unsaved is :raise" do
         expect {
-          book_neu = RobustExcelOle::Book.open(@simple_file, :if_unsaved => :raise)
-          book_neu.close
+          new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved => :raise)
+          new_book.close
            }.to raise_error(ExcelErrorOpen, "book is already open but not saved (#{File.basename(@simple_file)})")
-        #book_neu sollte kein Buch sein
-        #book_neu.should.not be_is_a RobustExcelOle::Book
-        #oder: expect{book_neu.close}.to raise_error
-        
-      end
-
-    end
-  end
-
-
-  describe ".open" do
-    context "exist file" do
-      it "simple file with default" do
-        expect {
-          book = RobustExcelOle::Book.open(@simple_file)
-          book.close
-        }.to_not raise_error
-      end
-
-      it "simple file with writable" do
-        expect {
-          book = RobustExcelOle::Book.open(@simple_file, :read_only => false)
-          book.close
-        }.to_not raise_error
-      end
-
-      it "simple file with visible = true" do
-        expect {
-          book = RobustExcelOle::Book.open(@simple_file, :visible => true)
-          book.close
-        }.to_not raise_error
-      end
-
-      context "with block" do
-        it 'block parameter should be instance of RobustExcelOle::Book' do
-          RobustExcelOle::Book.open(@simple_file) do |book|
-            book.should be_is_a RobustExcelOle::Book
-          end
-        end
+        #new_book sollte kein Buch sein
+        #new_book.should.not be_is_a RobustExcelOle::Book
+        #oder: expect{new_book.close}.to raise_error
       end
     end
-
-    describe "WIN32OLE#GetAbsolutePathName" do
-      it "'~' should be HOME directory" do
-        path = '~/Abrakadabra.xlsx'
-        expected_path = Regexp.new(File.expand_path(path).gsub(/\//, "."))
-        expect {
-          RobustExcelOle::Book.open(path)
-        }.to raise_error(ExcelErrorOpen, "file #{path} not found")
-      end
-    end
-
-    it 'should not output deprecation warning' do
-      capture(:stderr) {
-        book = RobustExcelOle::Book.open(@simple_file)
-        book.close
-      }.should eq ""
-    end
-
-  end
-
-  describe ".new" do
-=begin
-    it 'should output deprecation warning' do
-      capture(:stderr) {
-        book = RobustExcelOle::Book.new(@simple_file)
-        book.close
-      }.should match /DEPRECATION WARNING: RobustExcelOle::Book.new and RobustExcelOle::Book.open will be split. If you open existing file, please use RobustExcelOle::Book.open.\(call from #{File.expand_path(__FILE__)}:#{__LINE__ - 2}.+\)\n/
-    end
-=end
   end
 
   describe 'access sheet' do
@@ -293,7 +263,6 @@ describe RobustExcelOle::Book do
 
     end
 
-    #error: @book.book : nil  , sth. wrong with attr_reader?
     context "without argument" do
       it "should add empty sheet" do
         expect { @book.add_sheet }.to change{ @book.book.Worksheets.Count }.from(3).to(4)
@@ -349,17 +318,17 @@ describe RobustExcelOle::Book do
           File.delete save_path rescue nil
           @book.save(save_path, :if_exists => :overwrite)
           File.exist?(save_path).should be_true
-          book_neu = RobustExcelOle::Book.open(save_path, :read_only => true)
-          book_neu.should be_a RobustExcelOle::Book
-          book_neu.close
+          new_book = RobustExcelOle::Book.open(save_path, :read_only => true)
+          new_book.should be_a RobustExcelOle::Book
+          new_book.close
         end
       end
     end
 
-    # options :overwrite, :raise, :excel, no option, invalid option
+    # options :overwrite, :raise, no option, invalid option
     possible_displayalerts = [true, false]
     possible_displayalerts.each do |displayalert_value|
-      context "save with options displayalerts=#{displayalert_value}" do
+      context "with options displayalerts=#{displayalert_value}" do
         before do
           @book = RobustExcelOle::Book.open(@simple_file, :read_only => false, :displayalerts => displayalert_value)
         end
@@ -368,19 +337,19 @@ describe RobustExcelOle::Book do
           @book.close
         end
 
-        it "should save to 'simple_save.xlsm' with overwrite" do
+        it "should save to 'simple_save.xlsm' with :overwrite" do
           File.delete save_path rescue nil
           File.open(save_path,"w") do | file |
             file.puts "garbage"
           end
           @book.save(save_path, :if_exists => :overwrite)
           File.exist?(save_path).should be_true
-          book_neu = RobustExcelOle::Book.open(save_path, :read_only => true)
-          book_neu.should be_a RobustExcelOle::Book
-          book_neu.close
+          new_book = RobustExcelOle::Book.open(save_path, :read_only => true)
+          new_book.should be_a RobustExcelOle::Book
+          new_book.close
         end
 
-        it "should save to 'simple_save.xlsm' with raise" do
+        it "should save to 'simple_save.xlsm' with :raise" do
           dirname, basename = File.split(save_path)
           File.delete save_path rescue nil
           File.open(save_path,"w") do | file |
@@ -393,17 +362,6 @@ describe RobustExcelOle::Book do
             }.to raise_error(ExcelErrorSave, 'book already exists: ' + basename)
           File.exist?(save_path).should be_true
           (File.size?(save_path) == booklength).should be_true
-        end
-
-        it "should save to 'simple_save.xlsm' with excel" do
-          File.delete save_path rescue nil
-          File.open(save_path,"w") do | file |
-            file.puts "garbage"
-          end
-          expect {
-            @book.save(save_path, :if_exists => :excel)
-            }.to_not raise_error
-          File.exist?(save_path).should be_true
         end
 
         it "should save to 'simple_save.xlsm' with no option" do
@@ -450,9 +408,9 @@ describe RobustExcelOle::Book do
           end
           @book.save(save_path, :if_exists => :excel)
           File.exist?(save_path).should be_true
-          book_neu = RobustExcelOle::Book.open(save_path, :read_only => true)
-          book_neu.should be_a RobustExcelOle::Book
-          book_neu.close
+          new_book = RobustExcelOle::Book.open(save_path, :read_only => true)
+          new_book.should be_a RobustExcelOle::Book
+          new_book.close
         end
 
         context "with if_exists => :excel" do
@@ -462,7 +420,12 @@ describe RobustExcelOle::Book do
               file.puts "garbage"
             end
             @garbage_length = File.size?(save_path)
-            @key_sender = IO.popen  'ruby ' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '  "Microsoft Excel" '  , "w"
+            path = File.join(File.dirname(__FILE__), '/helpers/key_sender.rb')
+            p "path:#{path}"
+            filename = 'C:/key_sender.rb'
+            @key_sender = IO.popen  'ruby ' + filename + '  "Microsoft Excel" '  , "w"
+            # findet directory nicht - zu lang?
+            #@key_sender = IO.popen  'ruby ' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '  "Microsoft Excel" '  , "w"
           end
 
           after do
@@ -475,11 +438,12 @@ describe RobustExcelOle::Book do
             @book.save(save_path, :if_exists => :excel)
             File.exist?(save_path).should be_true
             File.size?(save_path).should > @garbage_length
-            book_neu = RobustExcelOle::Book.open(save_path, :read_only => true)
-            book_neu.should be_a RobustExcelOle::Book
-            book_neu.close
+            new_book = RobustExcelOle::Book.open(save_path, :read_only => true)
+            new_book.should be_a RobustExcelOle::Book
+            new_book.close
           end
 
+# Abfrage
           it "should not save if user answers 'no'" do
             # Just give the "Enter" key, because "No" is the default. --> language independent
             # strangely, in the "no" case, the question will sometimes be repeated three times

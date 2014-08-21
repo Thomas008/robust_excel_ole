@@ -462,7 +462,7 @@ describe RobustExcelOle::Book do
               file.puts "garbage"
             end
             @garbage_length = File.size?(save_path)
-            @key_sender = IO.popen  'ruby ' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '  "Microsoft Excel" '  , "w"
+            @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
           end
 
           after do

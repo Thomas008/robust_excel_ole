@@ -66,7 +66,8 @@ module RobustExcelOle
         begin
           result.Visible    # send any method, just to see if it responds
         rescue 
-          puts "Window-handle = #{result.HWnd}"
+          p "Windows-handle = #{result}"
+          #puts "Window-handle = #{result.HWnd}"
           # dead!!!
           return nil
         end

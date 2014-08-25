@@ -26,6 +26,7 @@ module RobustExcelOle
       def creation_ok?
         @app.alive?.should == true
         @app.Visible.should == false
+        @app.DisplayAlerts.should == false
         @app.Name.should == "Microsoft Excel"
       end
 
@@ -122,6 +123,40 @@ module RobustExcelOle
         @app1.should_not == "hallo"
         @app1.should_not == 7
         @app1.should_not == nil
+      end
+
+    end
+
+    context "with Visible and DisplayAlerts" do
+
+      before do
+        ExcelApp.close_all
+      end
+
+      after (:each) do
+        ExcelApp.close_all
+      end
+
+      it "should be visible" do
+        app = ExcelApp.new(:visible => true)
+        app.Visible.should == true
+        app.DisplayAlerts.should == false
+      end
+
+      it "should displayalerts" do        
+        app = ExcelApp.new(:displayalerts => true)
+        app.DisplayAlerts.should == true
+        app.Visible.should == false
+      end
+
+      it "should displayalerts" do
+        app = ExcelApp.new(:visible => true)
+        app.Visible.should == true
+        app.DisplayAlerts.should == false
+        app2 = ExcelApp.new(:displayalerts => true)
+        app2.Visible.should == true
+        app2.DisplayAlerts.should == true
+        sleep 1        
       end
 
     end

@@ -21,15 +21,14 @@ module RobustExcelOle
 
       # opens a book. 
       # options: 
-      #  :reuse      (boolean)  use an already open application
+      #  :reuse         (boolean)  use an already open Excel-application
       #  :read_only     (boolean)  open in read-only mode
-      #  :displayalerts (boolean)  allow display alerts in excel
+      #  :displayalerts (boolean)  allow display alerts in Excel
       #  :visible       (boolean)  make visibe in Excel
-      # :if_unsaved     if a book b with this name is already open:
-      #                 :read_only -> let b open
-      #                 :raise -> raise an exception,             if b is not saved
-      #                 :accept -> let b open,                    if b is not saved
-      #                 :forget -> open the new book and close b, if b is not saved
+      # :if_unsaved     if an unsaved book b with this file name is already open:
+      #                 :raise -> raise an exception,             
+      #                 :accept -> let b open,                  
+      #                 :forget -> open the new book and close b
       # if the file name is nil then return
  
       def open(file, options={ :reuse => true}, &block)
@@ -56,24 +55,22 @@ module RobustExcelOle
       @workbook = workbooks.Item(File.basename(file)) rescue nil
       if @workbook then
         # book open and not saved
-        p "book already open"
         if (not @workbook.Saved) then
-          p "book not saved"
+          #p "book not saved"
           case @options[:if_unsaved]
           when :raise
             raise ExcelErrorOpen, "book is already open but not saved (#{File.basename(file)})"
           when :accept
             #nothing
           when :forget
-            @excel_app.Workbooks.Close(absolute_path(file))           
+            @workbook.Close 
           else
             raise ExcelErrorOpen, "invalid option"
           end
         end
       end
       # book not open (was not open or was closed with option :forget)
-      if not @workbook then
-        p "open a book"                  
+      if not alive? then
         @workbook = @excel_app.Workbooks.Open(absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
       end
       if block

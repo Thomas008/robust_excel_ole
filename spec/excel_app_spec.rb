@@ -83,15 +83,19 @@ module RobustExcelOle
     end
 
     context "close excel instances" do
+      def direct_excel_creation_helper
+        expect { WIN32OLE.connect("Excel.Application") }.to raise_error
+        sleep 0.1
+        exl1 = WIN32OLE.new("Excel.Application")
+        exl1.Workbooks.Add
+        exl2 = WIN32OLE.new("Excel.Application")
+        exl2.Workbooks.Add
+        expect { WIN32OLE.connect("Excel.Application") }.to_not raise_error
+      end
+
       it "simple file with default" do
         RobustExcelOle::ExcelApp.close_all
-        expect { WIN32OLE.connect("Excel.Application") }.to raise_error
-        sleep 0.1      
-        exl1 = WIN32OLE.new("Excel.Application")
-        exl1.Workbooks.Add 
-        exl2 = WIN32OLE.new("Excel.Application")
-        exl2.Workbooks.Add 
-        expect { WIN32OLE.connect("Excel.Application") }.to_not raise_error
+        direct_excel_creation_helper
         RobustExcelOle::ExcelApp.close_all
         sleep 0.1
         expect { WIN32OLE.connect("Excel.Application") }.to raise_error

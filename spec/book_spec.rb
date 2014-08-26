@@ -23,6 +23,7 @@ describe RobustExcelOle::Book do
       it "simple file with default" do
         expect {
           book = RobustExcelOle::Book.new(@simple_file)
+          book.should be_a RobustExcelOle::Book
           book.close
         }.to_not raise_error
       end
@@ -72,20 +73,30 @@ describe RobustExcelOle::Book do
       end
     end
 
-
-    context "with options writable, visible" do
-      it "simple file with writable" do
+    # Tests genauer, erweitern
+    context "with :read_only" do
+      it "should be able to save, if :read_only => false" do
+        book = RobustExcelOle::Book.open(@simple_file, :read_only => false)
+        book.should be_a RobustExcelOle::Book
         expect {
-          book = RobustExcelOle::Book.open(@simple_file, :read_only => false)
-          book.close
+          book.save(save_path, :if_exists => :overwrite)
         }.to_not raise_error
+        book.close
       end
 
-      it "simple file with visible = true" do
+      it "should raise an error, if :read_only => true" do
+        book = RobustExcelOle::Book.open(@simple_file, :read_only => true)
+        book.should be_a RobustExcelOle::Book
+        book1 = RobustExcelOle::Book.open(@simple_file)
+        book1.should be_a RobustExcelOle::Book
         expect {
-          book = RobustExcelOle::Book.open(@simple_file, :visible => true)
-          book.close
-        }.to_not raise_error
+          book.save(save_path, :if_exists => :overwrite)
+        }.to raise_error
+        expect {
+          book1.save(save_path, :if_exists => :overwrite)
+        }.to raise_error
+        book.close
+        book1.close
       end
     end
 
@@ -154,10 +165,16 @@ describe RobustExcelOle::Book do
           new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved => :raise)
           new_book.close
            }.to raise_error(ExcelErrorOpen, "book is already open but not saved (#{File.basename(@simple_file)})")
+        #new_book.should be_kind_of RobustExcelOle::Book
+
         #new_book sollte kein Buch sein
         #new_book.should.not be_is_a RobustExcelOle::Book
         #oder: expect{new_book.close}.to raise_error
       end
+
+
+
+
     end
   end
 
@@ -439,7 +456,6 @@ describe RobustExcelOle::Book do
             new_book.close
           end
 
-# Abfrage
           it "should not save if user answers 'no'" do
             # Just give the "Enter" key, because "No" is the default. --> language independent
             # strangely, in the "no" case, the question will sometimes be repeated three times

@@ -149,14 +149,13 @@ module RobustExcelOle
         app.Visible.should == false
       end
 
-      it "should displayalerts" do
+      it "should visible and displayalerts" do
         app = ExcelApp.new(:visible => true)
         app.Visible.should == true
         app.DisplayAlerts.should == false
         app2 = ExcelApp.new(:displayalerts => true)
         app2.Visible.should == true
         app2.DisplayAlerts.should == true
-        sleep 1        
       end
 
     end

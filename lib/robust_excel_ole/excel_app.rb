@@ -4,23 +4,9 @@ module RobustExcelOle
 
   class ExcelApp
 
-    def self.create
-      new(:reuse => false)
-    end
+    attr_writer :ole_app
 
-    def self.reuse_if_possible
-      new(:reuse => true)
-    end
-
-
-    def self.close_all
-      while running_app do
-        close_one_app
-        GC.start
-        sleep 0.1
-        #free_all_ole_objects
-      end
-    end
+    @@hwnd2app = {}
 
     def self.close_one_app
       excel = running_app
@@ -91,16 +77,33 @@ module RobustExcelOle
       result
     end
 
-    def initialize(options= {})
+    def self.close_all
+      while running_app do
+        close_one_app
+        GC.start
+        sleep 0.3
+        #free_all_ole_objects
+      end
+    end
+
+    def self.create
+      new(:reuse => false)
+    end
+
+    def self.reuse_if_possible
+      new(:reuse => true)
+    end
+
+    def self.new(options= {})
       options = {:reuse => true}.merge(options)
+
+      ole_app = nil
       if options[:reuse] then
-        @winapp = self.class.running_app
-        if @winapp
+        ole_app = running_app
+        if ole_app
           #p "bestehende Applikation wird wieder benutzt"
-          @winapp.DisplayAlerts = options[:displayalerts] unless options[:displayalerts]==nil
-          @winapp.Visible = options[:visible] unless options[:visible]==nil
-          WIN32OLE.const_load(@winapp, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
-          return
+          ole_app.DisplayAlerts = options[:displayalerts] unless options[:displayalerts]==nil
+          ole_app.Visible = options[:visible] unless options[:visible]==nil
         end
       end
 
@@ -109,18 +112,41 @@ module RobustExcelOle
         :visible => false,
       }.merge(options)
       #p "kreiere neue application"
-      @winapp = WIN32OLE.new('Excel.application')
-      @winapp.DisplayAlerts = options[:displayalerts]
-      @winapp.Visible = options[:visible]
-      WIN32OLE.const_load(@winapp, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
+      unless ole_app
+        ole_app = WIN32OLE.new('Excel.application')
+        ole_app.DisplayAlerts = options[:displayalerts]
+        ole_app.Visible = options[:visible]
+      end
+
+      hwnd = ole_app.HWnd
+      stored = @@hwnd2app[hwnd]
+
+      if stored 
+        result = stored
+      else
+        WIN32OLE.const_load(ole_app, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
+        result = super(options)
+        result.ole_app = ole_app
+        @@hwnd2app[hwnd] = result
+      end
+      result
+    end
+
+
+    def initialize(options= {})
+    end
+
+
+    def hwnd_xxxx
+      self.HWnd #rescue Win32 nil
     end
 
     def == other_app
-      self.HWnd == other_app.HWnd    if other_app.is_a?(ExcelApp)
+      self.hwnd == other_app.hwnd    if other_app.is_a?(ExcelApp)
     end
 
     def alive?
-      @winapp.Name
+      @ole_app.Name
       true
     rescue
       puts $!.message
@@ -128,7 +154,7 @@ module RobustExcelOle
     end
 
     def method_missing(name, *args)
-      @winapp.send(name, *args)
+      @ole_app.send(name, *args)
     end
 
   end

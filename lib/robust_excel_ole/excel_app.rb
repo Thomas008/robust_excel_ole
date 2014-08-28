@@ -13,21 +13,27 @@ module RobustExcelOle
       if excel then
         excel.Workbooks.Close
         excel_hwnd = excel.HWnd
-        #excel.Quit
+        excel.Quit
+        #excel.ole_free
         weak_excel_ref = WeakRef.new(excel)
         excel = nil
         GC.start
+        sleep 0.2
         #sleep 0.1
         if weak_excel_ref.weakref_alive? then
           #if WIN32OLE.ole_reference_count(weak_xlapp) > 0
           begin
-            #weak_xlapp.ole_free
-            #puts "successfully ole_freed #{weak_excel_ref}"
+            weak_excel_ref.ole_free
+            puts "successfully ole_freed #{weak_excel_ref}"
           rescue
             puts "could not do ole_free on #{weak_excel_ref}"
           end
         end
+
+        @@hwnd2app[excel_hwnd].die rescue nil
+        #@@hwnd2app[excel_hwnd] = nil
       end
+
 
       free_all_ole_objects
 
@@ -51,13 +57,13 @@ module RobustExcelOle
         #trc_info :obj_Parent, o.Parent rescue nil
         begin
           o.ole_free
-          #puts "olefree OK"
+          puts "olefree OK"
         rescue
           puts "olefree_error: #{$!}"
           #puts $!.backtrace.first(9).join "\n"
         end
       end
-      #puts "went through #{anz_objekte} OLE objects"
+      puts "went through #{anz_objekte} OLE objects"
     end
 
 
@@ -143,6 +149,10 @@ module RobustExcelOle
 
     def == other_app
       self.hwnd == other_app.hwnd    if other_app.is_a?(ExcelApp)
+    end
+
+    def die
+      @ole_app = nil
     end
 
     def alive?

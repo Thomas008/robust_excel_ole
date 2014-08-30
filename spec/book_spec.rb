@@ -117,6 +117,37 @@ describe RobustExcelOle::Book do
       end
     end
 
+    # errors
+    context "with ==" do
+
+      before do
+        @book = RobustExcelOle::Book.open(@simple_file, :read_only => false)
+      end
+
+      after do
+        @book.close
+      end
+
+      it "should be true with two identical books" do
+        book2 = RobustExcelOle::Book.open(@simple_file, :read_only => false)
+        #book2.should == @book
+        book2.close
+      end
+
+      it "should be false with two different excel applications" do
+        different_file = @dir + '/different.xls'
+        #book2 = RobustExcelOle::Book.open(different_file, :read_only => false)
+        #book2.should_not == @book
+        #book2.close
+      end
+
+      it "should be false with non-Books" do
+        #@book.should_not == "hallo"
+        #@book.should_not == 7
+        #@book.should_not == nil
+      end
+    end
+
     context "with an already opened book" do
 
       before do
@@ -170,6 +201,7 @@ describe RobustExcelOle::Book do
             }.to_not raise_error
           @book.alive?.should be_true
           @new_book.alive?.should be_true
+          @new_book.should == @book
         end
 
         it "should open book and close old book, if if_unsaved is :forget" do

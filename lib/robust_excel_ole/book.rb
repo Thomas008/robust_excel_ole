@@ -97,6 +97,11 @@ module RobustExcelOle
       false
     end
 
+    def == other_book
+      self.Name == other_book.Name    if other_book.is_a?(Book)
+    end
+
+
     attr_reader :excel_app
 
 

@@ -117,7 +117,6 @@ describe RobustExcelOle::Book do
       end
     end
 
-    # errors
     context "with ==" do
 
       before do
@@ -130,21 +129,21 @@ describe RobustExcelOle::Book do
 
       it "should be true with two identical books" do
         book2 = RobustExcelOle::Book.open(@simple_file, :read_only => false)
-        #book2.should == @book
+        book2.should == @book
         book2.close
       end
 
-      it "should be false with two different excel applications" do
+      it "should be false with two different books" do
         different_file = @dir + '/different.xls'
-        #book2 = RobustExcelOle::Book.open(different_file, :read_only => false)
-        #book2.should_not == @book
-        #book2.close
+        book2 = RobustExcelOle::Book.open(different_file, :read_only => false)
+        book2.should_not == @book
+        book2.close
       end
 
       it "should be false with non-Books" do
-        #@book.should_not == "hallo"
-        #@book.should_not == 7
-        #@book.should_not == nil
+        @book.should_not == "hallo"
+        @book.should_not == 7
+        @book.should_not == nil
       end
     end
 
@@ -161,7 +160,7 @@ describe RobustExcelOle::Book do
       context "with an already saved book" do
         possible_options = [:read_only, :raise, :accept, :forget, nil]
         possible_options.each do |options_value|        
-          context "with :if_unsaved => #{options_value}" do
+          context "with in the same directory and :if_unsaved => #{options_value}" do
             before do
               @new_book = RobustExcelOle::Book.open(@simple_file, :reuse=> true, :if_unsaved => options_value)
             end
@@ -201,15 +200,14 @@ describe RobustExcelOle::Book do
             }.to_not raise_error
           @book.alive?.should be_true
           @new_book.alive?.should be_true
-          @new_book.should == @book
+          @new_book.bookname.should == @book.bookname
         end
 
         it "should open book and close old book, if if_unsaved is :forget" do
           @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved => :forget)
           @book.alive?.should be_false
           @new_book.alive?.should be_true
-          # no method error!
-          #@new_book.Name.should == File.basename(@simple_file)
+          @new_book.bookname.should == File.basename(@simple_file)
         end
       end
     end

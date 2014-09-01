@@ -54,6 +54,15 @@ module RobustExcelOle
       workbooks = @excel_app.Workbooks
       @workbook = workbooks.Item(File.basename(file)) rescue nil
       if @workbook then
+        # ist richtige Mappe?
+        # eine Mappe, die den gleichen Namen hat, aber in einem andern Ordner steht
+        # Sie ist im Weg, denn Excel kann die neue Mappe nicht gleichzeitig öffnen
+        workbook_fullname = bookname = @workbook.FullName.tr("\\","/").downcase
+        filename = file.tr("\\","/").downcase
+        puts "workbook_fullname: #{workbook_fullname}"
+        puts "filename: #{filename}"
+        right_map = (workbook_fullname == filename) 
+        puts "right_map: #{right_map}"
         # book open and not saved
         if (not @workbook.Saved) then
           #p "book not saved"
@@ -89,6 +98,7 @@ module RobustExcelOle
       #@excel_app.Quit
     end
 
+
     def alive?
       @workbook.Name
       true
@@ -97,8 +107,12 @@ module RobustExcelOle
       false
     end
 
+    def bookname
+      @workbook.Name
+    end
+
     def == other_book
-      self.Name == other_book.Name    if other_book.is_a?(Book)
+      self.bookname == other_book.bookname    if other_book.is_a?(Book)
     end
 
 

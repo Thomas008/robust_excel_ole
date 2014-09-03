@@ -10,13 +10,12 @@ describe RobustExcelOle::Book do
   before do
     @dir = create_tmpdir
     @simple_file = @dir + '/simple.xls'
+    @simple_save = @dir + '/simple_save.xls'
   end
 
   after do
     rm_tmp(@dir)
   end
-
-  save_path = "C:" + "/" + "simple_save.xls"
 
   context "class methods" do
     context "create file" do
@@ -38,10 +37,10 @@ describe RobustExcelOle::Book do
 
     context "with non-existing file" do
       it "should raise an exception" do
-        File.delete save_path rescue nil
+        File.delete @simple_save rescue nil
         expect {
-          RobustExcelOle::Book.open(save_path)
-        }.to raise_error(ExcelErrorOpen, "file #{save_path} not found")
+          RobustExcelOle::Book.open(@simple_save)
+        }.to raise_error(ExcelErrorOpen, "file #{@simple_save} not found")
       end
     end
 
@@ -78,7 +77,7 @@ describe RobustExcelOle::Book do
         book = RobustExcelOle::Book.open(@simple_file, :read_only => false)
         book.should be_a RobustExcelOle::Book
         expect {
-          book.save(save_path, :if_exists => :overwrite)
+          book.save(@simple_save, :if_exists => :overwrite)
         }.to_not raise_error
         book.close
       end
@@ -89,10 +88,10 @@ describe RobustExcelOle::Book do
         book1 = RobustExcelOle::Book.open(@simple_file)
         book1.should be_a RobustExcelOle::Book
         expect {
-          book.save(save_path, :if_exists => :overwrite)
+          book.save(@simple_save, :if_exists => :overwrite)
         }.to raise_error
         expect {
-          book1.save(save_path, :if_exists => :overwrite)
+          book1.save(@simple_save, :if_exists => :overwrite)
         }.to raise_error
         book.close
         book1.close
@@ -207,7 +206,7 @@ describe RobustExcelOle::Book do
           @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved => :forget)
           @book.alive?.should be_false
           @new_book.alive?.should be_true
-          @new_book.bookname.should == File.basename(@simple_file)
+          @new_book.bookname.tr("\\","/").downcase.should == @simple_file.tr("\\","/").downcase
         end
       end
     end
@@ -230,12 +229,12 @@ describe RobustExcelOle::Book do
     context "with argument" do
       before do
         RobustExcelOle::Book.open(@simple_file, :read_only => false) do |book|
-          book.save("#{@dir}/simple_save.xlsx", :if_exists => :overwrite)
+          book.save(@simple_save, :if_exists => :overwrite)
         end
       end
 
       it "should save to 'simple_save.xlsx'" do
-        File.exist?(@dir + "/simple_save.xlsx").should be_true
+        File.exist?(@simple_save).should be_true
       end
     end
 
@@ -248,14 +247,14 @@ describe RobustExcelOle::Book do
         @book.close
       end
 
-      possible_extensions = ["xls", "xlsm", "xlsx"]
+      possible_extensions = ['xls', 'xlsm', 'xlsx']
       possible_extensions.each do |extensions_value|
         it "should save to 'simple_save.#{extensions_value}'" do
-          save_path = "C:" + "/" + "simple_save." + extensions_value
-          File.delete save_path rescue nil
-          @book.save(save_path, :if_exists => :overwrite)
-          File.exist?(save_path).should be_true
-          new_book = RobustExcelOle::Book.open(save_path, :read_only => true)
+          simple_save = @dir + '/simple_save.' + extensions_value
+          File.delete simple_save rescue nil
+          @book.save(simple_save, :if_exists => :overwrite)
+          File.exist?(simple_save).should be_true
+          new_book = RobustExcelOle::Book.open(simple_save, :read_only => true)
           new_book.should be_a RobustExcelOle::Book
           new_book.close
         end
@@ -274,40 +273,40 @@ describe RobustExcelOle::Book do
           @book.close
         end
 
-        it "should save to 'simple_save.xlsm' with :if_exists => :overwrite" do
-          File.delete save_path rescue nil
-          File.open(save_path,"w") do | file |
+        it "should save to simple_save.xls with :if_exists => :overwrite" do
+          File.delete @simple_save rescue nil
+          File.open(@simple_save,"w") do | file |
             file.puts "garbage"
           end
-          @book.save(save_path, :if_exists => :overwrite)
-          File.exist?(save_path).should be_true
-          new_book = RobustExcelOle::Book.open(save_path, :read_only => true)
+          @book.save(@simple_save, :if_exists => :overwrite)
+          File.exist?(@simple_save).should be_true
+          new_book = RobustExcelOle::Book.open(@simple_save, :read_only => true)
           new_book.should be_a RobustExcelOle::Book
           new_book.close
         end
 
-        it "should save to 'simple_save.xlsm' with :if_exists => :raise" do
-          dirname, basename = File.split(save_path)
-          File.delete save_path rescue nil
-          File.open(save_path,"w") do | file |
+        it "should save to 'simple_save.xls' with :if_exists => :raise" do
+          dirname, basename = File.split(@simple_save)
+          File.delete @simple_save rescue nil
+          File.open(@simple_save,"w") do | file |
             file.puts "garbage"
           end
-          File.exist?(save_path).should be_true
-          booklength = File.size?(save_path)
+          File.exist?(@simple_save).should be_true
+          booklength = File.size?(@simple_save)
           expect {
-            @book.save(save_path, :if_exists => :raise)
+            @book.save(@simple_save, :if_exists => :raise)
             }.to raise_error(ExcelErrorSave, 'book already exists: ' + basename)
-          File.exist?(save_path).should be_true
-          (File.size?(save_path) == booklength).should be_true
+          File.exist?(@simple_save).should be_true
+          (File.size?(@simple_save) == booklength).should be_true
         end
 
         context "with :if_exists => :excel" do
           before do
-            File.delete save_path rescue nil
-            File.open(save_path,"w") do | file |
+            File.delete @simple_save rescue nil
+            File.open(@simple_save,"w") do | file |
               file.puts "garbage"
             end
-            @garbage_length = File.size?(save_path)
+            @garbage_length = File.size?(@simple_save)
             @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
 
           end
@@ -319,10 +318,10 @@ describe RobustExcelOle::Book do
           it "should save if user answers 'yes'" do
             # "Yes" is to the left of "No", which is the  default. --> language independent
             @key_sender.puts "{left}{enter}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
-            @book.save(save_path, :if_exists => :excel)
-            File.exist?(save_path).should be_true
-            File.size?(save_path).should > @garbage_length
-            new_book = RobustExcelOle::Book.open(save_path, :read_only => true)
+            @book.save(@simple_save, :if_exists => :excel)
+            File.exist?(@simple_save).should be_true
+            File.size?(@simple_save).should > @garbage_length
+            new_book = RobustExcelOle::Book.open(@simple_save, :read_only => true)
             new_book.should be_a RobustExcelOle::Book
             new_book.close
           end
@@ -334,32 +333,32 @@ describe RobustExcelOle::Book do
             @key_sender.puts "{enter}"
             @key_sender.puts "{enter}"
             #@key_sender.puts "%{n}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
-            @book.save(save_path, :if_exists => :excel)
-            File.exist?(save_path).should be_true
-            File.size?(save_path).should == @garbage_length
+            @book.save(@simple_save, :if_exists => :excel)
+            File.exist?(@simple_save).should be_true
+            File.size?(@simple_save).should == @garbage_length
           end
         end
 
-        it "should save to 'simple_save.xlsm' with :if_exists => nil" do
-          dirname, basename = File.split(save_path)
-          File.delete save_path rescue nil
-          File.open(save_path,"w") do | file |
+        it "should save to 'simple_save.xls' with :if_exists => nil" do
+          dirname, basename = File.split(@simple_save)
+          File.delete @simple_save rescue nil
+          File.open(@simple_save,"w") do | file |
             file.puts "garbage"
           end
-          File.exist?(save_path).should be_true
-          booklength = File.size?(save_path)
+          File.exist?(@simple_save).should be_true
+          booklength = File.size?(@simple_save)
           expect {
-            @book.save(save_path)
+            @book.save(@simple_save)
             }.to raise_error(ExcelErrorSave, 'book already exists: ' + basename)
-          File.exist?(save_path).should be_true
-          (File.size?(save_path) == booklength).should be_true
+          File.exist?(@simple_save).should be_true
+          (File.size?(@simple_save) == booklength).should be_true
         end
 
-        it "should save to 'simple_save.xlsm' with :if_exists => :invalid_option" do
-          File.delete save_path rescue nil
-          @book.save(save_path)
+        it "should save to 'simple_save.xls' with :if_exists => :invalid_option" do
+          File.delete @simple_save rescue nil
+          @book.save(@simple_save)
           expect {
-            @book.save(save_path, :if_exists => :invalid_option)
+            @book.save(@simple_save, :if_exists => :invalid_option)
             }.to raise_error(ExcelErrorSave, 'invalid option (invalid_option)')
         end
       end

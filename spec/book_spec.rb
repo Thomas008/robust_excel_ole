@@ -10,8 +10,6 @@ describe RobustExcelOle::Book do
   before do
     @dir = create_tmpdir
     @simple_file = @dir + '/simple.xls'
-    @different_path = create_tmpdir
-    @simple_file_different_path = @different_path + '/simple.xls'
   end
 
   after do
@@ -136,7 +134,8 @@ describe RobustExcelOle::Book do
       end
 
       it "should be false with two different books" do
-        book2 = RobustExcelOle::Book.open(@simple_file_different_path, :read_only => false)
+        different_file = @dir + '/different_simple.xls'
+        book2 = RobustExcelOle::Book.new(different_file)
         book2.should_not == @book
         book2.close
       end

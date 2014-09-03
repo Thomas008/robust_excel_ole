@@ -102,9 +102,6 @@ module RobustExcelOle
     end
 
     def == other_book
-      #puts "self.bookname: #{self.bookname}"
-      #puts "other_book.bookname: #{other_book.bookname}"
-      #puts "excel_app comp: #{@excel_app == other_book.excel_app}"
       other_book.is_a?(Book) &&
       @excel_app == other_book.excel_app &&
       self.bookname == other_book.bookname  

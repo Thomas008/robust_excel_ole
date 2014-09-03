@@ -124,19 +124,29 @@ describe RobustExcelOle::Book do
 
       after do
         @book.close
+        @new_book.close rescue nil
       end
 
       it "should be true with two identical books" do
-        book2 = RobustExcelOle::Book.open(@simple_file, :read_only => false)
-        book2.should == @book
-        book2.close
+        @new_book = RobustExcelOle::Book.open(@simple_file, :read_only => false)
+        @new_book.should == @book
       end
 
       it "should be false with two different books" do
         different_file = @dir + '/different_simple.xls'
-        book2 = RobustExcelOle::Book.new(different_file)
-        book2.should_not == @book
-        book2.close
+        @new_book = RobustExcelOle::Book.new(different_file)
+        @new_book.should_not == @book
+      end
+
+      it "should be false with same book names but different paths" do
+        simple_file_different_path = @dir + '/more_data/simple.xls'
+        @new_book = RobustExcelOle::Book.new(simple_file_different_path, :reuse => false)
+        @new_book.should_not == @book
+      end
+
+      it "should be false with same book names but different excel apps" do
+        @new_book = RobustExcelOle::Book.new(@simple_file, :reuse => false)
+        @new_book.should_not == @book
       end
 
       it "should be false with non-Books" do

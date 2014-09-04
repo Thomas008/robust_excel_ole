@@ -38,9 +38,6 @@ module RobustExcelOle
     end
 
     def initialize(file, options={ }, &block)
-      #unless caller[1] =~ /book.rb:\d+:in\s+`open'$/
-      #  warn "DEPRECATION WARNING: ::Book.new RobustExcelOle and RobustExcelOle::Book.open will be split. If you open existing file, please use RobustExcelOle::Book.open.(call from #{caller[1]})"
-      #end
       @options = {
         :reuse => true,
         :if_unsaved => :raise,
@@ -50,6 +47,7 @@ module RobustExcelOle
       if not File.exist?(file)
         raise ExcelErrorOpen, "file #{file} not found"
       end      
+      # ToDo: filter out the options specific to Book:
       @excel_app = ExcelApp.new(@options)
       workbooks = @excel_app.Workbooks
       @workbook = workbooks.Item(File.basename(file)) rescue nil
@@ -84,27 +82,31 @@ module RobustExcelOle
     end
     
     def close
-      @workbook.close if alive?  
+      @workbook.Close if alive?  
+      @workbook = nil
       #@excel_app.Workbooks.Close
       #@excel_app.Quit
     end
 
     def alive?
-      @workbook.Name
-      true
-    rescue 
-      #puts $!.message
-      false
+      begin 
+        @workbook.Name
+        true
+      rescue 
+        #puts $!.message
+        false
+      end
     end
 
-    def bookname
-      @workbook.Fullname
+    # ToConsider: different name :
+    def filename
+      @workbook.Fullname.tr('\\','/')
     end
 
     def == other_book
       other_book.is_a?(Book) &&
       @excel_app == other_book.excel_app &&
-      self.bookname == other_book.bookname  
+      self.filename == other_book.filename  
     end
 
 
@@ -117,9 +119,14 @@ module RobustExcelOle
     #   :overwrite -> write the file, delete the old file
     #   :excel     -> give control to Excel 
     # if file is nil, then return
+    # returns true, if successfully saved, nil otherwise
     def save(file = nil, opts = {:if_exists => :raise} )
       raise IOError, "Not opened for writing(open with :read_only option)" if @options[:read_only]
-      return @workbook.save unless file
+      unless file
+        @workbook.Save 
+        return true
+      end
+
       dirname, basename = File.split(file)
       file_format =
         case File.extname(basename)
@@ -141,14 +148,21 @@ module RobustExcelOle
           raise ExcelErrorSave, "invalid option (#{opts[:if_exists]})"
         end
       end
-      @workbook.SaveAs(absolute_path(File.join(dirname, basename)), file_format)
-        rescue WIN32OLERuntimeError => msg
-          if not msg.message.include? "Die SaveAs-Eigenschaft des Workbook-Objektes kann nicht zugeordnet werden." then
-            raise ExcelErrorSave, "unknown WIN32OELERuntimeError"
-          end             
-      if opts[:if_exists] == :excel then
-        @excel_app.DisplayAlerts = displayalerts_value
+      begin
+        @workbook.SaveAs(absolute_path(File.join(dirname, basename)), file_format)
+      rescue WIN32OLERuntimeError => msg
+        if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
+          return nil
+          # another possible semantics. raise ExcelErrorSaveFailed, "could not save Workbook"
+        else
+          raise ExcelErrorSaveUnknown, "unknown WIN32OELERuntimeError:\n#{msg.message}"
+        end       
+      ensure
+        if opts[:if_exists] == :excel then
+          @excel_app.DisplayAlerts = displayalerts_value
+        end
       end
+      true
     end
 
     def [] sheet
@@ -179,7 +193,7 @@ module RobustExcelOle
       new_sheet
     end        
 
-    private
+  private
     def absolute_path(file)
       file = File.expand_path(file)
       file = RobustExcelOle::Cygwin.cygpath('-w', file) if RUBY_PLATFORM =~ /cygwin/
@@ -190,6 +204,12 @@ module RobustExcelOle
 end
 
 class ExcelErrorSave < RuntimeError
+end
+
+class ExcelErrorSaveFailed < ExcelErrorSave  
+end
+
+class ExcelErrorSaveUnknown < ExcelErrorSave  
 end
 
 class ExcelErrorOpen < RuntimeError

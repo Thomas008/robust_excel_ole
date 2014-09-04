@@ -101,7 +101,7 @@ describe RobustExcelOle::Book do
     context "with block" do
       it 'block parameter should be instance of RobustExcelOle::Book' do
         RobustExcelOle::Book.open(@simple_file) do |book|
-          book.should be_is_a RobustExcelOle::Book
+          book.should be_a RobustExcelOle::Book
         end
       end
     end
@@ -209,14 +209,14 @@ describe RobustExcelOle::Book do
             }.to_not raise_error
           @book.alive?.should be_true
           @new_book.alive?.should be_true
-          @new_book.bookname.should == @book.bookname
+          @new_book.filename.should == @book.filename
         end
 
         it "should open book and close old book, if if_unsaved is :forget" do
           @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved => :forget)
           @book.alive?.should be_false
           @new_book.alive?.should be_true
-          @new_book.bookname.tr("\\","/").downcase.should == @simple_file.tr("\\","/").downcase
+          @new_book.filename.downcase.should == @simple_file.downcase
         end
       end
     end
@@ -318,7 +318,6 @@ describe RobustExcelOle::Book do
             end
             @garbage_length = File.size?(@simple_save)
             @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
-
           end
 
           after do
@@ -333,6 +332,7 @@ describe RobustExcelOle::Book do
             File.size?(@simple_save).should > @garbage_length
             new_book = RobustExcelOle::Book.open(@simple_save, :read_only => true)
             new_book.should be_a RobustExcelOle::Book
+            @book.excel_app.DisplayAlerts.should == displayalert_value
             new_book.close
           end
 
@@ -346,7 +346,20 @@ describe RobustExcelOle::Book do
             @book.save(@simple_save, :if_exists => :excel)
             File.exist?(@simple_save).should be_true
             File.size?(@simple_save).should == @garbage_length
+          end 
+
+          it "should report save errors" do
+            #@key_sender.puts "{left}{enter}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
+            @book.workbook.Close
+            expect{
+              @book.save(@simple_save, :if_exists => :excel)
+              }.to raise_error(ExcelErrorSaveUnknown)
+            File.exist?(@simple_save).should be_true
+            File.size?(@simple_save).should == @garbage_length
+            @book.excel_app.DisplayAlerts.should == displayalert_value
           end
+
+
         end
 
         it "should save to 'simple_save.xls' with :if_exists => nil" do
@@ -484,7 +497,7 @@ describe RobustExcelOle::Book do
     context 'open with block' do
       it {
         RobustExcelOle::Book.open(@simple_file) do |book|
-          book['Sheet1'].should be_is_a RobustExcelOle::Sheet
+          book['Sheet1'].should be_a RobustExcelOle::Sheet
         end
       }
     end

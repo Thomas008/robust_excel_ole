@@ -8,6 +8,7 @@ module RobustExcelOle
 
     @@hwnd2app = {}
 
+    # closes one excel application
     def self.close_one_app
       excel = running_app
       if excel then
@@ -66,10 +67,18 @@ module RobustExcelOle
       puts "went through #{anz_objekte} OLE objects"
     end
 
+    # closes all excel applications
+    def self.close_all
+      while running_app do
+        close_one_app
+        GC.start
+        sleep 0.3
+        #free_all_ole_objects
+      end
+    end
 
-
-
-    # returns nil, if no excel is running or connected to a dead Excel app
+    # returns a running excel application, if a non-dead excel appication exists 
+    # returns nil, otherwise
     def self.running_app
       result = WIN32OLE.connect('Excel.Application') rescue nil
       if result
@@ -83,23 +92,22 @@ module RobustExcelOle
       result
     end
 
-    def self.close_all
-      while running_app do
-        close_one_app
-        GC.start
-        sleep 0.3
-        #free_all_ole_objects
-      end
-    end
-
+    # create a new excel application
     def self.create
       new(:reuse => false)
     end
 
+    # uses a running excel application, if such an application exists
+    # creates a new one, otherwise 
     def self.reuse_if_possible
       new(:reuse => true)
     end
 
+    # returns an excel application  
+    # options:
+    #  :reuse         (boolean)  use an already running excel application  (default: true)
+    #  :displayalerts (boolean)  allow display alerts in Excel             (default: false)
+    #  :visible       (boolean)  make visible in Excel                     (default: false)
     def self.new(options= {})
       options = {:reuse => true}.merge(options)
 
@@ -147,14 +155,17 @@ module RobustExcelOle
       self.HWnd #rescue Win32 nil
     end
 
+    # returns true, if the excel applications are identical, false otherwise
     def == other_app
       self.hwnd == other_app.hwnd    if other_app.is_a?(ExcelApp)
     end
 
+    # set this excel application to nil
     def die
       @ole_app = nil
     end
 
+    # returns true, if the excel application is alive, false, otherwise
     def alive?
       @ole_app.Name
       true

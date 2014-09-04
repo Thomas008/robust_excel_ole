@@ -12,9 +12,6 @@ module RobustExcelOle
 
   class Book
     attr_reader :workbook
-    #def book
-    #  @workbook
-    #end
 
 
     class << self

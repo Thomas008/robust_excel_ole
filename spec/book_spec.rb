@@ -119,46 +119,6 @@ describe RobustExcelOle::Book do
       end
     end
 
-    context "with ==" do
-
-      before do
-        @book = RobustExcelOle::Book.open(@simple_file)
-      end
-
-      after do
-        @book.close
-        @new_book.close rescue nil
-      end
-
-      it "should be true with two identical books" do
-        @new_book = RobustExcelOle::Book.open(@simple_file)
-        @new_book.should == @book
-      end
-
-      it "should be false with two different books" do
-        different_file = @dir + '/different_simple.xls'
-        @new_book = RobustExcelOle::Book.new(different_file)
-        @new_book.should_not == @book
-      end
-
-      it "should be false with same book names but different paths" do
-        simple_file_different_path = @dir + '/more_data/simple.xls'
-        @new_book = RobustExcelOle::Book.new(simple_file_different_path, :reuse => false)
-        @new_book.should_not == @book
-      end
-
-      it "should be false with same book names but different excel apps" do
-        @new_book = RobustExcelOle::Book.new(@simple_file, :reuse => false)
-        @new_book.should_not == @book
-      end
-
-      it "should be false with non-Books" do
-        @book.should_not == "hallo"
-        @book.should_not == 7
-        @book.should_not == nil
-      end
-    end
-
     context "with an already opened book" do
 
       before do
@@ -389,6 +349,91 @@ describe RobustExcelOle::Book do
         end
       end
     end
+  end
+
+  describe "== , alive?, filename" do
+
+    after do
+      RobustExcelOle::ExcelApp.close_all
+    end
+
+    context "with alive?" do
+
+      before do
+        @book = RobustExcelOle::Book.open(@simple_file)
+      end
+
+      after do
+        @book.close rescue nil
+      end
+
+      it "should return true, if book is alive" do
+        @book.alive?.should be_true
+      end
+
+      it "should return false, if book is dead" do
+        @book.close
+        @book.alive?.should be_false
+      end
+
+    end
+
+    context "with filename" do
+
+      before do
+        @book = RobustExcelOle::Book.open(@simple_file)
+      end
+
+      after do
+        @book.close
+      end
+
+      it "should return full file name" do
+        @book.filename.should == @simple_file
+      end
+
+    end
+
+    context "with ==" do
+
+      before do
+        @book = RobustExcelOle::Book.open(@simple_file)
+      end
+
+      after do
+        @book.close
+        @new_book.close rescue nil
+      end
+
+      it "should be true with two identical books" do
+        @new_book = RobustExcelOle::Book.open(@simple_file)
+        @new_book.should == @book
+      end
+
+      it "should be false with two different books" do
+        different_file = @dir + '/different_simple.xls'
+        @new_book = RobustExcelOle::Book.new(different_file)
+        @new_book.should_not == @book
+      end
+
+      it "should be false with same book names but different paths" do
+        simple_file_different_path = @dir + '/more_data/simple.xls'
+        @new_book = RobustExcelOle::Book.new(simple_file_different_path, :reuse => false)
+        @new_book.should_not == @book
+      end
+
+      it "should be false with same book names but different excel apps" do
+        @new_book = RobustExcelOle::Book.new(@simple_file, :reuse => false)
+        @new_book.should_not == @book
+      end
+
+      it "should be false with non-Books" do
+        @book.should_not == "hallo"
+        @book.should_not == 7
+        @book.should_not == nil
+      end
+    end
+
   end
 
   describe "#add_sheet" do

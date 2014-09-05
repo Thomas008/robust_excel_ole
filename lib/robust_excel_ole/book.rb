@@ -12,25 +12,22 @@ module RobustExcelOle
 
   class Book
     attr_reader :workbook
-    def book
-      @workbook
-    end
 
 
     class << self
 
       # opens a book. 
       # options: 
-      #  :reuse         (boolean)  use an already open Excel-application
-      #  :read_only     (boolean)  open in read-only mode
-      #  :displayalerts (boolean)  allow display alerts in Excel
-      #  :visible       (boolean)  make visibe in Excel
-      # :if_unsaved     if an unsaved book b with this file name is already open:
-      #                 :raise -> raise an exception,             
+      #  :reuse         (boolean)  use an already open Excel-application (default: true)
+      #  :read_only     (boolean)  open in read-only mode                (default: false)
+      #  :displayalerts (boolean)  allow display alerts in Excel         (default: false)
+      #  :visible       (boolean)  make visibe in Excel                  (default: false)
+      # :if_unsaved     if an unsaved book b with this file name is already open, then
+      #                 :raise -> raise an exception                     (default)             
       #                 :accept -> let b open,                  
       #                 :forget -> open the new book and close b
       # if the file name is nil then return
- 
+
       def open(file, options={ :reuse => true}, &block)
         new(file, options, &block)
       end
@@ -41,7 +38,7 @@ module RobustExcelOle
       @options = {
         :reuse => true,
         :if_unsaved => :raise,
-        :read_only => true
+        :read_only => false
       }.merge(options)
 
       if not File.exist?(file)
@@ -81,6 +78,7 @@ module RobustExcelOle
       @workbook
     end
     
+    # closes the book, if it is alive
     def close
       @workbook.Close if alive?  
       @workbook = nil
@@ -88,6 +86,7 @@ module RobustExcelOle
       #@excel_app.Quit
     end
 
+    # returns true, if the work book is alive, false, otherwise
     def alive?
       begin 
         @workbook.Name
@@ -99,10 +98,12 @@ module RobustExcelOle
     end
 
     # ToConsider: different name :
+    # returns the full filename of the book
     def filename
       @workbook.Fullname.tr('\\','/')
     end
 
+    #returns true, if the full book names and excel appications are identical, false, otherwise  
     def == other_book
       other_book.is_a?(Book) &&
       @excel_app == other_book.excel_app &&
@@ -113,12 +114,12 @@ module RobustExcelOle
     attr_reader :excel_app
 
 
-    # saves a book
-    # if a file with the same name, exists, then proceed according to :if_exists 
-    #   :raise     -> raise an exception, dont't write the file
-    #   :overwrite -> write the file, delete the old file
-    #   :excel     -> give control to Excel 
-    # if file is nil, then return
+    # saves a book.
+    # options:
+    #  :if_exists   if a file with the same name exists, then  
+    #               :raise     -> raise an exception, dont't write the file  (default)
+    #               :overwrite -> write the file, delete the old file
+    #               :excel     -> give control to Excel
     # returns true, if successfully saved, nil otherwise
     def save(file = nil, opts = {:if_exists => :raise} )
       raise IOError, "Not opened for writing(open with :read_only option)" if @options[:read_only]
@@ -140,7 +141,7 @@ module RobustExcelOle
           File.delete(file) 
           #File.delete(absolute_path(File.join(dirname, basename)))
         when :excel 
-          displayalerts_value = @excel_app.DisplayAlerts
+          old_displayalerts = @excel_app.DisplayAlerts
           @excel_app.DisplayAlerts = true 
         when :raise
           raise ExcelErrorSave, "book already exists: #{basename}"
@@ -159,12 +160,13 @@ module RobustExcelOle
         end       
       ensure
         if opts[:if_exists] == :excel then
-          @excel_app.DisplayAlerts = displayalerts_value
+          @excel_app.DisplayAlerts = old_displayalerts
         end
       end
       true
     end
 
+    
     def [] sheet
       sheet += 1 if sheet.is_a? Numeric
       RobustExcelOle::Sheet.new(@workbook.Worksheets.Item(sheet))
@@ -176,6 +178,7 @@ module RobustExcelOle
       end
     end
 
+    # adds a sheet
     def add_sheet(sheet = nil, opts = { })
       if sheet.is_a? Hash
         opts = sheet

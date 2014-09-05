@@ -215,8 +215,11 @@ describe RobustExcelOle::Book do
     context "with unsaved book" do
       before do
         @book = RobustExcelOle::Book.open(@simple_file)
-        @sheet = @book[0]
-        @book.add_sheet(@sheet, :as => 'copyed_name')
+        @old_sheet_count = @book.workbook.Worksheets.Count
+        @book.add_sheet @sheet
+        @new_sheet_count = @book.workbook.Worksheets.Count
+        puts "old_sheet_count:#{@old_sheet_count}"
+        puts "new_sheet_count:#{@new_sheet_count}"
       end
 
       after do
@@ -233,16 +236,14 @@ describe RobustExcelOle::Book do
         @book.close(:if_unsaved => :forget)
         @book.alive?.should be_false
         @book = RobustExcelOle::Book.open(@simple_file)
-        @book.filename.should_not eq 'copyed_name'
-        @book.close(:if_unsaved => :forget)
+        @book.workbook.Worksheets.Count.should ==  @old_sheet_count
       end
 
       it "should save the book before close for option :accept" do
         @book.close(:if_unsaved => :accept)
         @book.alive?.should be_false
         @book = RobustExcelOle::Book.open(@simple_file)
-        @book.filename.should eq 'copyed_name'
-        @book.close(:if_unsaved => :forget)
+        @book.workbook.Worksheets.Count.should == @new_sheet_count
       end
 
       it "should give control to excel for option :excel" do

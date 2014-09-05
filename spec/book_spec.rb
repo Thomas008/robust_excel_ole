@@ -14,8 +14,10 @@ describe RobustExcelOle::Book do
   end
 
   after do
+    RobustExcelOle::ExcelApp.close_all
     rm_tmp(@dir)
   end
+
 
   context "class methods" do
     context "create file" do
@@ -30,10 +32,6 @@ describe RobustExcelOle::Book do
   end
 
   describe "open" do
-
-    after do
-      RobustExcelOle::ExcelApp.close_all
-    end
 
     context "with non-existing file" do
       it "should raise an exception" do
@@ -55,7 +53,7 @@ describe RobustExcelOle::Book do
 
       it "should say that it lives" do
         @book.alive?.should be_true
-      end      
+      end
     end
 
     context "with excel_app" do
@@ -168,7 +166,7 @@ describe RobustExcelOle::Book do
 
       context "with an already saved book" do
         possible_options = [:read_only, :raise, :accept, :forget, nil]
-        possible_options.each do |options_value|        
+        possible_options.each do |options_value|
           context "with in the same directory and :if_unsaved => #{options_value}" do
             before do
               @new_book = RobustExcelOle::Book.open(@simple_file, :reuse=> true, :if_unsaved => options_value)
@@ -221,6 +219,27 @@ describe RobustExcelOle::Book do
       end
     end
   end
+
+
+  describe "forget" do
+      before do
+        @book = RobustExcelOle::Book.open(@simple_file)
+        @book.add_sheet(@sheet, :as => 'copyed_name')
+      end
+
+      it "should close the book and leave its file untouched." do
+        ole_workbook = @book.workbook
+        excel_app = @book.excel_app
+        expect {
+          @book.forget
+          }.to change {excel_app.Workbooks.Count }.by(-1)
+        @book.workbook.should == nil
+        @book.should_not be_alive
+        expect { ole_workbook.Name }.to raise_error(WIN32OLERuntimeError)
+      end
+
+  end
+
 
   describe "save" do
     context "when open with read only" do
@@ -346,9 +365,9 @@ describe RobustExcelOle::Book do
             @book.save(@simple_save, :if_exists => :excel)
             File.exist?(@simple_save).should be_true
             File.size?(@simple_save).should == @garbage_length
-          end 
+          end
 
-          it "should report save errors" do
+          it "should report save errors and leave DisplayAlerts unchanged" do
             #@key_sender.puts "{left}{enter}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
             @book.workbook.Close
             expect{
@@ -397,7 +416,7 @@ describe RobustExcelOle::Book do
     after do
       @book.close
     end
-    
+
     context "only first argument" do
       it "should add worksheet" do
         expect { @book.add_sheet @sheet }.to change{ @book.book.Worksheets.Count }.from(3).to(4)

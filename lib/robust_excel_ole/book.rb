@@ -70,7 +70,7 @@ module RobustExcelOle
         end
       end
       # book not open (was not open or was closed with option :forget or shall be opened in new application)
-      if not @workbook then
+      if not alive? then
         @workbook = @excel_app.Workbooks.Open(absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
       end
       if block
@@ -84,7 +84,31 @@ module RobustExcelOle
     end
     
     # closes the book, if it is alive
-    def close
+    # options:
+    # :if_unsaved     if book is unsaved
+    #                 :raise   -> raise an exception                     (default)             
+    #                 :accept  -> save the book before it is closed                  
+    #                 :forget  -> close the book 
+    #                 :excel   -> give control to excel
+    def close(options={ })
+      @options = {
+        :if_unsaved => :raise,
+      }.merge(options)
+      if ((alive?) && (not @workbook.Saved)) then
+        puts "book not saved"
+        case @options[:if_unsaved]
+        when :raise
+          raise ExcelErrorClose, "book is unsaved (#{File.basename(filename)})"
+        when :accept
+          save(absolute_path(filename), :if_exists => :overwrite)
+        when :forget
+          #nothing
+        when :excel
+          #not implemented
+        else
+          raise ExcelErrorClose, "invalid option"
+        end
+      end
       @workbook.Close if alive?  
       @workbook = nil
       #@excel_app.Workbooks.Close
@@ -105,7 +129,7 @@ module RobustExcelOle
     # ToConsider: different name :
     # returns the full filename of the book
     def filename
-      @workbook.Fullname.tr('\\','/')
+      @workbook.Fullname.tr('\\','/') rescue nil
     end
 
     #returns true, if the full book names and excel appications are identical, false, otherwise  
@@ -211,7 +235,10 @@ module RobustExcelOle
 
 end
 
-class ExcelErrorSave < RuntimeError
+class ExcelError < RuntimeError
+end
+
+class ExcelErrorSave < ExcelError
 end
 
 class ExcelErrorSaveFailed < ExcelErrorSave  
@@ -220,5 +247,8 @@ end
 class ExcelErrorSaveUnknown < ExcelErrorSave  
 end
 
-class ExcelErrorOpen < RuntimeError
+class ExcelErrorOpen < ExcelError
+end
+
+class ExcelErrorClose < ExcelError
 end

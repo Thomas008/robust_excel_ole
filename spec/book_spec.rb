@@ -152,11 +152,13 @@ describe RobustExcelOle::Book do
       context "with an unsaved book" do
 
         before do
+          @book = RobustExcelOle::Book.open(@simple_file)
           @sheet = @book[0]
           @book.add_sheet(@sheet, :as => 'copyed_name')
         end
 
         after do
+          @book.close(:if_unsaved => :forget)
           @new_book.close rescue nil
         end
 
@@ -194,8 +196,75 @@ describe RobustExcelOle::Book do
     end
   end
 
+  describe "close" do
+
+    context "with saved book" do
+      before do
+        @book = RobustExcelOle::Book.open(@simple_file)
+      end
+
+      it "should close book" do
+        expect{
+          @book.close  
+        }.to_not raise_error   
+        @book.alive?.should be_false    
+      end
+    end
+
+    # think of a different change
+    context "with unsaved book" do
+      before do
+        @book = RobustExcelOle::Book.open(@simple_file)
+        @sheet = @book[0]
+        @book.add_sheet(@sheet, :as => 'copyed_name')
+      end
+
+      after do
+        @book.close(:if_unsaved => :forget) rescue nil
+      end
+
+      it "should raise error for option :raise" do
+        expect{
+          @book.close(:if_unsaved => :raise)
+        }.to raise_error(ExcelErrorClose, "book is unsaved (#{File.basename(@simple_file)})")
+      end
+
+      it "should close the book for option :forget" do
+        @book.close(:if_unsaved => :forget)
+        @book.alive?.should be_false
+        @book = RobustExcelOle::Book.open(@simple_file)
+        @book.filename.should_not eq 'copyed_name'
+        @book.close(:if_unsaved => :forget)
+      end
+
+      it "should save the book before close for option :accept" do
+        @book.close(:if_unsaved => :accept)
+        @book.alive?.should be_false
+        @book = RobustExcelOle::Book.open(@simple_file)
+        @book.filename.should eq 'copyed_name'
+        @book.close(:if_unsaved => :forget)
+      end
+
+      it "should give control to excel for option :excel" do
+        @book.close(:if_unsaved => :excel)
+      end
+
+      it "should raise error for default" do
+        expect{
+          @book.close
+        }.to raise_error(ExcelErrorClose, "book is unsaved (#{File.basename(@simple_file)})")
+      end
+
+      it "should raise error for invalid option" do
+        expect{
+          @book.close(:if_unsaved => :invalid)
+        }.to raise_error(ExcelErrorClose, "invalid option")
+      end
+    end
+  end
+
   describe "save" do
-    context "when open with read only" do
+    context "with open with read only" do
       before do
         @book = RobustExcelOle::Book.open(@simple_file, :read_only => true)
       end
@@ -416,6 +485,11 @@ describe RobustExcelOle::Book do
         @book.filename.should == @simple_file
       end
 
+      it "should return nil for dead book" do
+        @book.close
+        @book.filename.should == nil
+      end
+
     end
 
     context "with ==" do
@@ -467,7 +541,7 @@ describe RobustExcelOle::Book do
     end
 
     after do
-      @book.close
+      @book.close(:if_unsaved => :forget)
     end
     
     context "only first argument" do

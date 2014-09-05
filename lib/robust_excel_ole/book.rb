@@ -23,9 +23,10 @@ module RobustExcelOle
       #  :displayalerts (boolean)  allow display alerts in Excel         (default: false)
       #  :visible       (boolean)  make visibe in Excel                  (default: false)
       # :if_unsaved     if an unsaved book b with this file name is already open, then
-      #                 :raise -> raise an exception                     (default)             
-      #                 :accept -> let b open,                  
-      #                 :forget -> open the new book and close b
+      #                 :raise   -> raise an exception                     (default)             
+      #                 :accept  -> let b open,                  
+      #                 :forget  -> open the new book and close b
+      #                 :new_app -> open the new book in a new excel application
       # if the file name is nil then return
 
       def open(file, options={ :reuse => true}, &block)
@@ -58,14 +59,18 @@ module RobustExcelOle
           when :accept
             #nothing
           when :forget
-            @workbook.Close 
+            @workbook.Close
+          when :new_app
+            @options[:reuse] = false
+            @excel_app = ExcelApp.new(@options)
+            @workbook = nil
           else
             raise ExcelErrorOpen, "invalid option"
           end
         end
       end
-      # book not open (was not open or was closed with option :forget)
-      if not alive? then
+      # book not open (was not open or was closed with option :forget or shall be opened in new application)
+      if not @workbook then
         @workbook = @excel_app.Workbooks.Open(absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
       end
       if block

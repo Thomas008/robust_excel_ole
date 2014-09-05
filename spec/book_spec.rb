@@ -181,6 +181,15 @@ describe RobustExcelOle::Book do
           @new_book.alive?.should be_true
           @new_book.filename.downcase.should == @simple_file.downcase
         end
+
+        it "should open the book in a new excel application" do
+          @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved => :new_app)
+          @book.alive?.should be_true
+          @new_book.alive?.should be_true
+          @new_book.filename.should == @book.filename
+          @new_book.excel_app.should_not == @book.excel_app
+          @new_book.close
+        end
       end
     end
   end
@@ -351,10 +360,25 @@ describe RobustExcelOle::Book do
     end
   end
 
-  describe "== , alive?, filename" do
+  describe "== , alive?, filename, absolute_path" do
 
     after do
       RobustExcelOle::ExcelApp.close_all
+    end
+
+    context "with absolute_path" do
+      before do
+        @book = RobustExcelOle::Book.open(@simple_file)
+      end
+
+      after do
+        @book.close 
+      end
+
+      it "should return rigth absoute path name" do
+      #  filename = RobustExcelOle::Book.absolute_path(@simple_file)
+      #  puts "filename: #{filename}"
+      end 
     end
 
     context "with alive?" do

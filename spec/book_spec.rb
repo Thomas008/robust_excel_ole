@@ -211,15 +211,12 @@ describe RobustExcelOle::Book do
       end
     end
 
-    # think of a different change
     context "with unsaved book" do
       before do
         @book = RobustExcelOle::Book.open(@simple_file)
         @old_sheet_count = @book.workbook.Worksheets.Count
         @book.add_sheet @sheet
         @new_sheet_count = @book.workbook.Worksheets.Count
-        puts "old_sheet_count:#{@old_sheet_count}"
-        puts "new_sheet_count:#{@new_sheet_count}"
       end
 
       after do

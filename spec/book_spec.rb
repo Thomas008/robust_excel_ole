@@ -213,35 +213,50 @@ describe RobustExcelOle::Book do
       before do
         @book = RobustExcelOle::Book.open(@simple_file)
         @old_sheet_count = @book.workbook.Worksheets.Count
-        @book.add_sheet @sheet
+        @book.add_sheet(@sheet, :as => 'copyed_name')
         @new_sheet_count = @book.workbook.Worksheets.Count
       end
 
       after do
         @book.close(:if_unsaved => :forget) rescue nil
+        new_book.close rescue nil
       end
 
-      it "should raise error for option :raise" do
+      it "should raise error with option :raise" do
         expect{
           @book.close(:if_unsaved => :raise)
         }.to raise_error(ExcelErrorClose, "book is unsaved (#{File.basename(@simple_file)})")
       end
 
-      it "should close the book for option :forget" do
-        @book.close(:if_unsaved => :forget)
-        @book.alive?.should be_false
-        @book = RobustExcelOle::Book.open(@simple_file)
-        @book.workbook.Worksheets.Count.should ==  @old_sheet_count
+      it "should close the book and leave its file untouched with option :forget" do
+        ole_workbook = @book.workbook
+        excel_app = @book.excel_app
+        expect {
+          @book.close(:if_unsaved => :forget)
+        }.to change {excel_app.Workbooks.Count }.by(-1)
+        @book.workbook.should == nil
+        @book.should_not be_alive
+        expect{
+          ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
+        new_book = RobustExcelOle::Book.open(@simple_file)
+        new_book.workbook.Worksheets.Count.should ==  @old_sheet_count
       end
 
-      it "should save the book before close for option :accept" do
-        @book.close(:if_unsaved => :accept)
-        @book.alive?.should be_false
-        @book = RobustExcelOle::Book.open(@simple_file)
-        @book.workbook.Worksheets.Count.should == @new_sheet_count
+      it "should save the book before close with option :accept" do
+        ole_workbook = @book.workbook
+        excel_app = @book.excel_app
+        expect {
+          @book.close(:if_unsaved => :accept)
+        }.to change {excel_app.Workbooks.Count }.by(-1)
+        @book.workbook.should == nil
+        @book.should_not be_alive
+        expect{
+          ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
+        new_book = RobustExcelOle::Book.open(@simple_file)
+        new_book.workbook.Worksheets.Count.should == @new_sheet_count
       end
 
-      it "should give control to excel for option :excel" do
+      it "should give control to excel with option :excel" do
         @book.close(:if_unsaved => :excel)
       end
 
@@ -257,26 +272,6 @@ describe RobustExcelOle::Book do
         }.to raise_error(ExcelErrorClose, "invalid option")
       end
     end
-  end
-
-
-  describe "forget" do
-      before do
-        @book = RobustExcelOle::Book.open(@simple_file)
-        @book.add_sheet(@sheet, :as => 'copyed_name')
-      end
-
-      it "should close the book and leave its file untouched." do
-        ole_workbook = @book.workbook
-        excel_app = @book.excel_app
-        expect {
-          @book.forget
-          }.to change {excel_app.Workbooks.Count }.by(-1)
-        @book.workbook.should == nil
-        @book.should_not be_alive
-        expect { ole_workbook.Name }.to raise_error(WIN32OLERuntimeError)
-      end
-
   end
 
 

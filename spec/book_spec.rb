@@ -285,11 +285,15 @@ describe RobustExcelOle::Book do
     context "with simple save" do
       it "should save for a file opened without :read_only" do
         @book = RobustExcelOle::Book.open(@simple_file)
+        @book.add_sheet(@sheet, :as => 'copyed_name')
+        @new_sheet_count = @book.workbook.Worksheets.Count
         expect {
           @book.save
         }.to_not raise_error
+        @book.workbook.Worksheets.Count.should ==  @new_sheet_count
         @book.close
       end
+
       it "should raise error with read_only" do
         @book = RobustExcelOle::Book.open(@simple_file, :read_only => true)
         expect {

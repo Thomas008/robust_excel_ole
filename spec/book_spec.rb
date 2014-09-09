@@ -75,7 +75,7 @@ describe RobustExcelOle::Book do
         book = RobustExcelOle::Book.open(@simple_file, :read_only => false)
         book.should be_a RobustExcelOle::Book
         expect {
-          book.save(@simple_save, :if_exists => :overwrite)
+          book.save_as(@simple_save, :if_exists => :overwrite)
         }.to_not raise_error
         book.close
       end
@@ -84,7 +84,7 @@ describe RobustExcelOle::Book do
         book = RobustExcelOle::Book.open(@simple_file)
         book.should be_a RobustExcelOle::Book
         expect {
-          book.save(@simple_save, :if_exists => :overwrite)
+          book.save_as(@simple_save, :if_exists => :overwrite)
         }.to_not raise_error
         book.close
       end
@@ -93,7 +93,7 @@ describe RobustExcelOle::Book do
         book = RobustExcelOle::Book.open(@simple_file, :read_only => true)
         book.should be_a RobustExcelOle::Book
         expect {
-          book.save(@simple_save, :if_exists => :overwrite)
+          book.save_as(@simple_save, :if_exists => :overwrite)
         }.to raise_error
         book.close
       end
@@ -280,8 +280,26 @@ describe RobustExcelOle::Book do
     end
   end
 
-
   describe "save" do
+    
+    context "with simple save" do
+      it "should save for a file opened without :read_only" do
+        @book = RobustExcelOle::Book.open(@simple_file)
+        expect {
+          @book.save
+        }.to_not raise_error
+        @book.close
+      end
+      it "should raise error with read_only" do
+        @book = RobustExcelOle::Book.open(@simple_file, :read_only => true)
+        expect {
+          @book.save
+        }.to raise_error(IOError,
+                     "Not opened for writing(open with :read_only option)")
+        @book.close
+      end
+    end
+
     context "with open with read only" do
       before do
         @book = RobustExcelOle::Book.open(@simple_file, :read_only => true)
@@ -289,7 +307,7 @@ describe RobustExcelOle::Book do
 
       it {
         expect {
-          @book.save
+          @book.save_as(@simple_file)
         }.to raise_error(IOError,
                      "Not opened for writing(open with :read_only option)")
       }
@@ -298,7 +316,7 @@ describe RobustExcelOle::Book do
     context "with argument" do
       before do
         RobustExcelOle::Book.open(@simple_file) do |book|
-          book.save(@simple_save, :if_exists => :overwrite)
+          book.save_as(@simple_save, :if_exists => :overwrite)
         end
       end
 
@@ -321,7 +339,7 @@ describe RobustExcelOle::Book do
         it "should save to 'simple_save.#{extensions_value}'" do
           simple_save = @dir + '/simple_save.' + extensions_value
           File.delete simple_save rescue nil
-          @book.save(simple_save, :if_exists => :overwrite)
+          @book.save_as(simple_save, :if_exists => :overwrite)
           File.exist?(simple_save).should be_true
           new_book = RobustExcelOle::Book.open(simple_save)
           new_book.should be_a RobustExcelOle::Book
@@ -347,7 +365,7 @@ describe RobustExcelOle::Book do
           File.open(@simple_save,"w") do | file |
             file.puts "garbage"
           end
-          @book.save(@simple_save, :if_exists => :overwrite)
+          @book.save_as(@simple_save, :if_exists => :overwrite)
           File.exist?(@simple_save).should be_true
           new_book = RobustExcelOle::Book.open(@simple_save)
           new_book.should be_a RobustExcelOle::Book
@@ -363,7 +381,7 @@ describe RobustExcelOle::Book do
           File.exist?(@simple_save).should be_true
           booklength = File.size?(@simple_save)
           expect {
-            @book.save(@simple_save, :if_exists => :raise)
+            @book.save_as(@simple_save, :if_exists => :raise)
             }.to raise_error(ExcelErrorSave, 'book already exists: ' + basename)
           File.exist?(@simple_save).should be_true
           (File.size?(@simple_save) == booklength).should be_true
@@ -386,7 +404,7 @@ describe RobustExcelOle::Book do
           it "should save if user answers 'yes'" do
             # "Yes" is to the left of "No", which is the  default. --> language independent
             @key_sender.puts "{left}{enter}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
-            @book.save(@simple_save, :if_exists => :excel)
+            @book.save_as(@simple_save, :if_exists => :excel)
             File.exist?(@simple_save).should be_true
             File.size?(@simple_save).should > @garbage_length
             new_book = RobustExcelOle::Book.open(@simple_save)
@@ -402,7 +420,7 @@ describe RobustExcelOle::Book do
             @key_sender.puts "{enter}"
             @key_sender.puts "{enter}"
             #@key_sender.puts "%{n}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
-            @book.save(@simple_save, :if_exists => :excel)
+            @book.save_as(@simple_save, :if_exists => :excel)
             File.exist?(@simple_save).should be_true
             File.size?(@simple_save).should == @garbage_length
           end
@@ -411,7 +429,7 @@ describe RobustExcelOle::Book do
             #@key_sender.puts "{left}{enter}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
             @book.workbook.Close
             expect{
-              @book.save(@simple_save, :if_exists => :excel)
+              @book.save_as(@simple_save, :if_exists => :excel)
               }.to raise_error(ExcelErrorSaveUnknown)
             File.exist?(@simple_save).should be_true
             File.size?(@simple_save).should == @garbage_length
@@ -430,7 +448,7 @@ describe RobustExcelOle::Book do
           File.exist?(@simple_save).should be_true
           booklength = File.size?(@simple_save)
           expect {
-            @book.save(@simple_save)
+            @book.save_as(@simple_save)
             }.to raise_error(ExcelErrorSave, 'book already exists: ' + basename)
           File.exist?(@simple_save).should be_true
           (File.size?(@simple_save) == booklength).should be_true
@@ -438,9 +456,9 @@ describe RobustExcelOle::Book do
 
         it "should save to 'simple_save.xls' with :if_exists => :invalid_option" do
           File.delete @simple_save rescue nil
-          @book.save(@simple_save)
+          @book.save_as(@simple_save)
           expect {
-            @book.save(@simple_save, :if_exists => :invalid_option)
+            @book.save_as(@simple_save, :if_exists => :invalid_option)
             }.to raise_error(ExcelErrorSave, 'invalid option (invalid_option)')
         end
       end

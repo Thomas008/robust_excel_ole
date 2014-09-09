@@ -102,7 +102,7 @@ module RobustExcelOle
           # funktioniert nicht:
           # wenn book geschlossen ist, gibt es kein Permission Denied 
           # doch, wenn es geschlossen ist, geht SaveAs nicht mehr
-          save(absolute_path(filename), :if_exists => :overwrite)
+          save_as(absolute_path(filename), :if_exists => :overwrite)
         when :forget
           #nothing
         when :excel
@@ -144,6 +144,18 @@ module RobustExcelOle
 
     attr_reader :excel_app
 
+    # saves a book.
+    # returns true, if successfully saved, nil otherwise
+    def save
+      raise IOError, "Not opened for writing(open with :read_only option)" if @options[:read_only]
+      if @workbook then
+        @workbook.Save 
+        true
+      else
+        nil
+      end
+    end
+
 
     # saves a book.
     # options:
@@ -152,13 +164,8 @@ module RobustExcelOle
     #               :overwrite -> write the file, delete the old file
     #               :excel     -> give control to Excel
     # returns true, if successfully saved, nil otherwise
-    def save(file = nil, opts = {:if_exists => :raise} )
+    def save_as(file = nil, opts = {:if_exists => :raise} )
       raise IOError, "Not opened for writing(open with :read_only option)" if @options[:read_only]
-      unless file
-        @workbook.Save 
-        return true
-      end
-
       dirname, basename = File.split(file)
       file_format =
         case File.extname(basename)

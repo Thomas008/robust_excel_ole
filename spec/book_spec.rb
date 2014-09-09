@@ -127,22 +127,28 @@ describe RobustExcelOle::Book do
         @book.close
       end
 
+
       context "with an already saved book" do
         possible_options = [:read_only, :raise, :accept, :forget, nil]
         possible_options.each do |options_value|
-          context "with in the same directory and :if_unsaved => #{options_value}" do
+          context "with :if_unsaved => #{options_value} and in the same and different path" do
             before do
               @new_book = RobustExcelOle::Book.open(@simple_file, :reuse=> true, :if_unsaved => options_value)
+              different_file = @dir + '/different_simple.xls'
+              @different_book = RobustExcelOle::Book.new(different_file, :reuse=> true, :if_unsaved => options_value)
             end
             after do
               @new_book.close
+              @different_book.close
             end
             it "should open without problems " do
-                @new_book.should be_a RobustExcelOle::Book
+              @new_book.should be_a RobustExcelOle::Book
+              @different_book.should be_a RobustExcelOle::Book
             end
             it "should belong to the same Excel application" do
               @new_book.excel_app.should == @book.excel_app
-            end
+              @different_book.excel_app.should == @book.excel_app
+            end     
           end
         end
       end

@@ -41,12 +41,11 @@ module RobustExcelOle
         :if_unsaved => :raise,
         :read_only => false
       }.merge(options)
-
+      excel_app_options = {:reuse => true}.merge(options).delete_if{|k,v| k== :if_unsaved || k== :read_only}
       if not File.exist?(file)
         raise ExcelErrorOpen, "file #{file} not found"
-      end      
-      # ToDo: filter out the options specific to Book:
-      @excel_app = ExcelApp.new(@options)
+      end
+      @excel_app = ExcelApp.new(excel_app_options)
       workbooks = @excel_app.Workbooks
       @workbook = workbooks.Item(File.basename(file)) rescue nil
       if @workbook then

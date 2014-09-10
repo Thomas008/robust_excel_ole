@@ -166,13 +166,13 @@ describe RobustExcelOle::Book do
           @new_book.close rescue nil
         end
 
-        it "should raise an error, if if_unsaved is :raise" do
+        it "should raise an error, if :if_unsaved is :raise" do
           expect {
             @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved => :raise)
           }.to raise_error(ExcelErrorOpen, "book is already open but not saved (#{File.basename(@simple_file)})")
         end
 
-        it "should let the book open, if if_unsaved is :accept" do
+        it "should let the book open, if :if_unsaved is :accept" do
           expect {
             @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved => :accept)
             }.to_not raise_error
@@ -181,7 +181,7 @@ describe RobustExcelOle::Book do
           @new_book.filename.should == @book.filename
         end
 
-        it "should open book and close old book, if if_unsaved is :forget" do
+        it "should open book and close old book, if :if_unsaved is :forget" do
           @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved => :forget)
           @book.alive?.should be_false
           @new_book.alive?.should be_true
@@ -192,7 +192,7 @@ describe RobustExcelOle::Book do
           @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved => :excel)
         end
 
-        it "should open the book in a new excel application" do
+        it "should open the book in a new excel application, if :if_unsaved is :new_app" do
           @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved => :new_app)
           @book.alive?.should be_true
           @new_book.alive?.should be_true
@@ -200,7 +200,71 @@ describe RobustExcelOle::Book do
           @new_book.excel_app.should_not == @book.excel_app
           @new_book.close
         end
+
+        it "should raise an error, if :if_unsaved is default" do
+          expect {
+            @new_book = RobustExcelOle::Book.open(@simple_file)
+          }.to raise_error(ExcelErrorOpen, "book is already open but not saved (#{File.basename(@simple_file)})")
+        end
       end
+    end
+
+    context "with an unsaved book in a different path" do
+
+      before do
+        simple_file_other_path = @dir + '/more_data/simple.xls'
+        @book = RobustExcelOle::Book.open(simple_file_other_path)
+        @sheet = @book[0]
+        @book.add_sheet(@sheet, :as => 'copyed_name')
+      end
+
+      after do
+        @book.close(:if_unsaved => :forget)
+        @new_book.close rescue nil
+      end
+
+      it "should raise an error, if :if_unsaved_different_path is :raise" do
+        expect {
+          @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved_other_path => :raise)
+        }.to raise_error(ExcelErrorOpen, "book is unsaved with the same name in a different path.")
+          #({simple_file_other_path}) 
+      end
+
+      it "should let the book open, if :if_unsaved_other_path is :accept" do
+        expect {
+          @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved_other_path => :accept)
+          }.to_not raise_error
+        @book.alive?.should be_true
+        @new_book.alive?.should be_true
+        @new_book.filename.should == @book.filename
+      end
+
+      it "should close the other book and open the new book, if :if_unsaved_other_path is :forget" do
+        @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved_other_path => :forget)
+        @book.alive?.should be_false
+        @new_book.alive?.should be_true
+        @new_book.filename.downcase.should == @simple_file.downcase
+      end
+
+      it "should give control to excel, if :if_unsaved_other_path is :excel" do
+        @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved_other_path => :excel)
+      end
+
+      it "should open the book in a new excel application, if :if_unsaved_other_path is :new_app" do
+        @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved_other_path => :new_app)
+        @book.alive?.should be_true
+        @new_book.alive?.should be_true
+        @new_book.filename.should == @book.filename
+        @new_book.excel_app.should_not == @book.excel_app
+        @new_book.close
+      end
+
+      it "should raise an error, if :if_unsaved_other_path is default" do
+        expect {
+          @new_book = RobustExcelOle::Book.open(@simple_file)
+        }.to raise_error(ExcelErrorOpen, "book is already open but not saved (#{File.basename(@simple_file)})")
+      end
+
     end
   end
 
@@ -558,8 +622,8 @@ describe RobustExcelOle::Book do
       end
 
       it "should be false with same book names but different paths" do
-        simple_file_different_path = @dir + '/more_data/simple.xls'
-        @new_book = RobustExcelOle::Book.new(simple_file_different_path, :reuse => false)
+        simple_file_other_path = @dir + '/more_data/simple.xls'
+        @new_book = RobustExcelOle::Book.new(simple_file_other_path, :reuse => false)
         @new_book.should_not == @book
       end
 

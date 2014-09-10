@@ -80,12 +80,15 @@ module RobustExcelOle
           end
         end
       end
-      # book not open (was not open or was closed with option :forget or shall be opened in new application)
-      if not alive? then
-        @workbook = @excel_app.Workbooks.Open(absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
-      end
-      if @options[:if_unsaved] == :excel then
-        @excel_app.DisplayAlerts = old_displayalerts
+      begin
+        # book not open (was not open or was closed with option :forget or shall be opened in new application)
+        if not alive? then
+          @workbook = @excel_app.Workbooks.Open(absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
+        end
+      ensure
+        if @options[:if_unsaved] == :excel then
+          @excel_app.DisplayAlerts = old_displayalerts
+        end
       end
       if block
         begin

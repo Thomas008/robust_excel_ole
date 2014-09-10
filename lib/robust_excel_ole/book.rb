@@ -103,14 +103,14 @@ module RobustExcelOle
     # closes the book, if it is alive
     # options:
     # :if_unsaved     if book is unsaved
-    #                 :raise   -> raise an exception                     (default)             
+    #                 :raise   -> raise an exception                 (default)             
     #                 :accept  -> save the book before it is closed                  
     #                 :forget  -> close the book 
     #                 :excel   -> give control to excel
-    def close(options={ })
+    def close(opts={ })
       @options = {
         :if_unsaved => :raise,
-      }.merge(options)
+      }.merge(opts)
       if ((alive?) && (not @workbook.Saved)) then
         puts "book not saved"
         case @options[:if_unsaved]
@@ -121,18 +121,25 @@ module RobustExcelOle
         when :forget
           #nothing
         when :excel
-          #not implemented
+          old_displayalerts = @excel_app.DisplayAlerts
+          @excel_app.DisplayAlerts = true 
         else
           raise ExcelErrorClose, "invalid option"
         end
       end
-      @workbook.Close if alive?  
-      @workbook = nil
+      begin
+        @workbook.Close if alive?  
+        @workbook = nil
+      ensure
+        if @options[:if_unsaved] == :excel then
+          @excel_app.DisplayAlerts = old_displayalerts
+        end
+      end
       #@excel_app.Workbooks.Close
       #@excel_app.Quit
     end
 
-    # returns true, if the work book is alive, false, otherwise
+    # returns true, if the work book is alive, false otherwise
     def alive?
       begin 
         @workbook.Name

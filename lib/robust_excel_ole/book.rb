@@ -99,10 +99,7 @@ module RobustExcelOle
         when :raise
           raise ExcelErrorClose, "book is unsaved (#{File.basename(filename)})"
         when :accept
-          # funktioniert nicht:
-          # wenn book geschlossen ist, gibt es kein Permission Denied 
-          # doch, wenn es geschlossen ist, geht SaveAs nicht mehr
-          save_as(absolute_path(filename), :if_exists => :overwrite)
+          save
         when :forget
           #nothing
         when :excel

@@ -22,12 +22,19 @@ module RobustExcelOle
       #  :read_only     (boolean)  open in read-only mode                (default: false)
       #  :displayalerts (boolean)  allow display alerts in Excel         (default: false)
       #  :visible       (boolean)  make visibe in Excel                  (default: false)
-      # :if_unsaved     if an unsaved book b with this file name is already open, then
+      # :if_unsaved     if an unsaved book with the same name is open, then
       #                 :raise   -> raise an exception                     (default)             
-      #                 :accept  -> let b open,                  
-      #                 :forget  -> open the new book and close b
+      #                 :accept  -> let the unsaved book open                  
+      #                 :forget  -> close the unsaved book, open the new book
+      #                 :excel   -> give control to excel
       #                 :new_app -> open the new book in a new excel application
-      # if the file name is nil then return
+      # :if_unsaved_other_path     if an unsaved book with the same name in a different path is open, then
+      #                 :raise   -> raise an exception                     (default)             
+      #                 :accept  -> save and close the unsaved book and open the new book
+      #                 :forget  -> close the unsaved book, open the new book
+      #                 :excel   -> give control to excel
+      #                 :new_app -> open the new book in a new excel application
+      # returns the workbook
 
       def open(file, options={ :reuse => true}, &block)
         new(file, options, &block)
@@ -35,13 +42,15 @@ module RobustExcelOle
 
     end
 
-    def initialize(file, options={ }, &block)
+    def initialize(file, opts={ }, &block)
       @options = {
         :reuse => true,
+        :read_only => false,
         :if_unsaved => :raise,
-        :read_only => false
-      }.merge(options)
-      excel_app_options = {:reuse => true}.merge(options).delete_if{|k,v| k== :if_unsaved || k== :read_only}
+        :if_unsaved_other_path => :raise
+      }.merge(opts)
+      excel_app_options = {:reuse => true}.merge(opts).delete_if{|k,v| 
+        k== :if_read_only || k== :unsaved || k == :if_unsaved_other_path}
       if not File.exist?(file)
         raise ExcelErrorOpen, "file #{file} not found"
       end
@@ -59,6 +68,9 @@ module RobustExcelOle
             #nothing
           when :forget
             @workbook.Close
+          when :excel
+            old_displayalerts = @excel_app.DisplayAlerts
+            @excel_app.DisplayAlerts = true 
           when :new_app
             @options[:reuse] = false
             @excel_app = ExcelApp.new(@options)
@@ -71,6 +83,9 @@ module RobustExcelOle
       # book not open (was not open or was closed with option :forget or shall be opened in new application)
       if not alive? then
         @workbook = @excel_app.Workbooks.Open(absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
+      end
+      if @options[:if_unsaved] == :excel then
+        @excel_app.DisplayAlerts = old_displayalerts
       end
       if block
         begin

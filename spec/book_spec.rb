@@ -188,6 +188,10 @@ describe RobustExcelOle::Book do
           @new_book.filename.downcase.should == @simple_file.downcase
         end
 
+        it "should give control to excel" do
+          @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved => :excel)
+        end
+
         it "should open the book in a new excel application" do
           @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved => :new_app)
           @book.alive?.should be_true
@@ -218,9 +222,8 @@ describe RobustExcelOle::Book do
     context "with unsaved book" do
       before do
         @book = RobustExcelOle::Book.open(@simple_file)
-        @old_sheet_count = @book.workbook.Worksheets.Count
+        @sheet_count = @book.workbook.Worksheets.Count
         @book.add_sheet(@sheet, :as => 'copyed_name')
-        @new_sheet_count = @book.workbook.Worksheets.Count
       end
 
       after do
@@ -245,7 +248,7 @@ describe RobustExcelOle::Book do
         expect{
           ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
         new_book = RobustExcelOle::Book.open(@simple_file)
-        new_book.workbook.Worksheets.Count.should ==  @old_sheet_count
+        new_book.workbook.Worksheets.Count.should ==  @sheet_count
       end
 
       it "should save the book before close with option :accept" do
@@ -259,7 +262,7 @@ describe RobustExcelOle::Book do
         expect{
           ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
         new_book = RobustExcelOle::Book.open(@simple_file)
-        new_book.workbook.Worksheets.Count.should == @new_sheet_count
+        new_book.workbook.Worksheets.Count.should == @sheet_count + 1
       end
 
       it "should give control to excel with option :excel" do

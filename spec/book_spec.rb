@@ -338,40 +338,30 @@ describe RobustExcelOle::Book do
           @key_sender.close
         end
 
-        # book wird nicht geschlossen!
-        it "should save the unsaved book if user answers 'yes'" do
-          # "Yes" is to the left of "No", which is the  default. --> language independent
-          @key_sender.puts "{left}{enter}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
-          ole_workbook = @book.workbook
-          excel_app = @book.excel_app
-          expect {
-            @book.close(:if_unsaved => :excel)
-          }.to change {@book.excel_app.Workbooks.Count }.by(-1)
-          @book.workbook.should == nil
-          @book.should_not be_alive
-          expect{
-            ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
-          new_book = RobustExcelOle::Book.open(@simple_save)
-          new_book.workbook.Worksheets.Count.should == @sheet_count + 1
-          new_book.excel_app.DisplayAlerts.should == displayalert_value
-        end
-
-        # beim Wieder-Öffnen: kann das Book nicht finden
-        it "should not save if user answers 'no'" do
-          # Just give the "Enter" key, because "No" is the default. --> language independent
-          @key_sender.puts "{enter}"
-          ole_workbook = @book.workbook
-          excel_app = @book.excel_app
-          expect {
-            @book.close(:if_unsaved => :excel)
-          }.to change {excel_app.Workbooks.Count }.by(-1)
-          @book.workbook.should == nil
-          @book.should_not be_alive
-          expect{
-            ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
-          new_book = RobustExcelOle::Book.open(@simple_save)
-          new_book.workbook.Worksheets.Count.should == @sheet_count 
-          new_book.excel_app.DisplayAlerts.should == displayalert_value
+        possible_answers = [:yes, :no, :cancel]
+        possible_answers.each_with_index do |answer, position|
+          it "should save the unsaved book if user answers '#{answer}'" do
+            # "Yes" is the  default. "No" is right of "Yes", "Cancel" is right of "No" --> language independent
+            @key_sender.puts  "{right}" * position + "{enter}"
+            ole_workbook = @book.workbook
+            excel_app = @book.excel_app 
+            displayalert_value = @book.excel_app.DisplayAlerts
+            expect {
+              @book.close(:if_unsaved => :excel)
+            }.to change {@book.excel_app.Workbooks.Count }.by(answer==:cancel ? 0 : -1)
+            if answer == :cancel then
+              @book.workbook.Saved.should be_false
+              @book.workbook.should_not == nil
+              @book.should be_alive
+            else
+              @book.workbook.should == nil
+              @book.should_not be_alive
+              expect{ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
+            end
+            new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved => :forget)
+            new_book.workbook.Worksheets.Count.should == @sheet_count + (answer==:yes ? 1 : 0)
+            new_book.excel_app.DisplayAlerts.should == displayalert_value
+          end
         end
       end
 

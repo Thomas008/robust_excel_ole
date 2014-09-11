@@ -128,8 +128,8 @@ module RobustExcelOle
         end
       end
       begin
-        @workbook.Close if alive?  
-        @workbook = nil
+        @workbook.Close if alive?
+        @workbook = nil unless alive?
       ensure
         if @options[:if_unsaved] == :excel then
           @excel_app.DisplayAlerts = old_displayalerts
@@ -145,6 +145,7 @@ module RobustExcelOle
         @workbook.Name
         true
       rescue 
+        @workbook = nil  # dead object won't be alive again
         #puts $!.message
         false
       end

@@ -188,8 +188,36 @@ describe RobustExcelOle::Book do
           @new_book.filename.downcase.should == @simple_file.downcase
         end
 
-        it "should give control to excel" do
-          @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved => :excel)
+        context "with :if_unsaved => :excel" do
+          before do
+           @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"
+          end
+
+          after do
+            @key_sender.close
+          end
+
+          it "should open the new book and close the unsaved book, if user answers 'yes'" do
+            # "Yes" is the  default. --> language independent
+            @key_sender.puts "{enter}" 
+            @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved => :excel)
+            @book.alive?.should be_false
+            @new_book.alive?.should be_true
+            @new_book.filename.downcase.should == @simple_file.downcase
+          end
+
+          it "should not open the new book and not close the unsaved book, if user answers 'no'" do
+            # "No" is right to "Yes" (the  default). --> language independent
+            # strangely, in the "no" case, the question will sometimes be repeated three times
+            @book.excel_app.Visible = true
+            @key_sender.puts "{right}{enter}"
+            @key_sender.puts "{right}{enter}"
+            @key_sender.puts "{right}{enter}"
+            expect{
+              RobustExcelOle::Book.open(@simple_file, :if_unsaved => :excel)
+              }.to raise_error(ExcelUserCanceled, "Open: canceled by user")
+            @book.should be_alive
+          end
         end
 
         it "should open the book in a new excel application, if :if_unsaved is :new_app" do
@@ -286,8 +314,9 @@ describe RobustExcelOle::Book do
     context "with unsaved book" do
       before do
         @book = RobustExcelOle::Book.open(@simple_file)
-        @sheet_count = @book.workbook.Worksheets.Count
         @book.add_sheet(@sheet, :as => 'copyed_name')
+        @sheet = @book[0]
+        @sheet_count = @book.workbook.Worksheets.Count
       end
 
       after do
@@ -338,6 +367,10 @@ describe RobustExcelOle::Book do
           @key_sender.close
         end
 
+        #ToDo: different it-texts:
+        # yes -> save the unsaved book and close it
+        # no -> do not save the unsaved book and close it
+        # cancel -> do not save the unsaved book and do not close it
         possible_answers = [:yes, :no, :cancel]
         possible_answers.each_with_index do |answer, position|
           it "should save the unsaved book if user answers '#{answer}'" do

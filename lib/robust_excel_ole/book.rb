@@ -81,9 +81,14 @@ module RobustExcelOle
         end
       end
       begin
-        # book not open (was not open or was closed with option :forget or shall be opened in new application)
-        if not alive? then
-          @workbook = @excel_app.Workbooks.Open(absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
+        # if book not open (was not open,was closed with option :forget or shall be opened in new application)
+        #    or :if_unsaved => :excel
+        if (not alive?) || (@options[:if_unsaved] == :excel) then
+          begin
+            @workbook = @excel_app.Workbooks.Open(absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
+          rescue WIN32OLERuntimeError
+            raise ExcelUserCanceled, "Open: canceled by user"
+          end
         end
       ensure
         if @options[:if_unsaved] == :excel then
@@ -100,6 +105,7 @@ module RobustExcelOle
       @workbook
     end
     
+    # ToDo: when users cancel: raise an exception
     # closes the book, if it is alive
     # options:
     # :if_unsaved     if book is unsaved
@@ -265,6 +271,9 @@ module RobustExcelOle
     end
   end
 
+end
+
+class ExcelUserCanceled < RuntimeError
 end
 
 class ExcelError < RuntimeError

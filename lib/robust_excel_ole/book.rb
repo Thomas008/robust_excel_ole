@@ -47,10 +47,10 @@ module RobustExcelOle
         :reuse => true,
         :read_only => false,
         :if_unsaved => :raise,
-        :blocked_by_book => :raise
+        :if_blocked_by_other => :raise
       }.merge(opts)
       excel_app_options = {:reuse => true}.merge(opts).delete_if{|k,v| 
-        k== :if_read_only || k== :unsaved || k == :blocked_by_book}
+        k== :if_read_only || k== :unsaved || k == :if_blocked_by_other}
       if not File.exist?(file)
         raise ExcelErrorOpen, "file #{file} not found"
       end
@@ -58,12 +58,13 @@ module RobustExcelOle
       workbooks = @excel_app.Workbooks
       @workbook = workbooks.Item(File.basename(file)) rescue nil
       if @workbook then
-        # book open and not saved
-        if (not @workbook.Saved) then
-          #p "book not saved"
-          case @options[:if_unsaved]
+        blocked_by_other_book = (File.basename(file) == File.basename(@workbook.Fullname)) && 
+                                (not (file == @workbook.Fullname.gsub("\\","/")))
+        puts "blocked_by_other_book: #{blocked_by_other_book}"  
+        if blocked_by_other_book then
+          case @options[:if_blocked_by_other]
           when :raise
-            raise ExcelErrorOpen, "book is already open but not saved (#{File.basename(file)})"
+            raise ExcelErrorOpen, "blocked by an unsaved book with the same name in a different path"
           when :accept
             #nothing
           when :forget
@@ -76,7 +77,29 @@ module RobustExcelOle
             @excel_app = ExcelApp.new(@options)
             @workbook = nil
           else
-            raise ExcelErrorOpen, "invalid option"
+            raise ExcelErrorOpen, ":if_blocked_by_other: invalid option"
+          end
+        else
+          # book open, not saved, not blocked by other book
+          if (not @workbook.Saved) then
+            #p "book not saved"
+            case @options[:if_unsaved]
+            when :raise
+              raise ExcelErrorOpen, "book is already open but not saved (#{File.basename(file)})"
+            when :accept
+              #nothing
+            when :forget
+              @workbook.Close
+            when :excel
+              old_displayalerts = @excel_app.DisplayAlerts
+              @excel_app.DisplayAlerts = true 
+            when :new_app
+              @options[:reuse] = false
+              @excel_app = ExcelApp.new(@options)
+              @workbook = nil
+            else
+              raise ExcelErrorOpen, ":if_unsaved: invalid option"
+            end
           end
         end
       end
@@ -130,7 +153,7 @@ module RobustExcelOle
           old_displayalerts = @excel_app.DisplayAlerts
           @excel_app.DisplayAlerts = true 
         else
-          raise ExcelErrorClose, "invalid option"
+          raise ExcelErrorClose, ":if_unsaved: invalid option"
         end
       end
       begin
@@ -213,7 +236,7 @@ module RobustExcelOle
         when :raise
           raise ExcelErrorSave, "book already exists: #{basename}"
         else
-          raise ExcelErrorSave, "invalid option (#{opts[:if_exists]})"
+          raise ExcelErrorSave, ":if_exists: invalid option"
         end
       end
       begin

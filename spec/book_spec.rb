@@ -329,6 +329,52 @@ describe RobustExcelOle::Book do
         new_book.workbook.Worksheets.Count.should == @sheet_count + 1
       end
 
+      context "with :if_unsaved => :excel" do
+        before do
+          @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
+        end
+
+        after do
+          @key_sender.close
+        end
+
+        # book wird nicht geschlossen!
+        it "should save the unsaved book if user answers 'yes'" do
+          # "Yes" is to the left of "No", which is the  default. --> language independent
+          @key_sender.puts "{left}{enter}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
+          ole_workbook = @book.workbook
+          excel_app = @book.excel_app
+          expect {
+            @book.close(:if_unsaved => :excel)
+          }.to change {@book.excel_app.Workbooks.Count }.by(-1)
+          @book.workbook.should == nil
+          @book.should_not be_alive
+          expect{
+            ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
+          new_book = RobustExcelOle::Book.open(@simple_save)
+          new_book.workbook.Worksheets.Count.should == @sheet_count + 1
+          new_book.excel_app.DisplayAlerts.should == displayalert_value
+        end
+
+        # beim Wieder-Öffnen: kann das Book nicht finden
+        it "should not save if user answers 'no'" do
+          # Just give the "Enter" key, because "No" is the default. --> language independent
+          @key_sender.puts "{enter}"
+          ole_workbook = @book.workbook
+          excel_app = @book.excel_app
+          expect {
+            @book.close(:if_unsaved => :excel)
+          }.to change {excel_app.Workbooks.Count }.by(-1)
+          @book.workbook.should == nil
+          @book.should_not be_alive
+          expect{
+            ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
+          new_book = RobustExcelOle::Book.open(@simple_save)
+          new_book.workbook.Worksheets.Count.should == @sheet_count 
+          new_book.excel_app.DisplayAlerts.should == displayalert_value
+        end
+      end
+
       it "should give control to excel with option :excel" do
         @book.close(:if_unsaved => :excel)
       end

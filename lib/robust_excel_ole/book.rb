@@ -28,12 +28,12 @@ module RobustExcelOle
       #                 :forget  -> close the unsaved book, open the new book
       #                 :excel   -> give control to excel
       #                 :new_app -> open the new book in a new excel application
-      # :if_unsaved_other_path     if an unsaved book with the same name in a different path is open, then
-      #                 :raise   -> raise an exception                     (default)             
-      #                 :accept  -> save and close the unsaved book and open the new book
-      #                 :forget  -> close the unsaved book, open the new book
-      #                 :excel   -> give control to excel
-      #                 :new_app -> open the new book in a new excel application
+      # :blocked_by_book  if an unsaved book with the same name in a different path is open, then
+      #                   :raise   -> raise an exception                     (default)             
+      #                   :accept  -> save and close the unsaved book and open the new book
+      #                   :forget  -> close the unsaved book, open the new book
+      #                   :excel   -> give control to excel
+      #                   :new_app -> open the new book in a new excel application
       # returns the workbook
 
       def open(file, options={ :reuse => true}, &block)
@@ -47,10 +47,10 @@ module RobustExcelOle
         :reuse => true,
         :read_only => false,
         :if_unsaved => :raise,
-        :if_unsaved_other_path => :raise
+        :blocked_by_book => :raise
       }.merge(opts)
       excel_app_options = {:reuse => true}.merge(opts).delete_if{|k,v| 
-        k== :if_read_only || k== :unsaved || k == :if_unsaved_other_path}
+        k== :if_read_only || k== :unsaved || k == :blocked_by_book}
       if not File.exist?(file)
         raise ExcelErrorOpen, "file #{file} not found"
       end

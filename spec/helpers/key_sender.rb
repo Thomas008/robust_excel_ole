@@ -62,7 +62,7 @@ end
 if __FILE__ == $0
   key_sender = KeySender.new(ARGV[1])
   while not $stdin.eof? do
-    key_sequence = $stdin.gets
+    key_sequence = $stdin.gets.chomp
     key_sender.send key_sequence
   end
 end

@@ -235,7 +235,7 @@ describe RobustExcelOle::Book do
           }.to raise_error(ExcelErrorOpen, "book is already open but not saved (#{File.basename(@simple_file)})")
         end
 
-        it "should raise an error, if :if_unsaved is invalid" do
+        it "should raise an error, if :if_unsaved is invalid option" do
           expect {
             @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved => :invalid_option)
           }.to raise_error(ExcelErrorOpen, ":if_unsaved: invalid option")
@@ -275,7 +275,7 @@ describe RobustExcelOle::Book do
 
       it "should close the other book and open the new book, if :if_blocked_by_other is :forget" do
         @new_book = RobustExcelOle::Book.open(@simple_file, :if_blocked_by_other => :forget)
-        @book.should be_alive
+        @book.should_not be_alive
         @new_book.should be_alive
         @new_book.filename.downcase.should == @simple_file.downcase
       end
@@ -299,7 +299,7 @@ describe RobustExcelOle::Book do
         }.to raise_error(ExcelErrorOpen, "blocked by an unsaved book with the same name in a different path")
       end
 
-      it "should raise an error, if :if_blocked_by_other is invalid" do
+      it "should raise an error, if :if_blocked_by_other is invalid option" do
           expect {
             @new_book = RobustExcelOle::Book.open(@simple_file, :if_blocked_by_other => :invalid_option)
           }.to raise_error(ExcelErrorOpen, ":if_blocked_by_other: invalid option")

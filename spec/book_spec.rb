@@ -209,7 +209,7 @@ describe RobustExcelOle::Book do
           it "should not open the new book and not close the unsaved book, if user answers 'no'" do
             # "No" is right to "Yes" (the  default). --> language independent
             # strangely, in the "no" case, the question will sometimes be repeated three times
-            @book.excel_app.Visible = true
+            #@book.excel_app.Visible = true
             @key_sender.puts "{right}{enter}"
             @key_sender.puts "{right}{enter}"
             @key_sender.puts "{right}{enter}"
@@ -326,9 +326,9 @@ describe RobustExcelOle::Book do
     context "with unsaved book" do
       before do
         @book = RobustExcelOle::Book.open(@simple_file)
+        @sheet_count = @book.workbook.Worksheets.Count
         @book.add_sheet(@sheet, :as => 'copyed_name')
         @sheet = @book[0]
-        @sheet_count = @book.workbook.Worksheets.Count
       end
 
       after do

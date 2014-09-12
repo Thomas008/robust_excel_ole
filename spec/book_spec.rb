@@ -281,7 +281,7 @@ describe RobustExcelOle::Book do
         @new_book = RobustExcelOle::Book.open(@simple_file, :if_blocked_by_other => :new_app)
         @book.should be_alive
         @new_book.should be_alive
-        @new_book.filename.should == @book.filename
+        @new_book.filename.should_not == @book.filename
         @new_book.excel_app.should_not == @book.excel_app
         @new_book.close
       end

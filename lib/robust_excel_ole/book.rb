@@ -104,7 +104,7 @@ module RobustExcelOle
           begin
             @workbook = @excel_app.Workbooks.Open(absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
           rescue WIN32OLERuntimeError
-            raise ExcelUserCanceled, "Open: canceled by user"
+            raise ExcelUserCanceled, "open: canceled by user"
           end
         end
       ensure
@@ -152,7 +152,7 @@ module RobustExcelOle
       begin
         @workbook.Close if alive?
         @workbook = nil unless alive?
-        raise ExcelErrorClose, "user canceled" if alive? && @options[:if_unsaved] == :excel && (not @workbook.Saved)
+        raise ExcelUserCanceled, "close: canceled by user" if alive? && @options[:if_unsaved] == :excel && (not @workbook.Saved)
       ensure
         if @options[:if_unsaved] == :excel then
           @excel_app.DisplayAlerts = old_displayalerts
@@ -237,7 +237,12 @@ module RobustExcelOle
         @workbook.SaveAs(absolute_path(File.join(dirname, basename)), file_format)
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
-          return nil
+          #toDo: more condition for cancel
+          if opts[:if_exists] == :excel then 
+            raise ExcelUserCanceled, "save: canceled by user"
+          else
+            return nil
+          end
           # another possible semantics. raise ExcelErrorSaveFailed, "could not save Workbook"
         else
           raise ExcelErrorSaveUnknown, "unknown WIN32OELERuntimeError:\n#{msg.message}"

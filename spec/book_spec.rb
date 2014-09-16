@@ -223,7 +223,7 @@ describe RobustExcelOle::Book do
             @key_sender.puts "{right}{enter}"
             expect{
               RobustExcelOle::Book.open(@simple_file, :if_unsaved => :excel)
-              }.to raise_error(ExcelUserCanceled, "Open: canceled by user")
+              }.to raise_error(ExcelUserCanceled, "open: canceled by user")
             @book.should be_alive
           end
         end
@@ -345,7 +345,6 @@ describe RobustExcelOle::Book do
         }.to raise_error(ExcelErrorClose, "book is unsaved (#{File.basename(@simple_file)})")
       end
 
-      # fails
       it "should close the book and leave its file untouched with option :forget" do
         ole_workbook = @book.workbook
         excel_app = @book.excel_app
@@ -402,7 +401,7 @@ describe RobustExcelOle::Book do
             if answer == :cancel then
               expect {
               @book.close(:if_unsaved => :excel)
-              }.to raise_error(ExcelErrorClose, "user canceled")
+              }.to raise_error(ExcelUserCanceled, "close: canceled by user")
               @book.workbook.Saved.should be_false
               @book.workbook.should_not == nil
               @book.should be_alive
@@ -591,6 +590,24 @@ describe RobustExcelOle::Book do
             File.exist?(@simple_save_file).should be_true
             File.size?(@simple_save_file).should == @garbage_length
           end
+
+          it "should not save and raise an exception if user answers 'cancel'" do
+            # Just give the "Enter" key, because "No" is the default. --> language independent
+            # strangely, in the "no" case, the question will sometimes be repeated three times
+            @key_sender.puts "{right}{enter}"
+            @key_sender.puts "{right}{enter}"
+            @key_sender.puts "{right}{enter}"
+            expect{
+              @book.save_as(@simple_save_file, :if_exists => :excel)
+              }.to raise_error(ExcelUserCanceled, "save: canceled by user")
+            File.exist?(@simple_save_file).should be_true
+            File.size?(@simple_save_file).should == @garbage_length
+            new_book = RobustExcelOle::Book.open(@simple_save_file)
+            new_book.should be_a RobustExcelOle::Book
+            @book.excel_app.DisplayAlerts.should == displayalert_value
+            new_book.close
+          end
+
 
           it "should report save errors and leave DisplayAlerts unchanged" do
             #@key_sender.puts "{left}{enter}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")

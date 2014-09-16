@@ -33,7 +33,6 @@ module RobustExcelOle
       #                   :accept  -> save and close the unsaved book and open the new book
       #                   :forget  -> close the unsaved book, open the new book
       #                   :new_app -> open the new book in a new excel application
-      # returns the workbook
 
       def open(file, options={ :reuse => true}, &block)
         new(file, options, &block)
@@ -100,7 +99,7 @@ module RobustExcelOle
       end
       begin
         # if book not open (was not open,was closed with option :forget or shall be opened in new application)
-        #    or :if_unsaved => :excel or :if_blocked_by_other => :excel
+        #    or :if_unsaved => :excel
         if ((not alive?) || (@options[:if_unsaved] == :excel)) then
           begin
             @workbook = @excel_app.Workbooks.Open(absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
@@ -123,7 +122,6 @@ module RobustExcelOle
       @workbook
     end
     
-    # ToDo: when users cancel: raise an exception
     # closes the book, if it is alive
     # options:
     # :if_unsaved     if book is unsaved
@@ -154,6 +152,7 @@ module RobustExcelOle
       begin
         @workbook.Close if alive?
         @workbook = nil unless alive?
+        raise ExcelErrorClose, "user canceled" if alive? && @options[:if_unsaved] == :excel && (not @workbook.Saved)
       ensure
         if @options[:if_unsaved] == :excel then
           @excel_app.DisplayAlerts = old_displayalerts

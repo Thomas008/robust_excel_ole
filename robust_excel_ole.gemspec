@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
                      '--main', 'README.rdoc',
                      '--charset', 'utf-8'
                     ]
-  s.extra_rdoc_files = ['README.rdoc', 'README.ja.rdoc', 'LICENSE']
+  s.extra_rdoc_files = ['README.rdoc', 'LICENSE']
 
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }

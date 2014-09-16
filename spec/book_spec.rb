@@ -391,26 +391,25 @@ describe RobustExcelOle::Book do
           @key_sender.close
         end
 
-        #ToDo: different it-texts:
-        # yes -> save the unsaved book and close it
-        # no -> do not save the unsaved book and close it
-        # cancel -> do not save the unsaved book and do not close it
         possible_answers = [:yes, :no, :cancel]
         possible_answers.each_with_index do |answer, position|
-          it "should save the unsaved book if user answers '#{answer}'" do
+          it "should" + (answer == :yes ? "" : " not") + " the unsaved book and" + (answer == :cancel ? " not" : "") + " close it" + "if user answers '#{answer}'" do
             # "Yes" is the  default. "No" is right of "Yes", "Cancel" is right of "No" --> language independent
             @key_sender.puts  "{right}" * position + "{enter}"
             ole_workbook = @book.workbook
             excel_app = @book.excel_app 
             displayalert_value = @book.excel_app.DisplayAlerts
-            expect {
-              @book.close(:if_unsaved => :excel)
-            }.to change {@book.excel_app.Workbooks.Count }.by(answer==:cancel ? 0 : -1)
             if answer == :cancel then
+              expect {
+              @book.close(:if_unsaved => :excel)
+              }.to raise_error(ExcelErrorClose, "user canceled")
               @book.workbook.Saved.should be_false
               @book.workbook.should_not == nil
               @book.should be_alive
             else
+              expect {
+                @book.close(:if_unsaved => :excel)
+              }.to change {@book.excel_app.Workbooks.Count }.by(-1)
               @book.workbook.should == nil
               @book.should_not be_alive
               expect{ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)

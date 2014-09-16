@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 
 require File.join(File.dirname(__FILE__), './spec_helper')
@@ -285,39 +286,6 @@ describe RobustExcelOle::Book do
         @book.should_not be_alive
         @new_book.should be_alive
         @new_book.filename.downcase.should == @simple_file.downcase
-      end
-
-      # ??? keine Abgabe der Kontrolle an Excel
-      context "with :if_blocked_by_other => :excel" do
-        before do
-          @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"
-        end
-
-        after do
-          @key_sender.close
-        end
-
-        it "should open the new book and close the unsaved book, if user answers 'yes'" do
-          # "Yes" is the  default. --> language independent
-          #@key_sender.puts "{enter}" 
-          @new_book = RobustExcelOle::Book.open(@simple_file, :if_blocked_by_other => :excel)
-          @book.should_not be_alive
-          @new_book.should be_alive
-          @new_book.filename.downcase.should_not == @simple_file.downcase
-        end
-
-        it "should not open the new book and not close the unsaved book, if user answers 'no'" do
-          # "No" is right to "Yes" (the  default). --> language independent
-          # strangely, in the "no" case, the question will sometimes be repeated three times
-          #@book.excel_app.Visible = true
-          #@key_sender.puts "{right}{enter}"
-          #@key_sender.puts "{right}{enter}"
-          #@key_sender.puts "{right}{enter}"
-          expect{
-            RobustExcelOle::Book.open(@simple_file, :if_blocked_by_other => :excel)
-          }.to raise_error(ExcelUserCanceled, "Open: canceled by user")
-          @book.should be_alive
-        end
       end
 
       it "should open the book in a new excel application, if :if_blocked_by_other is :new_app" do

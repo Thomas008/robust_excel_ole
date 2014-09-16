@@ -32,7 +32,6 @@ module RobustExcelOle
       #                   :raise   -> raise an exception                     (default)             
       #                   :accept  -> save and close the unsaved book and open the new book
       #                   :forget  -> close the unsaved book, open the new book
-      #                   :excel   -> give control to excel
       #                   :new_app -> open the new book in a new excel application
       # returns the workbook
 
@@ -60,7 +59,6 @@ module RobustExcelOle
       if @workbook then
         blocked_by_other_book = (File.basename(file) == File.basename(@workbook.Fullname)) && 
                                 (not (file == @workbook.Fullname.gsub("\\","/")))
-        #puts "blocked_by_other_book: #{blocked_by_other_book}"  
         if blocked_by_other_book then
           case @options[:if_blocked_by_other]
           when :raise
@@ -69,9 +67,6 @@ module RobustExcelOle
             #nothing
           when :forget
             @workbook.Close
-          when :excel
-            old_displayalerts = @excel_app.DisplayAlerts
-            @excel_app.DisplayAlerts = true 
           when :new_app
             @options[:reuse] = false
             @excel_app = ExcelApp.new(@options)
@@ -103,26 +98,18 @@ module RobustExcelOle
           end
         end
       end
-      #puts "@options[:if_unsaved]:#{@options[:if_unsaved]}"
-      #puts "@options[:if_blocked_by_other]:#{@options[:if_blocked_by_other]}"
-      #puts "alive? : #{alive?}"
-      #puts "DispayAlerts: #{@excel_app.DisplayAlerts}"
       begin
         # if book not open (was not open,was closed with option :forget or shall be opened in new application)
         #    or :if_unsaved => :excel or :if_blocked_by_other => :excel
-        if (not alive?) || ((@options[:if_unsaved] == :excel) || (@options[:if_blocked_by_other] == :excel)) then
+        if ((not alive?) || (@options[:if_unsaved] == :excel)) then
           begin
-            #puts "@options[:if_unsaved]:#{@options[:if_unsaved]}"
-            #puts "@options[:if_blocked_by_other]:#{@options[:if_blocked_by_other]}"
-            #puts "alive? : #{alive?}"
-            #puts "DisplayAlerts: #{@excel_app.DisplayAlerts}"
             @workbook = @excel_app.Workbooks.Open(absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
           rescue WIN32OLERuntimeError
             raise ExcelUserCanceled, "Open: canceled by user"
           end
         end
       ensure
-        if (@options[:if_unsaved] == :excel || @options[:if_blocked_by_other] == :excel) then
+        if @options[:if_unsaved] == :excel then
           @excel_app.DisplayAlerts = old_displayalerts
         end
       end

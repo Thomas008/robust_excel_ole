@@ -3,10 +3,18 @@
 require File.join(File.dirname(__FILE__), './spec_helper')
 
 
-
 $VERBOSE = nil
 
 describe RobustExcelOle::Book do
+
+  before(:all) do
+    excel_app = RobustExcelOle::ExcelApp.new(:reuse => true)
+    open_books = excel_app == nil ? 0 : excel_app.Workbooks.Count 
+    puts "*** open books *** : #{open_books}" if open_books > 0
+    RobustExcelOle::ExcelApp.close_all
+  end
+
+
   before do
     @dir = create_tmpdir
     @simple_file = @dir + '/simple.xls'
@@ -14,7 +22,7 @@ describe RobustExcelOle::Book do
   end
 
   after do
-    RobustExcelOle::ExcelApp.close_all
+    #RobustExcelOle::ExcelApp.close_all
     rm_tmp(@dir)
   end
 
@@ -329,10 +337,10 @@ describe RobustExcelOle::Book do
       end
 
       it "should raise an error, if :if_blocked_by_other is invalid option" do
-          expect {
-            @new_book = RobustExcelOle::Book.open(@simple_file, :if_blocked_by_other => :invalid_option)
-          }.to raise_error(ExcelErrorOpen, ":if_blocked_by_other: invalid option")
-        end
+        expect {
+          @new_book = RobustExcelOle::Book.open(@simple_file, :if_blocked_by_other => :invalid_option)
+        }.to raise_error(ExcelErrorOpen, ":if_blocked_by_other: invalid option")
+      end
 
     end
   end
@@ -371,6 +379,7 @@ describe RobustExcelOle::Book do
         }.to raise_error(ExcelErrorClose, "book is unsaved (#{File.basename(@simple_file)})")
       end
 
+      # fails
       it "should close the book and leave its file untouched with option :forget" do
         ole_workbook = @book.workbook
         excel_app = @book.excel_app
@@ -385,6 +394,7 @@ describe RobustExcelOle::Book do
         new_book.workbook.Worksheets.Count.should ==  @sheet_count
       end
 
+      #fails
       it "should save the book before close with option :accept" do
         ole_workbook = @book.workbook
         excel_app = @book.excel_app
@@ -408,6 +418,7 @@ describe RobustExcelOle::Book do
           @key_sender.close
         end
 
+        # fails
         #ToDo: different it-texts:
         # yes -> save the unsaved book and close it
         # no -> do not save the unsaved book and close it
@@ -437,10 +448,6 @@ describe RobustExcelOle::Book do
             new_book.excel_app.DisplayAlerts.should == displayalert_value
           end
         end
-      end
-
-      it "should give control to excel with option :excel" do
-        @book.close(:if_unsaved => :excel)
       end
 
       it "should raise error for default" do
@@ -484,6 +491,10 @@ describe RobustExcelOle::Book do
     context "with open with read only" do
       before do
         @book = RobustExcelOle::Book.open(@simple_file, :read_only => true)
+      end
+
+      after do
+        @book.close
       end
 
       it {
@@ -648,10 +659,6 @@ describe RobustExcelOle::Book do
 
   describe "== , alive?, filename, absolute_path" do
 
-    after do
-      RobustExcelOle::ExcelApp.close_all
-    end
-
     context "with absolute_path" do
       before do
         @book = RobustExcelOle::Book.open(@simple_file)
@@ -661,9 +668,8 @@ describe RobustExcelOle::Book do
         @book.close 
       end
 
-      it "should return rigth absoute path name" do
-      #  filename = RobustExcelOle::Book.absolute_path(@simple_file)
-      #  puts "filename: #{filename}"
+      it "should return right absoute path name" do
+        @book.absolute_path(@simple_file).gsub("\\","/").should == @book.filename
       end 
     end
 
@@ -674,7 +680,7 @@ describe RobustExcelOle::Book do
       end
 
       after do
-        @book.close rescue nil
+        @book.close 
       end
 
       it "should return true, if book is alive" do

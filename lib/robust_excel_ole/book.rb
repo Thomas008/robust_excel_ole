@@ -60,7 +60,7 @@ module RobustExcelOle
       if @workbook then
         blocked_by_other_book = (File.basename(file) == File.basename(@workbook.Fullname)) && 
                                 (not (file == @workbook.Fullname.gsub("\\","/")))
-        puts "blocked_by_other_book: #{blocked_by_other_book}"  
+        #puts "blocked_by_other_book: #{blocked_by_other_book}"  
         if blocked_by_other_book then
           case @options[:if_blocked_by_other]
           when :raise
@@ -112,10 +112,10 @@ module RobustExcelOle
         #    or :if_unsaved => :excel or :if_blocked_by_other => :excel
         if (not alive?) || ((@options[:if_unsaved] == :excel) || (@options[:if_blocked_by_other] == :excel)) then
           begin
-            puts "@options[:if_unsaved]:#{@options[:if_unsaved]}"
-            puts "@options[:if_blocked_by_other]:#{@options[:if_blocked_by_other]}"
-            puts "alive? : #{alive?}"
-            puts "DisplayAlerts: #{@excel_app.DisplayAlerts}"
+            #puts "@options[:if_unsaved]:#{@options[:if_unsaved]}"
+            #puts "@options[:if_blocked_by_other]:#{@options[:if_blocked_by_other]}"
+            #puts "alive? : #{alive?}"
+            #puts "DisplayAlerts: #{@excel_app.DisplayAlerts}"
             @workbook = @excel_app.Workbooks.Open(absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
           rescue WIN32OLERuntimeError
             #raise ExcelUserCanceled, "Open: canceled by user"
@@ -216,7 +216,7 @@ module RobustExcelOle
       end
     end
 
-
+    #ToDo: when users cancel, raise exception. test this
     # saves a book.
     # options:
     #  :if_exists   if a file with the same name exists, then  
@@ -294,7 +294,7 @@ module RobustExcelOle
       new_sheet
     end        
 
-  private
+  #private
     def absolute_path(file)
       file = File.expand_path(file)
       file = RobustExcelOle::Cygwin.cygpath('-w', file) if RUBY_PLATFORM =~ /cygwin/

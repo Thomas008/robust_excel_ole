@@ -135,7 +135,6 @@ describe RobustExcelOle::Book do
         @book.close
       end
 
-
       context "with an already saved book" do
         possible_options = [:read_only, :raise, :accept, :forget, nil]
         possible_options.each do |options_value|
@@ -370,7 +369,6 @@ describe RobustExcelOle::Book do
 
       after do
         @book.close(:if_unsaved => :forget) rescue nil
-        new_book.close rescue nil
       end
 
       it "should raise error with option :raise" do
@@ -391,10 +389,13 @@ describe RobustExcelOle::Book do
         expect{
           ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
         new_book = RobustExcelOle::Book.open(@simple_file)
-        new_book.workbook.Worksheets.Count.should ==  @sheet_count
+        begin
+          new_book.workbook.Worksheets.Count.should ==  @sheet_count
+        ensure
+          new_book.close
+        end
       end
 
-      #fails
       it "should save the book before close with option :accept" do
         ole_workbook = @book.workbook
         excel_app = @book.excel_app
@@ -406,7 +407,11 @@ describe RobustExcelOle::Book do
         expect{
           ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
         new_book = RobustExcelOle::Book.open(@simple_file)
-        new_book.workbook.Worksheets.Count.should == @sheet_count + 1
+        begin
+          new_book.workbook.Worksheets.Count.should == @sheet_count + 1
+        ensure
+          new_book.close
+        end
       end
 
       context "with :if_unsaved => :excel" do
@@ -418,7 +423,6 @@ describe RobustExcelOle::Book do
           @key_sender.close
         end
 
-        # fails
         #ToDo: different it-texts:
         # yes -> save the unsaved book and close it
         # no -> do not save the unsaved book and close it
@@ -444,8 +448,12 @@ describe RobustExcelOle::Book do
               expect{ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
             end
             new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved => :forget)
-            new_book.workbook.Worksheets.Count.should == @sheet_count + (answer==:yes ? 1 : 0)
-            new_book.excel_app.DisplayAlerts.should == displayalert_value
+            begin
+              new_book.workbook.Worksheets.Count.should == @sheet_count + (answer==:yes ? 1 : 0)
+              new_book.excel_app.DisplayAlerts.should == displayalert_value
+            ensure
+              new_book.close
+            end
           end
         end
       end

@@ -118,7 +118,7 @@ module RobustExcelOle
             #puts "DisplayAlerts: #{@excel_app.DisplayAlerts}"
             @workbook = @excel_app.Workbooks.Open(absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
           rescue WIN32OLERuntimeError
-            #raise ExcelUserCanceled, "Open: canceled by user"
+            raise ExcelUserCanceled, "Open: canceled by user"
           end
         end
       ensure

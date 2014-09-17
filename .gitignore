@@ -5,3 +5,4 @@ pkg/*
 vendor/bundle
 *~
 .DS_Store
+doc/*

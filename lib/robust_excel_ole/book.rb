@@ -22,17 +22,17 @@ module RobustExcelOle
       #  :read_only     (boolean)  open in read-only mode                (default: false)
       #  :displayalerts (boolean)  allow display alerts in Excel         (default: false)
       #  :visible       (boolean)  make visibe in Excel                  (default: false)
-      # :if_unsaved     if an unsaved book with the same name is open, then
+      #  :if_unsaved    if an unsaved book with the same name is open, then
       #                 :raise   -> raise an exception                     (default)             
       #                 :accept  -> let the unsaved book open                  
       #                 :forget  -> close the unsaved book, open the new book
       #                 :excel   -> give control to excel
       #                 :new_app -> open the new book in a new excel application
-      # :blocked_by_book  if an unsaved book with the same name in a different path is open, then
-      #                   :raise   -> raise an exception                     (default)             
-      #                   :accept  -> save and close the unsaved book and open the new book
-      #                   :forget  -> close the unsaved book, open the new book
-      #                   :new_app -> open the new book in a new excel application
+      # :if_unsaved_other_book   if an unsaved book with the same name in a different path is open, then
+      #                  :raise   -> raise an exception                     (default)             
+      #                  :save    -> save and close the unsaved book and open the new book
+      #                  :forget  -> close the unsaved book, open the new book
+      #                  :new_app -> open the new book in a new excel application
 
       def open(file, options={ :reuse => true}, &block)
         new(file, options, &block)
@@ -45,10 +45,10 @@ module RobustExcelOle
         :reuse => true,
         :read_only => false,
         :if_unsaved => :raise,
-        :if_blocked_by_other => :raise
+        :if_unsaved_other_book => :raise
       }.merge(opts)
       excel_app_options = {:reuse => true}.merge(opts).delete_if{|k,v| 
-        k== :if_read_only || k== :unsaved || k == :if_blocked_by_other}
+        k== :if_read_only || k== :unsaved || k == :if_unsaved_other_book}
       if not File.exist?(file)
         raise ExcelErrorOpen, "file #{file} not found"
       end
@@ -59,10 +59,10 @@ module RobustExcelOle
         blocked_by_other_book = (File.basename(file) == File.basename(@workbook.Fullname)) && 
                                 (not (file == @workbook.Fullname.gsub("\\","/")))
         if blocked_by_other_book then
-          case @options[:if_blocked_by_other]
+          case @options[:if_unsaved_other_book]
           when :raise
             raise ExcelErrorOpen, "blocked by an unsaved book with the same name in a different path"
-          when :accept
+          when :save
             #nothing
           when :forget
             @workbook.Close
@@ -71,7 +71,7 @@ module RobustExcelOle
             @excel_app = ExcelApp.new(@options)
             @workbook = nil
           else
-            raise ExcelErrorOpen, ":if_blocked_by_other: invalid option"
+            raise ExcelErrorOpen, ":if_unsaved_other_book: invalid option"
           end
         else
           # book open, not saved, not blocked by other book
@@ -126,7 +126,7 @@ module RobustExcelOle
     # options:
     # :if_unsaved     if book is unsaved
     #                 :raise   -> raise an exception                 (default)             
-    #                 :accept  -> save the book before it is closed                  
+    #                 :save    -> save the book before it is closed                  
     #                 :forget  -> close the book 
     #                 :excel   -> give control to excel
     def close(opts={ })
@@ -138,7 +138,7 @@ module RobustExcelOle
         case @options[:if_unsaved]
         when :raise
           raise ExcelErrorClose, "book is unsaved (#{File.basename(filename)})"
-        when :accept
+        when :save
           save
         when :forget
           #nothing

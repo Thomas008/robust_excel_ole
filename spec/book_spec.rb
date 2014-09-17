@@ -266,30 +266,30 @@ describe RobustExcelOle::Book do
         @new_book.close rescue nil
       end
 
-      it "should raise an error, if :if_blocked_by_other is :raise" do
+      it "should raise an error, if :if_unsaved_other_book is :raise" do
         expect {
-          @new_book = RobustExcelOle::Book.open(@simple_file, :if_blocked_by_other => :raise)
+          @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved_other_book => :raise)
         }.to raise_error(ExcelErrorOpen, "blocked by an unsaved book with the same name in a different path")
       end
 
-      it "should let the book open, if :if_blocked_by_other is :accept" do
+      it "should let the book open, if :if_unsaved_other_book is :save" do
         expect {
-          @new_book = RobustExcelOle::Book.open(@simple_file, :if_blocked_by_other => :accept)
+          @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved_other_book => :save)
           }.to_not raise_error
         @book.should be_alive
         @new_book.should be_alive
         @new_book.filename.should == @book.filename
       end
 
-      it "should close the other book and open the new book, if :if_blocked_by_other is :forget" do
-        @new_book = RobustExcelOle::Book.open(@simple_file, :if_blocked_by_other => :forget)
+      it "should close the other book and open the new book, if :if_unsaved_other_book is :forget" do
+        @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved_other_book => :forget)
         @book.should_not be_alive
         @new_book.should be_alive
         @new_book.filename.downcase.should == @simple_file.downcase
       end
 
-      it "should open the book in a new excel application, if :if_blocked_by_other is :new_app" do
-        @new_book = RobustExcelOle::Book.open(@simple_file, :if_blocked_by_other => :new_app)
+      it "should open the book in a new excel application, if :if_unsaved_other_book is :new_app" do
+        @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved_other_book => :new_app)
         @book.should be_alive
         @new_book.should be_alive
         @new_book.filename.should_not == @book.filename
@@ -297,16 +297,16 @@ describe RobustExcelOle::Book do
         @new_book.close
       end
 
-      it "should raise an error, if :if_blocked_by_other is default" do
+      it "should raise an error, if :if_unsaved_other_book is default" do
         expect {
           @new_book = RobustExcelOle::Book.open(@simple_file)
         }.to raise_error(ExcelErrorOpen, "blocked by an unsaved book with the same name in a different path")
       end
 
-      it "should raise an error, if :if_blocked_by_other is invalid option" do
+      it "should raise an error, if :if_unsaved_other_book is invalid option" do
         expect {
-          @new_book = RobustExcelOle::Book.open(@simple_file, :if_blocked_by_other => :invalid_option)
-        }.to raise_error(ExcelErrorOpen, ":if_blocked_by_other: invalid option")
+          @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved_other_book => :invalid_option)
+        }.to raise_error(ExcelErrorOpen, ":if_unsaved_other_book: invalid option")
       end
 
     end
@@ -363,11 +363,11 @@ describe RobustExcelOle::Book do
         end
       end
 
-      it "should save the book before close with option :accept" do
+      it "should save the book before close with option :save" do
         ole_workbook = @book.workbook
         excel_app = @book.excel_app
         expect {
-          @book.close(:if_unsaved => :accept)
+          @book.close(:if_unsaved => :save)
         }.to change {excel_app.Workbooks.Count }.by(-1)
         @book.workbook.should == nil
         @book.should_not be_alive

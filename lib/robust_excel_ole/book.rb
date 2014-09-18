@@ -26,7 +26,6 @@ module RobustExcelOle
       #                  :save    -> save and close the unsaved book and open the new book
       #                  :forget  -> close the unsaved book, open the new book
       #                  :new_app -> open the new book in a new excel application
-
       def open(file, options={ :reuse => true}, &block)
         new(file, options, &block)
       end
@@ -195,7 +194,6 @@ module RobustExcelOle
       end
     end
 
-    #ToDo: when users cancel, raise exception. test this
     # saves a book.
     # options:
     #  :if_exists   if a file with the same name exists, then  
@@ -230,7 +228,7 @@ module RobustExcelOle
         @workbook.SaveAs(absolute_path(File.join(dirname, basename)), file_format)
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
-          #toDo: more condition for cancel
+          #toDo: more condition for cancel. if user cancels: raise an exception
           if opts[:if_exists] == :excel then 
             raise ExcelUserCanceled, "save: canceled by user"
           else

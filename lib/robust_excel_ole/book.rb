@@ -1,13 +1,6 @@
 # -*- coding: utf-8 -*-
 require 'weakref'
 
-class Hash
-  def first
-    to_a.first
-  end
-end
-
-
 module RobustExcelOle
 
   class Book
@@ -276,7 +269,7 @@ module RobustExcelOle
 
       new_sheet_name = opts.delete(:as)
 
-      after_or_before, base_sheet = opts.first || [:after, RobustExcelOle::Sheet.new(@workbook.Worksheets.Item(@workbook.Worksheets.Count))]
+      after_or_before, base_sheet = opts.to_a.first || [:after, RobustExcelOle::Sheet.new(@workbook.Worksheets.Item(@workbook.Worksheets.Count))]
       base_sheet = base_sheet.sheet
       sheet ? sheet.Copy({ after_or_before.to_s => base_sheet }) : @workbook.WorkSheets.Add({ after_or_before.to_s => base_sheet })
 

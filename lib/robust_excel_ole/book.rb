@@ -9,7 +9,8 @@ module RobustExcelOle
 
     class << self
 
-      # opens a book. 
+      # opens a book.
+      # 
       # options: 
       #  :reuse         (boolean)  use an already open Excel-application (default: true)
       #  :read_only     (boolean)  open in read-only mode                (default: false)
@@ -115,7 +116,8 @@ module RobustExcelOle
     end
     
     # closes the book, if it is alive
-    #  options:
+    #
+    # options:
     #  :if_unsaved    if book is unsaved
     #                 :raise   -> raise an exception       (default)             
     #                 :save    -> save the book before it is closed                  
@@ -166,7 +168,7 @@ module RobustExcelOle
       end
     end
 
-    # returns the full filename of the book
+    # returns the full file name of the book
     def filename
       @workbook.Fullname.tr('\\','/') rescue nil
     end
@@ -194,7 +196,8 @@ module RobustExcelOle
     end
 
     # saves a book.
-    #  options:
+    #
+    # options:
     #  :if_exists   if a file with the same name exists, then  
     #               :raise     -> raise an exception, dont't write the file  (default)
     #               :overwrite -> write the file, delete the old file
@@ -275,7 +278,7 @@ module RobustExcelOle
       new_sheet
     end        
 
-  # absolute path of the file
+    # absolute path of the file
     def absolute_path(file)
       file = File.expand_path(file)
       file = RobustExcelOle::Cygwin.cygpath('-w', file) if RUBY_PLATFORM =~ /cygwin/

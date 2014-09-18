@@ -165,7 +165,7 @@ module RobustExcelOle
       @ole_app = nil
     end
 
-    # returns true, if the excel application is alive, false, otherwise
+    # returns true, if the excel application is alive, false otherwise
     def alive?
       @ole_app.Name
       true

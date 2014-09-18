@@ -16,13 +16,13 @@ module RobustExcelOle
       #  :displayalerts (boolean)  allow display alerts in Excel         (default: false)
       #  :visible       (boolean)  make visibe in Excel                  (default: false)
       #  :if_unsaved    if an unsaved book with the same name is open, then
-      #                 :raise   -> raise an exception                     (default)             
+      #                 :raise   -> raise an exception                   (default)             
       #                 :accept  -> let the unsaved book open                  
       #                 :forget  -> close the unsaved book, open the new book
       #                 :excel   -> give control to excel
       #                 :new_app -> open the new book in a new excel application
-      # :if_unsaved_other_book   if an unsaved book with the same name in a different path is open, then
-      #                  :raise   -> raise an exception                     (default)             
+      #  :if_unsaved_other_book   if an unsaved book with the same name in a different path is open, then
+      #                  :raise   -> raise an exception                  (default)             
       #                  :save    -> save and close the unsaved book and open the new book
       #                  :forget  -> close the unsaved book, open the new book
       #                  :new_app -> open the new book in a new excel application
@@ -115,9 +115,9 @@ module RobustExcelOle
     end
     
     # closes the book, if it is alive
-    # options:
-    # :if_unsaved     if book is unsaved
-    #                 :raise   -> raise an exception                 (default)             
+    #  options:
+    #  :if_unsaved    if book is unsaved
+    #                 :raise   -> raise an exception       (default)             
     #                 :save    -> save the book before it is closed                  
     #                 :forget  -> close the book 
     #                 :excel   -> give control to excel
@@ -166,7 +166,6 @@ module RobustExcelOle
       end
     end
 
-    # ToConsider: different name :
     # returns the full filename of the book
     def filename
       @workbook.Fullname.tr('\\','/') rescue nil
@@ -195,7 +194,7 @@ module RobustExcelOle
     end
 
     # saves a book.
-    # options:
+    #  options:
     #  :if_exists   if a file with the same name exists, then  
     #               :raise     -> raise an exception, dont't write the file  (default)
     #               :overwrite -> write the file, delete the old file
@@ -276,7 +275,7 @@ module RobustExcelOle
       new_sheet
     end        
 
-  #private
+  # absolute path of the file
     def absolute_path(file)
       file = File.expand_path(file)
       file = RobustExcelOle::Cygwin.cygpath('-w', file) if RUBY_PLATFORM =~ /cygwin/

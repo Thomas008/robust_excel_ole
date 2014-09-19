@@ -234,7 +234,7 @@ Please pull request on github.
 
 == Author
 
-thomas mailto:traths@cs.uni-potsdam.de
+thomas mailto:Thomas.Raths@gmx.net
 
 == License
 

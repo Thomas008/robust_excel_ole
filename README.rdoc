@@ -122,7 +122,7 @@ Example.
 book.save('./another_sample.xls', :if_exists => :overwrite)
   
 
-=== check whether two books are identical
+=== equal (==)
 
 Check whether two books are identical.
 
@@ -132,7 +132,7 @@ if (book == new_book) then
   puts "the books are identical"
 end
 
-=== check whether the book is aive
+=== alive?
 
 Check whether the book is alive.
 

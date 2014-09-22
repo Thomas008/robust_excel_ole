@@ -77,8 +77,7 @@ module RobustExcelOle
       end
     end
 
-    # returns a running excel application, if a non-dead excel appication exists 
-    # returns nil, otherwise
+    # returns a running excel application, if a non-dead excel appication exists, nil otherwise
     def self.running_app
       result = WIN32OLE.connect('Excel.Application') rescue nil
       if result
@@ -92,7 +91,7 @@ module RobustExcelOle
       result
     end
 
-    # create a new excel application
+    # creates a new excel application
     def self.create
       new(:reuse => false)
     end
@@ -104,6 +103,7 @@ module RobustExcelOle
     end
 
     # returns an excel application  
+    #
     # options:
     #  :reuse         (boolean)  use an already running excel application  (default: true)
     #  :displayalerts (boolean)  allow display alerts in Excel             (default: false)
@@ -165,7 +165,7 @@ module RobustExcelOle
       @ole_app = nil
     end
 
-    # returns true, if the excel application is alive, false, otherwise
+    # returns true, if the excel application is alive, false otherwise
     def alive?
       @ole_app.Name
       true

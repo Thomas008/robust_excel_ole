@@ -1,13 +1,6 @@
 # -*- coding: utf-8 -*-
 require 'weakref'
 
-class Hash
-  def first
-    to_a.first
-  end
-end
-
-
 module RobustExcelOle
 
   class Book
@@ -16,24 +9,24 @@ module RobustExcelOle
 
     class << self
 
-      # opens a book. 
+      # opens a book.
+      # 
       # options: 
       #  :reuse         (boolean)  use an already open Excel-application (default: true)
       #  :read_only     (boolean)  open in read-only mode                (default: false)
       #  :displayalerts (boolean)  allow display alerts in Excel         (default: false)
       #  :visible       (boolean)  make visibe in Excel                  (default: false)
       #  :if_unsaved    if an unsaved book with the same name is open, then
-      #                 :raise   -> raise an exception                     (default)             
+      #                 :raise   -> raise an exception                   (default)             
       #                 :accept  -> let the unsaved book open                  
       #                 :forget  -> close the unsaved book, open the new book
       #                 :excel   -> give control to excel
       #                 :new_app -> open the new book in a new excel application
-      # :if_unsaved_other_book   if an unsaved book with the same name in a different path is open, then
-      #                  :raise   -> raise an exception                     (default)             
+      #  :if_unsaved_other_book   if an unsaved book with the same name in a different path is open, then
+      #                  :raise   -> raise an exception                  (default)             
       #                  :save    -> save and close the unsaved book and open the new book
       #                  :forget  -> close the unsaved book, open the new book
       #                  :new_app -> open the new book in a new excel application
-
       def open(file, options={ :reuse => true}, &block)
         new(file, options, &block)
       end
@@ -123,9 +116,10 @@ module RobustExcelOle
     end
     
     # closes the book, if it is alive
+    #
     # options:
-    # :if_unsaved     if book is unsaved
-    #                 :raise   -> raise an exception                 (default)             
+    #  :if_unsaved    if book is unsaved
+    #                 :raise   -> raise an exception       (default)             
     #                 :save    -> save the book before it is closed                  
     #                 :forget  -> close the book 
     #                 :excel   -> give control to excel
@@ -174,8 +168,7 @@ module RobustExcelOle
       end
     end
 
-    # ToConsider: different name :
-    # returns the full filename of the book
+    # returns the full file name of the book
     def filename
       @workbook.Fullname.tr('\\','/') rescue nil
     end
@@ -202,8 +195,8 @@ module RobustExcelOle
       end
     end
 
-    #ToDo: when users cancel, raise exception. test this
     # saves a book.
+    #
     # options:
     #  :if_exists   if a file with the same name exists, then  
     #               :raise     -> raise an exception, dont't write the file  (default)
@@ -237,7 +230,7 @@ module RobustExcelOle
         @workbook.SaveAs(absolute_path(File.join(dirname, basename)), file_format)
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
-          #toDo: more condition for cancel
+          #toDo: more condition for cancel. if user cancels: raise an exception
           if opts[:if_exists] == :excel then 
             raise ExcelUserCanceled, "save: canceled by user"
           else
@@ -276,7 +269,7 @@ module RobustExcelOle
 
       new_sheet_name = opts.delete(:as)
 
-      after_or_before, base_sheet = opts.first || [:after, RobustExcelOle::Sheet.new(@workbook.Worksheets.Item(@workbook.Worksheets.Count))]
+      after_or_before, base_sheet = opts.to_a.first || [:after, RobustExcelOle::Sheet.new(@workbook.Worksheets.Item(@workbook.Worksheets.Count))]
       base_sheet = base_sheet.sheet
       sheet ? sheet.Copy({ after_or_before.to_s => base_sheet }) : @workbook.WorkSheets.Add({ after_or_before.to_s => base_sheet })
 
@@ -285,7 +278,7 @@ module RobustExcelOle
       new_sheet
     end        
 
-  #private
+    # absolute path of the file
     def absolute_path(file)
       file = File.expand_path(file)
       file = RobustExcelOle::Cygwin.cygpath('-w', file) if RUBY_PLATFORM =~ /cygwin/

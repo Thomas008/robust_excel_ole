@@ -18,24 +18,167 @@ RobustExcelOle wraps the win32ole, and uses the Excel operations with ruby.
   gem install robust_excel_ole
 
 == Usage
-=== access book
 
-Read with block.
+=== open a book
+
+Open a book.
+
+book = RobustExcelOle::Book.open('./sample.xls')
+
+Open with block.
 
   RobustExcelOle::Book.open('./sample.xls') do |book|
     # do something
   end
 
-Read without block.
+Options are the following:
 
-  book = RobustExcelOle::Book.open('./sample.xls')
-  book.close
+[:reuse]         boolean (default true)  use an already open Excel-application 
+[:read_only]     boolean (default false) open in read-only mode  
+[:displayalerts] boolean (default false) allow display alerts in Excel   
+[:visible]       boolean (default false) make visibe in Excel                  
+[:if_unsaved]    :raise (default), :accept, :forget, :excel, :new_app
+                 if an unsaved book with the same name is open
+          
+:raise 
 
-Options are the following.
+Raise an exception. Don't open the book.
 
-[read_only] boolean(default true)
-[displayalerts] boolean(default false)
-[visible] boolean(default false)
+:accept  
+
+Let the unsaved book open.                  
+                 
+:forget  
+
+Close the unsaved book, open the new book.
+
+:excel   
+
+Give control to excel
+                
+:new_app 
+
+Open the new book in a new excel application.
+
+[:if_unsaved_other_book]  :raise (default), :save, :forget, :new_app
+                          if an unsaved book with same name in a different path is open,
+                 
+:raise 
+
+Raise an exception. Don't open the book.
+
+:save    
+
+Save and close the unsaved book and open the new book.
+
+:forget  
+
+Close the unsaved book, open the new book
+                
+:new_app 
+
+open the new book in a new excel application
+
+
+Examples:
+
+Open another book in the same Excel application.
+
+new_book = RobustExcelOle::Book.open('./different.xls')
+
+Open another book in an used Excel applications.
+
+new_book = RobustExcelOle::Book.open('./different.xls', :reuse => false)
+
+
+=== write excel
+
+Save a book.
+
+book.save
+
+Save a book with file name.
+
+book.save_as('./another_sample.xls')
+
+Options are the following:
+
+[:if_exists] :overwrite, :excel, :raise (default)
+
+:overwrite: 
+
+Delete the old file and write the file.
+
+:excel
+
+Give the control to Excel.
+
+:raise
+
+Raise an exception. Don't write the file.
+
+Example.
+
+book.save('./another_sample.xls', :if_exists => :overwrite)
+  
+
+=== equal (==)
+
+Check whether two books are identical.
+
+Example.
+
+if (book == new_book) then
+  puts "the books are identical"
+end
+
+=== alive?
+
+Check whether the book is alive.
+
+book.alive?
+
+Example.
+
+if book.alive? then 
+  puts "the book is alive"
+end
+
+=== get the file name of the book
+
+Get the file name of the book.
+
+book.filename
+
+=== close a book
+
+Close a book
+
+book.close
+
+Options are the following:
+
+[:if_unsaved]  :raise (default), :save, :forget, :excel  
+
+if the book is unsaved
+                 
+:raise 
+
+Raise an exception. Don't close the book                  
+                 
+:save            
+
+Save the book before closing it.                  
+                 
+:forget          
+
+Close the book. 
+    
+:excel           
+
+Give control to excel
+
+
 
 === access sheet
 
@@ -75,57 +218,7 @@ Read from range object
   row_range[0]  => first cell in row_range
   column_range[1] => second cell in column_range
 
-=== write excel
 
-Can save an existing file.
-
-Saves a file, if no file with the same name exists.
-
-Proceeds acocording to the options, otherwise.
-
-  RobustExcelOle::Book.open('./sample.xls', :read_only => false) do |book|
-    # do something
-    book.save '.\sample.xls'
-  end
-
-or
-
-  book = RobustExcelOle::Book.open('./sample.xls', :read_only => false)
-  book.save '.\sample.xls'
-  book.close
-
-Can save with an another file name.
-
-  RobustExcelOle::Book.open('./sample.xls', :read_only => false) do |book|
-    # do something  
-    book.save './another_file.xls'
-  end
-
-
-Save to another_file.xls.
-
-Options are the following:
-
-[:if_exists] :overwrite, :excel, :raise (default)
-
-:overwrite: 
-
-Delete the old file and write the file.
-
-:excel
-
-Give the control to Excel.
-
-:raise
-
-Throw an exception. Don't write the file.
-
-Example:
-
- RobustExcelOle::Book.open('./sample.xls', :read_only => false) do |book|
-    # do something
-    book.save('./another_file.xls', :if_exists => :overwrite)
-  end
 
 === Want to do more things
 
@@ -141,7 +234,7 @@ Please pull request on github.
 
 == Author
 
-thomas mailto:traths@cs.uni-potsdam.de
+thomas mailto:Thomas.Raths@gmx.net
 
 == License
 

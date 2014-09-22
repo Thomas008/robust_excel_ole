@@ -25,7 +25,7 @@ class KeySender
         print "-" unless options[:silent]
       end
     else
-      true # Keine Fenstername, immer senden'
+      true # Keine Window_name, immer senden'
     end
 
     if ready_to_send
@@ -44,16 +44,16 @@ class KeySender
     ready_to_send
   end
 
-  def warte_auf_fenster(fensternamen, timeout=30)
-    abbruch_zeit = Time.now + timeout
+  def wait_for_window(windowname, timeout=30)
+    break_time = Time.now + timeout
     loop do
-      fensternamen.each do |fenstername|
-        ready_to_send = @wsh.AppActivate(fenstername)
-        return fenstername if ready_to_send
+      windowname.each do |window_name|
+        ready_to_send = @wsh.AppActivate(window_name)
+        return window_name if ready_to_send
       end
-      break false if Time.now > abbruch_zeit
+      break false if Time.now > break_time
 
-      print " (noch #{'%.1f'%(abbruch_zeit - Time.now)}s) " unless options[:silent]
+      print " (noch #{'%.1f'%(break_time - Time.now)}s) " unless options[:silent]
       sleep 0.813
     end
   end

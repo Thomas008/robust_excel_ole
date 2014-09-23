@@ -230,9 +230,8 @@ module RobustExcelOle
         @workbook.SaveAs(absolute_path(File.join(dirname, basename)), file_format)
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
-          #toDo: more condition for cancel. if user cancels: raise an exception
           if opts[:if_exists] == :excel then 
-            raise ExcelUserCanceled, "save: canceled by user"
+            raise ExcelErrorSave, "not saved or canceled by user"
           else
             return nil
           end

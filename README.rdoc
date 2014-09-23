@@ -3,6 +3,7 @@
 This is a simple fork from tomiacannondale's wrap_excel adapted to Ruby 1.8.6.
 The functionality of wrap_excel is optimised and extended by new features.
 
+This is work in progress.
 
 == Description
 
@@ -25,7 +26,7 @@ Open a book.
 
 book = RobustExcelOle::Book.open('./sample.xls')
 
-Open with block.
+Open a book with a block.
 
   RobustExcelOle::Book.open('./sample.xls') do |book|
     # do something
@@ -37,7 +38,7 @@ Options are the following:
 [:read_only]     boolean (default false) open in read-only mode  
 [:displayalerts] boolean (default false) allow display alerts in Excel   
 [:visible]       boolean (default false) make visibe in Excel                  
-[:if_unsaved]    :raise (default), :accept, :forget, :excel, :new_app
+[:if_unsaved]    :raise (default), :accept, :forget, :new_app, :excel
                  if an unsaved book with the same name is open
           
 :raise 
@@ -52,13 +53,15 @@ Let the unsaved book open.
 
 Close the unsaved book, open the new book.
 
-:excel   
-
-Give control to excel
-                
 :new_app 
 
-Open the new book in a new excel application.
+Open the new book in a new Excel application.
+
+:excel   
+
+Give control to Excel.
+                
+
 
 [:if_unsaved_other_book]  :raise (default), :save, :forget, :new_app
                           if an unsaved book with same name in a different path is open,
@@ -77,7 +80,7 @@ Close the unsaved book, open the new book
                 
 :new_app 
 
-open the new book in a new excel application
+Open the new book in a new Excel application
 
 
 Examples:
@@ -91,13 +94,13 @@ Open another book in an used Excel applications.
 new_book = RobustExcelOle::Book.open('./different.xls', :reuse => false)
 
 
-=== write excel
+=== save a book
 
 Save a book.
 
 book.save
 
-Save a book with file name.
+Save a book with a file name.
 
 book.save_as('./another_sample.xls')
 
@@ -109,6 +112,10 @@ Options are the following:
 
 Delete the old file and write the file.
 
+Example.
+
+book.save('./another_sample.xls', :if_exists => :overwrite)
+
 :excel
 
 Give the control to Excel.
@@ -117,12 +124,9 @@ Give the control to Excel.
 
 Raise an exception. Don't write the file.
 
-Example.
-
-book.save('./another_sample.xls', :if_exists => :overwrite)
   
 
-=== equal (==)
+=== == (equal)
 
 Check whether two books are identical.
 
@@ -144,7 +148,7 @@ if book.alive? then
   puts "the book is alive"
 end
 
-=== get the file name of the book
+=== filename
 
 Get the file name of the book.
 
@@ -176,17 +180,17 @@ Close the book.
     
 :excel           
 
-Give control to excel
+Give control to Excel
 
 
 
 === access sheet
 
-Sheet object can access with Book#[] method.
+A sheet object can be accessed with a Book#[] method.
 
   sheet = book[0]
 
-Access with sheet name.
+Access with the sheet name.
 
     book['Sheet1']
 
@@ -209,7 +213,7 @@ Sheet object is included enumerable. Use Sheet#each_column or Sheet#each_row or 
 
 === access cell
 
-Read from sheet object.
+Read from a sheet object.
 
   sheet[0, 0]  => first cell.
 

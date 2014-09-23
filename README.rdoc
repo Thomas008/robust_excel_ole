@@ -60,7 +60,6 @@ Open the new book in a new Excel application.
 :excel   
 
 Give control to Excel.
-                
 
 
 [:if_unsaved_other_book]  :raise (default), :save, :forget, :new_app
@@ -85,14 +84,26 @@ Open the new book in a new Excel application
 
 Examples:
 
+Open a book.
+
+book = RobustExcelOle::Book.open('./sample.xls')
+
 Open another book in the same Excel application.
 
 new_book = RobustExcelOle::Book.open('./different.xls')
 
-Open another book in an used Excel applications.
+Open another book in a new Excel applications.
 
 new_book = RobustExcelOle::Book.open('./different.xls', :reuse => false)
 
+Change the book (see below).
+
+sheet = book[0]
+book.add_sheet(sheet, :as => 'copyed_name')
+
+Let the unsaved book open, when open a book while a book with the same name is unsaved and open.
+
+new_book = RobustExcelOle::Book.open('./sample.xls', :if_unsaved => accept)
 
 === save a book
 
@@ -112,10 +123,6 @@ Options are the following:
 
 Delete the old file and write the file.
 
-Example.
-
-book.save('./another_sample.xls', :if_exists => :overwrite)
-
 :excel
 
 Give the control to Excel.
@@ -124,7 +131,11 @@ Give the control to Excel.
 
 Raise an exception. Don't write the file.
 
-  
+Example:
+
+Overwrite a book with the same name.
+
+book.save('./another_sample.xls', :if_exists => :overwrite)  
 
 === == (equal)
 
@@ -163,8 +174,7 @@ book.close
 Options are the following:
 
 [:if_unsaved]  :raise (default), :save, :forget, :excel  
-
-if the book is unsaved
+               if the book is unsaved
                  
 :raise 
 
@@ -190,13 +200,13 @@ A sheet object can be accessed with a Book#[] method.
 
   sheet = book[0]
 
-Access with the sheet name.
+Access a sheet object with the sheet name.
 
     book['Sheet1']
 
 === access row or column
 
-Sheet object is included enumerable. Use Sheet#each_column or Sheet#each_row or Sheet#each method.
+A sheet object is enumerable. Use the methods Sheet#each_column, Sheet#each_row or Sheet#each.
 
   sheet.each do |cell|
     # do something with cell
@@ -213,11 +223,11 @@ Sheet object is included enumerable. Use Sheet#each_column or Sheet#each_row or 
 
 === access cell
 
-Read from a sheet object.
+Read a cell from a sheet object.
 
   sheet[0, 0]  => first cell.
 
-Read from range object
+Read a cell from a range object.
 
   row_range[0]  => first cell in row_range
   column_range[1] => second cell in column_range
@@ -226,11 +236,12 @@ Read from range object
 
 === Want to do more things
 
-All RobustExcelOle object include win32ole instance. If you want to do something that not provide a function, you can use win32ole methods.
+All RobustExcelOle objects include the win32ole instance. 
+If you want to do something that not provide a function, you can use win32ole methods.
 
 == Support
 
-Report issues and feature requests to github Issues. https://github.com/Thomas008/robust_excel_ole/issues
+This is work in progress. Please don't hesitate to report issues and  feature requests to github Issues. https://github.com/Thomas008/robust_excel_ole/issues
 
 == Collaborate
 

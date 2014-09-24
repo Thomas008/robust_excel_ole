@@ -241,7 +241,7 @@ If you want to do something that not provide a function, you can use win32ole me
 
 == Support
 
-This is work in progress. Please don't hesitate to report issues and  feature requests to github Issues. https://github.com/Thomas008/robust_excel_ole/issues
+This is work in progress. Please don't hesitate to contact us and to report issues and feature requests to github Issues. https://github.com/Thomas008/robust_excel_ole/issues
 
 == Collaborate
 

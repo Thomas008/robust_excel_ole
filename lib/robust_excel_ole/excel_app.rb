@@ -8,7 +8,7 @@ module RobustExcelOle
 
     @@hwnd2app = {}
 
-    # closes one excel application
+    # closes one Excel application
     def self.close_one_app
       excel = running_app
       if excel then
@@ -67,7 +67,7 @@ module RobustExcelOle
       puts "went through #{anz_objekte} OLE objects"
     end
 
-    # closes all excel applications
+    # closes all Excel applications
     def self.close_all
       while running_app do
         close_one_app
@@ -77,7 +77,7 @@ module RobustExcelOle
       end
     end
 
-    # returns a running excel application, if a non-dead excel appication exists, nil otherwise
+    # returns a running Excel application, if a working Excel appication exists, nil otherwise
     def self.running_app
       result = WIN32OLE.connect('Excel.Application') rescue nil
       if result
@@ -91,12 +91,12 @@ module RobustExcelOle
       result
     end
 
-    # creates a new excel application
+    # creates a new Excel application
     def self.create
       new(:reuse => false)
     end
 
-    # uses a running excel application, if such an application exists
+    # uses a running Excel application, if such an application exists
     # creates a new one, otherwise 
     def self.reuse_if_possible
       new(:reuse => true)
@@ -115,7 +115,6 @@ module RobustExcelOle
       if options[:reuse] then
         ole_app = running_app
         if ole_app
-          #p "bestehende Applikation wird wieder benutzt"
           ole_app.DisplayAlerts = options[:displayalerts] unless options[:displayalerts]==nil
           ole_app.Visible = options[:visible] unless options[:visible]==nil
         end
@@ -125,7 +124,6 @@ module RobustExcelOle
         :displayalerts => false,
         :visible => false,
       }.merge(options)
-      #p "kreiere neue application"
       unless ole_app
         ole_app = WIN32OLE.new('Excel.application')
         ole_app.DisplayAlerts = options[:displayalerts]
@@ -155,17 +153,17 @@ module RobustExcelOle
       self.HWnd #rescue Win32 nil
     end
 
-    # returns true, if the excel applications are identical, false otherwise
+    # returns true, if the Excel applications are identical, false otherwise
     def == other_app
       self.hwnd == other_app.hwnd    if other_app.is_a?(ExcelApp)
     end
 
-    # set this excel application to nil
-    def die
+    # set this Excel application to nil
+    def die  # :nodoc:
       @ole_app = nil
     end
 
-    # returns true, if the excel application is alive, false otherwise
+    # returns true, if the Excel application is alive, false otherwise
     def alive?
       @ole_app.Name
       true

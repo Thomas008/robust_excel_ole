@@ -45,7 +45,7 @@ module RobustExcelOle
       if not File.exist?(file)
         raise ExcelErrorOpen, "file #{file} not found"
       end
-      @excel_app = ExcelApp.new(excel_app_options)
+      @excel_app = ExcelApp.new(excel_app_options)     # :nodoc:
       workbooks = @excel_app.Workbooks
       @workbook = workbooks.Item(File.basename(file)) rescue nil
       if @workbook then
@@ -78,8 +78,8 @@ module RobustExcelOle
             when :forget
               @workbook.Close
             when :excel
-              old_displayalerts = @excel_app.DisplayAlerts
-              @excel_app.DisplayAlerts = true 
+              old_displayalerts = @excel_app.DisplayAlerts  # :nodoc:
+              @excel_app.DisplayAlerts = true  # :nodoc:
             when :new_app
               @options[:reuse] = false
               @excel_app = ExcelApp.new(@options)
@@ -102,7 +102,7 @@ module RobustExcelOle
         end
       ensure
         if @options[:if_unsaved] == :excel then
-          @excel_app.DisplayAlerts = old_displayalerts
+          @excel_app.DisplayAlerts = old_displayalerts  # :nodoc:
         end
       end
       if block
@@ -137,8 +137,8 @@ module RobustExcelOle
         when :forget
           #nothing
         when :excel
-          old_displayalerts = @excel_app.DisplayAlerts
-          @excel_app.DisplayAlerts = true 
+          old_displayalerts = @excel_app.DisplayAlerts  # :nodoc:
+          @excel_app.DisplayAlerts = true  # :nodoc:
         else
           raise ExcelErrorClose, ":if_unsaved: invalid option"
         end
@@ -149,7 +149,7 @@ module RobustExcelOle
         raise ExcelUserCanceled, "close: canceled by user" if alive? && @options[:if_unsaved] == :excel && (not @workbook.Saved)
       ensure
         if @options[:if_unsaved] == :excel then
-          @excel_app.DisplayAlerts = old_displayalerts
+          @excel_app.DisplayAlerts = old_displayalerts  # :nodoc:  
         end
       end
       #@excel_app.Workbooks.Close
@@ -218,8 +218,8 @@ module RobustExcelOle
           File.delete(file) 
           #File.delete(absolute_path(File.join(dirname, basename)))
         when :excel 
-          old_displayalerts = @excel_app.DisplayAlerts
-          @excel_app.DisplayAlerts = true 
+          old_displayalerts = @excel_app.DisplayAlerts  # :nodoc:
+          @excel_app.DisplayAlerts = true  # :nodoc:
         when :raise
           raise ExcelErrorSave, "book already exists: #{basename}"
         else
@@ -241,7 +241,7 @@ module RobustExcelOle
         end       
       ensure
         if opts[:if_exists] == :excel then
-          @excel_app.DisplayAlerts = old_displayalerts
+          @excel_app.DisplayAlerts = old_displayalerts  # :nodoc:
         end
       end
       true
@@ -259,7 +259,6 @@ module RobustExcelOle
       end
     end
 
-    # adds a sheet
     def add_sheet(sheet = nil, opts = { })
       if sheet.is_a? Hash
         opts = sheet
@@ -277,7 +276,6 @@ module RobustExcelOle
       new_sheet
     end        
 
-    # absolute path of the file
     def absolute_path(file)
       file = File.expand_path(file)
       file = RobustExcelOle::Cygwin.cygpath('-w', file) if RUBY_PLATFORM =~ /cygwin/

@@ -102,10 +102,10 @@ module RobustExcelOle
       new(:reuse => true)
     end
 
-    # returns an excel application  
+    # returns an Excel application  
     #
     # options:
-    #  :reuse         (boolean)  use an already running excel application  (default: true)
+    #  :reuse         (boolean)  use an already running Excel application  (default: true)
     #  :displayalerts (boolean)  allow display alerts in Excel             (default: false)
     #  :visible       (boolean)  make visible in Excel                     (default: false)
     def self.new(options= {})
@@ -145,7 +145,7 @@ module RobustExcelOle
     end
 
 
-    def initialize(options= {})
+    def initialize(options= {}) # :nodoc:
     end
 
 

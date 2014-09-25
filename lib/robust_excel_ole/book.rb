@@ -215,8 +215,10 @@ module RobustExcelOle
       if File.exist?(file) then
         case opts[:if_exists]
         when :overwrite
-          workbook_file = @excel_app.Workbooks(basename) rescue nil
-          if workbook_file == nil then
+          # if a book is open with the name of file, then raise error
+          open_workbook = ExcelApp.reuse_if_possible.Workbooks(basename) rescue nil
+          #workbook_file = @excel_app.Workbooks(basename) rescue nil
+          if open_workbook == nil then
             File.delete(file) 
           else
             raise ExcelErrorSave, "book is open and used in Excel"

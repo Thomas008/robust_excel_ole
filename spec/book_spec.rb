@@ -631,7 +631,6 @@ describe RobustExcelOle::Book do
             @book.excel_app.DisplayAlerts.should == displayalert_value
           end
 
-
         end
 
         it "should save to 'simple_save_file.xls' with :if_exists => nil" do

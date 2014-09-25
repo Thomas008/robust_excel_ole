@@ -215,8 +215,12 @@ module RobustExcelOle
       if File.exist?(file) then
         case opts[:if_exists]
         when :overwrite
-          File.delete(file) 
-          #File.delete(absolute_path(File.join(dirname, basename)))
+          workbook_file = @excel_app.Workbooks(basename) rescue nil
+          if workbook_file == nil then
+            File.delete(file) 
+          else
+            raise ExcelErrorSave, "book is open and used in Excel"
+          end
         when :excel 
           old_displayalerts = @excel_app.DisplayAlerts  # :nodoc:
           @excel_app.DisplayAlerts = true  # :nodoc:

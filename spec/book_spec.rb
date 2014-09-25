@@ -527,6 +527,16 @@ describe RobustExcelOle::Book do
           @book.close
         end
 
+        it "should raise an error if the book is open" do
+          File.delete @simple_save_file rescue nil
+          FileUtils.copy @simple_file, @simple_save_file
+          book_save = RobustExcelOle::Book.open(@simple_save_file)
+          expect{
+            @book.save_as(@simple_save_file, :if_exists => :overwrite)
+            }.to raise_error(ExcelErrorSave, "book is open and used in Excel")
+          book_save.close
+        end
+
         it "should save to simple_save_file.xls with :if_exists => :overwrite" do
           File.delete @simple_save_file rescue nil
           File.open(@simple_save_file,"w") do | file |

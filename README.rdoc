@@ -1,18 +1,18 @@
 = RobustExcelOle
 
-RobustExcelOle wraps the win32ole, and uses the Excel operations with Ruby.
+robust_excel_ole wraps the win32ole, and uses the Excel operations with ruby.
 
 == Description
 
-RobustExcelOle started as a simple fork from tomiacannondale's WrapExcel adapted to Ruby 1.8.6.
+robust_excel_ole started as a simple fork from tomiacannondale's wrap_excel adapted to Ruby 1.8.6.
 The functionality of wrap_excel is optimised and extended by new features.
 
 This is work in progress.
 
-Notice some changes that are not compatible with wrap_excel:
-  - 'save_as' instead of 'save'.
-  - 'open' uses a running Excel application by default instead of creating a new one. 
-  - 'close' closes the workbook instead of closing all workbooks and the Excel application.
+Notice some features in robust_excel_ole that are not compatible with wrap_excel:
+* +save_as+ instead of +save+.
+* +open+ uses a running Excel application by default instead of creating a new one. 
+* +close+ closes the workbook instead of closing all workbooks and the Excel application.
 
 == Requirements
 
@@ -27,117 +27,91 @@ Notice some changes that are not compatible with wrap_excel:
 
 === Open a book.
 
-book = RobustExcelOle::Book.open('./sample.xls')
+Example:
 
-Open a book with a block.
+  book = RobustExcelOle::Book.open('./sample.xls')
+
+Open a book with a block. 
+The semantics is similar to, e.g.,  File.open.
 
   RobustExcelOle::Book.open('./sample.xls') do |book|
     # do something
   end
+                  
 
 Options are the following:
 
-[:reuse]         boolean (default true)  use an already open Excel-application 
-[:read_only]     boolean (default false) open in read-only mode  
-[:displayalerts] boolean (default false) allow display alerts in Excel   
-[:visible]       boolean (default false) make visibe in Excel                  
+[:reuse]         boolean (default: true). use an already open Excel-application 
+[:read_only]     boolean (default: false). open in read-only mode  
+[:displayalerts] boolean (default: false). allow display alerts in Excel   
+[:visible]       boolean (default: false). make visibe in Excel                  
 [:if_unsaved]    :raise (default), :accept, :forget, :new_app, :excel
-                 if an unsaved book with the same name is open
-          
-  :raise 
-
-  Raise an exception. Don't open the book.
-
-  :accept  
-
-  Let the unsaved book open.                  
-                   
-  :forget  
-
-  Close the unsaved book, open the new book.
-
-  :new_app 
-
-  Open the new book in a new Excel application.
-
-  :excel   
-
-  Give control to Excel.
-
-
 [:if_unsaved_other_book]  :raise (default), :save, :forget, :new_app
-                          if an unsaved book with same name in a different path is open,
+                         
+
+The option :if_unsaved  :  
+if an unsaved book with the same name is open, then
+          
+[:raise ]  Raise an exception. Don't open the book.
+[:accept]  Let the unsaved book open.                  
+[:forget]  Close the unsaved book, open the new book.
+[:new_app] Open the new book in a new Excel application
+[:excel]   Give control to Excel.
+
+The option :if_unsaved_other_book : 
+if an unsaved book with same name in a different path is open, then
                  
-:raise 
-
-Raise an exception. Don't open the book.
-
-:save    
-
-Save and close the unsaved book and open the new book.
-
-:forget  
-
-Close the unsaved book, open the new book.
-                
-:new_app 
-
-Open the new book in a new Excel application.
+[:raise]   Raise an exception. Don't open the book.
+[:save]    Save and close the unsaved book and open the new book.
+[:forget]  Close the unsaved book, open the new book.
+[:new_app] Open the new book in a new Excel application.
 
 
 Examples:
 
 Open a book.
 
-book = RobustExcelOle::Book.open('./sample.xls')
+  book = RobustExcelOle::Book.open('./sample.xls')
 
 Open another book in the same Excel application.
 
-new_book = RobustExcelOle::Book.open('./different.xls')
+  new_book = RobustExcelOle::Book.open('./different.xls')
 
 Open another book in a new Excel applications.
 
-new_book = RobustExcelOle::Book.open('./different.xls', :reuse => false)
+  new_book = RobustExcelOle::Book.open('./different.xls', :reuse => false)
 
 Change the book (see below).
 
-sheet = book[0]
-book.add_sheet(sheet, :as => 'copyed_name')
+  sheet = book[0]
+  book.add_sheet(sheet, :as => 'copyed_name')
 
 Let the unsaved book open, when open a book while a book with the same name is unsaved and open.
 
-new_book = RobustExcelOle::Book.open('./sample.xls', :if_unsaved => accept)
+  new_book = RobustExcelOle::Book.open('./sample.xls', :if_unsaved => accept)
 
 === Save a book.
 
-book.save
+  book.save
 
 Save a book with a file name.
 
-book.save_as('./another_sample.xls')
+  book.save_as('./another_sample.xls')
 
 Options are the following:
 
 [:if_exists] :raise (default), :overwrite, :excel
 
-:raise
-
-Raise an exception. Don't write the file.
-
-:overwrite: 
-
-Delete the old file and write the file.
-
-:excel
-
-Give the control to Excel.
+[:raise]     Raise an exception. Don't write the file.
+[:overwrite] Delete the old file and write the file.
+[:excel]     Give the control to Excel.
 
 
 Example:
 
 Overwrite a book with the same name.
 
-book.save('./another_sample.xls', :if_exists => :overwrite)  
+  book.save('./another_sample.xls', :if_exists => :overwrite)  
 
 === == (equal)
 
@@ -145,31 +119,33 @@ Check whether two referenced Excel workbooks are identical.
 
 Example.
 
-if (book == new_book) then
-  puts "the books are identical"
-end
+  if (book == new_book) then
+    puts "the workbooks are identical"
+  end
 
 === alive?
 
 Check whether an Excel workbook responds to methods.
 
-book.alive?
+Example:
 
-Example.
-
-if book.alive? then 
-  puts "the book is alive"
-end
+  if book.alive? then 
+    puts "the book is alive"
+  end
 
 === filename
 
 Get the file name of the book.
 
-book.filename
+Example:
+
+  book.filename
 
 === Close a book.
 
-book.close
+Example:
+
+  book.close
 
 Options are the following:
 

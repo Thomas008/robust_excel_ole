@@ -291,23 +291,23 @@ module RobustExcelOle
 
 end
 
-class ExcelUserCanceled < RuntimeError
+class ExcelUserCanceled < RuntimeError # :nodoc: #
 end
 
-class ExcelError < RuntimeError
+class ExcelError < RuntimeError    # :nodoc: #
 end
 
-class ExcelErrorSave < ExcelError
+class ExcelErrorSave < ExcelError   # :nodoc: #
 end
 
-class ExcelErrorSaveFailed < ExcelErrorSave  
+class ExcelErrorSaveFailed < ExcelErrorSave  # :nodoc: #
 end
 
-class ExcelErrorSaveUnknown < ExcelErrorSave  
+class ExcelErrorSaveUnknown < ExcelErrorSave  # :nodoc: #
 end
 
-class ExcelErrorOpen < ExcelError
+class ExcelErrorOpen < ExcelError   # :nodoc: #
 end
 
-class ExcelErrorClose < ExcelError
+class ExcelErrorClose < ExcelError    # :nodoc: #
 end

@@ -58,9 +58,9 @@ module RobustExcelOle
         #trc_info :obj_Parent, o.Parent rescue nil
         begin
           o.ole_free
-          puts "olefree OK"
+          #puts "olefree OK"
         rescue
-          puts "olefree_error: #{$!}"
+          #puts "olefree_error: #{$!}"
           #puts $!.backtrace.first(9).join "\n"
         end
       end

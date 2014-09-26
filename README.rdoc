@@ -11,7 +11,8 @@ This is work in progress.
 
 Notice some features in robust_excel_ole that are not compatible with wrap_excel:
 * +save_as+ instead of +save+.
-* +open+ uses a running Excel application by default instead of creating a new one. 
+* +open+ uses by default a running Excel application instead of creating a new one,
+  and opens a book by default in writable mode instead of read_only 
 * +close+ closes the workbook instead of closing all workbooks and the Excel application.
 
 == Requirements

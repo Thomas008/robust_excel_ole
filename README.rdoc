@@ -1,13 +1,18 @@
 = RobustExcelOle
 
-This is a simple fork from tomiacannondale's wrap_excel adapted to Ruby 1.8.6.
+== Description
+
+RobustExcelOle wraps the win32ole, and uses the Excel operations with ruby.
+
+It started as a simple fork from tomiacannondale's wrap_excel adapted to Ruby 1.8.6.
 The functionality of wrap_excel is optimised and extended by new features.
 
 This is work in progress.
 
-== Description
-
-RobustExcelOle wraps the win32ole, and uses the Excel operations with ruby.
+Notice some changes that are not compatible with wrap_excel:
+  'save_as' instead of 'save'.
+  'open' uses a running Excel application by default instead of creating a new one. 
+  'close' closes the workbook instead of closing all workbooks and the Excel application.
 
 == Requirements
 
@@ -20,9 +25,7 @@ RobustExcelOle wraps the win32ole, and uses the Excel operations with ruby.
 
 == Usage
 
-=== open a book
-
-Open a book.
+=== Open a book.
 
 book = RobustExcelOle::Book.open('./sample.xls')
 
@@ -75,11 +78,11 @@ Save and close the unsaved book and open the new book.
 
 :forget  
 
-Close the unsaved book, open the new book
+Close the unsaved book, open the new book.
                 
 :new_app 
 
-Open the new book in a new Excel application
+Open the new book in a new Excel application.
 
 
 Examples:
@@ -105,9 +108,7 @@ Let the unsaved book open, when open a book while a book with the same name is u
 
 new_book = RobustExcelOle::Book.open('./sample.xls', :if_unsaved => accept)
 
-=== save a book
-
-Save a book.
+=== Save a book.
 
 book.save
 
@@ -117,7 +118,11 @@ book.save_as('./another_sample.xls')
 
 Options are the following:
 
-[:if_exists] :overwrite, :excel, :raise (default)
+[:if_exists] :raise (default), :overwrite, :excel
+
+:raise
+
+Raise an exception. Don't write the file.
 
 :overwrite: 
 
@@ -127,9 +132,6 @@ Delete the old file and write the file.
 
 Give the control to Excel.
 
-:raise
-
-Raise an exception. Don't write the file.
 
 Example:
 
@@ -139,7 +141,7 @@ book.save('./another_sample.xls', :if_exists => :overwrite)
 
 === == (equal)
 
-Check whether two books are identical.
+Check whether two referenced Excel workbooks are identical.
 
 Example.
 
@@ -149,7 +151,7 @@ end
 
 === alive?
 
-Check whether the book is alive.
+Check whether an Excel workbook responds to methods.
 
 book.alive?
 
@@ -165,9 +167,7 @@ Get the file name of the book.
 
 book.filename
 
-=== close a book
-
-Close a book
+=== Close a book.
 
 book.close
 
@@ -178,7 +178,7 @@ Options are the following:
                  
 :raise 
 
-Raise an exception. Don't close the book                  
+Raise an exception. Don't close the book.                  
                  
 :save            
 
@@ -190,11 +190,11 @@ Close the book.
     
 :excel           
 
-Give control to Excel
+Give control to Excel.
 
 
 
-=== access sheet
+=== Access a sheet.
 
 A sheet object can be accessed with a Book#[] method.
 
@@ -204,7 +204,7 @@ Access a sheet object with the sheet name.
 
     book['Sheet1']
 
-=== access row or column
+=== Access a row or a column.
 
 A sheet object is enumerable. Use the methods Sheet#each_column, Sheet#each_row or Sheet#each.
 
@@ -221,7 +221,7 @@ A sheet object is enumerable. Use the methods Sheet#each_column, Sheet#each_row 
     # do something with column_range
   end
 
-=== access cell
+=== Access a cell.
 
 Read a cell from a sheet object.
 
@@ -241,7 +241,8 @@ If you want to do something that not provide a function, you can use win32ole me
 
 == Support
 
-This is work in progress. Please don't hesitate to contact us and to report issues and feature requests to github Issues. https://github.com/Thomas008/robust_excel_ole/issues
+This is work in progress. Please contact us and to report issues and feature requests to github Issues. 
+https://github.com/Thomas008/robust_excel_ole/issues
 
 == Collaborate
 

@@ -173,7 +173,7 @@ module RobustExcelOle
       @workbook.Fullname.tr('\\','/') rescue nil
     end
 
-    #returns true, if the full book names and excel appications are identical, false, otherwise  
+    # returns true, if the full book names and excel appications are identical, false, otherwise  
     def == other_book
       other_book.is_a?(Book) &&
       @excel_app == other_book.excel_app &&

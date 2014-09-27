@@ -41,7 +41,7 @@ module RobustExcelOle
         :if_unsaved_other_book => :raise
       }.merge(opts)
       excel_app_options = {:reuse => true}.merge(opts).delete_if{|k,v| 
-        k== :if_read_only || k== :unsaved || k == :if_unsaved_other_book}
+        k== :read_only || k== :unsaved || k == :if_unsaved_other_book}
       if not File.exist?(file)
         raise ExcelErrorOpen, "file #{file} not found"
       end

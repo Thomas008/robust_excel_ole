@@ -119,17 +119,13 @@ module RobustExcelOle
     #
     # options:
     #  :if_unsaved    if book is unsaved
-    #                 :raise   -> raise an exception       (default)             
-    #                 :save    -> save the book before it is closed                  
-    #                 :forget  -> close the book 
-    #                 :excel   -> give control to excel
-    def close(opts={ })
-      @options = {
-        :if_unsaved => :raise,
-      }.merge(opts)
-      if ((alive?) && (not @workbook.Saved)) then
-        #puts "book not saved"
-        case @options[:if_unsaved]
+    #                      :raise   -> raise an exception       (default)             
+    #                      :save    -> save the book before it is closed                  
+    #                      :forget  -> close the book 
+    #                      :excel   -> give control to excel
+    def close(opts = {:if_unsaved => :raise})
+      if ((alive?) && (not @workbook.Saved) && (not @options[:read_only])) then
+        case opts[:if_unsaved]
         when :raise
           raise ExcelErrorClose, "book is unsaved (#{File.basename(filename)})"
         when :save
@@ -146,9 +142,9 @@ module RobustExcelOle
       begin
         @workbook.Close if alive?
         @workbook = nil unless alive?
-        raise ExcelUserCanceled, "close: canceled by user" if alive? && @options[:if_unsaved] == :excel && (not @workbook.Saved)
+        raise ExcelUserCanceled, "close: canceled by user" if alive? && opts[:if_unsaved] == :excel && (not @workbook.Saved)
       ensure
-        if @options[:if_unsaved] == :excel then
+        if opts[:if_unsaved] == :excel then
           @excel_app.DisplayAlerts = old_displayalerts  # :nodoc:  
         end
       end
@@ -186,7 +182,7 @@ module RobustExcelOle
     # saves a book.
     # returns true, if successfully saved, nil otherwise
     def save
-      raise IOError, "Not opened for writing(open with :read_only option)" if @options[:read_only]
+      raise ExcelErrorSave, "Not opened for writing (opened with :read_only option)" if @options[:read_only]
       if @workbook then
         @workbook.Save 
         true

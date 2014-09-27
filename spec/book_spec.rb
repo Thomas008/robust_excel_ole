@@ -166,7 +166,7 @@ describe RobustExcelOle::Book do
         before do
           @book = RobustExcelOle::Book.open(@simple_file)
           @sheet = @book[0]
-          @book.add_sheet(@sheet, :as => 'copyed_name')
+          @book.add_sheet(@sheet, :as => 'a_name')
         end
 
         after do
@@ -258,7 +258,7 @@ describe RobustExcelOle::Book do
         simple_file_other_path = @dir + '/more_data/simple.xls'
         @book = RobustExcelOle::Book.open(simple_file_other_path)
         @sheet = @book[0]
-        @book.add_sheet(@sheet, :as => 'copyed_name')
+        @book.add_sheet(@sheet, :as => 'a_name')
       end
 
       after do
@@ -328,11 +328,29 @@ describe RobustExcelOle::Book do
       end
     end
 
+    context "with unsaved book and with :read_only" do
+      before do
+        @book = RobustExcelOle::Book.open(@simple_file, :read_only => true)
+        @sheet_count = @book.workbook.Worksheets.Count
+        @book.add_sheet(@sheet, :as => 'a_name')
+      end
+
+      it "should close the unsaved book without error and without saving" do
+        expect{
+          @book.close
+          }.to_not raise_error
+        new_book = RobustExcelOle::Book.open(@simple_file)
+        new_book.workbook.Worksheets.Count.should ==  @sheet_count
+        new_book.close
+      end
+
+    end
+
     context "with unsaved book" do
       before do
         @book = RobustExcelOle::Book.open(@simple_file)
         @sheet_count = @book.workbook.Worksheets.Count
-        @book.add_sheet(@sheet, :as => 'copyed_name')
+        @book.add_sheet(@sheet, :as => 'a_name')
         @sheet = @book[0]
       end
 
@@ -444,7 +462,7 @@ describe RobustExcelOle::Book do
     context "with simple save" do
       it "should save for a file opened without :read_only" do
         @book = RobustExcelOle::Book.open(@simple_file)
-        @book.add_sheet(@sheet, :as => 'copyed_name')
+        @book.add_sheet(@sheet, :as => 'a_name')
         @new_sheet_count = @book.workbook.Worksheets.Count
         expect {
           @book.save
@@ -457,8 +475,7 @@ describe RobustExcelOle::Book do
         @book = RobustExcelOle::Book.open(@simple_file, :read_only => true)
         expect {
           @book.save
-        }.to raise_error(IOError,
-                     "Not opened for writing(open with :read_only option)")
+        }.to raise_error(ExcelErrorSave, "Not opened for writing (opened with :read_only option)")
         @book.close
       end
     end

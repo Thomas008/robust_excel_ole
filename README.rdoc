@@ -134,7 +134,7 @@ Example.
 
 === alive?
 
-Check whether an Excel workbook responds to methods.
+Check whether the referenced Excel workbook responds to methods.
 
 Example:
 

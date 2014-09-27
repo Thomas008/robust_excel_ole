@@ -50,7 +50,8 @@ module RobustExcelOle
       @workbook = workbooks.Item(File.basename(file)) rescue nil
       if @workbook then
         blocked_by_other_book = (File.basename(file) == File.basename(@workbook.Fullname)) && 
-                                (not (file == @workbook.Fullname.gsub("\\","/")))
+                                (not (absolute_path(file) == @workbook.Fullname))
+                                #(not (file == @workbook.Fullname.gsub("\\","/")))
         if blocked_by_other_book then
           case @options[:if_unsaved_other_book]
           when :raise

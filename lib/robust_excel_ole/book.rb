@@ -61,8 +61,8 @@ module RobustExcelOle
           when :forget
             @workbook.Close
           when :new_app
-            @options[:reuse] = false
-            @excel_app = ExcelApp.new(@options)
+            excel_app_options[:reuse] = false
+            @excel_app = ExcelApp.new(excel_app_options)
             @workbook = nil
           else
             raise ExcelErrorOpen, ":if_unsaved_other_book: invalid option"

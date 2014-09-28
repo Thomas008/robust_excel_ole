@@ -17,8 +17,8 @@ module RobustExcelOle
 	  end
 	  new_book = RobustExcelOle::Book.open(file_name, :if_unsaved => :accept) # open another book with the same file name 
 	                                                                          # and let the unsaved book open
-	  if book.alive? && new_book.alive? then                # check whether the referenced workbooks
-	  	puts "the two books are alive."                     # respond to methods
+	  if book.alive? && new_book.alive? then                                      # check whether the referenced workbooks
+	  	puts "open with :if_unsaved => :accept : the two books are alive." # respond to methods
 	  end
 	  begin                                                                   
 	  	book.close                                          # close the book. by default: raises an exception:

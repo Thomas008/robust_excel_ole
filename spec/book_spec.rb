@@ -10,7 +10,7 @@ describe RobustExcelOle::Book do
 
   before(:all) do
     excel_app = RobustExcelOle::ExcelApp.new(:reuse => true)
-    open_books = excel_app == nil ? 0 : excel_app.Workbooks.Count 
+    open_books = excel_app == nil ? 0 : excel_app.Workbooks.Count
     puts "*** open books *** : #{open_books}" if open_books > 0
     RobustExcelOle::ExcelApp.close_all
   end
@@ -156,7 +156,7 @@ describe RobustExcelOle::Book do
             it "should belong to the same Excel application" do
               @new_book.excel_app.should == @book.excel_app
               @different_book.excel_app.should == @book.excel_app
-            end     
+            end
           end
         end
       end
@@ -207,7 +207,7 @@ describe RobustExcelOle::Book do
 
           it "should open the new book and close the unsaved book, if user answers 'yes'" do
             # "Yes" is the  default. --> language independent
-            @key_sender.puts "{enter}" 
+            @key_sender.puts "{enter}"
             @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved => :excel)
             @book.should_not be_alive
             @new_book.should be_alive
@@ -322,9 +322,9 @@ describe RobustExcelOle::Book do
 
       it "should close book" do
         expect{
-          @book.close  
-        }.to_not raise_error   
-        @book.should_not be_alive    
+          @book.close
+        }.to_not raise_error
+        @book.should_not be_alive
       end
     end
 
@@ -415,7 +415,7 @@ describe RobustExcelOle::Book do
             # "Yes" is the  default. "No" is right of "Yes", "Cancel" is right of "No" --> language independent
             @key_sender.puts  "{right}" * position + "{enter}"
             ole_workbook = @book.workbook
-            excel_app = @book.excel_app 
+            excel_app = @book.excel_app
             displayalert_value = @book.excel_app.DisplayAlerts
             if answer == :cancel then
               expect {
@@ -458,7 +458,7 @@ describe RobustExcelOle::Book do
   end
 
   describe "save" do
-    
+
     context "with simple save" do
       it "should save for a file opened without :read_only" do
         @book = RobustExcelOle::Book.open(@simple_file)
@@ -547,7 +547,7 @@ describe RobustExcelOle::Book do
         it "should raise an error if the book is open" do
           File.delete @simple_save_file rescue nil
           FileUtils.copy @simple_file, @simple_save_file
-          book_save = RobustExcelOle::Book.open(@simple_save_file)
+          book_save = RobustExcelOle::Book.open(@simple_save_file, :reuse => false)
           expect{
             @book.save_as(@simple_save_file, :if_exists => :overwrite)
             }.to raise_error(ExcelErrorSave, "book is open and used in Excel")
@@ -684,12 +684,12 @@ describe RobustExcelOle::Book do
       end
 
       after do
-        @book.close 
+        @book.close
       end
 
       it "should return right absoute path name" do
         @book.absolute_path(@simple_file).gsub("\\","/").should == @book.filename
-      end 
+      end
     end
 
     context "with alive?" do
@@ -699,7 +699,7 @@ describe RobustExcelOle::Book do
       end
 
       after do
-        @book.close 
+        @book.close
       end
 
       it "should return true, if book is alive" do

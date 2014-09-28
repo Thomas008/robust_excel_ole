@@ -47,7 +47,7 @@ Options are the following:
 [:displayalerts] boolean (default: false). allow display alerts in Excel   
 [:visible]       boolean (default: false). make visibe in Excel                  
 [:if_unsaved]    :raise (default), :accept, :forget, :new_app, :excel
-[:if_unsaved_other_book]  :raise (default), :save, :forget, :new_app
+[:if_blocked_other_book]  :raise (default), :save, :forget, :new_app
                          
 
 The option :if_unsaved  : 
@@ -60,13 +60,12 @@ If an unsaved book with the same name is open, then
 [:new_app] Open the new book in a new Excel application
 [:excel]   Give control to Excel.
 
-The option :if_unsaved_other_book :
+The option :if_blocked_other_book :
 
-If an unsaved book with same name in a different path is open, then
+If a book with same name in a different path is open, then
                  
 [:raise]   Raise an exception. Don't open the book.
-[:save]    Save and close the unsaved book and open the new book.
-[:forget]  Close the unsaved book, open the new book.
+[:forget]  Close the old book, open the new book.
 [:new_app] Open the new book in a new Excel application.
 
 

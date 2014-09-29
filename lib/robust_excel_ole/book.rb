@@ -17,14 +17,17 @@ module RobustExcelOle
       #  :displayalerts (boolean)  allow display alerts in Excel         (default: false)
       #  :visible       (boolean)  make visibe in Excel                  (default: false)
       #  :if_unsaved    if an unsaved book with the same name is open, then
-      #                 :raise   -> raise an exception                   (default)             
+      #                 :raise   -> raise an exception                   (default)
+      #                 :forget  -> close the unsaved book, open the new book             
       #                 :accept  -> let the unsaved book open                  
-      #                 :forget  -> close the unsaved book, open the new book
       #                 :excel   -> give control to excel
       #                 :new_app -> open the new book in a new excel application
-      #  :if_blocked_other_book   if a book with the same name in a different path is open, then
+      #  :if_blocking_other   if a book with the same name in a different path is open, then
       #                  :raise   -> raise an exception                  (default)             
-      #                  :forget  -> close the unsaved book, open the new book
+      #                  :forget  -> close the old book, open the new book
+      #                  :save_and_close -> save the old book, close it, open the new book
+      #                  :close_or_raise -> close the old book and open the new book, if the old book is saved
+      #                                     raise an exception otherwise
       #                  :new_app -> open the new book in a new excel application
       def open(file, options={ :reuse => true}, &block)
         new(file, options, &block)
@@ -37,10 +40,10 @@ module RobustExcelOle
         :reuse => true,
         :read_only => false,
         :if_unsaved => :raise,
-        :if_blocked_other_book => :raise
+        :if_blocking_other => :raise
       }.merge(opts)
       excel_app_options = {:reuse => true}.merge(opts).delete_if{|k,v| 
-        k== :read_only || k== :if_unsaved || k == :if_blocked_other_book}
+        k== :read_only || k== :if_unsaved || k == :if_blocking_other}
       if not File.exist?(file)
         raise ExcelErrorOpen, "file #{file} not found"
       end
@@ -51,17 +54,26 @@ module RobustExcelOle
         blocked_by_other_book = (File.basename(file) == File.basename(@workbook.Fullname)) && 
                                 (not (absolute_path(file) == @workbook.Fullname))
         if blocked_by_other_book then
-          case @options[:if_blocked_other_book]
+          case @options[:if_blocking_other]
           when :raise
-            raise ExcelErrorOpen, "blocked by an unsaved book with the same name in a different path"
+            raise ExcelErrorOpen, "blocked by a book with the same name in a different path"
           when :forget
             @workbook.Close
+          when :save_and_close
+            save unless @workbook.Saved
+            @workbook.Close
+          when :close_or_raise
+            if (not @workbook.Saved) then
+              raise ExcelErrorOpen, "book with the same name in a different path is unsaved"
+            else 
+              @workbook.Close
+            end
           when :new_app
             excel_app_options[:reuse] = false
             @excel_app = ExcelApp.new(excel_app_options)
             @workbook = nil
           else
-            raise ExcelErrorOpen, ":if_blocked_other_book: invalid option"
+            raise ExcelErrorOpen, ":if_blocking_other: invalid option"
           end
         else
           # book open, not saved, not blocked by other book
@@ -70,10 +82,10 @@ module RobustExcelOle
             case @options[:if_unsaved]
             when :raise
               raise ExcelErrorOpen, "book is already open but not saved (#{File.basename(file)})"
-            when :accept
-              #nothing
             when :forget
               @workbook.Close
+            when :accept
+              #nothing
             when :excel
               old_displayalerts = @excel_app.DisplayAlerts  # :nodoc:
               @excel_app.DisplayAlerts = true  # :nodoc:

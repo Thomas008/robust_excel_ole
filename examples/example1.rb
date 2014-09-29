@@ -6,8 +6,11 @@ module RobustExcelOle
 
 	ExcelApp.close_all
 	begin
-	  filename = '../spec/data/simple.xls'
-	  book = RobustExcelOle::Book.open(filename)
+	  simple_file = '../spec/data/simple.xls'
+	  simple_save_file = '../spec/data/simple_save.xls'
+	  File.delete @simple_save_file rescue nil
+      #FileUtils.copy simple_file, simple_save_file
+	  book = RobustExcelOle::Book.open(simple_save_file)
 	  sheet = book[0]
 	  cell = sheet[0,0]
 	  i = 0

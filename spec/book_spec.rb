@@ -255,8 +255,11 @@ describe RobustExcelOle::Book do
     context "with a book in a different path" do
 
       before do
-        simple_file_other_path = @dir + '/more_data/simple.xls'
-        @book = RobustExcelOle::Book.open(simple_file_other_path)
+        @simple_file_other_path = @dir + '/more_data/simple.xls'
+        @book = RobustExcelOle::Book.open(@simple_file_other_path)
+        @sheet_count = @book.workbook.Worksheets.Count
+        @sheet = @book[0]
+        @book.add_sheet(@sheet, :as => 'a_name')
       end
 
       after do
@@ -264,38 +267,62 @@ describe RobustExcelOle::Book do
         @new_book.close rescue nil
       end
 
-      it "should raise an error, if :if_blocked_other_book is :raise" do
+      it "should raise an error, if :if_blocking_other is :raise" do
         expect {
-          @new_book = RobustExcelOle::Book.open(@simple_file, :if_blocked_other_book => :raise)
-        }.to raise_error(ExcelErrorOpen, "blocked by an unsaved book with the same name in a different path")
+          @new_book = RobustExcelOle::Book.open(@simple_file, :if_blocking_other => :raise)
+        }.to raise_error(ExcelErrorOpen, "blocked by a book with the same name in a different path")
       end
 
-      it "should close the other book and open the new book, if :if_blocked_other_book is :forget" do
-        @new_book = RobustExcelOle::Book.open(@simple_file, :if_blocked_other_book => :forget)
+      it "should close the other book and open the new book, if :if_blocking_other is :forget" do
+        @new_book = RobustExcelOle::Book.open(@simple_file, :if_blocking_other => :forget)
         @book.should_not be_alive
         @new_book.should be_alive
         @new_book.filename.downcase.should == @simple_file.downcase
       end
 
-      it "should open the book in a new excel application, if :if_blocked_other_book is :new_app" do
-        @new_book = RobustExcelOle::Book.open(@simple_file, :if_blocked_other_book => :new_app)
+      it "should save the old book, close it, and open the new book, if :if_blocking_other is :save_and_close" do
+        @new_book = RobustExcelOle::Book.open(@simple_file, :if_blocking_other => :save_and_close)
+        @book.should_not be_alive
+        @new_book.should be_alive
+        @new_book.filename.downcase.should == @simple_file.downcase
+        new_book = RobustExcelOle::Book.open(@simple_file)
+        new_book.workbook.Worksheets.Count.should ==  @sheet_count
+        new_book.close
+      end
+
+      it "should raise an error, if the old book is unsaved, and close the old book and open the new book, 
+          if :if_blocking_other is :close_or_raise" do
+        expect{
+          @new_book = RobustExcelOle::Book.open(@simple_file, :if_blocking_other => :close_or_raise)
+        }.to raise_error(ExcelErrorOpen, "book with the same name in a different path is unsaved")
+        @book.save
+        @new_book = RobustExcelOle::Book.open(@simple_file, :if_blocking_other => :close_or_raise)
+        @book.should_not be_alive
+        @new_book.should be_alive
+        @new_book.filename.downcase.should == @simple_file.downcase
+        new_book = RobustExcelOle::Book.open(@simple_file_other_path, :if_blocking_other => :forget)
+        new_book.workbook.Worksheets.Count.should ==  @sheet_count + 1
+        new_book.close
+      end
+
+      it "should open the book in a new excel application, if :if_blocking_other is :new_app" do
+        @new_book = RobustExcelOle::Book.open(@simple_file, :if_blocking_other => :new_app)
         @book.should be_alive
         @new_book.should be_alive
         @new_book.filename.should_not == @book.filename
         @new_book.excel_app.should_not == @book.excel_app
-        @new_book.close
       end
 
-      it "should raise an error, if :if_blocked_other_book is default" do
+      it "should raise an error, if :if_blocking_other is default" do
         expect {
           @new_book = RobustExcelOle::Book.open(@simple_file)
-        }.to raise_error(ExcelErrorOpen, "blocked by an unsaved book with the same name in a different path")
+        }.to raise_error(ExcelErrorOpen, "blocked by a book with the same name in a different path")
       end
 
-      it "should raise an error, if :if_blocked_other_book is invalid option" do
+      it "should raise an error, if :if_blocking_other is invalid option" do
         expect {
-          @new_book = RobustExcelOle::Book.open(@simple_file, :if_blocked_other_book => :invalid_option)
-        }.to raise_error(ExcelErrorOpen, ":if_blocked_other_book: invalid option")
+          @new_book = RobustExcelOle::Book.open(@simple_file, :if_blocking_other => :invalid_option)
+        }.to raise_error(ExcelErrorOpen, ":if_blocking_other: invalid option")
       end
 
     end

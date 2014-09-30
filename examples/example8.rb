@@ -1,4 +1,4 @@
-# example 8: open with :if_blocking_other:
+# example 8: open with :if_obstructed: :forget, :new_app
 
 require File.join(File.dirname(__FILE__), '../lib/robust_excel_ole')
 
@@ -18,10 +18,10 @@ module RobustExcelOle
       	puts "open: #{msg.message}"
       end
       # open a new book with the same file name in a different path. close the old book before.
-      new_book = RobustExcelOle::Book.open(other_file_name, :if_blocking_other => :forget) 
+      new_book = RobustExcelOle::Book.open(other_file_name, :if_obstructed => :forget) 
       # open another book with the same file name in a different path. Use a new Excel application
       sleep 3
-      another_book = RobustExcelOle::Book.open(file_name, :if_blocking_other => :new_app, :visible => true)                                         
+      another_book = RobustExcelOle::Book.open(file_name, :if_obstructed => :new_app, :visible => true)                                         
 	  sleep 3
 	  new_book.close                                        # close the books                      
 	  another_book.close

@@ -44,11 +44,10 @@ Options are the following:
 
 [:reuse]         boolean (default: true). use an already open Excel-application 
 [:read_only]     boolean (default: false). open in read-only mode  
-[:displayalerts] boolean (default: false). allow display alerts in Excel   
-[:visible]       boolean (default: false). make visibe in Excel                  
 [:if_unsaved]    :raise (default), :accept, :forget, :new_app, :excel
-[:if_blocking_other]  :raise (default), :forget, :save_and_close, :close_or_raise, :new_app
-                         
+[:if_obstructed]  :raise (default), :forget, :save, :close_if_unsaved, :new_app
+[:displayalerts] boolean (default: false). allow display alerts in Excel   
+[:visible]       boolean (default: false). make visibe in Excel                           
 
 The option :if_unsaved  : 
 
@@ -60,15 +59,16 @@ If an unsaved book with the same name is open, then
 [:new_app] Open the new book in a new Excel application
 [:excel]   Give control to Excel.
 
-The option :if_blocking_other :
+The option :if_obstructed :
 If a book with same name in a different path is open, then
                  
 [:raise]   Raise an exception. Don't open the book.
 [:forget]  Close the old book, open the new book.
-[:save_and_close]  Save the old book, close it, open the new book
-[:close_or_raise] Close the old book and open the new book, if the old book is saved, raise an exception otherwise
+[:save]  Save the old book, close it, open the new book
+[:close_if_unsaved] Close the old book and open the new book, if the old book is saved, raise an exception otherwise
 [:new_app] Open the new book in a new Excel application.
 
+The values :displayalerts and :visible are reached to the class ExcelApp that controls opening and closing of Excel applications.
 
 Examples:
 

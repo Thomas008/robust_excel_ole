@@ -12,23 +12,23 @@ module RobustExcelOle
       # opens a book.
       # 
       # options: 
-      #  :reuse         (boolean)  use an already open Excel-application (default: true)
-      #  :read_only     (boolean)  open in read-only mode                (default: false)
-      #  :displayalerts (boolean)  allow display alerts in Excel         (default: false)
-      #  :visible       (boolean)  make visibe in Excel                  (default: false)
+      #  :reuse         use an already open Excel-application (default: true)
+      #  :read_only     open in read-only mode                (default: false)
+      #  :displayalerts allow display alerts in Excel         (default: false)
+      #  :visible       make visibe in Excel                  (default: false)
       #  :if_unsaved    if an unsaved book with the same name is open, then
       #                 :raise   -> raise an exception                   (default)
       #                 :forget  -> close the unsaved book, open the new book             
       #                 :accept  -> let the unsaved book open                  
       #                 :excel   -> give control to excel
       #                 :new_app -> open the new book in a new excel application
-      #  :if_blocking_other   if a book with the same name in a different path is open, then
-      #                  :raise   -> raise an exception                  (default)             
-      #                  :forget  -> close the old book, open the new book
-      #                  :save_and_close -> save the old book, close it, open the new book
-      #                  :close_or_raise -> close the old book and open the new book, if the old book is saved
-      #                                     raise an exception otherwise
-      #                  :new_app -> open the new book in a new excel application
+      #  :if_obstructed   if a book with the same name in a different path is open, then
+      #                  :raise            -> raise an exception                  (default)             
+      #                  :forget           -> close the old book, open the new book
+      #                  :save             -> save the old book, close it, open the new book
+      #                  :close_if_unsaved -> close the old book and open the new book, if the old book is saved
+      #                                       raise an exception otherwise
+      #                  :new_app          -> open the new book in a new excel application
       def open(file, options={ :reuse => true}, &block)
         new(file, options, &block)
       end
@@ -40,10 +40,10 @@ module RobustExcelOle
         :reuse => true,
         :read_only => false,
         :if_unsaved => :raise,
-        :if_blocking_other => :raise
+        :if_obstructed => :raise
       }.merge(opts)
       excel_app_options = {:reuse => true}.merge(opts).delete_if{|k,v| 
-        k== :read_only || k== :if_unsaved || k == :if_blocking_other}
+        k== :read_only || k== :if_unsaved || k == :if_obstructed}
       if not File.exist?(file)
         raise ExcelErrorOpen, "file #{file} not found"
       end
@@ -55,15 +55,15 @@ module RobustExcelOle
                                 (not (absolute_path(file) == @workbook.Fullname))
         if blocked_by_other_book then
           # @workbook is not the desired workbook
-          case @options[:if_blocking_other]
+          case @options[:if_obstructed]
           when :raise
             raise ExcelErrorOpen, "blocked by a book with the same name in a different path"
           when :forget
             @workbook.Close
-          when :save_and_close
+          when :save
             save unless @workbook.Saved
             @workbook.Close
-          when :close_or_raise
+          when :close_if_unsaved
             if (not @workbook.Saved) then
               raise ExcelErrorOpen, "book with the same name in a different path is unsaved"
             else 
@@ -74,7 +74,7 @@ module RobustExcelOle
             @excel_app = ExcelApp.new(excel_app_options)
             @workbook = nil
           else
-            raise ExcelErrorOpen, ":if_blocking_other: invalid option"
+            raise ExcelErrorOpen, ":if_obstructed: invalid option"
           end
         else
           # book open, not saved, not blocked by other book

@@ -1,5 +1,1 @@
-require 'lib/robust_excel_ole/verson'
-
-module RobustExcelOle
-  VERSION = "0.2.0"
-end
+require File.expand_path('../lib/robust_excel_ole/version', __FILE__)

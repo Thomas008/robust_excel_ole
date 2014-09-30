@@ -46,6 +46,7 @@ module RobustExcelOle
       Process.kill("KILL", pid)
     end
 
+    # frees all OLE objects in the object space
     def self.free_all_ole_objects
       anz_objekte = 0
       ObjectSpace.each_object(WIN32OLE) do |o|
@@ -96,18 +97,17 @@ module RobustExcelOle
       new(:reuse => false)
     end
 
-    # uses a running Excel application, if such an application exists
+    # uses a running Excel application (connects), if such an Excel application exists
     # creates a new one, otherwise 
     def self.reuse
       new(:reuse => true)
     end
 
     # returns an Excel application  
-    #
     # options:
-    #  :reuse         (boolean)  use an already running Excel application  (default: true)
-    #  :displayalerts (boolean)  allow display alerts in Excel             (default: false)
-    #  :visible       (boolean)  make visible in Excel                     (default: false)
+    #  :reuse          use an already running Excel application (default: true)
+    #  :displayalerts  allow display alerts in Excel            (default: false)
+    #  :visible        make visible in Excel                    (default: false)
     def self.new(options= {})
       options = {:reuse => true}.merge(options)
 

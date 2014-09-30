@@ -20,6 +20,9 @@ module RobustExcelOle
 	  if book.alive? && new_book.alive? then                                      # check whether the referenced workbooks
 	  	puts "open with :if_unsaved => :accept : the two books are alive." # respond to methods
 	  end
+	  if book == new_book then 
+	  	puts "both books are equal"
+	  end
 	  begin                                                                   
 	  	book.close                                          # close the book. by default: raises an exception:
 	  rescue ExcelErrorClose => msg                         #   book is unsaved

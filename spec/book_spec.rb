@@ -186,7 +186,7 @@ describe RobustExcelOle::Book do
             }.to_not raise_error
           @book.should be_alive
           @new_book.should be_alive
-          @new_book.filename.should == @book.filename
+          @new_book.should == @book
         end
 
         it "should open book and close old book, if :if_unsaved is :forget" do
@@ -285,9 +285,9 @@ describe RobustExcelOle::Book do
         @book.should_not be_alive
         @new_book.should be_alive
         @new_book.filename.downcase.should == @simple_file.downcase
-        new_book = RobustExcelOle::Book.open(@simple_file)
-        new_book.workbook.Worksheets.Count.should ==  @sheet_count
-        new_book.close
+        old_book = RobustExcelOle::Book.open(@simple_file_other_path, :if_blocking_other => :forget)
+        old_book.workbook.Worksheets.Count.should ==  @sheet_count + 1
+        old_book.close
       end
 
       it "should raise an error, if the old book is unsaved, and close the old book and open the new book, 
@@ -300,9 +300,9 @@ describe RobustExcelOle::Book do
         @book.should_not be_alive
         @new_book.should be_alive
         @new_book.filename.downcase.should == @simple_file.downcase
-        new_book = RobustExcelOle::Book.open(@simple_file_other_path, :if_blocking_other => :forget)
-        new_book.workbook.Worksheets.Count.should ==  @sheet_count + 1
-        new_book.close
+        old_book = RobustExcelOle::Book.open(@simple_file_other_path, :if_blocking_other => :forget)
+        old_book.workbook.Worksheets.Count.should ==  @sheet_count + 1
+        old_book.close
       end
 
       it "should open the book in a new excel application, if :if_blocking_other is :new_app" do

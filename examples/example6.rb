@@ -18,7 +18,7 @@ module RobustExcelOle
 	                                                                          # and close the unsaved book without saving it
 	  sheet_new_book = new_book[0]
 	  if (not book.alive?) && new_book.alive? && sheet_new_book[0,0].value == first_cell then # check whether the unsaved book 
-	  puts "open with :if_unsaved => :forget : the unsaved book is closed and not saved."     # is closed and was not saved
+	    puts "open with :if_unsaved => :forget : the unsaved book is closed and not saved."     # is closed and was not saved
 	  end
 	  sleep 1
 	  sheet_new_book[0,0] = sheet_new_book[0,0].value == "simple" ? "complex" : "simple" # change a cell

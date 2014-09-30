@@ -1,4 +1,5 @@
 # example 1: open a book, print the cells, rows, and columns of a sheet
+require "fileutils"
 
 require File.join(File.dirname(__FILE__), '../lib/robust_excel_ole')
 
@@ -9,7 +10,7 @@ module RobustExcelOle
 	  simple_file = '../spec/data/simple.xls'
 	  simple_save_file = '../spec/data/simple_save.xls'
 	  File.delete @simple_save_file rescue nil
-      #FileUtils.copy simple_file, simple_save_file
+      FileUtils.copy simple_file, simple_save_file
 	  book = RobustExcelOle::Book.open(simple_save_file)
 	  sheet = book[0]
 	  cell = sheet[0,0]

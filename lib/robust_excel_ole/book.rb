@@ -54,6 +54,7 @@ module RobustExcelOle
         blocked_by_other_book = (File.basename(file) == File.basename(@workbook.Fullname)) && 
                                 (not (absolute_path(file) == @workbook.Fullname))
         if blocked_by_other_book then
+          # @workbook is not the desired workbook
           case @options[:if_blocking_other]
           when :raise
             raise ExcelErrorOpen, "blocked by a book with the same name in a different path"

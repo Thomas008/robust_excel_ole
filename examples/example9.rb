@@ -1,4 +1,4 @@
-# example 9: open with :if_obstructed:
+# example 9: open with :if_obstructed: :save, close_if_saved
 
 require File.join(File.dirname(__FILE__), '../lib/robust_excel_ole')
 

@@ -42,12 +42,12 @@ The semantics is similar to, e.g.,  File.open.
 
 Options are the following:
 
-[:reuse]         boolean (default: true). use an already open Excel-application 
-[:read_only]     boolean (default: false). open in read-only mode  
+[:reuse]         use an already open Excel-application (default: true) 
+[:read_only]     open in read-only mode (default: false)  
 [:if_unsaved]    :raise (default), :accept, :forget, :new_app, :excel
 [:if_obstructed]  :raise (default), :forget, :save, :close_if_unsaved, :new_app
-[:displayalerts] boolean (default: false). allow display alerts in Excel   
-[:visible]       boolean (default: false). make visibe in Excel                           
+[:displayalerts] allow display alerts in Excel (default: false)
+[:visible]       make visibe in Excel (default: false)                           
 
 The option :if_unsaved  : 
 
@@ -60,12 +60,13 @@ If an unsaved book with the same name is open, then
 [:excel]   Give control to Excel.
 
 The option :if_obstructed :
+
 If a book with same name in a different path is open, then
                  
 [:raise]   Raise an exception. Don't open the book.
 [:forget]  Close the old book, open the new book.
 [:save]  Save the old book, close it, open the new book
-[:close_if_unsaved] Close the old book and open the new book, if the old book is saved, raise an exception otherwise
+[:close_if_saved] Close the old book and open the new book, if the old book is saved, raise an exception otherwise
 [:new_app] Open the new book in a new Excel application.
 
 The values :displayalerts and :visible are reached to the class ExcelApp that controls opening and closing of Excel applications.

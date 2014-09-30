@@ -291,12 +291,12 @@ describe RobustExcelOle::Book do
       end
 
       it "should raise an error, if the old book is unsaved, and close the old book and open the new book, 
-          if :if_obstructed is :close_if_unsaved" do
+          if :if_obstructed is :close_if_saved" do
         expect{
-          @new_book = RobustExcelOle::Book.open(@simple_file, :if_obstructed => :close_if_unsaved)
+          @new_book = RobustExcelOle::Book.open(@simple_file, :if_obstructed => :close_if_saved)
         }.to raise_error(ExcelErrorOpen, "book with the same name in a different path is unsaved")
         @book.save
-        @new_book = RobustExcelOle::Book.open(@simple_file, :if_obstructed => :close_if_unsaved)
+        @new_book = RobustExcelOle::Book.open(@simple_file, :if_obstructed => :close_if_saved)
         @book.should_not be_alive
         @new_book.should be_alive
         @new_book.filename.downcase.should == @simple_file.downcase

@@ -23,12 +23,12 @@ module RobustExcelOle
       #                 :excel   -> give control to excel
       #                 :new_app -> open the new book in a new excel application
       #  :if_obstructed   if a book with the same name in a different path is open, then
-      #                  :raise            -> raise an exception                  (default)             
-      #                  :forget           -> close the old book, open the new book
-      #                  :save             -> save the old book, close it, open the new book
-      #                  :close_if_unsaved -> close the old book and open the new book, if the old book is saved
+      #                  :raise          -> raise an exception                  (default)             
+      #                  :forget         -> close the old book, open the new book
+      #                  :save           -> save the old book, close it, open the new book
+      #                  :close_if_saved -> close the old book and open the new book, if the old book is saved
       #                                       raise an exception otherwise
-      #                  :new_app          -> open the new book in a new excel application
+      #                  :new_app        -> open the new book in a new excel application
       def open(file, options={ :reuse => true}, &block)
         new(file, options, &block)
       end
@@ -63,7 +63,7 @@ module RobustExcelOle
           when :save
             save unless @workbook.Saved
             @workbook.Close
-          when :close_if_unsaved
+          when :close_if_saved
             if (not @workbook.Saved) then
               raise ExcelErrorOpen, "book with the same name in a different path is unsaved"
             else 
@@ -222,7 +222,7 @@ module RobustExcelOle
         case opts[:if_exists]
         when :overwrite
           # if a book is open with the name of file, then raise error
-          open_workbook = ExcelApp.reuse_if_possible.Workbooks(basename) rescue nil
+          open_workbook = ExcelApp.reuse.Workbooks(basename) rescue nil
           #workbook_file = @excel_app.Workbooks(basename) rescue nil
           if open_workbook == nil then
             File.delete(file) 

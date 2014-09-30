@@ -29,4 +29,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency "wdm", '>= 0.0.3'
   s.add_development_dependency "win32console", '>= 1.3.2'
   s.add_development_dependency "guard-rspec", '>= 2.1.1'
+  s.required_ruby_version = '>= 1.8.6'
 end

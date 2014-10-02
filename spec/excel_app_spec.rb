@@ -121,6 +121,28 @@ module RobustExcelOle
 
     end
 
+
+    context "with :excel_app" do
+
+      before do
+        ExcelApp.close_all
+      end
+
+      after (:each) do
+        ExcelApp.close_all
+      end
+
+      it "should reuse in given excel app" do
+        app1 = ExcelApp.new(:reuse => false)
+        app2 = ExcelApp.new(:reuse => false)
+        app3 = ExcelApp.new(:excel_app => app1)
+        app4 = ExcelApp.new(:excel_app => app2)
+        app3.should == app1
+        app4.should == app2
+      end
+
+    end
+
     context "with Visible and DisplayAlerts" do
 
       before do

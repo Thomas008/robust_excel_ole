@@ -7,16 +7,6 @@ $VERBOSE = nil
 module RobustExcelOle
 
   describe ExcelApp do
-    before do
-      @dir = create_tmpdir
-      @simple_file = @dir + '/simple.xls'
-    end
-
-    after do
-      rm_tmp(@dir)
-    end
-
-    save_path = "C:" + "/" + "simple_save.xls"
 
     context "app creation" do
       after do

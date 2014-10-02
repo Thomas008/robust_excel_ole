@@ -27,6 +27,7 @@ module RobustExcelOle
       #                                       raise an exception otherwise
       #                  :new_app        -> open the new book in a new excel application
       #  :reuse         use a running Excel-application (default: true)
+      #  :excel_app     an Excel application            (default: nil) 
       #  :displayalerts allow display alerts in Excel   (default: false)
       #  :visible       make visibe in Excel            (default: false)
       def open(file, options={ :reuse => true}, &block)
@@ -38,6 +39,7 @@ module RobustExcelOle
     def initialize(file, opts={ }, &block)
       @options = {
         :reuse => true,
+        :excel_app => nil,
         :read_only => false,
         :if_unsaved => :raise,
         :if_obstructed => :raise
@@ -47,7 +49,7 @@ module RobustExcelOle
       if not File.exist?(file)
         raise ExcelErrorOpen, "file #{file} not found"
       end
-      @excel_app = ExcelApp.new(excel_app_options)     # :nodoc:
+      @excel_app = @options[:excel_app] ? @options[:excel_app] : ExcelApp.new(excel_app_options)  
       workbooks = @excel_app.Workbooks
       @workbook = workbooks.Item(File.basename(file)) rescue nil
       if @workbook then

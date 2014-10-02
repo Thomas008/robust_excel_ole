@@ -222,13 +222,19 @@ module RobustExcelOle
         case opts[:if_exists]
         when :overwrite
           # if a book is open with the name of file, then raise error
+          # bräuchte alle Excel-Applikationen.
+          # mit ExcelApp.reuse bzw. running_app bzw. connect bekomme ich nur die 1. Excel-Applikation
           open_workbook = ExcelApp.reuse.Workbooks(basename) rescue nil
-          #workbook_file = @excel_app.Workbooks(basename) rescue nil
-          if open_workbook == nil then
+          begin
             File.delete(file) 
-          else
+          rescue 
             raise ExcelErrorSave, "book is open and used in Excel"
           end
+          #if open_workbook == nil then
+          #  File.delete(file) 
+          #else
+          #  raise ExcelErrorSave, "book is open and used in Excel"
+          #end
         when :excel 
           old_displayalerts = @excel_app.DisplayAlerts  # :nodoc:
           @excel_app.DisplayAlerts = true  # :nodoc:

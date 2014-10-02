@@ -1,17 +1,20 @@
 # example 1: open a book, print the cells, rows, and columns of a sheet
-require "fileutils"
 
 require File.join(File.dirname(__FILE__), '../lib/robust_excel_ole')
+
+#require File.join(File.dirname(__FILE__), '../spec/spec_helper')
+
+require "fileutils"
 
 include RobustExcelOle
 
 ExcelApp.close_all
 begin
-  simple_file = '../spec/data/simple.xls'
-  simple_save_file = '../spec/data/simple_save.xls'
-  File.delete @simple_save_file rescue nil
-  FileUtils.copy simple_file, simple_save_file
-  book = Book.open(simple_save_file)
+  dir = create_tmpdir
+  simple_file = dir + '/simple.xls'
+  simple_save_file = dir + '/simple_save.xls'
+  File.delete simple_save_file rescue nil
+  book = Book.open(simple_file)
   sheet = book[0]
   cell = sheet[0,0]
   i = 0
@@ -34,5 +37,8 @@ begin
   book.close
 ensure
   ExcelApp.close_all
+
+
 end
 
+  

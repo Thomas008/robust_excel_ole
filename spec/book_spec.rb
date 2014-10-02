@@ -65,7 +65,7 @@ describe RobustExcelOle::Book do
       end
     end
 
-    context "with excel_app" do
+    context "with attr_reader excel_app" do
       before do
         @new_book = RobustExcelOle::Book.open(@simple_file)
       end
@@ -78,6 +78,29 @@ describe RobustExcelOle::Book do
         excel_app.should be_a RobustExcelOle::ExcelApp
       end
     end
+
+    context "with :excel_app" do
+      it "should reuse the given excel application of the book" do
+        book1 = RobustExcelOle::Book.open(@simple_file, :reuse => false)
+        excel_app1 = book1.excel_app
+        book2 = RobustExcelOle::Book.open(@simple_file, :reuse => false)
+        excel_app2 = book2.excel_app
+        excel_app2.should_not == excel_app1
+        book3 = RobustExcelOle::Book.open(@simple_file)
+        excel_app3 = book3.excel_app
+        book4 = RobustExcelOle::Book.open(@simple_file, :excel_app => excel_app2)
+        excel_app4 = book4.excel_app
+        excel_app3.should == excel_app1
+        excel_app4.should == excel_app2
+        excel_app4.class.should == RobustExcelOle::ExcelApp
+        excel_app4.should be_a RobustExcelOle::ExcelApp
+        book1.close
+        book2.close
+        book3.close
+        book4.close
+      end
+    end
+
 
     context "with :read_only" do
       it "should be able to save, if :read_only => false" do

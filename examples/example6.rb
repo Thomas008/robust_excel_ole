@@ -8,7 +8,7 @@ ExcelApp.close_all
 begin
   file_name = '../spec/data/simple.xls' 
   book = Book.open(file_name)                      # open a book
-  ExcelApp.reuse_if_possible.Visible = true        # make Excel visible 
+  ExcelApp.reuse.Visible = true        # make Excel visible 
   sleep 1
   sheet = book[0]                                            # access a sheet
   first_cell = sheet[0,0].value

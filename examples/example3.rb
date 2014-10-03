@@ -10,7 +10,7 @@ begin
   file_name = dir + 'simple.xls'
   other_file_name = dir + 'different_simple.xls'
   book = Book.open(file_name)                # open a book.  default:  :read_only => false
-  ExcelApp.reuse_if_possible.Visible = true                  # make Excel visible
+  ExcelApp.reuse.Visible = true                  # make Excel visible
   sheet = book[0]                                            # access a sheet
   sleep 1     
   sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"  # change a cell

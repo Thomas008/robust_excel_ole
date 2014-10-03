@@ -6,9 +6,9 @@ include RobustExcelOle
 
 ExcelApp.close_all
 begin
-  dir = '../spec/data/'
+  dir = 'C:/'
   file_name = dir + 'simple.xls'
-  other_dir = '../spec/data/more_data/'
+  other_dir = 'C:/more_data/'
   other_file_name = other_dir + 'simple.xls'
   book = Book.open(file_name, :visible => true)  # open a book, make Excel application visible
   sleep 3 

@@ -1,28 +1,33 @@
-# example 10: save the sheets of a book as separate books
+# example 10: open with :if_obstructed: :close_if_saved
 
 require File.join(File.dirname(__FILE__), '../lib/robust_excel_ole')
-
-require "fileutils"
 
 include RobustExcelOle
 
 ExcelApp.close_all
 begin
-  dir = '../spec/data/'
-  file_name = dir + 'book_with_blank.xls'
-  dir_save = 'C:/'
-  file_name_save = dir_save + file_name
-  book = Book.open(file_name)                   # open a book
-  ExcelApp.reuse_if_possible.Visible = true     # make Excel visible 
-  i = 0
-  book.each do |sheet|
-    i = i + 1
-    file_name_save_sheet = file_name + "_sheet#{i}.xls"
-    puts "file_name_save_sheet: #{file_name_save_sheet}"
-	  # generate empty 
-	  book_sheet = ExcelApp.Workbooks.Add
-  end
- ensure                                                              
-  ExcelApp.close_all                              # close workbooks, quit Excel application
- end
-
+  dir = 'C:/'
+  file_name = dir + 'simple.xls'
+  other_dir = 'C:/more_data/'
+  other_file_name = other_dir + 'simple.xls'
+  book = Book.open(file_name, :visible => true)  # open a book, make Excel visible
+  sleep 1
+  sheet = book[0]
+  first_cell = sheet[0,0].value                                   # access a sheet
+  sheet[0,0] = first_cell == "simple" ? "complex" : "simple"      # change a cell
+  sleep 1
+  begin
+    new_book = Book.open(other_file_name, :if_obstructed => :close_if_saved) # raises an exception since the file is not saved
+    rescue ExcelErrorOpen => msg                                             
+    puts "open: #{msg.message}"
+  end                                                        
+  book.save                                                           # save the unsaved book
+  new_book = Book.open(file_name, :if_obstructed => :close_if_saved)  # open the new book, close the saved book    
+  sleep 1
+  new_sheet = new_book[0]
+  new_first_cell = new_sheet[0,0].value
+  puts "the old book was saved" unless new_first_cell == first_cell 
+  new_book.close                                 # close the books                  
+ensure
+  ExcelApp.close_all                         # close all workbooks, quit Excel application
+end

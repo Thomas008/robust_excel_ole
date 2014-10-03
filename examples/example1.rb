@@ -10,9 +10,10 @@ include RobustExcelOle
 
 ExcelApp.close_all
 begin
-  dir = create_tmpdir
-  simple_file = dir + '/simple.xls'
-  simple_save_file = dir + '/simple_save.xls'
+  dir = 'C:/'
+  #dir = create_tmpdir
+  simple_file = dir + 'simple.xls'
+  simple_save_file = dir + 'simple_save.xls'
   File.delete simple_save_file rescue nil
   book = Book.open(simple_file)
   sheet = book[0]
@@ -37,8 +38,6 @@ begin
   book.close
 ensure
   ExcelApp.close_all
-
-
 end
 
   

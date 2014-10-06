@@ -1,4 +1,4 @@
-# example 2: open a book in a running Excel application and in a new one. make visible
+# example_reuse.rb: open a book in a running Excel application and in a new one. make visible
 
 require File.join(File.dirname(__FILE__), '../lib/robust_excel_ole')
 

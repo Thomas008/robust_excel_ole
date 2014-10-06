@@ -1,4 +1,4 @@
-# example 4: open with read_only mode. save, close 
+# example_read_only: open with read_only mode. save, close 
 
 require File.join(File.dirname(__FILE__), '../lib/robust_excel_ole')
 

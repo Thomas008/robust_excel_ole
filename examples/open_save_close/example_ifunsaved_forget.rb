@@ -1,4 +1,5 @@
-# example 6: open with :if_unsaved => :forget, :new_app, close with :if_unsaved => :save 
+# example_openclose_ifunsaved2.rb
+# open with :if_unsaved => :forget, :new_app, close with :if_unsaved => :save 
 
 require File.join(File.dirname(__FILE__), '../lib/robust_excel_ole')
 

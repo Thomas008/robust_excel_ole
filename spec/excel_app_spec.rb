@@ -72,7 +72,7 @@ module RobustExcelOle
     end
 
     context "close excel instances" do
-      def direct_excel_creation_helper
+      def direct_excel_creation_helper  # :nodoc: #
         expect { WIN32OLE.connect("Excel.Application") }.to raise_error
         sleep 0.1
         exl1 = WIN32OLE.new("Excel.Application")

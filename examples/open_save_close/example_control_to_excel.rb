@@ -9,7 +9,7 @@ begin
   dir = 'c:/'
   file_name = dir + 'simple.xls' 
   book = Book.open(file_name)          # open a book
-  ExcelApp.reuse.Visible = true                              # make Excel visible 
+  ExcelApp.current.Visible = true                              # make Excel visible 
   sleep 1
   sheet = book[0]                                                        # access a sheet
   sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"       # change a cell
@@ -20,7 +20,7 @@ begin
   	puts "#{msg.message}"                                  #   an exeptions is raised
   end
   puts "new book has opened" if new_book
-  ExcelApp.reuse.Visible = true
+  ExcelApp.current.Visible = true
   begin
   	book.close(:if_unsaved => :excel)                      # close the unsaved book. 
   rescue ExcelUserCanceled => msg                          # user is asked whether the unsaved book shall be saved

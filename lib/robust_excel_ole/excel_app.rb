@@ -97,9 +97,9 @@ module RobustExcelOle
       new(:reuse => false)
     end
 
-    # uses a running Excel application (connects), if such an Excel application exists
+    # uses the current Excel application (connects), if such a running Excel application exists
     # creates a new one, otherwise 
-    def self.reuse
+    def self.current
       new(:reuse => true)
     end
 

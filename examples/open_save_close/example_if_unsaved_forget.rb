@@ -10,7 +10,7 @@ begin
   dir = 'C:/'
   file_name = dir + 'simple.xls' 
   book = Book.open(file_name)                      # open a book
-  ExcelApp.reuse.Visible = true        # make Excel visible 
+  ExcelApp.current.Visible = true        # make Excel visible 
   sleep 1
   sheet = book[0]                                            # access a sheet
   first_cell = sheet[0,0].value

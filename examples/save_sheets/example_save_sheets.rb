@@ -11,7 +11,7 @@ begin
   dir = 'C:/'
   file_name = dir + 'book_with_blank.xls'
   book = Book.open(file_name)                   # open a book
-  ExcelApp.reuse.Visible = true     # make Excel visible 
+  ExcelApp.current.Visible = true     # make Excel visible 
   # 1. Bücher erstmal speichern, um sie öffnen zu können
   i = 0
   book.each do |sheet|

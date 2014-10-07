@@ -56,7 +56,7 @@ module RobustExcelOle
       end
 
       it "should reuse existing app" do
-        app2 = ExcelApp.reuse
+        app2 = ExcelApp.current
         #puts "@app1 #{@app1.Hwnd}"
         #puts "app2  #{app2.Hwnd}"
         app2.Hwnd.should == @app1.Hwnd
@@ -102,7 +102,7 @@ module RobustExcelOle
       end
 
       it "should be true with two identical excel applications" do
-        app2 = ExcelApp.reuse
+        app2 = ExcelApp.current
         app2.should == @app1
       end
 

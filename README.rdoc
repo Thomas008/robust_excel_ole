@@ -42,10 +42,11 @@ The semantics is similar to, e.g.,  File.open.
 
 Options are the following:
 
-[:reuse]         use an already open Excel-application (default: true) 
 [:read_only]     open in read-only mode (default: false)  
 [:if_unsaved]    :raise (default), :accept, :forget, :new_app, :excel
 [:if_obstructed]  :raise (default), :forget, :save, :close_if_unsaved, :new_app
+[:reuse]         use an already open Excel-application (default: true) 
+[:excel]         an Excel appication (default: nil)
 [:displayalerts] allow display alerts in Excel (default: false)
 [:visible]       make visibe in Excel (default: false)                           
 
@@ -69,7 +70,7 @@ If a book with same name in a different path is open, then
 [:close_if_saved] Close the old book and open the new book, if the old book is saved, raise an exception otherwise
 [:new_app] Open the new book in a new Excel application.
 
-The values :displayalerts and :visible are reached to the class ExcelApp that controls opening and closing of Excel applications.
+The values :displayalerts and :visible are reached to the class Excel that controls opening and closing of Excel applications.
 
 Examples:
 

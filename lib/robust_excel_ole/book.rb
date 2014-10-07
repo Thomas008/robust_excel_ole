@@ -28,7 +28,7 @@ module RobustExcelOle
       #                                       raise an exception otherwise
       #                  :new_app        -> open the new book in a new excel application
       #  :reuse         use a running Excel-application (default: true)
-      #  :excel     an Excel application            (default: nil) 
+      #  :excel         an Excel application            (default: nil) 
       #  :displayalerts allow display alerts in Excel   (default: false)
       #  :visible       make visibe in Excel            (default: false)
       def open(file, options={ :reuse => true}, &block)

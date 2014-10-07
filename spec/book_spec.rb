@@ -81,7 +81,8 @@ describe RobustExcelOle::Book do
 
     context "with :excel_app" do
       it "should reuse the given excel application of the book" do
-        book1 = RobustExcelOle::Book.open(@simple_file, :reuse => false)
+        RobustExcelOle::ExcelApp.close_all
+        book1 = RobustExcelOle::Book.open(@simple_file)
         excel_app1 = book1.excel_app
         book2 = RobustExcelOle::Book.open(@simple_file, :reuse => false)
         excel_app2 = book2.excel_app
@@ -94,10 +95,10 @@ describe RobustExcelOle::Book do
         excel_app4.should == excel_app2
         excel_app4.class.should == RobustExcelOle::ExcelApp
         excel_app4.should be_a RobustExcelOle::ExcelApp
-        book1.close
-        book2.close
-        book3.close
         book4.close
+        book3.close
+        book2.close
+        book1.close
       end
     end
 

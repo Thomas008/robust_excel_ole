@@ -4,12 +4,12 @@ require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
 
 include RobustExcelOle
 
-ExcelApp.close_all
+Excel.close_all
 begin
   dir = 'c:/'
   file_name = dir + 'simple.xls' 
   book = Book.open(file_name)          # open a book
-  ExcelApp.current.Visible = true                              # make Excel visible 
+  Excel.current.Visible = true                              # make Excel visible 
   sleep 1
   sheet = book[0]                                                        # access a sheet
   sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"       # change a cell
@@ -20,7 +20,7 @@ begin
   	puts "#{msg.message}"                                  #   an exeptions is raised
   end
   puts "new book has opened" if new_book
-  ExcelApp.current.Visible = true
+  Excel.current.Visible = true
   begin
   	book.close(:if_unsaved => :excel)                      # close the unsaved book. 
   rescue ExcelUserCanceled => msg                          # user is asked whether the unsaved book shall be saved
@@ -36,5 +36,5 @@ begin
   	new_book.close                                         # close the new book, if the user chose to open it
   end
 ensure                                                              
-  ExcelApp.close_all                                       # close ALL workbooks, quit Excel application
+  Excel.close_all                                       # close ALL workbooks, quit Excel application
 end

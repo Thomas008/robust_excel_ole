@@ -4,13 +4,13 @@ require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
 
 include RobustExcelOle
 
-ExcelApp.close_all
+Excel.close_all
 begin
   dir = 'C:/'
   file_name = dir + 'simple.xls'
   other_file_name = dir + 'different_simple.xls'
   book = Book.open(file_name)                # open a book.  default:  :read_only => false
-  ExcelApp.current.Visible = true                  # make Excel visible
+  Excel.current.Visible = true                  # make Excel visible
   sheet = book[0]                                            # access a sheet
   sleep 1     
   sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"  # change a cell
@@ -25,6 +25,6 @@ begin
   puts "save_as: saved successfully with option :if_exists => :overwrite"
   book.close                                                 # close the book
 ensure
-	  ExcelApp.close_all                                         # close workbooks, quit Excel application
+	  Excel.close_all                                         # close workbooks, quit Excel application
 end		
 

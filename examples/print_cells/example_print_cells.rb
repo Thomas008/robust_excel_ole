@@ -8,7 +8,7 @@ require "fileutils"
 
 include RobustExcelOle
 
-ExcelApp.close_all
+Excel.close_all
 begin
   #dir = 'C:/'
   dir = create_tmpdir
@@ -37,7 +37,7 @@ begin
   book.save
   book.close
 ensure
-  ExcelApp.close_all
+  Excel.close_all
 end
 
   

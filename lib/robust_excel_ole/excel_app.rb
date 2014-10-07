@@ -2,7 +2,7 @@
 
 module RobustExcelOle
 
-  class ExcelApp
+  class Excel
 
     attr_writer :ole_app
 
@@ -75,7 +75,7 @@ module RobustExcelOle
 
     # returns true, if the Excel applications are identical, false otherwise
     def == other_app
-      self.hwnd == other_app.hwnd    if other_app.is_a?(ExcelApp)
+      self.hwnd == other_app.hwnd    if other_app.is_a?(Excel)
     end
 
     # returns true, if the Excel application is alive, false otherwise

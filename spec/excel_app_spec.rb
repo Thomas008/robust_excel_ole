@@ -6,11 +6,11 @@ $VERBOSE = nil
 
 module RobustExcelOle
 
-  describe ExcelApp do
+  describe Excel do
 
     context "app creation" do
       after do
-        ExcelApp.close_all
+        Excel.close_all
       end
 
       def creation_ok? # :nodoc: #
@@ -21,17 +21,17 @@ module RobustExcelOle
       end
 
       it "should work with 'new' " do
-        @app = ExcelApp.new
+        @app = Excel.new
         creation_ok?
       end
 
       it "should work with 'new' " do
-        @app = ExcelApp.new(:reuse => false)
+        @app = Excel.new(:reuse => false)
         creation_ok?
       end
 
       it "should work with 'create' " do
-        @app = ExcelApp.create
+        @app = Excel.create
         creation_ok?
       end
 
@@ -40,30 +40,30 @@ module RobustExcelOle
     context "with existing app" do
 
       before do
-        ExcelApp.close_all
-        @app1 = ExcelApp.create
+        Excel.close_all
+        @app1 = Excel.create
       end
 
       after do
-        ExcelApp.close_all
+        Excel.close_all
       end
 
       it "should create different app" do
-        app2 = ExcelApp.create
+        app2 = Excel.create
         #puts "@app1 #{@app1.Hwnd}"
         #puts "app2  #{app2.Hwnd}"
         app2.Hwnd.should_not == @app1.Hwnd
       end
 
       it "should reuse existing app" do
-        app2 = ExcelApp.current
+        app2 = Excel.current
         #puts "@app1 #{@app1.Hwnd}"
         #puts "app2  #{app2.Hwnd}"
         app2.Hwnd.should == @app1.Hwnd
       end
 
       it "should reuse existing app with default options for 'new'" do
-        app2 = ExcelApp.new
+        app2 = Excel.new
         #puts "@app1 #{@app1.Hwnd}"
         #puts "app2  #{app2.Hwnd}"
         app2.Hwnd.should == @app1.Hwnd
@@ -83,9 +83,9 @@ module RobustExcelOle
       end
 
       it "simple file with default" do
-        RobustExcelOle::ExcelApp.close_all
+        RobustExcelOle::Excel.close_all
         direct_excel_creation_helper
-        RobustExcelOle::ExcelApp.close_all
+        RobustExcelOle::Excel.close_all
         sleep 0.1
         expect { WIN32OLE.connect("Excel.Application") }.to raise_error
       end
@@ -93,25 +93,25 @@ module RobustExcelOle
 
     describe "==" do
       before do
-        ExcelApp.close_all
-        @app1 = ExcelApp.create
+        Excel.close_all
+        @app1 = Excel.create
       end
 
       after do
-        ExcelApp.close_all
+        Excel.close_all
       end
 
       it "should be true with two identical excel applications" do
-        app2 = ExcelApp.current
+        app2 = Excel.current
         app2.should == @app1
       end
 
       it "should be false with two different excel applications" do
-        app2 = ExcelApp.create
+        app2 = Excel.create
         app2.should_not == @app1
       end
 
-      it "should be false with non-ExcelApp objects" do
+      it "should be false with non-Excel objects" do
         @app1.should_not == "hallo"
         @app1.should_not == 7
         @app1.should_not == nil
@@ -123,18 +123,18 @@ module RobustExcelOle
     context "with :excel_app" do
 
       before do
-        ExcelApp.close_all
+        Excel.close_all
       end
 
       after (:each) do
-        ExcelApp.close_all
+        Excel.close_all
       end
 
       it "should reuse in given excel app" do
-        app1 = ExcelApp.new(:reuse => false)
-        app2 = ExcelApp.new(:reuse => false)
-        app3 = ExcelApp.new(:excel_app => app1)
-        app4 = ExcelApp.new(:excel_app => app2)
+        app1 = Excel.new(:reuse => false)
+        app2 = Excel.new(:reuse => false)
+        app3 = Excel.new(:excel_app => app1)
+        app4 = Excel.new(:excel_app => app2)
         app3.should == app1
         app4.should == app2
       end
@@ -144,30 +144,30 @@ module RobustExcelOle
     context "with Visible and DisplayAlerts" do
 
       before do
-        ExcelApp.close_all
+        Excel.close_all
       end
 
       after (:each) do
-        ExcelApp.close_all
+        Excel.close_all
       end
 
       it "should be visible" do
-        app = ExcelApp.new(:visible => true)
+        app = Excel.new(:visible => true)
         app.Visible.should == true
         app.DisplayAlerts.should == false
       end
 
       it "should displayalerts" do        
-        app = ExcelApp.new(:displayalerts => true)
+        app = Excel.new(:displayalerts => true)
         app.DisplayAlerts.should == true
         app.Visible.should == false
       end
 
       it "should visible and displayalerts" do
-        app = ExcelApp.new(:visible => true)
+        app = Excel.new(:visible => true)
         app.Visible.should == true
         app.DisplayAlerts.should == false
-        app2 = ExcelApp.new(:displayalerts => true)
+        app2 = Excel.new(:displayalerts => true)
         app2.Visible.should == true
         app2.DisplayAlerts.should == true
       end

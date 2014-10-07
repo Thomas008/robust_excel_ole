@@ -50,7 +50,7 @@ module RobustExcelOle
       if not File.exist?(file)
         raise ExcelErrorOpen, "file #{file} not found"
       end
-      @excel_app = @options[:excel_app] ? excel_app_options[:excel_app] : ExcelApp.new(excel_app_options)  
+      @excel_app = @options[:excel_app] ? excel_app_options[:excel_app] : Excel.new(excel_app_options)  
       workbooks = @excel_app.Workbooks
       @workbook = workbooks.Item(File.basename(file)) rescue nil
       if @workbook then
@@ -74,7 +74,7 @@ module RobustExcelOle
             end
           when :new_app
             excel_app_options[:reuse] = false
-            @excel_app = ExcelApp.new(excel_app_options)
+            @excel_app = Excel.new(excel_app_options)
             @workbook = nil
           else
             raise ExcelErrorOpen, ":if_obstructed: invalid option"
@@ -95,7 +95,7 @@ module RobustExcelOle
               @excel_app.DisplayAlerts = true  # :nodoc:
             when :new_app
               excel_app_options[:reuse] = false
-              @excel_app = ExcelApp.new(excel_app_options)
+              @excel_app = Excel.new(excel_app_options)
               @workbook = nil
             else
               raise ExcelErrorOpen, ":if_unsaved: invalid option"

@@ -5,7 +5,7 @@ require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
 
 include RobustExcelOle
 
-ExcelApp.close_all
+Excel.close_all
 begin
   dir = 'C:/'
   file_name = dir + 'simple.xls' 
@@ -34,5 +34,5 @@ begin
   puts "closed the book successfully with option :if_unsaved => :save"
   new_book.close                                        # close the other book. It is already saved.
 ensure
-	  ExcelApp.close_all                                    # close workbooks, quit Excel application
+	  Excel.close_all                                    # close workbooks, quit Excel application
 end

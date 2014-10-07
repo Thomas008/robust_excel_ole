@@ -4,7 +4,7 @@ require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
 
 include RobustExcelOle
 
-ExcelApp.close_all
+Excel.close_all
 begin
   dir = 'C:/'
   file_name = dir + 'simple.xls'
@@ -29,5 +29,5 @@ begin
   puts "the old book was saved" unless new_first_cell == first_cell 
   new_book.close                                 # close the books                  
 ensure
-  ExcelApp.close_all                         # close all workbooks, quit Excel application
+  Excel.close_all                         # close all workbooks, quit Excel application
 end

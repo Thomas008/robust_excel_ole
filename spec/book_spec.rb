@@ -9,10 +9,10 @@ $VERBOSE = nil
 describe RobustExcelOle::Book do
 
   before(:all) do
-    excel_app = RobustExcelOle::ExcelApp.new(:reuse => true)
+    excel_app = RobustExcelOle::Excel.new(:reuse => true)
     open_books = excel_app == nil ? 0 : excel_app.Workbooks.Count
     puts "*** open books *** : #{open_books}" if open_books > 0
-    RobustExcelOle::ExcelApp.close_all
+    RobustExcelOle::Excel.close_all
   end
 
 
@@ -23,7 +23,7 @@ describe RobustExcelOle::Book do
   end
 
   after do
-    #RobustExcelOle::ExcelApp.close_all
+    #RobustExcelOle::Excel.close_all
     rm_tmp(@dir)
   end
 
@@ -74,14 +74,14 @@ describe RobustExcelOle::Book do
       end
       it "should provide the excel application of the book" do
         excel_app = @new_book.excel_app
-        excel_app.class.should == RobustExcelOle::ExcelApp
-        excel_app.should be_a RobustExcelOle::ExcelApp
+        excel_app.class.should == RobustExcelOle::Excel
+        excel_app.should be_a RobustExcelOle::Excel
       end
     end
 
     context "with :excel_app" do
       it "should reuse the given excel application of the book" do
-        RobustExcelOle::ExcelApp.close_all
+        RobustExcelOle::Excel.close_all
         book1 = RobustExcelOle::Book.open(@simple_file)
         excel_app1 = book1.excel_app
         book2 = RobustExcelOle::Book.open(@simple_file, :reuse => false)
@@ -93,8 +93,8 @@ describe RobustExcelOle::Book do
         excel_app4 = book4.excel_app
         excel_app3.should == excel_app1
         excel_app4.should == excel_app2
-        excel_app4.class.should == RobustExcelOle::ExcelApp
-        excel_app4.should be_a RobustExcelOle::ExcelApp
+        excel_app4.class.should == RobustExcelOle::Excel
+        excel_app4.should be_a RobustExcelOle::Excel
         book4.close
         book3.close
         book2.close

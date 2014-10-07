@@ -6,12 +6,12 @@ require "fileutils"
 
 include RobustExcelOle
 
-ExcelApp.close_all
+Excel.close_all
 begin
   dir = 'C:/'
   file_name = dir + 'book_with_blank.xls'
   book = Book.open(file_name)                   # open a book
-  ExcelApp.current.Visible = true     # make Excel visible 
+  Excel.current.Visible = true     # make Excel visible 
   # 1. Bücher erstmal speichern, um sie öffnen zu können
   i = 0
   book.each do |sheet|
@@ -22,9 +22,9 @@ begin
     book.save_as(file_name_sheet) 
   end
   # generate empty book
-  # book_sheet = ExcelApp.Workbooks.Add
+  # book_sheet = Excel.Workbooks.Add
   
  ensure                                                              
-  ExcelApp.close_all                              # close workbooks, quit Excel application
+  Excel.close_all                              # close workbooks, quit Excel application
  end
 

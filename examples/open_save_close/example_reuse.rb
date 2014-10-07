@@ -4,7 +4,7 @@ require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
 
 include RobustExcelOle
 
-ExcelApp.close_all
+Excel.close_all
 begin
   dir = 'C:/'
   file_name1 = dir + 'simple.xls'
@@ -12,7 +12,7 @@ begin
   file_name3 = dir + 'different_simple.xls'
   file_name4 = dir + 'book_with_blank.xls'
   book1 = Book.open(file_name1)             # open a book in a new Excel application since no Excel is open
-  ExcelApp.current.Visible = true # make Excel visible
+  Excel.current.Visible = true # make Excel visible
   sleep 2
   book2 = Book.open(file_name2)             # open a new book in the same Excel application
   sleep 2                                   # (by default:  :reuse => true)
@@ -25,7 +25,7 @@ begin
   book3.close
   book4.close                                         
 ensure
-  ExcelApp.close_all                       # close all workbooks, quit Excel application
+  Excel.close_all                       # close all workbooks, quit Excel application
 end
 
 

@@ -4,7 +4,7 @@ require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
 
 include RobustExcelOle
 
-ExcelApp.close_all
+Excel.close_all
 begin
   dir = 'C:/'
   file_name = dir + 'simple.xls'
@@ -22,6 +22,6 @@ begin
   end
   book.close                                          # close the book without saving it 
 ensure
-  ExcelApp.close_all                                  # close workbooks, quit Excel application
+  Excel.close_all                                  # close workbooks, quit Excel application
 end
 

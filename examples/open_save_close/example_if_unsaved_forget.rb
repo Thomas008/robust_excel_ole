@@ -5,12 +5,12 @@ require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
 
 include RobustExcelOle
 
-ExcelApp.close_all
+Excel.close_all
 begin
   dir = 'C:/'
   file_name = dir + 'simple.xls' 
   book = Book.open(file_name)                      # open a book
-  ExcelApp.current.Visible = true        # make Excel visible 
+  Excel.current.Visible = true        # make Excel visible 
   sleep 1
   sheet = book[0]                                            # access a sheet
   first_cell = sheet[0,0].value
@@ -30,5 +30,5 @@ begin
   new_book.close(:if_unsaved => :forget )                                
   another_book.close
 ensure
-	  ExcelApp.close_all                                    # close all workbooks, quit Excel application
+	  Excel.close_all                                    # close all workbooks, quit Excel application
 end

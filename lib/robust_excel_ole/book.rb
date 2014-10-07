@@ -226,7 +226,7 @@ module RobustExcelOle
         when :overwrite
           begin
             File.delete(file) 
-          rescue 
+          rescue Errno::EACCES
             raise ExcelErrorSave, "book is open and used in Excel"
           end
         when :excel 

@@ -8,9 +8,90 @@ module RobustExcelOle
 
     @@hwnd2app = {}
 
+    # closes all Excel applications
+    def self.close_all
+      while current_app do
+        close_one_app
+        GC.start
+        sleep 0.3
+        #free_all_ole_objects
+      end
+    end
+
+    # creates a new Excel application
+    def self.create
+      new(:reuse => false)
+    end
+
+    # uses the current Excel application (connects), if such a running Excel application exists
+    # creates a new one, otherwise 
+    def self.current
+      new(:reuse => true)
+    end
+
+    # returns an Excel application  
+    # options:
+    #  :reuse          use an already running Excel application (default: true)
+    #  :displayalerts  allow display alerts in Excel            (default: false)
+    #  :visible        make visible in Excel                    (default: false)
+    def self.new(options= {})
+      options = {:reuse => true}.merge(options)
+
+      ole_app = nil
+      if options[:reuse] then
+        ole_app = options[:excel_app] ? options[:excel_app] : current_app
+        if ole_app
+          ole_app.DisplayAlerts = options[:displayalerts] unless options[:displayalerts]==nil
+          ole_app.Visible = options[:visible] unless options[:visible]==nil
+        end
+      end
+
+      options = {
+        :displayalerts => false,
+        :visible => false,
+      }.merge(options)
+      unless ole_app
+        ole_app = WIN32OLE.new('Excel.application')
+        ole_app.DisplayAlerts = options[:displayalerts]
+        ole_app.Visible = options[:visible]
+      end
+
+      hwnd = ole_app.HWnd
+      stored = @@hwnd2app[hwnd]
+
+      if stored 
+        result = stored
+      else
+        WIN32OLE.const_load(ole_app, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
+        result = super(options)
+        result.ole_app = ole_app
+        @@hwnd2app[hwnd] = result
+      end
+      result
+    end
+
+    def initialize(options= {}) # :nodoc:
+    end
+
+    # returns true, if the Excel applications are identical, false otherwise
+    def == other_app
+      self.hwnd == other_app.hwnd    if other_app.is_a?(ExcelApp)
+    end
+
+    # returns true, if the Excel application is alive, false otherwise
+    def alive?
+      @ole_app.Name
+      true
+    rescue
+      puts $!.message
+      false
+    end
+
+  private
+
     # closes one Excel application
-    def self.close_one_app
-      excel = running_app
+    def self.close_one_app   # :nodoc: #
+      excel = current_app
       if excel then
         excel.Workbooks.Close
         excel_hwnd = excel.HWnd
@@ -47,7 +128,7 @@ module RobustExcelOle
     end
 
     # frees all OLE objects in the object space
-    def self.free_all_ole_objects
+    def self.free_all_ole_objects   # :nodoc: #
       anz_objekte = 0
       ObjectSpace.each_object(WIN32OLE) do |o|
         anz_objekte += 1
@@ -68,18 +149,8 @@ module RobustExcelOle
       puts "went through #{anz_objekte} OLE objects"
     end
 
-    # closes all Excel applications
-    def self.close_all
-      while running_app do
-        close_one_app
-        GC.start
-        sleep 0.3
-        #free_all_ole_objects
-      end
-    end
-
-    # returns a running Excel application, if a working Excel appication exists, nil otherwise
-    def self.running_app
+    # returns the current Excel application, if a running, working Excel appication exists, nil otherwise
+    def self.current_app   # :nodoc: #
       result = WIN32OLE.connect('Excel.Application') rescue nil
       if result
         begin
@@ -92,84 +163,13 @@ module RobustExcelOle
       result
     end
 
-    # creates a new Excel application
-    def self.create
-      new(:reuse => false)
-    end
-
-    # uses the current Excel application (connects), if such a running Excel application exists
-    # creates a new one, otherwise 
-    def self.current
-      new(:reuse => true)
-    end
-
-    # returns an Excel application  
-    # options:
-    #  :reuse          use an already running Excel application (default: true)
-    #  :displayalerts  allow display alerts in Excel            (default: false)
-    #  :visible        make visible in Excel                    (default: false)
-    def self.new(options= {})
-      options = {:reuse => true}.merge(options)
-
-      ole_app = nil
-      if options[:reuse] then
-        ole_app = options[:excel_app] ? options[:excel_app] : running_app
-        if ole_app
-          ole_app.DisplayAlerts = options[:displayalerts] unless options[:displayalerts]==nil
-          ole_app.Visible = options[:visible] unless options[:visible]==nil
-        end
-      end
-
-      options = {
-        :displayalerts => false,
-        :visible => false,
-      }.merge(options)
-      unless ole_app
-        ole_app = WIN32OLE.new('Excel.application')
-        ole_app.DisplayAlerts = options[:displayalerts]
-        ole_app.Visible = options[:visible]
-      end
-
-      hwnd = ole_app.HWnd
-      stored = @@hwnd2app[hwnd]
-
-      if stored 
-        result = stored
-      else
-        WIN32OLE.const_load(ole_app, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
-        result = super(options)
-        result.ole_app = ole_app
-        @@hwnd2app[hwnd] = result
-      end
-      result
-    end
-
-
-    def initialize(options= {}) # :nodoc:
-    end
-
-
-    def hwnd_xxxx
+    def hwnd_xxxx  # :nodoc: #
       self.HWnd #rescue Win32 nil
-    end
-
-    # returns true, if the Excel applications are identical, false otherwise
-    def == other_app
-      self.hwnd == other_app.hwnd    if other_app.is_a?(ExcelApp)
     end
 
     # set this Excel application to nil
     def die  # :nodoc:
       @ole_app = nil
-    end
-
-    # returns true, if the Excel application is alive, false otherwise
-    def alive?
-      @ole_app.Name
-      true
-    rescue
-      puts $!.message
-      false
     end
 
     def method_missing(name, *args)

@@ -37,8 +37,6 @@ module RobustExcelOle
 
     end
 
-
-
     context "with existing app" do
 
       before do
@@ -177,4 +175,22 @@ module RobustExcelOle
     end
 
   end
+
+  describe "RobustExcelOle" do
+    context "#absolute_path" do
+      it "should work" do
+        RobustExcelOle::absolute_path("C:/abc").should == "C:\\abc"
+        RobustExcelOle::absolute_path("C:\\abc").should == "C:\\abc"
+        RobustExcelOle::absolute_path("C:abc").should == Dir.pwd.gsub("/","\\") + "\\abc"
+        RobustExcelOle::absolute_path("C:abc").should == File.expand_path("abc").gsub("/","\\")
+      end
+
+      it "should return right absoute path name" do
+        @filename = 'C:/Dokumente und Einstellungen/Zauberthomas/Eigene Dateien/robust_excel_ole/spec/book_spec.rb'
+        RobustExcelOle::absolute_path(@filename).gsub("\\","/").should == @filename
+      end
+    end
+
+  end
+
 end

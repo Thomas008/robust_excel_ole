@@ -177,4 +177,12 @@ module RobustExcelOle
     end
 
   end
+
+  def absolute_path(file)
+    file = File.expand_path(file)
+    file = RobustExcelOle::Cygwin.cygpath('-w', file) if RUBY_PLATFORM =~ /cygwin/
+    WIN32OLE.new('Scripting.FileSystemObject').GetAbsolutePathName(file)
+  end
+  module_function :absolute_path
+
 end

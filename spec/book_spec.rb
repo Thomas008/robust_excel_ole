@@ -717,21 +717,7 @@ describe RobustExcelOle::Book do
     end
   end
 
-  describe "== , alive?, filename, absolute_path" do
-
-    context "with absolute_path" do
-      before do
-        @book = RobustExcelOle::Book.open(@simple_file)
-      end
-
-      after do
-        @book.close
-      end
-
-      it "should return right absoute path name" do
-        @book.absolute_path(@simple_file).gsub("\\","/").should == @book.filename
-      end
-    end
+  describe "== , alive?, filename" do
 
     context "with alive?" do
 

@@ -55,7 +55,7 @@ module RobustExcelOle
       @workbook = workbooks.Item(File.basename(file)) rescue nil
       if @workbook then
         obstructed_by_other_book = (File.basename(file) == File.basename(@workbook.Fullname)) && 
-                                   (not (absolute_path(file) == @workbook.Fullname))
+                                   (not (RobustExcelOle::absolute_path(file) == @workbook.Fullname))
         if obstructed_by_other_book then
           # @workbook is not the desired workbook
           case @options[:if_obstructed]
@@ -108,7 +108,7 @@ module RobustExcelOle
         #    or :if_unsaved => :excel
         if ((not alive?) || (@options[:if_unsaved] == :excel)) then
           begin
-            @workbook = @excel_app.Workbooks.Open(absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
+            @workbook = @excel_app.Workbooks.Open(RobustExcelOle::absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
           rescue WIN32OLERuntimeError
             raise ExcelUserCanceled, "open: canceled by user"
           end
@@ -248,7 +248,7 @@ module RobustExcelOle
         end
       end
       begin
-        @workbook.SaveAs(absolute_path(File.join(dirname, basename)), file_format)
+        @workbook.SaveAs(RobustExcelOle::absolute_path(File.join(dirname, basename)), file_format)
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
           if opts[:if_exists] == :excel then 
@@ -297,11 +297,6 @@ module RobustExcelOle
       new_sheet
     end        
 
-    def absolute_path(file)
-      file = File.expand_path(file)
-      file = RobustExcelOle::Cygwin.cygpath('-w', file) if RUBY_PLATFORM =~ /cygwin/
-      WIN32OLE.new('Scripting.FileSystemObject').GetAbsolutePathName(file)
-    end
   end
 
 end

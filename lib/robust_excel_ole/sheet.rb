@@ -81,7 +81,7 @@ module RobustExcelOle
       RobustExcelOle::Range.new(@sheet.Range(@sheet.Cells(range.min + 1, col + 1), @sheet.Cells(range.max + 1, col + 1)))
     end
 
-    def method_missing(id, *args)
+    def method_missing(id, *args)  # :nodoc: #
       @sheet.send(id, *args)
     end
 

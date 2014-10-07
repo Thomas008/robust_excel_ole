@@ -12,7 +12,7 @@ module RobustExcelOle
       end
     end
 
-    def method_missing(id, *args)
+    def method_missing(id, *args)   # :nodoc: #
       @cell.send(id, *args)
     end
   end

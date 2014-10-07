@@ -13,7 +13,7 @@ module RobustExcelOle
         ExcelApp.close_all
       end
 
-      def creation_ok?
+      def creation_ok? # :nodoc: #
         @app.alive?.should == true
         @app.Visible.should == false
         @app.DisplayAlerts.should == false

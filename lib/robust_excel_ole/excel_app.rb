@@ -172,7 +172,7 @@ module RobustExcelOle
       @ole_app = nil
     end
 
-    def method_missing(name, *args)
+    def method_missing(name, *args)  # :nodoc: #
       @ole_app.send(name, *args)
     end
 

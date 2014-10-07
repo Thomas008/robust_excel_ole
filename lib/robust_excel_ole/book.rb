@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 require 'weakref'
 
 module RobustExcelOle
@@ -8,7 +9,7 @@ module RobustExcelOle
 
 
     class << self
-
+      
       # opens a book.
       # 
       # options: 

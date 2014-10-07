@@ -19,6 +19,7 @@ describe RobustExcelOle::Book do
   before do
     @dir = create_tmpdir
     @simple_file = @dir + '/simple.xls'
+    @simple_file = @dir + '/simple.xls'
     @simple_save_file = @dir + '/simple_save.xls'
   end
 

@@ -1,5 +1,5 @@
 require "win32ole"
-require File.join(File.dirname(__FILE__), 'robust_excel_ole/excel_app')
+require File.join(File.dirname(__FILE__), 'robust_excel_ole/excel')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/book')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/sheet')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/cell')

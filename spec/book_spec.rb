@@ -9,8 +9,8 @@ $VERBOSE = nil
 describe RobustExcelOle::Book do
 
   before(:all) do
-    excel_app = RobustExcelOle::Excel.new(:reuse => true)
-    open_books = excel_app == nil ? 0 : excel_app.Workbooks.Count
+    excel = RobustExcelOle::Excel.new(:reuse => true)
+    open_books = excel == nil ? 0 : excel.Workbooks.Count
     puts "*** open books *** : #{open_books}" if open_books > 0
     RobustExcelOle::Excel.close_all
   end
@@ -66,7 +66,7 @@ describe RobustExcelOle::Book do
       end
     end
 
-    context "with attr_reader excel_app" do
+    context "with attr_reader excel" do
       before do
         @new_book = RobustExcelOle::Book.open(@simple_file)
       end
@@ -74,28 +74,28 @@ describe RobustExcelOle::Book do
         @new_book.close
       end
       it "should provide the excel application of the book" do
-        excel_app = @new_book.excel_app
-        excel_app.class.should == RobustExcelOle::Excel
-        excel_app.should be_a RobustExcelOle::Excel
+        excel = @new_book.excel
+        excel.class.should == RobustExcelOle::Excel
+        excel.should be_a RobustExcelOle::Excel
       end
     end
 
-    context "with :excel_app" do
+    context "with :excel" do
       it "should reuse the given excel application of the book" do
         RobustExcelOle::Excel.close_all
         book1 = RobustExcelOle::Book.open(@simple_file)
-        excel_app1 = book1.excel_app
+        excel1 = book1.excel
         book2 = RobustExcelOle::Book.open(@simple_file, :reuse => false)
-        excel_app2 = book2.excel_app
-        excel_app2.should_not == excel_app1
+        excel2 = book2.excel
+        excel2.should_not == excel1
         book3 = RobustExcelOle::Book.open(@simple_file)
-        excel_app3 = book3.excel_app
-        book4 = RobustExcelOle::Book.open(@simple_file, :excel_app => excel_app2)
-        excel_app4 = book4.excel_app
-        excel_app3.should == excel_app1
-        excel_app4.should == excel_app2
-        excel_app4.class.should == RobustExcelOle::Excel
-        excel_app4.should be_a RobustExcelOle::Excel
+        excel3 = book3.excel
+        book4 = RobustExcelOle::Book.open(@simple_file, :excel => excel2)
+        excel4 = book4.excel
+        excel3.should == excel1
+        excel4.should == excel2
+        excel4.class.should == RobustExcelOle::Excel
+        excel4.should be_a RobustExcelOle::Excel
         book4.close
         book3.close
         book2.close
@@ -179,8 +179,8 @@ describe RobustExcelOle::Book do
               @different_book.should be_a RobustExcelOle::Book
             end
             it "should belong to the same Excel application" do
-              @new_book.excel_app.should == @book.excel_app
-              @different_book.excel_app.should == @book.excel_app
+              @new_book.excel.should == @book.excel
+              @different_book.excel.should == @book.excel
             end
           end
         end
@@ -242,7 +242,7 @@ describe RobustExcelOle::Book do
           it "should not open the new book and not close the unsaved book, if user answers 'no'" do
             # "No" is right to "Yes" (the  default). --> language independent
             # strangely, in the "no" case, the question will sometimes be repeated three times
-            #@book.excel_app.Visible = true
+            #@book.excel.Visible = true
             @key_sender.puts "{right}{enter}"
             @key_sender.puts "{right}{enter}"
             @key_sender.puts "{right}{enter}"
@@ -258,7 +258,7 @@ describe RobustExcelOle::Book do
           @book.should be_alive
           @new_book.should be_alive
           @new_book.filename.should == @book.filename
-          @new_book.excel_app.should_not == @book.excel_app
+          @new_book.excel.should_not == @book.excel
           @new_book.close
         end
 
@@ -335,7 +335,7 @@ describe RobustExcelOle::Book do
         @book.should be_alive
         @new_book.should be_alive
         @new_book.filename.should_not == @book.filename
-        @new_book.excel_app.should_not == @book.excel_app
+        @new_book.excel.should_not == @book.excel
       end
 
       it "should raise an error, if :if_obstructed is default" do
@@ -407,10 +407,10 @@ describe RobustExcelOle::Book do
 
       it "should close the book and leave its file untouched with option :forget" do
         ole_workbook = @book.workbook
-        excel_app = @book.excel_app
+        excel = @book.excel
         expect {
           @book.close(:if_unsaved => :forget)
-        }.to change {excel_app.Workbooks.Count }.by(-1)
+        }.to change {excel.Workbooks.Count }.by(-1)
         @book.workbook.should == nil
         @book.should_not be_alive
         expect{
@@ -425,10 +425,10 @@ describe RobustExcelOle::Book do
 
       it "should save the book before close with option :save" do
         ole_workbook = @book.workbook
-        excel_app = @book.excel_app
+        excel = @book.excel
         expect {
           @book.close(:if_unsaved => :save)
-        }.to change {excel_app.Workbooks.Count }.by(-1)
+        }.to change {excel.Workbooks.Count }.by(-1)
         @book.workbook.should == nil
         @book.should_not be_alive
         expect{
@@ -456,8 +456,8 @@ describe RobustExcelOle::Book do
             # "Yes" is the  default. "No" is right of "Yes", "Cancel" is right of "No" --> language independent
             @key_sender.puts  "{right}" * position + "{enter}"
             ole_workbook = @book.workbook
-            excel_app = @book.excel_app
-            displayalert_value = @book.excel_app.DisplayAlerts
+            excel = @book.excel
+            displayalert_value = @book.excel.DisplayAlerts
             if answer == :cancel then
               expect {
               @book.close(:if_unsaved => :excel)
@@ -468,7 +468,7 @@ describe RobustExcelOle::Book do
             else
               expect {
                 @book.close(:if_unsaved => :excel)
-              }.to change {@book.excel_app.Workbooks.Count }.by(-1)
+              }.to change {@book.excel.Workbooks.Count }.by(-1)
               @book.workbook.should == nil
               @book.should_not be_alive
               expect{ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
@@ -476,7 +476,7 @@ describe RobustExcelOle::Book do
             new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved => :forget)
             begin
               new_book.workbook.Worksheets.Count.should == @sheet_count + (answer==:yes ? 1 : 0)
-              new_book.excel_app.DisplayAlerts.should == displayalert_value
+              new_book.excel.DisplayAlerts.should == displayalert_value
             ensure
               new_book.close
             end
@@ -644,7 +644,7 @@ describe RobustExcelOle::Book do
             File.size?(@simple_save_file).should > @garbage_length
             new_book = RobustExcelOle::Book.open(@simple_save_file)
             new_book.should be_a RobustExcelOle::Book
-            @book.excel_app.DisplayAlerts.should == displayalert_value
+            @book.excel.DisplayAlerts.should == displayalert_value
             new_book.close
           end
 
@@ -660,7 +660,7 @@ describe RobustExcelOle::Book do
               }.to raise_error(ExcelErrorSave, "not saved or canceled by user")
             File.exist?(@simple_save_file).should be_true
             File.size?(@simple_save_file).should == @garbage_length
-            @book.excel_app.DisplayAlerts.should == displayalert_value
+            @book.excel.DisplayAlerts.should == displayalert_value
           end
 
           it "should not save if user answers 'cancel'" do
@@ -675,7 +675,7 @@ describe RobustExcelOle::Book do
               }.to raise_error(ExcelErrorSave, "not saved or canceled by user")
             File.exist?(@simple_save_file).should be_true
             File.size?(@simple_save_file).should == @garbage_length
-            @book.excel_app.DisplayAlerts.should == displayalert_value
+            @book.excel.DisplayAlerts.should == displayalert_value
           end
 
           it "should report save errors and leave DisplayAlerts unchanged" do
@@ -686,7 +686,7 @@ describe RobustExcelOle::Book do
               }.to raise_error(ExcelErrorSaveUnknown)
             File.exist?(@simple_save_file).should be_true
             File.size?(@simple_save_file).should == @garbage_length
-            @book.excel_app.DisplayAlerts.should == displayalert_value
+            @book.excel.DisplayAlerts.should == displayalert_value
           end
 
         end

@@ -39,7 +39,7 @@ module RobustExcelOle
 
       ole_app = nil
       if options[:reuse] then
-        ole_app = options[:excel_app] ? options[:excel_app] : current_app
+        ole_app = options[:excel] ? options[:excel] : current_app
         if ole_app
           ole_app.DisplayAlerts = options[:displayalerts] unless options[:displayalerts]==nil
           ole_app.Visible = options[:visible] unless options[:visible]==nil

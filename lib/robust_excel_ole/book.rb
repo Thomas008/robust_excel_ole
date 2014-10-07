@@ -28,7 +28,7 @@ module RobustExcelOle
       #                                       raise an exception otherwise
       #                  :new_app        -> open the new book in a new excel application
       #  :reuse         use a running Excel-application (default: true)
-      #  :excel_app     an Excel application            (default: nil) 
+      #  :excel     an Excel application            (default: nil) 
       #  :displayalerts allow display alerts in Excel   (default: false)
       #  :visible       make visibe in Excel            (default: false)
       def open(file, options={ :reuse => true}, &block)
@@ -40,18 +40,18 @@ module RobustExcelOle
     def initialize(file, opts={ }, &block)
       @options = {
         :reuse => true,
-        :excel_app => nil,
+        :excel => nil,
         :read_only => false,
         :if_unsaved => :raise,
         :if_obstructed => :raise
       }.merge(opts)
-      excel_app_options = {:reuse => true}.merge(opts).delete_if{|k,v| 
+      excel_options = {:reuse => true}.merge(opts).delete_if{|k,v| 
         k== :read_only || k== :if_unsaved || k == :if_obstructed}
       if not File.exist?(file)
         raise ExcelErrorOpen, "file #{file} not found"
       end
-      @excel_app = @options[:excel_app] ? excel_app_options[:excel_app] : Excel.new(excel_app_options)  
-      workbooks = @excel_app.Workbooks
+      @excel = @options[:excel] ? excel_options[:excel] : Excel.new(excel_options)  
+      workbooks = @excel.Workbooks
       @workbook = workbooks.Item(File.basename(file)) rescue nil
       if @workbook then
         obstructed_by_other_book = (File.basename(file) == File.basename(@workbook.Fullname)) && 
@@ -73,8 +73,8 @@ module RobustExcelOle
               @workbook.Close
             end
           when :new_app
-            excel_app_options[:reuse] = false
-            @excel_app = Excel.new(excel_app_options)
+            excel_options[:reuse] = false
+            @excel = Excel.new(excel_options)
             @workbook = nil
           else
             raise ExcelErrorOpen, ":if_obstructed: invalid option"
@@ -91,11 +91,11 @@ module RobustExcelOle
             when :accept
               #nothing
             when :excel
-              old_displayalerts = @excel_app.DisplayAlerts  # :nodoc:
-              @excel_app.DisplayAlerts = true  # :nodoc:
+              old_displayalerts = @excel.DisplayAlerts  # :nodoc:
+              @excel.DisplayAlerts = true  # :nodoc:
             when :new_app
-              excel_app_options[:reuse] = false
-              @excel_app = Excel.new(excel_app_options)
+              excel_options[:reuse] = false
+              @excel = Excel.new(excel_options)
               @workbook = nil
             else
               raise ExcelErrorOpen, ":if_unsaved: invalid option"
@@ -108,14 +108,14 @@ module RobustExcelOle
         #    or :if_unsaved => :excel
         if ((not alive?) || (@options[:if_unsaved] == :excel)) then
           begin
-            @workbook = @excel_app.Workbooks.Open(RobustExcelOle::absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
+            @workbook = @excel.Workbooks.Open(RobustExcelOle::absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
           rescue WIN32OLERuntimeError
             raise ExcelUserCanceled, "open: canceled by user"
           end
         end
       ensure
         if @options[:if_unsaved] == :excel then
-          @excel_app.DisplayAlerts = old_displayalerts  # :nodoc:
+          @excel.DisplayAlerts = old_displayalerts  # :nodoc:
         end
       end
       if block
@@ -146,8 +146,8 @@ module RobustExcelOle
         when :forget
           #nothing
         when :excel
-          old_displayalerts = @excel_app.DisplayAlerts  # :nodoc:
-          @excel_app.DisplayAlerts = true  # :nodoc:
+          old_displayalerts = @excel.DisplayAlerts  # :nodoc:
+          @excel.DisplayAlerts = true  # :nodoc:
         else
           raise ExcelErrorClose, ":if_unsaved: invalid option"
         end
@@ -158,11 +158,11 @@ module RobustExcelOle
         raise ExcelUserCanceled, "close: canceled by user" if alive? && opts[:if_unsaved] == :excel && (not @workbook.Saved)
       ensure
         if opts[:if_unsaved] == :excel then
-          @excel_app.DisplayAlerts = old_displayalerts  # :nodoc:  
+          @excel.DisplayAlerts = old_displayalerts  # :nodoc:  
         end
       end
-      #@excel_app.Workbooks.Close
-      #@excel_app.Quit
+      #@excel.Workbooks.Close
+      #@excel.Quit
     end
 
     # returns true, if the work book is alive, false otherwise
@@ -185,12 +185,12 @@ module RobustExcelOle
     # returns true, if the full book names and excel appications are identical, false, otherwise  
     def == other_book
       other_book.is_a?(Book) &&
-      @excel_app == other_book.excel_app &&
+      @excel == other_book.excel &&
       self.filename == other_book.filename  
     end
 
 
-    attr_reader :excel_app
+    attr_reader :excel
 
     # saves a book.
     # returns true, if successfully saved, nil otherwise
@@ -230,8 +230,8 @@ module RobustExcelOle
             raise ExcelErrorSave, "book is open and used in Excel"
           end
         when :excel 
-          old_displayalerts = @excel_app.DisplayAlerts  # :nodoc:
-          @excel_app.DisplayAlerts = true  # :nodoc:
+          old_displayalerts = @excel.DisplayAlerts  # :nodoc:
+          @excel.DisplayAlerts = true  # :nodoc:
         when :raise
           raise ExcelErrorSave, "book already exists: #{basename}"
         else
@@ -253,7 +253,7 @@ module RobustExcelOle
         end       
       ensure
         if opts[:if_exists] == :excel then
-          @excel_app.DisplayAlerts = old_displayalerts  # :nodoc:
+          @excel.DisplayAlerts = old_displayalerts  # :nodoc:
         end
       end
       true
@@ -283,7 +283,7 @@ module RobustExcelOle
       base_sheet = base_sheet.sheet
       sheet ? sheet.Copy({ after_or_before.to_s => base_sheet }) : @workbook.WorkSheets.Add({ after_or_before.to_s => base_sheet })
 
-      new_sheet = RobustExcelOle::Sheet.new(@excel_app.Activesheet)
+      new_sheet = RobustExcelOle::Sheet.new(@excel.Activesheet)
       new_sheet.name = new_sheet_name if new_sheet_name
       new_sheet
     end        

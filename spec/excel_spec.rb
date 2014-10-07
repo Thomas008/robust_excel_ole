@@ -120,7 +120,7 @@ module RobustExcelOle
     end
 
 
-    context "with :excel_app" do
+    context "with :excel" do
 
       before do
         Excel.close_all
@@ -133,8 +133,8 @@ module RobustExcelOle
       it "should reuse in given excel app" do
         app1 = Excel.new(:reuse => false)
         app2 = Excel.new(:reuse => false)
-        app3 = Excel.new(:excel_app => app1)
-        app4 = Excel.new(:excel_app => app2)
+        app3 = Excel.new(:excel => app1)
+        app4 = Excel.new(:excel => app2)
         app3.should == app1
         app4.should == app2
       end

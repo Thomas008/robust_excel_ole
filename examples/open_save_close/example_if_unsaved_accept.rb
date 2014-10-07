@@ -1,12 +1,14 @@
-# example 5: open with :if_unsaved => :accept, close with :if_unsaved => :save 
+# example_ifunsaved_accept.rb: 
+# open with :if_unsaved => :accept, close with :if_unsaved => :save 
 
-require File.join(File.dirname(__FILE__), '../lib/robust_excel_ole')
+require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
 
 include RobustExcelOle
 
 ExcelApp.close_all
 begin
-  file_name = '../spec/data/simple.xls' 
+  dir = 'C:/'
+  file_name = dir + 'simple.xls' 
   book = Book.open(file_name)                      # open a book 
   sheet = book[0]                                                  # access a sheet
   sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple" # change a cell

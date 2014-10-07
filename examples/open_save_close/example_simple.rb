@@ -1,12 +1,12 @@
-# example 3: open a book, simple save, save_as, close
+# example_simple.rb: open a book, simple save, save_as, close
 
-require File.join(File.dirname(__FILE__), '../lib/robust_excel_ole')
+require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
 
 include RobustExcelOle
 
 ExcelApp.close_all
 begin
-  dir = '../spec/data/'
+  dir = 'C:/'
   file_name = dir + 'simple.xls'
   other_file_name = dir + 'different_simple.xls'
   book = Book.open(file_name)                # open a book.  default:  :read_only => false

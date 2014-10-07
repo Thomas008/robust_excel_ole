@@ -226,7 +226,7 @@ module RobustExcelOle
           # if a book is open with the name of file, then raise error
           # bräuchte alle Excel-Applikationen.
           # mit ExcelApp.reuse bzw. running_app bzw. connect bekomme ich nur die 1. Excel-Applikation
-          open_workbook = ExcelApp.reuse.Workbooks(basename) rescue nil
+          #open_workbook = ExcelApp.reuse.Workbooks(basename) rescue nil
           begin
             File.delete(file) 
           rescue 

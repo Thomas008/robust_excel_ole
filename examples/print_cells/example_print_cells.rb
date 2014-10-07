@@ -1,8 +1,8 @@
 # example 1: open a book, print the cells, rows, and columns of a sheet
 
-require File.join(File.dirname(__FILE__), '../lib/robust_excel_ole')
+require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
 
-#require File.join(File.dirname(__FILE__), '../spec/spec_helper')
+require File.join(File.dirname(__FILE__), '../../spec/spec_helper')
 
 require "fileutils"
 
@@ -10,8 +10,8 @@ include RobustExcelOle
 
 ExcelApp.close_all
 begin
-  dir = 'C:/'
-  #dir = create_tmpdir
+  #dir = 'C:/'
+  dir = create_tmpdir
   simple_file = dir + 'simple.xls'
   simple_save_file = dir + 'simple_save.xls'
   File.delete simple_save_file rescue nil

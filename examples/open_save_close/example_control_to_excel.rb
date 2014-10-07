@@ -1,13 +1,14 @@
-# example 7: open, close, save  with giving control to Excel 
+# example_gibe_control_to_excel.rb: open, close, save  with giving control to Excel 
 
-require File.join(File.dirname(__FILE__), '../lib/robust_excel_ole')
+require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
 
 include RobustExcelOle
 
 ExcelApp.close_all
 begin
-  file_name = '../spec/data/simple.xls' 
-  book = Book.open(file_name, :visible => true)          # open a book
+  dir = 'c:/'
+  file_name = dir + 'simple.xls' 
+  book = Book.open(file_name)          # open a book
   ExcelApp.reuse.Visible = true                              # make Excel visible 
   sleep 1
   sheet = book[0]                                                        # access a sheet

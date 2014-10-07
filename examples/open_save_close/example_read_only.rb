@@ -1,12 +1,12 @@
 # example_read_only: open with read_only mode. save, close 
 
-require File.join(File.dirname(__FILE__), '../lib/robust_excel_ole')
+require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
 
 include RobustExcelOle
 
 ExcelApp.close_all
 begin
-  dir = '../spec/data/'
+  dir = 'C:/'
   file_name = dir + 'simple.xls'
   other_file_name = dir + 'different_simple.xls'
   # open a book with read_only and make Excel visible

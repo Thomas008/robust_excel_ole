@@ -1,13 +1,14 @@
-# example_openclose_ifunsaved2.rb
+# example_ifunsaved_forget.rb:
 # open with :if_unsaved => :forget, :new_app, close with :if_unsaved => :save 
 
-require File.join(File.dirname(__FILE__), '../lib/robust_excel_ole')
+require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
 
 include RobustExcelOle
 
 ExcelApp.close_all
 begin
-  file_name = '../spec/data/simple.xls' 
+  dir = 'C:/'
+  file_name = dir + 'simple.xls' 
   book = Book.open(file_name)                      # open a book
   ExcelApp.reuse.Visible = true        # make Excel visible 
   sleep 1

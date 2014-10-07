@@ -1,6 +1,6 @@
-# example 8: open with :if_obstructed: :forget, :new_app
+# example_if_obstructed_forget.rb: open with :if_obstructed: :forget, :new_app
 
-require File.join(File.dirname(__FILE__), '../lib/robust_excel_ole')
+require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
 
 include RobustExcelOle
 

@@ -1,6 +1,7 @@
-# example 9: open with :if_obstructed: :save
+# example_if_obstructed_save.rb:
+# open with :if_obstructed: :save
 
-require File.join(File.dirname(__FILE__), '../lib/robust_excel_ole')
+require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
 
 include RobustExcelOle
 

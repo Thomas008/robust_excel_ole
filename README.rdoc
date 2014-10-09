@@ -44,7 +44,7 @@ Options are the following:
 
 [:read_only]     open in read-only mode (default: false)  
 [:if_unsaved]    :raise (default), :accept, :forget, :new_app, :excel
-[:if_obstructed]  :raise (default), :forget, :save, :close_if_unsaved, :new_app
+[:if_obstructed] :raise (default), :forget, :save, :close_if_unsaved, :new_app
 [:reuse]         use an already open Excel-application (default: true) 
 [:excel]         an Excel appication (default: nil)
 [:displayalerts] allow display alerts in Excel (default: false)
@@ -104,23 +104,13 @@ Example:
 Options are the following:
 
 [:if_unsaved]  :raise (default), :save, :forget, :excel  
-               if the book is unsaved
+               
+If the book is unsaved, then
 
-:raise 
-
-Raise an exception. Don't close the book.                  
-                 
-:save            
-
-Save the book before closing it.                  
-                 
-:forget          
-
-Close the book. 
-    
-:excel           
-
-Give control to Excel.
+[:raise]  Raise an exception. Don't close the book.                  
+[:save]   Save the book before closing it.                  
+[:forget] Close the book. 
+[:excel]  Give control to Excel.
 
 
 === Save a book.

@@ -1,4 +1,3 @@
-# :nodoc: #
 
 require 'win32ole'
 

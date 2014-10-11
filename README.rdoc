@@ -30,7 +30,7 @@ This is work in progress.
 
 Example:
 
-  book = RobustExcelOle::Book.open('./sample.xls')
+  book = RobustExcelOle::Book.open('simple.xls')
 
 Open a book with a block. 
 The semantics is similar to, e.g.,  File.open.
@@ -72,32 +72,9 @@ If a book with same name in a different path is open, then
 
 The values :displayalerts and :visible are reached to the class Excel that controls opening and closing of Excel applications.
 
-Examples:
-
-Open a book.
-
-  book = RobustExcelOle::Book.open('./sample.xls')
-
-Open another book in the same Excel application.
-
-  new_book = RobustExcelOle::Book.open('./different.xls')
-
-Open another book in a new Excel applications.
-
-  new_book = RobustExcelOle::Book.open('./different.xls', :reuse => false)
-
-Change the book (see below).
-
-  sheet = book[0]
-  book.add_sheet(sheet, :as => 'copyed_name')
-
-Let the unsaved book open, when opening a book and a book with the same name is unsaved and open.
-
-  new_book = RobustExcelOle::Book.open('./sample.xls', :if_unsaved => accept)
-
 === Close a book.
 
-Example:
+Simple close.
 
   book.close
 
@@ -115,7 +92,7 @@ If the book is unsaved, then
 
 === Save a book.
 
-Simple save:
+Simple save.
 
   book.save
 
@@ -135,13 +112,7 @@ If a book with the file name already exists, then
 [:overwrite] Delete the existing file and write the file. 
              If the book is open in an Excel application, then raise an exeption.
 [:excel]     Give the control to Excel.
-
-
-Example:
-
-Overwrite a book with the same name.
-
-  book.save('./another_sample.xls', :if_exists => :overwrite)  
+  
 
 === == 
 
@@ -195,6 +166,99 @@ Read a cell from a range object.
   row_range[0]  => first cell in row_range
   column_range[1] => second cell in column_range
 
+= Examples
+
+Include robust_excel_ole.
+
+  include RobustExcelOle
+
+=== Example 1 
+
+Open a book.
+
+  book = Book.open('simple.xls')
+
+Access a sheet.
+
+  sheet = book[0]                                           
+  
+Change a cell.
+
+  sheet[0,0] = "new"
+  
+Save the book.
+
+  book.save                                           
+
+Save it with a different name, and overwrite if a file with this name exists.
+
+  book.save_as('different_simple.xls', :if_exists => :overwrite)
+
+Close the book.
+
+  book.close  
+
+=== Example 2
+
+Open the book again in a new Excel application and make it visible.
+
+  book1.open('simple.xls', :reuse => false, :visible => true)
+
+Add a sheet.
+
+  book1.add_sheet
+
+Open a new book with the same name in a new Excel. Leave the unsaved book in the old Excel.
+
+  book2.open('simple.xls', :if_unsaved => :new_app)
+
+Access a sheet and Change a cell.
+
+  sheet = book2[0]                                           
+  sheet[0,0] = "another"
+
+Open another book with the same name in the running Excel. Close the unsaved book. 
+
+  book3.open('simple.xls', :if_unsaved => :forget)
+
+Add a sheet.
+
+  book3.add_sheet
+
+Close the book without saving it.
+
+  book3.close(:if_unsaved => :forget)
+
+Close the first book and save it before.
+
+  book1.close(:if_unsaved => :save)
+
+=== Example 3
+
+Open a book.
+
+  book1 = Book.open('simple.xls')            
+
+Open a book with the same name in a different path. Close the old book.
+
+  book2 = Book.open('more/simple.xls', :if_obstructed => :forget)
+
+Change its cell.
+
+  sheet = book2[0]                                           
+  sheet[0,0] = "new"
+
+Open a book with the same name in a different path. Save and close the unsaved book before.
+
+  book3 = Book.open('simple.xls', :if_obstructed => :save)
+
+Open a book with the same name in a different path. The other book is closed, since it is saved. 
+
+  book4 = Book.open('more/simple.xls', :if_obstructed => :close_if_unsaved)
+
+Close the book.
+
+  book4.close
 
 
 === Want to do more things

@@ -2,12 +2,24 @@
 # open with :if_unsaved => :accept, close with :if_unsaved => :save 
 
 require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
+require "fileutils"
+require 'tmpdir'
 
 include RobustExcelOle
 
+def create_tmpdir    
+  tmpdir = Dir.mktmpdir
+  FileUtils.cp_r(File.join(File.dirname(__FILE__), '../../spec/data'), tmpdir)
+  tmpdir + '/data/'
+end
+
+def rm_tmp(tmpdir)    
+  FileUtils.remove_entry_secure(File.dirname(tmpdir))
+end
+
 Excel.close_all
 begin
-  dir = 'C:/'
+  dir = create_tmpdir
   file_name = dir + 'simple.xls' 
   book = Book.open(file_name)                      # open a book 
   sheet = book[0]                                                  # access a sheet
@@ -35,4 +47,5 @@ begin
   new_book.close                                        # close the other book. It is already saved.
 ensure
 	  Excel.close_all                                    # close workbooks, quit Excel application
+    rm_tmp(dir)
 end

@@ -1,12 +1,26 @@
-# example_gibe_control_to_excel.rb: open, close, save  with giving control to Excel 
+# example_give_control_to_excel.rb: 
+# open, close, save  with giving control to Excel 
 
 require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
+require "fileutils"
+require 'tmpdir'
 
 include RobustExcelOle
 
+def create_tmpdir    
+  tmpdir = Dir.mktmpdir
+  FileUtils.cp_r(File.join(File.dirname(__FILE__), '../../spec/data'), tmpdir)
+  tmpdir + '/data/'
+end
+
+def rm_tmp(tmpdir)    
+  FileUtils.remove_entry_secure(File.dirname(tmpdir))
+end
+
+
 Excel.close_all
 begin
-  dir = 'c:/'
+  dir = create_tmpdir
   file_name = dir + 'simple.xls' 
   book = Book.open(file_name)          # open a book
   Excel.current.Visible = true                              # make Excel visible 
@@ -37,4 +51,5 @@ begin
   end
 ensure                                                              
   Excel.close_all                                       # close ALL workbooks, quit Excel application
+  rm_tmp(dir)
 end

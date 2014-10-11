@@ -1,4 +1,4 @@
-# example_ifunsaved_forget.rb:
+# example_ifunsaved_forget_more.rb:
 # open with :if_unsaved => :forget, :new_app, close with :if_unsaved => :save 
 
 require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
@@ -40,8 +40,8 @@ begin
   sleep 1
   sheet_another_book = another_book[0]
   sheet_another_book[0,0] = sheet_another_book[0,0].value == "simple" ? "complex" : "simple" # change a cell                                                                   
-  another_book.close(:if_unsaved => :forget )                                
-  book.close(:if_unsaved => :save)
+  another_book.close(:if_unsaved => :forget )           # close the last book without saving it.                      
+  book.close(:if_unsaved => :save)                      # close the first book and save it before
 ensure
 	  Excel.close_all                                    # close all workbooks, quit Excel application
     rm_tmp(dir)

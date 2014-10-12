@@ -1,21 +1,10 @@
 # example_read_only: open with read_only mode. save, close 
 
 require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
+require File.join(File.dirname(__FILE__), '../../spec/helpers/create_temporary_dir')
 require "fileutils"
-require 'tmpdir'
 
 include RobustExcelOle
-
-def create_tmpdir    
-  tmpdir = Dir.mktmpdir
-  FileUtils.cp_r(File.join(File.dirname(__FILE__), '../../spec/data'), tmpdir)
-  tmpdir + '/data/'
-end
-
-def rm_tmp(tmpdir)    
-  FileUtils.remove_entry_secure(File.dirname(tmpdir))
-end
-
 
 Excel.close_all
 begin

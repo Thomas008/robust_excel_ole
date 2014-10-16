@@ -30,6 +30,10 @@ begin
   i = i + 1
   	puts "#{i}. column: #{column.value}"
   end
+  col_r = sheet.col_range(0,1..2).values
+  row_r = sheet.row_range(0,1..2).values
+  puts "row range of 1st row, 1..2: #{row_r}"
+  puts "column range of 1st column, 1..2: #{col_r}"
   sheet[0,0] = "complex"
   book.save
   book.close

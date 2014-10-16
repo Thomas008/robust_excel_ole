@@ -2,9 +2,17 @@
 require File.join(File.dirname(__FILE__), './spec_helper')
 
 describe RobustExcelOle::Sheet do
+  
+  before(:all) do
+    excel = RobustExcelOle::Excel.new(:reuse => true)
+    open_books = excel == nil ? 0 : excel.Workbooks.Count
+    puts "*** open books *** : #{open_books}" if open_books > 0
+    RobustExcelOle::Excel.close_all
+  end
+
   before do
     @dir = create_tmpdir
-    @book = RobustExcelOle::Book.open(@dir + '/simple.xls')
+    @book = RobustExcelOle::Book.open(@dir + '/simple.xls', :read_only => true)
     @sheet = @book[0]
   end
 
@@ -16,7 +24,7 @@ describe RobustExcelOle::Sheet do
   describe ".initialize" do
     context "when open sheet protected(with password is 'protect')" do
       before do
-        @book_protect = RobustExcelOle::Book.open(@dir + '/protected_sheet.xls', :visible => true)
+        @book_protect = RobustExcelOle::Book.open(@dir + '/protected_sheet.xls', :visible => true, :read_only => true)
         @protected_sheet = @book_protect['protect']
       end
 
@@ -35,7 +43,7 @@ describe RobustExcelOle::Sheet do
 
   shared_context "sheet 'open book with blank'" do
     before do
-      @book_with_blank = RobustExcelOle::Book.open(@dir + '/book_with_blank.xls')
+      @book_with_blank = RobustExcelOle::Book.open(@dir + '/book_with_blank.xls', :read_only => true)
       @sheet_with_blank = @book_with_blank[0]
     end
 

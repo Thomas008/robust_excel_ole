@@ -1,7 +1,15 @@
-# -*- coding: utf-8 -*-
+# -*- cdoing: utf-8 -*-
 require File.join(File.dirname(__FILE__), './spec_helper')
 
 describe RobustExcelOle::Range do
+
+  before(:all) do
+    excel = RobustExcelOle::Excel.new(:reuse => true)
+    open_books = excel == nil ? 0 : excel.Workbooks.Count
+    puts "*** open books *** : #{open_books}" if open_books > 0
+    RobustExcelOle::Excel.close_all
+  end
+
   before do
     @dir = create_tmpdir
     @book = RobustExcelOle::Book.open(@dir + '/simple.xls')

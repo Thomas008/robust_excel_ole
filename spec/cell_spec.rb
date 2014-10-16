@@ -2,6 +2,14 @@
 require File.join(File.dirname(__FILE__), './spec_helper')
 
 describe RobustExcelOle::Cell do
+
+  before(:all) do
+    excel = RobustExcelOle::Excel.new(:reuse => true)
+    open_books = excel == nil ? 0 : excel.Workbooks.Count
+    puts "*** open books *** : #{open_books}" if open_books > 0
+    RobustExcelOle::Excel.close_all
+  end
+
   before do
     @dir = create_tmpdir
   end
@@ -12,7 +20,7 @@ describe RobustExcelOle::Cell do
 
   context "open simple.xls" do
     before do
-      @book = RobustExcelOle::Book.open(@dir + '/simple.xls')
+      @book = RobustExcelOle::Book.open(@dir + '/simple.xls', :read_only => true)
       @sheet = @book[1]
       @cell = @sheet[0, 0]
     end
@@ -44,7 +52,7 @@ describe RobustExcelOle::Cell do
 
   context "open merge_cells.xls" do
     before do
-      @book = RobustExcelOle::Book.open(@dir + '/merge_cells.xls')
+      @book = RobustExcelOle::Book.open(@dir + '/merge_cells.xls', :read_only => true)
       @sheet = @book[0]
     end
 

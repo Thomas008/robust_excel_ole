@@ -15,21 +15,19 @@ begin
   book = Book.open(simple_file)
   sheet = book[0]
   cell = sheet[0,0]
-  i = 0
-  sheet.each do |cell|
-  	i = i + 1
-  	puts "#{i}. cell: #{cell.value}"
+
+  sheet_enum = proc do |enum_method|
+    i = 0
+    sheet.send(enum_method) do |cell|
+      i = i + 1
+      puts "sheet.#{enum_method} #{i}: #{cell.value}"
+    end
   end
-  i = 0
-  sheet.each_row do |row|
-  	i = i + 1
-  	puts "#{i}. row: #{row.value}"
-  end
-  i = 0
-  sheet.each_column do |column|
-  i = i + 1
-  	puts "#{i}. column: #{column.value}"
-  end
+
+  sheet_enum[:each]
+  sheet_enum[:each_row]
+  sheet_enum[:each_column]
+
   col_r = sheet.col_range(0,1..2).values
   row_r = sheet.row_range(0,1..2).values
   puts "row range of 1st row, 1..2: #{row_r}"

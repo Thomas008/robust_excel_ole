@@ -18,7 +18,7 @@ module RobustExcelOle
       #                 :raise   -> raise an exception (default)
       #                 :forget  -> close the unsaved book, open the new book             
       #                 :accept  -> let the unsaved book open                  
-      #                 :excel   -> give control to excel
+      #                 :alert   -> give control to excel
       #                 :new_app -> open the new book in a new excel application
       #  :if_obstructed   if a book with the same name in a different path is open, then
       #                  :raise          -> raise an exception (default)             
@@ -90,7 +90,7 @@ module RobustExcelOle
               @workbook.Close
             when :accept
               #nothing
-            when :excel
+            when :alert
               old_displayalerts = @excel.DisplayAlerts  # :nodoc:
               @excel.DisplayAlerts = true  # :nodoc:
             when :new_app
@@ -105,8 +105,8 @@ module RobustExcelOle
       end
       begin
         # if book not open (was not open,was closed with option :forget or shall be opened in new application)
-        #    or :if_unsaved => :excel
-        if ((not alive?) || (@options[:if_unsaved] == :excel)) then
+        #    or :if_unsaved => :alert
+        if ((not alive?) || (@options[:if_unsaved] == :alert)) then
           begin
             @workbook = @excel.Workbooks.Open(RobustExcelOle::absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
           rescue WIN32OLERuntimeError
@@ -114,7 +114,7 @@ module RobustExcelOle
           end
         end
       ensure
-        if @options[:if_unsaved] == :excel then
+        if @options[:if_unsaved] == :alert then
           @excel.DisplayAlerts = old_displayalerts  # :nodoc:
         end
       end
@@ -135,7 +135,7 @@ module RobustExcelOle
     #                      :raise   -> raise an exception       (default)             
     #                      :save    -> save the book before it is closed                  
     #                      :forget  -> close the book 
-    #                      :excel   -> give control to excel
+    #                      :alert   -> give control to excel
     def close(opts = {:if_unsaved => :raise})
       if ((alive?) && (not @workbook.Saved) && (not @options[:read_only])) then
         case opts[:if_unsaved]
@@ -145,7 +145,7 @@ module RobustExcelOle
           save
         when :forget
           #nothing
-        when :excel
+        when :alert
           old_displayalerts = @excel.DisplayAlerts  # :nodoc:
           @excel.DisplayAlerts = true  # :nodoc:
         else
@@ -155,9 +155,9 @@ module RobustExcelOle
       begin
         @workbook.Close if alive?
         @workbook = nil unless alive?
-        raise ExcelUserCanceled, "close: canceled by user" if alive? && opts[:if_unsaved] == :excel && (not @workbook.Saved)
+        raise ExcelUserCanceled, "close: canceled by user" if alive? && opts[:if_unsaved] == :alert && (not @workbook.Saved)
       ensure
-        if opts[:if_unsaved] == :excel then
+        if opts[:if_unsaved] == :alert then
           @excel.DisplayAlerts = old_displayalerts  # :nodoc:  
         end
       end
@@ -210,7 +210,7 @@ module RobustExcelOle
     #  :if_exists   if a file with the same name exists, then  
     #               :raise     -> raise an exception, dont't write the file  (default)
     #               :overwrite -> write the file, delete the old file
-    #               :excel     -> give control to Excel
+    #               :alert     -> give control to Excel
     # returns true, if successfully saved, nil otherwise
     def save_as(file = nil, opts = {:if_exists => :raise} )
       raise IOError, "Not opened for writing(open with :read_only option)" if @options[:read_only]
@@ -229,7 +229,7 @@ module RobustExcelOle
           rescue Errno::EACCES
             raise ExcelErrorSave, "book is open and used in Excel"
           end
-        when :excel 
+        when :alert 
           old_displayalerts = @excel.DisplayAlerts  # :nodoc:
           @excel.DisplayAlerts = true  # :nodoc:
         when :raise
@@ -242,7 +242,7 @@ module RobustExcelOle
         @workbook.SaveAs(RobustExcelOle::absolute_path(File.join(dirname, basename)), file_format)
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
-          if opts[:if_exists] == :excel then 
+          if opts[:if_exists] == :alert then 
             raise ExcelErrorSave, "not saved or canceled by user"
           else
             return nil
@@ -252,7 +252,7 @@ module RobustExcelOle
           raise ExcelErrorSaveUnknown, "unknown WIN32OELERuntimeError:\n#{msg.message}"
         end       
       ensure
-        if opts[:if_exists] == :excel then
+        if opts[:if_exists] == :alert then
           @excel.DisplayAlerts = old_displayalerts  # :nodoc:
         end
       end

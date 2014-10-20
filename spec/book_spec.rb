@@ -220,7 +220,7 @@ describe RobustExcelOle::Book do
           @new_book.filename.downcase.should == @simple_file.downcase
         end
 
-        context "with :if_unsaved => :excel" do
+        context "with :if_unsaved => :alert" do
           before do
            @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"
           end
@@ -232,7 +232,7 @@ describe RobustExcelOle::Book do
           it "should open the new book and close the unsaved book, if user answers 'yes'" do
             # "Yes" is the  default. --> language independent
             @key_sender.puts "{enter}"
-            @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved => :excel)
+            @new_book = RobustExcelOle::Book.open(@simple_file, :if_unsaved => :alert)
             @book.should_not be_alive
             @new_book.should be_alive
             @new_book.filename.downcase.should == @simple_file.downcase
@@ -246,7 +246,7 @@ describe RobustExcelOle::Book do
             @key_sender.puts "{right}{enter}"
             @key_sender.puts "{right}{enter}"
             expect{
-              RobustExcelOle::Book.open(@simple_file, :if_unsaved => :excel)
+              RobustExcelOle::Book.open(@simple_file, :if_unsaved => :alert)
               }.to raise_error(ExcelUserCanceled, "open: canceled by user")
             @book.should be_alive
           end
@@ -440,7 +440,7 @@ describe RobustExcelOle::Book do
         end
       end
 
-      context "with :if_unsaved => :excel" do
+      context "with :if_unsaved => :alert" do
         before do
           @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
         end
@@ -459,14 +459,14 @@ describe RobustExcelOle::Book do
             displayalert_value = @book.excel.DisplayAlerts
             if answer == :cancel then
               expect {
-              @book.close(:if_unsaved => :excel)
+              @book.close(:if_unsaved => :alert)
               }.to raise_error(ExcelUserCanceled, "close: canceled by user")
               @book.workbook.Saved.should be_false
               @book.workbook.should_not == nil
               @book.should be_alive
             else
               expect {
-                @book.close(:if_unsaved => :excel)
+                @book.close(:if_unsaved => :alert)
               }.to change {@book.excel.Workbooks.Count }.by(-1)
               @book.workbook.should == nil
               @book.should_not be_alive
@@ -621,7 +621,7 @@ describe RobustExcelOle::Book do
           (File.size?(@simple_save_file) == booklength).should be_true
         end
 
-        context "with :if_exists => :excel" do
+        context "with :if_exists => :alert" do
           before do
             File.delete @simple_save_file rescue nil
             File.open(@simple_save_file,"w") do | file |
@@ -638,7 +638,7 @@ describe RobustExcelOle::Book do
           it "should save if user answers 'yes'" do
             # "Yes" is to the left of "No", which is the  default. --> language independent
             @key_sender.puts "{left}{enter}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
-            @book.save_as(@simple_save_file, :if_exists => :excel)
+            @book.save_as(@simple_save_file, :if_exists => :alert)
             File.exist?(@simple_save_file).should be_true
             File.size?(@simple_save_file).should > @garbage_length
             new_book = RobustExcelOle::Book.open(@simple_save_file)
@@ -655,7 +655,7 @@ describe RobustExcelOle::Book do
             @key_sender.puts "{enter}"
             #@key_sender.puts "%{n}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
             expect{
-              @book.save_as(@simple_save_file, :if_exists => :excel)
+              @book.save_as(@simple_save_file, :if_exists => :alert)
               }.to raise_error(ExcelErrorSave, "not saved or canceled by user")
             File.exist?(@simple_save_file).should be_true
             File.size?(@simple_save_file).should == @garbage_length
@@ -670,7 +670,7 @@ describe RobustExcelOle::Book do
             @key_sender.puts "{right}{enter}"
             #@key_sender.puts "%{n}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
             expect{
-              @book.save_as(@simple_save_file, :if_exists => :excel)
+              @book.save_as(@simple_save_file, :if_exists => :alert)
               }.to raise_error(ExcelErrorSave, "not saved or canceled by user")
             File.exist?(@simple_save_file).should be_true
             File.size?(@simple_save_file).should == @garbage_length
@@ -681,7 +681,7 @@ describe RobustExcelOle::Book do
             #@key_sender.puts "{left}{enter}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
             @book.workbook.Close
             expect{
-              @book.save_as(@simple_save_file, :if_exists => :excel)
+              @book.save_as(@simple_save_file, :if_exists => :alert)
               }.to raise_error(ExcelErrorSaveUnknown)
             File.exist?(@simple_save_file).should be_true
             File.size?(@simple_save_file).should == @garbage_length

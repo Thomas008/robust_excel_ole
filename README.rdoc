@@ -43,7 +43,7 @@ The semantics is similar to, e.g.,  File.open.
 Options are the following:
 
 +:read_only+::       open in read-only mode (default: false)  
-+:if_unsaved+::      :raise (default), :accept, :forget, :new_app, :excel
++:if_unsaved+::      :raise (default), :accept, :forget, :new_app, :alert
 +:if_obstructed+::   :raise (default), :forget, :save, :close_if_unsaved, :new_app
 +:reuse+::           use an already open Excel-application (default: true) 
 +:excel+::           an Excel appication (default: nil)
@@ -58,7 +58,7 @@ If an unsaved book with the same name is open, then
 +:accept+::  Let the unsaved book open.                  
 +:forget+::  Close the unsaved book, open the new book.
 +:new_app+:: Open the new book in a new Excel application
-+:excel+::   Give control to Excel.
++:alert+::   Give control to Excel.
 
 The option +:if_obstructed+ :
 
@@ -80,14 +80,14 @@ Simple close.
 
 Options are the following:
 
-+:if_unsaved]  :raise (default), :save, :forget, :excel  
++:if_unsaved]  :raise (default), :save, :forget, :alert  
                
 If the book is unsaved, then
 
 +:raise+::  Raise an exception. Don't close the book.                  
 +:save+::   Save the book before closing it.                  
 +:forget+:: Close the book. 
-+:excel+::  Give control to Excel.
++:alert+::  Give control to Excel.
 
 
 === Save a book.
@@ -102,7 +102,7 @@ Save a book with a file name.
 
 Options are the following:
 
-+:if_exists+:: :raise (default), :overwrite, :excel
++:if_exists+:: :raise (default), :overwrite, :alert
 
 The option +:if_exists+ :
 
@@ -111,7 +111,7 @@ If a book with the file name already exists, then
 +:raise+::     Raise an exeption. Don't write the file.
 +:overwrite+:: Delete the existing file and write the file. 
                If the book is open in an Excel application, then raise an exeption.
-+:excel+::     Give the control to Excel.
++:alert+::     Give the control to Excel.
   
 
 === == 

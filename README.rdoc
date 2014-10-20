@@ -38,24 +38,23 @@ The semantics is similar to, e.g.,  File.open.
   RobustExcelOle::Book.open('./sample.xls') do |book|
     # do something
   end
-                  
 
 Options are the following:
 
-+:read_only+::       open in read-only mode (default: false)  
-+:if_unsaved+::      :raise (default), :accept, :forget, :new_app, :alert
-+:if_obstructed+::   :raise (default), :forget, :save, :close_if_unsaved, :new_app
-+:reuse+::           use an already open Excel-application (default: true) 
-+:excel+::           an Excel appication (default: nil)
-+:displayalerts+::   allow display alerts in Excel (default: false)
-+:visible+::         make visibe in Excel (default: false)                           
++:read_only+::       open in read-only mode (default: +false+)  
++:if_unsaved+::      +:raise+ (default), +:accept+, +:forget+, +:new_app+, +:alert+
++:if_obstructed+::   :raise (default), +:forget+, +:save+, +:close_if_unsaved+, +:new_app+
++:reuse+::           use an already open Excel-application (default: +true+) 
++:excel+::           an Excel appication (default: +nil+)
++:displayalerts+::   allow display alerts in Excel (default: +false+)
++:visible+::         make visibe in Excel (default: +false+)
 
 The option +:if_unsaved+  : 
 
 If an unsaved book with the same name is open, then
-          
+
 +:raise+::   Raise an exeption. Don't open the book.
-+:accept+::  Let the unsaved book open.                  
++:accept+::  Let the unsaved book open.
 +:forget+::  Close the unsaved book, open the new book.
 +:new_app+:: Open the new book in a new Excel application
 +:alert+::   Give control to Excel.
@@ -63,7 +62,7 @@ If an unsaved book with the same name is open, then
 The option +:if_obstructed+ :
 
 If a book with same name in a different path is open, then
-                 
+
 +:raise+::          Raise an exception. Don't open the book.
 +:forget+::         Close the old book, open the new book.
 +:save+::           Save the old book, close it, open the new book
@@ -80,12 +79,12 @@ Simple close.
 
 Options are the following:
 
-+:if_unsaved]  :raise (default), :save, :forget, :alert  
-               
++:if_unsaved+,  +:raise+ (default), +:save+, +:forget+, +:alert+
+
 If the book is unsaved, then
 
-+:raise+::  Raise an exception. Don't close the book.                  
-+:save+::   Save the book before closing it.                  
++:raise+::  Raise an exception. Don't close the book.
++:save+::   Save the book before closing it.
 +:forget+:: Close the book. 
 +:alert+::  Give control to Excel.
 
@@ -102,15 +101,14 @@ Save a book with a file name.
 
 Options are the following:
 
-+:if_exists+:: :raise (default), :overwrite, :alert
++:if_exists+:: +:raise+ (default), +:overwrite+, +:alert+
 
 The option +:if_exists+ :
 
 If a book with the file name already exists, then
 
 +:raise+::     Raise an exeption. Don't write the file.
-+:overwrite+:: Delete the existing file and write the file. 
-               If the book is open in an Excel application, then raise an exeption.
++:overwrite+:: Delete the existing file and write the file. If the book is open in an Excel application, then raise an exception.
 +:alert+::     Give the control to Excel.
   
 
@@ -136,7 +134,7 @@ A sheet object can be accessed with a Book#[] method.
 
 Access a sheet object with the sheet name.
 
-    book['Sheet1']
+  book['Sheet1']
 
 === Access a row or a column.
 
@@ -180,7 +178,7 @@ Open a book.
 
 Access a sheet.
 
-  sheet = book[0]                                           
+  sheet = book[0]
   
 Change a cell.
 
@@ -188,7 +186,7 @@ Change a cell.
   
 Save the book.
 
-  book.save                                           
+  book.save
 
 Save it with a different name, and overwrite if a file with this name exists.
 
@@ -214,7 +212,7 @@ Open a new book with the same name in a new Excel. Leave the unsaved book in the
 
 Access a sheet and Change a cell.
 
-  sheet = book2[0]                                           
+  sheet = book2[0]
   sheet[0,0] = "another"
 
 Open another book with the same name in the running Excel. Close the unsaved book. 
@@ -237,7 +235,7 @@ Close the first book and save it before.
 
 Open a book.
 
-  book1 = Book.open('simple.xls')            
+  book1 = Book.open('simple.xls')
 
 Open a book with the same name in a different path. Close the old book.
 
@@ -245,7 +243,7 @@ Open a book with the same name in a different path. Close the old book.
 
 Change its cell.
 
-  sheet = book2[0]                                           
+  sheet = book2[0]
   sheet[0,0] = "new"
 
 Open a book with the same name in a different path. Save and close the unsaved book before.

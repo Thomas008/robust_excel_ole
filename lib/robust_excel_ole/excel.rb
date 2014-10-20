@@ -10,8 +10,8 @@ module RobustExcelOle
 
     # closes all Excel applications
     def self.close_all
-      while current_app do
-        close_one_app
+      while current_excel do
+        close_one_excel
         GC.start
         sleep 0.3
         #free_all_ole_objects
@@ -39,7 +39,7 @@ module RobustExcelOle
 
       ole_app = nil
       if options[:reuse] then
-        ole_app = options[:excel] ? options[:excel] : current_app
+        ole_app = options[:excel] ? options[:excel] : current_excel
         if ole_app
           ole_app.DisplayAlerts = options[:displayalerts] unless options[:displayalerts]==nil
           ole_app.Visible = options[:visible] unless options[:visible]==nil
@@ -74,8 +74,8 @@ module RobustExcelOle
     end
 
     # returns true, if the Excel applications are identical, false otherwise
-    def == other_app
-      self.hwnd == other_app.hwnd    if other_app.is_a?(Excel)
+    def == other_excel
+      self.hwnd == other_excel.hwnd    if other_excel.is_a?(Excel)
     end
 
     # returns true, if the Excel application is alive, false otherwise
@@ -90,8 +90,8 @@ module RobustExcelOle
   private
 
     # closes one Excel application
-    def self.close_one_app   # :nodoc: #
-      excel = current_app
+    def self.close_one_excel   # :nodoc: #
+      excel = current_excel
       if excel then
         excel.Workbooks.Close
         excel_hwnd = excel.HWnd
@@ -150,7 +150,7 @@ module RobustExcelOle
     end
 
     # returns the current Excel application, if a running, working Excel appication exists, nil otherwise
-    def self.current_app   # :nodoc: #
+    def self.current_excel   # :nodoc: #
       result = WIN32OLE.connect('Excel.Application') rescue nil
       if result
         begin

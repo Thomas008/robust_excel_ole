@@ -128,13 +128,19 @@ Return the file name of the book with the absolute path that contains slash (/) 
 
 === Access a sheet.
 
-A sheet object can be accessed with a Book#[] method.
+A sheet object can be accessed with a Book#[] method via an integer number.
 
   sheet = book[0]
 
 Access a sheet object with the sheet name.
 
-  book['Sheet1']
+  sheet = book['Sheet1']
+
+Access sheet objects using the methods Book#each.
+
+  book.each do |sheet|               
+    # do something with sheet
+  end
 
 === Access a row or a column.
 
@@ -146,11 +152,11 @@ A sheet object is enumerable. Use the methods Sheet#each_column, Sheet#each_row 
   end
 
   sheet.each_row do |row|
-    # do something with row_range
+    # do something with row
   end
 
-  sheet.each_column do |column_range|
-    # do something with column_range
+  sheet.each_column do |column|
+    # do something with column
   end
 
 === Access a cell.
@@ -164,7 +170,49 @@ Read a cell from a range object.
   row_range[0]  => first cell in row_range
   column_range[1] => second cell in column_range
 
-= Examples
+Read the value of a cell.
+
+  cell = sheet[0,0]
+  cell.value  => value of the cell.
+
+Write a cell
+
+  sheet[0,0] = "new_value"
+
+
+=== Access a range of a row or column. 
+
+Access a range of a row.
+
+  sheet.row_range(0)  => first row
+  sheet.row_range(0, 0..2 )  => first three cells of the first row  
+
+Access a range of a column.
+
+  sheet.col_range(2)  => third column
+  sheet.col_range(2, 0..1)  => first two cells of the third column
+
+
+=== Add a sheet
+
+Add a new sheet.
+
+  book.add_sheet
+
+Add a new sheet with a name.
+
+  book.add_sheet(:as => 'new_sheet')
+
+Add a new sheet with a name before another sheet.
+
+  book.add_sheet(:as => 'new_sheet2', :before => another_sheet)
+
+Add a copy of a sheet with a name after another sheet.
+
+  book.add_sheet(sheet, :as => 'sheet_copy', :after => another_sheet)
+
+
+=== Examples
 
 Include robust_excel_ole.
 
@@ -178,9 +226,9 @@ Open a book.
 
 Access a sheet.
 
-  sheet = book[0]
+  sheet = book['Sheet1']
   
-Change a cell.
+Change the first cell.
 
   sheet[0,0] = "new"
   
@@ -188,7 +236,7 @@ Save the book.
 
   book.save
 
-Save it with a different name, and overwrite if a file with this name exists.
+Save the book with a different name, and overwrite if a file with this name exists.
 
   book.save_as('different_simple.xls', :if_exists => :overwrite)
 
@@ -200,36 +248,36 @@ Close the book.
 
 Open the book again in a new Excel application and make it visible.
 
-  book1.open('simple.xls', :reuse => false, :visible => true)
+  book.open('simple.xls', :reuse => false, :visible => true)
 
-Add a sheet.
+Add a copy of the first sheet after the second sheet.
 
-  book1.add_sheet
+  book.add_sheet(book[0], :as => 'Sheet1_copy', :after => book[1])
 
 Open a new book with the same name in a new Excel. Leave the unsaved book in the old Excel.
 
-  book2.open('simple.xls', :if_unsaved => :new_app)
+  new_book.open('simple.xls', :if_unsaved => :new_app)
 
-Access a sheet and Change a cell.
+Access a sheet and change a cell.
 
-  sheet = book2[0]
-  sheet[0,0] = "another"
+  sheet = new_book[0]
+  sheet[1,1] = "another"
 
 Open another book with the same name in the running Excel. Close the unsaved book. 
 
-  book3.open('simple.xls', :if_unsaved => :forget)
+  third_book.open('simple.xls', :if_unsaved => :forget)
 
 Add a sheet.
 
-  book3.add_sheet
+  third_book.add_sheet
 
 Close the book without saving it.
 
-  book3.close(:if_unsaved => :forget)
+  third_book.close(:if_unsaved => :forget)
 
 Close the first book and save it before.
 
-  book1.close(:if_unsaved => :save)
+  book.close(:if_unsaved => :save)
 
 === Example 3
 

@@ -1,5 +1,5 @@
 # example_access_sheets_and_cells.rb: 
-# open a book, access a sheet, print the cells, rows, and columns of a sheet
+# access sheets, print cells, rows, and columns of a sheet
 
 require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
 require File.join(File.dirname(__FILE__), '../../spec/helpers/create_temporary_dir')

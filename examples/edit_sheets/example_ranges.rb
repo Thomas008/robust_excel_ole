@@ -1,5 +1,5 @@
 # example_ranges.rb: 
-# access a sheet and ranges 
+# access row and column ranges of a sheet. 
 
 require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
 require File.join(File.dirname(__FILE__), '../../spec/helpers/create_temporary_dir')

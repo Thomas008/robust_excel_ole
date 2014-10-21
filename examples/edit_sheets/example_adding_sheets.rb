@@ -1,5 +1,5 @@
 # example_adding_sheets.rb: 
-# adding heets
+# adding new and copied at various positions with various sheet names
 
 require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
 require File.join(File.dirname(__FILE__), '../../spec/helpers/create_temporary_dir')
@@ -49,8 +49,8 @@ begin
   @book.add_sheet(sheet, :after => sheet)
   show_sheets
 
-  puts "adding a copy of the 2nd sheet before the 2nd sheet and name it 'another_second_sheet_copy'"
-  @book.add_sheet(sheet, :as => 'another_second_sheet_copy', :before => sheet)
+  puts "adding a copy of the 4th sheet before the 7th sheet and name it 'sheet_copy'"
+  @book.add_sheet(@book[3], :as => 'sheet_copy', :after => @book[6])
   show_sheets
 
   @book.close(:if_unsaved => :forget)   # close the book without saving it

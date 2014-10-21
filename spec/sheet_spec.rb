@@ -24,15 +24,20 @@ describe RobustExcelOle::Sheet do
   describe ".initialize" do
     context "when open sheet protected(with password is 'protect')" do
       before do
+        @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"
+        @key_sender.puts "{p}{r}{o}{t}{e}{c}{t}{enter}"
         @book_protect = RobustExcelOle::Book.open(@dir + '/protected_sheet.xls', :visible => true, :read_only => true)
         @protected_sheet = @book_protect['protect']
       end
 
       after do
         @book_protect.close
+        @key_sender.close
       end
 
-      it { @protected_sheet.ProtectContents.should be_true }
+      it "should be a protected sheet" do
+        @protected_sheet.ProtectContents.should be_true
+      end
 
       it "protected sheet can't be write" do
         expect { @protected_sheet[0,0] = 'write' }.to raise_error

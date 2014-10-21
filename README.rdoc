@@ -224,7 +224,7 @@ Open a book.
 
   book = Book.open('simple.xls')
 
-Access a sheet.
+Access a sheet via its name.
 
   sheet = book['Sheet1']
   
@@ -246,7 +246,7 @@ Close the book.
 
 === Example 2
 
-Open the book again in a new Excel application and make it visible.
+Open the book in a new Excel application and make it visible.
 
   book.open('simple.xls', :reuse => false, :visible => true)
 
@@ -254,7 +254,7 @@ Add a copy of the first sheet after the second sheet.
 
   book.add_sheet(book[0], :as => 'Sheet1_copy', :after => book[1])
 
-Open a new book with the same name in a new Excel. Leave the unsaved book in the old Excel.
+Open a new book with the same name in a new Excel. Leave the book that contains unsaved changes in the old Excel.
 
   new_book.open('simple.xls', :if_unsaved => :new_app)
 
@@ -263,7 +263,7 @@ Access a sheet and change a cell.
   sheet = new_book[0]
   sheet[1,1] = "another"
 
-Open another book with the same name in the running Excel. Close the unsaved book. 
+Open another book with the same name in the running Excel. The book that contains unsaved changes will be closed before. 
 
   third_book.open('simple.xls', :if_unsaved => :forget)
 
@@ -294,11 +294,11 @@ Change its cell.
   sheet = book2[0]
   sheet[0,0] = "new"
 
-Open a book with the same name in a different path. Save and close the unsaved book before.
+Open a book with the same name in a different path. The old book that was modified will be saved and closed before.
 
   book3 = Book.open('simple.xls', :if_obstructed => :save)
 
-Open a book with the same name in a different path. The other book is closed, since it is saved. 
+Open a book with the same name in a different path. The other book will be closed, because it does not contain unsaved changes.
 
   book4 = Book.open('more/simple.xls', :if_obstructed => :close_if_unsaved)
 

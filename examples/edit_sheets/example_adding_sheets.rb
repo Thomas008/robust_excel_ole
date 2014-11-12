@@ -53,6 +53,9 @@ begin
   @book.add_sheet(@book[3], :as => 'sheet_copy', :after => @book[6])
   show_sheets
 
+  puts"adding a copy of the 2nd sheet and name it again 'second_sheet_copy'"
+  @book.add_sheet(sheet, :as => 'second_sheet_copy')
+
   @book.close(:if_unsaved => :forget)   # close the book without saving it
   
 ensure

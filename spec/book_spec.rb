@@ -19,7 +19,8 @@ describe RobustExcelOle::Book do
   before do
     @dir = create_tmpdir
     @simple_file = @dir + '/simple.xls'
-    @simple_save_file = @dir + '/simple_save.xls'
+    @simple_s
+    ave_file = @dir + '/simple_save.xls'
   end
 
   after do
@@ -869,7 +870,6 @@ describe RobustExcelOle::Book do
           @book.add_sheet(:after => @sheet).name.should eq @book[1].name
         end
       end
-
     end
 
     context "without argument" do
@@ -883,6 +883,17 @@ describe RobustExcelOle::Book do
         sheet.name.should eq copyed_sheet.name
       end
     end
+
+    context "error cases" do
+      it "should raise error with giving a name that already exists" do
+        @book.add_sheet(@sheet, :as => 'new_sheet')
+        expect{
+          @book.add_sheet(@sheet, :as => 'new_sheet')
+          }.to raise_error(ExcelErrorSheet, "sheet name already exists")
+      end
+    end
+
+
   end
 
   describe 'access sheet' do

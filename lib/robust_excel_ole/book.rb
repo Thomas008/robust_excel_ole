@@ -165,7 +165,7 @@ module RobustExcelOle
       #@excel.Quit
     end
 
-    # returns true, if the work book is alive, false otherwise
+    # returns true, if the workbook reacts to methods, false otherwise
     def alive?
       begin 
         @workbook.Name
@@ -177,7 +177,7 @@ module RobustExcelOle
       end
     end
 
-    # returns the full file name of the book
+    # returns the full file name of the workbook
     def filename
       @workbook.Fullname.tr('\\','/') rescue nil
     end

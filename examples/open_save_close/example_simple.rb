@@ -22,7 +22,7 @@ begin
   begin
   	book.save_as(other_file_name)                            # save_as :  default :if_exists => :raise 
   rescue ExcelErrorSave => msg
-  	puts "save_as error: #{msg.message}"
+  	puts "error: save_as: #{msg.message}"
   end
   book.save_as(other_file_name, :if_exists => :overwrite)    # save_as with :if_exists => :overwrite
   puts "save_as: saved successfully with option :if_exists => :overwrite"

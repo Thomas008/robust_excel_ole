@@ -17,7 +17,7 @@ begin
   begin
     new_book = Book.open(other_file_name)        # open a book with the same file name in a different path
   rescue ExcelErrorOpen => msg                   # by default: raises an exception 
-  	puts "open: #{msg.message}"
+  	puts "error: open: #{msg.message}"
   end
   # open a new book with the same file name in a different path. close the old book before.
   new_book = Book.open(other_file_name, :if_obstructed => :forget) 

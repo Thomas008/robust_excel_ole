@@ -17,7 +17,7 @@ begin
   begin
     new_book = Book.open(file_name)                # open another book with the same file name
   rescue ExcelErrorOpen => msg                     # by default: raises an exception:
-    puts "open error: #{msg.message}"              # a book with the same name is already open and unsaved 
+    puts "error: open: #{msg.message}"              # a book with the same name is already open and unsaved 
   end
   new_book = Book.open(file_name, :if_unsaved => :accept) # open another book with the same file name 
                                                           # and let the unsaved book open

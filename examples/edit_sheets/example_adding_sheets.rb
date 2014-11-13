@@ -54,7 +54,11 @@ begin
   show_sheets
 
   puts"adding a copy of the 2nd sheet and name it again 'second_sheet_copy'"
-  @book.add_sheet(sheet, :as => 'second_sheet_copy')
+  begin
+    @book.add_sheet(sheet, :as => 'second_sheet_copy')
+  rescue ExcelErrorSheet => msg
+    puts "error: add_sheet: #{msg.message}"
+  end    
 
   @book.close(:if_unsaved => :forget)   # close the book without saving it
   

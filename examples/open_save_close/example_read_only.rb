@@ -19,7 +19,7 @@ begin
   begin
     book.save                                         # simple save. 
   rescue ExcelErrorSave => msg                        # raises an exception because book is opened in read_only mode
-    puts "save_as error: #{msg.message}"
+    puts "error: save_as: #{msg.message}"
   end
   book.close                                          # close the book without saving it 
 ensure

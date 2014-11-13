@@ -19,8 +19,7 @@ describe RobustExcelOle::Book do
   before do
     @dir = create_tmpdir
     @simple_file = @dir + '/simple.xls'
-    @simple_s
-    ave_file = @dir + '/simple_save.xls'
+    @simple_save_file = @dir + '/simple_save.xls'
   end
 
   after do
@@ -884,7 +883,7 @@ describe RobustExcelOle::Book do
       end
     end
 
-    context "error cases" do
+    context "should raise error if the sheet name already exists" do
       it "should raise error with giving a name that already exists" do
         @book.add_sheet(@sheet, :as => 'new_sheet')
         expect{

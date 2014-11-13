@@ -281,10 +281,13 @@ module RobustExcelOle
 
       after_or_before, base_sheet = opts.to_a.first || [:after, RobustExcelOle::Sheet.new(@workbook.Worksheets.Item(@workbook.Worksheets.Count))]
       base_sheet = base_sheet.sheet
-      sheet ? sheet.Copy({ after_or_before.to_s => base_sheet }) : @workbook.WorkSheets.Add({ after_or_before.to_s => base_sheet })
-
-      new_sheet = RobustExcelOle::Sheet.new(@excel.Activesheet)
-      new_sheet.name = new_sheet_name if new_sheet_name
+      begin
+        sheet ? sheet.Copy({ after_or_before.to_s => base_sheet }) : @workbook.WorkSheets.Add({ after_or_before.to_s => base_sheet })
+        new_sheet = RobustExcelOle::Sheet.new(@excel.Activesheet)
+       new_sheet.name = new_sheet_name if new_sheet_name
+      rescue WIN32OLERuntimeError
+        raise ExcelErrorSheet, "sheet name already exists"
+      end
       new_sheet
     end        
 
@@ -312,3 +315,7 @@ end
 
 class ExcelErrorClose < ExcelError    # :nodoc: #
 end
+
+class ExcelErrorSheet < ExcelError    # :nodoc: #
+end
+

@@ -21,7 +21,7 @@ begin
   begin
     new_book = Book.open(other_file_name, :if_obstructed => :close_if_saved) # raises an exception since the file is not saved
     rescue ExcelErrorOpen => msg                                             
-    puts "open: #{msg.message}"
+    puts "error: open: #{msg.message}"
   end                                                        
   book.save                                                           # save the unsaved book
   new_book = Book.open(file_name, :if_obstructed => :close_if_saved)  # open the new book, close the saved book    

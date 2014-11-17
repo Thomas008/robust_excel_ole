@@ -198,6 +198,28 @@ module RobustExcelOle
     
     end
 
+    context "method delegation for capitalized methods" do
+      before do
+        Excel.close_all
+        @app1 = Excel.new
+      end
+
+      after (:each) do
+        Excel.close_all
+      end
+
+      it "should raise WIN32OLERuntimeError" do
+        expect{ @app1.NonexistingMethod }.to raise_error(VBAMethodMissingError)
+      end
+
+      it "should raise NoMethodError for uncapitalized methods" do
+        expect{ @app1.nonexisting_method }.to raise_error(NoMethodError)
+      end
+    end
+
+
+
+
   end
 
 

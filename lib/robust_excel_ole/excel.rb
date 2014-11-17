@@ -173,10 +173,22 @@ module RobustExcelOle
     end
 
     def method_missing(name, *args)  # :nodoc: #
-      @ole_app.send(name, *args)
+      if name.to_s[0,1] =~ /[A-Z]/ 
+        begin
+          @ole_app.send(name, *args)
+        rescue WIN32OLERuntimeError => msg
+          if msg.message =~ /unknown property or method/
+            raise VBAMethodMissingError, "unknown VBA property or method #{name}"
+          else 
+            raise msg
+          end
+        end
+      else  
+        super 
+      end
     end
 
-  end
+  end  
 
   def absolute_path(file)
     file = File.expand_path(file)
@@ -184,5 +196,11 @@ module RobustExcelOle
     WIN32OLE.new('Scripting.FileSystemObject').GetAbsolutePathName(file)
   end
   module_function :absolute_path
+
+ 
+
+ class VBAMethodMissingError < RuntimeError
+ end
+
 
 end

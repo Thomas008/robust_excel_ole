@@ -284,7 +284,7 @@ module RobustExcelOle
       begin
         sheet ? sheet.Copy({ after_or_before.to_s => base_sheet }) : @workbook.WorkSheets.Add({ after_or_before.to_s => base_sheet })
         new_sheet = RobustExcelOle::Sheet.new(@excel.Activesheet)
-       new_sheet.name = new_sheet_name if new_sheet_name
+        new_sheet.name = new_sheet_name if new_sheet_name
       rescue WIN32OLERuntimeError
         raise ExcelErrorSheet, "sheet name already exists"
       end

@@ -174,7 +174,34 @@ module RobustExcelOle
 
     end
 
+    context "with displayalerts" do
+      before do
+        Excel.close_all
+        @app1 = Excel.new(:displayalerts => true)
+      end
+
+      after (:each) do
+        Excel.close_all
+      end
+
+      it "should turn off displayalerts" do
+        @app1.DisplayAlerts.should == true
+        begin
+          @app1.with_displayalerts true do
+            @app1.DisplayAlerts.should == false
+            raise TestError, "any_error"
+          end
+        rescue TestError
+          @app1.DisplayAlerts.should == true
+        end
+      end
+    
+    end
+
   end
+
+
+
 
   describe "RobustExcelOle" do
     context "#absolute_path" do
@@ -193,4 +220,7 @@ module RobustExcelOle
 
   end
 
+end
+
+class TestError < RuntimeError
 end

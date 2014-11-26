@@ -181,7 +181,7 @@ module RobustExcelOle
             raise TestError, "any_error"
           end
         rescue TestError
-          @app1.DisplayAlerts.should == false
+          @app2.DisplayAlerts.should == false
         end
       end
 

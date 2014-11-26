@@ -80,9 +80,9 @@ module RobustExcelOle
       end
 
       it "simple file with default" do
-        RobustExcelOle::Excel.close_all
+        Excel.close_all
         direct_excel_creation_helper
-        RobustExcelOle::Excel.close_all
+        Excel.close_all
         sleep 0.1
         expect { WIN32OLE.connect("Excel.Application") }.to raise_error
       end
@@ -158,10 +158,6 @@ module RobustExcelOle
     context "with displayalerts" do
       before do
         @app1 = Excel.new(:displayalerts => true)
-      end
-
-      after (:each) do
-        Excel.close_all
       end
 
       it "should turn off displayalerts" do

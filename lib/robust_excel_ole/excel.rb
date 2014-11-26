@@ -87,6 +87,18 @@ module RobustExcelOle
       false
     end
 
+    def with_displayalerts displayalerts_value
+      excel = @@hwnd2app[self.Hwnd] 
+      old_displayalerts = excel.DisplayAlerts
+      excel.DisplayAlerts = displayalerts_value
+      begin
+         yield self
+      ensure
+        excel.DisplayAlerts = old_displayalerts  
+      end
+    end
+
+
   private
 
     # closes one Excel application
@@ -171,6 +183,7 @@ module RobustExcelOle
     def die  # :nodoc:
       @ole_app = nil
     end
+
 
     def method_missing(name, *args)  # :nodoc: #
       if name.to_s[0,1] =~ /[A-Z]/ 

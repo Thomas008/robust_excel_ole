@@ -174,6 +174,7 @@ module RobustExcelOle
 
     end
 
+
     context "with displayalerts" do
       before do
         Excel.close_all
@@ -187,7 +188,7 @@ module RobustExcelOle
       it "should turn off displayalerts" do
         @app1.DisplayAlerts.should == true
         begin
-          @app1.with_displayalerts true do
+          @app1.with_displayalerts false do
             @app1.DisplayAlerts.should == false
             raise TestError, "any_error"
           end

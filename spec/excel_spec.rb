@@ -158,6 +158,7 @@ module RobustExcelOle
     context "with displayalerts" do
       before do
         @app1 = Excel.new(:displayalerts => true)
+        @app2 = Excel.new(:displayalerts => false, :reuse => false)
       end
 
       it "should turn off displayalerts" do
@@ -172,6 +173,18 @@ module RobustExcelOle
         end
       end
     
+      it "should turn on displayalerts" do
+        @app2.DisplayAlerts.should == false
+        begin
+          @app1.with_displayalerts true do
+            @app1.DisplayAlerts.should == true
+            raise TestError, "any_error"
+          end
+        rescue TestError
+          @app1.DisplayAlerts.should == false
+        end
+      end
+
     end
 
     context "method delegation for capitalized methods" do

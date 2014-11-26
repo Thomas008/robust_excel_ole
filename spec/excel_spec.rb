@@ -8,11 +8,12 @@ module RobustExcelOle
 
   describe Excel do
 
-    context "app creation" do
-      after do
-        Excel.close_all
-      end
+    before (:all) do
+      Excel.close_all
+    end
 
+    context "app creation" do
+      
       def creation_ok? # :nodoc: #
         @app.alive?.should == true
         @app.Visible.should == false
@@ -42,10 +43,6 @@ module RobustExcelOle
       before do
         Excel.close_all
         @app1 = Excel.create
-      end
-
-      after do
-        Excel.close_all
       end
 
       it "should create different app" do
@@ -93,12 +90,7 @@ module RobustExcelOle
 
     describe "==" do
       before do
-        Excel.close_all
         @app1 = Excel.create
-      end
-
-      after do
-        Excel.close_all
       end
 
       it "should be true with two identical excel applications" do
@@ -122,14 +114,6 @@ module RobustExcelOle
 
     context "with :excel" do
 
-      before do
-        Excel.close_all
-      end
-
-      after (:each) do
-        Excel.close_all
-      end
-
       it "should reuse in given excel app" do
         app1 = Excel.new(:reuse => false)
         app2 = Excel.new(:reuse => false)
@@ -144,10 +128,6 @@ module RobustExcelOle
     context "with Visible and DisplayAlerts" do
 
       before do
-        Excel.close_all
-      end
-
-      after (:each) do
         Excel.close_all
       end
 
@@ -177,7 +157,6 @@ module RobustExcelOle
 
     context "with displayalerts" do
       before do
-        Excel.close_all
         @app1 = Excel.new(:displayalerts => true)
       end
 
@@ -201,12 +180,7 @@ module RobustExcelOle
 
     context "method delegation for capitalized methods" do
       before do
-        Excel.close_all
         @app1 = Excel.new
-      end
-
-      after (:each) do
-        Excel.close_all
       end
 
       it "should raise WIN32OLERuntimeError" do

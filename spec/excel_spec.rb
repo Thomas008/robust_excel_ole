@@ -217,11 +217,7 @@ module RobustExcelOle
       end
     end
 
-
-
-
   end
-
 
 
 

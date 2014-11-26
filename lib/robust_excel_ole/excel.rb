@@ -75,7 +75,7 @@ module RobustExcelOle
 
     # returns true, if the Excel applications are identical, false otherwise
     def == other_excel
-      self.hwnd == other_excel.hwnd    if other_excel.is_a?(Excel)
+      self.Hwnd == other_excel.Hwnd    if other_excel.is_a?(Excel)
     end
 
     # returns true, if the Excel application is alive, false otherwise

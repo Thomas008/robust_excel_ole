@@ -12,58 +12,58 @@ module RobustExcelOle
       Excel.close_all
     end
 
-    context "app creation" do
+    context "excel creation" do
       
       def creation_ok? # :nodoc: #
-        @app.alive?.should == true
-        @app.Visible.should == false
-        @app.DisplayAlerts.should == false
-        @app.Name.should == "Microsoft Excel"
+        @excel.alive?.should == true
+        @excel.Visible.should == false
+        @excel.DisplayAlerts.should == false
+        @excel.Name.should == "Microsoft Excel"
       end
 
       it "should work with 'new' " do
-        @app = Excel.new
+        @excel = Excel.new
         creation_ok?
       end
 
       it "should work with 'new' " do
-        @app = Excel.new(:reuse => false)
+        @excel = Excel.new(:reuse => false)
         creation_ok?
       end
 
       it "should work with 'create' " do
-        @app = Excel.create
+        @excel = Excel.create
         creation_ok?
       end
 
     end
 
-    context "with existing app" do
+    context "with existing excel" do
 
       before do
         Excel.close_all
-        @app1 = Excel.create
+        @excel1 = Excel.create
       end
 
-      it "should create different app" do
-        app2 = Excel.create
-        #puts "@app1 #{@app1.Hwnd}"
-        #puts "app2  #{app2.Hwnd}"
-        app2.Hwnd.should_not == @app1.Hwnd
+      it "should create different excel" do
+        excel2 = Excel.create
+        #puts "@excel1 #{@excel1.Hwnd}"
+        #puts "excel2  #{excel2.Hwnd}"
+        excel2.Hwnd.should_not == @excel1.Hwnd
       end
 
-      it "should reuse existing app" do
-        app2 = Excel.current
-        #puts "@app1 #{@app1.Hwnd}"
-        #puts "app2  #{app2.Hwnd}"
-        app2.Hwnd.should == @app1.Hwnd
+      it "should reuse existing excel" do
+        excel2 = Excel.current
+        #puts "@excel1 #{@excel1.Hwnd}"
+        #puts "excel2  #{excel2.Hwnd}"
+        excel2.Hwnd.should == @excel1.Hwnd
       end
 
-      it "should reuse existing app with default options for 'new'" do
-        app2 = Excel.new
-        #puts "@app1 #{@app1.Hwnd}"
-        #puts "app2  #{app2.Hwnd}"
-        app2.Hwnd.should == @app1.Hwnd
+      it "should reuse existing excel with default options for 'new'" do
+        excel2 = Excel.new
+        #puts "@excel1 #{@excel1.Hwnd}"
+        #puts "excel2  #{excel2.Hwnd}"
+        excel2.Hwnd.should == @excel1.Hwnd
       end
 
     end
@@ -72,10 +72,10 @@ module RobustExcelOle
       def direct_excel_creation_helper  # :nodoc: #
         expect { WIN32OLE.connect("Excel.Application") }.to raise_error
         sleep 0.1
-        exl1 = WIN32OLE.new("Excel.Application")
-        exl1.Workbooks.Add
-        exl2 = WIN32OLE.new("Excel.Application")
-        exl2.Workbooks.Add
+        excel1 = WIN32OLE.new("Excel.Application")
+        excel1.Workbooks.Add
+        excel2 = WIN32OLE.new("Excel.Application")
+        excel2.Workbooks.Add
         expect { WIN32OLE.connect("Excel.Application") }.to_not raise_error
       end
 
@@ -90,23 +90,23 @@ module RobustExcelOle
 
     describe "==" do
       before do
-        @app1 = Excel.create
+        @excel1 = Excel.create
       end
 
       it "should be true with two identical excel applications" do
-        app2 = Excel.current
-        app2.should == @app1
+        excel2 = Excel.current
+        excel2.should == @excel1
       end
 
       it "should be false with two different excel applications" do
-        app2 = Excel.create
-        app2.should_not == @app1
+        excel2 = Excel.create
+        excel2.should_not == @excel1
       end
 
       it "should be false with non-Excel objects" do
-        @app1.should_not == "hallo"
-        @app1.should_not == 7
-        @app1.should_not == nil
+        @excel1.should_not == "hallo"
+        @excel1.should_not == 7
+        @excel1.should_not == nil
       end
 
     end
@@ -114,13 +114,13 @@ module RobustExcelOle
 
     context "with :excel" do
 
-      it "should reuse in given excel app" do
-        app1 = Excel.new(:reuse => false)
-        app2 = Excel.new(:reuse => false)
-        app3 = Excel.new(:excel => app1)
-        app4 = Excel.new(:excel => app2)
-        app3.should == app1
-        app4.should == app2
+      it "should reuse in given excel excel" do
+        excel1 = Excel.new(:reuse => false)
+        excel2 = Excel.new(:reuse => false)
+        excel3 = Excel.new(:excel => excel1)
+        excel4 = Excel.new(:excel => excel2)
+        excel3.should == excel1
+        excel4.should == excel2
       end
 
     end
@@ -132,24 +132,24 @@ module RobustExcelOle
       end
 
       it "should be visible" do
-        app = Excel.new(:visible => true)
-        app.Visible.should == true
-        app.DisplayAlerts.should == false
+        excel = Excel.new(:visible => true)
+        excel.Visible.should == true
+        excel.DisplayAlerts.should == false
       end
 
       it "should displayalerts" do        
-        app = Excel.new(:displayalerts => true)
-        app.DisplayAlerts.should == true
-        app.Visible.should == false
+        excel = Excel.new(:displayalerts => true)
+        excel.DisplayAlerts.should == true
+        excel.Visible.should == false
       end
 
       it "should visible and displayalerts" do
-        app = Excel.new(:visible => true)
-        app.Visible.should == true
-        app.DisplayAlerts.should == false
-        app2 = Excel.new(:displayalerts => true)
-        app2.Visible.should == true
-        app2.DisplayAlerts.should == true
+        excel = Excel.new(:visible => true)
+        excel.Visible.should == true
+        excel.DisplayAlerts.should == false
+        excel2 = Excel.new(:displayalerts => true)
+        excel2.Visible.should == true
+        excel2.DisplayAlerts.should == true
       end
 
     end
@@ -157,31 +157,31 @@ module RobustExcelOle
 
     context "with displayalerts" do
       before do
-        @app1 = Excel.new(:displayalerts => true)
-        @app2 = Excel.new(:displayalerts => false, :reuse => false)
+        @excel1 = Excel.new(:displayalerts => true)
+        @excel2 = Excel.new(:displayalerts => false, :reuse => false)
       end
 
       it "should turn off displayalerts" do
-        @app1.DisplayAlerts.should == true
+        @excel1.DisplayAlerts.should == true
         begin
-          @app1.with_displayalerts false do
-            @app1.DisplayAlerts.should == false
+          @excel1.with_displayalerts false do
+            @excel1.DisplayAlerts.should == false
             raise TestError, "any_error"
           end
         rescue TestError
-          @app1.DisplayAlerts.should == true
+          @excel1.DisplayAlerts.should == true
         end
       end
     
       it "should turn on displayalerts" do
-        @app2.DisplayAlerts.should == false
+        @excel2.DisplayAlerts.should == false
         begin
-          @app1.with_displayalerts true do
-            @app1.DisplayAlerts.should == true
+          @excel1.with_displayalerts true do
+            @excel1.DisplayAlerts.should == true
             raise TestError, "any_error"
           end
         rescue TestError
-          @app2.DisplayAlerts.should == false
+          @excel2.DisplayAlerts.should == false
         end
       end
 
@@ -189,15 +189,15 @@ module RobustExcelOle
 
     context "method delegation for capitalized methods" do
       before do
-        @app1 = Excel.new
+        @excel1 = Excel.new
       end
 
       it "should raise WIN32OLERuntimeError" do
-        expect{ @app1.NonexistingMethod }.to raise_error(VBAMethodMissingError)
+        expect{ @excel1.NonexistingMethod }.to raise_error(VBAMethodMissingError)
       end
 
       it "should raise NoMethodError for uncapitalized methods" do
-        expect{ @app1.nonexisting_method }.to raise_error(NoMethodError)
+        expect{ @excel1.nonexisting_method }.to raise_error(NoMethodError)
       end
     end
 

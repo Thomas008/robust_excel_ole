@@ -124,6 +124,9 @@ Check whether the referenced Excel workbook responds to methods.
 
 Return the file name of the book with the absolute path that contains slash (/) instead of back slash (\)
 
+=== with_displayalerts
+
+Turn off or on Displayaerts of an Excel application.
 
 
 === Access a sheet.

@@ -4,9 +4,9 @@ module RobustExcelOle
 
   class Excel
 
-    attr_writer :ole_app
+    attr_writer :excel_app
 
-    @@hwnd2app = {}
+    @@hwnd2excel = {}
 
     # closes all Excel applications
     def self.close_all
@@ -37,12 +37,12 @@ module RobustExcelOle
     def self.new(options= {})
       options = {:reuse => true}.merge(options)
 
-      ole_app = nil
+      excel_app = nil
       if options[:reuse] then
-        ole_app = options[:excel] ? options[:excel] : current_excel
-        if ole_app
-          ole_app.DisplayAlerts = options[:displayalerts] unless options[:displayalerts]==nil
-          ole_app.Visible = options[:visible] unless options[:visible]==nil
+        excel_app = options[:excel] ? options[:excel] : current_excel
+        if excel_app
+          excel_app.DisplayAlerts = options[:displayalerts] unless options[:displayalerts]==nil
+          excel_app.Visible = options[:visible] unless options[:visible]==nil
         end
       end
 
@@ -50,22 +50,22 @@ module RobustExcelOle
         :displayalerts => false,
         :visible => false,
       }.merge(options)
-      unless ole_app
-        ole_app = WIN32OLE.new('Excel.application')
-        ole_app.DisplayAlerts = options[:displayalerts]
-        ole_app.Visible = options[:visible]
+      unless excel_app
+        excel_app = WIN32OLE.new('Excel.application')
+        excel_app.DisplayAlerts = options[:displayalerts]
+        excel_app.Visible = options[:visible]
       end
 
-      hwnd = ole_app.HWnd
-      stored = @@hwnd2app[hwnd]
+      hwnd = excel_app.HWnd
+      stored = @@hwnd2excel[hwnd]
 
       if stored 
         result = stored
       else
-        WIN32OLE.const_load(ole_app, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
+        WIN32OLE.const_load(excel_app, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
         result = super(options)
-        result.ole_app = ole_app
-        @@hwnd2app[hwnd] = result
+        result.excel_app = excel_app
+        @@hwnd2excel[hwnd] = result
       end
       result
     end
@@ -80,7 +80,7 @@ module RobustExcelOle
 
     # returns true, if the Excel application is alive, false otherwise
     def alive?
-      @ole_app.Name
+      @excel_app.Name
       true
     rescue
       puts $!.message
@@ -88,7 +88,7 @@ module RobustExcelOle
     end
 
     def with_displayalerts displayalerts_value
-      excel = @@hwnd2app[self.Hwnd] 
+      excel = @@hwnd2excel[self.Hwnd] 
       old_displayalerts = excel.DisplayAlerts
       excel.DisplayAlerts = displayalerts_value
       begin
@@ -124,8 +124,8 @@ module RobustExcelOle
           end
         end
 
-        @@hwnd2app[excel_hwnd].die rescue nil
-        #@@hwnd2app[excel_hwnd] = nil
+        @@hwnd2excel[excel_hwnd].die rescue nil
+        #@@hwnd2excel[excel_hwnd] = nil
       end
 
 
@@ -181,14 +181,14 @@ module RobustExcelOle
 
     # set this Excel application to nil
     def die  # :nodoc:
-      @ole_app = nil
+      @excel_app = nil
     end
 
 
     def method_missing(name, *args)  # :nodoc: #
       if name.to_s[0,1] =~ /[A-Z]/ 
         begin
-          @ole_app.send(name, *args)
+          @excel_app.send(name, *args)
         rescue WIN32OLERuntimeError => msg
           if msg.message =~ /unknown property or method/
             raise VBAMethodMissingError, "unknown VBA property or method #{name}"

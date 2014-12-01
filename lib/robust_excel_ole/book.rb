@@ -137,32 +137,33 @@ module RobustExcelOle
     #                      :forget  -> close the book 
     #                      :alert   -> give control to excel
     def close(opts = {:if_unsaved => :raise})
+
+      def close_workbook 
+        @workbook.Close if alive?
+        @workbook = nil unless alive?
+      end
+
       if ((alive?) && (not @workbook.Saved) && (not @options[:read_only])) then
         case opts[:if_unsaved]
         when :raise
           raise ExcelErrorClose, "book is unsaved (#{File.basename(filename)})"
         when :save
           save
+          close_workbook
         when :forget
-          #nothing
+          close_workbook
         when :alert
-          old_displayalerts = @excel.DisplayAlerts  # :nodoc:
-          @excel.DisplayAlerts = true  # :nodoc:
+          @excel.with_displayalerts true do
+            close_workbook
+          end
         else
           raise ExcelErrorClose, ":if_unsaved: invalid option"
         end
+      else
+        close_workbook
       end
-      begin
-        @workbook.Close if alive?
-        @workbook = nil unless alive?
-        raise ExcelUserCanceled, "close: canceled by user" if alive? && opts[:if_unsaved] == :alert && (not @workbook.Saved)
-      ensure
-        if opts[:if_unsaved] == :alert then
-          @excel.DisplayAlerts = old_displayalerts  # :nodoc:  
-        end
-      end
-      #@excel.Workbooks.Close
-      #@excel.Quit
+      raise ExcelUserCanceled, "close: canceled by user" if alive? && opts[:if_unsaved] == :alert && (not @workbook.Saved)
+
     end
 
     # returns true, if the workbook reacts to methods, false otherwise

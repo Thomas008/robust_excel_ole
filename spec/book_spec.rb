@@ -605,7 +605,7 @@ describe RobustExcelOle::Book do
           new_book.should be_a RobustExcelOle::Book
           new_book.close
         end
-
+        # Error!
         it "should save to 'simple_save_file.xls' with :if_exists => :raise" do
           dirname, basename = File.split(@simple_save_file)
           File.delete @simple_save_file rescue nil

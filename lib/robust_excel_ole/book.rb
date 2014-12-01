@@ -214,48 +214,54 @@ module RobustExcelOle
     #               :alert     -> give control to Excel
     # returns true, if successfully saved, nil otherwise
     def save_as(file = nil, opts = {:if_exists => :raise} )
+      
       raise IOError, "Not opened for writing(open with :read_only option)" if @options[:read_only]
-      dirname, basename = File.split(file)
-      file_format =
-        case File.extname(basename)
+      @dirname, @basename = File.split(file)
+      @file_format =
+        case File.extname(@basename)
         when '.xls' : RobustExcelOle::XlExcel8
         when '.xlsx': RobustExcelOle::XlOpenXMLWorkbook
         when '.xlsm': RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
+      end
+      @opts = opts
+
+      def save_as_workbook 
+        begin
+          @workbook.SaveAs(RobustExcelOle::absolute_path(File.join(@dirname, @basename)), @file_format)
+        rescue WIN32OLERuntimeError => msg
+          if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
+            if @opts[:if_exists] == :alert then 
+              raise ExcelErrorSave, "not saved or canceled by user"
+            else
+              return nil
+            end
+            # another possible semantics. raise ExcelErrorSaveFailed, "could not save Workbook"
+          else
+            raise ExcelErrorSaveUnknown, "unknown WIN32OELERuntimeError:\n#{msg.message}"
+          end       
         end
+      end
+
       if File.exist?(file) then
-        case opts[:if_exists]
+        case @opts[:if_exists]
         when :overwrite
           begin
             File.delete(file) 
           rescue Errno::EACCES
             raise ExcelErrorSave, "book is open and used in Excel"
           end
+          save_as_workbook
         when :alert 
-          old_displayalerts = @excel.DisplayAlerts  # :nodoc:
-          @excel.DisplayAlerts = true  # :nodoc:
+          @excel.with_displayalerts true do
+            save_as_workbook
+          end
         when :raise
-          raise ExcelErrorSave, "book already exists: #{basename}"
+          raise ExcelErrorSave, "book already exists: #{@basename}"
         else
           raise ExcelErrorSave, ":if_exists: invalid option"
         end
-      end
-      begin
-        @workbook.SaveAs(RobustExcelOle::absolute_path(File.join(dirname, basename)), file_format)
-      rescue WIN32OLERuntimeError => msg
-        if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
-          if opts[:if_exists] == :alert then 
-            raise ExcelErrorSave, "not saved or canceled by user"
-          else
-            return nil
-          end
-          # another possible semantics. raise ExcelErrorSaveFailed, "could not save Workbook"
-        else
-          raise ExcelErrorSaveUnknown, "unknown WIN32OELERuntimeError:\n#{msg.message}"
-        end       
-      ensure
-        if opts[:if_exists] == :alert then
-          @excel.DisplayAlerts = old_displayalerts  # :nodoc:
-        end
+      else
+        save_as_workbook
       end
       true
     end

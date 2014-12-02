@@ -53,6 +53,20 @@ module RobustExcelOle
       @excel = @options[:excel] ? excel_options[:excel] : Excel.new(excel_options)  
       workbooks = @excel.Workbooks
       @workbook = workbooks.Item(File.basename(file)) rescue nil
+      @file = file
+
+      def open_workbook
+        # if book not open (was not open,was closed with option :forget or shall be opened in new application)
+        #    or :if_unsaved => :alert
+        if ((not alive?) || (@options[:if_unsaved] == :alert)) then
+          begin
+            @workbook = @excel.Workbooks.Open(RobustExcelOle::absolute_path(@file),{ 'ReadOnly' => @options[:read_only] })
+          rescue WIN32OLERuntimeError
+            raise ExcelUserCanceled, "open: canceled by user"
+          end
+        end
+      end
+
       if @workbook then
         obstructed_by_other_book = (File.basename(file) == File.basename(@workbook.Fullname)) && 
                                    (not (RobustExcelOle::absolute_path(file) == @workbook.Fullname))
@@ -89,10 +103,10 @@ module RobustExcelOle
             when :forget
               @workbook.Close
             when :accept
-              #nothing
             when :alert
-              old_displayalerts = @excel.DisplayAlerts  # :nodoc:
-              @excel.DisplayAlerts = true  # :nodoc:
+              @excel.with_displayalerts true do
+                open_workbook
+              end 
             when :new_app
               excel_options[:reuse] = false
               @excel = Excel.new(excel_options)
@@ -103,21 +117,7 @@ module RobustExcelOle
           end
         end
       end
-      begin
-        # if book not open (was not open,was closed with option :forget or shall be opened in new application)
-        #    or :if_unsaved => :alert
-        if ((not alive?) || (@options[:if_unsaved] == :alert)) then
-          begin
-            @workbook = @excel.Workbooks.Open(RobustExcelOle::absolute_path(file),{ 'ReadOnly' => @options[:read_only] })
-          rescue WIN32OLERuntimeError
-            raise ExcelUserCanceled, "open: canceled by user"
-          end
-        end
-      ensure
-        if @options[:if_unsaved] == :alert then
-          @excel.DisplayAlerts = old_displayalerts  # :nodoc:
-        end
-      end
+      open_workbook
       if block
         begin
           yield self

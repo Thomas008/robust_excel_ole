@@ -13,7 +13,7 @@ begin
   suffix = '.xls'
   book_name = dir + 'book_with_blank' 
   book = Book.open(book_name + suffix)                   # open a book with several sheets
-  Excel.current.Visible = true                           # make Excel visible 
+  book.visible true                                      # make Excel visible 
   i = 0
   book.each do |sheet|
     i = i + 1

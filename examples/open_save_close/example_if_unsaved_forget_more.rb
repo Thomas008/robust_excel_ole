@@ -12,7 +12,7 @@ begin
   dir = create_tmpdir
   file_name = dir + 'simple.xls' 
   book = Book.open(file_name)                      # open a book
-  Excel.current.Visible = true        # make Excel visible 
+  book.visible true                                # make current Excel visible 
   sleep 1
   sheet = book[0]                                            # access a sheet
   first_cell = sheet[0,0].value

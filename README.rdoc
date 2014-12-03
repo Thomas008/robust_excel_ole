@@ -112,22 +112,29 @@ If a book with the file name already exists, then
 +:alert+::     Give the control to Excel.
   
 
-=== == 
+=== Identity.
 
 Check whether two referenced Excel workbooks are identical.
 
-=== alive?
+  if book1 == book2 then puts "Both referenced Excel workbooks are identical." 
+
+=== Alive.
 
 Check whether the referenced Excel workbook responds to methods.
 
-=== filename
+  if book.alive? then puts "book is responding."
 
-Return the file name of the book with the absolute path that contains slash (/) instead of back slash (\)
+=== File name. 
 
-=== with_displayalerts
+Return the file name of the book with the absolute path that contains slash (/) instead of back slash (\).
 
-Turn off or on Displayaerts of an Excel application.
+  book.filename
 
+=== Make a book visible in the current Excel application.
+
+  book.visible true
+
+Option is: +true+ -> make visible , +false+ -> make invisible
 
 === Access a sheet.
 
@@ -196,7 +203,7 @@ Access a range of a column.
   sheet.col_range(2, 0..1)  => first two cells of the third column
 
 
-=== Add a sheet
+=== Add a sheet.
 
 Add a new sheet.
 
@@ -214,6 +221,16 @@ Add a copy of a sheet with a name after another sheet.
 
   book.add_sheet(sheet, :as => 'sheet_copy', :after => another_sheet)
 
+=== Turn on or off Displayalerts.
+
+  with_displayalerts
+
+Turn off or on Displayaerts of an Excel application.
+
+  excel = RobustExcelOle::Excel.new
+  excel.with_displayalerts true do
+    book = RobustExcelOle::Book.open('simple.xls')
+  end
 
 === Examples
 

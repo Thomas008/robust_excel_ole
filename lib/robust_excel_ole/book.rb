@@ -190,6 +190,11 @@ module RobustExcelOle
       self.filename == other_book.filename  
     end
 
+    # make the current Excel application visible or invisible
+    # option: visible_value     true -> make Excel visible, false -> make Excel invisible
+    def visible visible_value
+      Excel.current.Visible = visible_value
+    end
 
     attr_reader :excel
 

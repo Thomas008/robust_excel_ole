@@ -196,8 +196,6 @@ module RobustExcelOle
       Excel.current.Visible = visible_value
     end
 
-    attr_reader :excel
-
     # saves a book.
     # returns true, if successfully saved, nil otherwise
     def save
@@ -304,6 +302,8 @@ module RobustExcelOle
       end
       new_sheet
     end        
+
+    attr_reader :excel
 
   end
 

@@ -20,11 +20,7 @@ begin
     puts "#{i}. sheet:"
     sheet_name = book_name + "_sheet#{i}"
     puts "sheet_name: #{sheet_name}"
-    excel = Excel.create                   
-    excel.Workbooks.Add                                          # generate an empty workbook
-    empty_workbook = excel.Workbooks.Item(1)                     # save it
-    empty_workbook.SaveAs(absolute_path(sheet_name), XlExcel8)   # close it
-    empty_workbook.Close
+    Excel.generate_workbook absolute_path(sheet_name)   # generate an empty workbook
     sheet_book = Book.open(absolute_path(sheet_name) + suffix)  # open the book
     sheet_book.add_sheet sheet                                  # add the sheet
     sheet_book.save                                             # save it

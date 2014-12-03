@@ -718,7 +718,7 @@ describe Book do
     end
   end
 
-  describe "== , alive?, filename, visible" do
+  describe "== , alive?, filename, visible, empty_workbook" do
 
     context "with alive?" do
 
@@ -805,7 +805,7 @@ describe Book do
     context "with visible" do
 
       before do
-        @book = Book.open(@simple_file, :visible => false)
+        @book = Book.open(@simple_file)
       end
 
       after do

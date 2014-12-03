@@ -73,6 +73,16 @@ module RobustExcelOle
     def initialize(options= {}) # :nodoc:
     end
 
+    # generate, save and close an empty workbook
+    def self.generate_workbook file_name
+      excel = create                   
+      excel.Workbooks.Add                           
+      empty_workbook = excel.Workbooks.Item(1)          
+      empty_workbook.SaveAs(file_name, XlExcel8)      
+      empty_workbook.Close                             
+    end
+
+
     # returns true, if the Excel applications are identical, false otherwise
     def == other_excel
       self.Hwnd == other_excel.Hwnd    if other_excel.is_a?(Excel)

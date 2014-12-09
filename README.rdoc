@@ -221,6 +221,25 @@ Add a copy of a sheet with a name after another sheet.
 
   book.add_sheet(sheet, :as => 'sheet_copy', :after => another_sheet)
 
+
+=== Create and reuse an Excel application.
+
+Create a new Excel.
+
+  excel1 = Excel.create
+
+Return a running Excel application and reuse it.
+
+  excel2 = Excel.current
+
+Reuse a running Excel application, make it visibe and turn on displayalerts.
+
+   excel2 = Excel.new(:reuse => true, :visible => true, displayalerts => true).
+
+Reuse a certain running Excel application.
+
+   excel3 = Excel.new(:excel => excel1)
+
 === Turn on or off Displayalerts.
 
   with_displayalerts
@@ -231,6 +250,10 @@ Turn off or on Displayaerts of an Excel application.
   excel.with_displayalerts true do
     book = RobustExcelOle::Book.open('simple.xls')
   end
+
+=== Close all Excel applications.
+
+  Excel.close_all
 
 === Examples
 

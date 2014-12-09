@@ -192,7 +192,7 @@ module RobustExcelOle
 
     # make the current Excel application visible or invisible
     # option: visible_value     true -> make Excel visible, false -> make Excel invisible
-    def visible visible_value
+    def visible= visible_value
       Excel.current.Visible = visible_value
     end
 

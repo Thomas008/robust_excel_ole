@@ -132,7 +132,7 @@ Return the file name of the book with the absolute path that contains slash (/) 
 
 === Make a book visible in the current Excel application.
 
-  book.visible true
+  book.visible = true
 
 Option is: +true+ -> make visible , +false+ -> make invisible
 

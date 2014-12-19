@@ -108,6 +108,11 @@ module RobustExcelOle
       end
     end
 
+    # make the current Excel application visible or invisible
+    def visible= visible_value
+      current.Visible = visible_value
+    end
+
 
   private
 

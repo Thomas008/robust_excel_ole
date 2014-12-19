@@ -137,6 +137,15 @@ module RobustExcelOle
         excel.DisplayAlerts.should == false
       end
 
+      it "should be visible too" do
+        excel = Excel.new(:visible => true)
+        excel.Visible.should == true
+        excel.visible = false
+        excel.Visible.should == false
+        xcel.visible = true
+        excel.Visible.should == true
+      end
+
       it "should displayalerts" do        
         excel = Excel.new(:displayalerts => true)
         excel.DisplayAlerts.should == true

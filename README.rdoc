@@ -240,6 +240,17 @@ Reuse a certain running Excel application.
 
    excel3 = Excel.new(:excel => excel1)
 
+=== Make Excel visible, invisible
+
+Make Excel visible.
+
+  excel1 = Excel.create
+  excel1.visible = true
+
+Make Excel invisible
+
+  excel.visible = false
+
 === Turn on or off Displayalerts.
 
   with_displayalerts

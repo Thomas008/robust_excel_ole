@@ -142,7 +142,7 @@ module RobustExcelOle
         excel.Visible.should == true
         excel.visible = false
         excel.Visible.should == false
-        xcel.visible = true
+        excel.visible = true
         excel.Visible.should == true
       end
 

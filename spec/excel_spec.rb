@@ -15,9 +15,9 @@ module RobustExcelOle
     context "excel creation" do
       
       def creation_ok? # :nodoc: #
-        @excel.alive?.should == true
-        @excel.Visible.should == false
-        @excel.DisplayAlerts.should == false
+        @excel.alive?.should be_true
+        @excel.Visible.should be_false
+        @excel.DisplayAlerts.should be_false
         @excel.Name.should == "Microsoft Excel"
       end
 
@@ -133,32 +133,27 @@ module RobustExcelOle
 
       it "should be visible" do
         excel = Excel.new(:visible => true)
-        excel.Visible.should == true
-        excel.DisplayAlerts.should == false
-      end
-
-      it "should be visible too" do
-        excel = Excel.new(:visible => true)
-        excel.Visible.should == true
+        excel.Visible.should be_true
+        excel.visible.should be_true
+        excel.DisplayAlerts.should be_false
         excel.visible = false
-        excel.Visible.should == false
-        excel.visible = true
-        excel.Visible.should == true
+        excel.Visible.should be_false
+        excel.visible.should be_false
       end
 
       it "should displayalerts" do        
         excel = Excel.new(:displayalerts => true)
-        excel.DisplayAlerts.should == true
-        excel.Visible.should == false
+        excel.DisplayAlerts.should be_true
+        excel.Visible.should be_false
       end
 
       it "should visible and displayalerts" do
         excel = Excel.new(:visible => true)
-        excel.Visible.should == true
-        excel.DisplayAlerts.should == false
+        excel.Visible.should be_true
+        excel.DisplayAlerts.should be_false
         excel2 = Excel.new(:displayalerts => true)
-        excel2.Visible.should == true
-        excel2.DisplayAlerts.should == true
+        excel2.Visible.should be_true
+        excel2.DisplayAlerts.should be_true
       end
 
     end
@@ -171,26 +166,26 @@ module RobustExcelOle
       end
 
       it "should turn off displayalerts" do
-        @excel1.DisplayAlerts.should == true
+        @excel1.DisplayAlerts.should be_true
         begin
           @excel1.with_displayalerts false do
-            @excel1.DisplayAlerts.should == false
+            @excel1.DisplayAlerts.should be_false
             raise TestError, "any_error"
           end
         rescue TestError
-          @excel1.DisplayAlerts.should == true
+          @excel1.DisplayAlerts.should be_true
         end
       end
     
       it "should turn on displayalerts" do
-        @excel2.DisplayAlerts.should == false
+        @excel2.DisplayAlerts.should be_false
         begin
           @excel1.with_displayalerts true do
-            @excel1.DisplayAlerts.should == true
+            @excel1.DisplayAlerts.should be_true
             raise TestError, "any_error"
           end
         rescue TestError
-          @excel2.DisplayAlerts.should == false
+          @excel2.DisplayAlerts.should be_false
         end
       end
 

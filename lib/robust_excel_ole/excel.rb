@@ -97,20 +97,25 @@ module RobustExcelOle
       false
     end
 
+    # set DisplayAlerts
     def with_displayalerts displayalerts_value
-      excel = @@hwnd2excel[self.Hwnd] 
-      old_displayalerts = excel.DisplayAlerts
-      excel.DisplayAlerts = displayalerts_value
+      old_displayalerts = @excel_app.DisplayAlerts
+      @excel_app.DisplayAlerts = displayalerts_value
       begin
          yield self
       ensure
-        excel.DisplayAlerts = old_displayalerts  
+        @excel_app.DisplayAlerts = old_displayalerts
       end
     end
 
     # make the current Excel application visible or invisible
     def visible= visible_value
-      current.Visible = visible_value
+      @excel_app.Visible = visible_value
+    end
+
+    # return if the current Excel application is visible
+    def visible 
+      @excel_app.Visible
     end
 
 

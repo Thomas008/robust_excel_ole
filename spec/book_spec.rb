@@ -813,13 +813,12 @@ describe Book do
       end
 
       it "should make Excel visible" do
-        Excel.current.Visible.should == false
         @book.visible = false
-        Excel.current.Visible.should == false
+        Excel.current.visible.should be_false
+        @book.visible.should be_false
         @book.visible = true
-        Excel.current.Visible.should == true
-        @book.visible = true
-        Excel.current.Visible.should == true
+        Excel.current.visible.should be_true
+        @book.visible.should be_true
       end
 
     end

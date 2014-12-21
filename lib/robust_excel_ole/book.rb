@@ -196,6 +196,11 @@ module RobustExcelOle
       Excel.current.Visible = visible_value
     end
 
+    # returns if the current Excel application is visible
+    def visible 
+      Excel.current.Visible
+    end
+
     # saves a book.
     # returns true, if successfully saved, nil otherwise
     def save

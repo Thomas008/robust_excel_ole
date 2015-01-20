@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 
 require 'weakref'
@@ -9,7 +10,7 @@ module RobustExcelOle
 
 
     class << self
-      
+      attr_reader :workbook 
       # opens a book.
       # 
       # options: 
@@ -25,7 +26,7 @@ module RobustExcelOle
       #                  :forget         -> close the old book, open the new book
       #                  :save           -> save the old book, close it, open the new book
       #                  :close_if_saved -> close the old book and open the new book, if the old book is saved
-      #                                       raise an exception otherwise
+      #                                      raise an exception otherwise
       #                  :new_app        -> open the new book in a new excel application
       #  :reuse         use a running Excel-application (default: true)
       #  :excel         an Excel application            (default: nil) 
@@ -60,7 +61,12 @@ module RobustExcelOle
         #    or :if_unsaved => :alert
         if ((not alive?) || (@options[:if_unsaved] == :alert)) then
           begin
-            @workbook = @excel.Workbooks.Open(RobustExcelOle::absolute_path(@file),{ 'ReadOnly' => @options[:read_only] })
+            # workaround for bug in Excel 2010: workbook.Open does not always return 
+            # the workbook with given file name
+            filename = RobustExcelOle::absolute_path(@file)
+            workbooks = @excel.Workbooks
+            workbooks.Open(filename,{ 'ReadOnly' => @options[:read_only] })
+            @workbook = workbooks.Item(File.basename(filename))
           rescue WIN32OLERuntimeError
             raise ExcelUserCanceled, "open: canceled by user"
           end
@@ -77,19 +83,23 @@ module RobustExcelOle
             raise ExcelErrorOpen, "blocked by a book with the same name in a different path"
           when :forget
             @workbook.Close
+            open_workbook
           when :save
             save unless @workbook.Saved
             @workbook.Close
+            open_workbook
           when :close_if_saved
             if (not @workbook.Saved) then
               raise ExcelErrorOpen, "book with the same name in a different path is unsaved"
             else 
               @workbook.Close
+              open_workbook
             end
           when :new_app
             excel_options[:reuse] = false
             @excel = Excel.new(excel_options)
             @workbook = nil
+            open_workbook
           else
             raise ExcelErrorOpen, ":if_obstructed: invalid option"
           end
@@ -102,7 +112,9 @@ module RobustExcelOle
               raise ExcelErrorOpen, "book is already open but not saved (#{File.basename(file)})"
             when :forget
               @workbook.Close
+              open_workbook
             when :accept
+              # do nothing
             when :alert
               @excel.with_displayalerts true do
                 open_workbook
@@ -111,6 +123,7 @@ module RobustExcelOle
               excel_options[:reuse] = false
               @excel = Excel.new(excel_options)
               @workbook = nil
+              open_workbook
             else
               raise ExcelErrorOpen, ":if_unsaved: invalid option"
             end
@@ -125,9 +138,8 @@ module RobustExcelOle
           close
         end
       end
-      @workbook
     end
-    
+
     # closes the book, if it is alive
     #
     # options:
@@ -165,6 +177,31 @@ module RobustExcelOle
       raise ExcelUserCanceled, "close: canceled by user" if alive? && opts[:if_unsaved] == :alert && (not @workbook.Saved)
 
     end
+=begin
+    # modify unobtrusively a book.
+    # keep the book in the state as it was before modifying it.
+    def self.unobtrusively filename
+      # notice whether a book with filename is open
+      is_open = ()
+      Excel.@@hwnd2excel.each do |hwnd|
+        excel = Excel.@@hwns2excel[hwnd] 
+        workbooks = excel.Workbooks
+        @that_workbook = workbooks.Item(File.basename(filename)) rescue nil
+        if @that_workbook then break end 
+      end
+      begin
+        @book = open(filename, :if_unsaved => :accept, :if_obstructed => :new_app) 
+        yield @book
+      ensure
+        if @that_workbook then 
+          @book.workbook.Saved = @that_workbook.Saved
+        else
+          @book.close(:if_unsaved => :save) 
+        end
+      end
+      @book
+    end
+=end
 
     # returns true, if the workbook reacts to methods, false otherwise
     def alive?
@@ -275,6 +312,7 @@ module RobustExcelOle
     end
 
     
+
     def [] sheet
       sheet += 1 if sheet.is_a? Numeric
       RobustExcelOle::Sheet.new(@workbook.Worksheets.Item(sheet))
@@ -308,33 +346,25 @@ module RobustExcelOle
       new_sheet
     end        
 
+    def method_missing(name, *args)  # :nodoc: #
+      if name.to_s[0,1] =~ /[A-Z]/ 
+        begin
+          @workbook.send(name, *args)
+        rescue WIN32OLERuntimeError => msg
+          if msg.message =~ /unknown property or method/
+            raise VBAMethodMissingError, "unknown VBA property or method #{name}"
+          else 
+            raise msg
+          end
+        end
+      else  
+        super 
+      end
+    end
+
+
     attr_reader :excel
 
   end
 
 end
-
-class ExcelUserCanceled < RuntimeError # :nodoc: #
-end
-
-class ExcelError < RuntimeError    # :nodoc: #
-end
-
-class ExcelErrorSave < ExcelError   # :nodoc: #
-end
-
-class ExcelErrorSaveFailed < ExcelErrorSave  # :nodoc: #
-end
-
-class ExcelErrorSaveUnknown < ExcelErrorSave  # :nodoc: #
-end
-
-class ExcelErrorOpen < ExcelError   # :nodoc: #
-end
-
-class ExcelErrorClose < ExcelError    # :nodoc: #
-end
-
-class ExcelErrorSheet < ExcelError    # :nodoc: #
-end
-

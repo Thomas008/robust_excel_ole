@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 
 require File.join(File.dirname(__FILE__), './spec_helper')
@@ -41,6 +40,103 @@ describe Book do
       end
     end
   end
+
+  describe ".workbook" do
+    context "with" do
+      before do
+        @book = Book.open(@simple_file)
+      end
+
+      after do
+        @book.close(:if_unsaved => :forget)
+      end
+
+      it "should" do
+        @book.Saved.should be_true
+      end
+    end
+  end
+
+  describe "unobtrusively" do
+
+    context "with standard" do
+      it "should be a book" do
+        Book.unobtrusively(@simple_file) do |book|
+          book.should be_a Book
+        end
+      end
+    end
+
+    context "with an open book" do
+
+      before do
+        @book = Book.open(@simple_file)
+      end
+
+      after do
+        @book.close(:if_unsaved => :forget)
+      end
+      
+      it "should let a saved book saved" do
+        @book.workbook.Saved.should be_true
+        @book.should be_alive
+        Book.unobtrusively(@simple_file) do |book|
+          sheet = book[0]
+          @cell = sheet[0,0]
+          sheet[0,0] = @cell.value == "simple" ? "complex" : "simple" 
+          book.workbook.Saved.should be_false
+        end
+        # @book.workbook is not nil but does not react anymore
+        #@book.workbook.Saved.should be_true
+        #@book.should be_alive
+        #sheet = @book[0]
+        #sheet[0,0].value.should_not == @cell.value
+      end
+
+      it "should let an unsaved book unsaved" do
+        sheet = @book[0]
+        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple" 
+        @book.workbook.Saved.should be_false
+        @book.should be_alive
+        Book.unobtrusively(@simple_file) do |book|
+          sheet = book[0]
+          @cell = sheet[0,0]
+          sheet[0,0] = @cell.value == "simple" ? "complex" : "simple" 
+        end
+        @book.workbook.Saved.should be_false
+        @book.should be_alive
+        sheet = @book[0]
+        sheet[0,0].value.should_not == @cell.value
+      end
+    end
+    
+    context "with a closed book" do
+      before do
+        @book = Book.open(@simple_file)
+      end
+
+      after do
+        @book.close
+      end
+
+      it "should let a closed book closed" do
+        sheet = @book[0]
+        cell = sheet[0,0]
+        @old_cell_value = cell.value
+        @book.close
+        @book.should_not be_alive
+        Book.unobtrusively(@simple_file) do |book|
+          sheet = book[0]
+          cell = sheet[0,0]
+          sheet[0,0] = cell.value == "simple" ? "complex" : "simple" 
+        end
+        @book.should_not be_alive
+        @book = Book.open(@simple_file)
+        sheet = @book[0]
+        sheet[0,0].value.should_not == @old_cell_value
+      end
+    end
+  end    
 
   describe "open" do
 

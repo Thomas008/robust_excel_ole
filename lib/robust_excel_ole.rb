@@ -10,4 +10,31 @@ require File.join(File.dirname(__FILE__), 'robust_excel_ole/version')
 
 module RobustExcelOle
 
+  class ExcelUserCanceled < RuntimeError # :nodoc: #
+  end
+
+  class ExcelError < RuntimeError    # :nodoc: #
+  end
+
+  class ExcelErrorSave < ExcelError   # :nodoc: #
+  end
+
+  class ExcelErrorSaveFailed < ExcelErrorSave  # :nodoc: #
+  end
+
+  class ExcelErrorSaveUnknown < ExcelErrorSave  # :nodoc: #
+  end
+
+  class ExcelErrorOpen < ExcelError   # :nodoc: #
+  end
+
+  class ExcelErrorClose < ExcelError    # :nodoc: #
+  end
+
+  class ExcelErrorSheet < ExcelError    # :nodoc: #
+  end
+
+  class VBAMethodMissingError < RuntimeError  # :nodoc: #
+  end
+
 end

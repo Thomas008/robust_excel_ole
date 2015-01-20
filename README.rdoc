@@ -6,7 +6,7 @@ robust_excel_ole wraps the win32ole library, and allows to perform various opera
 
 robust_excel_ole started as a simple fork from tomiacannondale's wrap_excel adapted to Ruby 1.8.6.
 The functionality of wrap_excel is optimised and extended by new features.
-Most noticable extension is that books are opened in a Excel application if it is already running, instead of opening Excel whenever a book is opened.
+Most notable extension is that books are opened in a Excel application if it is already running, instead of opening Excel whenever a book is opened.
 
 Thus some features in robust_excel_ole that are not compatible with wrap_excel:
 * +open+ uses by default a running Excel application instead of creating a new one,
@@ -26,7 +26,7 @@ This is work in progress.
 
 == Usage
 
-=== Open a book.
+=== Opening a book.
 
 Example:
 
@@ -43,7 +43,7 @@ Options are the following:
 
 +:read_only+::       open in read-only mode (default: +false+)  
 +:if_unsaved+::      +:raise+ (default), +:accept+, +:forget+, +:new_app+, +:alert+
-+:if_obstructed+::   :raise (default), +:forget+, +:save+, +:close_if_unsaved+, +:new_app+
++:if_obstructed+::   +:raise+ (default), +:forget+, +:save+, +:close_if_saved+, +:new_app+
 +:reuse+::           use an already open Excel-application (default: +true+) 
 +:excel+::           an Excel appication (default: +nil+)
 +:displayalerts+::   allow display alerts in Excel (default: +false+)
@@ -55,7 +55,7 @@ If an unsaved book with the same name is open, then
 
 +:raise+::   Raise an exeption. Don't open the book.
 +:accept+::  Let the unsaved book open.
-+:forget+::  Close the unsaved book, open the new book.
++:forget+::  Discard any changes and reopen the book.
 +:new_app+:: Open the new book in a new Excel application
 +:alert+::   Give control to Excel.
 
@@ -71,7 +71,7 @@ If a book with same name in a different path is open, then
 
 The values :displayalerts and :visible are reached to the class Excel that controls opening and closing of Excel applications.
 
-=== Close a book.
+=== Closing a book.
 
 Simple close.
 
@@ -89,13 +89,13 @@ If the book is unsaved, then
 +:alert+::  Give control to Excel.
 
 
-=== Save a book.
+=== Saving a book.
 
 Simple save.
 
   book.save
 
-Save a book with a file name.
+Saving a book with a file name.
 
   book.save_as('./another_sample.xls')
 
@@ -114,45 +114,45 @@ If a book with the file name already exists, then
 
 === Identity.
 
-Check whether two referenced Excel workbooks are identical.
+Checking whether two referenced Excel workbooks are identical.
 
   if book1 == book2 then puts "Both referenced Excel workbooks are identical." 
 
 === Alive.
 
-Check whether the referenced Excel workbook responds to methods.
+Checking whether the referenced Excel workbook responds to methods.
 
   if book.alive? then puts "book is responding."
 
 === File name. 
 
-Return the file name of the book with the absolute path that contains slash (/) instead of back slash (\).
+Getting the file name of the book with the absolute path that contains slash (/) instead of back slash (\).
 
   book.filename
 
-=== Make a book visible in the current Excel application.
+=== Makeing a book visible in the current Excel application.
 
   book.visible = true
 
 Option is: +true+ -> make visible , +false+ -> make invisible
 
-=== Access a sheet.
+=== Accessing a sheet.
 
 A sheet object can be accessed with a Book#[] method via an integer number.
 
   sheet = book[0]
 
-Access a sheet object with the sheet name.
+Accessing a sheet object with the sheet name.
 
   sheet = book['Sheet1']
 
-Access sheet objects using the methods Book#each.
+Accessing sheet objects using the methods Book#each.
 
   book.each do |sheet|               
     # do something with sheet
   end
 
-=== Access a row or a column.
+=== Accessing a row or a column.
 
 A sheet object is enumerable. Use the methods Sheet#each_column, Sheet#each_row or Sheet#each.
 
@@ -169,194 +169,196 @@ A sheet object is enumerable. Use the methods Sheet#each_column, Sheet#each_row 
     # do something with column
   end
 
-=== Access a cell.
+=== Accessing a cell.
 
-Read a cell from a sheet object.
+Reading a cell from a sheet object.
 
   sheet[0, 0]  => first cell.
 
-Read a cell from a range object.
+Reading a cell from a range object.
 
   row_range[0]  => first cell in row_range
   column_range[1] => second cell in column_range
 
-Read the value of a cell.
+Reading the value of a cell.
 
   cell = sheet[0,0]
   cell.value  => value of the cell.
 
-Write a cell
+Writing a cell
 
   sheet[0,0] = "new_value"
 
 
-=== Access a range of a row or column. 
+=== Accessing a range of a row or column. 
 
-Access a range of a row.
+Accessing a range of a row.
 
   sheet.row_range(0)  => first row
   sheet.row_range(0, 0..2 )  => first three cells of the first row  
 
-Access a range of a column.
+Accessing a range of a column.
 
   sheet.col_range(2)  => third column
   sheet.col_range(2, 0..1)  => first two cells of the third column
 
 
-=== Add a sheet.
+=== Adding a sheet.
 
-Add a new sheet.
+Adding a new sheet.
 
   book.add_sheet
 
-Add a new sheet with a name.
+Adding a new sheet with a name.
 
   book.add_sheet(:as => 'new_sheet')
 
-Add a new sheet with a name before another sheet.
+Adding a new sheet with a name before another sheet.
 
   book.add_sheet(:as => 'new_sheet2', :before => another_sheet)
 
-Add a copy of a sheet with a name after another sheet.
+Adding a copy of a sheet with a name after another sheet.
 
   book.add_sheet(sheet, :as => 'sheet_copy', :after => another_sheet)
 
 
-=== Create and reuse an Excel application.
+=== Creating and reusing an Excel application.
 
-Create a new Excel.
+Creating a new Excel.
 
   excel1 = Excel.create
 
-Return a running Excel application and reuse it.
+Getting a running Excel application and reusing it.
 
   excel2 = Excel.current
 
-Reuse a running Excel application, make it visibe and turn on displayalerts.
+Reusing a running Excel application, making it visible and turning on displayalerts.
 
    excel2 = Excel.new(:reuse => true, :visible => true, displayalerts => true).
 
-Reuse a certain running Excel application.
+Reusing a certain running Excel application.
 
    excel3 = Excel.new(:excel => excel1)
 
-=== Make Excel visible, invisible
+=== Making Excel visible or invisible
 
-Make Excel visible.
+Making Excel visible.
 
-  excel1 = Excel.create
-  excel1.visible = true
+  excel = Excel.create
+  excel.visible = true
+  puts "visible" if excel.visible
 
-Make Excel invisible
+Making Excel invisible
 
   excel.visible = false
 
-=== Turn on or off Displayalerts.
+
+=== Turning on or off Displayalerts.
 
   with_displayalerts
 
-Turn off or on Displayaerts of an Excel application.
+Turning off or on Displayaerts of an Excel application.
 
   excel = RobustExcelOle::Excel.new
   excel.with_displayalerts true do
     book = RobustExcelOle::Book.open('simple.xls')
   end
 
-=== Close all Excel applications.
+=== Closing all Excel applications.
 
   Excel.close_all
 
 === Examples
 
-Include robust_excel_ole.
+Including robust_excel_ole.
 
   include RobustExcelOle
 
 === Example 1 
 
-Open a book.
+Opening a book.
 
   book = Book.open('simple.xls')
 
-Access a sheet via its name.
+Accessing a sheet via its name.
 
   sheet = book['Sheet1']
   
-Change the first cell.
+Changing the first cell.
 
   sheet[0,0] = "new"
   
-Save the book.
+Saving the book.
 
   book.save
 
-Save the book with a different name, and overwrite if a file with this name exists.
+Saving the book with a different name, and overwrite if a file with this name exists.
 
   book.save_as('different_simple.xls', :if_exists => :overwrite)
 
-Close the book.
+Closing the book.
 
   book.close  
 
 === Example 2
 
-Open the book in a new Excel application and make it visible.
+Opening the book in a new Excel application and make it visible.
 
   book.open('simple.xls', :reuse => false, :visible => true)
 
-Add a copy of the first sheet after the second sheet.
+Adding a copy of the first sheet after the second sheet.
 
   book.add_sheet(book[0], :as => 'Sheet1_copy', :after => book[1])
 
-Open a new book with the same name in a new Excel. Leave the book that contains unsaved changes in the old Excel.
+Opening a new book with the same name in a new Excel. Leave the book that contains unsaved changes in the old Excel.
 
   new_book.open('simple.xls', :if_unsaved => :new_app)
 
-Access a sheet and change a cell.
+Accessing a sheet and change a cell.
 
   sheet = new_book[0]
   sheet[1,1] = "another"
 
-Open another book with the same name in the running Excel. The book that contains unsaved changes will be closed before. 
+Opening another book with the same name in the running Excel. The book that contains unsaved changes will be closed before. 
 
   third_book.open('simple.xls', :if_unsaved => :forget)
 
-Add a sheet.
+Adding a sheet.
 
   third_book.add_sheet
 
-Close the book without saving it.
+Closing the book without saving it.
 
   third_book.close(:if_unsaved => :forget)
 
-Close the first book and save it before.
+Closing the first book and saving it before.
 
   book.close(:if_unsaved => :save)
 
 === Example 3
 
-Open a book.
+Opening a book.
 
   book1 = Book.open('simple.xls')
 
-Open a book with the same name in a different path. Close the old book.
+Opening a book with the same name in a different path. Close the old book.
 
   book2 = Book.open('more/simple.xls', :if_obstructed => :forget)
 
-Change its cell.
+Changing its cell.
 
   sheet = book2[0]
   sheet[0,0] = "new"
 
-Open a book with the same name in a different path. The old book that was modified will be saved and closed before.
+Opening a book with the same name in a different path. The old book that was modified will be saved and closed before.
 
   book3 = Book.open('simple.xls', :if_obstructed => :save)
 
-Open a book with the same name in a different path. The other book will be closed, because it does not contain unsaved changes.
+Opening a book with the same name in a different path. The other book will be closed, because it does not contain unsaved changes.
 
   book4 = Book.open('more/simple.xls', :if_obstructed => :close_if_unsaved)
 
-Close the book.
+Closing the book.
 
   book4.close
 

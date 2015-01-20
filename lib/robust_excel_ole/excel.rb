@@ -230,10 +230,5 @@ module RobustExcelOle
   end
   module_function :absolute_path
 
- 
-
- class VBAMethodMissingError < RuntimeError
- end
-
 
 end

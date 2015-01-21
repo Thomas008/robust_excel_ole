@@ -86,11 +86,6 @@ describe Book do
           sheet[0,0] = @cell.value == "simple" ? "complex" : "simple" 
           book.workbook.Saved.should be_false
         end
-        # @book.workbook is not nil but does not react anymore
-        #@book.workbook.Saved.should be_true
-        #@book.should be_alive
-        #sheet = @book[0]
-        #sheet[0,0].value.should_not == @cell.value
       end
 
       it "should let an unsaved book unsaved" do

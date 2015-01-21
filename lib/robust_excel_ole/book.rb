@@ -129,8 +129,9 @@ module RobustExcelOle
             end
           end
         end
+      else
+        open_workbook
       end
-      open_workbook
       if block
         begin
           yield self

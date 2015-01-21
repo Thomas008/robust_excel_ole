@@ -106,7 +106,6 @@ module RobustExcelOle
         else
           # book open, not saved, not obstructed by an other book
           if (not @workbook.Saved) then
-            #p "book not saved"
             case @options[:if_unsaved]
             when :raise
               raise ExcelErrorOpen, "book is already open but not saved (#{File.basename(file)})"
@@ -178,31 +177,28 @@ module RobustExcelOle
       raise ExcelUserCanceled, "close: canceled by user" if alive? && opts[:if_unsaved] == :alert && (not @workbook.Saved)
 
     end
-=begin
-    # modify unobtrusively a book.
-    # keep the book in the state as it was before modifying it.
-    def self.unobtrusively filename
+
+    # modify a book such that its state remains unchanged.
+    # options: :keep_open: let the book open after modification
+    def self.unobtrusively(filename, opts = {:keep_open => false})
       # notice whether a book with filename is open
-      is_open = ()
-      Excel.@@hwnd2excel.each do |hwnd|
-        excel = Excel.@@hwns2excel[hwnd] 
-        workbooks = excel.Workbooks
-        @that_workbook = workbooks.Item(File.basename(filename)) rescue nil
-        if @that_workbook then break end 
-      end
+      # workaround: for the first tests: just look in the current Excel application
+      # later: with function reuse
+      @book = self.reuse(filename)
+      saved = @book.Saved
+      #excel = Excel.current
+      #filename = RobustExcelOle::absolute_path(filename)
+      #workbook = @excel.Workbooks.Item(File.basename(filename))
+      #is_open = (workbook != nil)
       begin
-        @book = open(filename, :if_unsaved => :accept, :if_obstructed => :new_app) 
+        @book = open(filename, :if_unsaved => :accept, :if_obstructed => :new_app) unless @book
         yield @book
       ensure
-        if @that_workbook then 
-          @book.workbook.Saved = @that_workbook.Saved
-        else
-          @book.close(:if_unsaved => :save) 
-        end
+        @book.Saved = saved if @book
+        @book.close(:if_unsaved => :save) if opts[:keep_open]
       end
       @book
     end
-=end
 
     # returns true, if the workbook reacts to methods, false otherwise
     def alive?

@@ -16,6 +16,10 @@ module RobustExcelOle
     WIN32OLE.new('Scripting.FileSystemObject').GetAbsolutePathName(file)
   end
 
+  def canonize(filename)
+    filename
+  end
+
   module_function :absolute_path
 
   class ExcelUserCanceled < RuntimeError # :nodoc: #

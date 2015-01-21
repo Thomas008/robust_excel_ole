@@ -218,7 +218,7 @@ module RobustExcelOle
         RobustExcelOle::absolute_path("C:abc").should == File.expand_path("abc").gsub("/","\\")
       end
 
-      it "should return right absoute path name" do
+      it "should return right absolute path name" do
         @filename = 'C:/Dokumente und Einstellungen/Zauberthomas/Eigene Dateien/robust_excel_ole/spec/book_spec.rb'
         RobustExcelOle::absolute_path(@filename).gsub("\\","/").should == @filename
       end

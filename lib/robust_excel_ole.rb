@@ -10,6 +10,14 @@ require File.join(File.dirname(__FILE__), 'robust_excel_ole/version')
 
 module RobustExcelOle
 
+  def absolute_path(file)
+    file = File.expand_path(file)
+    file = RobustExcelOle::Cygwin.cygpath('-w', file) if RUBY_PLATFORM =~ /cygwin/
+    WIN32OLE.new('Scripting.FileSystemObject').GetAbsolutePathName(file)
+  end
+
+  module_function :absolute_path
+
   class ExcelUserCanceled < RuntimeError # :nodoc: #
   end
 

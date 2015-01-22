@@ -8,6 +8,7 @@ module RobustExcelOle
   class Book
     attr_reader :workbook
 
+     @@filename2book = {}
 
     class << self
       attr_reader :workbook 
@@ -67,6 +68,10 @@ module RobustExcelOle
             workbooks = @excel.Workbooks
             workbooks.Open(filename,{ 'ReadOnly' => @options[:read_only] })
             @workbook = workbooks.Item(File.basename(filename))
+
+            filename_key = RobustExcelOle::canonize(filename)            
+            # save in Hash
+            @@filename2excel[filename_key] = self
           rescue WIN32OLERuntimeError
             raise ExcelUserCanceled, "open: canceled by user"
           end
@@ -178,7 +183,8 @@ module RobustExcelOle
 
     end
 
-    def reuse(filename)
+    def self.reuse(filename)
+      @@filename2excel[filename_key]
     end
 
 

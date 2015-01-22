@@ -31,30 +31,31 @@ describe Book do
   end
 
 
-  context "class methods" do
-    context "create file" do
+  describe "create file" do
+    context "with standard" do
       it "simple file with default" do
         expect {
           @book = Book.new(@simple_file)
-          }.to_not raise_error
+        }.to_not raise_error
         @book.should be_a Book
         @book.close
       end
     end
   end
+  
 
-  describe ".workbook" do
+  describe "send methods to workbook" do
 
-    context "with" do
+    context "with standard" do
       before do
         @book = Book.open(@simple_file)
       end
 
       after do
-        @book.close(:if_unsaved => :forget)
+        @book.close
       end
 
-      it "should" do
+      it "should send Saved to workbook" do
         @book.Saved.should be_true
       end
     end
@@ -95,6 +96,7 @@ describe Book do
         reused_book2 = Book.reuse(@different_file)        
         reused_book.should == @book
         reused_book2.should == @book2
+        book2.close
       end
 
     end
@@ -107,6 +109,7 @@ describe Book do
 
       after do
         @book.close
+        Excel.close_all
       end
 
       it "should connect when two different open books in several excel instances" do
@@ -116,7 +119,7 @@ describe Book do
         reused_book2 = Book.reuse(@different_file)        
         reused_book.should == @book
         reused_book2.should == @book2
-        Excel.close_all
+        book2.close
       end
 
       it "should connect when the book is open in several excel instances" do
@@ -126,7 +129,7 @@ describe Book do
         # ??? to which book connect?
         reused_book.should == @book
         reused_book.should == book2
-        Excel.close_all
+        book2.close
       end
 
       it "should connect when the book is open in several excel instances and unsaved in one" do
@@ -139,23 +142,22 @@ describe Book do
         # ??? to which book connect?
         reused_book.should == book2
         #reused_book.should == book2
-        Excel.close_all
+        book2.close
       end
-
     end
-
-
   end
 
   describe "unobtrusively" do
 
-    context "with standard" do
-      it "should be a book" do
+    def unobtrusively_ok? # :nodoc: #
         Book.unobtrusively(@simple_file) do |book|
           book.should be_a Book
+          sheet = book[0]
+          @cell = sheet[0,0]
+          sheet[0,0] = @cell.value == "simple" ? "complex" : "simple" 
+          book.Saved.should be_false
         end
       end
-    end
 
     context "with an open book" do
 
@@ -166,29 +168,24 @@ describe Book do
       after do
         @book.close(:if_unsaved => :forget)
       end
-      
+
       it "should let a saved book saved" do
-        @book.workbook.Saved.should be_true
+        @book.Saved.should be_true
         @book.should be_alive
-        Book.unobtrusively(@simple_file) do |book|
-          sheet = book[0]
-          @cell = sheet[0,0]
-          sheet[0,0] = @cell.value == "simple" ? "complex" : "simple" 
-          book.workbook.Saved.should be_false
-        end
+        unobtrusively_ok?
+        @book.Saved.should be_true
+        @book.should be_alive
+        sheet = @book[0]
+        sheet[0,0].value.should_not == @cell.value
       end
 
       it "should let an unsaved book unsaved" do
         sheet = @book[0]
         sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple" 
-        @book.workbook.Saved.should be_false
+        @book.Saved.should be_false
         @book.should be_alive
-        Book.unobtrusively(@simple_file) do |book|
-          sheet = book[0]
-          @cell = sheet[0,0]
-          sheet[0,0] = @cell.value == "simple" ? "complex" : "simple" 
-        end
-        @book.workbook.Saved.should be_false
+        unobtrusively_ok?
+        @book.Saved.should be_false
         @book.should be_alive
         sheet = @book[0]
         sheet[0,0].value.should_not == @cell.value
@@ -196,6 +193,7 @@ describe Book do
     end
     
     context "with a closed book" do
+      
       before do
         @book = Book.open(@simple_file)
       end
@@ -204,21 +202,31 @@ describe Book do
         @book.close
       end
 
-      it "should let a closed book closed" do
+      it "should let the closed book closed by default" do
         sheet = @book[0]
         cell = sheet[0,0]
         @old_cell_value = cell.value
         @book.close
         @book.should_not be_alive
-        Book.unobtrusively(@simple_file) do |book|
-          sheet = book[0]
-          cell = sheet[0,0]
-          sheet[0,0] = cell.value == "simple" ? "complex" : "simple" 
-        end
+        unobtrusively_ok?
         @book.should_not be_alive
         @book = Book.open(@simple_file)
         sheet = @book[0]
         sheet[0,0].value.should_not == @old_cell_value
+      end
+  
+      it "should let the closed book closed if not keep_open" do
+        @book.close
+        @book.should_not be_alive
+        unobtrusively_ok?
+        @book.should_not be_alive
+      end
+
+      it "should keep open the book" do
+        @book.close
+        @book.should_not be_alive
+        unobtrusively_ok?
+        @book.should be_alive
       end
     end
   end    

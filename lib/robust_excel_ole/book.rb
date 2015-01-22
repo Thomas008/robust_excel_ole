@@ -178,6 +178,10 @@ module RobustExcelOle
 
     end
 
+    def reuse(filename)
+    end
+
+
     # modify a book such that its state remains unchanged.
     # options: :keep_open: let the book open after modification
     def self.unobtrusively(filename, opts = {:keep_open => false})

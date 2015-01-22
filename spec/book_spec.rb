@@ -75,6 +75,7 @@ describe Book do
 
       it "should connect to the open book" do
         reused_book = Book.reuse(@simple_file)
+        p "nil" unless reused_book
         reused_book.should be_a Book
         reused_book.should == @book
       end

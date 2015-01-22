@@ -11,7 +11,11 @@ module RobustExcelOle
      @@filename2book = {}
 
     class << self
+
       attr_reader :workbook 
+
+      #@@filename2book = {}
+
       # opens a book.
       # 
       # options: 
@@ -68,10 +72,8 @@ module RobustExcelOle
             workbooks = @excel.Workbooks
             workbooks.Open(filename,{ 'ReadOnly' => @options[:read_only] })
             @workbook = workbooks.Item(File.basename(filename))
-
             filename_key = RobustExcelOle::canonize(filename)            
-            # save in Hash
-            @@filename2excel[filename_key] = self
+            @@filename2book[filename_key] = self
           rescue WIN32OLERuntimeError
             raise ExcelUserCanceled, "open: canceled by user"
           end
@@ -158,6 +160,7 @@ module RobustExcelOle
       def close_workbook 
         @workbook.Close if alive?
         @workbook = nil unless alive?
+        @@filename2book.delete(self.filename)
       end
 
       if ((alive?) && (not @workbook.Saved) && (not @options[:read_only])) then
@@ -184,22 +187,15 @@ module RobustExcelOle
     end
 
     def self.reuse(filename)
-      @@filename2excel[filename_key]
+      @@filename2book[filename]
     end
 
 
     # modify a book such that its state remains unchanged.
     # options: :keep_open: let the book open after modification
     def self.unobtrusively(filename, opts = {:keep_open => false})
-      # notice whether a book with filename is open
-      # workaround: for the first tests: just look in the current Excel application
-      # later: with function reuse
       @book = self.reuse(filename)
       saved = @book.Saved
-      #excel = Excel.current
-      #filename = RobustExcelOle::absolute_path(filename)
-      #workbook = @excel.Workbooks.Item(File.basename(filename))
-      #is_open = (workbook != nil)
       begin
         @book = open(filename, :if_unsaved => :accept, :if_obstructed => :new_app) unless @book
         yield @book

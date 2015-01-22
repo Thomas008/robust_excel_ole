@@ -21,6 +21,8 @@ describe Book do
     @dir = create_tmpdir
     @simple_file = @dir + '/simple.xls'
     @simple_save_file = @dir + '/simple_save.xls'
+    @different_file = @dir + '/different_simple.xls'
+    @simple_file_other_path = @dir + '/more_data/simple.xls'
   end
 
   after do
@@ -42,6 +44,7 @@ describe Book do
   end
 
   describe ".workbook" do
+
     context "with" do
       before do
         @book = Book.open(@simple_file)
@@ -55,6 +58,93 @@ describe Book do
         @book.Saved.should be_true
       end
     end
+  end
+
+  describe "reuse" do
+
+    context "with one excel instance" do
+
+      before do
+        @book = Book.open(@simple_file)
+      end
+
+      after do
+        @book.close
+      end
+
+      it "should connect to the open book" do
+        reused_book = Book.reuse(@simple_file)
+        reused_book.should be_a Book
+        reused_book.should == @book
+      end
+
+      it "should yield nil to a closed book" do
+        @book.close
+        reused_book = Book.reuse(@simple_file)
+        reused_book.should == nil 
+      end
+
+      it "should yield nil to a non-existing book" do
+        reused_book = Book.reuse('foo')
+        reused_book.should == nil 
+      end
+
+      it "should connect to two different open books in the same excel instance" do
+        book2 = Book.open(@different_file)
+        reused_book = Book.reuse(@simple_file)
+        reused_book2 = Book.reuse(@different_file)        
+        reused_book.should == @book
+        reused_book2.should == @book2
+      end
+
+    end
+
+    context "with several excel instances" do
+
+      before do
+        @book = Book.open(@simple_file)
+      end
+
+      after do
+        @book.close
+      end
+
+      it "should connect when two different open books in several excel instances" do
+        excel = Excel.new(:reuse => false)
+        book2 = Book.open(@different_file, :excel => excel)
+        reused_book = Book.reuse(@simple_file)
+        reused_book2 = Book.reuse(@different_file)        
+        reused_book.should == @book
+        reused_book2.should == @book2
+        Excel.close_all
+      end
+
+      it "should connect when the book is open in several excel instances" do
+        excel = Excel.new(:reuse => false)
+        book2 = Book.open(@simple_file, :excel => excel)
+        reused_book = Book.reuse(@simple_file)        
+        # ??? to which book connect?
+        reused_book.should == @book
+        reused_book.should == book2
+        Excel.close_all
+      end
+
+      it "should connect when the book is open in several excel instances and unsaved in one" do
+        excel = Excel.new(:reuse => false)
+        book2 = Book.open(@simple_file, :excel => excel)
+        sheet = book2[0]
+        cell = sheet[0,0]
+        sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
+        reused_book = Book.reuse(@simple_file)        
+        # ??? to which book connect?
+        reused_book.should == book2
+        #reused_book.should == book2
+        Excel.close_all
+      end
+
+    end
+
+
   end
 
   describe "unobtrusively" do
@@ -259,8 +349,7 @@ describe Book do
           context "with :if_unsaved => #{options_value} and in the same and different path" do
             before do
               @new_book = Book.open(@simple_file, :reuse=> true, :if_unsaved => options_value)
-              different_file = @dir + '/different_simple.xls'
-              @different_book = Book.new(different_file, :reuse=> true, :if_unsaved => options_value)
+              @different_book = Book.new(@different_file, :reuse=> true, :if_unsaved => options_value)
             end
             after do
               @new_book.close
@@ -371,8 +460,7 @@ describe Book do
 
     context "with a book in a different path" do
 
-      before do
-        @simple_file_other_path = @dir + '/more_data/simple.xls'
+      before do        
         @book = Book.open(@simple_file_other_path)
         @sheet_count = @book.workbook.Worksheets.Count
         @sheet = @book[0]
@@ -698,7 +786,6 @@ describe Book do
           new_book.should be_a Book
           new_book.close
         end
-        # Error!
         it "should save to 'simple_save_file.xls' with :if_exists => :raise" do
           dirname, basename = File.split(@simple_save_file)
           File.delete @simple_save_file rescue nil
@@ -870,14 +957,12 @@ describe Book do
       end
 
       it "should be false with two different books" do
-        different_file = @dir + '/different_simple.xls'
-        @new_book = Book.new(different_file)
+        @new_book = Book.new(@different_file)
         @new_book.should_not == @book
       end
 
-      it "should be false with same book names but different paths" do
-        simple_file_other_path = @dir + '/more_data/simple.xls'
-        @new_book = Book.new(simple_file_other_path, :reuse => false)
+      it "should be false with same book names but different paths" do       
+        @new_book = Book.new(@simple_file_other_path, :reuse => false)
         @new_book.should_not == @book
       end
 

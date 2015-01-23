@@ -68,12 +68,19 @@ module RobustExcelOle
           begin
             # workaround for bug in Excel 2010: workbook.Open does not always return 
             # the workbook with given file name
+            p "open_workbook:"
+            p "@file: #{@file}"
             filename = RobustExcelOle::absolute_path(@file)
+            p "filename: #{filename}"
             workbooks = @excel.Workbooks
             workbooks.Open(filename,{ 'ReadOnly' => @options[:read_only] })
             @workbook = workbooks.Item(File.basename(filename))
-            filename_key = RobustExcelOle::canonize(filename)            
+            filename_key = RobustExcelOle::canonize(self.filename)
+            p "self.filename: #{self.filename}"
+            p "filename_key: #{filename_key}"   
+            p "@@filename2book: #{@@filename2book}"         
             @@filename2book[filename_key] = self
+            p "@@filename2book: #{@@filename2book}"
           rescue WIN32OLERuntimeError
             raise ExcelUserCanceled, "open: canceled by user"
           end
@@ -158,9 +165,16 @@ module RobustExcelOle
     def close(opts = {:if_unsaved => :raise})
 
       def close_workbook 
-        @workbook.Close if alive?
+        p "close workbook"
+        if alive?
+          filename_key = RobustExcelOle::canonize(self.filename)
+          p "filename_key: #{filename_key}"
+          p "@@filename2book: #{@@filename2book}"
+          @@filename2book.delete(filename_key)
+          p "@@filename2book: #{@@filename2book}"
+          @workbook.Close
+        end
         @workbook = nil unless alive?
-        @@filename2book.delete(self.filename)
       end
 
       if ((alive?) && (not @workbook.Saved) && (not @options[:read_only])) then
@@ -186,15 +200,21 @@ module RobustExcelOle
 
     end
 
-    def self.reuse(filename)
-      @@filename2book[filename]
+    def self.connect(filename)
+      p "connect"
+      p "filename: #{filename}"
+      filename_key = RobustExcelOle::canonize(filename)
+      p "filename_key: #{filename_key}"
+      p "@@filename2book: #{@@filename2book}"
+      p "@@filename2book[filename_key]: #{@@filename2book[filename_key]}"
+      @@filename2book[filename_key]
     end
 
 
     # modify a book such that its state remains unchanged.
     # options: :keep_open: let the book open after modification
     def self.unobtrusively(filename, opts = {:keep_open => false})
-      @book = self.reuse(filename)
+      @book = self.connect(filename)
       saved = @book.Saved
       begin
         @book = open(filename, :if_unsaved => :accept, :if_obstructed => :new_app) unless @book

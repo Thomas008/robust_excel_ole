@@ -17,7 +17,7 @@ module RobustExcelOle
   end
 
   def canonize(filename)
-    filename
+    filename.downcase rescue nil
   end
 
   module_function :absolute_path

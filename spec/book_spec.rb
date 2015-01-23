@@ -58,10 +58,14 @@ describe Book do
       it "should send Saved to workbook" do
         @book.Saved.should be_true
       end
+
+      it "should send Fullname to workbook" do
+        @book.Fullname.tr('\\','/').should == @simple_file
+      end
     end
   end
 
-  describe "reuse" do
+  describe "connect" do
 
     context "with one excel instance" do
 
@@ -74,29 +78,29 @@ describe Book do
       end
 
       it "should connect to the open book" do
-        reused_book = Book.reuse(@simple_file)
-        p "nil" unless reused_book
-        reused_book.should be_a Book
-        reused_book.should == @book
+        connected_book = Book.connect(@simple_file)
+        p "nil" unless connected_book
+        connected_book.should be_a Book
+        connected_book.should == @book
       end
 
       it "should yield nil to a closed book" do
         @book.close
-        reused_book = Book.reuse(@simple_file)
-        reused_book.should == nil 
+        connected_book = Book.connect(@simple_file)
+        connected_book.should == nil 
       end
 
       it "should yield nil to a non-existing book" do
-        reused_book = Book.reuse('foo')
-        reused_book.should == nil 
+        connected_book = Book.connect('foo')
+        connected_book.should == nil 
       end
 
       it "should connect to two different open books in the same excel instance" do
         book2 = Book.open(@different_file)
-        reused_book = Book.reuse(@simple_file)
-        reused_book2 = Book.reuse(@different_file)        
-        reused_book.should == @book
-        reused_book2.should == @book2
+        connected_book = Book.connect(@simple_file)
+        connected_book2 = Book.connect(@different_file)        
+        connected_book.should == @book
+        connected_book2.should == @book2
         book2.close
       end
 
@@ -114,35 +118,35 @@ describe Book do
       end
 
       it "should connect when two different open books in several excel instances" do
-        excel = Excel.new(:reuse => false)
+        excel = Excel.new(:connect => false)
         book2 = Book.open(@different_file, :excel => excel)
-        reused_book = Book.reuse(@simple_file)
-        reused_book2 = Book.reuse(@different_file)        
-        reused_book.should == @book
-        reused_book2.should == @book2
+        connected_book = Book.connect(@simple_file)
+        connected_book2 = Book.connect(@different_file)        
+        connected_book.should == @book
+        connected_book2.should == @book2
         book2.close
       end
 
       it "should connect when the book is open in several excel instances" do
-        excel = Excel.new(:reuse => false)
+        excel = Excel.new(:connect => false)
         book2 = Book.open(@simple_file, :excel => excel)
-        reused_book = Book.reuse(@simple_file)        
+        connected_book = Book.connect(@simple_file)        
         # ??? to which book connect?
-        reused_book.should == @book
-        reused_book.should == book2
+        connected_book.should == @book
+        connected_book.should == book2
         book2.close
       end
 
       it "should connect when the book is open in several excel instances and unsaved in one" do
-        excel = Excel.new(:reuse => false)
+        excel = Excel.new(:connect => false)
         book2 = Book.open(@simple_file, :excel => excel)
         sheet = book2[0]
         cell = sheet[0,0]
         sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
-        reused_book = Book.reuse(@simple_file)        
+        connected_book = Book.connect(@simple_file)        
         # ??? to which book connect?
-        reused_book.should == book2
-        #reused_book.should == book2
+        connected_book.should == book2
+        #connected_book.should == book2
         book2.close
       end
     end

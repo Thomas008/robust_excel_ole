@@ -100,7 +100,7 @@ describe Book do
         connected_book = Book.connect(@simple_file)
         connected_book2 = Book.connect(@different_file)        
         connected_book.should == @book
-        connected_book2.should == @book2
+        connected_book2.should == book2
         book2.close
       end
 
@@ -117,37 +117,33 @@ describe Book do
         Excel.close_all
       end
 
-      it "should connect when two different open books in several excel instances" do
-        excel = Excel.new(:connect => false)
+      it "should connect when two different books are open in several excel instances" do
+        excel = Excel.new(:reuse => false)
         book2 = Book.open(@different_file, :excel => excel)
         connected_book = Book.connect(@simple_file)
         connected_book2 = Book.connect(@different_file)        
         connected_book.should == @book
-        connected_book2.should == @book2
+        connected_book2.should == book2
         book2.close
       end
 
-      it "should connect when the book is open in several excel instances" do
-        excel = Excel.new(:connect => false)
+      it "should connect to the book opened most recently" do
+        excel = Excel.new(:reuse => false)
         book2 = Book.open(@simple_file, :excel => excel)
         connected_book = Book.connect(@simple_file)        
-        # ??? to which book connect?
-        connected_book.should == @book
         connected_book.should == book2
         book2.close
       end
 
-      it "should connect when the book is open in several excel instances and unsaved in one" do
-        excel = Excel.new(:connect => false)
+      it "should connect to the book opened most recently even, if the other is unsaved" do
+        excel = Excel.new(:reuse => false)
         book2 = Book.open(@simple_file, :excel => excel)
         sheet = book2[0]
         cell = sheet[0,0]
         sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
         connected_book = Book.connect(@simple_file)        
-        # ??? to which book connect?
         connected_book.should == book2
-        #connected_book.should == book2
-        book2.close
+        book2.close(:if_unsaved => :forget)
       end
     end
   end
@@ -155,14 +151,14 @@ describe Book do
   describe "unobtrusively" do
 
     def unobtrusively_ok? # :nodoc: #
-        Book.unobtrusively(@simple_file) do |book|
-          book.should be_a Book
-          sheet = book[0]
-          @cell = sheet[0,0]
-          sheet[0,0] = @cell.value == "simple" ? "complex" : "simple" 
-          book.Saved.should be_false
-        end
+      Book.unobtrusively(@simple_file) do |book|
+        book.should be_a Book
+        sheet = book[0]
+        @cell = sheet[0,0]
+        sheet[0,0] = @cell.value == "simple" ? "complex" : "simple"
+        book.Saved.should be_false
       end
+    end
 
     context "with an open book" do
 
@@ -181,7 +177,7 @@ describe Book do
         @book.Saved.should be_true
         @book.should be_alive
         sheet = @book[0]
-        sheet[0,0].value.should_not == @cell.value
+        sheet[0,0].value.should == @cell.value
       end
 
       it "should let an unsaved book unsaved" do
@@ -193,7 +189,7 @@ describe Book do
         @book.Saved.should be_false
         @book.should be_alive
         sheet = @book[0]
-        sheet[0,0].value.should_not == @cell.value
+        sheet[0,0].value.should == @cell.value
       end
     end
     
@@ -217,7 +213,7 @@ describe Book do
         @book.should_not be_alive
         @book = Book.open(@simple_file)
         sheet = @book[0]
-        sheet[0,0].value.should_not == @old_cell_value
+        sheet[0,0].value.should == @old_cell_value
       end
   
       it "should let the closed book closed if not keep_open" do

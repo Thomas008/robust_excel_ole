@@ -200,6 +200,8 @@ module RobustExcelOle
 
     end
 
+    # returns a book with the filename if it is open, nil otherwise
+    # returns the book that was opened most recently, if several books with same file name are open
     def self.connect(filename)
       p "connect"
       p "filename: #{filename}"

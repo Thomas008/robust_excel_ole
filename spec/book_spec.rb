@@ -203,7 +203,7 @@ describe Book do
       end
 
       after do
-        @book.close
+        @book.close(:if_unsaved => :forget) 
       end
 
       it "should let the closed book closed by default" do
@@ -217,27 +217,18 @@ describe Book do
         sheet = @book[0]
         sheet[0,0].value.should_not == @old_cell_value
       end
-  
-      it "should let the closed book closed if not keep_open" do
-        @book.close
-        @book.should_not be_alive
-        unobtrusively_ok?
-        @book.should_not be_alive
-      end
 
       it "should keep open the book" do
         @book.close
         @book.should_not be_alive
         Book.unobtrusively(@simple_file, :keep_open => true) do |book|
-          puts "hello4"
           book.should be_a Book
           sheet = book[0]
           cell = sheet[0,0]
           sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
           book.Saved.should be_false
-          puts "hello5"
         end
-        puts "hello6"
+        puts "here"
         @book.should be_alive
       end
     end

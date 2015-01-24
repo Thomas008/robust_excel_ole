@@ -223,17 +223,8 @@ module RobustExcelOle
         @book = open(filename, :if_unsaved => :accept, :if_obstructed => :new_app) unless @book
         yield @book
       ensure
-        puts "is_open: #{is_open}"
-        puts "keep_open: #{opts[:keep_open]}"
-        @book.Saved = saved if is_open
-        if ((not is_open) && (not opts[:keep_open]))
-          puts "hello1"
-          @book.close(:if_unsaved => :save) 
-        end
-        puts "hello2"
-        #@book.close(:if_unsaved => :save) unless (is_open || opts[:keep_open])
+        @book.close(:if_unsaved => :save) unless (is_open || opts[:keep_open])
       end
-      puts "hello3"
       @book
     end
 

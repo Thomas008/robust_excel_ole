@@ -217,14 +217,23 @@ module RobustExcelOle
     # options: :keep_open: let the book open after modification
     def self.unobtrusively(filename, opts = {:keep_open => false})
       @book = self.connect(filename)
-      saved = @book.Saved
+      is_open = (@book != nil)
+      saved = @book.Saved if is_open
       begin
         @book = open(filename, :if_unsaved => :accept, :if_obstructed => :new_app) unless @book
         yield @book
       ensure
-        @book.Saved = saved if @book
-        @book.close(:if_unsaved => :save) if opts[:keep_open]
+        puts "is_open: #{is_open}"
+        puts "keep_open: #{opts[:keep_open]}"
+        @book.Saved = saved if is_open
+        if ((not is_open) && (not opts[:keep_open]))
+          puts "hello1"
+          @book.close(:if_unsaved => :save) 
+        end
+        puts "hello2"
+        #@book.close(:if_unsaved => :save) unless (is_open || opts[:keep_open])
       end
+      puts "hello3"
       @book
     end
 

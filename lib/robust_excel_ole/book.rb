@@ -61,7 +61,7 @@ module RobustExcelOle
       @workbook = workbooks.Item(File.basename(file)) rescue nil
       @file = file
 
-      def open_workbook
+      def open_workbook  # :nodoc: #
         # if book not open (was not open,was closed with option :forget or shall be opened in new application)
         #    or :if_unsaved => :alert
         if ((not alive?) || (@options[:if_unsaved] == :alert)) then
@@ -164,7 +164,7 @@ module RobustExcelOle
     #                      :alert   -> give control to excel
     def close(opts = {:if_unsaved => :raise})
 
-      def close_workbook 
+      def close_workbook    # :nodoc: #
         p "close workbook"
         if alive?
           filename_key = RobustExcelOle::canonize(self.filename)
@@ -200,8 +200,8 @@ module RobustExcelOle
 
     end
 
-    # returns a book with the filename if it is open, nil otherwise
-    # returns the book that was opened most recently, if several books with same file name are open
+    # returns a book with the filename if it is open and writable, nil otherwise
+    # returns the book that was opened most recently, if several open and writable books exist
     def self.connect(filename)
       p "connect"
       p "filename: #{filename}"
@@ -210,6 +210,13 @@ module RobustExcelOle
       p "@@filename2book: #{@@filename2book}"
       p "@@filename2book[filename_key]: #{@@filename2book[filename_key]}"
       @@filename2book[filename_key]
+      # for each element with filename_key:
+      #   return the first one that is Writable, not Read_only
+      # oder
+      # for each element with filename_key
+      #  gibt es eins, das Unsaved ist
+      #  dann gebe das erste von denen zurück, das Du findest
+
     end
 
 
@@ -295,7 +302,7 @@ module RobustExcelOle
       end
       @opts = opts
 
-      def save_as_workbook 
+      def save_as_workbook # :nodoc: #
         begin
           @workbook.SaveAs(RobustExcelOle::absolute_path(File.join(@dirname, @basename)), @file_format)
         rescue WIN32OLERuntimeError => msg

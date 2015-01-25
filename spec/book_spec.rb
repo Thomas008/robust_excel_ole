@@ -113,11 +113,11 @@ describe Book do
       end
 
       after do
-        @book.close
+        @book.close(:if_unsaved => :forget)
         Excel.close_all
       end
 
-      it "should connect when two different books are open in several excel instances" do
+      it "should connect to two different books open in several excel instances" do
         excel = Excel.new(:reuse => false)
         book2 = Book.open(@different_file, :excel => excel)
         connected_book = Book.connect(@simple_file)
@@ -135,14 +135,14 @@ describe Book do
         book2.close
       end
 
-      it "should connect to the book opened most recently even, if the other is unsaved" do
+      it "should connect to the unsaved book" do
         excel = Excel.new(:reuse => false)
         book2 = Book.open(@simple_file, :excel => excel)
-        sheet = book2[0]
+        sheet = @book[0]
         cell = sheet[0,0]
         sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
         connected_book = Book.connect(@simple_file)        
-        connected_book.should == book2
+        connected_book.should == @book
         book2.close(:if_unsaved => :forget)
       end
     end
@@ -154,8 +154,7 @@ describe Book do
       Book.unobtrusively(@simple_file) do |book|
         book.should be_a Book
         sheet = book[0]
-        cell = sheet[0,0]
-        sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
+        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
         book.Saved.should be_false
       end
     end
@@ -245,7 +244,7 @@ describe Book do
         @book.close(:if_unsaved => :forget)
       end
 
-      it "should modify unobrusively the unsaved book" do
+      it "should modify unobrusively the first, unsaved book" do
         sheet = @book[0]
         @old_cell_value = sheet[0,0].value
         sheet2 = @book2[0]
@@ -256,6 +255,19 @@ describe Book do
         @book.Saved.should be_false
         sheet[0,0].value.should_not == @old_cell_value
         sheet[0,0].value.should_not == @old_cell_value2
+      end
+
+      it "should modify unobrusively the second, unsaved book" do
+        sheet = @book[0]
+        @old_cell_value = sheet[0,0].value
+        sheet2 = @book2[0]
+        @old_cell_value2 = sheet2[0,0].value
+        sheet2[0,0] = sheet2[0,0].value == "simple" ? "complex" : "simple"
+        unobtrusively_ok?
+        @book2.should be_alive
+        @book2.Saved.should be_false
+        sheet2[0,0].value.should_not == @old_cell_value
+        sheet2[0,0].value.should_not == @old_cell_value2
       end
 
     end

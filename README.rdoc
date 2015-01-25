@@ -26,16 +26,20 @@ This is work in progress.
 
 == Usage
 
+=== Including robust_excel_ole.
+
+  include RobustExcelOle
+
 === Opening a book.
 
 Example:
 
-  book = RobustExcelOle::Book.open('simple.xls')
+  book = Book.open('simple.xls')
 
 Open a book with a block. 
 The semantics is similar to, e.g.,  File.open.
 
-  RobustExcelOle::Book.open('./sample.xls') do |book|
+  Book.open('simple.xls') do |book|
     # do something
   end
 
@@ -97,7 +101,7 @@ Simple save.
 
 Saving a book with a file name.
 
-  book.save_as('./another_sample.xls')
+  book.save_as('another_simple.xls')
 
 Options are the following:
 
@@ -111,6 +115,24 @@ If a book with the file name already exists, then
 +:overwrite+:: Delete the existing file and write the file. If the book is open in an Excel application, then raise an exception.
 +:alert+::     Give the control to Excel.
   
+
+=== Unobtrusively modifying a book
+
+The status of the book, i.e. whether it is open or closed, and in the case that it is open, whether it is saved or unsaved, remains unchanged after modifying it.
+
+  Book.unobtrusively('simple.xls') do |book|
+    # some modification
+    sheet = book[0]
+    sheet[0,0] = "c" 
+  end
+  
+=== Connect.
+
+Returns an open and writable book given its file name, if such a book exists, nil otherweise.
+Returns the book that was opened most recently, if several open and writable books exist.
+
+  book = Book.connect('simple.xls')
+
 
 === Identity.
 
@@ -259,9 +281,9 @@ Making Excel invisible
 
 Turning off or on Displayaerts of an Excel application.
 
-  excel = RobustExcelOle::Excel.new
+  excel = Excel.new
   excel.with_displayalerts true do
-    book = RobustExcelOle::Book.open('simple.xls')
+    book = Book.open('simple.xls')
   end
 
 === Closing all Excel applications.

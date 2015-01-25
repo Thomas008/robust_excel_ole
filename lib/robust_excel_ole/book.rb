@@ -8,13 +8,11 @@ module RobustExcelOle
   class Book
     attr_reader :workbook
 
-     @@filename2book = {}
+     @@filename2book = []
 
     class << self
 
       attr_reader :workbook 
-
-      #@@filename2book = {}
 
       # opens a book.
       # 
@@ -78,20 +76,21 @@ module RobustExcelOle
             filename_key = RobustExcelOle::canonize(self.filename)
             p "self.filename: #{self.filename}"
             p "filename_key: #{filename_key}"   
-            p "@@filename2book: #{@@filename2book}"         
-            @@filename2book[filename_key] = self
             p "@@filename2book: #{@@filename2book}"
+            @@filename2book << [filename_key,self]
+            p "@@filename2book: #{@@filename2book}"
+            @@filename2book.inspect
           rescue WIN32OLERuntimeError
             raise ExcelUserCanceled, "open: canceled by user"
           end
         end
       end
-
+      # if book is open
       if @workbook then
         obstructed_by_other_book = (File.basename(file) == File.basename(@workbook.Fullname)) && 
                                    (not (RobustExcelOle::absolute_path(file) == @workbook.Fullname))
+        # if book is obstructed by a book with same name and different path
         if obstructed_by_other_book then
-          # @workbook is not the desired workbook
           case @options[:if_obstructed]
           when :raise
             raise ExcelErrorOpen, "blocked by a book with the same name in a different path"
@@ -118,7 +117,7 @@ module RobustExcelOle
             raise ExcelErrorOpen, ":if_obstructed: invalid option"
           end
         else
-          # book open, not saved, not obstructed by an other book
+          # book open, not obstructed by an other book, not saved
           if (not @workbook.Saved) then
             case @options[:if_unsaved]
             when :raise
@@ -143,6 +142,7 @@ module RobustExcelOle
           end
         end
       else
+        # book is not open
         open_workbook
       end
       if block
@@ -170,7 +170,7 @@ module RobustExcelOle
           filename_key = RobustExcelOle::canonize(self.filename)
           p "filename_key: #{filename_key}"
           p "@@filename2book: #{@@filename2book}"
-          @@filename2book.delete(filename_key)
+          @@filename2book.delete([filename_key,self])
           p "@@filename2book: #{@@filename2book}"
           @workbook.Close
         end
@@ -207,16 +207,15 @@ module RobustExcelOle
       p "filename: #{filename}"
       filename_key = RobustExcelOle::canonize(filename)
       p "filename_key: #{filename_key}"
-      p "@@filename2book: #{@@filename2book}"
-      p "@@filename2book[filename_key]: #{@@filename2book[filename_key]}"
-      @@filename2book[filename_key]
-      # for each element with filename_key:
-      #   return the first one that is Writable, not Read_only
-      # oder
-      # for each element with filename_key
-      #  gibt es eins, das Unsaved ist
-      #  dann gebe das erste von denen zurück, das Du findest
-
+      p "@@filename2book: #{@@filename2book.inspect}"
+      @@filename2book.each do |file2book|
+        if file2book[0] == filename_key && (not file2book[1].ReadOnly) 
+          @book = file2book[1]
+          break
+        end
+      end
+      p "@book: #{@book}"
+      @book
     end
 
 

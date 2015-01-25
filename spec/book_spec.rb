@@ -69,17 +69,19 @@ describe Book do
 
     context "with one excel instance" do
 
+      # single tests run, but not the whole context
+      # connected_book is not nil in the 2nd, third test
+
       before do
         @book = Book.open(@simple_file)
       end
 
       after do
-        @book.close
+        @book.close rescue nil
       end
 
       it "should connect to the open book" do
         connected_book = Book.connect(@simple_file)
-        p "nil" unless connected_book
         connected_book.should be_a Book
         connected_book.should == @book
       end
@@ -127,11 +129,11 @@ describe Book do
         book2.close
       end
 
-      it "should connect to the book opened most recently" do
+      it "should connect to the book opened least recently" do
         excel = Excel.new(:reuse => false)
         book2 = Book.open(@simple_file, :excel => excel)
         connected_book = Book.connect(@simple_file)        
-        connected_book.should == book2
+        connected_book.should == @book
         book2.close
       end
 
@@ -169,6 +171,7 @@ describe Book do
         @book.close(:if_unsaved => :forget)
       end
 
+      # error
       it "should let a saved book saved" do
         @book.Saved.should be_true
         @book.should be_alive
@@ -244,7 +247,8 @@ describe Book do
         @book.close(:if_unsaved => :forget)
       end
 
-      it "should modify unobrusively the first, unsaved book" do
+      # error
+      it "should modify unobtrusively the first, unsaved book" do
         sheet = @book[0]
         @old_cell_value = sheet[0,0].value
         sheet2 = @book2[0]
@@ -257,7 +261,7 @@ describe Book do
         sheet[0,0].value.should_not == @old_cell_value2
       end
 
-      it "should modify unobrusively the second, unsaved book" do
+      it "should modify unobtrusively the second, unsaved book" do
         sheet = @book[0]
         @old_cell_value = sheet[0,0].value
         sheet2 = @book2[0]

@@ -69,9 +69,6 @@ describe Book do
 
     context "with one excel instance" do
 
-      # single tests run, but not the whole context
-      # connected_book is not nil in the 2nd, third test
-
       before do
         @book = Book.open(@simple_file)
       end
@@ -87,6 +84,7 @@ describe Book do
       end
 
       it "should yield nil to a closed book" do
+        connected_book = Book.connect(@simple_file)
         @book.close
         connected_book = Book.connect(@simple_file)
         connected_book.should == nil 
@@ -129,7 +127,7 @@ describe Book do
         book2.close
       end
 
-      it "should connect to the book opened least recently" do
+      it "should connect to the writable, first book" do
         excel = Excel.new(:reuse => false)
         book2 = Book.open(@simple_file, :excel => excel)
         connected_book = Book.connect(@simple_file)        
@@ -137,17 +135,53 @@ describe Book do
         book2.close
       end
 
-      it "should connect to the unsaved book" do
+      it "should connect to the writable, first, unsaved book" do
         excel = Excel.new(:reuse => false)
         book2 = Book.open(@simple_file, :excel => excel)
-        sheet = @book[0]
-        cell = sheet[0,0]
-        sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
+        sheet = book2[0]
+        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
         connected_book = Book.connect(@simple_file)        
         connected_book.should == @book
         book2.close(:if_unsaved => :forget)
       end
     end
+
+
+    context "with read_only" do
+
+      before do
+        @book = Book.open(@simple_file, :read_only => true)
+      end
+
+      after do
+        @book.close(:if_unsaved => :forget)
+        Excel.close_all
+      end
+
+      it "should connect to an read_ony book, if no writable book exists" do
+        @book.ReadOnly.should be_true
+        excel = Excel.new(:reuse => false)
+        book2 = Book.open(@simple_file, :excel => excel, :read_only => true)
+        book2.ReadOnly.should be_true
+        sheet = book2[0]
+        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+        connected_book = Book.connect(@simple_file)        
+        connected_book.should == book2
+        book2.close
+      end
+
+      it "should connect to the writable, second book" do
+        @book.ReadOnly.should be_true
+        excel = Excel.new(:reuse => false)
+        book2 = Book.open(@simple_file, :excel => excel)
+        book2.ReadOnly.should be_false
+        connected_book = Book.connect(@simple_file)        
+        connected_book.should == book2
+        book2.close
+      end
+
+    end
+
   end
 
   describe "unobtrusively" do
@@ -171,7 +205,6 @@ describe Book do
         @book.close(:if_unsaved => :forget)
       end
 
-      # error
       it "should let a saved book saved" do
         @book.Saved.should be_true
         @book.should be_alive
@@ -230,7 +263,6 @@ describe Book do
           sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
           book.Saved.should be_false
         end
-        puts "here"
         @book.should be_alive
       end
     end
@@ -247,7 +279,6 @@ describe Book do
         @book.close(:if_unsaved => :forget)
       end
 
-      # error
       it "should modify unobtrusively the first, unsaved book" do
         sheet = @book[0]
         @old_cell_value = sheet[0,0].value

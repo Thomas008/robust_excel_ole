@@ -8,6 +8,9 @@ module RobustExcelOle
   class Book
     attr_reader :workbook
 
+     # book management 
+     #  contains tupels of [filename,book]
+     #  permanent storage (does not forget)
      @@filename2book = []
 
     class << self
@@ -64,22 +67,19 @@ module RobustExcelOle
         #    or :if_unsaved => :alert
         if ((not alive?) || (@options[:if_unsaved] == :alert)) then
           begin
-            # workaround for bug in Excel 2010: workbook.Open does not always return 
-            # the workbook with given file name
+            # REOPEN einbauen: schaue in Liste. setze ReadOnly, wenn nicht: öffnen mit workbooks.Open            
             p "open_workbook:"
-            p "@file: #{@file}"
             filename = RobustExcelOle::absolute_path(@file)
-            p "filename: #{filename}"
             workbooks = @excel.Workbooks
             workbooks.Open(filename,{ 'ReadOnly' => @options[:read_only] })
+            # workaround for bug in Excel 2010: workbook.Open does not always return 
+            # the workbook with given file name
             @workbook = workbooks.Item(File.basename(filename))
             filename_key = RobustExcelOle::canonize(self.filename)
-            p "self.filename: #{self.filename}"
             p "filename_key: #{filename_key}"   
-            p "@@filename2book: #{@@filename2book}"
+            p "@@filename2book: #{@@filename2book.inspect}"
             @@filename2book << [filename_key,self]
-            p "@@filename2book: #{@@filename2book}"
-            @@filename2book.inspect
+            p "@@filename2book: #{@@filename2book.inspect}"
           rescue WIN32OLERuntimeError
             raise ExcelUserCanceled, "open: canceled by user"
           end
@@ -165,15 +165,8 @@ module RobustExcelOle
     def close(opts = {:if_unsaved => :raise})
 
       def close_workbook    # :nodoc: #
-        p "close workbook"
-        if alive?
-          filename_key = RobustExcelOle::canonize(self.filename)
-          p "filename_key: #{filename_key}"
-          p "@@filename2book: #{@@filename2book}"
-          @@filename2book.delete([filename_key,self])
-          p "@@filename2book: #{@@filename2book}"
-          @workbook.Close
-        end
+        p "close_workbook"
+        @workbook.Close if alive?
         @workbook = nil unless alive?
       end
 
@@ -204,34 +197,43 @@ module RobustExcelOle
     # returns the book that was opened most recently, if several open and writable books exist
     def self.connect(filename)
       p "connect"
-      p "filename: #{filename}"
       filename_key = RobustExcelOle::canonize(filename)
       p "filename_key: #{filename_key}"
       p "@@filename2book: #{@@filename2book.inspect}"
+      i = 0
       @@filename2book.each do |file2book|
-        if file2book[0] == filename_key && (not file2book[1].ReadOnly) 
-          @book = file2book[1]
+        p "#{i} #{file2book[0]} : alive: #{file2book[1].alive?} ReadOnly: #{file2book[1].ReadOnly if file2book[1].alive?}"
+        if file2book[0] == filename_key && file2book[1].alive? && file2book[1].ReadOnly
+          p "ReadOnly!"
+        end
+        i = i+1
+      end
+      book = nil
+      @@filename2book.each do |file2book|
+        if file2book[0] == filename_key && file2book[1].alive? && (not file2book[1].ReadOnly) 
+          book = file2book[1]
           break
         end
       end
-      p "@book: #{@book}"
-      @book
+      p "book: #{book}"
+      book
     end
 
 
     # modify a book such that its state remains unchanged.
     # options: :keep_open: let the book open after modification
     def self.unobtrusively(filename, opts = {:keep_open => false})
-      @book = self.connect(filename)
-      is_open = (@book != nil)
-      saved = @book.Saved if is_open
+      book = self.connect(filename)
+      was_closed = book.nil?
+      was_saved = book.Saved unless was_closed 
       begin
-        @book = open(filename, :if_unsaved => :accept, :if_obstructed => :new_app) unless @book
-        yield @book
+        book = open(filename, :if_unsaved => :accept, :if_obstructed => :new_app) unless book
+        yield book
       ensure
-        @book.close(:if_unsaved => :save) unless (is_open || opts[:keep_open])
+        book.save if was_saved && (not book.ReadOnly)
+        book.close(:if_unsaved => :save) if (was_closed && (not opts[:keep_open]))
       end
-      @book
+      book
     end
 
     # returns true, if the workbook reacts to methods, false otherwise

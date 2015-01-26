@@ -6,7 +6,9 @@ robust_excel_ole wraps the win32ole library, and allows to perform various opera
 
 robust_excel_ole started as a simple fork from tomiacannondale's wrap_excel adapted to Ruby 1.8.6.
 The functionality of wrap_excel is optimised and extended by new features.
-Most notable extension is that books are opened in a Excel application if it is already running, instead of opening Excel whenever a book is opened.
+Most notable extensions include:
+* books are opened in an Excel instance if that one is already running (instead of opening Excel whenever a book is opened)
+* book management system stores all books that have been open. This can be used, e.g., for reopening a book that has been closed before
 
 Thus some features in robust_excel_ole that are not compatible with wrap_excel:
 * +open+ uses by default a running Excel application instead of creating a new one,

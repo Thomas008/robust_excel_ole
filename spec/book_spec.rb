@@ -135,7 +135,7 @@ describe Book do
         book2.close
       end
 
-      it "should connect to the writable, first, unsaved book" do
+      it "should connect to the writable, first, book while the second one is unsaved" do
         excel = Excel.new(:reuse => false)
         book2 = Book.open(@simple_file, :excel => excel)
         sheet = book2[0]
@@ -144,8 +144,17 @@ describe Book do
         connected_book.should == @book
         book2.close(:if_unsaved => :forget)
       end
-    end
 
+      it "should connect to the writable, first book, even if the second one is unsaved book" do
+        excel = Excel.new(:reuse => false)
+        book2 = Book.open(@simple_file, :excel => excel)
+        sheet = @book[0]
+        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+        connected_book = Book.connect(@simple_file)        
+        connected_book.should == @book
+        book2.close
+      end
+    end
 
     context "with read_only" do
 
@@ -158,26 +167,44 @@ describe Book do
         Excel.close_all
       end
 
-      it "should connect to an read_ony book, if no writable book exists" do
+      it "should connect to the last read_only book, if only read_only books exist" do
         @book.ReadOnly.should be_true
         excel = Excel.new(:reuse => false)
         book2 = Book.open(@simple_file, :excel => excel, :read_only => true)
         book2.ReadOnly.should be_true
-        sheet = book2[0]
-        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
         connected_book = Book.connect(@simple_file)        
         connected_book.should == book2
         book2.close
       end
 
-      it "should connect to the writable, second book" do
+      it "should connect to the unsaved read_only book, if only read_only books exist" do
         @book.ReadOnly.should be_true
+        sheet = @book[0]
+        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+        @book.Saved. should be_false
         excel = Excel.new(:reuse => false)
-        book2 = Book.open(@simple_file, :excel => excel)
+        book2 = Book.open(@simple_file, :excel => excel, :read_only => true)
+        book2.ReadOnly.should be_true
+        connected_book = Book.connect(@simple_file)        
+        connected_book.should == @book
+        book2.close
+      end
+
+      it "should connect to the writable book, if otherwise only read_only books exist, even if one is unsaved" do
+        @book.ReadOnly.should be_true
+        excel2 = Excel.new(:reuse => false)
+        book2 = Book.open(@simple_file, :excel => excel2)
         book2.ReadOnly.should be_false
+        excel3 = Excel.new(:reuse => false)
+        book3 = Book.open(@simple_file, :excel => excel3, :read_only => true)
+        book3.ReadOnly.should be_true
+        sheet = book3[0]
+        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+        book3.Saved.should be_false
         connected_book = Book.connect(@simple_file)        
         connected_book.should == book2
         book2.close
+        book3.close(:if_unsaved => :forget)
       end
 
     end

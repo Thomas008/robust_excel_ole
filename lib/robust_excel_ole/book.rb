@@ -208,15 +208,29 @@ module RobustExcelOle
         end
         i = i+1
       end
-      book = nil
+      book = book_readonly = book_readonly_unsaved = nil
       @@filename2book.each do |file2book|
-        if file2book[0] == filename_key && file2book[1].alive? && (not file2book[1].ReadOnly) 
-          book = file2book[1]
-          break
+        if file2book[0] == filename_key && file2book[1].alive? 
+          if (not file2book[1].ReadOnly)
+            book = file2book[1] 
+            break 
+          else
+            if (not file2book[1].Saved)
+              book_readonly_unsaved = file2book[1]
+            else
+              book_readonly = file2book[1]
+            end
+          end
         end
       end
-      p "book: #{book}"
-      book
+      result = (if book then book 
+                else
+                  if book_readonly_unsaved then book_readonly_unsaved
+                  else book_readonly
+                  end
+                end)
+      p "book: #{result}"
+      result 
     end
 
 

@@ -148,6 +148,14 @@ describe Book do
         Excel.close_all
       end
 
+      it "should connect to the only writable, second, book" do
+        excel = Excel.new(:reuse => false)
+        book2 = Book.open(@simple_file, :excel => excel)
+        connected_book = Book.connect(@simple_file)        
+        connected_book.should == book2
+        book2.close
+      end
+
       it "should connect to the last read_only book, if only read_only books exist" do
         @book.ReadOnly.should be_true
         excel = Excel.new(:reuse => false)
@@ -166,12 +174,13 @@ describe Book do
         excel = Excel.new(:reuse => false)
         book2 = Book.open(@simple_file, :excel => excel, :read_only => true)
         book2.ReadOnly.should be_true
+        book2.Saved. should be_true
         connected_book = Book.connect(@simple_file)        
         connected_book.should == @book
         book2.close
       end
 
-      it "should connect to the writable book, if otherwise only read_only books exist, even if one is unsaved" do
+      it "should connect to the writable book, if otherwise only read_only and unsaved books exist" do
         @book.ReadOnly.should be_true
         excel2 = Excel.new(:reuse => false)
         book2 = Book.open(@simple_file, :excel => excel2)

@@ -135,25 +135,6 @@ describe Book do
         book2.close
       end
 
-      it "should connect to the writable, first, book while the second one is unsaved" do
-        excel = Excel.new(:reuse => false)
-        book2 = Book.open(@simple_file, :excel => excel)
-        sheet = book2[0]
-        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
-        connected_book = Book.connect(@simple_file)        
-        connected_book.should == @book
-        book2.close(:if_unsaved => :forget)
-      end
-
-      it "should connect to the writable, first book, even if the second one is unsaved book" do
-        excel = Excel.new(:reuse => false)
-        book2 = Book.open(@simple_file, :excel => excel)
-        sheet = @book[0]
-        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
-        connected_book = Book.connect(@simple_file)        
-        connected_book.should == @book
-        book2.close
-      end
     end
 
     context "with read_only" do

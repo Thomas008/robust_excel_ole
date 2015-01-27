@@ -68,6 +68,32 @@ module RobustExcelOle
         if ((not alive?) || (@options[:if_unsaved] == :alert)) then
           begin
             # REOPEN einbauen: schaue in Liste. setze ReadOnly, wenn nicht: öffnen mit workbooks.Open            
+            # wie ist die Semantik? 
+            # wenn es keins gibt, dann öffne neu mit workbooks.Open. sonst: connect:
+            # wenn es eins in der Liste gibt, das tod (geschlossen) ist, dann nehme das
+            # wenn es mehrere davon gibt, dann nehme das, was writable (nicht ReadOnly) ist
+            # wenn es mehrere ReadOnly gibt, dann nehme das, was ungespeicherte Änderungen enthält
+            # sonst nehme das letzte ReadOnly
+            #
+            # wenn es eins gibt, das lebt (offen ist):
+            #    in einer Excel-Instanz: das kann nicht sein, da:
+            #             wenn das Book bereits geöffnet ist 
+            #                     und gespeichert, wird kein weiteres Book mit selben Namen geöffnet
+            #                     und ungespeichert ist,  mit :unsaved => :raise :forget, :accept, :alert 
+            #                     nicht ein weiteres Buch geöffnet wird 
+            #    nur in verschiedenen Excel-Instanzen (bei :new_app): möglich
+            #  dann nehme das, aber nicht bei :new_app
+            #closed_book = open_book = nil
+            #@@filename2book.each do |file2book| 
+            #  if file2book[0] == filename_key 
+            #    file2book[1].alive? ? open_book = file2book[1] : closed_book = file2book[1]
+            #    file2book[1].ReadOnly ? readonly_book : not_readonly_book
+            #    file2book[1].Saved ? saved_book: not_saved_book
+            #  end
+            #end
+            #if book 
+            #  @workbook = book.workbook
+            # else
             p "open_workbook:"
             filename = RobustExcelOle::absolute_path(@file)
             workbooks = @excel.Workbooks
@@ -117,7 +143,7 @@ module RobustExcelOle
             raise ExcelErrorOpen, ":if_obstructed: invalid option"
           end
         else
-          # book open, not obstructed by an other book, not saved
+          # book open, not obstructed by an other book, but not saved
           if (not @workbook.Saved) then
             case @options[:if_unsaved]
             when :raise

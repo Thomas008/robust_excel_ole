@@ -104,6 +104,22 @@ describe Book do
         book2.close
       end
 
+      it "should connect to three open books with the same name in the same excel instance" do
+        book2 = Book.open(@simple_file)
+        book3 = Book.open(@simple_file)
+        connected_book = Book.connect(@simple_file)
+        connected_book2 = Book.connect(@simple_file)        
+        connected_book3 = Book.connect(@simple_file)
+        connected_book.should == @book
+        connected_book2.should == book2
+        connected_book3.should == book3
+        connected_book2.should == @book
+        connected_book3.should == @book
+        connected_book3.should == book2
+        book3.close
+        book2.close
+      end
+
     end
 
     context "with several excel instances" do

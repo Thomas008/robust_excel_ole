@@ -75,33 +75,35 @@ describe Book do
 
       after do
         @book.close rescue nil
+        @connected_book.close rescue nil 
       end
 
       it "should connect to the open book" do
-        connected_book = Book.connect(@simple_file)
-        connected_book.should be_a Book
-        connected_book.should == @book
+        @connected_book = Book.connect(@simple_file)
+        @connected_book.should be_a Book
+        @connected_book.should == @book
       end
 
       it "should yield nil to a closed book" do
-        connected_book = Book.connect(@simple_file)
+        @connected_book = Book.connect(@simple_file)
         @book.close
-        connected_book = Book.connect(@simple_file)
-        connected_book.should == nil 
+        @connected_book = Book.connect(@simple_file)
+        @connected_book.should == nil 
       end
 
       it "should yield nil to a non-existing book" do
-        connected_book = Book.connect('foo')
-        connected_book.should == nil 
+        @connected_book = Book.connect('foo')
+        @connected_book.should == nil 
       end
 
       it "should connect to two different open books in the same excel instance" do
         book2 = Book.open(@different_file)
-        connected_book = Book.connect(@simple_file)
+        @connected_book = Book.connect(@simple_file)
         connected_book2 = Book.connect(@different_file)        
-        connected_book.should == @book
+        @connected_book.should == @book
         connected_book2.should == book2
         book2.close
+        connected_book2.close
       end
 
     end
@@ -114,24 +116,25 @@ describe Book do
 
       after do
         @book.close(:if_unsaved => :forget)
-        Excel.close_all
+        @connected_book.close
       end
 
       it "should connect to two different books open in several excel instances" do
         excel = Excel.new(:reuse => false)
         book2 = Book.open(@different_file, :excel => excel)
-        connected_book = Book.connect(@simple_file)
+        @connected_book = Book.connect(@simple_file)
         connected_book2 = Book.connect(@different_file)        
-        connected_book.should == @book
+        @connected_book.should == @book
         connected_book2.should == book2
         book2.close
+        connected_book2.close
       end
 
       it "should connect to the writable, first book" do
         excel = Excel.new(:reuse => false)
         book2 = Book.open(@simple_file, :excel => excel)
-        connected_book = Book.connect(@simple_file)        
-        connected_book.should == @book
+        @connected_book = Book.connect(@simple_file)        
+        @connected_book.should == @book
         book2.close
       end
 
@@ -145,14 +148,14 @@ describe Book do
 
       after do
         @book.close(:if_unsaved => :forget)
-        Excel.close_all
+        @connected_book.close
       end
 
       it "should connect to the only writable, second, book" do
         excel = Excel.new(:reuse => false)
         book2 = Book.open(@simple_file, :excel => excel)
-        connected_book = Book.connect(@simple_file)        
-        connected_book.should == book2
+        @connected_book = Book.connect(@simple_file)        
+        @connected_book.should == book2
         book2.close
       end
 
@@ -161,8 +164,8 @@ describe Book do
         excel = Excel.new(:reuse => false)
         book2 = Book.open(@simple_file, :excel => excel, :read_only => true)
         book2.ReadOnly.should be_true
-        connected_book = Book.connect(@simple_file)        
-        connected_book.should == book2
+        @connected_book = Book.connect(@simple_file)        
+        @connected_book.should == book2
         book2.close
       end
 
@@ -175,8 +178,8 @@ describe Book do
         book2 = Book.open(@simple_file, :excel => excel, :read_only => true)
         book2.ReadOnly.should be_true
         book2.Saved. should be_true
-        connected_book = Book.connect(@simple_file)        
-        connected_book.should == @book
+        @connected_book = Book.connect(@simple_file)        
+        @connected_book.should == @book
         book2.close
       end
 
@@ -191,10 +194,57 @@ describe Book do
         sheet = book3[0]
         sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
         book3.Saved.should be_false
-        connected_book = Book.connect(@simple_file)        
-        connected_book.should == book2
+        @connected_book = Book.connect(@simple_file)        
+        @connected_book.should == book2
         book2.close
         book3.close(:if_unsaved => :forget)
+      end
+
+    end
+
+    context "with save_as" do
+
+      before do
+        @book = Book.open(@simple_file)
+      end
+
+      after do
+        @book.close(:if_unsaved => :forget)
+        @connected_book.close
+      end
+
+      it "should simple save a connected book" do
+        @connected_book = Book.connect(@simple_file)
+        @connected_book.save
+      end
+
+      it "should simple save changes of a connected book" do
+        sheet = @book[0]
+        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+        @book.Saved.should be_false
+        @connected_book = Book.connect(@simple_file)
+        @connected_book.save    
+        @connected_book.Saved.should be_true  
+      end
+
+      it "should save changes of a connected book with another filename" do
+        File.delete @simple_save_file rescue nil
+        File.open(@simple_save_file,"w") do | file |
+          file.puts "garbage"
+        end
+        sheet = @book[0]
+        old_cell = sheet[0,0]
+        sheet[0,0] = old_cell.value == "simple" ? "complex" : "simple"
+        @book.Saved.should be_false
+        @connected_book = Book.connect(@simple_file)
+        @connected_book.save_as(@simple_save_file, :if_exists => :overwrite)
+        @connected_book.Saved.should be_true  
+        File.exist?(@simple_save_file).should be_true
+        @connected_book.close
+        new_book = Book.open(@simple_save_file)
+        new_book.should be_a Book
+        new_book.should_not == @book
+        new_book.close
       end
 
     end
@@ -256,6 +306,7 @@ describe Book do
 
       after do
         @book.close(:if_unsaved => :forget) 
+        Excel.close_all
       end
 
       it "should let the closed book closed by default" do
@@ -294,6 +345,8 @@ describe Book do
 
       after do
         @book.close(:if_unsaved => :forget)
+        @book2.close(:if_unsaved => :forget)
+        Excel.close_all
       end
 
       it "should modify unobtrusively the first, unsaved book" do

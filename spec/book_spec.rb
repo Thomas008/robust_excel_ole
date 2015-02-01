@@ -237,14 +237,17 @@ describe Book do
         sheet[0,0] = old_cell.value == "simple" ? "complex" : "simple"
         @book.Saved.should be_false
         @connected_book = Book.connect(@simple_file)
+        @connected_book.should == @book
         @connected_book.save_as(@simple_save_file, :if_exists => :overwrite)
         @connected_book.Saved.should be_true  
         File.exist?(@simple_save_file).should be_true
         @connected_book.close
-        new_book = Book.open(@simple_save_file)
-        new_book.should be_a Book
-        new_book.should_not == @book
-        new_book.close
+        new_book = Book.connect(@simple_save_file)
+        new_book.should == nil
+        #new_book.should be_a Book
+        #new_book.should == @book
+        #new_book2 = Book.connect(@simple_file)
+        new_book.close rescue nil
       end
 
     end

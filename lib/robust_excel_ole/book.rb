@@ -224,10 +224,12 @@ module RobustExcelOle
       book = self.connect(filename)
       was_closed = book.nil?
       was_alive = book.alive?
-      was_saved = book.Saved unless (was_closed || (not was_alive))
+      was_saved = ((not was_closed) && was_alive) ? book.Saved : true
+      p "was_closed:#{was_closed}   was_alive:#{was_alive}   was_saved:#{was_saved}"
       #was_saved = book.Saved unless was_closed 
       begin
-        book = open(filename, :if_unsaved => :accept, :if_obstructed => :new_app) unless book
+        #book = open(filename, :if_unsaved => :accept, :if_obstructed => :new_app) unless book
+        book = open(filename, :if_unsaved => :accept, :if_obstructed => :new_app) if (was_closed || (not was_alive))
         yield book
       ensure
         book.save if was_saved && (not book.ReadOnly)

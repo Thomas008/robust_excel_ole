@@ -319,11 +319,11 @@ describe Book do
         @old_cell_value = sheet[0,0].value
         @book.close
         @book.should_not be_alive
-        #unobtrusively_ok?
+        unobtrusively_ok?
         @book.should_not be_alive
         @book = Book.open(@simple_file)
         sheet = @book[0]
-        #sheet[0,0].value.should_not == @old_cell_value
+        sheet[0,0].value.should_not == @old_cell_value
       end
 
       it "should keep open the book" do

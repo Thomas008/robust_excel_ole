@@ -223,7 +223,9 @@ module RobustExcelOle
     def self.unobtrusively(filename, opts = {:keep_open => false})
       book = self.connect(filename)
       was_closed = book.nil?
-      was_saved = book.Saved unless was_closed 
+      was_alive = book.alive?
+      was_saved = book.Saved unless (was_closed || (not was_alive))
+      #was_saved = book.Saved unless was_closed 
       begin
         book = open(filename, :if_unsaved => :accept, :if_obstructed => :new_app) unless book
         yield book
@@ -337,7 +339,7 @@ module RobustExcelOle
             save_as_workbook
           end
         when :raise
-          raise ExcelErrorSave, "book already exists: #{@basename}"
+          raise ExcelErrorSave, "book already exists: #{File.basename(file)}"
         else
           raise ExcelErrorSave, ":if_exists: invalid option"
         end

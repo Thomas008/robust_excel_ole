@@ -197,18 +197,22 @@ module RobustExcelOle
       filename_key = RobustExcelOle::canonize(filename)
       #p "filename_key: #{filename_key}"
       #p "@@filename2book: #{@@filename2book.inspect}"
-      book = book_readonly = book_readonly_unsaved = nil
-      @@filename2book.each do |file2book|
-        if file2book[0] == filename_key && file2book[1].alive? 
-          if (not file2book[1].ReadOnly)
-            book = file2book[1] 
-            break 
+      book_writable = book_readonly = book_readonly_unsaved = book_dead = nil
+      @@filename2book.each do |name,book|
+        if name == filename_key 
+          if book.alive?
+            if (not book.ReadOnly)
+              book_writable = book 
+              break 
+            else
+              book.Saved ? (book_readonly = book) : (book_readonly_unsaved = book)
+            end
           else
-            file2book[1].Saved ? (book_readonly = file2book[1]) : (book_readonly_unsaved = file2book[1])
+            book_dead = book
           end
         end
       end
-      result = book ? book : (book_readonly_unsaved ? book_readonly_unsaved : book_readonly)
+      result = book_writable ? book_writable : (book_readonly_unsaved ? book_readonly_unsaved : (book_readonly ? book_readonly : book_dead))
       #p "book: #{result}"
       result 
     end
@@ -286,20 +290,25 @@ module RobustExcelOle
     #               :alert     -> give control to Excel
     # returns true, if successfully saved, nil otherwise
     def save_as(file = nil, opts = {:if_exists => :raise} )
-      
+      #p "save_as:"
       raise IOError, "Not opened for writing(open with :read_only option)" if @options[:read_only]
-      @dirname, @basename = File.split(file)
-      @file_format =
-        case File.extname(@basename)
-        when '.xls' : RobustExcelOle::XlExcel8
-        when '.xlsx': RobustExcelOle::XlOpenXMLWorkbook
-        when '.xlsm': RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
-      end
+      @file = file
       @opts = opts
 
       def save_as_workbook # :nodoc: #
         begin
-          @workbook.SaveAs(RobustExcelOle::absolute_path(File.join(@dirname, @basename)), @file_format)
+          dirname, basename = File.split(@file)
+          file_format =
+            case File.extname(basename)
+              when '.xls' : RobustExcelOle::XlExcel8
+              when '.xlsx': RobustExcelOle::XlOpenXMLWorkbook
+              when '.xlsm': RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
+            end
+          filename_key = RobustExcelOle::canonize(@file)
+          #p "filename_key: #{filename_key}"   
+          @@filename2book << [filename_key,self]
+          #p "@@filename2book: #{@@filename2book.inspect}"
+          @workbook.SaveAs(RobustExcelOle::absolute_path(@file), file_format)
         rescue WIN32OLERuntimeError => msg
           if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
             if @opts[:if_exists] == :alert then 

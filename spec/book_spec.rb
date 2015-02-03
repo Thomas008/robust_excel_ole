@@ -84,11 +84,12 @@ describe Book do
         @connected_book.should == @book
       end
 
-      it "should yield nil to a closed book" do
+      it "should connect to a closed book" do
         @connected_book = Book.connect(@simple_file)
         @book.close
         @connected_book = Book.connect(@simple_file)
-        @connected_book.should == nil 
+        @connected_book.should be_a Book
+        @connected_book.should == @book
       end
 
       it "should yield nil to a non-existing book" do
@@ -243,7 +244,7 @@ describe Book do
         File.exist?(@simple_save_file).should be_true
         @connected_book.close
         new_book = Book.connect(@simple_save_file)
-        new_book.should == nil
+        new_book.should_not == nil
         #new_book.should be_a Book
         #new_book.should == @book
         #new_book2 = Book.connect(@simple_file)

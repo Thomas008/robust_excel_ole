@@ -8,10 +8,9 @@ module RobustExcelOle
   class Book
     attr_reader :workbook
 
-     # book management 
-     #  contains tupels of [filename,book]
-     #  permanent storage (does not forget)
-     @@filename2book = []
+     # book management for persistency:
+     # data structure: {filename1 => {book1 => excel1, book2 => excel1}, filename2 => ...} 
+     @@filename2book = {}
 
     class << self
 
@@ -75,9 +74,19 @@ module RobustExcelOle
             # the workbook with given file name
             @workbook = workbooks.Item(File.basename(filename))
             filename_key = RobustExcelOle::canonize(self.filename)
-            #p "filename_key: #{filename_key}"   
-            @@filename2book << [filename_key,self]
-            #p "@@filename2book: #{@@filename2book.inspect}"
+            if @@filename2book[filename_key]
+              @@filename2book[filename_key][self] = @excel 
+            else
+              @@filename2book[filename_key] = {self => @excel}
+            end
+            #p "filename_key: #{filename_key}"
+            #books = @@filename2book[filename_key]
+            #if books
+            #  @@filename2book[filename_key] << self unless books.include?(self)
+            #else
+            #  @@filename2book[filename_key] = self
+            #end 
+            p "@@filename2book: #{@@filename2book.inspect}"
           rescue WIN32OLERuntimeError
             raise ExcelUserCanceled, "open: canceled by user"
           end
@@ -193,27 +202,25 @@ module RobustExcelOle
     # returns a book with the filename if it is open and writable, nil otherwise
     # returns the book that was opened most recently, if several open and writable books exist
     def self.connect(filename)
-      #p "connect"
+      p "connect"
       filename_key = RobustExcelOle::canonize(filename)
-      #p "filename_key: #{filename_key}"
-      #p "@@filename2book: #{@@filename2book.inspect}"
-      book_writable = book_readonly = book_readonly_unsaved = book_dead = nil
-      @@filename2book.each do |name,book|
-        if name == filename_key 
-          if book.alive?
-            if (not book.ReadOnly)
-              book_writable = book 
-              break 
-            else
-              book.Saved ? (book_readonly = book) : (book_readonly_unsaved = book)
-            end
+      p "filename_key: #{filename_key}"
+      p "@@filename2book: #{@@filename2book.inspect}"
+      book_writable = book_readonly = book_readonly_unsaved = nil
+      books = @@filename2book[filename_key]
+      return nil unless books
+      books.each do |book|
+        if book.alive?
+          if (not book.ReadOnly)
+            book_writable = book 
+            break 
           else
-            book_dead = book
+            book.Saved ? (book_readonly = book) : (book_readonly_unsaved = book)
           end
         end
       end
-      result = book_writable ? book_writable : (book_readonly_unsaved ? book_readonly_unsaved : (book_readonly ? book_readonly : book_dead))
-      #p "book: #{result}"
+      result = book_writable ? book_writable : (book_readonly_unsaved ? book_readonly_unsaved : book_readonly)
+      p "book: #{result}"
       result 
     end
 
@@ -293,7 +300,7 @@ module RobustExcelOle
     #               :alert     -> give control to Excel
     # returns true, if successfully saved, nil otherwise
     def save_as(file = nil, opts = {:if_exists => :raise} )
-      #p "save_as:"
+      p "save_as:"
       raise IOError, "Not opened for writing(open with :read_only option)" if @options[:read_only]
       @file = file
       @opts = opts
@@ -308,9 +315,13 @@ module RobustExcelOle
               when '.xlsm': RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
             end
           filename_key = RobustExcelOle::canonize(@file)
-          #p "filename_key: #{filename_key}"   
-          @@filename2book << [filename_key,self]
-          #p "@@filename2book: #{@@filename2book.inspect}"
+          p "filename_key: #{filename_key}"   
+          if @@filename2book[filename_key]
+            @@filename2book[filename_key][self] = @excel 
+          else
+            @@filename2book[filename_key] = {self => @excel}
+          end
+          p "@@filename2book: #{@@filename2book.inspect}"
           @workbook.SaveAs(RobustExcelOle::absolute_path(@file), file_format)
         rescue WIN32OLERuntimeError => msg
           if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then

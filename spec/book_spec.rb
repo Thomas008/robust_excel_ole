@@ -246,9 +246,9 @@ describe Book do
         new_book = Book.connect(@simple_save_file)
         new_book.should_not == nil
         new_book.should be_a Book
+        new_book.should_not be_alive
         new_book.should == @book
         new_book2 = Book.connect(@simple_file)
-        new_book.close rescue nil
       end
 
     end

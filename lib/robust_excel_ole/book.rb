@@ -66,7 +66,8 @@ module RobustExcelOle
         #    or :if_unsaved => :alert
         if ((not alive?) || (@options[:if_unsaved] == :alert)) then
           begin
-            #p "open_workbook:"
+            p "open_workbook:"
+            p "@@filename2book: #{@@filename2book.inspect}"
             filename = RobustExcelOle::absolute_path(@file)
             workbooks = @excel.Workbooks
             workbooks.Open(filename,{ 'ReadOnly' => @options[:read_only] })
@@ -74,18 +75,12 @@ module RobustExcelOle
             # the workbook with given file name
             @workbook = workbooks.Item(File.basename(filename))
             filename_key = RobustExcelOle::canonize(self.filename)
+            p "filename_key: #{filename_key}"
             if @@filename2book[filename_key]
               @@filename2book[filename_key][self] = @excel 
             else
               @@filename2book[filename_key] = {self => @excel}
             end
-            #p "filename_key: #{filename_key}"
-            #books = @@filename2book[filename_key]
-            #if books
-            #  @@filename2book[filename_key] << self unless books.include?(self)
-            #else
-            #  @@filename2book[filename_key] = self
-            #end 
             p "@@filename2book: #{@@filename2book.inspect}"
           rescue WIN32OLERuntimeError
             raise ExcelUserCanceled, "open: canceled by user"
@@ -202,24 +197,35 @@ module RobustExcelOle
     # returns a book with the filename if it is open and writable, nil otherwise
     # returns the book that was opened most recently, if several open and writable books exist
     def self.connect(filename)
-      p "connect"
+      p "connect:"
       filename_key = RobustExcelOle::canonize(filename)
       p "filename_key: #{filename_key}"
       p "@@filename2book: #{@@filename2book.inspect}"
-      book_writable = book_readonly = book_readonly_unsaved = nil
+      book_writable = book_readonly = book_readonly_unsaved = book_closed = nil
       books = @@filename2book[filename_key]
+      p "books: #{books}"
       return nil unless books
-      books.each do |book|
+      books.each do |hash_element|
+        p "hash_element: #{hash_element}"
+        book = hash_element[0]
+        p "book: #{book}"
         if book.alive?
+          p "book alive"
           if (not book.ReadOnly)
+            p "book writable"
             book_writable = book 
             break 
           else
+            p "book read_only"
             book.Saved ? (book_readonly = book) : (book_readonly_unsaved = book)
           end
+        else
+          p "book closed"
+          book_closed = book
         end
       end
-      result = book_writable ? book_writable : (book_readonly_unsaved ? book_readonly_unsaved : book_readonly)
+      result = book_writable ? book_writable : (book_readonly_unsaved ? book_readonly_unsaved : 
+                                                                        (book_readonly ? book_readonly : book_closed))
       p "book: #{result}"
       result 
     end

@@ -9,13 +9,11 @@ module RobustExcelOle
     attr_reader :workbook
     attr_reader :excel
 
-     # book management for persistency:
+     # book management for persisten storage:
      # data structure: {filename1 => [book1,...bookn], filename2 => ...} 
      @@filename2book = {}
 
     class << self
-
-      #attr_reader :workbook 
 
       # opens a book.
       # 
@@ -56,16 +54,18 @@ module RobustExcelOle
       @file = file
       if not File.exist?(file)
         raise ExcelErrorOpen, "file #{file} not found"
+      end  
+      book = Book.connect(@file)
+      if book
+        p "connect"
+        # what is with the other excel options?
+        # nehme die Optionen von book.excel. wenn neue hier Optionen gesetzt wurden, dann nehme diese
+        @excel = book.excel.alive? ? book.excel : (@options[:excel] ? excel_options[:excel] : Excel.new(excel_options))
+        @workbook = book.workbook 
+      else
+        @excel = @options[:excel] ? excel_options[:excel] : Excel.new(excel_options)
+        @workbook = @excel.Workbooks.Item(File.basename(@file)) rescue nil
       end
-      @excel = @options[:excel] ? excel_options[:excel] : Excel.new(excel_options)  
-      # connect:
-      #filename_key = RobustExcelOle::canonize(@file)
-      #if @@filename2book[filename_key]
-      #  @workbook = 
-      
-      # not in storage -> try in
-      workbooks = @excel.Workbooks
-      @workbook = workbooks.Item(File.basename(@file)) rescue nil
       # if book is open
       if @workbook then
         obstructed_by_other_book = (File.basename(file) == File.basename(@workbook.Fullname)) && 
@@ -167,8 +167,8 @@ module RobustExcelOle
 
     end
 
-    # returns a book with the filename if it is open and writable, nil otherwise
-    # returns the book that was opened most recently, if several open and writable books exist
+    # returns a book with the filename, if it was open one time
+    # preference order: writable book, readonly unsaved book, readonly book (the last one), dead book
     def self.connect(filename)
       #p "connect:"
       #p "@@filename2book:"

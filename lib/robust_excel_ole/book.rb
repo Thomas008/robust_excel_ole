@@ -18,33 +18,33 @@ module RobustExcelOle
       # opens a book.
       # 
       # options: 
-      #  :excel    :reuse (default) -> connect to a running Excel, if it exists, or open a new Excel otherwise
+      #  :excel    :reuse (default) -> connect to a running Excel, if it exists, open a new Excel, otherwise
       #            :new             -> open in a new Excel
       #            <instance>       -> open in the given Excel instance
-      #  :force    false      -> if the book was already open in an Excel that is still working, 
-      #                          then use this Excel (reopen), else use the Excel given in :excel
-      #            true       -> use the Excel given in :excel, even if the book was opened before
-      #  :if_locked  if the book is open in another Excel and writable there, then
-      #               :go_there -> use the Excel in which the book is writable?
-      #               :force    -> make it writable when opening new
-      #               :raise    -> raise an exception
+      #  :force          if the book was already open in an Excel that is still working
+      #                   false     -> use this Excel (reopen), else use the Excel given in :excel
+      #                   true      -> use the Excel given in :excel, even if the book was opened before
+      #  :if_locked      if the book is open in another Excel and writable there, then
+      #                   :go_there -> use the Excel in which the book is writable?
+      #                   :force    -> make it writable when opening new
+      #                   :raise    -> raise an exception
       #  :if_locked_unsaved -> if the book is open in another Excel and contains unsaved changes
-      #               :raise    -> raise an exception
-      #               :save     -> save the unsaved book 
-      #  :if_unsaved   if an unsaved book with the same name is open, then
-      #                 :raise     -> raise an exception (default)
-      #                 :forget    -> close the unsaved book, open the new book             
-      #                 :accept    -> let the unsaved book open                  
-      #                 :alert     -> give control to Excel
-      #                 :new_excel -> open the new book in a new Excel
+      #                   :raise    -> raise an exception
+      #                   :save     -> save the unsaved book 
+      #  :if_unsaved     if an unsaved book with the same name is open, then
+      #                   :raise     -> raise an exception (default)
+      #                   :forget    -> close the unsaved book, open the new book             
+      #                   :accept    -> let the unsaved book open                  
+      #                   :alert     -> give control to Excel
+      #                   :new_excel -> open the new book in a new Excel
       #  :if_obstructed  if a book with the same name in a different path is open, then
       #                   :raise          -> raise an exception (default)             
       #                   :forget         -> close the old book, open the new book
       #                   :save           -> save the old book, close it, open the new book
       #                   :close_if_saved -> close the old book and open the new book, if the old book is saved
       #                                      raise an exception otherwise
-      #                   :new_excel       -> open the new book in a new Excel
-      #                   :reuse_excel     -> try the next free running Excel, if it exists, open a new Excel, else
+      #                   :new_excel      -> open the new book in a new Excel
+      #                   :reuse_excel    -> try the next free running Excel, if it exists, open a new Excel, else
       #  :read_only     open in read-only mode          (default: false)
       #  :displayalerts allow display alerts in Excel   (default: false)
       #  :visible       make visibe in Excel            (default: false)

@@ -47,12 +47,35 @@ describe Book do
   describe "open" do
 
     before do
-      Excel.close_all
-      @book = Book.open(@simple_file)
+      #Excel.close_all
     end
 
-    after do
-      @book.close
+    context "use cases" do
+      before do
+      end
+
+      after do
+        @book.close
+      end
+
+      it "should read" do
+        @book = Book.open(@simple_file, :excel => :new, :force => true)
+      end
+
+      it "should open writable" do
+        @book = Book.open(@simple_file, :force => false, :if_locked => :go_there, 
+                                        :if_unsaved => :forget, :if_obstructed => :save)
+      end
+
+      it "should open unobtrusively" do
+        @book = Book.open(@simple_file, :force => false, :if_locked => :go_there, 
+                                        :if_unsaved => :accept, :if_obstructed => :reuse_excel)
+      end
+
+      it "should open in a given instance" do
+        book = Book.open(@simple_file)
+        @book = Book.open(@simple_file, :excel => book.excel, :force => true, :if_locked => :force) 
+      end
     end
 
     context "with standard options" do
@@ -70,6 +93,14 @@ describe Book do
     end
 
     context "with :excel" do
+
+      before do
+        @book = Book.open(@simple_file)
+      end
+
+      after do
+        @book.close
+      end
 
       it "should reuse an Excel" do
         book2 = Book.open(@different_file, :excel => :reuse)
@@ -104,11 +135,75 @@ describe Book do
     end
 
     context "with :force" do
+
+      before do
+        @book = Book.open(@simple_file)
+        @old_excel = @book.excel
+        @book.close
+      end
+
+      after do
+        @new_book.close
+      end
+
+      it "should reopen a book" do
+        @new_book = Book.open(@simple_file, :force => false)
+        @new_book.should be_alive
+        @new_book.should be_a Book
+        @new_book.excel.should == @old_excel
+      end
+
+      it "should use :excel, if book cannot be reopened" do
+        @new_book = Book.open(@different_file, :force => false, :excel => :new)
+        @new_book.should be_alive
+        @new_book.should be_a Book
+        @new_book.excel.should_not == @old_excel
+      end
+
+      it "should open in a given excel" do
+        @new_book = Book.open(@simple_file, :force => true, :excel => :new)
+        @new_book.should be_alive
+        @new_book.should be_a Book
+        @new_book.excel.should_not == @old_excel
+      end
     end
 
     context "with :unlocked" do
+
+      before do
+        @book = Book.open(@simple_file)
+      end
+
+      after do
+        @book.close
+      end
+      
+      it "should :go_there" do
+        book = Book.open(@simple_file, :excel => :new, :if_locked => :go_there)
+      end
+
+      it "should :force" do
+        book = Book.open(@simple_file, :excel => :new, :if_locked => :force)
+      end
     end
 
+    context "with :unlocked_unsaved" do
+
+      before do
+        @book = Book.open(@simple_file)
+        @sheet = @book[0]
+        @book.add_sheet(@sheet, :as => 'a_name')
+      end
+
+      after do
+        @book.close
+      end
+
+      it "should ..., if old book is unsaved" do
+        book = Book.open(@simple_file, :excel => :new, :if_locked => :go_there, :if_locked_unsaved => :raise)
+      end
+    end
+    
     context "with :if_unsaved" do
 
       before do

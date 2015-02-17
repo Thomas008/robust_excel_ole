@@ -57,9 +57,9 @@ module RobustExcelOle
       end  
       book = Book.connect(@file)
       if book
-        p "connect"
-        # what is with the other excel options?
-        # nehme die Optionen von book.excel. wenn neue hier Optionen gesetzt wurden, dann nehme diese
+      #  p "connect"
+      #  # what is with the other excel options?
+      #  # nehme die Optionen von book.excel. wenn neue hier Optionen gesetzt wurden, dann nehme diese
         @excel = book.excel.alive? ? book.excel : (@options[:excel] ? excel_options[:excel] : Excel.new(excel_options))
         @workbook = book.workbook 
       else
@@ -134,6 +134,41 @@ module RobustExcelOle
         end
       end
     end
+  
+    def open_workbook
+      # if book not open (was not open,was closed with option :forget or shall be opened in new application)
+      #    or :if_unsaved => :alert
+      if ((not alive?) || (@options[:if_unsaved] == :alert)) then
+        begin
+          #p "open_workbook:"
+          #p "@@filename2book: #{@@filename2book.inspect}"
+          filename = RobustExcelOle::absolute_path(@file)
+          workbooks = @excel.Workbooks
+          workbooks.Open(filename,{ 'ReadOnly' => @options[:read_only] })
+          # workaround for bug in Excel 2010: workbook.Open does not always return 
+          # the workbook with given file name
+          @workbook = workbooks.Item(File.basename(filename))
+          # book eintragen in Book-Management
+          filename_key = RobustExcelOle::canonize(self.filename)
+          #p "filename_key: #{filename_key}"
+          if @@filename2book[filename_key]
+            @@filename2book[filename_key] << self unless @@filename2book[filename_key].include?(self)
+          else
+            @@filename2book[filename_key] = [self]
+          end
+          #p "@@filename2book:"
+          @@filename2book.each do |element|
+            #p " filename: #{element[0]}"
+            #p " books:"
+            element[1].each do |book|
+              #p "#{book}"
+            end
+          end
+        rescue WIN32OLERuntimeError
+          raise ExcelUserCanceled, "open: canceled by user"
+        end
+      end
+    end
 
     # closes the book, if it is alive
     #
@@ -164,7 +199,11 @@ module RobustExcelOle
         close_workbook
       end
       raise ExcelUserCanceled, "close: canceled by user" if alive? && opts[:if_unsaved] == :alert && (not @workbook.Saved)
+    end
 
+    def close_workbook    
+      @workbook.Close if alive?
+      @workbook = nil unless alive?
     end
 
     # returns a book with the filename, if it was open one time
@@ -310,94 +349,7 @@ module RobustExcelOle
       end
       true
     end
-
-    def [] sheet
-      sheet += 1 if sheet.is_a? Numeric
-      RobustExcelOle::Sheet.new(@workbook.Worksheets.Item(sheet))
-    end
-
-    def each
-      @workbook.Worksheets.each do |sheet|
-        yield RobustExcelOle::Sheet.new(sheet)
-      end
-    end
-
-    def add_sheet(sheet = nil, opts = { })
-      if sheet.is_a? Hash
-        opts = sheet
-        sheet = nil
-      end
-
-      new_sheet_name = opts.delete(:as)
-
-      after_or_before, base_sheet = opts.to_a.first || [:after, RobustExcelOle::Sheet.new(@workbook.Worksheets.Item(@workbook.Worksheets.Count))]
-      base_sheet = base_sheet.sheet
-      sheet ? sheet.Copy({ after_or_before.to_s => base_sheet }) : @workbook.WorkSheets.Add({ after_or_before.to_s => base_sheet })
-      new_sheet = RobustExcelOle::Sheet.new(@excel.Activesheet)
-      begin
-        new_sheet.name = new_sheet_name if new_sheet_name
-      rescue WIN32OLERuntimeError => msg
-        if msg.message =~ /OLE error code:800A03EC/ 
-          raise ExcelErrorSheet, "sheet name already exists"
-        end
-      end
-      new_sheet
-    end        
-
-
-  private
-
-    def method_missing(name, *args)
-      if name.to_s[0,1] =~ /[A-Z]/ 
-        begin
-          @workbook.send(name, *args)
-        rescue WIN32OLERuntimeError => msg
-          if msg.message =~ /unknown property or method/
-            raise VBAMethodMissingError, "unknown VBA property or method #{name}"
-          else 
-            raise msg
-          end
-        end
-      else  
-        super 
-      end
-    end
-
-    def open_workbook
-      # if book not open (was not open,was closed with option :forget or shall be opened in new application)
-      #    or :if_unsaved => :alert
-      if ((not alive?) || (@options[:if_unsaved] == :alert)) then
-        begin
-          #p "open_workbook:"
-          #p "@@filename2book: #{@@filename2book.inspect}"
-          filename = RobustExcelOle::absolute_path(@file)
-          workbooks = @excel.Workbooks
-          workbooks.Open(filename,{ 'ReadOnly' => @options[:read_only] })
-          # workaround for bug in Excel 2010: workbook.Open does not always return 
-          # the workbook with given file name
-          @workbook = workbooks.Item(File.basename(filename))
-          # book eintragen in Book-Management
-          filename_key = RobustExcelOle::canonize(self.filename)
-          #p "filename_key: #{filename_key}"
-          if @@filename2book[filename_key]
-            @@filename2book[filename_key] << self unless @@filename2book[filename_key].include?(self)
-          else
-            @@filename2book[filename_key] = [self]
-          end
-          #p "@@filename2book:"
-          @@filename2book.each do |element|
-            #p " filename: #{element[0]}"
-            #p " books:"
-            element[1].each do |book|
-              #p "#{book}"
-            end
-          end
-        rescue WIN32OLERuntimeError
-          raise ExcelUserCanceled, "open: canceled by user"
-        end
-      end
-    end
-
+  
     def save_as_workbook
       begin
         dirname, basename = File.split(@file)
@@ -437,11 +389,56 @@ module RobustExcelOle
       end
     end
 
-    def close_workbook    
-      @workbook.Close if alive?
-      @workbook = nil unless alive?
+    def [] sheet
+      sheet += 1 if sheet.is_a? Numeric
+      RobustExcelOle::Sheet.new(@workbook.Worksheets.Item(sheet))
     end
 
-  end
+    def each
+      @workbook.Worksheets.each do |sheet|
+        yield RobustExcelOle::Sheet.new(sheet)
+      end
+    end
 
+    def add_sheet(sheet = nil, opts = { })
+      if sheet.is_a? Hash
+        opts = sheet
+        sheet = nil
+      end
+
+      new_sheet_name = opts.delete(:as)
+
+      after_or_before, base_sheet = opts.to_a.first || [:after, RobustExcelOle::Sheet.new(@workbook.Worksheets.Item(@workbook.Worksheets.Count))]
+      base_sheet = base_sheet.sheet
+      sheet ? sheet.Copy({ after_or_before.to_s => base_sheet }) : @workbook.WorkSheets.Add({ after_or_before.to_s => base_sheet })
+      new_sheet = RobustExcelOle::Sheet.new(@excel.Activesheet)
+      begin
+        new_sheet.name = new_sheet_name if new_sheet_name
+      rescue WIN32OLERuntimeError => msg
+        if msg.message =~ /OLE error code:800A03EC/ 
+          raise ExcelErrorSheet, "sheet name already exists"
+        end
+      end
+      new_sheet
+    end        
+
+    def method_missing(name, *args)
+      if name.to_s[0,1] =~ /[A-Z]/ 
+        begin
+          @workbook.send(name, *args)
+        rescue WIN32OLERuntimeError => msg
+          if msg.message =~ /unknown property or method/
+            raise VBAMethodMissingError, "unknown VBA property or method #{name}"
+          else 
+            raise msg
+          end
+        end
+      else  
+        super 
+      end
+    end
+
+    private :open_workbook, :close_workbook, :save_as_workbook, :method_missing
+
+  end
 end

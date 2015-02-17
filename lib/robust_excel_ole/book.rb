@@ -18,9 +18,9 @@ module RobustExcelOle
       # opens a book.
       # 
       # options: 
-      #  :excel    :new       -> open in a new Excel
-      #            :reuse     -> connect to a running Excel, if it exists, or open a new Excel otherwise
-      #            <instance> -> open in the given Excel instance
+      #  :excel    :reuse (default) -> connect to a running Excel, if it exists, or open a new Excel otherwise
+      #            :new             -> open in a new Excel
+      #            <instance>       -> open in the given Excel instance
       #  :force    false      -> if the book was already open in an Excel that is still working, 
       #                          then use this Excel (reopen), else use the Excel given in :excel
       #            true       -> use the Excel given in :excel, even if the book was opened before
@@ -44,7 +44,7 @@ module RobustExcelOle
       #                   :close_if_saved -> close the old book and open the new book, if the old book is saved
       #                                      raise an exception otherwise
       #                   :new_excel       -> open the new book in a new Excel
-      #                   :reuse_excel     -> open the new book in a running Excel
+      #                   :reuse_excel     -> try the next free running Excel, if it exists, open a new Excel, else
       #  :read_only     open in read-only mode          (default: false)
       #  :displayalerts allow display alerts in Excel   (default: false)
       #  :visible       make visibe in Excel            (default: false)

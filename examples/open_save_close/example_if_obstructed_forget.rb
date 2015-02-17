@@ -1,5 +1,5 @@
 # example_if_obstructed_forget.rb: 
-# open with :if_obstructed: :forget, :new_app
+# open with :if_obstructed: :forget, :new_excel
 
 require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
 require File.join(File.dirname(__FILE__), '../../spec/helpers/create_temporary_dir')
@@ -23,7 +23,7 @@ begin
   new_book = Book.open(other_file_name, :if_obstructed => :forget) 
   sleep 3
   # open another book with the same file name in a different path. Use a new Excel application
-  another_book = Book.open(file_name, :if_obstructed => :new_app, :visible => true)                                         
+  another_book = Book.open(file_name, :if_obstructed => :new_excel, :visible => true)                                         
   sleep 3
   new_book.close                                 # close the books                      
   another_book.close

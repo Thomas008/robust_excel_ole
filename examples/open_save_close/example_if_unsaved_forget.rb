@@ -1,5 +1,5 @@
 # example_ifunsaved_forget.rb:
-# open with :if_unsaved => :forget, :new_app, close with :if_unsaved => :save 
+# open with :if_unsaved => :forget, :new_excel, close with :if_unsaved => :save 
 
 require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
 require File.join(File.dirname(__FILE__), '../../spec/helpers/create_temporary_dir')
@@ -27,7 +27,7 @@ begin
   sleep 1
   sheet_new_book[0,0] = sheet_new_book[0,0].value == "simple" ? "complex" : "simple" # change a cell
   # open another book in a new Excel application, and make Excel visible, leaving the unsaved book open
-  another_book = Book.open(file_name, :if_unsaved => :new_app, :visible => true)  
+  another_book = Book.open(file_name, :if_unsaved => :new_excel, :visible => true)  
   sleep 3                                                                  # leaving the unsaved book open  
   new_book.close(:if_unsaved => :forget )                                
   another_book.close

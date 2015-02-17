@@ -596,8 +596,8 @@ describe Book do
           end
         end
 
-        it "should open the book in a new excel application, if :if_unsaved is :new_app" do
-          @new_book = Book.open(@simple_file, :if_unsaved => :new_app)
+        it "should open the book in a new excel application, if :if_unsaved is :new_excel" do
+          @new_book = Book.open(@simple_file, :if_unsaved => :new_excel)
           @book.should be_alive
           @new_book.should be_alive
           @new_book.filename.should == @book.filename
@@ -672,8 +672,8 @@ describe Book do
         old_book.close
       end
 
-      it "should open the book in a new excel application, if :if_obstructed is :new_app" do
-        @new_book = Book.open(@simple_file, :if_obstructed => :new_app)
+      it "should open the book in a new excel application, if :if_obstructed is :new_excel" do
+        @new_book = Book.open(@simple_file, :if_obstructed => :new_excel)
         @book.should be_alive
         @new_book.should be_alive
         @new_book.filename.should_not == @book.filename

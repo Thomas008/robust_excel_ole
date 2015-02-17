@@ -1,5 +1,5 @@
 # example_ifunsaved_forget_more.rb:
-# open with :if_unsaved => :forget, :new_app, close with :if_unsaved => :save 
+# open with :if_unsaved => :forget, :new_excel, close with :if_unsaved => :save 
 
 require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
 require File.join(File.dirname(__FILE__), '../../spec/helpers/create_temporary_dir')
@@ -18,7 +18,7 @@ begin
   first_cell = sheet[0,0].value
   sheet[0,0] = first_cell == "simple" ? "complex" : "simple" # change a cell
   sleep 1
-  new_book = Book.open(file_name, :if_unsaved => :new_app, :visible => true) # open another book with the same file name in a new Excel
+  new_book = Book.open(file_name, :if_unsaved => :new_excel, :visible => true) # open another book with the same file name in a new Excel
   sheet_new_book = new_book[0]
   if (not book.alive?) && new_book.alive? && sheet_new_book[0,0].value == first_cell then # check whether the unsaved book 
     puts "open with :if_unsaved => :forget : the unsaved book is closed and not saved."     # is closed and was not saved

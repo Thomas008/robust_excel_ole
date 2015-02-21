@@ -4,11 +4,11 @@ module RobustExcelOle
 
   class Excel
 
-    attr_writer :excel_app
+    attr_writer :excel
 
     @@hwnd2excel = {}
 
-    # closes all Excel applications
+    # closes all Excel instances
     def self.close_all
       while current_excel do
         close_one_excel
@@ -18,53 +18,42 @@ module RobustExcelOle
       end
     end
 
-    # creates a new Excel application
+    # creates a new Excel instance
     def self.create
       new(:reuse => false)
     end
 
-    # uses the current Excel application (connects), if such a running Excel application exists
+    # uses the current Excel instance (connects), if such a running Excel instance exists
     # creates a new one, otherwise 
     def self.current
       new(:reuse => true)
     end
 
-    # returns an Excel application  
+    # returns an Excel instance  
     # options:
-    #  :reuse          use an already running Excel application (default: true)
-    #  :displayalerts  allow display alerts in Excel            (default: false)
-    #  :visible        make visible in Excel                    (default: false)
+    #  :reuse          use an already running Excel instance (default: true)
+    #  :displayalerts  allow display alerts in Excel         (default: false)
+    #  :visible        make visible in Excel                 (default: false)
     def self.new(options= {})
-      options = {:reuse => true}.merge(options)
-
-      excel_app = nil
+      options = {:reuse => true, :displayalerts => false, :visible => false}.merge(options)
       if options[:reuse] then
-        excel_app = options[:excel] ? options[:excel] : current_excel
-        if excel_app
-          excel_app.DisplayAlerts = options[:displayalerts] unless options[:displayalerts]==nil
-          excel_app.Visible = options[:visible] unless options[:visible]==nil
-        end
+        excel = current_excel
       end
-
-      options = {
-        :displayalerts => false,
-        :visible => false,
-      }.merge(options)
-      unless excel_app
-        excel_app = WIN32OLE.new('Excel.application')
-        excel_app.DisplayAlerts = options[:displayalerts]
-        excel_app.Visible = options[:visible]
+      if not (options[:reuse] && excel)
+        excel = WIN32OLE.new('Excel.application')
       end
+      excel.DisplayAlerts = options[:displayalerts]
+      excel.Visible = options[:visible]
 
-      hwnd = excel_app.HWnd
+      hwnd = excel.HWnd
       stored = @@hwnd2excel[hwnd]
 
       if stored 
         result = stored
       else
-        WIN32OLE.const_load(excel_app, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
+        WIN32OLE.const_load(excel, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
         result = super(options)
-        result.excel_app = excel_app
+        result.excel = excel
         @@hwnd2excel[hwnd] = result
       end
       result
@@ -90,7 +79,7 @@ module RobustExcelOle
 
     # returns true, if the Excel application is alive, false otherwise
     def alive?
-      @excel_app.Name
+      @excel.Name
       true
     rescue
       puts $!.message
@@ -99,30 +88,30 @@ module RobustExcelOle
 
     # set DisplayAlerts
     def with_displayalerts displayalerts_value
-      old_displayalerts = @excel_app.DisplayAlerts
-      @excel_app.DisplayAlerts = displayalerts_value
+      old_displayalerts = @excel.DisplayAlerts
+      @excel.DisplayAlerts = displayalerts_value
       begin
          yield self
       ensure
-        @excel_app.DisplayAlerts = old_displayalerts
+        @excel.DisplayAlerts = old_displayalerts
       end
     end
 
     # make the current Excel application visible or invisible
     def visible= visible_value
-      @excel_app.Visible = visible_value
+      @excel.Visible = visible_value
     end
 
     # return if the current Excel application is visible
     def visible 
-      @excel_app.Visible
+      @excel.Visible
     end
 
 
   private
 
     # closes one Excel application
-    def self.close_one_excel   # :nodoc: #
+    def self.close_one_excel  
       excel = current_excel
       if excel then
         excel.Workbooks.Close
@@ -160,7 +149,7 @@ module RobustExcelOle
     end
 
     # frees all OLE objects in the object space
-    def self.free_all_ole_objects   # :nodoc: #
+    def self.free_all_ole_objects   
       anz_objekte = 0
       ObjectSpace.each_object(WIN32OLE) do |o|
         anz_objekte += 1
@@ -195,20 +184,20 @@ module RobustExcelOle
       result
     end
 
-    def hwnd_xxxx  # :nodoc: #
+    def hwnd_xxxx  
       self.HWnd #rescue Win32 nil
     end
 
     # set this Excel application to nil
-    def die  # :nodoc:
-      @excel_app = nil
+    def die 
+      @excel = nil
     end
 
 
-    def method_missing(name, *args)  # :nodoc: #
+    def method_missing(name, *args) 
       if name.to_s[0,1] =~ /[A-Z]/ 
         begin
-          @excel_app.send(name, *args)
+          @excel.send(name, *args)
         rescue WIN32OLERuntimeError => msg
           if msg.message =~ /unknown property or method/
             raise VBAMethodMissingError, "unknown VBA property or method #{name}"

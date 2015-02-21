@@ -8,7 +8,7 @@ module RobustExcelOle
 
   describe Excel do
 
-    before (:all) do
+    before(:all) do
       Excel.close_all
     end
 
@@ -90,6 +90,7 @@ module RobustExcelOle
 
     describe "==" do
       before do
+        Excel.close_all
         @excel1 = Excel.create
       end
 
@@ -107,20 +108,6 @@ module RobustExcelOle
         @excel1.should_not == "hallo"
         @excel1.should_not == 7
         @excel1.should_not == nil
-      end
-
-    end
-
-
-    context "with :excel" do
-
-      it "should reuse in given excel excel" do
-        excel1 = Excel.new(:reuse => false)
-        excel2 = Excel.new(:reuse => false)
-        excel3 = Excel.new(:excel => excel1)
-        excel4 = Excel.new(:excel => excel2)
-        excel3.should == excel1
-        excel4.should == excel2
       end
 
     end
@@ -152,7 +139,7 @@ module RobustExcelOle
         excel.Visible.should be_true
         excel.DisplayAlerts.should be_false
         excel2 = Excel.new(:displayalerts => true)
-        excel2.Visible.should be_true
+        excel2.Visible.should be_false
         excel2.DisplayAlerts.should be_true
       end
 

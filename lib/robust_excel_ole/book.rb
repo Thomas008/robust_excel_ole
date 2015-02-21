@@ -74,11 +74,16 @@ module RobustExcelOle
       # es soll auch mögich sein: ich gebe Instanz an und übergebe :displayalerts und :visible
       # mit with_displayalerts, =visible
       if @options[:excel]
-        excel = @options[:excel]
+        @excel = @options[:excel]
+        @excel.visible = @options[:visible]
+        @excel.displayalerts = @options[:dispayalerts]
       else
         excel_options = {:reuse => ((@options[:excel] == :reuse) ? true : false),
                          :displayalerts => @options[:displayalerts], :visible => @options[:visible]}
-        excel = Excel.new(excel_options)
+        @excel = Excel.new(excel_options)
+      end
+      if (not @excel.alive?)
+        raise ExcelErrorOpen, "Excel instance is not alive"
       end
      
 #excel_options = {:reuse => true}.merge(opts).delete_if{|k,v| k == :force || || k == :if_locked || k== :read_only || k== :if_unsaved || k == :if_obstructed}

@@ -276,14 +276,23 @@ Making Excel invisible
 
   excel.visible = false
 
-
 === Turning on or off Displayalerts.
 
+Turning DisplayAlerts on.
+
+  excel = Excel.create
+  excel.displayalerts = true
+  puts "allows displayalerts" if excel.displayalerts
+
+Turning DisplayAlerts off.
+
+  excel.displayalerts = false
+
+Turning on and off in a block.
+  
   with_displayalerts
 
-Turning off or on Displayaerts of an Excel application.
-
-  excel = Excel.new
+  excel = Excel.create
   excel.with_displayalerts true do
     book = Book.open('simple.xls')
   end

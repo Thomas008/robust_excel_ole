@@ -86,7 +86,7 @@ module RobustExcelOle
       false
     end
 
-    # set DisplayAlerts
+    # set DisplayAlerts in a block
     def with_displayalerts displayalerts_value
       old_displayalerts = @excel.DisplayAlerts
       @excel.DisplayAlerts = displayalerts_value
@@ -95,6 +95,16 @@ module RobustExcelOle
       ensure
         @excel.DisplayAlerts = old_displayalerts
       end
+    end
+
+    # set DisplayAlerts in the current Excel
+    def displayalerts= displayalerts_value
+      @excel.DisplayAlerts = displayalerts_value
+    end
+
+    # return if in the current Excel DisplayAlerts is set
+    def displayalerts 
+      @excel.DisplayAlerts
     end
 
     # make the current Excel application visible or invisible

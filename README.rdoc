@@ -11,9 +11,9 @@ Most notable extensions include:
 * book management system stores all books that have been open. This can be used, e.g., for reopening a book that has been closed before
 
 Thus some features in robust_excel_ole that are not compatible with wrap_excel:
-* +open+ uses by default a running Excel application instead of creating a new one,
+* +open+ uses by default a running Excel instance instead of creating a new one,
   and opens a book by default in writable mode instead of read_only 
-* +close+ closes the workbook instead of closing all workbooks and the Excel application.
+* +close+ closes the workbook instead of closing all workbooks and the Excel instance.
 * +save_as+ instead of +save+.
 
 This is work in progress.
@@ -48,10 +48,10 @@ The semantics is similar to, e.g.,  File.open.
 Options are the following:
 
 +:read_only+::       open in read-only mode (default: +false+)  
-+:if_unsaved+::      +:raise+ (default), +:accept+, +:forget+, +:new_app+, +:alert+
-+:if_obstructed+::   +:raise+ (default), +:forget+, +:save+, +:close_if_saved+, +:new_app+
-+:reuse+::           use an already open Excel-application (default: +true+) 
-+:excel+::           an Excel appication (default: +nil+)
++:if_unsaved+::      +:raise+ (default), +:accept+, +:forget+, +:new_excel+, +:alert+
++:if_obstructed+::   +:raise+ (default), +:forget+, +:save+, +:close_if_saved+, +:new_excel+
++:reuse+::           use an already open Excel instance (default: +true+) 
++:excel+::           an Excel instance (default: +nil+)
 +:displayalerts+::   allow display alerts in Excel (default: +false+)
 +:visible+::         make visibe in Excel (default: +false+)
 
@@ -62,7 +62,7 @@ If an unsaved book with the same name is open, then
 +:raise+::   Raise an exeption. Don't open the book.
 +:accept+::  Let the unsaved book open.
 +:forget+::  Discard any changes and reopen the book.
-+:new_app+:: Open the new book in a new Excel application
++:new_excel+:: Open the new book in a new Excel instance
 +:alert+::   Give control to Excel.
 
 The option +:if_obstructed+ :
@@ -73,9 +73,9 @@ If a book with same name in a different path is open, then
 +:forget+::         Close the old book, open the new book.
 +:save+::           Save the old book, close it, open the new book
 +:close_if_saved+:: Close the old book and open the new book, if the old book is saved, raise an exception otherwise
-+:new_app+::        Open the new book in a new Excel application.
++:new_excel+::        Open the new book in a new Excel instance.
 
-The values :displayalerts and :visible are reached to the class Excel that controls opening and closing of Excel applications.
+The values :displayalerts and :visible are reached to the class Excel that controls opening and closing Excel instances.
 
 === Closing a book.
 
@@ -114,7 +114,7 @@ The option +:if_exists+ :
 If a book with the file name already exists, then
 
 +:raise+::     Raise an exeption. Don't write the file.
-+:overwrite+:: Delete the existing file and write the file. If the book is open in an Excel application, then raise an exception.
++:overwrite+:: Delete the existing file and write the file. If the book is open in an Excel instance, then raise an exception.
 +:alert+::     Give the control to Excel.
   
 
@@ -267,21 +267,21 @@ Adding a copy of a sheet with a name after another sheet.
   book.add_sheet(sheet, :as => 'sheet_copy', :after => another_sheet)
 
 
-=== Creating and reusing an Excel application.
+=== Creating and reusing an Excel instance.
 
 Creating a new Excel.
 
   excel1 = Excel.create
 
-Getting a running Excel application and reusing it.
+Getting a running Excel instance and reusing it.
 
   excel2 = Excel.current
 
-Reusing a running Excel application, making it visible and turning on displayalerts.
+Reusing a running Excel instance, making it visible and turning on displayalerts.
 
    excel2 = Excel.new(:reuse => true, :visible => true, displayalerts => true).
 
-Reusing a certain running Excel application.
+Reusing a certain running Excel instance.
 
    excel3 = Excel.new(:excel => excel1)
 
@@ -318,7 +318,7 @@ Turning on and off in a block.
     book = Book.open('simple.xls')
   end
 
-=== Closing all Excel applications.
+=== Closing all Excel instances.
 
   Excel.close_all
 
@@ -356,7 +356,7 @@ Closing the book.
 
 === Example 2
 
-Opening the book in a new Excel application and make it visible.
+Opening the book in a new Excel instance and make it visible.
 
   book.open('simple.xls', :reuse => false, :visible => true)
 
@@ -366,7 +366,7 @@ Adding a copy of the first sheet after the second sheet.
 
 Opening a new book with the same name in a new Excel. Leave the book that contains unsaved changes in the old Excel.
 
-  new_book.open('simple.xls', :if_unsaved => :new_app)
+  new_book.open('simple.xls', :if_unsaved => :new_excel)
 
 Accessing a sheet and change a cell.
 

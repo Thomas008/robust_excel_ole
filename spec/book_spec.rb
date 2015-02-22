@@ -271,7 +271,7 @@ describe Book do
         end
       end
 
-      it "should open the book in a new excel application, if :if_unsaved is :new_excel" do
+      it "should open the book in a new excel instance, if :if_unsaved is :new_excel" do
         @new_book = Book.open(@simple_file, :if_unsaved => :new_excel)
         @book.should be_alive
         @new_book.should be_alive
@@ -345,7 +345,7 @@ describe Book do
         old_book.close
       end
 
-      it "should open the book in a new excel application, if :if_obstructed is :new_excel" do
+      it "should open the book in a new excel instance, if :if_obstructed is :new_excel" do
         @new_book = Book.open(@simple_file, :if_obstructed => :new_excel)
         @book.should be_alive
         @new_book.should be_alive
@@ -382,7 +382,7 @@ describe Book do
       after do
         @new_book.close
       end
-      it "should provide the excel application of the book" do
+      it "should provide the excel instance of the book" do
         excel = @new_book.excel
         excel.class.should == Excel
         excel.should be_a Excel
@@ -788,11 +788,11 @@ describe Book do
 
     
     context "with :excel" do
-      it "should reuse the given excel application of the book" do
+      it "should reuse the given excel instance of the book" do
         Excel.close_all
         book1 = Book.open(@simple_file)
         excel1 = book1.excel
-        book2 = Book.open(@simple_file, :reuse => false)
+        book2 = Book.open(@simple_file, :excel => :new)
         excel2 = book2.excel
         excel2.should_not == excel1
         book3 = Book.open(@simple_file)
@@ -884,7 +884,7 @@ describe Book do
               @new_book.should be_a Book
               @different_book.should be_a Book
             end
-            it "should belong to the same Excel application" do
+            it "should belong to the same Excel instance" do
               @new_book.excel.should == @book.excel
               @different_book.excel.should == @book.excel
             end
@@ -959,7 +959,7 @@ describe Book do
           end
         end
 
-        it "should open the book in a new excel application, if :if_unsaved is :new_excel" do
+        it "should open the book in a new excel instance, if :if_unsaved is :new_excel" do
           @new_book = Book.open(@simple_file, :if_unsaved => :new_excel)
           @book.should be_alive
           @new_book.should be_alive
@@ -1035,7 +1035,7 @@ describe Book do
         old_book.close
       end
 
-      it "should open the book in a new excel application, if :if_obstructed is :new_excel" do
+      it "should open the book in a new excel instance, if :if_obstructed is :new_excel" do
         @new_book = Book.open(@simple_file, :if_obstructed => :new_excel)
         @book.should be_alive
         @new_book.should be_alive
@@ -1293,7 +1293,7 @@ describe Book do
         it "should raise an error if the book is open" do
           File.delete @simple_save_file rescue nil
           FileUtils.copy @simple_file, @simple_save_file
-          book_save = Book.open(@simple_save_file, :reuse => false)
+          book_save = Book.open(@simple_save_file, :excel => :new)
           expect{
             @book.save_as(@simple_save_file, :if_exists => :overwrite)
             }.to raise_error(ExcelErrorSave, "book is open and used in Excel")
@@ -1346,10 +1346,11 @@ describe Book do
             @book.save_as(@simple_save_file, :if_exists => :alert)
             File.exist?(@simple_save_file).should be_true
             File.size?(@simple_save_file).should > @garbage_length
-            new_book = Book.open(@simple_save_file)
-            new_book.should be_a Book
             @book.excel.DisplayAlerts.should == displayalert_value
+            new_book = Book.open(@simple_save_file, :excel => :new)
+            new_book.should be_a Book
             new_book.close
+            @book.excel.DisplayAlerts.should == displayalert_value
           end
 
           it "should not save if user answers 'no'" do
@@ -1487,12 +1488,12 @@ describe Book do
       end
 
       it "should be false with same book names but different paths" do       
-        @new_book = Book.new(@simple_file_other_path, :reuse => false)
+        @new_book = Book.new(@simple_file_other_path, :excel => :new)
         @new_book.should_not == @book
       end
 
-      it "should be false with same book names but different excel apps" do
-        @new_book = Book.new(@simple_file, :reuse => false)
+      it "should be false with same book names but different excel instances" do
+        @new_book = Book.new(@simple_file, :excel => :new)
         @new_book.should_not == @book
       end
 

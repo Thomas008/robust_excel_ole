@@ -70,35 +70,35 @@ module RobustExcelOle
         raise ExcelErrorOpen, "file #{file} not found"
       end  
       @file = file
-      # ohne Persistenz
-      # es soll auch mögich sein: ich gebe Instanz an und übergebe :displayalerts und :visible
-      # mit with_displayalerts, =visible
-      if @options[:excel] == :reuse || @options[:excel] == :new
-        excel_options = {:reuse => ((@options[:excel] == :reuse) ? true : false),
-                         :displayalerts => @options[:displayalerts], :visible => @options[:visible]}
-        @excel = Excel.new(excel_options)
-      else
-        @excel = @options[:excel]
-        @excel.visible = @options[:visible]
-        @excel.displayalerts = @options[:dispayalerts]    
+       # if :force => false  then try to reuse the excel and book
+      if (not @options[:force]) 
+        p ":force => false"
+        connected = connect(@file)
+        book = connected[0]
+        alive = connected[1]
+        @excel = book.excel if book
+        @workbook = book.workbook if alive
+        p "excel: #{@excel}"
+        p "workbook: #{@workbook}"
       end
-      if (not @excel.alive?)
-        raise ExcelErrorOpen, "Excel instance is not alive"
+      # if :force => true or the Excel is not alive? when trying to connect, then take Excel from :excel
+      if @options[:force] || (not @excel) || (not @excel.alive?)
+        p ":force => #{@options[:force]}  excel: #{@excel}  excel.alive: #{@excel.alive rescue nil}"
+        if @options[:excel] == :reuse || @options[:excel] == :new
+          excel_options = {:reuse => ((@options[:excel] == :reuse) ? true : false),
+                           :displayalerts => @options[:displayalerts], :visible => @options[:visible]}
+          @excel = Excel.new(excel_options)
+        else
+          @excel = @options[:excel]
+          @excel.visible = @options[:visible]
+          @excel.displayalerts = @options[:dispayalerts]    
+        end
+        @workbook = @excel.Workbooks.Item(File.basename(@file)) rescue nil
+        p "excel: #{@excel}  workbook: #{@workbook}"
       end
-      @workbook = @excel.Workbooks.Item(File.basename(@file)) rescue nil
-      #book = Book.connect(@file)
-      #if book
-      #  p "connect"
-      #  # what is with the other excel options?
-      #  # nehme die Optionen von book.excel. wenn neue hier Optionen gesetzt wurden, dann nehme diese
-      #  @excel = book.excel.alive? ? book.excel : (@options[:excel] ? excel_options[:excel] : Excel.new(excel_options))
-      #  @workbook = book.workbook 
-      #else
-      #  @excel = @options[:excel] ? excel_options[:excel] : Excel.new(excel_options)
-      #  @workbook = @excel.Workbooks.Item(File.basename(@file)) rescue nil
-      #end
-      # if book is open
+      # book is open
       if @workbook then
+        p "book is open"
         obstructed_by_other_book = (File.basename(file) == File.basename(@workbook.Fullname)) && 
                                    (not (RobustExcelOle::absolute_path(file) == @workbook.Fullname))
         # if book is obstructed by a book with same name and different path
@@ -166,6 +166,48 @@ module RobustExcelOle
       end
     end
   
+    # returns a book with the filename, if it was open one time
+    # preference order: writable book, readonly unsaved book, readonly book (the last one), dead book
+    def connect(filename)
+      p "connect:"
+      p "@@filename2book:"
+      @@filename2book.each do |element|
+        p " filename: #{element[0]}"
+        p " books:"
+        element[1].each do |book|
+          p "#{book}"
+        end
+      end
+      filename_key = RobustExcelOle::canonize(filename)
+      p "filename_key: #{filename_key}"
+      readonly_book = readonly_unsaved_book = closed_book = nil
+      alive = true
+      books = @@filename2book[filename_key]
+      p "books: #{books}"
+      return [nil,nil] unless books
+      books.each do |book|
+        p "book: #{book}"
+        if book.alive?
+          p "book alive"
+          if (not book.ReadOnly)
+            p "book writable"
+            return [book, true] 
+          else
+            p "book read_only"
+            book.Saved ? (readonly_book = book) : (book_readonly_unsaved = book)
+          end
+        else
+          p "book closed"
+          closed_book = book
+          alive = false
+        end
+      end
+      result = readonly_unsaved_book ? readonly_unsaved_book : (readonly_book ? readonly_book : closed_book)
+      p "book: #{result}"
+      p "alive: #{alive}"
+      [result, alive] 
+    end
+
     def open_workbook
       # if book not open (was not open,was closed with option :forget or shall be opened in new application)
       #    or :if_unsaved => :alert
@@ -237,52 +279,11 @@ module RobustExcelOle
       @workbook = nil unless alive?
     end
 
-    # returns a book with the filename, if it was open one time
-    # preference order: writable book, readonly unsaved book, readonly book (the last one), dead book
-    def self.connect(filename)
-      #p "connect:"
-      #p "@@filename2book:"
-      @@filename2book.each do |element|
-        #p " filename: #{element[0]}"
-        #p " books:"
-        element[1].each do |book|
-          #p "#{book}"
-        end
-      end
-      filename_key = RobustExcelOle::canonize(filename)
-      #p "filename_key: #{filename_key}"
-      book_writable = book_readonly = book_readonly_unsaved = book_closed = nil
-      books = @@filename2book[filename_key]
-      #p "books: #{books}"
-      return nil unless books
-      books.each do |book|
-        #p "book: #{book}"
-        if book.alive?
-          #p "book alive"
-          if (not book.ReadOnly)
-            #p "book writable"
-            book_writable = book 
-            break 
-          else
-            #p "book read_only"
-            book.Saved ? (book_readonly = book) : (book_readonly_unsaved = book)
-          end
-        else
-          #p "book closed"
-          book_closed = book
-        end
-      end
-      result = book_writable ? book_writable : (book_readonly_unsaved ? book_readonly_unsaved : 
-                                                                        (book_readonly ? book_readonly : book_closed))
-      #p "book: #{result}"
-      result 
-    end
-
-
+ 
     # modify a book such that its state remains unchanged.
     # options: :keep_open: let the book open after modification
     def self.unobtrusively(filename, opts = {:keep_open => false})
-      book = self.connect(filename)
+      book = self.open(filename)
       was_nil = book.nil?
       was_alive = book.alive?
       was_saved = ((not was_nil) && was_alive) ? book.Saved : true
@@ -481,7 +482,7 @@ module RobustExcelOle
       end
     end
 
-    private :open_workbook, :close_workbook, :save_as_workbook, :method_missing
+    private :connect, :open_workbook, :close_workbook, :save_as_workbook, :method_missing
 
   end
 end

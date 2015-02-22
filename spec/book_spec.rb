@@ -113,8 +113,7 @@ describe Book do
         book2 = Book.open(@simple_file, :excel => :new)
         book2.should be_alive
         book2.should be_a Book
-        book2.excel.should_not == @book.excel
-        book2.close
+        book2.excel.should_not == @book.excel 
       end
 
       it "should open in a given Excel" do

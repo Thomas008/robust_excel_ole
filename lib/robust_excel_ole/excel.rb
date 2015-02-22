@@ -40,7 +40,7 @@ module RobustExcelOle
         excel = current_excel
       end
       if not (options[:reuse] && excel)
-        excel = WIN32OLE.new('Excel.application')
+        excel = WIN32OLE.new('Excel.Application')
       end
       excel.DisplayAlerts = options[:displayalerts]
       excel.Visible = options[:visible]
@@ -72,12 +72,12 @@ module RobustExcelOle
     end
 
 
-    # returns true, if the Excel applications are identical, false otherwise
+    # returns true, if the Excel instances are identical, false otherwise
     def == other_excel
       self.Hwnd == other_excel.Hwnd    if other_excel.is_a?(Excel)
     end
 
-    # returns true, if the Excel application is alive, false otherwise
+    # returns true, if the Excel instances is alive, false otherwise
     def alive?
       @excel.Name
       true
@@ -97,22 +97,22 @@ module RobustExcelOle
       end
     end
 
-    # set DisplayAlerts in the current Excel
+    # enable DisplayAlerts in the current Excel instance
     def displayalerts= displayalerts_value
       @excel.DisplayAlerts = displayalerts_value
     end
 
-    # return if in the current Excel DisplayAlerts is set
+    # return if in the current Excel instance DisplayAlerts is enabled
     def displayalerts 
       @excel.DisplayAlerts
     end
 
-    # make the current Excel application visible or invisible
+    # make the current Excel instance visible or invisible
     def visible= visible_value
       @excel.Visible = visible_value
     end
 
-    # return if the current Excel application is visible
+    # return if the current Excel instance is visible
     def visible 
       @excel.Visible
     end
@@ -120,7 +120,7 @@ module RobustExcelOle
 
   private
 
-    # closes one Excel application
+    # closes one Excel instance
     def self.close_one_excel  
       excel = current_excel
       if excel then
@@ -180,7 +180,7 @@ module RobustExcelOle
       puts "went through #{anz_objekte} OLE objects"
     end
 
-    # returns the current Excel application, if a running, working Excel appication exists, nil otherwise
+    # returns the current Excel instance
     def self.current_excel   # :nodoc: #
       result = WIN32OLE.connect('Excel.Application') rescue nil
       if result
@@ -198,7 +198,7 @@ module RobustExcelOle
       self.HWnd #rescue Win32 nil
     end
 
-    # set this Excel application to nil
+    # set this Excel instance to nil
     def die 
       @excel = nil
     end

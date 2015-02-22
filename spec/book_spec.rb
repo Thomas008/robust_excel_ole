@@ -95,6 +95,7 @@ describe Book do
     context "with :excel" do
 
       before do
+        Excel.close_all
         @book = Book.open(@simple_file)
       end
 
@@ -103,10 +104,9 @@ describe Book do
       end
 
       it "should reuse an Excel" do
-        book2 = Book.open(@different_file, :excel => :reuse)
+        book2 = Book.open(@simple_file, :excel => :reuse)
         book2.excel.should == @book.excel
-        book3 = Book.open(@different_file)
-        book3.excel.should == @book.excel
+        book2.should == @book
       end
 
       it "should open in a new Excel" do
@@ -119,10 +119,10 @@ describe Book do
 
       it "should open in a given Excel" do
         book2 = Book.open(@simple_file, :excel => :new)
-        book2.excel.should_not == book1.excel
+        book2.excel.should_not == @book.excel
         book3 = Book.open(@simple_file, :excel => :new)
         book3.excel.should_not == book2.excel
-        book3.excel.should_not == book1.excel
+        book3.excel.should_not == @book.excel
         book2_excel = book2.excel
         book2.close
         book4 = Book.open(@simple_file, :excel => book2_excel)
@@ -1503,7 +1503,7 @@ describe Book do
       end
     end
 
-    context "with visible" do
+    context "with visible and displayalerts" do
 
       before do
         @book = Book.open(@simple_file)
@@ -1515,11 +1515,20 @@ describe Book do
 
       it "should make Excel visible" do
         @book.visible = false
-        Excel.current.visible.should be_false
+        @book.excel.visible.should be_false
         @book.visible.should be_false
         @book.visible = true
-        Excel.current.visible.should be_true
+        @book.excel.visible.should be_true
         @book.visible.should be_true
+      end
+
+      it "should enable DisplayAlerts in Excel" do
+        @book.displayalerts = false
+        @book.excel.displayalerts.should be_false
+        @book.displayalerts.should be_false
+        @book.displayalerts = true
+        @book.excel.displayalerts.should be_true
+        @book.displayalerts.should be_true
       end
 
     end

@@ -73,23 +73,19 @@ module RobustExcelOle
       # ohne Persistenz
       # es soll auch mögich sein: ich gebe Instanz an und übergebe :displayalerts und :visible
       # mit with_displayalerts, =visible
-      if @options[:excel]
-        @excel = @options[:excel]
-        @excel.visible = @options[:visible]
-        @excel.displayalerts = @options[:dispayalerts]
-      else
+      if @options[:excel] == :reuse || @options[:excel] == :new
         excel_options = {:reuse => ((@options[:excel] == :reuse) ? true : false),
                          :displayalerts => @options[:displayalerts], :visible => @options[:visible]}
         @excel = Excel.new(excel_options)
+      else
+        @excel = @options[:excel]
+        @excel.visible = @options[:visible]
+        @excel.displayalerts = @options[:dispayalerts]    
       end
       if (not @excel.alive?)
         raise ExcelErrorOpen, "Excel instance is not alive"
       end
-     
-#excel_options = {:reuse => true}.merge(opts).delete_if{|k,v| k == :force || || k == :if_locked || k== :read_only || k== :if_unsaved || k == :if_obstructed}
-
-
-
+      @workbook = @excel.Workbooks.Item(File.basename(@file)) rescue nil
       #book = Book.connect(@file)
       #if book
       #  p "connect"
@@ -98,8 +94,8 @@ module RobustExcelOle
       #  @excel = book.excel.alive? ? book.excel : (@options[:excel] ? excel_options[:excel] : Excel.new(excel_options))
       #  @workbook = book.workbook 
       #else
-        @excel = @options[:excel] ? excel_options[:excel] : Excel.new(excel_options)
-        @workbook = @excel.Workbooks.Item(File.basename(@file)) rescue nil
+      #  @excel = @options[:excel] ? excel_options[:excel] : Excel.new(excel_options)
+      #  @workbook = @excel.Workbooks.Item(File.basename(@file)) rescue nil
       #end
       # if book is open
       if @workbook then
@@ -326,17 +322,29 @@ module RobustExcelOle
       self.filename == other_book.filename  
     end
 
-    # make the current Excel application visible or invisible
+    # returns if the Excel instance is visible
+    def visible 
+      @excel.visible
+    end
+
+   # make the Excel instance visible or invisible
     # option: visible_value     true -> make Excel visible, false -> make Excel invisible
     def visible= visible_value
-      Excel.current.Visible = visible_value
+      @excel.visible = visible_value
     end
 
-    # returns if the current Excel application is visible
-    def visible 
-      Excel.current.Visible
+   # returns if DisplayAlerts is enabed in the Excel instance
+    def displayalerts 
+      @excel.displayalerts
     end
 
+    # enable in the Excel instance Dispayalerts
+    #  option: displayalerts_value     true -> enable DisplayAlerts, false -> disable DispayAlerts
+    def displayalerts= displayalerts_value
+      @excel.displayalerts = displayalerts_value
+    end
+
+ 
     # saves a book.
     # returns true, if successfully saved, nil otherwise
     def save

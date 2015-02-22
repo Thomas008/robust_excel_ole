@@ -154,11 +154,32 @@ Getting the file name of the book with the absolute path that contains slash (/)
 
   book.filename
 
-=== Makeing a book visible in the current Excel application.
+=== Make a book visible or invisible in Excel.
+
+Make the book visible.
 
   book.visible = true
 
-Option is: +true+ -> make visible , +false+ -> make invisible
+Options: +true+ -> make visible , +false+ -> make invisible
+
+Check whether the book is visible.
+  
+  if book.visible then p "visible"
+
+=== Enable and disable DisplayAlerts in Excel.
+
+Enable DisplayAlerts.
+
+  book.displayalerts = true
+
+Options: +true+ -> enable DisplayAlerts , +false+ -> Disable DisplayAlerts
+
+
+Check whether DisplayAlerts is enabled.
+  
+  if book.displayalerts then p "DisplayAlerts enabled"
+
+
 
 === Accessing a sheet.
 

@@ -94,12 +94,12 @@ module RobustExcelOle
         @excel1 = Excel.create
       end
 
-      it "should be true with two identical excel applications" do
+      it "should be true with two identical excel instances" do
         excel2 = Excel.current
         excel2.should == @excel1
       end
 
-      it "should be false with two different excel applications" do
+      it "should be false with two different excel instances" do
         excel2 = Excel.create
         excel2.should_not == @excel1
       end

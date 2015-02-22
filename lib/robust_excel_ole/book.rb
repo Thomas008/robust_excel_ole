@@ -23,8 +23,8 @@ module RobustExcelOle
       #                  :new             -> open in a new Excel
       #                  <instance>       -> open in the given Excel instance
       # :force          if the book was already open in an Excel that is still working, then:
-      #                  false     -> use this Excel (reopen), else use the Excel given in :excel
-      #                  true      -> use the Excel given in :excel, even if the book was opened before
+      #                  false          -> use this Excel (reopen), else use the Excel given in :excel
+      #                  true (default) -> use the Excel given in :excel, even if the book was opened before
       # :if_locked      if the book is open in another Excel and writable there, then
       #                  :go_there (default) -> use the Excel in which the book is writable?
       #                  :force    -> make it writable when opening new
@@ -58,7 +58,7 @@ module RobustExcelOle
     def initialize(file, opts={ }, &block)
       @options = {
         :excel => :reuse,
-        :force => false,
+        :force => true,
         :if_locked => :go_there,
         :read_only => false,
         :if_unsaved => :raise,
@@ -72,7 +72,7 @@ module RobustExcelOle
       @file = file
        # if :force => false  then try to reuse the excel and book
       if (not @options[:force]) 
-        p ":force => false"
+        p ":force => false  try to connect"
         connected = connect(@file)
         book = connected[0]
         alive = connected[1]

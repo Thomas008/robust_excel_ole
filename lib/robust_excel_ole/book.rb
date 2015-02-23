@@ -73,9 +73,7 @@ module RobustExcelOle
        # if :force => false  then try to reuse the excel and book
       if (not @options[:force]) 
         p ":force => false  try to connect"
-        connected = connect(@file)
-        book = connected[0]
-        alive = connected[1]
+        book, alive = connect(@file)
         @excel = book.excel if book
         @workbook = book.workbook if alive
         p "excel: #{@excel}"
@@ -90,7 +88,7 @@ module RobustExcelOle
           @excel = Excel.new(excel_options)
         else
           @excel = @options[:excel]
-          @excel.visible = @options[:visible]
+          @excel.visible = @options[:visible] if @options[:visible] 
           @excel.displayalerts = @options[:dispayalerts]    
         end
         @workbook = @excel.Workbooks.Item(File.basename(@file)) rescue nil
@@ -486,3 +484,18 @@ module RobustExcelOle
 
   end
 end
+
+
+__END__
+
+
+          class Object
+            def update_extracted hash, key
+              value = hash[param_name]
+              self.send("#{key}=", value) if value
+            end
+          end
+          @excel.visible = @options[:visible] if @options[:visible] 
+          @excel.displayalerts = @options[:dispayalerts]    
+          @excel.update_extracted(@options, [:visible, :dispayalerts])
+          @excel.options.merge(@options.extract(:visible, :dispayalerts))

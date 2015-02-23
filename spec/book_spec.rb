@@ -58,25 +58,38 @@ describe Book do
         @book.close
       end
 
-      it "should read" do
-        @book = Book.open(@simple_file, :excel => :new, :force => true)
+      it "should read in a seperate excel instance" do
+        @book = Book.open(@simple_file, :read_only => true, :force_excel => :new)
       end
 
       it "should open writable" do
-        @book = Book.open(@simple_file, :force => false, :if_locked => :go_there, 
+        @book = Book.open(@simple_file, :if_locked => :take_writable, 
                                         :if_unsaved => :forget, :if_obstructed => :save)
       end
 
       it "should open unobtrusively" do
-        @book = Book.open(@simple_file, :force => false, :if_locked => :go_there, 
+        @book = Book.open(@simple_file, :if_locked => :take_writable, 
                                         :if_unsaved => :accept, :if_obstructed => :reuse_excel)
       end
 
       it "should open in a given instance" do
         book = Book.open(@simple_file)
-        @book = Book.open(@simple_file, :excel => book.excel, :force => true, :if_locked => :force) 
+        @book = Book.open(@simple_file, :force_excel => book.excel, :if_locked => :force_writability) 
       end
+
+      it "should read not bothering about excel instances" do
+        @book = Book.open(@simple_file, :read_only => true)
+      end
+
+      it "should open writable" do
+        @book = Book.open(@simple_file, :if_locked => :take_writable, 
+                                        :if_unsaved => :save, :if_obstructed => :save)
+      end
+
+
+
     end
+
 
     context "with standard options" do
       before do
@@ -157,6 +170,8 @@ describe Book do
         book2.should be_alive
         book2.should be_a Book
         book2.excel.should == @book.excel
+        book2.filename.should == @book.filename
+        @book.should be_alive
       end
 
       it "should use :excel, if book cannot be reopened" do
@@ -727,6 +742,7 @@ describe Book do
         sheet[0,0].value.should_not == @old_cell_value
       end
 
+      # The bold reanimation of the @book
       it "should keep open the book" do
         @book.close
         @book.should_not be_alive

@@ -141,6 +141,7 @@ describe Book do
       end
 
       after do
+        @book.close rescue nil
       end
 
       it "should keep the book" do
@@ -157,6 +158,7 @@ describe Book do
         book2.should be_alive
         book2.should be_a Book
         book2.excel.should == @book.excel
+        book2.close
       end
 
       it "should use :excel, if book cannot be reopened" do
@@ -165,14 +167,7 @@ describe Book do
         book2.should be_alive
         book2.should be_a Book
         book2.excel.should_not == @book.excel
-      end
-
-      it "should open in a given excel" do
-        @book.close
-        book2 = Book.open(@simple_file, :force => true, :excel => :new)
-        book2.should be_alive
-        book2.should be_a Book
-        book2.excel.should_not == @book.excel
+        book2.close
       end
     end
 

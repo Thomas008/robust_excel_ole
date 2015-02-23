@@ -58,7 +58,7 @@ module RobustExcelOle
     def initialize(file, opts={ }, &block)
       @options = {
         :excel => :reuse,
-        :force => true,
+        :force => true,   # default?
         :if_locked => :go_there,
         :read_only => false,
         :if_unsaved => :raise,

@@ -151,6 +151,18 @@ module RobustExcelOle
         excel.displayalerts.should be_true
       end
 
+      # !!!!!!!!!!!!!!!! should work !!!!!!!!!!!!
+      it "should visible and displayalerts" do
+        excel = Excel.new(:visible => true)
+        excel.visible.should be_true
+        excel.displayalerts.should be_false
+        excel2 = Excel.new(:reuse => true)
+        excel2.should == excel
+
+        excel2.visible.should be_true
+        excel2.displayalerts.should be_true        
+      end
+
     end
 
 

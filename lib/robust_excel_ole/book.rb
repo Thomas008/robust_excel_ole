@@ -63,8 +63,6 @@ module RobustExcelOle
         :read_only => false,
         :if_unsaved => :raise,
         :if_obstructed => :raise,
-        :displayalerts => false,
-        :visible => false
       }.merge(opts)
       if not File.exist?(file)
         raise ExcelErrorOpen, "file #{file} not found"

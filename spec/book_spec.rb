@@ -85,9 +85,6 @@ describe Book do
         @book = Book.open(@simple_file, :if_locked => :take_writable, 
                                         :if_unsaved => :save, :if_obstructed => :save)
       end
-
-
-
     end
 
 
@@ -102,6 +99,42 @@ describe Book do
 
       it "should say that it lives" do
         @book.should be_alive
+      end
+    end
+
+    context "with transperency identity" do
+
+      before do
+        @book = Book.open(@simple_file)
+      end
+
+      after do
+        @book.close
+      end
+
+      it "should yield identical Book objects for identical Excel books" do
+        book2 = Book.open(@simple_file)
+        book2.should == @book
+        book2.close
+      end
+
+      it "should yield different Book objects for different Excel books" do
+        book2 = Book.open(@different_file)
+        book2.should_not == @book
+        book2.close
+      end
+
+      it "should yield different Book objects when opened the same file in different Excel instances" do
+        book2 = Book.open(@simple_file, :excel => :new)
+        book2.should_not == @book
+        book2.close
+      end
+
+      it "should yield identical Book objects for identical Excel books when reopening" do
+        @book.close
+        book2 = Book.open(@simple_file)
+        book2.should == @book
+        book2.close
       end
     end
 

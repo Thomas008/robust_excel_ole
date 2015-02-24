@@ -34,16 +34,21 @@ module RobustExcelOle
     #  :reuse          use an already running Excel instance (default: true)
     #  :displayalerts  allow display alerts in Excel         (default: false)
     #  :visible        make visible in Excel                 (default: false)
+    #  if :reuse => true, then DisplayAlerts and Visible are set only if they are given
     def self.new(options= {})
-      options = {:reuse => true, :displayalerts => false, :visible => false}.merge(options)
+      options = {:reuse => true}.merge(options)
       if options[:reuse] then
         excel = current_excel
       end
-      if not (options[:reuse] && excel)
+      if not (excel)
         excel = WIN32OLE.new('Excel.Application')
+        options = {
+          :displayalerts => false,
+          :visible => false,
+        }.merge(options)
       end
-      excel.DisplayAlerts = options[:displayalerts]
-      excel.Visible = options[:visible]
+      excel.DisplayAlerts = options[:displayalerts] unless options[:displayalerts].nil?
+      excel.Visible = options[:visible] unless options[:visible].nil?
 
       hwnd = excel.HWnd
       stored = @@hwnd2excel[hwnd]

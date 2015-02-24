@@ -118,7 +118,7 @@ module RobustExcelOle
         Excel.close_all
       end
 
-      it "should be visible" do
+      it "should create Excel visible" do
         excel = Excel.new(:visible => true)
         excel.Visible.should be_true
         excel.visible.should be_true
@@ -129,7 +129,7 @@ module RobustExcelOle
         excel.visible.should be_false
       end
 
-      it "should displayalerts" do        
+      it "should create Excel with DispayAlerts enabled" do        
         excel = Excel.new(:displayalerts => true)
         excel.DisplayAlerts.should be_true
         excel.displayalerts.should be_true
@@ -140,27 +140,24 @@ module RobustExcelOle
         excel.displayalerts.should be_false
       end
 
-      it "should visible and displayalerts" do
+      it "should keep visible and displayalerts values when reusing Excel" do
         excel = Excel.new(:visible => true)
         excel.visible.should be_true
         excel.displayalerts.should be_false
-        excel2 = Excel.new(:reuse => true, :visible => true, :displayalerts => true)
-        excel2.visible.should be_true
-        excel2.displayalerts.should be_true        
+        excel2 = Excel.new(:displayalerts => true)
+        excel2.should == excel
         excel.visible.should be_true
-        excel.displayalerts.should be_true
+        excel.displayalerts.should be_true        
       end
 
-      # !!!!!!!!!!!!!!!! should work !!!!!!!!!!!!
-      it "should visible and displayalerts" do
-        excel = Excel.new(:visible => true)
-        excel.visible.should be_true
-        excel.displayalerts.should be_false
-        excel2 = Excel.new(:reuse => true)
+      it "should keep displayalerts and visible values when reusing Excel" do
+        excel = Excel.new(:displayalerts => true)
+        excel.visible.should be_false
+        excel.displayalerts.should be_true
+        excel2 = Excel.new(:visible => true)
         excel2.should == excel
-
-        excel2.visible.should be_true
-        excel2.displayalerts.should be_true        
+        excel.visible.should be_true
+        excel.displayalerts.should be_true        
       end
 
     end

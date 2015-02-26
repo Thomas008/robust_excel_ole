@@ -7,7 +7,7 @@ module RobustExcelOle
 
   class Book
     attr_reader :workbook
-    attr_reader :excel
+    attr_accessor :excel
 
      # book management for persisten storage:
      # data structure: {filename1 => [book1,...bookn], filename2 => ...} 
@@ -18,79 +18,90 @@ module RobustExcelOle
       # opens a book.
       # 
       # options: 
-      # :excel         determines the Excel in which to open the book 
-      #                  :reuse (default) -> connect to a running Excel, if it exists, open a new Excel, otherwise
-      #                  :new             -> open in a new Excel
-      #                  <instance>       -> open in the given Excel instance
-      # :force          if the book was already open in an Excel that is still working, then:
-      #                  false          -> use this Excel (reopen), else use the Excel given in :excel
-      #                  true (default) -> use the Excel given in :excel, even if the book was opened before
-      # :if_locked      if the book is open in another Excel and writable there, then
-      #                  :go_there (default) -> use the Excel in which the book is writable?
-      #                  :force    -> make it writable when opening new
-      #                  :raise    -> raise an exception
+      # :default_excel   if the book was already open in a Excel, then open it there, otherwise:
+      #                   :reuse (default) -> connect to a running Excel if it exists, open a new Excel otherwise
+      #                   :new             -> open in a new Excel
+      #                   <instance>       -> open in the given Excel instance
+      # :force_excel     no matter whether the book was already open
+      #                   :new (default)   -> open in a new Excel
+      #                   <instance>       -> open in the given Excel instance
+      # :if_locked       if the book is writable in another Excel , then
+      #                   :take_writable (default) -> use the Excel in which the book is writable
+      #                   :force_writability       -> make it writable in the desired Excel
+      #                   :raise                   -> raise an exception
       # :if_locked_unsaved  if the book is open in another Excel and contains unsaved changes
       #                  :raise    -> raise an exception
       #                  :save     -> save the unsaved book 
       # :if_unsaved     if an unsaved book with the same name is open, then
-      #                  :raise     -> raise an exception (default)
-      #                  :forget    -> close the unsaved book, open the new book             
-      #                  :accept    -> let the unsaved book open                  
-      #                  :alert     -> give control to Excel
-      #                  :new_excel -> open the new book in a new Excel
+      #                  :raise (default) -> raise an exception
+      #                  :forget          -> close the unsaved book, open the new book             
+      #                  :accept          -> let the unsaved book open                  
+      #                  :alert           -> give control to Excel
+      #                  :new_excel       -> open the new book in a new Excel
       # :if_obstructed  if a book with the same name in a different path is open, then
-      #                  :raise          -> raise an exception (default)             
-      #                  :forget         -> close the old book, open the new book
-      #                  :save           -> save the old book, close it, open the new book
-      #                  :close_if_saved -> close the old book and open the new book, if the old book is saved
-      #                                     raise an exception otherwise
-      #                  :new_excel      -> open the new book in a new Excel
-      #                  :reuse_excel    -> try the next free running Excel, if it exists, open a new Excel, else
-      # :read_only     open in read-only mode          (default: false)
-      # :displayalerts allow display alerts in Excel   (default: false)
-      # :visible       make visibe in Excel            (default: false)
-      def open(file, options={ :reuse => true}, &block)
-        new(file, options, &block)
+      #                  :raise (default) -> raise an exception 
+      #                  :forget          -> close the old book, open the new book
+      #                  :save            -> save the old book, close it, open the new book
+      #                  :close_if_saved  -> close the old book and open the new book, if the old book is saved
+      #                                      raise an exception otherwise
+      #                  :new_excel       -> open the new book in a new Excel
+      #                  :reuse_excel     -> try the next free running Excel, if it exists, open a new Excel, else
+      # :read_only     open in read-only mode         (default: false)
+      # :displayalerts enable DisplayAlerts in Excel  (default: false)
+      # :visible       make visibe in Excel           (default: false)
+      # If :default_excel is set, then DisplayAlerts and Visible are set only if these parameters are given,
+      #                                   not set by default
+      def open(file, options={ }, &block)
+        book = nil
+        if (:reuse_excel || (not :force_excel))
+          book = find_book(file)
+          if book 
+            if (not book.excel.alive?)
+              book.excel = Excel.new(:excel => book.excel, 
+                                     :displayalerts => book.excel.displayalerts, :visible => book.excel.visible)
+            end
+            book
+          end
+        end
+        if :force_excel || book.nil
+          # if :reuse_excel is set, then :excel = :reuse_excel, else :excel = :force_excel
+          options[:excel] = :reuse_excel ? :reuse_excel : :force_excel 
+          new(file, options, &block)
+        end
       end
-
     end
 
     def initialize(file, opts={ }, &block)
       @options = {
-        :excel => :reuse,
-        :force => true,   # default?
-        :if_locked => :go_there,
-        :read_only => false,
-        :if_unsaved => :raise,
+        :if_locked     => :take_writable,       
+        :if_unsaved    => :raise,
         :if_obstructed => :raise,
+        :read_only => false
       }.merge(opts)
       if not File.exist?(file)
         raise ExcelErrorOpen, "file #{file} not found"
       end  
       @file = file
-       # if :force => false  then try to reuse the excel and book
-      if (not @options[:force]) 
-        p ":force => false  try to connect"
-        book, alive = connect(@file)
-        @excel = book.excel if book
-        @workbook = book.workbook if alive
-        p "excel: #{@excel}"
-        p "workbook: #{@workbook}"
+      if @options[:excel] == :reuse
+        @excel = Excel.new(:reuse => true)       
       end
-      # if :force => true or the Excel is not alive? when trying to connect, then take Excel from :excel
-      if @options[:force] || (not @excel) || (not @excel.alive?)
-        p ":force => #{@options[:force]}  excel: #{@excel}  excel.alive: #{@excel.alive rescue nil}"
-        if @options[:excel] == :reuse || @options[:excel] == :new
-          excel_options = {:reuse => ((@options[:excel] == :reuse) ? true : false),
-                           :displayalerts => @options[:displayalerts], :visible => @options[:visible]}
+      excel_options = nil
+      if (not @excel)
+        if (@options[:excel] == :new || @options[:excel] == :reuse)
+          excel_options = {:displayalerts => false, :visible => false}.merge(opts)
+          excel_options[:reuse] = false
           @excel = Excel.new(excel_options)
         else
           @excel = @options[:excel]
-          @excel.visible = @options[:visible] if @options[:visible] 
-          @excel.displayalerts = @options[:dispayalerts]    
         end
-        @workbook = @excel.Workbooks.Item(File.basename(@file)) rescue nil
-        p "excel: #{@excel}  workbook: #{@workbook}"
+      end
+      # if :excel => new or (:excel => :reuse but could not reuse)
+      if (not excel_options)
+        @excel.displayalerts = @options[:displayalerts] unless @options[:displayalerts].nil?
+        @excel.visible = @options[:visible] unless @options[:visible].nil?
+      end
+      @workbook = @excel.Workbooks.Item(File.basename(@file)) rescue nil
+      p "excel: #{@excel}  workbook: #{@workbook}"
       end
       # book is open
       if @workbook then
@@ -162,10 +173,10 @@ module RobustExcelOle
       end
     end
   
-    # returns a book with the filename, if it was open one time
-    # preference order: writable book, readonly unsaved book, readonly book (the last one), dead book
-    def connect(filename)
-      p "connect:"
+    # returns a book with the given filename, if it was open once
+    # preference order: writable book, readonly unsaved book, readonly book (the last one), closed book
+    def find_book(filename)
+      p "find_book:"
       p "@@filename2book:"
       @@filename2book.each do |element|
         p " filename: #{element[0]}"
@@ -177,7 +188,6 @@ module RobustExcelOle
       filename_key = RobustExcelOle::canonize(filename)
       p "filename_key: #{filename_key}"
       readonly_book = readonly_unsaved_book = closed_book = nil
-      alive = true
       books = @@filename2book[filename_key]
       p "books: #{books}"
       return [nil,nil] unless books
@@ -195,13 +205,11 @@ module RobustExcelOle
         else
           p "book closed"
           closed_book = book
-          alive = false
         end
       end
       result = readonly_unsaved_book ? readonly_unsaved_book : (readonly_book ? readonly_book : closed_book)
       p "book: #{result}"
-      p "alive: #{alive}"
-      [result, alive] 
+      result
     end
 
     def open_workbook

@@ -66,7 +66,7 @@ module RobustExcelOle
                                      :displayalerts => book.excel.displayalerts, :visible => book.excel.visible)
             end
             p "return book"
-            book
+            return book
           end
         end
         if options[:force_excel] || book.nil?
@@ -94,7 +94,6 @@ module RobustExcelOle
       end  
       @file = file
       if @options[:excel] == :reuse
-        p ":excel => #{@options[:excel]}"
         @excel = Excel.new(:reuse => true)
         p "@excel: #{@excel}"       
       end
@@ -214,7 +213,7 @@ module RobustExcelOle
           p "book alive"
           if (not book.ReadOnly)
             p "book writable"
-            return book, true 
+            return book 
           else
             p "book read_only"
             book.Saved ? (readonly_book = book) : (book_readonly_unsaved = book)

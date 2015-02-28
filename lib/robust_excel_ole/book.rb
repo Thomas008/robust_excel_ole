@@ -52,47 +52,65 @@ module RobustExcelOle
       # If :default_excel is set, then DisplayAlerts and Visible are set only if these parameters are given,
       #                                   not set by default
       def open(file, options={ }, &block)
+        p" open"
         book = nil
-        if (:reuse_excel || (not :force_excel))
+        if (options[:default_excel] || (not options[:force_excel]))
+          p ":reuse_excel is set or not :force_excel => true"
           book = find_book(file)
+          p "book: #{book}"
           if book 
+            p "book exists"
             if (not book.excel.alive?)
+              p "book.excel is not alive"
               book.excel = Excel.new(:excel => book.excel, 
                                      :displayalerts => book.excel.displayalerts, :visible => book.excel.visible)
             end
+            p "return book"
             book
           end
         end
-        if :force_excel || book.nil
+        if options[:force_excel] || book.nil?
+          p ":force_excel is set or book nil"
           # if :reuse_excel is set, then :excel = :reuse_excel, else :excel = :force_excel
-          options[:excel] = :reuse_excel ? :reuse_excel : :force_excel 
+          options[:excel] = (options[:default_excel] || options[:force_excel]) ?  
+              (options[:default_excel] ? options[:default_excel] : options[:force_excel]) : :reuse
+          p ":excel => #{options[:excel]}"
           new(file, options, &block)
         end
       end
     end
 
     def initialize(file, opts={ }, &block)
+      p "initialize"
       @options = {
         :if_locked     => :take_writable,       
         :if_unsaved    => :raise,
         :if_obstructed => :raise,
         :read_only => false
       }.merge(opts)
+      p ":excel => #{@options[:excel]}"
       if not File.exist?(file)
         raise ExcelErrorOpen, "file #{file} not found"
       end  
       @file = file
       if @options[:excel] == :reuse
-        @excel = Excel.new(:reuse => true)       
+        p ":excel => #{@options[:excel]}"
+        @excel = Excel.new(:reuse => true)
+        p "@excel: #{@excel}"       
       end
       excel_options = nil
       if (not @excel)
+        p "not @excel"
         if (@options[:excel] == :new || @options[:excel] == :reuse)
+          p ":excel => @options[:excel]"
           excel_options = {:displayalerts => false, :visible => false}.merge(opts)
           excel_options[:reuse] = false
           @excel = Excel.new(excel_options)
+          p "@excel: #{@excel}"
         else
+          p "excel instance is given"
           @excel = @options[:excel]
+          p "excel: #{@excel}"
         end
       end
       # if :excel => new or (:excel => :reuse but could not reuse)
@@ -102,7 +120,6 @@ module RobustExcelOle
       end
       @workbook = @excel.Workbooks.Item(File.basename(@file)) rescue nil
       p "excel: #{@excel}  workbook: #{@workbook}"
-      end
       # book is open
       if @workbook then
         p "book is open"
@@ -172,10 +189,10 @@ module RobustExcelOle
         end
       end
     end
-  
+
     # returns a book with the given filename, if it was open once
     # preference order: writable book, readonly unsaved book, readonly book (the last one), closed book
-    def find_book(filename)
+    def self.find_book(filename)
       p "find_book:"
       p "@@filename2book:"
       @@filename2book.each do |element|
@@ -190,14 +207,14 @@ module RobustExcelOle
       readonly_book = readonly_unsaved_book = closed_book = nil
       books = @@filename2book[filename_key]
       p "books: #{books}"
-      return [nil,nil] unless books
+      return nil  unless books
       books.each do |book|
         p "book: #{book}"
         if book.alive?
           p "book alive"
           if (not book.ReadOnly)
             p "book writable"
-            return [book, true] 
+            return book, true 
           else
             p "book read_only"
             book.Saved ? (readonly_book = book) : (book_readonly_unsaved = book)
@@ -486,7 +503,7 @@ module RobustExcelOle
       end
     end
 
-    private :connect, :open_workbook, :close_workbook, :save_as_workbook, :method_missing
+    private :open_workbook, :close_workbook, :save_as_workbook, :method_missing
 
   end
 end

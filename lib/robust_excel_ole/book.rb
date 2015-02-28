@@ -101,7 +101,7 @@ module RobustExcelOle
       if (not @excel)
         p "not @excel"
         if (@options[:excel] == :new || @options[:excel] == :reuse)
-          p ":excel => @options[:excel]"
+          p ":excel => #{@options[:excel]}"
           excel_options = {:displayalerts => false, :visible => false}.merge(opts)
           excel_options[:reuse] = false
           @excel = Excel.new(excel_options)

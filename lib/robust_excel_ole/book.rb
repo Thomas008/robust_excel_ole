@@ -51,23 +51,63 @@ module RobustExcelOle
       # :visible       make visibe in Excel           (default: false)
       # If :default_excel is set, then DisplayAlerts and Visible are set only if these parameters are given,
       #                                   not set by default
+
+
+=begin
+Ablaufplan:
+
+open:
+
+wenn nicht :force_excel => :new
+  finde book
+  wenn book gefunden:
+    wenn nicht force_excel oder (force_excel => <Instanz> und Instanz == book.excel)
+      reopen  (return if succeeds)
+    sonst
+      * if_locked* (return if succeeds)
+setze :excel => :force_excel ? :force_excel : default_excel (bevorzuge :force_excel)
+öffne mit initialize
+   
+
+reopen:
+
+  wenn book.excel.alive?
+    wenn not book.alive?
+      (if_unsaved, if_obstructed wie bei reopen. zuerst copy & paste. später Abfrage herausfaktorisieren)
+      book.workbook = book.excel.Workbooks.Open(file)
+
+    return book
+  sonst
+    wenn :force => <instance>
+      raise (optional auswerten :default_excel)
+
+
+
+
+
+if_locked:
+Fälle
+
+
+
+initialize:
+
+  excel_optionen = ...
+  @excel = Excel.new(excel_optionen)
+  @workbook = @excel. Workbooks.Item(file)
+  wenn @workbook == nil
+    @workbook = @excel.Workbooks.Open(file)
+=end
+
       def open(file, options={ }, &block)
         p" open"
         book = nil
         if (options[:default_excel] || (not options[:force_excel]))
           p ":reuse_excel is set or not :force_excel => true"
-          book, workbook = find_book(file)
+          book = find_book(file)
           p "book: #{book}"
-          p "workbook: #{workbook}"
           if book 
             p "book exists"
-            if (not book.excel.alive?)
-              p "book.excel is not alive"
-              book.excel = Excel.new(:excel => book.excel, 
-                                     :displayalerts => book.excel.displayalerts, :visible => book.excel.visible)
-            end                                
-            book.workbook = workbook
-            p "workbook: #{book.workbook}"
             p "return book"   
             return book
           end
@@ -197,55 +237,35 @@ module RobustExcelOle
       @@filename2book.each do |element|
         p " filename: #{element[0]}"
         p " books:"
-        element[1].each do |book,workbook|
+        element[1].each do |book|
           p "#{book}"
         end
       end
       filename_key = RobustExcelOle::canonize(filename)
       p "filename_key: #{filename_key}"
-      readonly_book = readonly_unsaved_book = closed_book = 
-      readonly_workbook = readonly_unsaved_workbook = closed_workbook = nil
+      readonly_book = readonly_unsaved_book = closed_book = result = nil
       books = @@filename2book[filename_key]
       p "books: #{books}"
-      return [nil,nil]  unless books
-      books.each do |book,workbook|
+      return nil  unless books
+      books.each do |book|
         p "book: #{book}"
         if book.alive?
           p "book alive"
           if (not book.ReadOnly)
             p "book writable"
-            return book, workbook 
+            return book
           else
             p "book read_only"
-            if book.Saved
-              readonly_book = book
-              readonly_workbook = workbook
-            else
-              readonly_unsaved_book = book
-              readonly_unsaved_workbook = workbook
-            end
+            book.Saved ? readonly_book = book : readonly_unsaved_book = book
           end
         else
           p "book closed"
           closed_book = book
-          closed_workbook = workbook
         end
       end
-      if readonly_unsaved_book
-        result_book = readonly_unsaved_book
-        result_workbook = readonly_unsaved_book
-      else
-        if readonly_book
-          result_book = readonly_book
-          result_workbook = readonly_workbook
-        else
-          result_book = closed_book
-          result_workbook = closed_workbook
-        end
-      end
-      p "book: #{result_book}"
-      p "workbook: #{result_workbook}"
-      [result_book, result_workbook]
+      result = readonly_unsaved_book ? readonly_unsaved_book : (readonly_book ? readonly_book : closed_book)
+      p "book: #{result}"
+      result
     end
 
     def open_workbook
@@ -262,9 +282,9 @@ module RobustExcelOle
           # book eintragen in Book-Management
           filename_key = RobustExcelOle::canonize(self.filename)
           if @@filename2book[filename_key]
-            @@filename2book[filename_key] << [self,@workbook] unless @@filename2book[filename_key].include?([self,@workbook])
+            @@filename2book[filename_key] << self unless @@filename2book[filename_key].include?(self)
           else
-            @@filename2book[filename_key] = [[self,@workbook]]
+            @@filename2book[filename_key] = [self]
           end
         rescue WIN32OLERuntimeError
           raise ExcelUserCanceled, "open: canceled by user"

@@ -141,7 +141,7 @@ initialize:
       excel_options = nil
       if (not @excel)
         p "not @excel"
-        if (@options[:excel] == :new || @options[:excel] == :reuse)
+        if @options[:excel] == :new
           excel_options = {:displayalerts => false, :visible => false}.merge(opts)
           excel_options[:reuse] = false
           @excel = Excel.new(excel_options)

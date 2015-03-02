@@ -204,14 +204,16 @@ describe Book do
         book2.close
       end
 
-      it "should reuse the recently opened excel, if the book cannot be reopened" do
+      it "should connect to the first opened excel, if the book cannot be reopened" do
         @book.close
-        new_excel = Excel.new(:reuse => false)
+        Excel.close_all
+        excel1 = Excel.new(:reuse => false)
+        excel2 = Excel.new(:reuse => false)
         book2 = Book.open(@different_file, :default_excel => :reuse)
         book2.should be_alive
         book2.should be_a Book
-        book2.excel.should = new_excel
-        book2.excel.should_not == @book.excel
+        book2.excel.should == excel1
+        book2.excel.should_not == excel2
         book2.close
       end
 

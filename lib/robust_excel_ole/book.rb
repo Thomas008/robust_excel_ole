@@ -6,7 +6,7 @@ require 'weakref'
 module RobustExcelOle
 
   class Book
-    attr_accessor :workbook
+    attr_reader :workbook
     attr_reader :excel
 
      # book management for persisten storage:

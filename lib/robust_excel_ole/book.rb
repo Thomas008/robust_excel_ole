@@ -81,14 +81,8 @@ reopen:
     wenn :force => <instance>
       raise (optional auswerten :default_excel)
 
-
-
-
-
 if_locked:
 Fälle
-
-
 
 initialize:
 

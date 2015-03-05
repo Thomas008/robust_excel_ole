@@ -45,7 +45,7 @@ describe BookStore do
     
     context "with standard" do
       before do
-        @bookstore = BookStore.new
+        BookStore.new
         @book = Book.open(@simple_file)
       end
 
@@ -54,8 +54,8 @@ describe BookStore do
       end
 
       it "should do simple store and fetch" do        
-        @bookstore.store(@book)
-        new_book = @bookstore.fetch(@simple_file)
+        BookStore.store(@book)
+        new_book = BookStore.fetch(@simple_file)
         new_book.should be_a Book
         new_book.should be_alive
         new_book.should == @book

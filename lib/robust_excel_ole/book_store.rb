@@ -17,8 +17,9 @@ module RobustExcelOle
     #   :readonly  declares whether a writable book is prefered, or a book for read_only is sufficient
     #             false (default)  -> prefer a writable book,  true -> read_only book is sufficient 
     #     
-    def fetch(filename, options = { })
+    def self.fetch(filename, options = { })
       p "fetch:"
+      print
       filename_key = RobustExcelOle::canonize(filename)
       p "filename_key: #{filename_key}"
       readonly_book = readonly_unsaved_book = closed_book = result = nil
@@ -47,17 +48,21 @@ module RobustExcelOle
     end
 
     # stores a book
-    def store(book)
-      filename_key = RobustExcelOle::canonize(book.filename)
+    def self.store(book)
+      p "store:"
+      p "filename: #{book.filename}"
+      filename_key = RobustExcelOle::canonize(book.filename)      
+      p "filename_key: #{filename_key}"
       if @@filename2book[filename_key]
         @@filename2book[filename_key] << book unless @@filename2book[filename_key].include?(book)
       else
-        @@filename2book[filename_key] = [self]
+        @@filename2book[filename_key] = [book]
       end
+      print
     end
 
     # prints the book store
-    def print
+    def self.print
       p "bookstore:"
       @@filename2book.each do |filename,books|
         p " filename: #{filename}"

@@ -17,6 +17,11 @@ module RobustExcelOle
     #   :readonly  declares whether a writable book is prefered, or a book for read_only is sufficient
     #             false (default)  -> prefer a writable book,  true -> read_only book is sufficient 
     #     
+    
+    # ??? what if the changes happen AFTER storing the book?
+    # when fetching: ask not the properties of the stored book but of the properties that the
+    # storaged book has now
+
     def self.fetch(filename, options = { })
       #p "fetch:"
       #print

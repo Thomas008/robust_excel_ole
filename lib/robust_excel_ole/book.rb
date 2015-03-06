@@ -94,20 +94,20 @@ initialize:
 =end
 
       def open(file, options={ }, &block)
-        p" open"
+        #p" open"
         book = nil
         if (options[:default_excel] || (not options[:force_excel]))
-          p ":reuse_excel is set or not :force_excel => true"
+          #p ":reuse_excel is set or not :force_excel => true"
           book = find_book(file)
-          p "book: #{book}"
+          #p "book: #{book}"
           if book 
-            p "book exists"
-            p "return book"   
+            #p "book exists"
+            #p "return book"   
             return book
           end
         end
         if options[:force_excel] || book.nil?
-          p ":force_excel is set or book nil"
+          #p ":force_excel is set or book nil"
           # if :reuse_excel is set, then :excel = :reuse_excel, else :excel = :force_excel
           options[:excel] = (options[:default_excel] || options[:force_excel]) ?  
               (options[:default_excel] ? options[:default_excel] : options[:force_excel]) : :reuse
@@ -117,7 +117,7 @@ initialize:
     end
 
     def initialize(file, opts={ }, &block)
-      p "initialize"
+      #p "initialize"
       @options = {
         :if_locked     => :take_writable,       
         :if_unsaved    => :raise,
@@ -130,20 +130,20 @@ initialize:
       @file = file
       if @options[:excel] == :reuse
         @excel = Excel.new(:reuse => true)
-        p "@excel: #{@excel}"       
+        #p "@excel: #{@excel}"       
       end
       excel_options = nil
       if (not @excel)
-        p "not @excel"
+        #p "not @excel"
         if @options[:excel] == :new
           excel_options = {:displayalerts => false, :visible => false}.merge(opts)
           excel_options[:reuse] = false
           @excel = Excel.new(excel_options)
-          p "excel: #{@excel}"
+          #p "excel: #{@excel}"
         else
-          p "excel instance is given"
+          #p "excel instance is given"
           @excel = @options[:excel]
-          p "excel: #{@excel}"
+          #p "excel: #{@excel}"
         end
       end
       # if :excel => new or (:excel => :reuse but could not reuse)
@@ -152,10 +152,10 @@ initialize:
         @excel.visible = @options[:visible] unless @options[:visible].nil?
       end
       @workbook = @excel.Workbooks.Item(File.basename(@file)) rescue nil
-      p "excel: #{@excel}  workbook: #{@workbook}"
+      #p "excel: #{@excel}  workbook: #{@workbook}"
       # book is open
       if @workbook then
-        p "book is open"
+        #p "book is open"
         obstructed_by_other_book = (File.basename(file) == File.basename(@workbook.Fullname)) && 
                                    (not (RobustExcelOle::absolute_path(file) == @workbook.Fullname))
         # if book is obstructed by a book with same name and different path
@@ -226,39 +226,39 @@ initialize:
     # returns a book with the given filename, if it was open once
     # preference order: writable book, readonly unsaved book, readonly book (the last one), closed book
     def self.find_book(filename)
-      p "find_book:"
-      p "@@filename2book:"
+      #p "find_book:"
+      #p "@@filename2book:"
       @@filename2book.each do |element|
-        p " filename: #{element[0]}"
-        p " books:"
+        #p " filename: #{element[0]}"
+        #p " books:"
         element[1].each do |book|
-          p "#{book}"
+          #p "#{book}"
         end
       end
       filename_key = RobustExcelOle::canonize(filename)
-      p "filename_key: #{filename_key}"
+      #p "filename_key: #{filename_key}"
       readonly_book = readonly_unsaved_book = closed_book = result = nil
       books = @@filename2book[filename_key]
-      p "books: #{books}"
+      #p "books: #{books}"
       return nil  unless books
       books.each do |book|
-        p "book: #{book}"
+        #p "book: #{book}"
         if book.alive?
-          p "book alive"
+          #p "book alive"
           if (not book.ReadOnly)
-            p "book writable"
+            #p "book writable"
             return book
           else
-            p "book read_only"
+            #p "book read_only"
             book.Saved ? readonly_book = book : readonly_unsaved_book = book
           end
         else
-          p "book closed"
+          #p "book closed"
           closed_book = book
         end
       end
       result = readonly_unsaved_book ? readonly_unsaved_book : (readonly_book ? readonly_book : closed_book)
-      p "book: #{result}"
+      #p "book: #{result}"
       result
     end
 

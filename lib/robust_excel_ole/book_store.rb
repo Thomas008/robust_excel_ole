@@ -18,47 +18,47 @@ module RobustExcelOle
     #             false (default)  -> prefer a writable book,  true -> read_only book is sufficient 
     #     
     def self.fetch(filename, options = { })
-      p "fetch:"
-      print
+      #p "fetch:"
+      #print
       filename_key = RobustExcelOle::canonize(filename)
-      p "filename_key: #{filename_key}"
+      #p "filename_key: #{filename_key}"
       readonly_book = readonly_unsaved_book = closed_book = result = nil
       books = @@filename2book[filename_key]
-      p "books: #{books}"
+      #p "books: #{books}"
       return nil  unless books
       books.each do |book|
-        p "book: #{book}"
+        #p "book: #{book}"
         if book.alive?
-          p "book alive"
+          #p "book alive"
           if (not book.ReadOnly)
-            p "book writable"
+            #p "book writable"
             return book
           else
-            p "book read_only"
+            #p "book read_only"
             book.Saved ? readonly_book = book : readonly_unsaved_book = book
           end
         else
-          p "book closed"
+          #p "book closed"
           closed_book = book
         end
       end
       result = readonly_unsaved_book ? readonly_unsaved_book : (readonly_book ? readonly_book : closed_book)
-      p "book: #{result}"
+      #p "book: #{result}"
       result
     end
 
     # stores a book
     def self.store(book)
-      p "store:"
-      p "filename: #{book.filename}"
+      #p "store:"
+      #p "filename: #{book.filename}"
       filename_key = RobustExcelOle::canonize(book.filename)      
-      p "filename_key: #{filename_key}"
+      #p "filename_key: #{filename_key}"
       if @@filename2book[filename_key]
         @@filename2book[filename_key] << book unless @@filename2book[filename_key].include?(book)
       else
         @@filename2book[filename_key] = [book]
       end
-      print
+      #print
     end
 
     # prints the book store
@@ -74,7 +74,7 @@ module RobustExcelOle
     end
 
 
-    #private :print
+    private :print
 
 
   end

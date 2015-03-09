@@ -36,9 +36,9 @@ describe BookStore do
     context "with standard" do
       it "should create book store" do
         expect {
-          bookstore = BookStore.new
+          @book_store = BookStore.new
         }.to_not raise_error
-        bookstore.should be_a BookStore
+        @book_store.should be_a BookStore
       end
     end
   end
@@ -57,7 +57,7 @@ describe BookStore do
 
       it "should do simple store and fetch" do        
         @bookstore.store(@book)
-        new_book = bookstore.fetch(@simple_file)
+        new_book = @bookstore.fetch(@simple_file)
         new_book.should be_a Book
         new_book.should be_alive
         new_book.should == @book

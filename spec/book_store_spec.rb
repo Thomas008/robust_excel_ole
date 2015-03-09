@@ -26,6 +26,7 @@ describe BookStore do
   end
 
   after do
+    Excel.close_all
     rm_tmp(@dir)
   end
 
@@ -219,11 +220,28 @@ describe BookStore do
         new_book.should_not == @book3  
         new_book.close
       end
-
-
     end
 
-    context "with option readonly" do
+    context "with changing file name" do
+
+      before do
+        Excel.close_all
+        @book_store = BookStore.new
+        @book = Book.open(@simple_file)
+        BookStore.store(@book)
+        @book.save_as(@simple_save_file, :if_exists => :overwrite)
+      end
+
+      it "should return only book with correct file name" do
+        book1 = BookStore.fetch(@simple_save_file)
+        book1.should == @book
+      end
+
+      it "should return only book with correct file name" do
+        book1 = BookStore.fetch(@simple_file)
+        book1.should == nil
+      end
+
     end
   
   end

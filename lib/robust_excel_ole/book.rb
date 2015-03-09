@@ -411,8 +411,8 @@ initialize:
             when '.xlsx': RobustExcelOle::XlOpenXMLWorkbook
             when '.xlsm': RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
           end
-        book_store.store(self)
         @workbook.SaveAs(RobustExcelOle::absolute_path(@file), file_format)
+        book_store.store(self)
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
           if @opts[:if_exists] == :alert then 

@@ -10,9 +10,6 @@ module RobustExcelOle
     attr_reader :excel
     attr_accessor :stored_filename
 
-     # book management for persisten storage:
-     # data structure: {filename1 => [book1,...bookn], filename2 => ...} 
-     @@filename2book = {}
 
     class << self
 
@@ -99,7 +96,7 @@ initialize:
         book = nil
         if (options[:default_excel] || (not options[:force_excel]))
           #p ":reuse_excel is set or not :force_excel => true"
-          book = book_store.fetch(file)
+          book = bookstore.fetch(file)
           #p "book: #{book}"
           if book 
             #p "book exists"
@@ -235,7 +232,7 @@ initialize:
           # workaround for bug in Excel 2010: workbook.Open does not always return 
           # the workbook with given file name
           @workbook = workbooks.Item(File.basename(filename))
-          book_store.store(self)
+          bookstore.store(self)
         rescue BookStoreError => e
           raise ExcelUserCanceled, "open: canceled by user: #{e}"
         end
@@ -289,7 +286,7 @@ initialize:
       #was_saved = book.Saved unless was_closed 
       begin
         book = open(filename, :if_unsaved => :accept, :if_obstructed => :new_excel) if (was_nil || (not was_alive))
-        #book = open(filename, :if_unsaved => :accept, :if_obstructed => :new_excel) unless book 
+        #book = open(filename, :if_unsaved => 
         yield book
       ensure
         book.save if was_saved && (not book.ReadOnly)
@@ -367,7 +364,6 @@ initialize:
     # returns true, if successfully saved, nil otherwise
     def save_as(file = nil, opts = {:if_exists => :raise} )
       raise IOError, "Not opened for writing(open with :read_only option)" if @options[:read_only]
-      @file = file
       @opts = opts
       if File.exist?(file) then
         case @opts[:if_exists]
@@ -377,10 +373,10 @@ initialize:
           rescue Errno::EACCES
             raise ExcelErrorSave, "book is open and used in Excel"
           end
-          save_as_workbook
+          save_as_workbook(file)
         when :alert 
           @excel.with_displayalerts true do
-            save_as_workbook
+            save_as_workbook(file)
           end
         when :raise
           raise ExcelErrorSave, "book already exists: #{File.basename(file)}"
@@ -388,32 +384,22 @@ initialize:
           raise ExcelErrorSave, ":if_exists: invalid option"
         end
       else
-        save_as_workbook
+        save_as_workbook(file)
       end
       true
     end
 
-    def self.book_store
-      BookStore
-    end
-
-    def book_store
-      self.class.book_store
-    end
-
-
-  
-    def save_as_workbook
+    def save_as_workbook(file)
       begin
-        dirname, basename = File.split(@file)
+        dirname, basename = File.split(file)
         file_format =
           case File.extname(basename)
             when '.xls' : RobustExcelOle::XlExcel8
             when '.xlsx': RobustExcelOle::XlOpenXMLWorkbook
             when '.xlsm': RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
           end
-        @workbook.SaveAs(RobustExcelOle::absolute_path(@file), file_format)
-        book_store.store(self)
+        @workbook.SaveAs(RobustExcelOle::absolute_path(file), file_format)
+        bookstore.store(self)  # ???
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
           if @opts[:if_exists] == :alert then 

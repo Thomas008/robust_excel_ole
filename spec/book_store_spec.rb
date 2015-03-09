@@ -18,7 +18,7 @@ describe BookStore do
 
   before do
     Excel.close_all
-    BookStore.reset
+    @bookstore = BookStore.new
     @dir = create_tmpdir
     @simple_file = @dir + '/simple.xls'
     @simple_save_file = @dir + '/simple_save.xls'
@@ -36,9 +36,9 @@ describe BookStore do
     context "with standard" do
       it "should create book store" do
         expect {
-          @bookstore = BookStore.new
+          bookstore = BookStore.new
         }.to_not raise_error
-        @bookstore.should be_a BookStore
+        bookstore.should be_a BookStore
       end
     end
   end
@@ -48,7 +48,6 @@ describe BookStore do
     context "with one open book" do
       
       before do
-        BookStore.new
         @book = Book.open(@simple_file)
       end
 
@@ -57,8 +56,8 @@ describe BookStore do
       end
 
       it "should do simple store and fetch" do        
-        BookStore.store(@book)
-        new_book = BookStore.fetch(@simple_file)
+        @bookstore.store(@book)
+        new_book = bookstore.fetch(@simple_file)
         new_book.should be_a Book
         new_book.should be_alive
         new_book.should == @book
@@ -66,9 +65,9 @@ describe BookStore do
       end
 
       it "should fetch one book several times" do        
-        BookStore.store(@book)
-        book1 = BookStore.fetch(@simple_file)
-        book2 = BookStore.fetch(@simple_file)
+        @bookstore.store(@book)
+        book1 = @bookstore.fetch(@simple_file)
+        book2 = @bookstore.fetch(@simple_file)
         puts "book1.class: #{book1.class.inspect}"
         expect(book1).to be_a Book
         book1.should be_alive
@@ -82,20 +81,19 @@ describe BookStore do
       end
 
       it "should fetch nothing without stóring before" do
-        BookStore.print
-        new_book = BookStore.fetch(@simple_file)
+        new_book = @bookstore.fetch(@simple_file)
         new_book.should == nil
       end
 
       it "should fetch nothing when fetching a different book" do
-        BookStore.store(@book)
-        new_book = BookStore.fetch(@different_file)
+        @bookstore.store(@book)
+        new_book = bookstore.fetch(@different_file)
         new_book.should == nil
       end
 
       it "should fetch nothing when fetching a non-existing book" do
-        BookStore.store(@book)
-        new_book = BookStore.fetch("foo")
+        @bookstore.store(@book)
+        new_book = @bookstore.fetch("foo")
         new_book.should == nil
       end
 
@@ -104,9 +102,8 @@ describe BookStore do
     context "with several books" do
 
       before do
-        BookStore.new
         @book = Book.open(@simple_file)
-        BookStore.store(@book)
+        @bookstore.store(@book)
       end
 
       after do
@@ -116,9 +113,9 @@ describe BookStore do
 
       it "should store and open two different books" do
         @book2 = Book.open(@different_file)
-        BookStore.store(@book2)
-        new_book = BookStore.fetch(@simple_file)
-        new_book2 = BookStore.fetch(@different_file)
+        @bookstore.store(@book2)
+        new_book = bookstore.fetch(@simple_file)
+        new_book2 = bookstore.fetch(@different_file)
         new_book.should be_a Book
         new_book.should be_alive
         new_book.should == @book
@@ -132,10 +129,10 @@ describe BookStore do
 
       it "should fetch the first, writable book" do
         @book2 = Book.open(@simple_file, :force_excel => :new)
-        BookStore.store(@book2)
+        @bookstore.store(@book2)
         @book.ReadOnly.should be_false
         @book2.ReadOnly.should be_true
-        new_book = BookStore.fetch(@simple_file)
+        new_book = @bookstore.fetch(@simple_file)
         new_book.should == @book
         new_book.should_not == @book2
         new_book.close
@@ -144,12 +141,12 @@ describe BookStore do
       it "should fetch the writable book even if the readonly book has unsaved changes" do
         @book2 = Book.open(@simple_file, :force_excel => :new)
         sheet = @book2[0]
-        BookStore.store(@book2)
+        @bookstore.store(@book2)
         sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
         @book.ReadOnly.should be_false
         @book2.ReadOnly.should be_true
         @book2.Saved. should be_false
-        new_book = BookStore.fetch(@simple_file)
+        new_book = @bookstore.fetch(@simple_file)
         new_book.should == @book
         new_book.should_not == @book2
         new_book.close
@@ -160,9 +157,8 @@ describe BookStore do
     context "with readonly book" do
 
       before do
-        BookStore.new
         @book = Book.open(@simple_file, :read_only => true)
-        BookStore.store(@book)
+        @bookstore.store(@book)
       end
 
       after do
@@ -172,10 +168,10 @@ describe BookStore do
 
       it "should fetch the second, writable book" do
         @book2 = Book.open(@simple_file, :force_excel => :new)
-        BookStore.store(@book2)
+        @bookstore.store(@book2)
         @book.ReadOnly.should be_true
         @book2.ReadOnly.should be_false
-        new_book = BookStore.fetch(@simple_file)
+        new_book = @bookstore.fetch(@simple_file)
         new_book.should == @book2
         new_book.should_not == @book
         new_book.close
@@ -183,10 +179,10 @@ describe BookStore do
 
       it "should fetch the recent readonly book when there are only readonly books" do
         @book2 = Book.open(@simple_file, :force_excel => :new, :read_only => true)
-        BookStore.store(@book2)
+        @bookstore.store(@book2)
         @book.ReadOnly.should be_true
         @book2.ReadOnly.should be_true
-        new_book = BookStore.fetch(@simple_file)
+        new_book = @bookstore.fetch(@simple_file)
         new_book.should == @book2
         new_book.should_not == @book
         new_book.close
@@ -195,12 +191,12 @@ describe BookStore do
       it "should fetch the second readonly book with unsaved changes" do
         @book2 = Book.open(@simple_file, :force_excel => :new, :read_only => true)
         sheet = @book2[0]
-        BookStore.store(@book2)
+        @bookstore.store(@book2)
         sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
         @book.ReadOnly.should be_true
         @book2.ReadOnly.should be_true
         @book2.Saved.should be_false
-        new_book = BookStore.fetch(@simple_file)
+        new_book = @bookstore.fetch(@simple_file)
         new_book.should == @book2
         new_book.should_not == @book        
         new_book.close
@@ -209,15 +205,15 @@ describe BookStore do
       it "should fetch the second, writable book, if a writable, a readonly and an unsaved readonly book exist" do
         @book2 = Book.open(@simple_file, :force_excel => :new)
         @book3 = Book.open(@simple_file, :force_excel => :new)
-        BookStore.store(@book2)
-        BookStore.store(@book3)
+        @bookstore.store(@book2)
+        @bookstore.store(@book3)
         sheet = @book3[0]
         sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
         @book.ReadOnly.should be_true
         @book2.ReadOnly.should be_false
         @book3.ReadOnly.should be_true
         @book3.Saved.should be_false
-        new_book = BookStore.fetch(@simple_file)
+        new_book = @bookstore.fetch(@simple_file)
         new_book.should == @book2
         new_book.should_not == @book        
         new_book.should_not == @book3  
@@ -229,24 +225,20 @@ describe BookStore do
 
       before do
         Excel.close_all
-        @book_store = BookStore.new
         @book = Book.open(@simple_file)
-        BookStore.store(@book)
+        @bookstore.store(@book)
         @book.save_as(@simple_save_file, :if_exists => :overwrite)
       end
 
       it "should return only book with correct file name" do
-        book1 = BookStore.fetch(@simple_save_file)
+        book1 = @bookstore.fetch(@simple_save_file)
         book1.should == @book
       end
 
       it "should return only book with correct file name" do
-        book1 = BookStore.fetch(@simple_file)
+        book1 = @bookstore.fetch(@simple_file)
         book1.should == nil
       end
-
     end
-  
   end
-
 end

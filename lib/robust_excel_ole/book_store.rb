@@ -4,15 +4,9 @@
 module RobustExcelOle
 
   class BookStore
-    def self.reset
-      @@filename2book = Hash.new {|hash, key| hash[key] = [] }
-    end
-
-    reset
-    
 
     def initialize
-      self.class.reset
+      @@filename2books = Hash.new {|hash, key| hash[key] = [] }
     end
 
     # returns a book with the given filename, if it was open once
@@ -20,63 +14,41 @@ module RobustExcelOle
     # options: 
     #   :readonly  declares whether a writable book is prefered, or a book for read_only is sufficient
     #             false (default)  -> prefer a writable book,  true -> read_only book is sufficient 
-    # ?? :if_locked:    if the book is writable in another Excel and :readonly => false, then
-    #                   :take_writable (default) -> fetch the book in the Excel in which the book is writable
-    #                   :force_writability       -> make it writable
-    
-    # ??? what if the changes happen AFTER storing the book?
-    # when fetching: ask not the properties of the stored book but of the properties that the
-    # storaged book has now
 
-    def self.fetch(filename, options = { })
-      #p "fetch:"
-      #print
+    def fetch(filename, options = { })
       filename_key = RobustExcelOle::canonize(filename)
-      #p "filename_key: #{filename_key}"
       readonly_book = readonly_unsaved_book = closed_book = result = nil
-      books = @@filename2book[filename_key]
-      #p "books: #{books}"
+      books = @@filename2books[filename_key]
       return nil  unless books
       books.each do |book|
-        #p "book: #{book}"
         if book.alive?
-          #p "book alive"
           if (not book.ReadOnly)
-            #p "book writable"
             return book
           else
-            #p "book read_only"
             book.Saved ? readonly_book = book : readonly_unsaved_book = book
           end
         else
-          #p "book closed"
           closed_book = book
         end
       end
       result = readonly_unsaved_book ? readonly_unsaved_book : (readonly_book ? readonly_book : closed_book)
-      #p "book: #{result}"
       result
     end
 
     # stores a book
-    def self.store(book)
-      #p "store:"
-      #p "filename: #{book.filename}"
+    def store(book)
       filename_key = RobustExcelOle::canonize(book.filename)      
-      #p "filename_key: #{filename_key}"
       if book.stored_filename
         old_filename_key = RobustExcelOle::canonize(book.stored_filename)
-        @@filename2book[old_filename_key].delete(book) #if @@filename2book[old_filename_key]
+        @@filename2books[old_filename_key].delete(book)
       end
-      @@filename2book[filename_key] |= [book] #unless @@filename2book[filename_key].include?(book)
+      @@filename2books[filename_key] |= [book]
       book.stored_filename = book.filename
-      #print
     end
 
     # prints the book store
-    def self.print
-      p "bookstore:"
-      @@filename2book.each do |filename,books|
+    def print
+      @@filename2books.each do |filename,books|
         p " filename: #{filename}"
         p " books:"
         books.each do |book|

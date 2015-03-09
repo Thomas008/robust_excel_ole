@@ -4,8 +4,12 @@
 module RobustExcelOle
 
   class BookStore
+    def self.reset
+      @@filename2book = {}
+    end
 
-    @@filename2book = {}
+    reset
+    
 
     def initialize
       @@filename2book = {}
@@ -58,11 +62,16 @@ module RobustExcelOle
       #p "filename: #{book.filename}"
       filename_key = RobustExcelOle::canonize(book.filename)      
       #p "filename_key: #{filename_key}"
+      if book.stored_filename
+        old_filename_key = RobustExcelOle::canonize(book.stored_filename)
+        @@filename2book[old_filename_key].delete(book) if @@filename2book[old_filename_key]
+      end
       if @@filename2book[filename_key]
         @@filename2book[filename_key] << book unless @@filename2book[filename_key].include?(book)
       else
         @@filename2book[filename_key] = [book]
       end
+      book.stored_filename = book.filename
       #print
     end
 

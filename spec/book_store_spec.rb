@@ -18,6 +18,7 @@ describe BookStore do
 
   before do
     Excel.close_all
+    BookStore.reset
     @dir = create_tmpdir
     @simple_file = @dir + '/simple.xls'
     @simple_save_file = @dir + '/simple_save.xls'
@@ -64,11 +65,12 @@ describe BookStore do
         new_book.close
       end
 
-      it "should fetch one book several times" do
+      it "should fetch one book several times" do        
         BookStore.store(@book)
         book1 = BookStore.fetch(@simple_file)
         book2 = BookStore.fetch(@simple_file)
-        book1.should be_a Book
+        puts "book1.class: #{book1.class.inspect}"
+        expect(book1).to be_a Book
         book1.should be_alive
         book1.should == @book
         book2.should be_a Book
@@ -80,6 +82,7 @@ describe BookStore do
       end
 
       it "should fetch nothing without stóring before" do
+        BookStore.print
         new_book = BookStore.fetch(@simple_file)
         new_book.should == nil
       end

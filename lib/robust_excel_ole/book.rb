@@ -8,6 +8,7 @@ module RobustExcelOle
   class Book
     attr_reader :workbook
     attr_reader :excel
+    attr_accessor :stored_filename
 
      # book management for persisten storage:
      # data structure: {filename1 => [book1,...bookn], filename2 => ...} 

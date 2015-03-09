@@ -78,10 +78,12 @@ module RobustExcelOle
       end
     end
 
-
     private :print
 
 
+  end
+
+  class BookStoreError < RuntimeError
   end
  
 end

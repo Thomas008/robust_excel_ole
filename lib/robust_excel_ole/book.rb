@@ -98,7 +98,7 @@ initialize:
         book = nil
         if (options[:default_excel] || (not options[:force_excel]))
           #p ":reuse_excel is set or not :force_excel => true"
-          book = find_book(file)
+          book = book_store.fetch(file)
           #p "book: #{book}"
           if book 
             #p "book exists"
@@ -223,45 +223,6 @@ initialize:
       end
     end
 
-    # returns a book with the given filename, if it was open once
-    # preference order: writable book, readonly unsaved book, readonly book (the last one), closed book
-    def self.find_book(filename)
-      #p "find_book:"
-      #p "@@filename2book:"
-      @@filename2book.each do |element|
-        #p " filename: #{element[0]}"
-        #p " books:"
-        element[1].each do |book|
-          #p "#{book}"
-        end
-      end
-      filename_key = RobustExcelOle::canonize(filename)
-      #p "filename_key: #{filename_key}"
-      readonly_book = readonly_unsaved_book = closed_book = result = nil
-      books = @@filename2book[filename_key]
-      #p "books: #{books}"
-      return nil  unless books
-      books.each do |book|
-        #p "book: #{book}"
-        if book.alive?
-          #p "book alive"
-          if (not book.ReadOnly)
-            #p "book writable"
-            return book
-          else
-            #p "book read_only"
-            book.Saved ? readonly_book = book : readonly_unsaved_book = book
-          end
-        else
-          #p "book closed"
-          closed_book = book
-        end
-      end
-      result = readonly_unsaved_book ? readonly_unsaved_book : (readonly_book ? readonly_book : closed_book)
-      #p "book: #{result}"
-      result
-    end
-
     def open_workbook
       # if book not open (was not open,was closed with option :forget or shall be opened in new application)
       #    or :if_unsaved => :alert
@@ -273,15 +234,9 @@ initialize:
           # workaround for bug in Excel 2010: workbook.Open does not always return 
           # the workbook with given file name
           @workbook = workbooks.Item(File.basename(filename))
-          # book eintragen in Book-Management
-          filename_key = RobustExcelOle::canonize(self.filename)
-          if @@filename2book[filename_key]
-            @@filename2book[filename_key] << self unless @@filename2book[filename_key].include?(self)
-          else
-            @@filename2book[filename_key] = [self]
-          end
-        rescue WIN32OLERuntimeError
-          raise ExcelUserCanceled, "open: canceled by user"
+          book_store.store(self)
+        rescue BookStoreError => e
+          raise ExcelUserCanceled, "open: canceled by user: #{e}"
         end
       end
     end
@@ -436,6 +391,16 @@ initialize:
       end
       true
     end
+
+    def self.book_store
+      BookStore
+    end
+
+    def book_store
+      self.class.book_store
+    end
+
+
   
     def save_as_workbook
       begin
@@ -446,21 +411,7 @@ initialize:
             when '.xlsx': RobustExcelOle::XlOpenXMLWorkbook
             when '.xlsm': RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
           end
-        filename_key = RobustExcelOle::canonize(@file)
-        #p "filename_key: #{filename_key}"   
-        if @@filename2book[filename_key]
-          @@filename2book[filename_key] << self unless @@filename2book[filename_key].include?(self)
-        else
-          @@filename2book[filename_key] = [self]
-        end
-        #p "@@filename2book:"
-        @@filename2book.each do |element|
-          #p " filename: #{element[0]}"
-          #p " books:"
-          element[1].each do |book|
-           # p "#{book}"
-          end
-        end                   
+        book_store.store(self)
         @workbook.SaveAs(RobustExcelOle::absolute_path(@file), file_format)
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then

@@ -18,6 +18,7 @@ module RobustExcelOle
   end
 
   def canonize(filename)
+    raise "No string given to canonize, but #{filename.inspect}" unless filename.is_a?(String)
     filename.downcase rescue nil
   end
 

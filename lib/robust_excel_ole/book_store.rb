@@ -4,11 +4,15 @@
 module RobustExcelOle
 
   class BookStore
+    def self.reset
+      @@filename2book = Hash.new {|hash, key| hash[key] = [] }
+    end
 
-    @@filename2book = {}
+    reset
+    
 
     def initialize
-      @@filename2book = {}
+      self.class.reset
     end
 
     # returns a book with the given filename, if it was open once
@@ -60,11 +64,12 @@ module RobustExcelOle
       #p "filename: #{book.filename}"
       filename_key = RobustExcelOle::canonize(book.filename)      
       #p "filename_key: #{filename_key}"
-      if @@filename2book[filename_key]
-        @@filename2book[filename_key] << book unless @@filename2book[filename_key].include?(book)
-      else
-        @@filename2book[filename_key] = [book]
+      if book.stored_filename
+        old_filename_key = RobustExcelOle::canonize(book.stored_filename)
+        @@filename2book[old_filename_key].delete(book) #if @@filename2book[old_filename_key]
       end
+      @@filename2book[filename_key] |= [book] #unless @@filename2book[filename_key].include?(book)
+      book.stored_filename = book.filename
       #print
     end
 
@@ -80,10 +85,12 @@ module RobustExcelOle
       end
     end
 
-
     private :print
 
 
+  end
+
+  class BookStoreError < RuntimeError
   end
  
 end

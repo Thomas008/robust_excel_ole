@@ -16,7 +16,9 @@ module RobustExcelOle
     # options: 
     #   :readonly  declares whether a writable book is prefered, or a book for read_only is sufficient
     #             false (default)  -> prefer a writable book,  true -> read_only book is sufficient 
-    #     
+    # ?? :if_locked:    if the book is writable in another Excel and :readonly => false, then
+    #                   :take_writable (default) -> fetch the book in the Excel in which the book is writable
+    #                   :force_writability       -> make it writable
     
     # ??? what if the changes happen AFTER storing the book?
     # when fetching: ask not the properties of the stored book but of the properties that the

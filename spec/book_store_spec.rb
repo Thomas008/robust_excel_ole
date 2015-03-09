@@ -140,8 +140,8 @@ describe BookStore do
       it "should fetch the writable book even if the readonly book has unsaved changes" do
         @book2 = Book.open(@simple_file, :force_excel => :new)
         sheet = @book2[0]
-        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
         BookStore.store(@book2)
+        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
         @book.ReadOnly.should be_false
         @book2.ReadOnly.should be_true
         @book2.Saved. should be_false
@@ -191,8 +191,8 @@ describe BookStore do
       it "should fetch the second readonly book with unsaved changes" do
         @book2 = Book.open(@simple_file, :force_excel => :new, :read_only => true)
         sheet = @book2[0]
-        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
         BookStore.store(@book2)
+        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
         @book.ReadOnly.should be_true
         @book2.ReadOnly.should be_true
         @book2.Saved.should be_false
@@ -205,10 +205,10 @@ describe BookStore do
       it "should fetch the second, writable book, if a writable, a readonly and an unsaved readonly book exist" do
         @book2 = Book.open(@simple_file, :force_excel => :new)
         @book3 = Book.open(@simple_file, :force_excel => :new)
-        sheet = @book3[0]
-        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
         BookStore.store(@book2)
         BookStore.store(@book3)
+        sheet = @book3[0]
+        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
         @book.ReadOnly.should be_true
         @book2.ReadOnly.should be_false
         @book3.ReadOnly.should be_true
@@ -223,7 +223,7 @@ describe BookStore do
 
     end
 
-    context "with option readonly" do
+    context "with option :readonly" do
     end
   
   end

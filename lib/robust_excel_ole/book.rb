@@ -10,6 +10,7 @@ module RobustExcelOle
     attr_reader :excel
     attr_accessor :stored_filename
 
+    @bookstore |= BookStore.new
 
     class << self
 
@@ -96,7 +97,7 @@ initialize:
         book = nil
         if (options[:default_excel] || (not options[:force_excel]))
           #p ":reuse_excel is set or not :force_excel => true"
-          book = bookstore.fetch(file)
+          book = @bookstore.fetch(file)
           #p "book: #{book}"
           if book 
             #p "book exists"
@@ -232,7 +233,7 @@ initialize:
           # workaround for bug in Excel 2010: workbook.Open does not always return 
           # the workbook with given file name
           @workbook = workbooks.Item(File.basename(filename))
-          bookstore.store(self)
+          @bookstore.store(self)
         rescue BookStoreError => e
           raise ExcelUserCanceled, "open: canceled by user: #{e}"
         end
@@ -399,7 +400,7 @@ initialize:
             when '.xlsm': RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
           end
         @workbook.SaveAs(RobustExcelOle::absolute_path(file), file_format)
-        bookstore.store(self)  # ???
+        @bookstore.store(self)  
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
           if @opts[:if_exists] == :alert then 

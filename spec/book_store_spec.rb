@@ -87,7 +87,7 @@ describe BookStore do
 
       it "should fetch nothing when fetching a different book" do
         @bookstore.store(@book)
-        new_book = bookstore.fetch(@different_file)
+        new_book = @bookstore.fetch(@different_file)
         new_book.should == nil
       end
 
@@ -114,8 +114,8 @@ describe BookStore do
       it "should store and open two different books" do
         @book2 = Book.open(@different_file)
         @bookstore.store(@book2)
-        new_book = bookstore.fetch(@simple_file)
-        new_book2 = bookstore.fetch(@different_file)
+        new_book = @bookstore.fetch(@simple_file)
+        new_book2 = @bookstore.fetch(@different_file)
         new_book.should be_a Book
         new_book.should be_alive
         new_book.should == @book

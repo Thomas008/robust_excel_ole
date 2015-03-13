@@ -10,10 +10,8 @@ module RobustExcelOle
     attr_reader :excel
     attr_accessor :stored_filename
 
-    @bookstore = BookStore.new
-  
     class << self
-
+      
       # opens a book.
       # 
       # options: 
@@ -94,6 +92,7 @@ initialize:
 
       def open(file, options={ }, &block)
         #p" open"
+        @bookstore ||= BookStore.new
         book = nil
         if (options[:default_excel] || (not options[:force_excel]))
           #p ":reuse_excel is set or not :force_excel => true"
@@ -117,7 +116,9 @@ initialize:
 
     def initialize(file, opts={ }, &block)
       #p "initialize"
+      @bookstore ||= BookStore.new
       @options = {
+        :excel => :reuse,
         :if_locked     => :take_writable,       
         :if_unsaved    => :raise,
         :if_obstructed => :raise,
@@ -145,7 +146,7 @@ initialize:
           #p "excel: #{@excel}"
         end
       end
-      # if :excel => new or (:excel => :reuse but could not reuse)
+      # if :excel => :new or (:excel => :reuse but could not reuse)
       if (not excel_options)
         @excel.displayalerts = @options[:displayalerts] unless @options[:displayalerts].nil?
         @excel.visible = @options[:visible] unless @options[:visible].nil?

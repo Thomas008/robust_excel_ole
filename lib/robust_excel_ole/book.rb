@@ -91,7 +91,6 @@ initialize:
 =end
 
       def open(file, options={ }, &block)
-        #p" open"
         @bookstore ||= BookStore.new
         book = nil
         if (options[:default_excel] || (not options[:force_excel]))
@@ -115,7 +114,6 @@ initialize:
     end
 
     def initialize(file, opts={ }, &block)
-      #p "initialize"
       @bookstore ||= BookStore.new
       @options = {
         :excel => :reuse,

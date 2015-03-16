@@ -68,7 +68,6 @@ describe BookStore do
         @bookstore.store(@book)
         book1 = @bookstore.fetch(@simple_file)
         book2 = @bookstore.fetch(@simple_file)
-        puts "book1.class: #{book1.class.inspect}"
         expect(book1).to be_a Book
         book1.should be_alive
         book1.should == @book
@@ -221,13 +220,28 @@ describe BookStore do
       end
     end
 
+
+    # Tests are faulty
+    # challenge:
+    # there are two bookstores: one of the test, one of the book-open-andsave process     
+    # after opening and saving the book, the bookstore (filename2books) is set correctly
+    # save_as: bookstore is correct set for the book: the new filename has a book, the old filename has no book
+    #          stored_filename is now the new filename (simple_save)
+    # it has no effect to @bookstore of the test
+    # doing a second store has the effect, that the book is stored for both filenames, because
+    # the storaged filename of the book is now equal to the new file name, so the book at the
+    # old filename is not removed
     context "with changing file name" do
 
       before do
         Excel.close_all
         @book = Book.open(@simple_file)
         @bookstore.store(@book)
-        @book.save_as(@simple_save_file, :if_exists => :overwrite)
+        @book.save_as(@simple_save_file, :if_exists => :overwrite)      
+        # reset the stored_filename, because save_as has set it to the new name
+        # otherwise the book at the old filename cannot be removed
+        @book.stored_filename = @simple_file
+        @bookstore.store(@book)        
       end
 
       it "should return only book with correct file name" do

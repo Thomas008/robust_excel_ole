@@ -48,6 +48,7 @@ module RobustExcelOle
 
     # prints the book store
     def print
+      p "@bookstore:"
       @filename2books.each do |filename,books|
         p " filename: #{filename}"
         p " books:"
@@ -56,9 +57,6 @@ module RobustExcelOle
         end
       end
     end
-
-    private :print
-
 
   end
 

@@ -126,16 +126,9 @@ describe Book do
         book2.close
       end
 
-      # fails
-      # after @book.close: the book is still there
-      # when opening again, under the same filename there is a different book!
       it "should yield identical Book objects for identical Excel books when reopening" do
         @book.close
-        p "Test: @book"
-        @book.print_bookstore
         book2 = Book.open(@simple_file)
-        p "Test: book2"
-        book2.print_bookstore
         book2.should == @book
         book2.close
       end

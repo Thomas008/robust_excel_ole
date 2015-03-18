@@ -236,12 +236,12 @@ describe BookStore do
       before do
         Excel.close_all
         @book = Book.open(@simple_file)
-        @bookstore.store(@book)
         @book.save_as(@simple_save_file, :if_exists => :overwrite)      
-        # reset the stored_filename, because save_as has set it to the new name
-        # otherwise the book at the old filename cannot be removed
-        @book.stored_filename = @simple_file
-        @bookstore.store(@book)        
+        @bookstore = @book.book_store
+      end
+
+      after do
+        @book.close
       end
 
       it "should return only book with correct file name" do

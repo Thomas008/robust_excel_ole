@@ -6,7 +6,10 @@ module RobustExcelOle
   class BookStore
 
     def initialize
+      p "BookStore: initialize"
+      print
       @filename2books = Hash.new {|hash, key| hash[key] = [] }
+      print
     end
 
     # returns a book with the given filename, if it was open once
@@ -16,7 +19,10 @@ module RobustExcelOle
     #             false (default)  -> prefer a writable book,  true -> read_only book is sufficient 
 
     def fetch(filename, options = { })
+      p "fetch:"
+      print
       filename_key = RobustExcelOle::canonize(filename)
+      p "filename_key: #{filename_key}"
       readonly_book = readonly_unsaved_book = closed_book = result = nil
       books = @filename2books[filename_key]
       return nil  unless books
@@ -37,23 +43,29 @@ module RobustExcelOle
 
     # stores a book
     def store(book)
+      p "store:"
+      print
       filename_key = RobustExcelOle::canonize(book.filename)      
       if book.stored_filename
         old_filename_key = RobustExcelOle::canonize(book.stored_filename)
         @filename2books[old_filename_key].delete(book)
       end
-      @filename2books[filename_key] |= [book]
+      @filename2books[filename_key] |= [book] 
       book.stored_filename = book.filename
+      print
     end
 
     # prints the book store
     def print
-      p "@bookstore:"
-      @filename2books.each do |filename,books|
-        p " filename: #{filename}"
-        p " books:"
-        books.each do |book|
-          p "#{book}"
+      p "@filename2books:"
+      if @filename2books
+        @filename2books.each do |filename,books|
+          p " filename: #{filename}"
+          p " books:"
+          p " []" if books == []
+          books.each do |book|
+            p "#{book}"
+          end
         end
       end
     end

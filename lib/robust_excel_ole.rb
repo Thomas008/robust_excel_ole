@@ -24,29 +24,6 @@ module RobustExcelOle
 
   module_function :absolute_path
 
-  class ExcelUserCanceled < RuntimeError # :nodoc: #
-  end
-
-  class ExcelError < RuntimeError    # :nodoc: #
-  end
-
-  class ExcelErrorSave < ExcelError   # :nodoc: #
-  end
-
-  class ExcelErrorSaveFailed < ExcelErrorSave  # :nodoc: #
-  end
-
-  class ExcelErrorSaveUnknown < ExcelErrorSave  # :nodoc: #
-  end
-
-  class ExcelErrorOpen < ExcelError   # :nodoc: #
-  end
-
-  class ExcelErrorClose < ExcelError    # :nodoc: #
-  end
-
-  class ExcelErrorSheet < ExcelError    # :nodoc: #
-  end
 
   class VBAMethodMissingError < RuntimeError  # :nodoc: #
   end

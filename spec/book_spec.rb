@@ -13,7 +13,7 @@ describe Book do
     excel = Excel.new(:reuse => true)
     open_books = excel == nil ? 0 : excel.Workbooks.Count
     puts "*** open books *** : #{open_books}" if open_books > 0
-    Excel.close_all
+    #Excel.close_all
   end
 
 
@@ -45,10 +45,6 @@ describe Book do
   
 
   describe "open" do
-
-    before do
-      #Excel.close_all
-    end
 
     context "use cases" do
       before do
@@ -130,9 +126,16 @@ describe Book do
         book2.close
       end
 
+      # fails
+      # after @book.close: the book is still there
+      # when opening again, under the same filename there is a different book!
       it "should yield identical Book objects for identical Excel books when reopening" do
         @book.close
+        p "Test: @book"
+        @book.print_bookstore
         book2 = Book.open(@simple_file)
+        p "Test: book2"
+        book2.print_bookstore
         book2.should == @book
         book2.close
       end
@@ -141,7 +144,6 @@ describe Book do
     context "with :force_excel" do
 
       before do
-        Excel.close_all
         @book = Book.open(@simple_file)
       end
 

@@ -17,7 +17,6 @@ describe BookStore do
   end
 
   before do
-    Excel.close_all
     @bookstore = BookStore.new
     @dir = create_tmpdir
     @simple_file = @dir + '/simple.xls'
@@ -30,7 +29,6 @@ describe BookStore do
     Excel.close_all
     rm_tmp(@dir)
   end
-
 
   describe "create bookstore" do
     context "with standard" do
@@ -219,22 +217,10 @@ describe BookStore do
         new_book.close
       end
     end
-
-
-    # Tests are faulty
-    # challenge:
-    # there are two bookstores: one of the test, one of the book-open-andsave process     
-    # after opening and saving the book, the bookstore (filename2books) is set correctly
-    # save_as: bookstore is correct set for the book: the new filename has a book, the old filename has no book
-    #          stored_filename is now the new filename (simple_save)
-    # it has no effect to @bookstore of the test
-    # doing a second store has the effect, that the book is stored for both filenames, because
-    # the storaged filename of the book is now equal to the new file name, so the book at the
-    # old filename is not removed
+   
     context "with changing file name" do
 
       before do
-        Excel.close_all
         @book = Book.open(@simple_file)
         @book.save_as(@simple_save_file, :if_exists => :overwrite)      
         @bookstore = @book.book_store
@@ -254,5 +240,29 @@ describe BookStore do
         book1.should == nil
       end
     end
+
+    context "with given excel instance and fetching readonly" do
+      
+      before do
+        @book = Book.open(@simple_file)
+        @bookstore.store(@book)
+        @book2 = Book.open(@simple_file, :force_excel => :new)
+        @bookstore.store(@book2)        
+      end
+
+      after do
+        @book.close
+      end
+
+      it "should fetch the book in the given excel instance" do
+        book_new = @bookstore.fetch(@simple_file, :excel => @book2.excel)
+        book_new.should be_a Book
+        book_new.should be_alive
+        book_new.should == @book2
+      end
+
+    end
+
+
   end
 end

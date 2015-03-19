@@ -56,6 +56,7 @@ module RobustExcelOle
           p " []" if books == []
           books.each do |book|
             p "#{book}"
+            p "alive: #{book.alive?}"
           end
         end
       end

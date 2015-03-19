@@ -16,7 +16,7 @@ module RobustExcelOle
       # 
       # options: 
       # :default_excel   if the book was already open in a Excel, then open it there, otherwise:
-      #                   :reuse (default) -> connect to a running Excel if it exists, open a new Excel otherwise
+      #                   :reuse (default) -> connect to a running Excel if it exists, open in a new Excel otherwise
       #                   :new             -> open in a new Excel
       #                   <instance>       -> open in the given Excel instance
       # :force_excel     no matter whether the book was already open
@@ -62,7 +62,7 @@ wenn nicht :force_excel => :new
       reopen  (return if succeeds)
     sonst
       * if_locked* (return if succeeds)
-setze :excel => :force_excel ? :force_excel : default_excel (bevorzuge :force_excel)
+setze :excel => Wert von :force_excel ? :force_excel : default_excel (bevorzuge :force_excel)
 öffne mit initialize
    
 
@@ -91,7 +91,9 @@ initialize:
 =end
 
       def open(file, options={ }, &block)
+        #p "open:"
         @@bookstore ||= BookStore.new
+        #@@bookstore.print
         book = nil
         if (options[:default_excel] || (not options[:force_excel]))
           book = @@bookstore.fetch(file)
@@ -214,6 +216,7 @@ initialize:
     def open_workbook filename
       # if book not open (was not open,was closed with option :forget or shall be opened in new application)
       #    or :if_unsaved => :alert
+      #p "open_workbook:"
       if ((not alive?) || (@options[:if_unsaved] == :alert)) then
         begin
           workbooks = @excel.Workbooks
@@ -222,6 +225,8 @@ initialize:
           # the workbook with given file name
           @workbook = workbooks.Item(File.basename(filename))
           @@bookstore.store(self)
+          #p "after store:"
+          #@@bookstore.print
         rescue BookStoreError => e
           raise ExcelUserCanceled, "open: canceled by user: #{e}"
         end

@@ -127,9 +127,11 @@ describe Book do
       end
 
       it "should yield identical Book objects for identical Excel books when reopening" do
+        @book.should be_alive
         @book.close
         book2 = Book.open(@simple_file)
         book2.should == @book
+        #book2.should be_alive
         book2.close
       end
     end
@@ -467,6 +469,7 @@ describe Book do
     end
 
     context "with :read_only" do
+      
       it "should be able to save, if :read_only => false" do
         book = Book.open(@simple_file, :read_only => false)
         book.should be_a Book

@@ -15,18 +15,18 @@ module RobustExcelOle
       # opens a book.
       # 
       # options: 
-      # :default_excel   if the book was already open in a Excel, then open it there, otherwise:
-      #                   :reuse (default) -> connect to a running Excel if it exists, open in a new Excel otherwise
-      #                   :new             -> open in a new Excel
+      # :default_excel   if the book was already open in an Excel instance, then open it there, otherwise:
+      #                   :reuse (default) -> connect to a running Excel instance if it exists, open in a new Excel otherwise
+      #                   :new             -> open in a new Excel instance
       #                   <instance>       -> open in the given Excel instance
       # :force_excel     no matter whether the book was already open
       #                   :new (default)   -> open in a new Excel
       #                   <instance>       -> open in the given Excel instance
-      # :if_locked       if the book is writable in another Excel , then
-      #                   :take_writable (default) -> use the Excel in which the book is writable
+      # :if_locked       if the book is writable in another Excel instance, then
+      #                   :take_writable (default) -> use the Excel instance in which the book is writable
       #                   :force_writability       -> make it writable in the desired Excel
       #                   :raise                   -> raise an exception
-      # :if_locked_unsaved  if the book is open in another Excel and contains unsaved changes
+      # :if_locked_unsaved  if the book is open in another Excel instance and contains unsaved changes
       #                  :raise    -> raise an exception
       #                  :save     -> save the unsaved book 
       # :if_unsaved     if an unsaved book with the same name is open, then
@@ -49,64 +49,26 @@ module RobustExcelOle
       # If :default_excel is set, then DisplayAlerts and Visible are set only if these parameters are given,
       #                                   not set by default
 
-
-=begin
-Ablaufplan:
-
-open:
-
-wenn nicht :force_excel => :new
-  finde book
-  wenn book gefunden:
-    wenn nicht force_excel oder (force_excel => <Instanz> und Instanz == book.excel)
-      reopen  (return if succeeds)
-    sonst
-      * if_locked* (return if succeeds)
-setze :excel => Wert von :force_excel ? :force_excel : default_excel (bevorzuge :force_excel)
-öffne mit initialize
-   
-
-reopen:
-
-  wenn book.excel.alive?
-    wenn not book.alive?
-      (if_unsaved, if_obstructed wie bei reopen. zuerst copy & paste. später Abfrage herausfaktorisieren)
-      book.workbook = book.excel.Workbooks.Open(file)
-
-    return book
-  sonst
-    wenn :force => <instance>
-      raise (optional auswerten :default_excel)
-
-if_locked:
-Fälle
-
-initialize:
-
-  excel_optionen = ...
-  @excel = Excel.new(excel_optionen)
-  @workbook = @excel. Workbooks.Item(file)
-  wenn @workbook == nil
-    @workbook = @excel.Workbooks.Open(file)
-=end
-
       def open(file, options={ }, &block)
-        #p "open:"
         @@bookstore ||= BookStore.new
-        #@@bookstore.print
         book = nil
-        if (options[:default_excel] || (not options[:force_excel]))
-          book = @@bookstore.fetch(file)
+        if (not (options[:force_excel] == :new))
+          book = @@bookstore.fetch(file, :excel => (options[:read_only] ? options[:force_excel] : nil))
           if book 
-            return book
+            if (not options[:force_excel] || (options[:force_excel] == book.excel))
+              if book.excel.alive?
+                if (not book.alive?)
+                  book.workbook = book.excel.Workbooks.Open(book.stored_filename,{ 'ReadOnly' => @options[:read_only] })
+                end
+                # if the book is unsaved it is reopened, so it implements :if_unsaved => :accept
+                # :(if_obstructed does not apply since  the whole path is stored)
+                return book
+              end
+            end
           end
         end
-        if options[:force_excel] || book.nil?
-          # if :reuse_excel is set, then :excel = :reuse_excel, else :excel = :force_excel
-          options[:excel] = (options[:default_excel] || options[:force_excel]) ?  
-              (options[:default_excel] ? options[:default_excel] : options[:force_excel]) : :reuse
-          new(file, options, &block)
-        end
+        options[:excel] = options[:force_excel] ?  options[:force_excel] ? options[:default_excel]
+        new(file, options, &block)
       end
     end
 
@@ -216,7 +178,6 @@ initialize:
     def open_workbook filename
       # if book not open (was not open,was closed with option :forget or shall be opened in new application)
       #    or :if_unsaved => :alert
-      #p "open_workbook:"
       if ((not alive?) || (@options[:if_unsaved] == :alert)) then
         begin
           workbooks = @excel.Workbooks
@@ -225,8 +186,6 @@ initialize:
           # the workbook with given file name
           @workbook = workbooks.Item(File.basename(filename))
           @@bookstore.store(self)
-          #p "after store:"
-          #@@bookstore.print
         rescue BookStoreError => e
           raise ExcelUserCanceled, "open: canceled by user: #{e}"
         end

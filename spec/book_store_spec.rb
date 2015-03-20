@@ -255,6 +255,8 @@ describe BookStore do
       end
 
       it "should fetch the book in the given excel instance" do
+        @book.ReadOnly.should be_false
+        @book2.ReadOnly.should be_true
         book_new = @bookstore.fetch(@simple_file, :excel => @book2.excel)
         book_new.should be_a Book
         book_new.should be_alive

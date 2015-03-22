@@ -243,8 +243,6 @@ describe Book do
       end
 
       
-
-      
     end
 
     context "with :unlocked" do

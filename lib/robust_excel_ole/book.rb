@@ -52,14 +52,7 @@ module RobustExcelOle
      
       def open(file, opts={ }, &block)
         p "open:"
-        @@bookstore ||= BookStore.new
-        @options = {
-          :default_excel => :reuse,
-          :if_locked     => :take_writable,       
-          :if_unsaved    => :raise,
-          :if_obstructed => :raise,
-          :read_only => false
-        }.merge(opts)
+        set_defaults(opts)
         book = nil
         if (not (@options[:force_excel] == :new))
           # reopen the book
@@ -90,14 +83,7 @@ module RobustExcelOle
 
     def initialize(file, opts={ }, &block)
       p "initialize:"
-      @@bookstore ||= BookStore.new
-      @options = {
-        :excel => :reuse,
-        :if_locked     => :take_writable,       
-        :if_unsaved    => :raise,
-        :if_obstructed => :raise,
-        :read_only => false
-      }.merge(opts)
+      Book.set_defaults(opts)
       @excel = Book.get_excel(opts)     
       p "@excel: #{@excel}"
       # get_workbook has side effect to @excel with :if_unsaved => :new_excel, :alerted, and :if_obstructed => :new_excel
@@ -114,6 +100,19 @@ module RobustExcelOle
     end
   
   private
+
+
+    def self.set_defaults(opts)
+      @@bookstore ||= BookStore.new
+      @options = {
+        :excel => :reuse,
+        :default_excel => :reuse,
+        :if_locked     => :take_writable,       
+        :if_unsaved    => :raise,
+        :if_obstructed => :raise,
+        :read_only => false
+      }.merge(opts)
+    end
 
     def self.get_excel(opts)
       p "get_excel:"

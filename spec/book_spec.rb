@@ -131,7 +131,7 @@ describe Book do
         @book.close
         book2 = Book.open(@simple_file)
         book2.should == @book
-        #book2.should be_alive
+        book2.should be_alive
         book2.close
       end
     end

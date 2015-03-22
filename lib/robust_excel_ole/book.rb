@@ -6,8 +6,8 @@ require 'weakref'
 module RobustExcelOle
 
   class Book
-    attr_reader :workbook
     attr_reader :excel
+    attr_accessor :workbook
     attr_accessor :stored_filename
 
     class << self
@@ -98,10 +98,10 @@ module RobustExcelOle
         :if_obstructed => :raise,
         :read_only => false
       }.merge(opts)
-      @excel = get_excel(opts)     
+      @excel = Book.get_excel(opts)     
       p "@excel: #{@excel}"
       # get_workbook has side effect to @excel with :if_unsaved => :new_excel, :alerted, and :if_obstructed => :new_excel
-      @workbook = get_workbook(file, @excel)
+      @workbook = Book.get_workbook(file, @excel)
       p "@workbook: #{@workbook}"
       @@bookstore.store(self)
       if block
@@ -115,7 +115,7 @@ module RobustExcelOle
   
   private
 
-    def get_excel(opts)
+    def self.get_excel(opts)
       p "get_excel:"
       if @options[:excel] == :reuse
         p ":reuse"
@@ -124,7 +124,7 @@ module RobustExcelOle
       end
       @excel_options = nil
       if (not excel)
-        p "no excel so far"
+        p "no excel"
         if @options[:excel] == :new
           p ":new"
           @excel_options = {:displayalerts => false, :visible => false}.merge(opts)
@@ -139,7 +139,7 @@ module RobustExcelOle
       end
       # if :excel => :new or (:excel => :reuse but could not reuse)
       if (not @excel_options)
-        p "not excel_options:"
+        p "no excel_options (excel => :new or (:excel => :reuse but could not reuse)"
         excel.displayalerts = @options[:displayalerts] unless @options[:displayalerts].nil?
         excel.visible = @options[:visible] unless @options[:visible].nil?
       end
@@ -147,7 +147,7 @@ module RobustExcelOle
       excel
     end
 
-    def get_workbook(file, excel)
+    def self.get_workbook(file, excel)
       p "get_workbook:"
       workbook = excel.Workbooks.Item(File.basename(file)) rescue nil
       if workbook then
@@ -224,9 +224,10 @@ module RobustExcelOle
     end
 
 
-    def open_workbook(file,excel)
+    def self.open_workbook(file,excel)
       p "open_workbook:"
-      if (@options[:reopen] || (not alive?) || (@options[:if_unsaved] == :alert)) then
+      # ... (not alive?)
+      if (@options[:reopen] || (not @workbook) || (@options[:if_unsaved] == :alert)) then
         begin
           filename = RobustExcelOle::absolute_path(file)
           p "filename: #{filename}"

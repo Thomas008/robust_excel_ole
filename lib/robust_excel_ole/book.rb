@@ -254,7 +254,7 @@ module RobustExcelOle
     #                      :forget  -> close the book 
     #                      :alert   -> give control to excel
     def close(opts = {:if_unsaved => :raise})
-      if ((alive?) && (not @workbook.Saved) && (not @options[:read_only])) then
+      if ((alive?) && (not @workbook.Saved) && (not opts[:read_only])) then
         case opts[:if_unsaved]
         when :raise
           raise ExcelErrorClose, "book is unsaved (#{File.basename(filename)})"

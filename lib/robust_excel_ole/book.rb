@@ -66,7 +66,7 @@ module RobustExcelOle
                 if (not book.alive?)
                   p "book not alive - try to reopen"
                   @options[:reopen] = true
-                  book.workbook = get_workbook(file, book.excel)
+                  book.workbook = book.get_workbook(file, book.excel)
                   p "workbook: #{book.workbook}"
                 end
                 return book if book.alive?
@@ -87,7 +87,7 @@ module RobustExcelOle
       @excel = Book.get_excel(opts)     
       p "@excel: #{@excel}"
       # get_workbook has side effect to @excel with :if_unsaved => :new_excel, :alerted, and :if_obstructed => :new_excel
-      @workbook = Book.get_workbook(file, @excel)
+      get_workbook(file, @excel)
       p "@workbook: #{@workbook}"
       @@bookstore.store(self)
       if block
@@ -175,7 +175,7 @@ module RobustExcelOle
           when :new_excel    
             if (not @options[:reopen])        
               @excel_options[:reuse] = false
-              @excel = Excel.new(@excel_options)
+              excel = Excel.new(@excel_options)
               workbook = nil
               open_workbook(file,excel)
             end

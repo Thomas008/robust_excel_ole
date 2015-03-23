@@ -2,10 +2,37 @@
 
 require File.join(File.dirname(__FILE__), './spec_helper')
 
+RSpec.configure do |config|
+
+  config.mock_with :rspec do |mocks|
+    mocks.syntax = :should
+  end
+end
+
 
 $VERBOSE = nil
 
 include RobustExcelOle
+module RobustExcelOle
+  class MockBookstore
+    def fetch(filename, options = { })
+      nil
+    end
+    def store(book)
+    end
+    def print
+      puts "MockBookstore is always empty"
+    end
+  end
+end
+
+
+$mock_bookstore = MockBookstore.new
+
+class Book
+  @@bookstore = $mock_bookstore
+end
+
 
 describe BookStore do
 
@@ -40,6 +67,15 @@ describe BookStore do
       end
     end
   end
+
+  describe "Mock-Test" do
+    it "should never store any book" do
+      b1 = Book.open(@simple_file)
+      b2 = Book.open(@simple_file)
+      b2.object_id.should_not == b1.object_id
+    end
+  end
+
 
   describe "fetch" do
     

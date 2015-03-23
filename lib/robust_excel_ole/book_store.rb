@@ -24,7 +24,7 @@ module RobustExcelOle
         return book if options[:readonly_excel] && book.excel == options[:readonly_excel]
         if book.alive?
           if (not book.ReadOnly)
-            if options[:excel]
+            if options[:readonly_excel]
               result = book
             else
               return book

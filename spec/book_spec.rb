@@ -174,7 +174,6 @@ describe Book do
 
       before do
         @book = Book.open(@simple_file)
-        
       end
 
       after do
@@ -243,7 +242,6 @@ describe Book do
         book2.should == @book
       end
 
-      
     end
 
     context "with :unlocked" do
@@ -257,11 +255,11 @@ describe Book do
       end
       
       it "should :go_there" do
-        book = Book.open(@simple_file, :excel => :new, :if_locked => :go_there)
+        book = Book.open(@simple_file, :force_excel => :new, :if_locked => :go_there)
       end
 
       it "should :force" do
-        book = Book.open(@simple_file, :excel => :new, :if_locked => :force)
+        book = Book.open(@simple_file, :force_excel => :new, :if_locked => :force)
       end
     end
 
@@ -274,11 +272,11 @@ describe Book do
       end
 
       after do
-        @book.close
+        @book.close(:if_unsaved => :forget)
       end
 
       it "should ..., if old book is unsaved" do
-        book = Book.open(@simple_file, :excel => :new, :if_locked => :go_there, :if_locked_unsaved => :raise)
+        book = Book.open(@simple_file, :force_excel => :new, :if_locked => :go_there, :if_locked_unsaved => :raise)
       end
     end
     

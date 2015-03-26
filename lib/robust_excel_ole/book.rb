@@ -73,9 +73,10 @@ module RobustExcelOle
               if book.excel.alive?
                 p "excel alive"
                 p "alive: #{book.alive?}"
-                p "saved: #{book.workbook.Saved}"
+                p "saved: #{book.workbook.Saved}" if book.workbook
+                p "book.workbook is nil" unless book.workbook
                 p "if_unsaved: #{@options[:if_unsaved]}"
-                if (not (book.alive? && (@options[:if_unsaved] == :accept || book.workbook.Saved)))
+                if (not (book.alive? && book.workbook && (@options[:if_unsaved] == :accept || book.workbook.Saved)))
                   p "reopen"
                   book.set_defaults(opts)
                   book.get_workbook(file, book.excel)                 
@@ -182,6 +183,7 @@ module RobustExcelOle
             raise ExcelErrorOpen, "blocked by a book with the same name in a different path"
           when :forget
             @workbook.Close
+            @workbook = nil
             open_workbook(file,excel)
           when :save
             save unless @workbook.Saved
@@ -300,14 +302,18 @@ module RobustExcelOle
     # modify a book such that its state remains unchanged.
     # options: :keep_open: let the book open after modification
     def self.unobtrusively(filename, opts = {:keep_open => false})
+      p "unobtrusively:"
       book = @@bookstore.fetch(filename)
       was_not_alive_or_nil = (not book.alive?) || book.nil?
       was_saved = was_not_alive_or_nil ? true : book.Saved
       begin
         book = open(filename, :if_unsaved => :new_excel, :if_obstructed => :new_excel) if was_not_alive_or_nil
+        p "book: #{book}"
         yield book
       ensure
-        book.save if was_saved && (not book.ReadOnly)
+        p "ensure:"
+        p "book: #{book}"
+        book.save if was_not_alive_or_nil || (was_saved && (not book.ReadOnly))
         book.close(:if_unsaved => :save) if (was_not_alive_or_nil && (not opts[:keep_open]))
       end
       book

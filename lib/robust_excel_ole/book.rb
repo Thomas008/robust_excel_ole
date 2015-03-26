@@ -6,7 +6,7 @@ require 'weakref'
 module RobustExcelOle
 
   class Book
-    attr_reader :excel
+    attr_accessor :excel
     attr_accessor :workbook
     attr_accessor :stored_filename
 
@@ -52,7 +52,16 @@ module RobustExcelOle
      
       def open(file, opts={ }, &block)
         p "open:"
-        set_defaults(opts)
+        #Book.set_defaults(opts)
+        @@bookstore ||= BookStore.new
+        @options = {
+          :excel => :reuse,
+          :default_excel => :reuse,
+          :if_locked     => :take_writable,       
+          :if_unsaved    => :raise,
+          :if_obstructed => :raise,
+          :read_only => false
+        }.merge(opts)
         book = nil
         if (not (@options[:force_excel] == :new))
           # reopen the book
@@ -66,7 +75,7 @@ module RobustExcelOle
                 if (not book.alive?)
                   p "book not alive - try to reopen"
                   @options[:reopen] = true
-                  book.workbook = book.get_workbook(file, book.excel)
+                  book.get_workbook(file, book.excel)                 
                   p "workbook: #{book.workbook}"
                 end
                 return book if book.alive?
@@ -83,8 +92,17 @@ module RobustExcelOle
 
     def initialize(file, opts={ }, &block)
       p "initialize:"
-      Book.set_defaults(opts)
-      @excel = Book.get_excel(opts)     
+      @@bookstore ||= BookStore.new
+      @options = {
+        :excel => :reuse,
+        :default_excel => :reuse,
+        :if_locked     => :take_writable,       
+        :if_unsaved    => :raise,
+        :if_obstructed => :raise,
+        :read_only => false
+      }.merge(opts)
+      #Book.set_defaults(opts)
+      get_excel(opts)     
       p "@excel: #{@excel}"
       # get_workbook has side effect to @excel with :if_unsaved => :new_excel, :alerted, and :if_obstructed => :new_excel
       get_workbook(file, @excel)
@@ -99,9 +117,6 @@ module RobustExcelOle
       end
     end
   
-  private
-
-
     def self.set_defaults(opts)
       @@bookstore ||= BookStore.new
       @options = {
@@ -114,7 +129,7 @@ module RobustExcelOle
       }.merge(opts)
     end
 
-    def self.get_excel(opts)
+    def get_excel(opts)
       p "get_excel:"
       if @options[:excel] == :reuse
         p ":reuse"
@@ -143,40 +158,40 @@ module RobustExcelOle
         excel.visible = @options[:visible] unless @options[:visible].nil?
       end
       p "excel: #{excel}"
-      excel
+      @excel = excel
     end
 
-    def self.get_workbook(file, excel)
+    def get_workbook(file, excel)
       p "get_workbook:"
-      workbook = excel.Workbooks.Item(File.basename(file)) rescue nil
-      if workbook then
+      @workbook = excel.Workbooks.Item(File.basename(file)) rescue nil
+      if @workbook then
         p "workbook exists already"
-        obstructed_by_other_book = (File.basename(file) == File.basename(workbook.Fullname)) && 
-                                   (not (RobustExcelOle::absolute_path(file) == workbook.Fullname))
+        obstructed_by_other_book = (File.basename(file) == File.basename(@workbook.Fullname)) && 
+                                   (not (RobustExcelOle::absolute_path(file) == @workbook.Fullname))
         # if book is obstructed by a book with same name and different path
         if obstructed_by_other_book then
           case @options[:if_obstructed]
           when :raise
             raise ExcelErrorOpen, "blocked by a book with the same name in a different path"
           when :forget
-            workbook.Close
+            @workbook.Close
             open_workbook(file,excel)
           when :save
-            save unless workbook.Saved
-            workbook.Close
+            save unless @workbook.Saved
+            @workbook.Close
             open_workbook(file,excel)
           when :close_if_saved
-            if (not workbook.Saved) then
+            if (not @workbook.Saved) then
               raise ExcelErrorOpen, "book with the same name in a different path is unsaved"
             else 
-              workbook.Close
+              @workbook.Close
               open_workbook(file,excel)
             end
           when :new_excel    
             if (not @options[:reopen])        
               @excel_options[:reuse] = false
-              excel = Excel.new(@excel_options)
-              workbook = nil
+              @excel = Excel.new(@excel_options)
+              @workbook = nil
               open_workbook(file,excel)
             end
           else
@@ -189,7 +204,7 @@ module RobustExcelOle
             when :raise
               raise ExcelErrorOpen, "book is already open but not saved (#{File.basename(file)})"
             when :forget
-              workbook.Close
+              @workbook.Close
               open_workbook(file,excel)
             when :accept
               # do nothing
@@ -200,14 +215,14 @@ module RobustExcelOle
               #     open_workbook file
               #   end
               # end
-              excel.with_displayalerts true do
+              @excel.with_displayalerts true do
                 open_workbook(file,excel)
               end 
             when :new_excel
               if (not @options[:reopen])
                 @excel_options[:reuse] = false
                 @excel = Excel.new(@excel_options)
-                workbook = nil
+                @workbook = nil
                 open_workbook(file,@excel)
               end
             else
@@ -222,8 +237,7 @@ module RobustExcelOle
       end
     end
 
-
-    def self.open_workbook(file,excel)
+    def open_workbook(file,excel)
       p "open_workbook:"
       # ... (not alive?)
       if (@options[:reopen] || (not @workbook) || (@options[:if_unsaved] == :alert)) then
@@ -234,16 +248,13 @@ module RobustExcelOle
           workbooks.Open(filename,{ 'ReadOnly' => @options[:read_only] })
           # workaround for bug in Excel 2010: workbook.Open does not always return 
           # the workbook with given file name
-          workbook = workbooks.Item(File.basename(filename))
-          p "workbook: #{workbook}"
-          workbook
+          @workbook = workbooks.Item(File.basename(filename))
+          p "workbook: #{@workbook}"
         rescue BookStoreError => e
           raise ExcelUserCanceled, "open: canceled by user: #{e}"
         end
       end
     end
-
-  public
 
     # closes the book, if it is alive
     #

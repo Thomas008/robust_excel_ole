@@ -13,7 +13,7 @@ describe Book do
     excel = Excel.new(:reuse => true)
     open_books = excel == nil ? 0 : excel.Workbooks.Count
     puts "*** open books *** : #{open_books}" if open_books > 0
-    #Excel.close_all
+    Excel.close_all
   end
 
 
@@ -151,6 +151,7 @@ describe Book do
         book2.should be_alive
         book2.should be_a Book
         book2.excel.should_not == @book.excel 
+        book2.should_not == @book
       end
 
       it "should open in a given Excel" do
@@ -329,9 +330,11 @@ describe Book do
           # "Yes" is the  default. --> language independent
           @key_sender.puts "{enter}"
           @new_book = Book.open(@simple_file, :if_unsaved => :alert)
-          @book.should_not be_alive
           @new_book.should be_alive
           @new_book.filename.downcase.should == @simple_file.downcase
+          #@new_book.should == @book
+          #@book.should be_alive
+          @book.should_not be_alive
         end
 
         it "should not open the new book and not close the unsaved book, if user answers 'no'" do
@@ -349,11 +352,14 @@ describe Book do
       end
 
       it "should open the book in a new excel instance, if :if_unsaved is :new_excel" do
+        p "Test:"
         @new_book = Book.open(@simple_file, :if_unsaved => :new_excel)
         @book.should be_alive
         @new_book.should be_alive
         @new_book.filename.should == @book.filename
-        @new_book.excel.should_not == @book.excel
+        p "new_book.excel: #{@new_book.excel}"
+        p "book.excel: #{@book.excel}"
+        @new_book.excel.should_not == @book.excel       
         @new_book.close
       end
 

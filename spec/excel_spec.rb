@@ -8,7 +8,7 @@ module RobustExcelOle
 
   describe Excel do
 
-    before(:all) do
+    before do
       Excel.close_all
     end
 
@@ -41,7 +41,6 @@ module RobustExcelOle
     context "with existing excel" do
 
       before do
-        Excel.close_all
         @excel1 = Excel.create
       end
 
@@ -90,7 +89,6 @@ module RobustExcelOle
 
     describe "==" do
       before do
-        Excel.close_all
         @excel1 = Excel.create
       end
 
@@ -113,10 +111,6 @@ module RobustExcelOle
     end
 
     context "with Visible and DisplayAlerts" do
-
-      before do
-        Excel.close_all
-      end
 
       it "should create Excel visible" do
         excel = Excel.new(:visible => true)
@@ -209,6 +203,27 @@ module RobustExcelOle
       end
     end
 
+    context "with hwnd and hwnd2excel" do
+      
+      before do
+        @excel1 = Excel.new
+        @excel2 = Excel.new(:reuse => false)
+      end
+
+      it "should yield the correct hwnd" do
+        @excel1.Hwnd.should == @excel1.hwnd
+        @excel2.Hwnd.should == @excel2.hwnd
+      end
+
+      it "should provide the same excel instances" do
+        @excel1.should_not == @excel2
+        excel3 = Excel.hwnd2excel(@excel1.hwnd)
+        excel4 = Excel.hwnd2excel(@excel2.hwnd)
+        @excel1.should == excel3
+        @excel2.should == excel4
+        excel3.should_not == excel4 
+      end
+    end
   end
 
 

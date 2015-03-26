@@ -51,7 +51,7 @@ module RobustExcelOle
       excel.Visible = options[:visible] unless options[:visible].nil?
 
       hwnd = excel.HWnd
-      stored = @@hwnd2excel[hwnd]
+      stored = hwnd2excel(hwnd)
 
       if stored 
         result = stored
@@ -76,6 +76,13 @@ module RobustExcelOle
       empty_workbook.Close                             
     end
 
+    def self.hwnd2excel(hwnd)
+      @@hwnd2excel[hwnd]
+    end
+
+    def hwnd
+      self.Hwnd
+    end
 
     # returns true, if the Excel instances are identical, false otherwise
     def == other_excel
@@ -148,7 +155,7 @@ module RobustExcelOle
           end
         end
 
-        @@hwnd2excel[excel_hwnd].die rescue nil
+        hwnd2excel(excel_hwnd).die rescue nil
         #@@hwnd2excel[excel_hwnd] = nil
       end
 

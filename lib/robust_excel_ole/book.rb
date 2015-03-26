@@ -203,7 +203,6 @@ module RobustExcelOle
             @excel_options = {:displayalerts => false, :visible => false}.merge(@options)   
             @excel_options[:reuse] = false
             @excel = Excel.new(@excel_options)
-            #@workbook = nil
             open_workbook(file,@excel)
           else
             raise ExcelErrorOpen, ":if_obstructed: invalid option"
@@ -218,6 +217,7 @@ module RobustExcelOle
               raise ExcelErrorOpen, "book is already open but not saved (#{File.basename(file)})"
             when :forget
               @workbook.Close
+              @workbook = nil
               open_workbook(file,excel)
             when :accept
               # do nothing
@@ -231,8 +231,7 @@ module RobustExcelOle
               @excel_options[:reuse] = false
               @excel = Excel.new(@excel_options)
               p "@excel: #{@excel}"
-              #@workbook = nil
-              open_workbook(file,@excel)
+              open_workbook(file,excel)
             else
               raise ExcelErrorOpen, ":if_unsaved: invalid option"
             end

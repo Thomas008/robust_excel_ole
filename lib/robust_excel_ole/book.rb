@@ -188,19 +188,23 @@ module RobustExcelOle
           when :save
             save unless @workbook.Saved
             @workbook.Close
+            @workbook = nil
             open_workbook(file,excel)
           when :close_if_saved
             if (not @workbook.Saved) then
               raise ExcelErrorOpen, "book with the same name in a different path is unsaved"
             else 
               @workbook.Close
+              @workbook = nil
               open_workbook(file,excel)
             end
-          when :new_excel    
+          when :new_excel 
+            p "new_excel:"
+            @excel_options = {:displayalerts => false, :visible => false}.merge(@options)   
             @excel_options[:reuse] = false
             @excel = Excel.new(@excel_options)
-            @workbook = nil
-            open_workbook(file,excel)
+            #@workbook = nil
+            open_workbook(file,@excel)
           else
             raise ExcelErrorOpen, ":if_obstructed: invalid option"
           end
@@ -227,7 +231,7 @@ module RobustExcelOle
               @excel_options[:reuse] = false
               @excel = Excel.new(@excel_options)
               p "@excel: #{@excel}"
-              @workbook = nil
+              #@workbook = nil
               open_workbook(file,@excel)
             else
               raise ExcelErrorOpen, ":if_unsaved: invalid option"
@@ -243,11 +247,12 @@ module RobustExcelOle
 
     def open_workbook(file,excel)
       p "open_workbook:"
-      if ((not @workbook) || (@options[:if_unsaved] == :alert)) then
+      if ((not @workbook) || (@options[:if_unsaved] == :alert) || @options[:if_obstructed]) then
         begin
           filename = RobustExcelOle::absolute_path(file)
           p "filename: #{filename}"
           workbooks = excel.Workbooks
+          p "workbooks: #{workbooks}"
           workbooks.Open(filename,{ 'ReadOnly' => @options[:read_only] })
           # workaround for bug in Excel 2010: workbook.Open does not always return 
           # the workbook with given file name

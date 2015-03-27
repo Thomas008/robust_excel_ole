@@ -76,15 +76,14 @@ module RobustExcelOle
                 p "saved: #{book.workbook.Saved}" if book.workbook
                 p "book.workbook is nil" unless book.workbook
                 p "if_unsaved: #{@options[:if_unsaved]}"
-                # something wrong with the condition
-                if (not book.alive? &&  
-                   (@options[:if_unsaved] == :accept || @options[:if_unsaved] == :raise || (not book.workbook || book.workbook.Saved)))
+                unsaved_condition = (@options[:if_unsaved] == :accept || @options[:if_unsaved] == :raise || (not book.workbook || book.workbook.Saved))
+                if ((not book.alive?) || unsaved_condition)  
                   p "reopen"
                   book.set_defaults(opts)
                   book.get_workbook(file)            
                   p "workbook: #{book.workbook}"
                 end
-                return book if book.alive?
+                return book if book.alive? && unsaved_condition
               end
             end
           end

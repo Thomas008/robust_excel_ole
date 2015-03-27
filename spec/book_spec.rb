@@ -351,6 +351,8 @@ describe Book do
 
       it "should open the book in a new excel instance, if :if_unsaved is :new_excel" do
         @new_book = Book.open(@simple_file, :if_unsaved => :new_excel)
+        # @book becomes @new_book
+        # @book = @new_book succeeds
         @book.should be_alive
         @new_book.should be_alive
         @new_book.filename.should == @book.filename

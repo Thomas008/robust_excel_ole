@@ -284,8 +284,8 @@ describe Book do
 
       before do
         @book = Book.open(@simple_file)
-        #@sheet = @book[0]
-        #@book.add_sheet(@sheet, :as => 'a_name')
+        @sheet = @book[0]
+        @book.add_sheet(@sheet, :as => 'a_name')
       end
 
       after do
@@ -719,7 +719,7 @@ describe Book do
       end
 
       # fails
-      it "should modify unobtrusively the seond, writable book" do
+      it "should modify unobtrusively the readonly book" do
         @book.ReadOnly.should be_true
         @book.Saved.should be_true
         sheet = @book[0]

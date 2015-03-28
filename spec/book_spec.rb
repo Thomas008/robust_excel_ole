@@ -599,12 +599,12 @@ describe Book do
         @book.Saved.should be_true
         @book.should be_alive
         sheet = @book[0]
-        @old_cell_value = sheet[0,0].value
+        old_cell_value = sheet[0,0].value
         unobtrusively_ok?
         @book.Saved.should be_true
         @book.should be_alive
         sheet = @book[0]
-        sheet[0,0].value.should_not == @old_cell_value
+        sheet[0,0].value.should_not == old_cell_value
       end
 
       it "should let an unsaved book unsaved" do
@@ -612,12 +612,12 @@ describe Book do
         sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple" 
         @book.Saved.should be_false
         @book.should be_alive
-        @old_cell_value = sheet[0,0].value
+        old_cell_value = sheet[0,0].value
         unobtrusively_ok?
         @book.Saved.should be_false
         @book.should be_alive
         sheet = @book[0]
-        sheet[0,0].value.should_not == @old_cell_value
+        sheet[0,0].value.should_not == old_cell_value
       end
     end
     
@@ -634,18 +634,20 @@ describe Book do
 
       it "should let the closed book closed by default" do
         sheet = @book[0]
-        @old_cell_value = sheet[0,0].value
+        old_cell_value = sheet[0,0].value
         @book.close
         @book.should_not be_alive
         unobtrusively_ok?
         @book.should_not be_alive
         @book = Book.open(@simple_file)
         sheet = @book[0]
-        sheet[0,0].value.should_not == @old_cell_value
+        sheet[0,0].value.should_not == old_cell_value
       end
 
       # The bold reanimation of the @book
       it "should keep open the book" do
+        sheet = @book[0]
+        old_cell_value = sheet[0,0].value
         @book.close
         @book.should_not be_alive
         Book.unobtrusively(@simple_file, :keep_open => true) do |book|
@@ -656,51 +658,85 @@ describe Book do
           book.Saved.should be_false
         end
         @book.should be_alive
+        @book.close
+        @book = Book.open(@simple_file)
+        sheet = @book[0]
+        sheet[0,0].value.should_not == old_cell_value
       end
     end
 
-    # fails
-    context "with an unsaved book" do
+    context "with unsaved book" do
 
       before do
         @book = Book.open(@simple_file)
-        excel = Excel.new(:reuse => false)
-        @book2 = Book.open(@simple_file, :excel => excel)
       end
 
       after do
         @book.close(:if_unsaved => :forget)
         @book2.close(:if_unsaved => :forget)
-        Excel.close_all
       end
 
-      it "should modify unobtrusively the first, unsaved book" do
+      it "should modify unobtrusively an unsaved book" do
         sheet = @book[0]
-        @old_cell_value = sheet[0,0].value
-        sheet2 = @book2[0]
-        @old_cell_value2 = sheet2[0,0].value
+        old_cell_value = sheet[0,0].value
         sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+        old_cell_value = sheet[0,0].value
         unobtrusively_ok?
         @book.should be_alive
         @book.Saved.should be_false
-        sheet = @book[0]
-        sheet[0,0].value.should_not == @old_cell_value
+        @book.close(:if_unsaved => :forget)
+        @book2 = Book.open(@simple_file)
+        sheet2 = @book2[0]
+        sheet2[0,0].value.should_not == old_cell_value
       end
 
-      it "should modify unobtrusively the second, unsaved book" do
-        sheet = @book[0]
-        @old_cell_value = sheet[0,0].value
-        sheet2 = @book2[0]
-        @old_cell_value2 = sheet2[0,0].value
-        sheet2[0,0] = sheet2[0,0].value == "simple" ? "complex" : "simple"
+      it "should modify unobtrusively the seond, writable book" do
+        @book2 = Book.open(@simple_file, :force_excel => :new)
+        @book.ReadOnly.should be_false
+        @book2.ReadOnly.should be_true
+        sheet = @book2[0]
+        old_cell_value = sheet[0,0].value
+        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
         unobtrusively_ok?
         @book2.should be_alive
         @book2.Saved.should be_false
+        @book2.close(:if_unsaved => :forget)
+        @book.close
+        @book = Book.open(@simple_file)
         sheet2 = @book[0]
-        sheet2[0,0].value.should_not == @old_cell_value2
+        sheet2[0,0].value.should_not == old_cell_value
       end
+    end    
+
+    context "with read_only book" do
+
+      before do
+        @book = Book.open(@simple_file, :read_only => true)
+      end
+
+      after do
+        @book.close
+      end
+
+      # fails
+      it "should modify unobtrusively the seond, writable book" do
+        @book.ReadOnly.should be_true
+        @book.Saved.should be_true
+        sheet = @book[0]
+        old_cell_value = sheet[0,0].value
+        unobtrusively_ok?
+        @book.should be_alive
+        @book.Saved.should be_true
+        @book.ReadOnly.should be_true
+        @book.close
+        @book2 = Book.open(@simple_file)
+        sheet2 = @book2[0]
+        sheet2[0,0].value.should_not == old_cell_value
+      end
+
     end
-  end    
+
+  end
 
   describe "close" do
 

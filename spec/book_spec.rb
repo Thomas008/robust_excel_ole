@@ -625,6 +625,7 @@ describe Book do
       end
     end
 
+    # fails
     context "with an unsaved book" do
 
       before do
@@ -966,7 +967,7 @@ describe Book do
       end
     end
 
-    context "with unsaved book and with :read_only" do
+    context "with unsaved read_only book" do
       before do
         @book = Book.open(@simple_file, :read_only => true)
         @sheet_count = @book.workbook.Worksheets.Count

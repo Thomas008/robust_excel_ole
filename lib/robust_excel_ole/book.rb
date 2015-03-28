@@ -76,14 +76,16 @@ module RobustExcelOle
                 p "saved: #{book.workbook.Saved}" if book.workbook
                 p "book.workbook is nil" unless book.workbook
                 p "if_unsaved: #{@options[:if_unsaved]}"
-                unsaved_condition = (@options[:if_unsaved] == :accept || @options[:if_unsaved] == :raise || (not book.workbook || book.workbook.Saved))
-                if ((not book.alive?) || unsaved_condition)  
+                # condition: :if_unsaved is not set or :accept or workbook is not unsaved
+                if_unsaved_not_set_or_accept_or_workbook_saved = (@options[:if_unsaved] == :accept || @options[:if_unsaved] == :raise || (not book.workbook) || book.workbook.Saved)
+                if ((not book.alive?) || if_unsaved_not_set_or_accept_or_workbook_saved)  
                   p "reopen"
+                  p "read_only: #{@options[:read_only]}"
                   book.set_defaults(opts)
                   book.get_workbook(file)            
                   p "workbook: #{book.workbook}"
                 end
-                return book if book.alive? && unsaved_condition
+                return book if book.alive? && if_unsaved_not_set_or_accept_or_workbook_saved
               end
             end
           end
@@ -252,6 +254,7 @@ module RobustExcelOle
           p "filename: #{filename}"
           workbooks = @excel.Workbooks
           p "workbooks: #{workbooks}"
+          p "read_only: #{@options[:read_only]}"
           workbooks.Open(filename,{ 'ReadOnly' => @options[:read_only] })
           # workaround for bug in Excel 2010: workbook.Open does not always return 
           # the workbook with given file name
@@ -272,7 +275,9 @@ module RobustExcelOle
     #                      :forget  -> close the book 
     #                      :alert   -> give control to excel
     def close(opts = {:if_unsaved => :raise})
-      if ((alive?) && (not @workbook.Saved) && (not opts[:read_only])) then
+      p "opts: #{opts}"
+      p "read_only: #{opts[:read_only]}"
+      if ((alive?) && (not @workbook.Saved) && (not @workbook.ReadOnly)) then
         case opts[:if_unsaved]
         when :raise
           raise ExcelErrorClose, "book is unsaved (#{File.basename(filename)})"

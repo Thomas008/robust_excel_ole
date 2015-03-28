@@ -51,7 +51,6 @@ module RobustExcelOle
 
      
       def open(file, opts={ }, &block)
-        p "open:"
         @@bookstore ||= BookStore.new
         @options = {
           :excel => :reuse,
@@ -61,29 +60,19 @@ module RobustExcelOle
           :if_obstructed => :raise,
           :read_only => false
         }.merge(opts)
-        #self.set_defaults(opts)
+        #self.set_defaults(opts) ???
         book = nil
         if (not (@options[:force_excel] == :new))
-          # reopen the book
-          p "fetch book"
           book = @@bookstore.fetch(file, :readonly_excel => (@options[:read_only] ? @options[:force_excel] : nil))
           if book
-            p "book found" 
             if (not @options[:force_excel] || (@options[:force_excel] == book.excel))
               if book.excel.alive?
-                p "excel alive"
-                p "alive: #{book.alive?}"
-                p "saved: #{book.workbook.Saved}" if book.workbook
-                p "book.workbook is nil" unless book.workbook
-                p "if_unsaved: #{@options[:if_unsaved]}"
                 # condition: :if_unsaved is not set or :accept or workbook is not unsaved
                 if_unsaved_not_set_or_accept_or_workbook_saved = (@options[:if_unsaved] == :accept || @options[:if_unsaved] == :raise || (not book.workbook) || book.workbook.Saved)
                 if ((not book.alive?) || if_unsaved_not_set_or_accept_or_workbook_saved)  
-                  p "reopen"
-                  p "read_only: #{@options[:read_only]}"
                   book.set_defaults(opts)
+                  # reopen the book
                   book.get_workbook(file)            
-                  p "workbook: #{book.workbook}"
                 end
                 return book if book.alive? && if_unsaved_not_set_or_accept_or_workbook_saved
               end
@@ -91,30 +80,15 @@ module RobustExcelOle
           end
         end
         @options[:excel] = @options[:force_excel] ? @options[:force_excel] : @options[:default_excel]
-        p "call initialize"
         new(file, @options, &block)
       end
     end
 
     def initialize(file, opts={ }, &block)
-      p "initialize:"
-      #@@bookstore ||= BookStore.new
-      #@options = {
-      #  :excel => :reuse,
-      #  :default_excel => :reuse,
-      #  :if_locked     => :take_writable,       
-      #  :if_unsaved    => :raise,
-      #  :if_obstructed => :raise,
-      #  :read_only => false
-      #}.merge(opts)
       raise ExcelErrorOpen, "file #{file} not found" unless File.exist?(file)
       set_defaults(opts)
-      p "if_unsaved: #{@options[:if_unsaved]}"
       get_excel(opts)     
-      p "@excel: #{@excel}"
-      # get_workbook has side effect to @excel with :if_unsaved => :new_excel, :alerted, and :if_obstructed => :new_excel
       get_workbook(file)
-      p "@workbook: #{@workbook}"
       @@bookstore.store(self)
       if block
         begin
@@ -139,47 +113,33 @@ module RobustExcelOle
 
     # keep the old values for :visible and :displayalerts, set them only if the parameters are given
     def get_excel(opts)
-      p "get_excel:"
       if @options[:excel] == :reuse
-        p ":reuse"
         @excel = Excel.new(:reuse => true)
-        p "excel: #{@excel}"
       end
       @excel_options = nil
       if (not @excel)
-        p "no excel"
         if @options[:excel] == :new
-          p ":new"
           @excel_options = {:displayalerts => false, :visible => false}.merge(opts)
           @excel_options[:reuse] = false
           @excel = Excel.new(@excel_options)
-          p "@excel: #{@excel}"
         else
-          p "else:"
           @excel = @options[:excel]
-          p "@excel: #{@excel}"
         end
       end
       # if :excel => :new or (:excel => :reuse but could not reuse)
       if (not @excel_options)
-        p "no excel_options (excel => :new or (:excel => :reuse but could not reuse)"
         @excel.displayalerts = @options[:displayalerts] unless @options[:displayalerts].nil?
         @excel.visible = @options[:visible] unless @options[:visible].nil?
       end
-      p "excel: #{@excel}"
     end
 
     def get_workbook(file)
-      p "get_workbook:"
       @workbook = @excel.Workbooks.Item(File.basename(file)) rescue nil
       if @workbook then
-        p "workbook exists already"
-        p "saved: #{@workbook.Saved}"
         obstructed_by_other_book = (File.basename(file) == File.basename(@workbook.Fullname)) && 
                                    (not (RobustExcelOle::absolute_path(file) == @workbook.Fullname))
         # if book is obstructed by a book with same name and different path
         if obstructed_by_other_book then
-          p "obstructed"
           case @options[:if_obstructed]
           when :raise
             raise ExcelErrorOpen, "blocked by a book with the same name in a different path"
@@ -201,7 +161,6 @@ module RobustExcelOle
               open_workbook(file)
             end
           when :new_excel 
-            p "new_excel:"
             @excel_options = {:displayalerts => false, :visible => false}.merge(@options)   
             @excel_options[:reuse] = false
             @excel = Excel.new(@excel_options)
@@ -212,8 +171,6 @@ module RobustExcelOle
         else
           # book open, not obstructed by an other book, but not saved
           if (not @workbook.Saved) then
-            p "if workbook not saved:"
-            p "if_unsaved: #{@options[:if_unsaved]}"
             case @options[:if_unsaved]
             when :raise
               raise ExcelErrorOpen, "book is already open but not saved (#{File.basename(file)})"
@@ -228,11 +185,9 @@ module RobustExcelOle
                 open_workbook(file)
               end 
             when :new_excel
-              p "new_excel:"
               @excel_options = {:displayalerts => false, :visible => false}.merge(@options)
               @excel_options[:reuse] = false
               @excel = Excel.new(@excel_options)
-              p "@excel: #{@excel}"
               open_workbook(file)
             else
               raise ExcelErrorOpen, ":if_unsaved: invalid option"
@@ -241,25 +196,19 @@ module RobustExcelOle
         end
       else
         # book is not open
-        p "book not open"
         open_workbook(file)
       end
     end
 
     def open_workbook(file)
-      p "open_workbook:"
       if ((not @workbook) || (@options[:if_unsaved] == :alert) || @options[:if_obstructed]) then
         begin
           filename = RobustExcelOle::absolute_path(file)
-          p "filename: #{filename}"
           workbooks = @excel.Workbooks
-          p "workbooks: #{workbooks}"
-          p "read_only: #{@options[:read_only]}"
           workbooks.Open(filename,{ 'ReadOnly' => @options[:read_only] })
           # workaround for bug in Excel 2010: workbook.Open does not always return 
           # the workbook with given file name
           @workbook = workbooks.Item(File.basename(filename))
-          p "workbook: #{@workbook}"
         rescue BookStoreError => e
           raise ExcelUserCanceled, "open: canceled by user: #{e}"
         end
@@ -275,8 +224,6 @@ module RobustExcelOle
     #                      :forget  -> close the book 
     #                      :alert   -> give control to excel
     def close(opts = {:if_unsaved => :raise})
-      p "opts: #{opts}"
-      p "read_only: #{opts[:read_only]}"
       if ((alive?) && (not @workbook.Saved) && (not @workbook.ReadOnly)) then
         case opts[:if_unsaved]
         when :raise
@@ -311,17 +258,13 @@ module RobustExcelOle
     # modify a book such that its state remains unchanged.
     # options: :keep_open: let the book open after modification
     def self.unobtrusively(filename, opts = {:keep_open => false})
-      p "unobtrusively:"
       book = @@bookstore.fetch(filename)
       was_not_alive_or_nil = (not book.alive?) || book.nil?
       was_saved = was_not_alive_or_nil ? true : book.Saved
       begin
         book = open(filename, :if_unsaved => :new_excel, :if_obstructed => :new_excel) if was_not_alive_or_nil
-        p "book: #{book}"
         yield book
       ensure
-        p "ensure:"
-        p "book: #{book}"
         book.save if was_not_alive_or_nil || (was_saved && (not book.ReadOnly))
         book.close(:if_unsaved => :save) if (was_not_alive_or_nil && (not opts[:keep_open]))
       end

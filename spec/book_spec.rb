@@ -501,6 +501,15 @@ describe Book do
 
     context "with :read_only" do
       
+      it "should" do
+        book = Book.open(@simple_file, :read_only => true)
+        book.ReadOnly.should be_true
+        book2 = Book.open(@simple_file, :force_excel => :new, :read_only => false)
+        book2.ReadOnly.should be_false
+        book2.close
+        book.close
+      end
+
       it "should be able to save, if :read_only => false" do
         book = Book.open(@simple_file, :read_only => false)
         book.should be_a Book
@@ -686,7 +695,7 @@ describe Book do
         sheet2[0,0].value.should_not == old_cell_value
       end
 
-      it "should modify unobtrusively the seond, writable book" do
+      it "should modify unobtrusively the second, writable book" do
         @book2 = Book.open(@simple_file, :force_excel => :new)
         @book.ReadOnly.should be_false
         @book2.ReadOnly.should be_true

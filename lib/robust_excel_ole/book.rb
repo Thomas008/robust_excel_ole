@@ -262,16 +262,25 @@ module RobustExcelOle
 
     # modify a book such that its state remains unchanged.
     # options: :keep_open: let the book open after modification
+    #  if the book is read_only, then open it in another excel, to open it writable
+    #  
     def self.unobtrusively(file, opts = {:keep_open => false})
       book = @@bookstore.fetch(file)
-      was_not_alive_or_nil = (not book.alive?) || book.nil?
+      was_not_alive_or_nil = book.nil? || (not book.alive?)
       was_saved = was_not_alive_or_nil ? true : book.Saved
+      was_readonly = was_not_alive_or_nil? false : book.ReadOnly
+      old_book = book if was_readonly
       begin
-        book = open(file, :if_unsaved => :new_excel, :if_obstructed => :new_excel) if was_not_alive_or_nil
+        book = was_not_alive_or_nil ? (open(file, :if_obstructed => :new_excel) : 
+               (was_readonly ? open(file, :force_excel => :new) : book)
         yield book
       ensure
-        book.save if was_not_alive_or_nil || (was_saved && (not book.ReadOnly))
-        book.close(:if_unsaved => :save) if (was_not_alive_or_nil && (not opts[:keep_open]))
+        book.save if was_not_alive_or_nil || was_saved
+        if was_readonly
+          book.close
+          book = old_book
+        end
+        book.close if (was_not_alive_or_nil && (not opts[:keep_open]))
       end
       book
     end

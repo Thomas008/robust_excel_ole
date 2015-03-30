@@ -732,6 +732,30 @@ describe Book do
 
     end
 
+
+    context "with a virgin Book class" do
+      before do
+        class Book
+          @@bookstore = nil
+        end
+      end
+      it "should work" do
+        expect{ unobtrusively_ok? }.to_not raise_error
+      end
+    end
+
+    context "with a book never opened before" do
+      before do
+        class Book
+          @@bookstore = nil
+        end
+        other_book = Book.open(@different_file)
+      end
+      it "should open the book" do
+        expect{ unobtrusively_ok? }.to_not raise_error
+      end
+    end
+
   end
 
   describe "close" do

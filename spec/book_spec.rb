@@ -330,8 +330,6 @@ describe Book do
           @new_book = Book.open(@simple_file, :if_unsaved => :alert)
           @new_book.should be_alive
           @new_book.filename.downcase.should == @simple_file.downcase
-          #@new_book.should == @book
-          #@book.should be_alive
           @book.should_not be_alive
         end
 
@@ -354,8 +352,6 @@ describe Book do
         @book.should be_alive
         @new_book.should be_alive
         @new_book.filename.should == @book.filename
-        p "new_book.excel: #{@new_book.excel}"
-        p "book.excel: #{@book.excel}"
         @new_book.excel.should_not == @book.excel       
         @new_book.close
       end

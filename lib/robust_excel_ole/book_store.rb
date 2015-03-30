@@ -69,7 +69,7 @@ module RobustExcelOle
 
   end
 
-  class BookStoreError < RuntimeError
+  class BookStoreError < WIN32OLERuntimeError
   end
  
 end

@@ -51,7 +51,6 @@ module RobustExcelOle
 
      
       def open(file, opts={ }, &block)
-        #p "open:"
         @@bookstore ||= BookStore.new
         @options = {
           :excel => :reuse,
@@ -89,7 +88,7 @@ module RobustExcelOle
       raise ExcelErrorOpen, "file #{file} not found" unless File.exist?(file)
       set_defaults(opts)
       @file = file
-      get_excel(opts)     
+      get_excel
       get_workbook
       @@bookstore.store(self)
       if block
@@ -112,16 +111,15 @@ module RobustExcelOle
         :read_only => false
       }.merge(opts)
     end
-
-    # keep the old values for :visible and :displayalerts, set them only if the parameters are given
-    def get_excel(opts)
+    
+    def get_excel
       if @options[:excel] == :reuse
         @excel = Excel.new(:reuse => true)
       end
       @excel_options = nil
       if (not @excel)
         if @options[:excel] == :new
-          @excel_options = {:displayalerts => false, :visible => false}.merge(opts)
+          @excel_options = {:displayalerts => false, :visible => false}.merge(@options)
           @excel_options[:reuse] = false
           @excel = Excel.new(@excel_options)
         else
@@ -129,6 +127,7 @@ module RobustExcelOle
         end
       end
       # if :excel => :new or (:excel => :reuse but could not reuse)
+      #   keep the old values for :visible and :displayalerts, set them only if the parameters are given
       if (not @excel_options)
         @excel.displayalerts = @options[:displayalerts] unless @options[:displayalerts].nil?
         @excel.visible = @options[:visible] unless @options[:visible].nil?
@@ -136,8 +135,6 @@ module RobustExcelOle
     end
 
     def get_workbook
-      #p "get_workbook:"
-      #p "@file:#{@file}"
       @workbook = @excel.Workbooks.Item(File.basename(@file)) rescue nil
       if @workbook then
         obstructed_by_other_book = (File.basename(@file) == File.basename(@workbook.Fullname)) && 

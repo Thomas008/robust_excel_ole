@@ -72,6 +72,7 @@ module RobustExcelOle
                 if ((not book.alive?) || if_unsaved_not_set_or_accept_or_workbook_saved)  
                   book.set_defaults(opts)
                   # reopen the book
+                  p "reopen"
                   book.get_workbook          
                 end
                 return book if book.alive? && if_unsaved_not_set_or_accept_or_workbook_saved

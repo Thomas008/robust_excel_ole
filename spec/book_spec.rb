@@ -371,78 +371,88 @@ describe Book do
 
     context "with :if_obstructed" do
 
-      before do        
-        @book = Book.open(@simple_file_other_path)
-        @sheet_count = @book.workbook.Worksheets.Count
-        @sheet = @book[0]
-        @book.add_sheet(@sheet, :as => 'a_name')
-      end
+      for i in 1..2 do
 
-      after do
-        @book.close(:if_unsaved => :forget)
-        @new_book.close rescue nil
-      end
+        context "with and without reopen" do
 
-      it "should raise an error, if :if_obstructed is :raise" do
-        expect {
-          @new_book = Book.open(@simple_file, :if_obstructed => :raise)
-        }.to raise_error(ExcelErrorOpen, "blocked by a book with the same name in a different path")
-      end
+          before do        
+            if i == 1 then 
+              book_before = Book.open(@simple_file)
+              book_before.close
+            end
+            @book = Book.open(@simple_file_other_path)
+            @sheet_count = @book.workbook.Worksheets.Count
+            @sheet = @book[0]
+            @book.add_sheet(@sheet, :as => 'a_name')
+          end
 
-      it "should close the other book and open the new book, if :if_obstructed is :forget" do
-        @new_book = Book.open(@simple_file, :if_obstructed => :forget)
-        @book.should_not be_alive
-        @new_book.should be_alive
-        @new_book.filename.downcase.should == @simple_file.downcase
-      end
+          after do
+            @book.close(:if_unsaved => :forget)
+            @new_book.close rescue nil
+          end
 
-      it "should save the old book, close it, and open the new book, if :if_obstructed is :save" do
-        @new_book = Book.open(@simple_file, :if_obstructed => :save)
-        @book.should_not be_alive
-        @new_book.should be_alive
-        @new_book.filename.downcase.should == @simple_file.downcase
-        old_book = Book.open(@simple_file_other_path, :if_obstructed => :forget)
-        old_book.workbook.Worksheets.Count.should ==  @sheet_count + 1
-        old_book.close
-      end
+          it "should raise an error, if :if_obstructed is :raise" do
+            expect {
+              @new_book = Book.open(@simple_file, :if_obstructed => :raise)
+            }.to raise_error(ExcelErrorOpen, "blocked by a book with the same name in a different path")
+          end
 
-      it "should raise an error, if the old book is unsaved, and close the old book and open the new book, 
-          if :if_obstructed is :close_if_saved" do
-        expect{
-          @new_book = Book.open(@simple_file, :if_obstructed => :close_if_saved)
-        }.to raise_error(ExcelErrorOpen, "book with the same name in a different path is unsaved")
-        @book.save
-        @new_book = Book.open(@simple_file, :if_obstructed => :close_if_saved)
-        @book.should_not be_alive
-        @new_book.should be_alive
-        @new_book.filename.downcase.should == @simple_file.downcase
-        old_book = Book.open(@simple_file_other_path, :if_obstructed => :forget)
-        old_book.workbook.Worksheets.Count.should ==  @sheet_count + 1
-        old_book.close
-      end
+          it "should close the other book and open the new book, if :if_obstructed is :forget" do
+            @new_book = Book.open(@simple_file, :if_obstructed => :forget)
+            @book.should_not be_alive
+            @new_book.should be_alive
+            @new_book.filename.downcase.should == @simple_file.downcase
+          end
 
-      it "should open the book in a new excel instance, if :if_obstructed is :new_excel" do
-        @new_book = Book.open(@simple_file, :if_obstructed => :new_excel)
-        @book.should be_alive
-        @new_book.should be_alive
-        @new_book.filename.should_not == @book.filename
-        @new_book.excel.should_not == @book.excel
-      end
+          it "should save the old book, close it, and open the new book, if :if_obstructed is :save" do
+            @new_book = Book.open(@simple_file, :if_obstructed => :save)
+            @book.should_not be_alive
+            @new_book.should be_alive
+            @new_book.filename.downcase.should == @simple_file.downcase
+            old_book = Book.open(@simple_file_other_path, :if_obstructed => :forget)
+            old_book.workbook.Worksheets.Count.should ==  @sheet_count + 1
+            old_book.close
+          end
 
-      it "should raise an error, if :if_obstructed is default" do
-        expect {
-          @new_book = Book.open(@simple_file)
-        }.to raise_error(ExcelErrorOpen, "blocked by a book with the same name in a different path")
-      end
+          it "should raise an error, if the old book is unsaved, and close the old book and open the new book, 
+              if :if_obstructed is :close_if_saved" do
+            expect{
+              @new_book = Book.open(@simple_file, :if_obstructed => :close_if_saved)
+            }.to raise_error(ExcelErrorOpen, "book with the same name in a different path is unsaved")
+            @book.save
+            @new_book = Book.open(@simple_file, :if_obstructed => :close_if_saved)
+            @book.should_not be_alive
+            @new_book.should be_alive
+            @new_book.filename.downcase.should == @simple_file.downcase
+            old_book = Book.open(@simple_file_other_path, :if_obstructed => :forget)
+            old_book.workbook.Worksheets.Count.should ==  @sheet_count + 1
+            old_book.close
+          end
 
-      it "should raise an error, if :if_obstructed is invalid option" do
-        expect {
-          @new_book = Book.open(@simple_file, :if_obstructed => :invalid_option)
-        }.to raise_error(ExcelErrorOpen, ":if_obstructed: invalid option")
+          it "should open the book in a new excel instance, if :if_obstructed is :new_excel" do
+            @new_book = Book.open(@simple_file, :if_obstructed => :new_excel)
+            @book.should be_alive
+            @new_book.should be_alive
+            @new_book.filename.should_not == @book.filename
+            @new_book.excel.should_not == @book.excel
+          end
+
+          it "should raise an error, if :if_obstructed is default" do
+            expect {
+              @new_book = Book.open(@simple_file)
+            }.to raise_error(ExcelErrorOpen, "blocked by a book with the same name in a different path")
+          end
+
+          it "should raise an error, if :if_obstructed is invalid option" do
+            expect {
+              @new_book = Book.open(@simple_file, :if_obstructed => :invalid_option)
+            }.to raise_error(ExcelErrorOpen, ":if_obstructed: invalid option")
+          end
+        end
       end
     end
 
-    context "with a saved book" do
+    context "with an already saved book" do
       before do
         @book = Book.open(@simple_file)
       end
@@ -451,30 +461,29 @@ describe Book do
         @book.close
       end
 
-      context "with an already saved book" do
-        possible_options = [:read_only, :raise, :accept, :forget, nil]
-        possible_options.each do |options_value|
-          context "with :if_unsaved => #{options_value} and in the same and different path" do
-            before do
-              @new_book = Book.open(@simple_file, :reuse=> true, :if_unsaved => options_value)
-              @different_book = Book.new(@different_file, :reuse=> true, :if_unsaved => options_value)
-            end
-            after do
-              @new_book.close
-              @different_book.close
-            end
-            it "should open without problems " do
-              @new_book.should be_a Book
-              @different_book.should be_a Book
-            end
-            it "should belong to the same Excel instance" do
-              @new_book.excel.should == @book.excel
-              @different_book.excel.should == @book.excel
-            end
+      possible_options = [:read_only, :raise, :accept, :forget, nil]
+      possible_options.each do |options_value|
+        context "with :if_unsaved => #{options_value} and in the same and different path" do
+          before do
+            @new_book = Book.open(@simple_file, :reuse=> true, :if_unsaved => options_value)
+            @different_book = Book.new(@different_file, :reuse=> true, :if_unsaved => options_value)
+          end
+          after do
+            @new_book.close
+            @different_book.close
+          end
+          it "should open without problems " do
+            @new_book.should be_a Book
+            @different_book.should be_a Book
+          end
+          it "should belong to the same Excel instance" do
+            @new_book.excel.should == @book.excel
+            @different_book.excel.should == @book.excel
           end
         end
-      end      
-    end
+      end
+    end      
+    
 
     context "with non-existing file" do
       it "should raise an exception" do

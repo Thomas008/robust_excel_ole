@@ -723,7 +723,6 @@ describe Book do
         @book.close
       end
 
-      # fails
       it "should modify unobtrusively the readonly book" do
         @book.ReadOnly.should be_true
         @book.Saved.should be_true
@@ -738,9 +737,7 @@ describe Book do
         sheet2 = @book2[0]
         sheet2[0,0].value.should_not == old_cell_value
       end
-
     end
-
 
     context "with a virgin Book class" do
       before do

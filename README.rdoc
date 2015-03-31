@@ -7,8 +7,8 @@ robust_excel_ole wraps the win32ole library, and allows to perform various opera
 robust_excel_ole started as a simple fork from tomiacannondale's wrap_excel adapted to Ruby 1.8.6.
 The functionality of wrap_excel is optimised and extended by new features.
 Most notable extensions include:
-* books are opened in an Excel instance if that one is already running (instead of opening Excel whenever a book is opened)
-* book management system stores all books that have been open. This can be used, e.g., for reopening a book that has been closed before
+* books can be opened in already running Excel instances (instead of opening Excel whenever a book is opened)
+* book management system stores all books that have been open. This book store is being used, e.g., for reopening a book that has been closed before
 
 Thus some features in robust_excel_ole that are not compatible with wrap_excel:
 * +open+ uses by default a running Excel instance instead of creating a new one,
@@ -47,15 +47,30 @@ The semantics is similar to, e.g.,  File.open.
 
 Options are the following:
 
-+:read_only+::       open in read-only mode (default: +false+)  
-+:if_unsaved+::      +:raise+ (default), +:accept+, +:forget+, +:new_excel+, +:alert+
-+:if_obstructed+::   +:raise+ (default), +:forget+, +:save+, +:close_if_saved+, +:new_excel+
-+:reuse+::           use an already open Excel instance (default: +true+) 
-+:excel+::           an Excel instance (default: +nil+)
++:default_excel+::   open in the Excel instance used before if the book was once open
++:force_excel+::     open in a new or given Excel instance  
++:if_unsaved+::      specify behaviour if the book was unsaved 
++:if_obstructed+::   specidy behaviour if the book is blocked by another book
++:read_only+::       open in read-only mode (default: +false+) 
 +:displayalerts+::   allow display alerts in Excel (default: +false+)
 +:visible+::         make visibe in Excel (default: +false+)
 
-The option +:if_unsaved+  : 
++:defaut_excel+  :
+
+If the book was open before, then open it in the Excel instance used before. If the book cannot be reopened, then
+
++:reuse+:: (default) Connect to a running Excel, if it exists, open a new Excel otherwise.
++:new:: Open in a new Excel.
++<instance>:: Open in a given Excel instance.
+
++:force_excel  :
+
+No matter if the book was open before,
+
++:new:: (default) Open in a new Excel.
++<instance>:: Open in a given Excel instance.
+
++:if_unsaved+  : 
 
 If an unsaved book with the same name is open, then
 
@@ -128,12 +143,6 @@ The status of the book, i.e. whether it is open or closed, and in the case that 
     sheet[0,0] = "c" 
   end
   
-=== Connect.
-
-Returns an open and writable book given its file name, if such a book exists, nil otherweise.
-Returns the book that was opened most recently, if several open and writable books exist.
-
-  book = Book.connect('simple.xls')
 
 
 === Identity.

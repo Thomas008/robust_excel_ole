@@ -26,9 +26,11 @@ module RobustExcelOle
       #                   :take_writable (default) -> use the Excel instance in which the book is writable
       #                   :force_writability       -> make it writable in the desired Excel
       #                   :raise                   -> raise an exception
+      #                  (not implemented yet)
       # :if_locked_unsaved  if the book is open in another Excel instance and contains unsaved changes
       #                  :raise    -> raise an exception
       #                  :save     -> save the unsaved book 
+      #                  (not implemented yet)
       # :if_unsaved     if an unsaved book with the same name is open, then
       #                  :raise (default) -> raise an exception
       #                  :forget          -> close the unsaved book, open the new book             

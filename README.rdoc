@@ -8,9 +8,9 @@ robust_excel_ole started as a simple fork from tomiacannondale's wrap_excel adap
 The functionality of wrap_excel is optimised and extended by new features.
 Most notable extensions include:
 * books can be opened in already running Excel instances (instead of opening Excel whenever a book is opened)
-* book management system stores all books that have been open. This book store is being used, e.g., for reopening a book that has been closed before
+* book management system stores all books that have been open. This book store is being used, e.g., for reopening a book that has been closed before. It provides transperency identity, i.e., equal Excel books correspond to equal Book objects of RobustExcelOle.
 
-Thus some features in robust_excel_ole that are not compatible with wrap_excel:
+Some features in robust_excel_ole that are not compatible with wrap_excel:
 * +open+ uses by default a running Excel instance instead of creating a new one,
   and opens a book by default in writable mode instead of read_only 
 * +close+ closes the workbook instead of closing all workbooks and the Excel instance.
@@ -47,30 +47,30 @@ The semantics is similar to, e.g.,  File.open.
 
 Options are the following:
 
-+:default_excel+::   open in the Excel instance used before if the book was once open
-+:force_excel+::     open in a new or given Excel instance  
-+:if_unsaved+::      specify behaviour if the book was unsaved 
-+:if_obstructed+::   specidy behaviour if the book is blocked by another book
++:default_excel+::   open in the Excel instance used before if the book was once open (default: +reuse+)
++:force_excel+::     open in a new or given Excel instance (defaut: +:new+)
++:if_unsaved+::      specify behaviour if the book was unsaved (default: +raise+)
++:if_obstructed+::   specidy behaviour if the book is blocked by another book (default: +raise+)
 +:read_only+::       open in read-only mode (default: +false+) 
 +:displayalerts+::   allow display alerts in Excel (default: +false+)
 +:visible+::         make visibe in Excel (default: +false+)
 
-+:defaut_excel+  :
+The option +:defaut_excel+  :
 
 If the book was open before, then open it in the Excel instance used before. If the book cannot be reopened, then
 
-+:reuse+:: (default) Connect to a running Excel, if it exists, open a new Excel otherwise.
-+:new:: Open in a new Excel.
-+<instance>:: Open in a given Excel instance.
++:reuse+:: Connect to a running Excel, if it exists, open a new Excel otherwise.
++:new+:: Open in a new Excel.
+[instance]:: Open in a given Excel instance.
 
-+:force_excel  :
+The option +:force_excel  :
 
 No matter if the book was open before,
 
-+:new:: (default) Open in a new Excel.
-+<instance>:: Open in a given Excel instance.
++:new+:: Open in a new Excel.
+[instance]:: Open in a given Excel instance.
 
-+:if_unsaved+  : 
+The option +:if_unsaved+  : 
 
 If an unsaved book with the same name is open, then
 
@@ -98,11 +98,11 @@ Simple close.
 
   book.close
 
-Options are the following:
+The option is : +:if_unsaved+ . It can have one of the following values:
 
 +:if_unsaved+,  +:raise+ (default), +:save+, +:forget+, +:alert+
 
-If the book is unsaved, then
+The option specifies: If the book is unsaved, then
 
 +:raise+::  Raise an exception. Don't close the book.
 +:save+::   Save the book before closing it.
@@ -135,7 +135,8 @@ If a book with the file name already exists, then
 
 === Unobtrusively modifying a book
 
-The status of the book, i.e. whether it is open or closed, and in the case that it is open, whether it is saved or unsaved, remains unchanged after modifying it.
+When modifying the book unobtrusively, the status of the book remains unchanged. The status includes, wheter the book is opened or closed, saved or unsaved, readonly or writable.
+
 
   Book.unobtrusively('simple.xls') do |book|
     # some modification

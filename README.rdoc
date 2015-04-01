@@ -465,6 +465,34 @@ Closing the book.
   book4.close
 
 
+=== Example 5
+
+Opening a book.
+
+  book = Book.open('simple.xls')
+
+Printing its first cell.
+
+  sheet = book[0]
+  p "1st cell: #{sheet[0,0].value}"
+
+Unobtrusively modify the book.
+
+  Book.unobtrusively('simple.xls') do |book|
+    sheet = book[0]
+    sheet[0,0] = 'simple'
+  end
+
+The book is modified, but its status is unchanged.
+
+  new_sheet = book[0]
+  not (new_sheet[0,0].value == sheet[0,0].value) 
+  => true
+
+  book.Saved 
+  => true
+
+
 === Want to do more things
 
 All RobustExcelOle objects include the win32ole instance. 

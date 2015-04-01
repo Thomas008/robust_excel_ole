@@ -1,5 +1,6 @@
 
 ### sofort
+--- 2015-04-01 Beispiele in den Dateien und Dokumentation fuer das neue open anpassen
 --- 2015-04-01 Beispiele fuer unobtrusively
 --- 2015-04-01 weitere Tests fuer unobtrusively
 

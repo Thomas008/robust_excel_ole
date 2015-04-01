@@ -368,7 +368,7 @@ Closing the book.
 
 Opening the book in a new Excel instance and make it visible.
 
-  book.open('simple.xls', :reuse => false, :visible => true)
+  book = Book.open('simple.xls', :force_excel => :new, :visible => true)
 
 Adding a copy of the first sheet after the second sheet.
 
@@ -376,7 +376,7 @@ Adding a copy of the first sheet after the second sheet.
 
 Opening a new book with the same name in a new Excel. Leave the book that contains unsaved changes in the old Excel.
 
-  new_book.open('simple.xls', :if_unsaved => :new_excel)
+  new_book = Book.open('simple.xls', :if_unsaved => :new_excel)
 
 Accessing a sheet and change a cell.
 
@@ -385,7 +385,7 @@ Accessing a sheet and change a cell.
 
 Opening another book with the same name in the running Excel. The book that contains unsaved changes will be closed before. 
 
-  third_book.open('simple.xls', :if_unsaved => :forget)
+  third_book = Book.open('simple.xls', :if_unsaved => :forget)
 
 Adding a sheet.
 

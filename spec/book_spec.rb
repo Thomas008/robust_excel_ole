@@ -168,6 +168,14 @@ describe Book do
         book4.close
         book3.close
       end
+
+      it "should do force_excel even if both force_ and default_excel is given" do
+        book2 = Book.open(@simple_file, :default_excel => @book.excel, :force_excel => :new)
+        book2.should be_alive
+        book2.should be_a Book
+        book2.excel.should_not == @book.excel 
+        book2.should_not == @book
+      end
     end
 
     context "with :default_excel" do

@@ -366,13 +366,51 @@ Closing the book.
 
 === Example 2
 
+Opening a book.
+
+  book = Book.open('simple.xls')
+
 Opening the book in a new Excel instance and make it visible.
 
-  book = Book.open('simple.xls', :force_excel => :new, :visible => true)
+  new_book = Book.open('simple.xls', :force_excel => :new, :visible => true)
+
+Opening the book in a given Excel instance.
+
+  another_book = Book.open('simple.xls', :force_excel => book.excel)
+
+Closing the books.
+
+  book.close
+  new_book.close
+  another_book.close
+
+Reopening the book.
+
+  reopened_book = Book.open('simple.xls')
+
+The writable book is being prefered.  
+
+  reopened_book == book
+  => true
+
+Opening another book.
+Since the book was not open before, reopening the book fails and the :default_excel option applies.
+According to :default_excel => :new a new Excel is created, and the book is opened there.
+
+  different_book = Book.open('different.xls', :default_excel => :new)
+  
+
+=== Example 3
+
+Opening a book.
+
+  book = Book.open('simple.xls')
 
 Adding a copy of the first sheet after the second sheet.
 
   book.add_sheet(book[0], :as => 'Sheet1_copy', :after => book[1])
+
+Close the book.
 
 Opening a new book with the same name in a new Excel. Leave the book that contains unsaved changes in the old Excel.
 
@@ -399,7 +437,7 @@ Closing the first book and saving it before.
 
   book.close(:if_unsaved => :save)
 
-=== Example 3
+=== Example 4
 
 Opening a book.
 

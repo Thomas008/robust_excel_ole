@@ -1,12 +1,11 @@
 
 ### sofort
---- 2015-04-01 Beispiele in den Dateien und Dokumentation fuer das neue open anpassen
---- 2015-04-01 Beispiele fuer unobtrusively
---- 2015-04-01 weitere Tests fuer unobtrusively
+
+--- 2015-04-02 if_unlocked
+--- 2015-04-02 standard use cases
+--- 2015-04-02 set options: make it dry
 
 ### schnell
-
---- 2015-04-01 if_unlocked
 
 ### eher zügig
 
@@ -14,9 +13,11 @@
 
 ### langsam
 
-
 ### erledigt
 
+--- 2015-04-01 Beispiele in den Dateien und Dokumentation fuer das neue open anpassen
+--- 2015-04-01 Beispiele fuer unobtrusively
+--- 2015-04-01 weitere Tests fuer unobtrusively
 --- 2015-03-26 connnect: Testausgaben überprüfen
 --- 2015-01-26 einfachere Implementation von connect
 --- 2015-01-26 reopen in open mit Hilfe permanenter Speicherung

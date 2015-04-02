@@ -687,7 +687,7 @@ describe Book do
       end
     end
 
-    context "with unsaved book" do
+    context "with two books" do
 
       before do
         @book = Book.open(@simple_file)
@@ -698,7 +698,7 @@ describe Book do
         @book2.close(:if_unsaved => :forget)
       end
 
-      it "should modify unobtrusively an unsaved book" do
+      it "should let the unsaved book unsaved" do
         sheet = @book[0]
         old_cell_value = sheet[0,0].value
         sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
@@ -740,7 +740,7 @@ describe Book do
         @book.close
       end
 
-      it "should modify unobtrusively the readonly book" do
+      it "should let the saved book saved" do
         @book.ReadOnly.should be_true
         @book.Saved.should be_true
         sheet = @book[0]
@@ -750,9 +750,27 @@ describe Book do
         @book.Saved.should be_true
         @book.ReadOnly.should be_true
         @book.close
-        @book2 = Book.open(@simple_file)
-        sheet2 = @book2[0]
+        book2 = Book.open(@simple_file)
+        sheet2 = book2[0]
         sheet2[0,0].value.should_not == old_cell_value
+      end
+
+      it "should let the unsaved book unsaved" do
+        @book.ReadOnly.should be_true
+        sheet = @book[0]
+        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple" 
+        @book.Saved.should be_false
+        @book.should be_alive
+        cell_value = sheet[0,0].value
+        unobtrusively_ok?
+        @book.should be_alive
+        @book.Saved.should be_false
+        @book.ReadOnly.should be_true
+        @book.close
+        book2 = Book.open(@simple_file)
+        sheet2 = book2[0]
+        # modifies unobtrusively the saved version, not the unsaved version
+        sheet2[0,0].value.should == cell_value        
       end
     end
 

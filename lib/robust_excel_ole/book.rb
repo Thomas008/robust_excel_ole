@@ -263,7 +263,10 @@ module RobustExcelOle
   public
 
     # modify a book such that its state remains unchanged.
-    # options: :keep_open: let the book open after modification
+    #  options: :keep_open: let the book open after modification
+    #  if the book is read_only and modified (unsaved), then
+    #    only the saved version of the book is unobtrusively modified, 
+    #    not the current changed version
     def self.unobtrusively(file, opts = {:keep_open => false})
       book = @@bookstore.fetch(file) rescue nil
       was_not_alive_or_nil = book.nil? || (not book.alive?)
@@ -275,7 +278,7 @@ module RobustExcelOle
                (was_readonly ? open(file, :force_excel => :new) : book)
         yield book
       ensure
-        book.save if was_not_alive_or_nil || was_saved
+        book.save if was_not_alive_or_nil || was_saved || was_readonly
         if was_readonly
           book.close
           book = old_book

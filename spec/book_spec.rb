@@ -164,6 +164,8 @@ describe Book do
         book2.should be_a Book
         book2.excel.should_not == @book.excel 
         book2.should_not == @book
+        @book.Readonly.should be_false
+        book2.Readonly.should be_true
       end
 
       it "should open in a given Excel" do
@@ -266,50 +268,178 @@ describe Book do
 
     context "with :if_locked" do
 
-      before do
-        @book = Book.open(@simple_file)
+      context "with an writable book first" do 
+        
+        before do
+          @book = Book.open(@simple_file)
+        end
+
+        after do
+          @book.close
+        end
+        
+        it "should open in the already open Excel" do
+          new_book1 = Book.open(@simple_file, :if_locked => :readonly)
+          new_book2 = Book.open(@simple_file, :if_locked => :take_writable)
+          new_book3 = Book.open(@simple_file, :if_locked => :force_writability)
+          new_book4 = Book.open(@simple_file)
+          @book.ReadOnly.should be_false
+          new_book1.ReadOnly.should be_false
+          new_book2.ReadOnly.should be_false
+          new_book3.ReadOnly.should be_false
+          new_book4.ReadOnly.should be_false
+          new_book1.excel == @book.excel
+          new_book2.excel == @book.excel
+          new_book3.excel == @book.excel
+          new_book4.excel == @book.excel
+          new_book1.should == @book
+          new_book2.should == @book
+          new_book3.should == @book
+          new_book4.should == @book
+          new_book4.close
+          new_book3.close
+          new_book2.close
+          new_book1.close
+        end
+
+        it "should open in a new Excel as read_only" do
+          new_book = Book.open(@simple_file, :force_excel => :new, :if_locked => :readonly)
+          @book.ReadOnly.should be_false
+          new_book.ReadOnly.should be_true
+          new_book.excel.should_not == @book.excel
+          new_book.close
+        end
+
+        it "should open in the Excel where the book is writable" do
+          new_book = Book.open(@simple_file, :force_excel => :new, :if_locked => :take_writable)
+          @book.ReadOnly.should be_false
+          new_book.ReadOnly.should be_false
+          new_book.excel.should == @book.excel
+          new_book.should == @book
+          new_book.close
+        end
+
+        it "should open in a new Excel as writabe" do
+          new_book = Book.open(@simple_file, :force_excel => :new, :if_locked => :take_writable)
+          @book.ReadOnly.should be_false
+          new_book.ReadOnly.should be_false
+          new_book.excel.should_not == @book.excel
+          new_book.close
+        end
+
+        it "should open in the already open Excel even with :force_excel => some instance" do
+          new_excel = Excel.new(:reuse => false)
+          new_book = Book.open(@simple_file, :force_excel => new_excel, :if_locked => :take_writable)
+          new_book.ReadOnly.should be_false
+          @book.ReadOnly.should be_false
+          new_book.excel == @book.excel
+          new_book.should == @book
+          new_book.close
+        end
+
+        it "should go to the Excel where the book is writable" do
+          new_book = Book.open(@simple_file, :force_excel => :new)
+          @book.ReadOnly.should be_false
+          new_book.ReadOnly.should be_true
+          new_book2 = Book.open(@simple_file, :if_locked => :take_writable)
+          new_book2.ReadOnly.should be_false
+          new_book2.excel.should == @book.excel
+          new_book2.should == @book
+          new_book2.close
+          new_book3 = Book.open(@simple_file, :force_excel => :new, :if_locked => :take_writable)
+          new_book3.ReadOnly.should be_false
+          new_book3.excel.should == @book.excel
+          new_book3.should == @book
+          new_book3.close
+          new_book.close
+        end
+
+        it "should force_writability" do
+          new_book = Book.open(@simple_file, :force_excel => :new, :if_locked => :force_writability)
+          new_book.excel.should_not == @book.excel
+          new_book.should be_alive
+          new_book.ReadOnly.should be_false
+          @book.ReadOnly.should be_true
+          sheet = book[0]
+          old_value = sheet[0,0].value
+          sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+          book2.close(:if_unsaved => :save)
+          new_book2 = Book.open(@simple_file)
+          new_sheet = new_book2[0]
+          new_sheet[0,0].value.should_not == old_value 
+          new_book2.close
+          new_book.close
+        end
+
+        it "should by default let the second book read_only" do
+          new_book = Book.open(@simple_file, :force_excel => :new)
+          new_book.ReadOnly.should be_true
+          @book.ReadOnly.should be_false
+          new_book.close
+        end
       end
 
-      after do
-        @book.close
-      end
-      
-      it "should let the second book read_only" do
-        new_book = Book.open(@simple_file, :force_excel => :new, :if_locked => :read_only)
-        new_book.ReadOnly.should be_true
-        @book.ReadOnly.should be_false
-        new_book.close
-      end
+      context "with read_only book first" do 
 
-      it "should take_writable" do
-        new_book = Book.open(@simple_file, :force_excel => :new)
-        @book.ReadOnly.should be_false
-        new_book
-        another_book = Book.open(@simple_file, :force_excel => :new, :if_locked => :take_writable)
-      end
+        before do
+          @book = Book.open(@simple_file, :read_only => true)
+        end
 
-      it "should force_writability" do
-        new_book = Book.open(@simple_file, :force_excel => :new, :if_locked => :force_writability)
-        new_book.excel.should_not == @book.excel
-        new_book.should be_alive
-        new_book.ReadOnly.should be_false
-        @book.ReadOnly.should be_true
-        sheet = book[0]
-        old_value = sheet[0,0].value
-        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
-        book2.close(:if_unsaved => :save)
-        new_book2 = Book.open(@simple_file)
-        new_sheet = new_book2[0]
-        new_sheet[0,0].value.should_not == old_value 
-        new_book2.close
-        new_book.close
-      end
+        after do
+          @book.close
+        end
 
-      it "should by default let the second book read_only" do
-        new_book = Book.open(@simple_file, :force_excel => :new)
-        new_book.ReadOnly.should be_true
-        @book.ReadOnly.should be_false
-        new_book.close
+        it "should reopen the book as writable in the same Excel" do
+          new_book = Book.open(@simple_file, :read_only => false, :if_locked => :take_writable)
+          @book.ReadOnly.should be_true
+          new_book.ReadOnly.should be_true
+          new_book.should == @book 
+          new_book.close
+        end
+
+        it "should open in the already open Excel even with :force_excel => :new" do
+          new_book = Book.open(@simple_file, :force_excel => :new, :if_locked => :take_writable)
+          new_book.ReadOnly.should be_false
+          @book.ReadOnly.should be_false
+          new_book.excel == @book.excel
+          new_book.should == @book
+          new_book.close
+        end
+
+        it "should open in the already open Excel even with :force_excel => some instance" do
+          new_excel = Excel.new(:reuse => false)
+          new_book = Book.open(@simple_file, :force_excel => new_excel, :if_locked => :take_writable)
+          new_book.ReadOnly.should be_false
+          @book.ReadOnly.should be_false
+          new_book.excel == @book.excel
+          new_book.should == @book
+          new_book.close
+        end
+
+
+        it "should open the second, read_only, book read_only" do
+          new_book = Book.open(@simple_file, :force_excel => :new, :if_locked => :read_only)
+          new_book.ReadOnly.should be_false
+          @book.ReadOnly.should be_true
+          new_book.close
+        end
+
+        it "should go to the Excel where the book is writable" do
+          new_book = Book.open(@simple_file, :force_excel => :new)
+          @book.ReadOnly.should be_true
+          new_book.ReadOnly.should be_false
+          new_book2 = Book.open(@simple_file, :if_locked => :take_writable)
+          new_book2.ReadOnly.should be_false
+          new_book2.should == new_book
+          new_book2.excel.should == new_book.excel
+          new_book2.close
+          #new_book3 = Book.open(@simple_file, :force_excel => :new, :if_locked => :take_writable)
+          #new_book3.ReadOnly.should be_false
+          #new_book3.excel.should == new_book.excel
+          #new_book3.should == new_book
+          #new_book3.close
+          new_book.close
+        end        
       end
     end
 
@@ -543,12 +673,12 @@ describe Book do
 
     context "with :read_only" do
       
-      it "should" do
+      it "should open the second book in another Excel as writable" do
         book = Book.open(@simple_file, :read_only => true)
         book.ReadOnly.should be_true
-        book2 = Book.open(@simple_file, :force_excel => :new, :read_only => false)
-        book2.ReadOnly.should be_false
-        book2.close
+        new_book = Book.open(@simple_file, :force_excel => :new, :read_only => false)
+        new_book.ReadOnly.should be_false
+        new_book.close
         book.close
       end
 

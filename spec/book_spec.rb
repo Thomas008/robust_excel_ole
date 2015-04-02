@@ -46,17 +46,26 @@ describe Book do
 
   describe "open" do
 
-    context "use cases" do
-      before do
-      end
-
-      after do
-        @book.close
-      end
+    context "standard use cases" do
 
       it "should read in a seperate excel instance" do
-        @book = Book.open(@simple_file, :read_only => true, :force_excel => :new)
+        first_book = Book.open(@simple_file)
+        book = Book.open(@simple_file, :read_only => true, :force_excel => :new)
+        book.should be_a Book
+        book.should be_alive
+        book.ReadOnly.should be_true
+        book.Saved.should be_true
+        book.excel.should_not == first_book.excel
+        sheet = book[0]
+        sheet[0,0].value.should == "simple"
+        book.close
       end
+
+      it "should read not bothering about excel instances" do
+        @book = Book.open(@simple_file, :read_only => true)
+      end
+
+
 
       it "should open writable" do
         @book = Book.open(@simple_file, :if_locked => :take_writable, 
@@ -72,11 +81,7 @@ describe Book do
         book = Book.open(@simple_file)
         @book = Book.open(@simple_file, :force_excel => book.excel, :if_locked => :force_writability) 
       end
-
-      it "should read not bothering about excel instances" do
-        @book = Book.open(@simple_file, :read_only => true)
-      end
-
+     
       it "should open writable" do
         @book = Book.open(@simple_file, :if_locked => :take_writable, 
                                         :if_unsaved => :save, :if_obstructed => :save)

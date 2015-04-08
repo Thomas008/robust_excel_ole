@@ -279,7 +279,7 @@ module RobustExcelOle
                (was_readonly ? open(file, :force_excel => :new) : book)
         yield book
       ensure
-        book.save if was_not_alive_or_nil || was_saved || was_readonly
+        book.save if (was_not_alive_or_nil || was_saved || was_readonly) && (not book.Saved)
         if was_readonly
           book.close
           book = old_book

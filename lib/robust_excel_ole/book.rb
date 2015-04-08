@@ -65,7 +65,7 @@ module RobustExcelOle
         }.merge(opts)
         #self.set_defaults(opts) ???
         book = nil
-        if (not (@options[:force_excel] == :new))
+        if (not (@options[:force_excel] == :new && (not @options[:if_locked] == :take_writable)))
           book = @@bookstore.fetch(file, :readonly_excel => (@options[:read_only] ? @options[:force_excel] : nil)) rescue nil
           if book
             if (not @options[:force_excel] || (@options[:force_excel] == book.excel))

@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.authors     = ["traths"]
   s.email       = ["traths@cs.uni-potsdam.de"]
   s.homepage    = "https://github.com/Thomas008/robust_excel_ole"
-  s.summary     = "RobustExcelOle is a wrapper library that specializes in the operation of Excel win32ole."
-  s.description = "RobustExcelOle is to wrap the win32ole, and easy to use Excel operations with ruby. Detailed description please see the README."
+  s.summary     = "RobustExcelOle wraps the win32ole library and implements various operations in Excel"
+  s.description = "RobustExcelOle wraps the win32ole library, and allows to perform various operation in Excel with ruby in a reliable way. Detailed description please see the README."
 
   s.rubyforge_project = "robust_excel_ole"
 

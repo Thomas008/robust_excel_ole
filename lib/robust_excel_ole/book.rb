@@ -268,6 +268,7 @@ module RobustExcelOle
     #  if the book is read_only and modified (unsaved), then
     #    only the saved version of the book is unobtrusively modified, 
     #    not the current changed version
+    # returns the block result
     def self.unobtrusively(file, opts = {:keep_open => false})
       book = @@bookstore.fetch(file) rescue nil
       was_not_alive_or_nil = book.nil? || (not book.alive?)
@@ -288,7 +289,6 @@ module RobustExcelOle
         end
         book.close if (was_not_alive_or_nil && (not opts[:keep_open]))
       end
-      book
     end
 
 

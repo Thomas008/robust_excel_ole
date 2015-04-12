@@ -921,49 +921,41 @@ describe Book do
       end
     end
 
-    context "with an saved book" do
+    context "with a saved book" do
 
       before do
-        some_book = Book.open(@simple_file)
-        some_book.save_as(@simple_save_file, :if_exists => :overwrite)
-        some_book.close
-        @saved_book = Book.open(@simple_save_file)       
-        File.delete @simple_save_file   
-        File.exists?(@simple_save_file).should be_false
-        @saved_book.save
-        @saved_book.workbook.Name.should == @simple_file
-        File.exists?(@simple_save_file).should be_false
+        @book1 = Book.open(@simple_file)
       end
 
       after do
-        @saved_book.close(:if_unsaved => :forget)
+        @book1.close(:if_unsaved => :forget)
       end
 
-      it "should not save if the book was saved before but is not saved in between" do
-        p "stored_filename: #{@saved_book.stored_filename}"
-        Book.unobtrusively(@simple_save_file) do |book|
-          @saved_book.Saved.should be_true
-          book.Saved.should be_true          
-        end
-        File.exists?(@simple_save_file).should be_false
-      end      
-
-      # after save_as stored_filename has changed, but workbook.Name ist still the old one
-      # is this correct? 
-      it "should save if the book is not saved" do
-        Book.unobtrusively(@simple_save_file) do |book|
-          @saved_book.Saved.should be_true
+      it "should save if the book was modified during unobtrusively" do
+        m_time = File.mtime(@book1.stored_filename)
+        Book.unobtrusively(@simple_file) do |book|
+          @book1.Saved.should be_true
           book.Saved.should be_true  
           sheet = book[0]
           cell = sheet[0,0]
           sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
-          @saved_book.Saved.should be_false
+          @book1.Saved.should be_false
           book.Saved.should be_false
-          p "stored_filename: #{@saved_book.stored_filename}"
-          File.exists?(@simple_save_file).should be_false
+          sleep 1
         end
-        @saved_book.Saved.should be_true
-        File.exists?(@simple_save_file).should be_true
+        m_time2 = File.mtime(@book1.stored_filename)
+        m_time2.should_not == m_time
+      end      
+
+      it "should not save the book was not modified during unobtrusively" do
+        m_time = File.mtime(@book1.stored_filename)
+        Book.unobtrusively(@simple_file) do |book|
+          @book1.Saved.should be_true
+          book.Saved.should be_true 
+          sleep 1
+        end
+        m_time2 = File.mtime(@book1.stored_filename)
+        m_time2.should == m_time
       end            
     end
   end

@@ -826,6 +826,7 @@ describe Book do
         old_cell_value = sheet[0,0].value
         sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
         old_cell_value = sheet[0,0].value
+        @book.Saved.should be_false
         unobtrusively_ok?
         @book.should be_alive
         @book.Saved.should be_false
@@ -920,6 +921,51 @@ describe Book do
       end
     end
 
+    context "with an saved book" do
+
+      before do
+        some_book = Book.open(@simple_file)
+        some_book.save_as(@simple_save_file, :if_exists => :overwrite)
+        some_book.close
+        @saved_book = Book.open(@simple_save_file)       
+        File.delete @simple_save_file   
+        File.exists?(@simple_save_file).should be_false
+        @saved_book.save
+        @saved_book.workbook.Name.should == @simple_file
+        File.exists?(@simple_save_file).should be_false
+      end
+
+      after do
+        @saved_book.close(:if_unsaved => :forget)
+      end
+
+      it "should not save if the book was saved before but is not saved in between" do
+        p "stored_filename: #{@saved_book.stored_filename}"
+        Book.unobtrusively(@simple_save_file) do |book|
+          @saved_book.Saved.should be_true
+          book.Saved.should be_true          
+        end
+        File.exists?(@simple_save_file).should be_false
+      end      
+
+      # after save_as stored_filename has changed, but workbook.Name ist still the old one
+      # is this correct? 
+      it "should save if the book is not saved" do
+        Book.unobtrusively(@simple_save_file) do |book|
+          @saved_book.Saved.should be_true
+          book.Saved.should be_true  
+          sheet = book[0]
+          cell = sheet[0,0]
+          sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
+          @saved_book.Saved.should be_false
+          book.Saved.should be_false
+          p "stored_filename: #{@saved_book.stored_filename}"
+          File.exists?(@simple_save_file).should be_false
+        end
+        @saved_book.Saved.should be_true
+        File.exists?(@simple_save_file).should be_true
+      end            
+    end
   end
 
   describe "close" do

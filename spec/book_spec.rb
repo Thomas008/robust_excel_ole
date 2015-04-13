@@ -281,9 +281,9 @@ describe Book do
         it "should use the already open Excel and book" do
           @book.ReadOnly.should be_false
           new_book1 = Book.open(@simple_file, :if_locked => :readonly)
-          new_book1.ReadOnly.should be_false
-          new_book1.excel == @book.excel
-          new_book1.should == @book
+          new_book1.ReadOnly.should be_true
+          new_book1.excel.should_not == @book.excel
+          new_book1.should_not == @book
           new_book1.close
           new_book2 = Book.open(@simple_file, :if_locked => :take_writable)
           new_book2.ReadOnly.should be_false
@@ -983,7 +983,7 @@ describe Book do
         result.should == nil
       end
 
-      it "should yield the block result nil" do
+      it "should yield the block result with an unmodified book" do
         sheet1 = @book1[0]
         cell1 = sheet1[0,0].value
         result = 
@@ -993,6 +993,21 @@ describe Book do
           end
         result.should == cell1
       end
+
+      it "should yield the block result even if the book gets saved" do
+        sheet1 = @book1[0]
+        @book1.save
+        result = 
+          Book.unobtrusively(@simple_file) do |book| 
+            sheet = book[0]
+            sheet[0,0].value = 22
+            @book1.Saved.should be_false
+            42
+          end
+        result.should == 42
+        @book1.Saved.should be_true
+      end
+
     end
   end
 

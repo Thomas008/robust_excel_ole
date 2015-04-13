@@ -958,6 +958,42 @@ describe Book do
         m_time2.should == m_time
       end            
     end
+
+    context "with block result" do
+      before do
+        @book1 = Book.open(@simple_file)
+      end
+
+      after do
+        @book1.close(:if_unsaved => :forget)
+      end      
+
+      it "should yield the block result true" do
+        result = 
+          Book.unobtrusively(@simple_file) do |book| 
+            @book1.Saved.should be_true
+          end
+        result.should == true
+      end
+
+      it "should yield the block result nil" do
+        result = 
+          Book.unobtrusively(@simple_file) do |book| 
+          end
+        result.should == nil
+      end
+
+      it "should yield the block result nil" do
+        sheet1 = @book1[0]
+        cell1 = sheet1[0,0].value
+        result = 
+          Book.unobtrusively(@simple_file) do |book| 
+            sheet = book[0]
+            cell = sheet[0,0].value
+          end
+        result.should == cell1
+      end
+    end
   end
 
   describe "close" do

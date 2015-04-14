@@ -23,6 +23,7 @@ describe Book do
     @simple_save_file = @dir + '/simple_save.xls'
     @different_file = @dir + '/different_simple.xls'
     @simple_file_other_path = @dir + '/more_data/simple.xls'
+    @more_simple_file = @dir + '/more_simple.xls'
   end
 
   after do
@@ -1055,6 +1056,22 @@ describe Book do
           sheet = book[0]
         end
         @book1.excel.Visible.should be_false
+      end
+    end
+  end
+
+  describe "nvalue" do
+    context "with standard" do
+      before do
+        @book1 = Book.open(@more_simple_file)
+      end
+
+      after do
+        @book1.close
+      end   
+
+      it "should return value of a cell" do
+        @book1.nvalue("new").should == "foo"
       end
     end
   end

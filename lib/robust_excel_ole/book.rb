@@ -297,9 +297,6 @@ module RobustExcelOle
     end
 
     def nvalue(name)
-      p "names: #{self.Names}"
-      p "item: #{self.Names.Item(name)}"
-      p "value: #{self.Names.Item(name).RefersToRange.Value}"
       self.Names.Item(name).RefersToRange.Value
     end
 

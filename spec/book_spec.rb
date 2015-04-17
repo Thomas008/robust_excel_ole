@@ -1075,8 +1075,9 @@ describe Book do
         @book1.close
       end   
 
-      it "should return value of a cell" do
+      it "should return value of a range" do
         @book1.nvalue("new").should == "foo"
+        @book1.nvalue("four") == "heyfoobaaaisnice"
       end
     end
   end

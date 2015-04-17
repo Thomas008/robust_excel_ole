@@ -3,13 +3,6 @@ require File.join(File.dirname(__FILE__), './spec_helper')
 
 describe RobustExcelOle::Sheet do
   
-  before(:all) do
-    excel = RobustExcelOle::Excel.new(:reuse => true)
-    open_books = excel == nil ? 0 : excel.Workbooks.Count
-    puts "*** open books *** : #{open_books}" if open_books > 0
-    RobustExcelOle::Excel.close_all
-  end
-
   before do
     @dir = create_tmpdir
     @book = RobustExcelOle::Book.open(@dir + '/simple.xls', :read_only => true)
@@ -351,7 +344,26 @@ describe RobustExcelOle::Sheet do
           @col_range.values.should eq ['workbook', nil, 'is']
         end
       end
+    end
 
+    describe "nvalue" do
+      context "with standard" do
+        before do
+          @book1 = RobustExcelOle::Book.open(@dir + '/more_simple.xls', :read_only => true)
+          @sheet1 = @book1[0]
+        end
+
+        after do
+          @book1.close
+        end   
+
+        it "should return value of a range" do
+          #@sheet1.nvalue("new").should == "foo"
+          #@sheet1.nvalue("four") == "heyfoobaaaisnice"
+          @book1.nvalue("new").should == "foo"
+          @book1.nvalue("four") == "heyfoobaaaisnice"
+        end
+      end
     end
 
     describe "#method_missing" do

@@ -22,7 +22,7 @@ module RobustExcelOle
     filename.downcase rescue nil
   end
 
-  module_function :absolute_path
+  module_function :absolute_path, :canonize
 
 
   class VBAMethodMissingError < RuntimeError  # :nodoc: #

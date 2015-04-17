@@ -296,6 +296,7 @@ module RobustExcelOle
       end
     end
 
+    # returns the contents of a range or cell with given name
     def nvalue(name)
       self.Names.Item(name).RefersToRange.Value
     end

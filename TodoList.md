@@ -4,7 +4,8 @@
 --- 2015-04-09 unobtrusively: save book only if it saved: Test
 --- 2015-04-09 unobtrusively: return the block result: implementation and test
 --- 2015-04-09 unobtrusively: namval: return the contents of cells or region with a given name
---- 2015-04-09 unobtrusively: new features
+--- 2015-04-09 unobtrusively: visible, displayalerts
+--- 2015-04-17 unobtrusively: readonly
 
 
 ### quick

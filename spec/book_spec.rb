@@ -84,15 +84,20 @@ describe Book do
       it "should open unobtrusively" do
         book = Book.open(@simple_file, :if_locked => :take_writable, 
                                       :if_unsaved => :accept, :if_obstructed => :reuse_excel)
+        book.close
       end
 
       it "should open in a given instance" do
-        book = Book.open(@simple_file, :force_excel => @book.excel, :if_locked => :force_writable) 
+        book1 = Book.open(@simple_file)
+        book2 = Book.open(@simple_file, :force_excel => book1.excel, :if_locked => :force_writable) 
+        book2.close
+        book1.close
       end
      
       it "should open writable" do
         book = Book.open(@simple_file, :if_locked => :take_writable, 
                                         :if_unsaved => :save, :if_obstructed => :save)
+        book.close
       end
     end
 

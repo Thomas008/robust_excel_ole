@@ -298,7 +298,21 @@ module RobustExcelOle
 
     # returns the contents of a range or cell with given name
     def nvalue(name)
-      self.Names.Item(name).RefersToRange.Value
+      begin
+        item = self.Names.Item(name)
+      rescue WIN32OLERuntimeError
+        raise ExcelErrorNValue, "name #{name} not in #{File.basename(self.stored_filename)}"  
+      end
+      begin
+        referstorange = item.RefersToRange
+      rescue WIN32OLERuntimeError
+        raise ExcelErrorNValue, "range error in #{File.basename(self.stored_filename)}"      
+      end
+      begin
+        value = referstorange.Value
+      rescue WIN32OLERuntimeError
+        raise "value error in #{File.basename(self.stored_filename)}" 
+      end
     end
 
     # returns true, if the workbook reacts to methods, false otherwise
@@ -486,6 +500,9 @@ module RobustExcelOle
   end
   
 public
+
+  class ExcelErrorNValue < WIN32OLERuntimeError # :nodoc #
+  end
 
   class ExcelUserCanceled < RuntimeError # :nodoc: #
   end

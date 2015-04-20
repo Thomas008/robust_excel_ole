@@ -358,11 +358,14 @@ describe RobustExcelOle::Sheet do
         end   
 
         it "should return value of a range" do
-          a = @sheet1.nvalue("new")
-          p "a: #{a}"
-          #@sheet1.nvalue("new").should == "foo"
-          #@sheet1.nvalue("four") == "heyfoobaaaisnice"
+          @book1.nvalue("new").should == "foo"
+          @book1.nvalue("one").should == 1
+          @book1.nvalue("firstrow").should == [[1,2]]
+          @book1.nvalue("firstrow").should_not == "12"
+          @book1.nvalue("four").should == [[1,2],[3,4]]
         end
+
+        
       end
     end
 

@@ -83,6 +83,7 @@ module RobustExcelOle
 
     # returns the contents of a range or cell with given name
     def nvalue(name)
+      
       sheet.Names.Item(name).RefersToRange.Value
     end
 
@@ -103,6 +104,10 @@ module RobustExcelOle
       used_last_column = @sheet.UsedRange.Columns.Count
 
       special_last_column >= used_last_column ? special_last_column : used_last_column
-    end
+    end    
   end
+
+  class ExcelErrorSheet < ExcelError    # :nodoc: #
+  end
+
 end

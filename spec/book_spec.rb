@@ -1082,6 +1082,12 @@ describe Book do
         @book1.nvalue("firstrow").should_not == "12"
         @book1.nvalue("four").should == [[1,2],[3,4]]
       end
+
+      it "should raise an error if name not defined" do
+        expect {
+          value = @book1.nvalue("foo")
+        }.to raise_error(ExcelErrorNValue, "name foo not in more_simple.xls")
+      end
     end
   end
 

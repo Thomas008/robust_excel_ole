@@ -360,10 +360,6 @@ describe RobustExcelOle::Sheet do
         it "should return value of a range" do
           a = @sheet1.nvalue("new")
           p "a: #{a}"
-          b = a.Names
-          p "b: #{b}"
-          c = a.Names("Sheet1!left")
-          p "c: #{c}"
           #@sheet1.nvalue("new").should == "foo"
           #@sheet1.nvalue("four") == "heyfoobaaaisnice"
         end

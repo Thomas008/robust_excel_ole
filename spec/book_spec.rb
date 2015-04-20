@@ -1077,7 +1077,10 @@ describe Book do
 
       it "should return value of a range" do
         @book1.nvalue("new").should == "foo"
-        @book1.nvalue("four") == "heyfoobaaaisnice"
+        @book1.nvalue("one").should == 1
+        @book1.nvalue("firstrow").should == [[1,2]]
+        @book1.nvalue("firstrow").should_not == "12"
+        @book1.nvalue("four").should == [[1,2],[3,4]]
       end
     end
   end
@@ -1346,7 +1349,7 @@ describe Book do
             @book.save_as(@simple_save_file, :if_exists => :raise)
             }.to raise_error(ExcelErrorSave, 'book already exists: ' + basename)
           File.exist?(@simple_save_file).should be_true
-          (File.size?(@simple_save_file) == booklength).should be_true
+          File.size?(@simple_save_file).should == booklength
         end
 
         context "with :if_exists => :alert" do
@@ -1431,7 +1434,7 @@ describe Book do
             @book.save_as(@simple_save_file)
             }.to raise_error(ExcelErrorSave, 'book already exists: ' + basename)
           File.exist?(@simple_save_file).should be_true
-          (File.size?(@simple_save_file) == booklength).should be_true
+          File.size?(@simple_save_file).should == booklength
         end
 
         it "should save to 'simple_save_file.xls' with :if_exists => :invalid_option" do

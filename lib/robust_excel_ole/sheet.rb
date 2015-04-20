@@ -81,10 +81,9 @@ module RobustExcelOle
       RobustExcelOle::Range.new(@sheet.Range(@sheet.Cells(range.min + 1, col + 1), @sheet.Cells(range.max + 1, col + 1)))
     end
 
-
     # returns the contents of a range or cell with given name
     def nvalue(name)
-      self
+      sheet.Names.Item(name).RefersToRange.Value
     end
 
     def method_missing(id, *args)  # :nodoc: #

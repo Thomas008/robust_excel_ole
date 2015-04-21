@@ -83,8 +83,21 @@ module RobustExcelOle
 
     # returns the contents of a range or cell with given name
     def nvalue(name)
-      
-      sheet.Names.Item(name).RefersToRange.Value
+      begin
+        item = self.Names.Item(name)
+      rescue WIN32OLERuntimeError
+        raise SheetErrorNValue, "name #{name} not in sheet"  
+      end
+      begin
+        referstorange = item.RefersToRange
+      rescue WIN32OLERuntimeError
+        raise SheetErrorNValue, "range error in sheet"      
+      end
+      begin
+        value = referstorange.Value
+      rescue WIN32OLERuntimeError
+        raise SheetErrorNValue, "value error in sheet" 
+      end
     end
 
     def method_missing(id, *args)  # :nodoc: #
@@ -107,7 +120,12 @@ module RobustExcelOle
     end    
   end
 
-  class ExcelErrorSheet < ExcelError    # :nodoc: #
+  public
+  
+  class SheetError < RuntimeError    # :nodoc: #
+  end
+
+  class SheetErrorNValue < WIN32OLERuntimeError  # :nodoc: #
   end
 
 end

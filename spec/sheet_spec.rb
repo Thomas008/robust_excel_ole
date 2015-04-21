@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 require File.join(File.dirname(__FILE__), './spec_helper')
 
+include RobustExcelOle
+
 describe RobustExcelOle::Sheet do
   
   before do
@@ -358,14 +360,20 @@ describe RobustExcelOle::Sheet do
         end   
 
         it "should return value of a range" do
-          @book1.nvalue("new").should == "foo"
-          @book1.nvalue("one").should == 1
-          @book1.nvalue("firstrow").should == [[1,2]]
-          @book1.nvalue("firstrow").should_not == "12"
-          @book1.nvalue("four").should == [[1,2],[3,4]]
+          @sheet1.nvalue("Sheet1!firstcell").should == "simple"
         end
 
-        
+        it "should raise an error if name not defined" do
+          expect {
+            value = @sheet1.nvalue("Sheet1!foo")
+          }.to raise_error(SheetErrorNValue, "name Sheet1!foo not in sheet")
+        end
+
+        it "should raise an error if name was defined but contents is calcuated" do
+          expect {
+            value = @sheet1.nvalue("Sheet1!named_formula")
+          }.to raise_error(SheetErrorNValue, "range error in sheet")
+        end
       end
     end
 

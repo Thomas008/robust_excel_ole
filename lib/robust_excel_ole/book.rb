@@ -311,7 +311,7 @@ module RobustExcelOle
       begin
         value = referstorange.Value
       rescue WIN32OLERuntimeError
-        raise "value error in #{File.basename(self.stored_filename)}" 
+        raise ExcelErrorNValue, "value error in #{File.basename(self.stored_filename)}" 
       end
     end
 

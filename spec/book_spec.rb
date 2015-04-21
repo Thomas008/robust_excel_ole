@@ -1078,9 +1078,9 @@ describe Book do
       it "should return value of a range" do
         @book1.nvalue("new").should == "foo"
         @book1.nvalue("one").should == 1
-        @book1.nvalue("firstrow").should == [[1,2]]
-        @book1.nvalue("firstrow").should_not == "12"
+        @book1.nvalue("firstrow").should == [[1,2]]        
         @book1.nvalue("four").should == [[1,2],[3,4]]
+        @book1.nvalue("firstrow").should_not == "12"
       end
 
       it "should raise an error if name not defined" do
@@ -1088,6 +1088,14 @@ describe Book do
           value = @book1.nvalue("foo")
         }.to raise_error(ExcelErrorNValue, "name foo not in more_simple.xls")
       end
+
+      it "should raise an error if name was defined but contents is calcuated" do
+        expect {
+          value = @book1.nvalue("named_formula")
+        }.to raise_error(ExcelErrorNValue, "range error in more_simple.xls")
+      end
+
+
     end
   end
 

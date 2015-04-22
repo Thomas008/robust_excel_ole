@@ -146,7 +146,7 @@ When modifying the book unobtrusively, the status of the book remains unchanged.
   
 === Value of a named cell or range
 
-Returning the value of a cell or range with a defined name.
+Returning the value of a cell or range that has a with a defined name.
 
   book.nvalue(name)
 
@@ -280,6 +280,11 @@ Adding a copy of a sheet with a name after another sheet.
 
   book.add_sheet(sheet, :as => 'sheet_copy', :after => another_sheet)
 
+=== Value of a named cell or range
+
+Returning the value of a cell or range that has a with a defined name.
+
+  sheet.nvalue(name)
 
 === Creating and reusing an Excel instance.
 

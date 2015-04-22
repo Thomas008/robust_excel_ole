@@ -144,7 +144,11 @@ When modifying the book unobtrusively, the status of the book remains unchanged.
     sheet[0,0] = "c" 
   end
   
+=== Value of a named cell or range
 
+Returning the value of a cell or range with a defined name.
+
+  book.nvalue(name)
 
 === Identity.
 

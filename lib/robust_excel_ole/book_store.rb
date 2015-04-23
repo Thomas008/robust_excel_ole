@@ -46,6 +46,7 @@ module RobustExcelOle
         old_filename_key = RobustExcelOle::canonize(book.stored_filename)
         @filename2books[old_filename_key].delete(book)
       end
+      #@filename2books[filename_key] = [book] if (not @filename2books[filename_key])
       @filename2books[filename_key] |= [book] 
       book.stored_filename = book.filename
     end

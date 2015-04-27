@@ -48,10 +48,9 @@ module RobustExcelOle
       filename_key = RobustExcelOle::canonize(book.filename)      
       if book.stored_filename
         old_filename_key = RobustExcelOle::canonize(book.stored_filename)
-        #@filename2books[old_filename_key].delete(book)
-        @filename2books[old_filename_key].delete(WeakRef.new(book))
+        # deletes the weak reference
+        @filename2books[old_filename_key].delete(book)
       end
-      #@filename2books[filename_key] |= [book] 
       @filename2books[filename_key] |= [WeakRef.new(book)]
       book.stored_filename = book.filename
     end

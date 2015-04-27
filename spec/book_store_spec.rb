@@ -305,4 +305,27 @@ describe BookStore do
 
 
   end
+  
+  describe "book life cycle" do
+    
+    context "with an open book" do
+
+      before do
+        @book = Book.open(@simple_file)
+        @bookstore.store(@book)
+      end
+
+      it "should find if the book still has got a reference" do
+        GC.start
+        @bookstore.fetch(@simple_file).should == @book
+      end
+
+      it "should have forgotten the book if there is no reference anymore" do
+        @book = nil
+        GC.start
+        @bookstore.fetch(@simple_file).should == nil
+      end
+
+    end
+  end
 end

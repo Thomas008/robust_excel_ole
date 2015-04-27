@@ -277,7 +277,7 @@ module RobustExcelOle
       book = book_store.fetch(file)
       was_not_alive_or_nil = book.nil? || (not book.alive?)
       was_saved = was_not_alive_or_nil ? true : book.saved
-      was_readonly = was_not_alive_or_nil ? false : book.ReadOnly
+      was_readonly = was_not_alive_or_nil ? false : book.readonly
       old_book = book if was_readonly
       old_visible = book ? book.visible : false
       begin

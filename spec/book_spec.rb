@@ -1024,7 +1024,7 @@ describe Book do
         @book1.close(:if_unsaved => :forget)
       end    
 
-      it "should unobtrusively use a book invisibe" do
+      it "should unobtrusively use a book invisibel" do
         @book1.excel.Visible.should be_false
         Book.unobtrusively(@simple_file, :visible => false) do |book| 
           @book1.excel.Visible.should be_false
@@ -1037,7 +1037,7 @@ describe Book do
         @book1.excel.Visible.should be_false
       end
       
-      it "should unobtrusively use a book visibe" do
+      it "should unobtrusively use a book visible" do
         @book1.excel.Visible.should be_false
         Book.unobtrusively(@simple_file, :visible => true) do |book| 
           @book1.excel.Visible.should be_true

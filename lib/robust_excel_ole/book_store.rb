@@ -17,23 +17,27 @@ module RobustExcelOle
     #                          prefer the writable book as described above, otherwise 
     def fetch(filename, options = { })
       filename_key = RobustExcelOle::canonize(filename)
-      readonly_book = readonly_unsaved_book = closed_book = result = nil
-      books = @filename2books[filename_key]
-      return nil unless books
-      books.each do |book|
-        return book if options[:readonly_excel] && book.excel == options[:readonly_excel]
-        if book.alive?
-          if (not book.ReadOnly)
-            if options[:readonly_excel]
-              result = book
+      weakref_books = @filename2books[filename_key]
+      return nil unless weakref_books
+      readonly_book = readonly_unsaved_book = closed_book = result = nil      
+      weakref_books.each do |book|
+        if (not book.weakref_alive?) 
+          @filename2books[filename_key].delete(book)
+        else
+          return book if options[:readonly_excel] && book.excel == options[:readonly_excel]
+          if book.alive?
+            if (not book.readonly)
+              if options[:readonly_excel]
+                result = book
+              else
+                return book
+              end
             else
-              return book
+              book.saved ? readonly_book = book : readonly_unsaved_book = book
             end
           else
-            book.Saved ? readonly_book = book : readonly_unsaved_book = book
+            closed_book = book
           end
-        else
-          closed_book = book
         end
       end
       result ? result : (readonly_unsaved_book ? readonly_unsaved_book : (readonly_book ? readonly_book : closed_book))
@@ -44,10 +48,11 @@ module RobustExcelOle
       filename_key = RobustExcelOle::canonize(book.filename)      
       if book.stored_filename
         old_filename_key = RobustExcelOle::canonize(book.stored_filename)
-        @filename2books[old_filename_key].delete(book)
+        #@filename2books[old_filename_key].delete(book)
+        @filename2books[old_filename_key].delete(WeakRef.new(book))
       end
-      #@filename2books[filename_key] = [book] if (not @filename2books[filename_key])
-      @filename2books[filename_key] |= [book] 
+      #@filename2books[filename_key] |= [book] 
+      @filename2books[filename_key] |= [WeakRef.new(book)]
       book.stored_filename = book.filename
     end
 

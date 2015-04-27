@@ -276,7 +276,7 @@ module RobustExcelOle
       }.merge(opts)
       book = book_store.fetch(file)
       was_not_alive_or_nil = book.nil? || (not book.alive?)
-      was_saved = was_not_alive_or_nil ? true : book.Saved
+      was_saved = was_not_alive_or_nil ? true : book.saved
       was_readonly = was_not_alive_or_nil ? false : book.ReadOnly
       old_book = book if was_readonly
       old_visible = book ? book.visible : false
@@ -286,7 +286,7 @@ module RobustExcelOle
         book.visible = options[:visible]       
         yield book
       ensure
-        book.save if (was_not_alive_or_nil || was_saved || was_readonly) && (not book.Saved)
+        book.save if (was_not_alive_or_nil || was_saved || was_readonly) && (not book.saved)
         if was_readonly
           book.close
           book = old_book
@@ -330,6 +330,14 @@ module RobustExcelOle
     # returns the full file name of the workbook
     def filename
       @workbook.Fullname.tr('\\','/') rescue nil
+    end
+
+    def readonly
+      @workbook.ReadOnly
+    end
+
+    def saved
+      @workbook.Saved
     end
 
     # returns true, if the full book names and excel appications are identical, false, otherwise  

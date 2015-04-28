@@ -12,12 +12,12 @@ begin
   dir = create_tmpdir
   simple_file = dir + 'simple.xls'
   book1 = Book.open(simple_file)            # open a book in a new Excel instance since no Excel is open
-  book1.visible = true                      # make current Excel visible
+  book1.excel.visible = true                # make current Excel visible
   sleep 2
   book2 = Book.open(simple_file)             # open a new book in the same Excel instance                            
   p "book1 == book2" if book2 == book1      # the books are identical
   sleep 2       
-  book3 = Book.open(simple_file, :force_excel => :new, :visible => true) # open another book in a new Excel instance,                                                       # make Excel visible
+  book3 = Book.open(simple_file, :force_excel => :new, :visible => true) # open another book in a new Excel instance,   
   p "book3 != book1" if (not (book3 == book1))   # the books are not identical 
   sleep 2   
   new_excel = Excel.new(:reuse => false)        # create a third Excel instance

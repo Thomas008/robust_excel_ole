@@ -12,7 +12,7 @@ begin
   dir = create_tmpdir
   file_name = dir + 'simple.xls'
   book = Book.open(file_name)                                # open a book.  default:  :read_only => false
-  book.visible = true                                          # make current Excel visible
+  book.excel.visible = true                                          # make current Excel visible
   sheet = book[0]
   #sheet.Names.Add("Wert","$A$1"
 

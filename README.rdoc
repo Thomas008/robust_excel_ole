@@ -1,20 +1,7 @@
 = RobustExcelOle
 
-robust_excel_ole wraps the win32ole library, and allows to perform various operations in Excel with ruby.
-
-== Description
-
-robust_excel_ole started as a simple fork from tomiacannondale's wrap_excel adapted to Ruby 1.8.6.
-The functionality of wrap_excel is optimised and extended by new features.
-Most notable extensions include:
-* books can be opened in already running Excel instances (instead of opening a new Excel whenever a book is opened)
-* a book management system stores all books that have been open. This book store is being used, e.g., for reopening a book that has been closed before. It provides transperency identity, i.e., equal Excel books correspond to equal Book objects of RobustExcelOle.
-
-Some features in robust_excel_ole that are not compatible with wrap_excel:
-* +open+ uses by default a running Excel instance instead of creating a new one,
-  and opens a book by default in writable mode instead of read_only 
-* +close+ closes the workbook instead of closing all workbooks and the Excel instance.
-* +save_as+ instead of +save+.
+robust_excel_ole processes Excel files, allows to perform all win32ole operations, 
+convenient methods for opening, saving and closing, and implements an Excel file management system.
 
 This is work in progress.
 
@@ -27,8 +14,6 @@ This is work in progress.
   gem install robust_excel_ole
 
 == Usage
-
-=== Including robust_excel_ole.
 
   include RobustExcelOle
 
@@ -150,49 +135,23 @@ Returning the value of a cell or range that has a with a defined name.
 
   book.nvalue(name)
 
-=== Identity.
-
-Checking whether two referenced Excel workbooks are identical.
-
-  if book1 == book2 then puts "Both referenced Excel workbooks are identical." 
-
 === Alive.
 
 Checking whether the referenced Excel workbook responds to methods.
 
-  if book.alive? then puts "book is responding."
+  if book.alive? then sheet = book[0] end
 
-=== File name. 
+=== Make an Excel visible or invisible, and enable and disable DisplayAlerts.
 
-Getting the file name of the book with the absolute path that contains slash (/) instead of back slash (\).
+Make an Excel visible
 
-  book.filename
-
-=== Make a book visible or invisible in Excel.
-
-Make the book visible.
-
-  book.visible = true
-
-Options: +true+ -> make visible , +false+ -> make invisible
-
-Check whether the book is visible.
-  
-  if book.visible then p "visible"
-
-=== Enable and disable DisplayAlerts in Excel.
+  book.excel.visible = true
 
 Enable DisplayAlerts.
 
-  book.displayalerts = true
+  book.excel.displayalerts = true
 
 Options: +true+ -> enable DisplayAlerts , +false+ -> Disable DisplayAlerts
-
-
-Check whether DisplayAlerts is enabled.
-  
-  if book.displayalerts then p "DisplayAlerts enabled"
-
 
 
 === Accessing a sheet.
@@ -298,7 +257,7 @@ Getting a running Excel instance and reusing it.
 
 Reusing a running Excel instance, making it visible and turning on displayalerts.
 
-   excel2 = Excel.new(:reuse => true, :visible => true, displayalerts => true).
+   excel2 = Excel.new(:reuse => true, :visible => true, :displayalerts => true).
 
 Reusing a certain running Excel instance.
 
@@ -500,6 +459,21 @@ The book is modified, but its status is unchanged.
 
   book.Saved 
   => true
+
+
+=== Development
+
+robust_excel_ole started as a simple fork from tomiacannondale's wrap_excel adapted to Ruby 1.8.6.
+The functionality of wrap_excel is optimised and extended by new features.
+Most notable extensions include:
+* books can be opened in already running Excel instances (instead of opening a new Excel whenever a book is opened)
+* a book management system stores all books that have been open. This book store is being used, e.g., for reopening a book that has been closed before. It provides transperency identity, i.e., equal Excel books correspond to equal Book objects of RobustExcelOle.
+
+Some features in robust_excel_ole that are not compatible with wrap_excel:
+* +open+ uses by default a running Excel instance instead of creating a new one,
+  and opens a book by default in writable mode instead of read_only 
+* +close+ closes the workbook instead of closing all workbooks and the Excel instance.
+* +save_as+ instead of +save+.
 
 
 === Want to do more things

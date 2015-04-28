@@ -279,11 +279,11 @@ module RobustExcelOle
       was_saved = was_not_alive_or_nil ? true : book.saved
       was_readonly = was_not_alive_or_nil ? false : book.readonly
       old_book = book if was_readonly
-      old_visible = book ? book.visible : false
+      old_visible = book ? book.excel.visible : false
       begin
         book = was_not_alive_or_nil ? open(file, :if_obstructed => :new_excel) : 
                (was_readonly ? open(file, :force_excel => :new) : book)
-        book.visible = options[:visible]       
+        book.excel.visible = options[:visible]       
         yield book
       ensure
         book.save if (was_not_alive_or_nil || was_saved || was_readonly) && (not book.saved)
@@ -291,7 +291,7 @@ module RobustExcelOle
           book.close
           book = old_book
         end
-        book.visible = old_visible
+        book.excel.visible = old_visible
         book.close if (was_not_alive_or_nil && (not opts[:keep_open]))
       end
     end
@@ -346,29 +346,6 @@ module RobustExcelOle
       @excel == other_book.excel &&
       self.filename == other_book.filename  
     end
-
-    # returns if the Excel instance is visible
-    def visible 
-      @excel.visible
-    end
-
-   # make the Excel instance visible or invisible
-    # option: visible_value     true -> make Excel visible, false -> make Excel invisible
-    def visible= visible_value
-      @excel.visible = visible_value
-    end
-
-   # returns if DisplayAlerts is enabed in the Excel instance
-    def displayalerts 
-      @excel.displayalerts
-    end
-
-    # enable in the Excel instance Dispayalerts
-    #  option: displayalerts_value     true -> enable DisplayAlerts, false -> disable DispayAlerts
-    def displayalerts= displayalerts_value
-      @excel.displayalerts = displayalerts_value
-    end
-
  
     # saves a book.
     # returns true, if successfully saved, nil otherwise

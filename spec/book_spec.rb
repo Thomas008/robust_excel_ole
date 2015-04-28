@@ -1555,21 +1555,17 @@ describe Book do
       end
 
       it "should make Excel visible" do
-        @book.visible = false
+        @book.excel.visible = false
         @book.excel.visible.should be_false
-        @book.visible.should be_false
-        @book.visible = true
+        @book.excel.visible = true
         @book.excel.visible.should be_true
-        @book.visible.should be_true
       end
 
       it "should enable DisplayAlerts in Excel" do
-        @book.displayalerts = false
+        @book.excel.displayalerts = false
         @book.excel.displayalerts.should be_false
-        @book.displayalerts.should be_false
-        @book.displayalerts = true
+        @book.excel.displayalerts = true
         @book.excel.displayalerts.should be_true
-        @book.displayalerts.should be_true
       end
 
     end

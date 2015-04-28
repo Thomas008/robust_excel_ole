@@ -15,7 +15,7 @@ begin
   file_name3 = dir + 'book_with_blank.xls'
   file_name4 = dir + 'merge_cells.xls'
   book1 = Book.open(file_name1)            # open a book in a new Excel instance since no Excel is open
-  book1.visible = true                      # make current Excel visible
+  book1.excel.visible = true               # make current Excel visible
   sleep 2
   book1.close                               # close the book
   sleep 2

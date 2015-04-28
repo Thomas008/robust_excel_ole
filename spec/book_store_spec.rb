@@ -86,7 +86,7 @@ describe BookStore do
       end
 
       after do
-        @book.close
+        @book.close rescue nil
       end
 
       it "should do simple store and fetch" do        
@@ -116,6 +116,14 @@ describe BookStore do
       it "should fetch nothing without stóring before" do
         new_book = @bookstore.fetch(@simple_file)
         new_book.should == nil
+      end
+
+      it "should fetch a closed book" do
+        @bookstore.store(@book)
+        @book.close
+        book1 = @bookstore.fetch(@simple_file)
+        book1.should be_a Book
+        book1.should_not be_alive
       end
 
       it "should fetch nothing when fetching a different book" do
@@ -312,7 +320,7 @@ describe BookStore do
         @bookstore.store(@book)
       end
 
-      it "should find if the book still has got a reference" do
+      it "should find the book if the book has astill got a reference" do
         GC.start
         @bookstore.fetch(@simple_file).should == @book
       end
@@ -322,6 +330,17 @@ describe BookStore do
         GC.start
         @bookstore.fetch(@simple_file).should == nil
       end
+
+      it "should have forgotten some books if they have no reference anymore" do
+        book_new = Book.open(@different_file)
+        @bookstore.store(book_new)
+        @book = nil
+        GC.start
+        @bookstore.fetch(@simple_file).should == nil
+        @bookstore.fetch(@different_file).should == book_new
+      end
+
+
     end
   end
 end

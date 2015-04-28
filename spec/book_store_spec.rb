@@ -300,10 +300,7 @@ describe BookStore do
         book_new.should be_alive
         book_new.should == @book2
       end
-
     end
-
-
   end
   
   describe "book life cycle" do
@@ -325,7 +322,6 @@ describe BookStore do
         GC.start
         @bookstore.fetch(@simple_file).should == nil
       end
-
     end
   end
 end

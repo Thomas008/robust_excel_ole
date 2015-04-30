@@ -1,24 +1,26 @@
 
 ### immediately
 
---- 2015-04-09 unobtrusively: save book only if it saved: Test
---- 2015-04-09 unobtrusively: return the block result: implementation and test
---- 2015-04-09 unobtrusively: namval: return the contents of cells or region with a given name
---- 2015-04-09 unobtrusively: visible, displayalerts
+--- 2015-04-27 tests for life cycle (weakrefs to books)
+--- 2015-04-27 excel.rb: remove attr_writer
+--- 2015-04-27 documentation: a crisp one and a detailed one, better examples
 --- 2015-04-17 unobtrusively: readonly
-
+--- 2015-04-02 set options: make it dry
+--- 2015-04-17 acceptance test from Testschmiede
 
 ### quick
 
+--- 2015-04-27 excel instances list
+
+### short-term
+
+--- 2015-04-17 excel managements system
 --- 2015-04-02 if_unlocked
 --- 2015-04-02 standard use cases
---- 2015-04-02 set options: make it dry
 
-### rather quick
+### mid-term
 
-### medium
-
-### slow
+### long-term
 
 ### done
 
@@ -31,3 +33,6 @@
 --- 2015-01-26 unobtrusively 
 --- 2015-01-26 option keep_open
 --- 2015-01-26 separate class for book management 
+--- 2015-04-09 unobtrusively: save book only if it saved: Test
+--- 2015-04-09 unobtrusively: return the block result: implementation and test
+--- 2015-04-09 unobtrusively: namval: return the contents of cells or region with a given name

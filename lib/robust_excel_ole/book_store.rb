@@ -56,6 +56,43 @@ module RobustExcelOle
       book.stored_filename = book.filename
     end
 
+    # returns all excel instances and the workbooks that are open in them
+    # first: only the stored excel instances are considered
+    def excel_list
+      excel2books = Hash.new {|hash, key| hash[key] = [] }
+      if @filename2books
+        @filename2books.each do |filename,books|
+          if books
+            books.each do |book|
+              excel2books[book.excel] |= [book.workbook]
+            end
+          end
+        end
+      end
+      # addidtionally: over ObjectSpace:
+      ObjectSpace.each_object(WIN32OLE) do |ole_object|
+        #if ole_object.name == "Microsoft Excel"
+        #  workbooks = ole_object.Workbooks
+        #  if workbooks
+        #    workbooks.each do |workbook|  
+        #      excel2books[ole_object] |= [workbook]
+        #    end
+        #  end
+        #end
+      end
+      #p "excel2books:"
+      #if excel2books
+      #  excel2books.each do |excel,workbooks|
+      #    p "excel: #{excel}"
+      #    p "workbooks:"
+      #    workbooks.each do |workbook|
+      #      p "workbook:#{workbook}"
+      #    end
+      #  end
+      #end
+      excel2books
+    end
+
     # prints the book store
     def print
       p "@filename2books:"
@@ -64,13 +101,15 @@ module RobustExcelOle
           p " filename: #{filename}"
           p " books:"
           p " []" if books == []
-          books.each do |book|
-            if book.weakref_alive?
-              p "#{book}"
-              p "excel: #{book.excel}"
-              p "alive: #{book.alive?}"
-            else
-              p "weakref not alive"
+          if books
+            books.each do |book|
+              if book.weakref_alive?
+                p "#{book}"
+                p "excel: #{book.excel}"
+                p "alive: #{book.alive?}"
+              else
+                p "weakref not alive"
+              end
             end
           end
         end

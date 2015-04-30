@@ -139,7 +139,6 @@ module RobustExcelOle
         excel.Workbooks.Close
         excel_hwnd = excel.HWnd
         excel.Quit
-        #excel.ole_free
         weak_excel_ref = WeakRef.new(excel)
         excel = nil
         GC.start

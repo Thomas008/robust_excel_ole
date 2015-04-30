@@ -13,6 +13,7 @@ end
 $VERBOSE = nil
 
 include RobustExcelOle
+
 module RobustExcelOle
   class MockBookstore
     def fetch(filename, options = { })
@@ -262,13 +263,14 @@ describe BookStore do
       end
     end
    
-=begin
+
     context "with changing file name" do
 
       before do
         @book = Book.open(@simple_file)
         @book.save_as(@simple_save_file, :if_exists => :overwrite)      
-        @bookstore = @book.book_store
+        @bookstore.store(@book)
+        #@bookstore = @book.book_store
       end
 
       after do
@@ -285,7 +287,7 @@ describe BookStore do
         book1.should == nil
       end
     end
-=end
+
 
     context "with given excel instance and fetching readonly" do
       
@@ -320,6 +322,10 @@ describe BookStore do
         @bookstore.store(@book)
       end
 
+      after do
+        @book.close rescue nil
+      end
+
       it "should find the book if the book has astill got a reference" do
         GC.start
         @bookstore.fetch(@simple_file).should == @book
@@ -339,8 +345,70 @@ describe BookStore do
         @bookstore.fetch(@simple_file).should == nil
         @bookstore.fetch(@different_file).should == book_new
       end
+    end
+  end
 
+  describe "excel_list" do
 
+    context "with no books" do
+      
+      it "should yield nil" do
+        @bookstore.excel_list.should == {}
+      end
+    
+    end
+
+    context "with open books" do
+    
+      before do
+        @book = Book.open(@simple_file)
+        @bookstore.store(@book)
+      end
+
+      after do
+        @book.close
+      end
+
+      it "should yield an excel and the workbook" do
+        excels = @bookstore.excel_list
+        excels.size.should == 1
+        excels.each do |excel,workbooks|
+          excel.should be_a Excel
+          workbooks.size.should == 1
+          workbooks.each do |workbook|
+            workbook.should == @book.workbook
+          end
+        end
+      end
+
+      it "should yield an excel with two books" do
+        book1 = Book.open(@different_file)
+        @bookstore.store(book1)
+        excels = @bookstore.excel_list
+        excels.size.should == 1
+        excels.each do |excel,workbooks|
+          excel.should be_a Excel
+          workbooks.size.should == 2
+          workbooks[0].should == @book.workbook
+          workbooks[1].should == book1.workbook
+        end
+      end
+
+      it "should yield two excels and two book" do
+        e = Excel.create
+        book1 = Book.open(@simple_file, :force_excel => :new)
+        @bookstore.store(book1)
+        excels = @bookstore.excel_list
+        excels.size.should == 2
+        num = 0
+        excels.each do |excel,workbooks|
+          num = num + 1
+          excel.should be_a Excel
+          workbooks[0].should == @book.workbook if num == 1
+          workbooks.size.should == 1 if num == 2
+          workbooks[0].should == book1.workbook if num == 2
+        end
+      end
     end
   end
 end

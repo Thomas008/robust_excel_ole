@@ -60,6 +60,7 @@ module RobustExcelOle
 
       it "should reuse existing excel with default options for 'new'" do
         excel2 = Excel.new
+        excel2.should be_a Excel
         #puts "@excel1 #{@excel1.Hwnd}"
         #puts "excel2  #{excel2.Hwnd}"
         excel2.Hwnd.should == @excel1.Hwnd
@@ -226,8 +227,6 @@ module RobustExcelOle
     end
   end
 
-
-
   describe "RobustExcelOle" do
     context "#absolute_path" do
       it "should work" do
@@ -242,9 +241,7 @@ module RobustExcelOle
         RobustExcelOle::absolute_path(@filename).gsub("\\","/").should == @filename
       end
     end
-
   end
-
 end
 
 class TestError < RuntimeError

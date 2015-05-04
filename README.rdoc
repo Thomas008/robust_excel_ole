@@ -1,7 +1,8 @@
 = RobustExcelOle
 
 robust_excel_ole processes Excel files, allows to perform all win32ole operations, 
-convenient methods for opening, saving and closing, and implements an Excel file management system.
+provides convenient methods for opening, saving, closing, and modifying Excel files,
+and implements an Excel file management system.
 
 This is work in progress.
 
@@ -18,86 +19,62 @@ This is work in progress.
   include RobustExcelOle
 
 === Opening a book.
-
+ 
 Example:
 
   book = Book.open('simple.xls')
 
-Open a book with a block. 
+Opening a book with a block. 
 The semantics is similar to, e.g.,  File.open.
 
   Book.open('simple.xls') do |book|
     # do something
   end
 
-Options are the following:
+Options are +default_excel+, +force_excel+, +if_unsaved+, +if_obstructed+, +read_only+, +visible+, +displayalerts+. 
 
-+:default_excel+::   open in the Excel instance used before if the book was once open (default: +reuse+)
-+:force_excel+::     open in a new or given Excel instance (defaut: +:new+)
-+:if_unsaved+::      specify behaviour if the book was unsaved (default: +raise+)
-+:if_obstructed+::   specidy behaviour if the book is blocked by another book (default: +raise+)
-+:read_only+::       open in read-only mode (default: +false+) 
-+:displayalerts+::   allow display alerts in Excel (default: +false+)
-+:visible+::         make visibe in Excel (default: +false+)
+Here are a few examples:
 
-The option +:defaut_excel+  :
+Opening another book in a new Excel instance and make it visible.
 
-If the book was open before, then open it in the Excel instance used before. If the book cannot be reopened, then
+  second_book = Book.open('simple.xls', :force_excel => :new, :visible => true)
 
-+:reuse+:: Connect to a running Excel, if it exists, open a new Excel otherwise.
-+:new+:: Open in a new Excel.
-[instance]:: Open in a given Excel instance.
+Opening a book with the same name in a different path. 
+The option +:if_unsaved => :forget+ causes the old book to close such that it does not block the new book anymore.
 
-The option +:force_excel  :
+  third_book = Book.open('more/simple.xls', :if_obstructed => :forget)
 
-No matter if the book was open before,
+Opening another book with the same file name in the running Excel. With the option +:if_unsaved => :accept+  the book remains open if it contains unsaved changes.
 
-+:new+:: Open in a new Excel.
-[instance]:: Open in a given Excel instance.
+  forth_book = Book.open('simple.xls', :if_unsaved => :accept)
 
-The option +:if_unsaved+  : 
-
-If an unsaved book with the same name is open, then
-
-+:raise+::   Raise an exeption. Don't open the book.
-+:accept+::  Let the unsaved book open.
-+:forget+::  Discard any changes and reopen the book.
-+:new_excel+:: Open the new book in a new Excel instance
-+:alert+::   Give control to Excel.
-
-The option +:if_obstructed+ :
-
-If a book with same name in a different path is open, then
-
-+:raise+::          Raise an exception. Don't open the book.
-+:forget+::         Close the old book, open the new book.
-+:save+::           Save the old book, close it, open the new book
-+:close_if_saved+:: Close the old book and open the new book, if the old book is saved, raise an exception otherwise
-+:new_excel+::        Open the new book in a new Excel instance.
-
-The values :displayalerts and :visible are reached to the class Excel that controls opening and closing Excel instances.
 
 === Closing a book.
 
-Simple close.
-
   book.close
 
-The option is : +:if_unsaved+ . It can have one of the following values:
+The option is : +:if_unsaved+. Example:
 
-+:if_unsaved+,  +:raise+ (default), +:save+, +:forget+, +:alert+
+Closing the book and saving it before if it has unsaved changes.
 
-The option specifies: If the book is unsaved, then
+  book.close(:if_unsaved => :save)
 
-+:raise+::  Raise an exception. Don't close the book.
-+:save+::   Save the book before closing it.
-+:forget+:: Close the book. 
-+:alert+::  Give control to Excel.
+
+=== Reopening books.
+
+The books can be reopened after closing them. Example:
+
+  book = Book.open('simple.xls')
+  book.close
+  reopened_book = Book.open('simple.xls')
+
+robust_excel_ole provides transperency identity. That is the same Book objects refer to the same Excel files, and vice versa.
+
+  reopened_book == book
+  => true
 
 
 === Saving a book.
-
-Simple save.
 
   book.save
 
@@ -105,23 +82,16 @@ Saving a book with a file name.
 
   book.save_as('another_simple.xls')
 
-Options are the following:
+The option is +:if_exists+. Example:
 
-+:if_exists+:: +:raise+ (default), +:overwrite+, +:alert+
+Saving a book and overwriting the file if it exists before.
 
-The option +:if_exists+ :
+  book.save_as('another_simple.xls', :if_exists => :overwrite)
 
-If a book with the file name already exists, then
-
-+:raise+::     Raise an exeption. Don't write the file.
-+:overwrite+:: Delete the existing file and write the file. If the book is open in an Excel instance, then raise an exception.
-+:alert+::     Give the control to Excel.
-  
 
 === Unobtrusively modifying a book
 
-When modifying the book unobtrusively, the status of the book remains unchanged. The status includes, wheter the book is opened or closed, saved or unsaved, readonly or writable.
-
+Sometimes the user wants to read and possibly modify a book, no matter if it is open in some Excel instance or not, is saved or unsaved. The method +unobtrusively+ provides this service. When modifying a book unobtrusively, its status remains unchanged. This status includes, wheter the book is opened or closed, saved or unsaved, readonly or writable.
 
   Book.unobtrusively('simple.xls') do |book|
     # some modification
@@ -135,13 +105,13 @@ Returning the value of a cell or range that has a with a defined name.
 
   book.nvalue(name)
 
-=== Alive.
+=== Alive?.
 
 Checking whether the referenced Excel workbook responds to methods.
 
   if book.alive? then sheet = book[0] end
 
-=== Make an Excel visible or invisible, and enable and disable DisplayAlerts.
+=== Making an Excel visible or invisible, and enable and disable DisplayAlerts.
 
 Make an Excel visible
 
@@ -150,8 +120,6 @@ Make an Excel visible
 Enable DisplayAlerts.
 
   book.excel.displayalerts = true
-
-Options: +true+ -> enable DisplayAlerts , +false+ -> Disable DisplayAlerts
 
 
 === Accessing a sheet.
@@ -269,7 +237,6 @@ Making Excel visible.
 
   excel = Excel.create
   excel.visible = true
-  puts "visible" if excel.visible
 
 Making Excel invisible
 
@@ -281,7 +248,6 @@ Turning DisplayAlerts on.
 
   excel = Excel.create
   excel.displayalerts = true
-  puts "allows displayalerts" if excel.displayalerts
 
 Turning DisplayAlerts off.
 

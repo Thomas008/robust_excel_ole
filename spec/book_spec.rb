@@ -224,7 +224,7 @@ describe Book do
         book2.close
       end
 
-      it "should open in a given Excel, not reopen" do
+      it "should open in a given Excel, not provide identity transparency, because old book readonly, new book writable" do
         book2 = Book.open(@simple_file, :force_excel => :new)
         book2.excel.should_not == @book.excel
         book3 = Book.open(@simple_file, :force_excel => :new)
@@ -235,20 +235,23 @@ describe Book do
         book4.should be_alive
         book4.should be_a Book
         book4.excel.should == book2.excel
-        book4.should_not == book2
+        book4.Readonly.should == true
+        book4.should_not == book2 
         book4.close
         book3.close
       end
 
       # fails
-      it "should open in a given Excel with reopen" do
+      it "should open in a given Excel, provide identity transparency, becausen ew book can be readonly, such that the old and the new book are readonly" do
         book2 = Book.open(@simple_file, :force_excel => :new)
         book2.excel.should_not == @book.excel
         book3 = Book.open(@simple_file, :force_excel => :new)
         book3.excel.should_not == book2.excel
         book3.excel.should_not == @book.excel
         book2.close
-        book4 = Book.open(@simple_file, :force_excel => book2.excel, :readonly => true)
+        book3.close
+        @book.close
+        book4 = Book.open(@simple_file, :force_excel => book2.excel, :read_only => true)
         book4.should be_alive
         book4.should be_a Book
         book4.excel.should == book2.excel

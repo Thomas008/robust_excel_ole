@@ -1,7 +1,6 @@
 
 ### immediately
 
---- 2015-05-05 test and possibly improve line 74 of open
 --- 2015.05-05 adapt unobtrusively: idea: use no fetch, only open. 
                if several book then choose the excel in which the book was opened last recently
                if book was not opened before...

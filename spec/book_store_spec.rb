@@ -263,6 +263,24 @@ describe BookStore do
       end
     end
    
+    context "with several closed books" do
+      
+      before do
+        @book = Book.open(@simple_file)
+        @bookstore.store(@book)
+        @book2 = Book.open(@simple_file, :force_excel => :new)
+        @bookstore.store(@book2)
+        @book.close
+        @book2.close
+      end
+
+      it "should fetch the recent closed book" do
+        new_book = @bookstore.fetch(@simple_file)
+        new_book.should == @book2
+        new_book.should_not == @book
+      end
+      
+    end
 
     context "with changing file name" do
 

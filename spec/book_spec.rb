@@ -152,6 +152,16 @@ describe Book do
         book2.should be_alive
         book2.close
       end
+
+      it "should yield identical Book objects when reopening and the Excel is closed" do
+        @book.should be_alive
+        @book.close
+        Excel.close_all
+        book2 = Book.open(@simple_file)
+        book2.should be_alive
+        book2.should == @book
+        book2.close
+      end
     end
 
     context "with :force_excel" do
@@ -208,7 +218,7 @@ describe Book do
         @book.close rescue nil
       end
 
-      it "should reuse an open book" do
+      it "should use the open book" do
         book2 = Book.open(@simple_file, :default_excel => :reuse)
         book2.excel.should == @book.excel
         book2.should be_alive
@@ -217,7 +227,7 @@ describe Book do
         book2.close
       end
 
-      it "should reopen a book" do
+      it "should reopen the book in the excel instance where it was opened before" do
         excel = Excel.new(:reuse => false)
         @book.close
         book2 = Book.open(@simple_file)
@@ -231,7 +241,7 @@ describe Book do
         book2.close
       end
 
-      it "should reopen a book in a new Excel" do
+      it "should reopen a book in a new Excel if all Excel instances are closed" do
         excel = Excel.new(:reuse => false)
         excel2 = @book.excel
         fn = @book.filename
@@ -240,7 +250,7 @@ describe Book do
         book2 = Book.open(@simple_file, :default_excel => :reuse)
         book2.should be_alive
         book2.should be_a Book
-        #book2.excel.should_not == excel2
+        #book2.excel.should_not == excel
         #book2.excel.should_not == excel
         book2.filename.should == fn
         @book.should be_alive
@@ -248,7 +258,27 @@ describe Book do
         book2.close
       end
 
-      it "should connect to the first opened excel, if the book cannot be reopened" do
+      it "should reopen a book in the first opened Excel if the old Excel is closed" do
+        excel = @book.excel
+        p "excel: #{excel}"
+        Excel.close_all
+        new_excel = Excel.new(:reuse => false)
+        p "new_excel: #{new_excel}"
+        new_excel2 = Excel.new(:reuse => false)
+        p "new_excel2: #{new_excel2}"
+        book2 = Book.open(@simple_file, :default_excel => :reuse)
+        book2.should be_alive
+        book2.should be_a Book
+        p "book2.excel: #{book2.excel}"
+        #book2.excel.should_not == excel
+        #book2.excel.should_not == new_excel2
+        #book2.excel.should == new_excel
+        @book.should be_alive
+        book2.should == @book
+        book2.close
+      end
+
+      it "should reopen a book in the first opened excel, if the book cannot be reopened" do
         @book.close
         Excel.close_all
         excel1 = Excel.new(:reuse => false)

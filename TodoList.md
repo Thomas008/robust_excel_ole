@@ -1,7 +1,6 @@
 
 ### immediately
 
---- 2015-04-27 tests for life cycle (weakrefs to books)
 --- 2015-04-27 excel.rb: remove attr_writer
 --- 2015-04-27 documentation: a crisp one and a detailed one, better examples
 --- 2015-04-17 unobtrusively: readonly
@@ -10,13 +9,12 @@
 
 ### quick
 
---- 2015-04-27 excel instances list
-
 ### short-term
 
 --- 2015-04-17 excel managements system
 --- 2015-04-02 if_unlocked
 --- 2015-04-02 standard use cases
+--- 2015-04-27 excel instances list
 
 ### mid-term
 
@@ -24,6 +22,7 @@
 
 ### done
 
+--- 2015-04-27 tests for life cycle (weakrefs to books)
 --- 2015-04-01 examples for unobtrusively
 --- 2015-04-01 further tests for unobtrusively
 --- 2015-03-26 connnect: check test outputs

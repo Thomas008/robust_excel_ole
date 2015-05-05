@@ -10,7 +10,9 @@ module RobustExcelOle
     end
 
     # returns a book with the given filename, if it was open once
-    # preference order: writable book, readonly unsaved book, readonly book (the last one), closed book
+    # preference order: writable book, readonly unsaved book, readonly book, closed book
+    #                   if there are several books that are readonly (unsaved) or closed,
+    #                   then choose the last one
     # options:  
     #  :readonly_excel => <instance> -> return the book that was open in the given excel instance, 
     #                                 even if it is not writable, if such a book exists

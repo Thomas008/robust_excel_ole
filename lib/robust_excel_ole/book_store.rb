@@ -69,27 +69,6 @@ module RobustExcelOle
           end
         end
       end
-      # addidtionally: over ObjectSpace:
-      ObjectSpace.each_object(WIN32OLE) do |ole_object|
-        #if ole_object.name == "Microsoft Excel"
-        #  workbooks = ole_object.Workbooks
-        #  if workbooks
-        #    workbooks.each do |workbook|  
-        #      excel2books[ole_object] |= [workbook]
-        #    end
-        #  end
-        #end
-      end
-      #p "excel2books:"
-      #if excel2books
-      #  excel2books.each do |excel,workbooks|
-      #    p "excel: #{excel}"
-      #    p "workbooks:"
-      #    workbooks.each do |workbook|
-      #      p "workbook:#{workbook}"
-      #    end
-      #  end
-      #end
       excel2books
     end
 

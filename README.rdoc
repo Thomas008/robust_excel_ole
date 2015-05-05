@@ -16,10 +16,10 @@ This is work in progress.
 
 == Usage
 
+=== Opening a book.
+
   include RobustExcelOle
 
-=== Opening a book.
- 
 Example:
 
   book = Book.open('simple.xls')
@@ -91,7 +91,8 @@ Saving a book and overwriting the file if it exists before.
 
 === Unobtrusively modifying a book
 
-Sometimes the user wants to read and possibly modify a book, no matter if it is open in some Excel instance or not, is saved or unsaved. The method +unobtrusively+ provides this service. When modifying a book unobtrusively, its status remains unchanged. This status includes, wheter the book is opened or closed, saved or unsaved, readonly or writable.
+Sometimes the user wants to read and possibly modify a book, no matter if it is open in some Excel instance or not, is saved or unsaved. The method +unobtrusively+ provides this service. When modifying a book unobtrusively, its status remains unchanged. This status includes, wheter the book is opened or closed, saved or unsaved, readonly or writable. If the books were closed and the Excel instance are still running, then the book is opened in the Excel instance where it was opened most recently or in a new Excel. This is relevant if the book has references to other books.
+Options are +:if_readonly+, +:keep_open+, +:visible+ 
 
   Book.unobtrusively('simple.xls') do |book|
     # some modification
@@ -268,10 +269,6 @@ Turning on and off in a block.
 
 === Examples
 
-Including robust_excel_ole.
-
-  include RobustExcelOle
-
 === Example 1 
 
 Opening a book.
@@ -444,7 +441,6 @@ Some features in robust_excel_ole that are not compatible with wrap_excel:
 
 === Want to do more things
 
-All RobustExcelOle objects include the win32ole instance. 
 If you want to do something that not provide a function, you can use win32ole methods.
 
 == Support

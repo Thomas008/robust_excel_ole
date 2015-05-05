@@ -68,6 +68,9 @@ module RobustExcelOle
           book = book_store.fetch(file, :readonly_excel => (@options[:read_only] ? @options[:force_excel] : nil)) rescue nil
           if book
             if (not @options[:force_excel] || (@options[:force_excel] == book.excel))
+              if (not book.excel.alive?)
+                book.get_excel
+              end
               if book.excel.alive?
                 # condition: :if_unsaved is not set or :accept or workbook is not unsaved
                 if_unsaved_not_set_or_accept_or_workbook_saved = (@options[:if_unsaved] == :accept || @options[:if_unsaved] == :raise || (not book.workbook) || book.workbook.Saved)
@@ -203,8 +206,6 @@ module RobustExcelOle
     end
 
     def open_workbook
-      #p "open_workbook:"
-      #p "@file:#{@file}"
       if ((not @workbook) || (@options[:if_unsaved] == :alert) || @options[:if_obstructed]) then
         begin
           filename = RobustExcelOle::absolute_path(@file)
@@ -263,8 +264,9 @@ module RobustExcelOle
 
     # modify a book such that its state remains unchanged.
     #  options: 
-    #  :visible:  Make the book visible in the Excel (default: false)
+    #  :visible:   Make the book visible in the Excel (default: false)
     #  :keep_open: let the book open after modification (default: false)
+    #  :readonly:  Open the book unobtrusively for reading only  (default: false)
     #  if the book is read_only and modified (unsaved), then
     #    only the saved version of the book is unobtrusively modified, 
     #    not the current changed version
@@ -272,7 +274,8 @@ module RobustExcelOle
     def self.unobtrusively(file, opts = { })
       options = {
         :keep_open => false,
-        :visible => false
+        :visible => false,
+        :read_only => false
       }.merge(opts)
       book = book_store.fetch(file)
       was_not_alive_or_nil = book.nil? || (not book.alive?)

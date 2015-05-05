@@ -14,6 +14,9 @@ module RobustExcelOle
       
       # opens a book.
       # 
+      # when reopening a book that was opened and closed before, transparency identity is ensured:
+      # same Book objects refer to the same Excel files, and vice versa
+      # 
       # options: 
       # :default_excel   if the book was already open in an Excel instance, then open it there.
       #                  Otherwise, i.e. if the book was not open before or the Excel instance
@@ -67,23 +70,22 @@ module RobustExcelOle
         #self.set_defaults(opts) ???
         book = nil
         if (not (@options[:force_excel] == :new && (not @options[:if_locked] == :take_writable)))
-          # if readonly is true, then prefer a book that is given force_excel if this option is set
+          # if readonly is true, then prefer a book that is given in force_excel if this option is set
           book = book_store.fetch(file, :readonly_excel => (@options[:read_only] ? @options[:force_excel] : nil)) rescue nil
           if book
-            if (not @options[:force_excel] || (@options[:force_excel] == book.excel))
+            if ((not @options[:force_excel]) || (@options[:force_excel] == book.excel))
               if (not book.excel.alive?)
                 book.get_excel
               end
               if book.excel.alive?
-                # condition: :if_unsaved is not set or :accept or workbook is not unsaved
-                #if_unsaved_not_set_or_accept_or_workbook_saved = (@options[:if_unsaved] == :accept || @options[:if_unsaved] == :raise || (not book.workbook) || book.workbook.Saved)
-                if_unsaved_not_set_or_accept_or_workbook_saved = (not book.workbook)
-                if ((not book.alive?) || if_unsaved_not_set_or_accept_or_workbook_saved)  
+                # ??? condition: :if_unsaved is not set or :accept or workbook is not unsaved
+                # ??? if_unsaved_not_set_or_accept_or_workbook_saved = (@options[:if_unsaved] == :accept || @options[:if_unsaved] == :raise || (not book.workbook) || book.workbook.Saved)
+                if ((not book.alive?) || (not book.workbook))
                   book.set_defaults(opts)
                   # reopen the book
                   book.get_workbook          
                 end
-                return book if book.alive? && if_unsaved_not_set_or_accept_or_workbook_saved
+                return book if book.alive? #&& (if_unsaved_not_set_or_accept_or_workbook_saved
               end
             end
           end

@@ -162,6 +162,46 @@ describe Book do
         book2.should == @book
         book2.close
       end
+
+      it "should yield different Book objects when reopening in a new Excel" do
+        @book.should be_alive
+        old_excel = @book.excel
+        @book.close
+        @book.should_not be_alive
+        book2 = Book.open(@simple_file, :force_excel => :new)
+        book2.should_not == @book
+        book2.should be_alive
+        book2.excel.should_not == old_excel
+        book2.close
+      end
+
+      it "should yield different Book objects when reopening in a new given Excel instance" do
+        old_excel = @book.excel
+        new_excel = Excel.new(:reuse => false)
+        @book.close
+        @book.should_not be_alive
+        book2 = Book.open(@simple_file, :force_excel => new_excel)
+        book2.should_not == @book
+        book2.should be_alive
+        book2.excel.should == new_excel
+        book2.excel.should_not == old_excel
+        book2.close
+      end
+
+      it "should yield identical Book objects when reopening in the old excel" do
+        old_excel = @book.excel
+        p "old_excel: #{old_excel}"
+        new_excel = Excel.new(:reuse => false)
+        @book.close
+        @book.should_not be_alive
+        book2 = Book.open(@simple_file, :force_excel => old_excel)
+        book2.should == @book
+        book2.should be_alive
+        book2.excel.should == old_excel
+        @book.should be_alive
+        book2.close
+      end
+
     end
 
     context "with :force_excel" do
@@ -171,7 +211,7 @@ describe Book do
       end
 
       after do
-        @book.close
+        @book.close rescue nil
       end
 
       it "should open in a new Excel" do
@@ -182,9 +222,10 @@ describe Book do
         book2.should_not == @book
         @book.Readonly.should be_false
         book2.Readonly.should be_true
+        book2.close
       end
 
-      it "should open in a given Excel" do
+      it "should open in a given Excel, not reopen" do
         book2 = Book.open(@simple_file, :force_excel => :new)
         book2.excel.should_not == @book.excel
         book3 = Book.open(@simple_file, :force_excel => :new)
@@ -195,6 +236,23 @@ describe Book do
         book4.should be_alive
         book4.should be_a Book
         book4.excel.should == book2.excel
+        book4.should_not == book2
+        book4.close
+        book3.close
+      end
+
+      it "should open in a given Excel with reopen" do
+        book2 = Book.open(@simple_file, :force_excel => :new)
+        book2.excel.should_not == @book.excel
+        book3 = Book.open(@simple_file, :force_excel => :new)
+        book3.excel.should_not == book2.excel
+        book3.excel.should_not == @book.excel
+        book2.close
+        book4 = Book.open(@simple_file, :force_excel => book2.excel, :readonly => true)
+        book4.should be_alive
+        book4.should be_a Book
+        book4.excel.should == book2.excel
+        book4.should == book2
         book4.close
         book3.close
       end

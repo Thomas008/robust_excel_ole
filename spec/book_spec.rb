@@ -190,7 +190,6 @@ describe Book do
 
       it "should yield identical Book objects when reopening in the old excel" do
         old_excel = @book.excel
-        p "old_excel: #{old_excel}"
         new_excel = Excel.new(:reuse => false)
         @book.close
         @book.should_not be_alive
@@ -241,6 +240,7 @@ describe Book do
         book3.close
       end
 
+      # fails
       it "should open in a given Excel with reopen" do
         book2 = Book.open(@simple_file, :force_excel => :new)
         book2.excel.should_not == @book.excel
@@ -318,16 +318,12 @@ describe Book do
 
       it "should reopen a book in the first opened Excel if the old Excel is closed" do
         excel = @book.excel
-        p "excel: #{excel}"
         Excel.close_all
         new_excel = Excel.new(:reuse => false)
-        p "new_excel: #{new_excel}"
         new_excel2 = Excel.new(:reuse => false)
-        p "new_excel2: #{new_excel2}"
         book2 = Book.open(@simple_file, :default_excel => :reuse)
         book2.should be_alive
         book2.should be_a Book
-        p "book2.excel: #{book2.excel}"
         #book2.excel.should_not == excel
         #book2.excel.should_not == new_excel2
         #book2.excel.should == new_excel

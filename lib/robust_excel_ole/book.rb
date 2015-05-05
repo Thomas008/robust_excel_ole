@@ -79,13 +79,13 @@ module RobustExcelOle
               end
               if book.excel.alive?
                 # ??? condition: :if_unsaved is not set or :accept or workbook is not unsaved
-                # ??? if_unsaved_not_set_or_accept_or_workbook_saved = (@options[:if_unsaved] == :accept || @options[:if_unsaved] == :raise || (not book.workbook) || book.workbook.Saved)
-                if ((not book.alive?) || (not book.workbook))
+                if_unsaved_not_set_or_accept_or_workbook_saved = (@options[:if_unsaved] == :accept || @options[:if_unsaved] == :raise || (not book.workbook) || book.workbook.Saved)
+                if ((not book.alive?) || if_unsaved_not_set_or_accept_or_workbook_saved)
                   book.set_defaults(opts)
                   # reopen the book
                   book.get_workbook          
                 end
-                return book if book.alive? #&& (if_unsaved_not_set_or_accept_or_workbook_saved
+                return book if book.alive? && if_unsaved_not_set_or_accept_or_workbook_saved
               end
             end
           end

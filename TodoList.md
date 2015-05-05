@@ -1,14 +1,13 @@
 
 ### immediately
 
---- 2015-05-05 force_excel => old book excel instance should provide transperancy identity
---- 2015-05-05 test and implement lines 74 and 76 of open
---- 2015.05-05 adapt unobtrusively: no fetch, only open. if several book then choose the excel
-                                                         in which the book was opened last recently
-                                                         if book was not opened before...
+--- 2015-05-05 test and possibly improve line 74 of open
+--- 2015.05-05 adapt unobtrusively: idea: use no fetch, only open. 
+               if several book then choose the excel in which the book was opened last recently
+               if book was not opened before...
 --- 2015-04-27 excel.rb: remove attr_writer
---- 2015-04-27 documentation: a crisp one and a detailed one, better examples
 --- 2015-04-17 unobtrusively: readonly
+--- 2015-04-27 documentation: a crisp one and a detailed one, better examples
 --- 2015-04-02 set options: make it dry
 --- 2015-04-17 acceptance test from Testschmiede
 

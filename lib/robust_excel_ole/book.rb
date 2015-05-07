@@ -33,6 +33,7 @@ module RobustExcelOle
       #                   :take_writable      -> use the Excel instance in which the book is writable,
       #                                          if such an Excel instance exists
       #                   :force_writability  -> make it writable in the desired Excel
+      #                   (does not work yet)
       # :if_locked_unsaved  if the book is open in another Excel instance and contains unsaved changes
       #                  :raise    -> raise an exception
       #                  :save     -> save the unsaved book 
@@ -56,8 +57,7 @@ module RobustExcelOle
       # :visible       make visibe in Excel           (default: false)
       # If :default_excel is set, then DisplayAlerts and Visible are set only if these parameters are given,
       #                                   not set by default
-
-     
+    
       def open(file, opts={ }, &block)
         @options = {
           :excel => :reuse,
@@ -272,11 +272,10 @@ module RobustExcelOle
     #  options: 
     #  :visible:   Make the book visible in the Excel (default: false)
     #  :keep_open: let the book open after modification (default: false)
-    #  :readonly:  Open the book unobtrusively for reading only  (default: false)
+    #  :read_only:  Open the book unobtrusively for reading only  (default: false)
     #  if the book is read_only and modified (unsaved), then
     #    only the saved version of the book is unobtrusively modified, 
     #    not the current changed version
-    # returns the block result
     def self.unobtrusively(file, opts = { })
       options = {
         :keep_open => false,
@@ -290,6 +289,7 @@ module RobustExcelOle
       old_book = book if was_readonly
       old_visible = book ? book.excel.visible : false
       begin
+        #book = open(file, :if_obstructed => :new_excel) unless was_not_alive_or_nil 
         book = was_not_alive_or_nil ? open(file, :if_obstructed => :new_excel) : 
                (was_readonly ? open(file, :force_excel => :new) : book)
         book.excel.visible = options[:visible]       

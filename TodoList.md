@@ -1,11 +1,12 @@
 
 ### immediately
 
---- 2015.05-05 adapt unobtrusively: idea: use no fetch, only open. 
+--- 2015.05-05 adapt unobtrusively:  
                if several book then choose the excel in which the book was opened last recently
                if book was not opened before...
---- 2015-04-27 excel.rb: remove attr_writer
+               tests, implementation
 --- 2015-04-17 unobtrusively: readonly
+--- 2015-04-27 excel.rb: implement sucht that remove attr_writer
 --- 2015-04-27 documentation: a crisp one and a detailed one, better examples
 --- 2015-04-02 set options: make it dry
 --- 2015-04-17 acceptance test from Testschmiede

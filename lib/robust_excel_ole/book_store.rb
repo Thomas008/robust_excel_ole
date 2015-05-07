@@ -10,13 +10,11 @@ module RobustExcelOle
     end
 
     # returns a book with the given filename, if it was open once
-    # preference order: writable book, readonly unsaved book, readonly book, closed book
-    #                   if there are several books that are readonly (unsaved) or closed,
-    #                   then choose the last one
-    # options:  
-    #  :readonly_excel => <instance> -> return the book that was open in the given excel instance, 
-    #                                 even if it is not writable, if such a book exists
-    #                          prefer the writable book as described above, otherwise 
+    # prefers open books to closed books, and among them, prefers more recently opened books
+    # options: :prefer_writable   return the writable book, if it is open (default: true)
+    #                             return the book according to the preference order mentioned above, otherwise
+    #          :prefer_excel      return the book in the given excel instance, if it exists
+    #                             proceed according to prefer_writable otherwise
     def fetch(filename, options = { })
       filename_key = RobustExcelOle::canonize(filename)
       weakref_books = @filename2books[filename_key]
@@ -26,14 +24,14 @@ module RobustExcelOle
         if (not wr_book.weakref_alive?)
           @filename2books[filename_key].delete(wr_book)
         else
-          if options[:readonly_excel] && wr_book.excel == options[:readonly_excel]
+          if options[:prefer_excel] && wr_book.excel == options[:prefer_excel]
             result = wr_book
             break 
           end
           if wr_book.alive?
             if (not wr_book.readonly)
               result = wr_book
-              break unless options[:readonly_excel]
+              break if options[:prefer_writable]
             else
               wr_book.saved ? readonly_book = wr_book : readonly_unsaved_book = wr_book
             end

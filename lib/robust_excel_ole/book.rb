@@ -339,37 +339,6 @@ module RobustExcelOle
       end
     end
 
-=begin
-    def self.unobtrusively(file, opts = { })
-      options = {
-        :keep_open => false,
-        :visible => false,
-        :read_only => false
-      }.merge(opts)
-      book = book_store.fetch(file)
-      was_not_alive_or_nil = book.nil? || (not book.alive?)
-      was_saved = was_not_alive_or_nil ? true : book.saved
-      was_readonly = was_not_alive_or_nil ? false : book.readonly
-      old_book = book if was_readonly
-      old_visible = (book && book.excel.alive?) ? book.excel.visible : false
-      begin 
-        book = was_not_alive_or_nil ? open(file, :if_obstructed => :new_excel) : 
-               (was_readonly ? open(file, :force_excel => :new) : book)
-        book.excel.visible = options[:visible]       
-        yield book
-      ensure
-        book.save if (was_not_alive_or_nil || was_saved || was_readonly) && (not book.saved)
-        if was_readonly
-          book.close
-          book = old_book
-        end
-        book.excel.visible = old_visible
-        book.close if (was_not_alive_or_nil && (not opts[:keep_open]))
-      end
-    end
-=end
-
-
     # returns the contents of a range or cell with given name
     def nvalue(name)
       begin

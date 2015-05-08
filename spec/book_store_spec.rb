@@ -79,6 +79,24 @@ describe BookStore do
 
 
   describe "fetch" do
+
+    context "with a new start" do
+      it "should" do
+        book1 = Book.open(@simple_file)
+        book2 = Book.open(@simple_file, :force_excel => :new)
+        book3 = Book.open(@simple_file, :force_excel => :new)
+        p "book1: #{book1}"
+        p "book2: #{book2}"
+        p "book3: #{book3}"
+        @bookstore.store(book1)
+        @bookstore.store(book2)
+        @bookstore.store(book3)
+        new_book = @bookstore.fetch(@simple_file, :prefer_writable => false)
+        new_book.should == book3
+        new_book.should_not == book1
+        new_book.should_not == book2
+      end
+    end
     
     context "with one open book" do
       
@@ -412,7 +430,7 @@ describe BookStore do
         end
       end
 
-      it "should yield two excels and two book" do
+      it "should yield two excels and two books" do
         e = Excel.create
         book1 = Book.open(@simple_file, :force_excel => :new)
         @bookstore.store(book1)
@@ -422,8 +440,8 @@ describe BookStore do
         excels.each do |excel,workbooks|
           num = num + 1
           excel.should be_a Excel
-          workbooks[0].should == @book.workbook if num == 1
-          workbooks.size.should == 1 if num == 2
+          workbooks.size.should == 1
+          workbooks[0].should == @book.workbook if num == 1          
           workbooks[0].should == book1.workbook if num == 2
         end
       end

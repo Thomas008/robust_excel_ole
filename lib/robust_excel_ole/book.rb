@@ -289,7 +289,7 @@ module RobustExcelOle
       was_saved = was_not_alive_or_nil ? true : book.saved
       was_readonly = book.readonly unless was_not_alive_or_nil
       old_book = book if was_readonly
-      old_visible = book.excel.visible if (book && book.excel.alive?) 
+      old_visible = (book && book.excel.alive?) ? book.excel.visible : false
       begin 
         book = 
           # book is open
@@ -329,11 +329,6 @@ module RobustExcelOle
           book.close
           open(file, :if_obstructed => :new_excel, :read_only => true)
         end
-        # ???
-        #if was_readonly 
-        #  book.close
-        #  book = old_book
-        #end
         book.excel.visible = old_visible
         book.close if (was_not_alive_or_nil && (not opts[:keep_open]))
       end

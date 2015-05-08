@@ -158,7 +158,6 @@ describe Book do
         @book.close
         Excel.close_all
         book2 = Book.open(@simple_file)
-        p "book2.excel: #{book2.excel}"
         book2.should be_alive
         book2.should == @book
         book2.close

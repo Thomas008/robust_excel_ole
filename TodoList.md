@@ -2,15 +2,17 @@
 ### immediately
 
 --- 2015.05-05 unobtrusively:  
-               more tests, ease the implementation
-               documentation, examples
---- 2015-04-17 unobtrusively: readonly
+               more tests,
 --- 2015-04-27 excel.rb: implement sucht that remove attr_writer
 --- 2015-04-27 documentation: a crisp one and a detailed one, better examples
 --- 2015-04-02 set options: make it dry
 --- 2015-04-17 acceptance test from Testschmiede
 
 ### quick
+
+--- 2015-05-09 open with option :reuse_excel: 
+               choose the last opened Excel that is different to a certain Excel, if it exists,
+               open a new Excel, else
 
 ### short-term
 
@@ -25,6 +27,7 @@
 
 ### done
 
+--- 2015-04-17 unobtrusively: readonly
 --- 2015-04-27 tests for life cycle (weakrefs to books)
 --- 2015-04-01 examples for unobtrusively
 --- 2015-04-01 further tests for unobtrusively

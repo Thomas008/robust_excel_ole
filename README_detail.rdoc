@@ -34,8 +34,8 @@ Options are the following:
 
 +:default_excel+::   open in the Excel instance used before if the book was once open (default: +reuse+)
 +:force_excel+::     open in a new or given Excel instance (defaut: +:new+)
-+:if_unsaved+::      specify behaviour if the book was unsaved (default: +raise+)
-+:if_obstructed+::   specidy behaviour if the book is blocked by another book (default: +raise+)
++:if_unsaved+::      specify behaviour if the book was unsaved (default: +new_excel+)
++:if_obstructed+::   specidy behaviour if the book is blocked by another book (default: +new_excel+)
 +:read_only+::       open in read-only mode (default: +false+) 
 +:displayalerts+::   allow display alerts in Excel (default: +false+)
 +:visible+::         make visibe in Excel (default: +false+)
@@ -85,12 +85,12 @@ Simple close.
 
 The option is : +:if_unsaved+ . It can have one of the following values:
 
-+:if_unsaved+,  +:raise+ (default), +:save+, +:forget+, +:alert+
++:save+ (default), +:raise+, +:forget+, +:alert+
 
 The option specifies: If the book is unsaved, then
 
-+:raise+::  Raise an exception. Don't close the book.
 +:save+::   Save the book before closing it.
++:raise+::  Raise an exception. Don't close the book.
 +:forget+:: Close the book. 
 +:alert+::  Give control to Excel.
 
@@ -120,8 +120,19 @@ If a book with the file name already exists, then
 
 === Unobtrusively modifying a book
 
-When modifying the book unobtrusively, the status of the book remains unchanged. The status includes, wheter the book is opened or closed, saved or unsaved, readonly or writable.
+Sometimes the user wants to read and possibly modify a book, no matter if it is open in some Excel instance or not, is saved or unsaved. The method +unobtrusively+ provides this service. When modifying a book unobtrusively, its status remains unchanged. This status includes, wheter the book is opened or closed, saved or unsaved, readonly or writable. If the books were closed and the Excel instance are still running, then the book is opened in the Excel instance where it was opened most recently or in a new Excel. This is relevant if the book has references to other books.
 
+Options are the following:
+
++:read_only+:: Open the book unobtrusively for reading only  (default: false)
++:use_this+::  If the book is opened only as ReadOnly and shall be modified, then
+
+               true:  close it and open it as writable in the excel instance where it was open so far
+               false (default): open it as writable in another running excel instance, if it exists
+                                    in a new excel instance, otherwise
+
++:visible+::   Make the book visible in the Excel (default: false)
++:keep_open+:: Let the book open after modification (default: false)
 
   Book.unobtrusively('simple.xls') do |book|
     # some modification

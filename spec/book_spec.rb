@@ -83,7 +83,7 @@ describe Book do
 
       it "should open unobtrusively" do
         book = Book.open(@simple_file, :if_locked => :take_writable, 
-                                      :if_unsaved => :accept, :if_obstructed => :reuse_excel)
+                                      :if_unsaved => :accept, :if_obstructed => :new_excel)
         book.close
       end
 
@@ -612,10 +612,13 @@ describe Book do
         @new_book.close
       end
 
-      it "should raise an error, if :if_unsaved is default" do
-        expect {
-          @new_book = Book.open(@simple_file)
-        }.to raise_error(ExcelErrorOpen, "book is already open but not saved (#{File.basename(@simple_file)})")
+     it "should open the book in a new excel instance, if :if_unsaved is default" do
+        @new_book = Book.open(@simple_file)
+        @book.should be_alive
+        @new_book.should be_alive
+        @new_book.filename.should == @book.filename
+        @new_book.excel.should_not == @book.excel       
+        @new_book.close
       end
 
       it "should raise an error, if :if_unsaved is invalid option" do
@@ -693,11 +696,14 @@ describe Book do
             @new_book.excel.should_not == @book.excel
           end
 
-          it "should raise an error, if :if_obstructed is default" do
-            expect {
-              @new_book = Book.open(@simple_file)
-            }.to raise_error(ExcelErrorOpen, "blocked by a book with the same name in a different path")
+          it "should open the book in a new excel instance, if :if_obstructed is default" do
+            @new_book = Book.open(@simple_file)
+            @book.should be_alive
+            @new_book.should be_alive
+            @new_book.filename.should_not == @book.filename
+            @new_book.excel.should_not == @book.excel
           end
+         
 
           it "should raise an error, if :if_obstructed is invalid option" do
             expect {
@@ -774,7 +780,7 @@ describe Book do
         old_cell_value = sheet[0,0].value
         sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
         book.Saved.should be_false
-        new_book = Book.open(@simple_file, :read_only => false)
+        new_book = Book.open(@simple_file, :read_only => false, :if_unsaved => :accept)
         new_book.ReadOnly.should be_false 
         new_book.should be_alive
         book.should be_alive   
@@ -792,7 +798,7 @@ describe Book do
         old_cell_value = sheet[0,0].value        
         sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
         book.Saved.should be_false
-        new_book = Book.open(@simple_file, :read_only => true)
+        new_book = Book.open(@simple_file, :read_only => true, :if_unsaved => :accept)
         new_book.ReadOnly.should be_true
         new_book.should be_alive
         book.should be_alive   
@@ -810,7 +816,7 @@ describe Book do
         old_cell_value = sheet[0,0].value
         sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
         book.Saved.should be_false
-        new_book = Book.open(@simple_file, :force_excel => book.excel, :read_only => false)
+        new_book = Book.open(@simple_file, :force_excel => book.excel, :read_only => false, :if_unsaved => :accept)
         new_book.ReadOnly.should be_false 
         new_book.should be_alive
         book.should be_alive   
@@ -828,7 +834,7 @@ describe Book do
         old_cell_value = sheet[0,0].value        
         sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
         book.Saved.should be_false
-        new_book = Book.open(@simple_file, :force_excel => book.excel, :read_only => true)
+        new_book = Book.open(@simple_file, :force_excel => book.excel, :read_only => true, :if_unsaved => :accept)
         new_book.ReadOnly.should be_true
         new_book.should be_alive
         book.should be_alive   
@@ -857,7 +863,7 @@ describe Book do
         book.close
       end
 
-      it "should be able to save, if :read_only is set to default value" do
+      it "should be able to save, if :read_only is default" do
         book = Book.open(@simple_file)
         book.should be_a Book
         expect {
@@ -1524,18 +1530,6 @@ describe Book do
             end
           end
         end
-      end
-
-      it "should raise error for default" do
-        expect{
-          @book.close
-        }.to raise_error(ExcelErrorClose, "book is unsaved (#{File.basename(@simple_file)})")
-      end
-
-      it "should raise error for invalid option" do
-        expect{
-          @book.close(:if_unsaved => :invalid)
-        }.to raise_error(ExcelErrorClose, ":if_unsaved: invalid option")
       end
     end
   end

@@ -3,6 +3,7 @@
 
 --- 2015.05-05 unobtrusively:  
                more tests, ease the implementation
+               documentation, examples
 --- 2015-04-17 unobtrusively: readonly
 --- 2015-04-27 excel.rb: implement sucht that remove attr_writer
 --- 2015-04-27 documentation: a crisp one and a detailed one, better examples

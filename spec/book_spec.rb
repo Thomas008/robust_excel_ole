@@ -224,6 +224,7 @@ describe Book do
         book2.close
       end
 
+ 
       it "should open in a given Excel, not provide identity transparency, because old book readonly, new book writable" do
         book2 = Book.open(@simple_file, :force_excel => :new)
         book2.excel.should_not == @book.excel
@@ -241,7 +242,7 @@ describe Book do
         book3.close
       end
 
-      it "should open in a given Excel, provide identity transparency, becausen ew book can be readonly, such that the old and the new book are readonly" do
+      it "should open in a given Excel, provide identity transparency, because book can be readonly, such that the old and the new book are readonly" do
         book2 = Book.open(@simple_file, :force_excel => :new)
         book2.excel.should_not == @book.excel
         book3 = Book.open(@simple_file, :force_excel => :new)
@@ -254,6 +255,7 @@ describe Book do
         book4.should be_alive
         book4.should be_a Book
         book4.excel.should == book2.excel
+        book4.ReadOnly.should be_true
         book4.should == book2
         book4.close
         book3.close
@@ -764,6 +766,79 @@ describe Book do
 
     context "with :read_only" do
       
+      it "should reopen the book with writable (unsaved changes from readonly are not saved)" do
+        book = Book.open(@simple_file, :read_only => true)
+        book.ReadOnly.should be_true
+        book.should be_alive
+        sheet = book[0]
+        old_cell_value = sheet[0,0].value
+        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+        book.Saved.should be_false
+        new_book = Book.open(@simple_file, :read_only => false)
+        new_book.ReadOnly.should be_false 
+        new_book.should be_alive
+        book.should be_alive   
+        new_book.should == book 
+        new_sheet = new_book[0]
+        new_cell_value = new_sheet[0,0].value
+        new_cell_value.should == old_cell_value
+      end
+
+      it "should reopen the book with readonly (unsaved changes of the writable should be saved)" do
+        book = Book.open(@simple_file, :read_only => false)
+        book.ReadOnly.should be_false
+        book.should be_alive
+        sheet = book[0]
+        old_cell_value = sheet[0,0].value        
+        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+        book.Saved.should be_false
+        new_book = Book.open(@simple_file, :read_only => true)
+        new_book.ReadOnly.should be_true
+        new_book.should be_alive
+        book.should be_alive   
+        new_book.should == book 
+        new_sheet = new_book[0]
+        new_cell_value = new_sheet[0,0].value
+        new_cell_value.should_not == old_cell_value
+      end
+
+      it "should reopen the book with writable (unsaved changes from readonly are not saved)" do
+        book = Book.open(@simple_file, :force_excel => :new, :read_only => true)
+        book.ReadOnly.should be_true
+        book.should be_alive
+        sheet = book[0]
+        old_cell_value = sheet[0,0].value
+        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+        book.Saved.should be_false
+        new_book = Book.open(@simple_file, :force_excel => book.excel, :read_only => false)
+        new_book.ReadOnly.should be_false 
+        new_book.should be_alive
+        book.should be_alive   
+        new_book.should == book 
+        new_sheet = new_book[0]
+        new_cell_value = new_sheet[0,0].value
+        new_cell_value.should == old_cell_value
+      end
+
+      it "should reopen the book with readonly (unsaved changes of the writable should be saved)" do
+        book = Book.open(@simple_file, :force_excel => :new, :read_only => false)
+        book.ReadOnly.should be_false
+        book.should be_alive
+        sheet = book[0]
+        old_cell_value = sheet[0,0].value        
+        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+        book.Saved.should be_false
+        new_book = Book.open(@simple_file, :force_excel => book.excel, :read_only => true)
+        new_book.ReadOnly.should be_true
+        new_book.should be_alive
+        book.should be_alive   
+        new_book.should == book 
+        new_sheet = new_book[0]
+        new_cell_value = new_sheet[0,0].value
+        new_cell_value.should_not == old_cell_value
+      end
+
+
       it "should open the second book in another Excel as writable" do
         book = Book.open(@simple_file, :read_only => true)
         book.ReadOnly.should be_true

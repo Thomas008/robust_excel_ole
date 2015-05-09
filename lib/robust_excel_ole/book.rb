@@ -52,11 +52,10 @@ module RobustExcelOle
       #                                      raise an exception otherwise
       #                  :new_excel       -> open the new book in a new Excel
       #                  :reuse_excel     -> try the next free running Excel, if it exists, open a new Excel, else
-      # :read_only     open in read-only mode         (default: false)
+      # :read_only     open in read-only mode         (default: false) 
       # :displayalerts enable DisplayAlerts in Excel  (default: false)
       # :visible       make visibe in Excel           (default: false)
-      # If :default_excel is set, then DisplayAlerts and Visible are set only if these parameters are given,
-      #                                   not set by default
+      # if :default_excel is set, then DisplayAlerts and Visible are set only if these parameters are given
     
       def open(file, opts={ }, &block)
         @options = {
@@ -82,8 +81,15 @@ module RobustExcelOle
                 if_unsaved_not_set_or_accept_or_workbook_saved = (@options[:if_unsaved] == :accept || @options[:if_unsaved] == :raise || (not book.workbook) || book.workbook.Saved)
                 if ((not book.alive?) || if_unsaved_not_set_or_accept_or_workbook_saved)
                   book.set_defaults(opts)
+                  # if the book is opened with a different readonly mode in the same Excel, 
+                  # then save it, close and open the book with the new readonly mode
+                  if (book.alive? && (not book.readonly == @options[:read_only]))
+                    book.Save unless (book.readonly || book.saved)
+                    book.workbook.Close if book.alive?
+                    book.workbook = nil unless book.alive?
+                  end
                   # reopen the book
-                  book.get_workbook          
+                  book.get_workbook   
                 end
                 return book if book.alive? && if_unsaved_not_set_or_accept_or_workbook_saved
               end
@@ -291,7 +297,22 @@ module RobustExcelOle
       old_book = book if was_readonly
       old_visible = (book && book.excel.alive?) ? book.excel.visible : false
       begin 
-        book = 
+        book = was_not_alive_or_nil ? open(file, :if_obstructed => :new_excel) :
+               (((not was_readonly) || options[:read_only]) ? book : 
+                (options[:use_this] ? open(file, :force_excel => book.excel, :if_obstructed => :new_excel) :
+                                      open(file, :force_excel => :new, :if_obstructed => :new_excel)))
+
+        # close and open as writable: 
+        # book.close 
+        # open(file, :force_excel => book.excel, :if_obstructed => :new_excel)
+        # oder genuegt: 
+        # open  ohne close: d.h. wenn vorher ein readonly Book da war, und es soll dort in der Excel
+        # geöffnet werden als writable geöffnet werden: macht das open?
+        #
+        # if_obstructed => :new_excel as default => change test, documentation, examples
+        # ebenso if_unsaved => :new_excel
+
+=begin             
           # book is open
           if (not was_not_alive_or_nil)
             # book shall be modified but found only readonly book
@@ -300,7 +321,7 @@ module RobustExcelOle
               if options[:use_this]
                 # close the book and open it as writable
                 book.close
-                open(file, :if_obstructed => :new_excel)
+                open(file, :force_excel => book.excel, :if_obstructed => :new_excel)
               # book shall be opened in (another, most recent Excel if it exists, or in) a new Excel, otherwise
               else
                 open(file, :force_excel => :new, :if_obstructed => :new_excel)
@@ -310,16 +331,9 @@ module RobustExcelOle
             end
           # book is closed or was never open            
           else
-            # book was open and Excel is alive
-            if book && book.excel.alive?
-              # open it in this Excel
-              open(file, :if_obstructed => :new_excel)
-            # book was not open or Excel is not alive anymore
-            else
-              # open book in the most recently opened Excel instance, if it exists, in a new Excel, otherwise
-              open(file, :if_obstructed => :new_excel)
-            end
+            open(file, :if_obstructed => :new_excel)
           end
+=end
         book.excel.visible = options[:visible]       
         yield book
       ensure

@@ -4,8 +4,6 @@ module RobustExcelOle
 
   class Excel
 
-    attr_writer :excel
-
     @@hwnd2excel = {}
 
     # closes all Excel instances
@@ -56,10 +54,10 @@ module RobustExcelOle
       if stored 
         result = stored
       else
-        WIN32OLE.const_load(excel, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
         result = super(options)
-        result.excel = excel
-        @@hwnd2excel[hwnd] = result
+        result.instance_variable_set(:@excel, excel)
+        WIN32OLE.const_load(excel, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
+        @@hwnd2excel[hwnd] = result        
       end
       result
     end

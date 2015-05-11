@@ -213,8 +213,8 @@ module RobustExcelOle
           @workbook = workbooks.Item(File.basename(filename))
         rescue BookStoreError => e
           raise ExcelUserCanceled, "open: canceled by user: #{e}"
-        #rescue WIN32OLERuntimeError 
-        #  raise ExcelUserCanceled, "open: canceled by user"
+        rescue WIN32OLERuntimeError 
+          raise ExcelUserCanceled, "open: canceled by user"
         end
       end
     end

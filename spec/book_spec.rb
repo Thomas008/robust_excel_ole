@@ -466,13 +466,10 @@ describe Book do
         @new_book.close
       end
 
-     it "should open the book in a new excel instance, if :if_unsaved is default" do
-        @new_book = Book.open(@simple_file)
-        @book.should be_alive
-        @new_book.should be_alive
-        @new_book.filename.should == @book.filename
-        @new_book.excel.should_not == @book.excel       
-        @new_book.close
+      it "should raise an error, if :if_unsaved is default" do
+        expect {
+          @new_book = Book.open(@simple_file, :if_unsaved => :raise)
+        }.to raise_error(ExcelErrorOpen, "book is already open but not saved (#{File.basename(@simple_file)})")
       end
 
       it "should raise an error, if :if_unsaved is invalid option" do
@@ -550,14 +547,11 @@ describe Book do
             @new_book.excel.should_not == @book.excel
           end
 
-          it "should open the book in a new excel instance, if :if_obstructed is default" do
-            @new_book = Book.open(@simple_file)
-            @book.should be_alive
-            @new_book.should be_alive
-            @new_book.filename.should_not == @book.filename
-            @new_book.excel.should_not == @book.excel
-          end
-         
+          it "should raise an error, if :if_obstructed is default" do
+            expect {
+              @new_book = Book.open(@simple_file)
+            }.to raise_error(ExcelErrorOpen, "blocked by a book with the same name in a different path")
+          end         
 
           it "should raise an error, if :if_obstructed is invalid option" do
             expect {
@@ -1275,7 +1269,7 @@ describe Book do
         @book1.excel.Visible.should be_false
       end
 
-      it "should unobtrusively use a book invisibe by default" do
+      it "should unobtrusively use a book invisible by default" do
         @book1.excel.Visible.should be_false
         Book.unobtrusively(@simple_file) do |book| 
           @book1.excel.Visible.should be_false
@@ -1423,6 +1417,12 @@ describe Book do
       end
 
       it "should raise error with option :raise" do
+        expect{
+          @book.close(:if_unsaved => :raise)
+        }.to raise_error(ExcelErrorClose, "book is unsaved (#{File.basename(@simple_file)})")
+      end
+
+      it "should raise error by default" do
         expect{
           @book.close(:if_unsaved => :raise)
         }.to raise_error(ExcelErrorClose, "book is unsaved (#{File.basename(@simple_file)})")

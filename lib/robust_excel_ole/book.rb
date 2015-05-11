@@ -28,18 +28,18 @@ module RobustExcelOle
       #                   :new (default)   -> open in a new Excel
       #                   <instance>       -> open in the given Excel instance
       # :if_unsaved     if an unsaved book with the same name is open, then
-      #                  :raise               -> raise an exception
+      #                  :raise (default)              -> raise an exception
       #                  :forget              -> close the unsaved book, open the new book             
       #                  :accept              -> let the unsaved book open                  
       #                  :alert               -> give control to Excel
-      #                  :new_excel (default) -> open the new book in a new Excel
+      #                  :new_excel           -> open the new book in a new Excel
       # :if_obstructed  if a book with the same name in a different path is open, then
-      #                  :raise               -> raise an exception 
+      #                  :raise (default)     -> raise an exception 
       #                  :forget              -> close the old book, open the new book
       #                  :save                -> save the old book, close it, open the new book
       #                  :close_if_saved      -> close the old book and open the new book, if the old book is saved
       #                                          raise an exception otherwise
-      #                  :new_excel (default) -> open the new book in a new Excel                  
+      #                  :new_excel           -> open the new book in a new Excel                  
       # :read_only     open in read-only mode         (default: false) 
       # :displayalerts enable DisplayAlerts in Excel  (default: false)
       # :visible       make visibe in Excel           (default: false)
@@ -49,8 +49,8 @@ module RobustExcelOle
         @options = {
           :excel => :reuse,
           :default_excel => :reuse,      
-          :if_unsaved    => :new_excel,
-          :if_obstructed => :new_excel,
+          :if_unsaved    => :raise,
+          :if_obstructed => :raise,
           :read_only => false
         }.merge(opts)
         #self.set_defaults(opts) ???
@@ -108,8 +108,8 @@ module RobustExcelOle
         :excel => :reuse,
         :default_excel => :reuse,
         :if_locked     => :readonly,       
-        :if_unsaved    => :new_excel,
-        :if_obstructed => :new_excel,
+        :if_unsaved    => :raise,
+        :if_obstructed => :raise,
         :read_only => false
       }.merge(opts)
     end
@@ -283,9 +283,10 @@ module RobustExcelOle
       old_book = book if was_readonly
       old_visible = (book && book.excel.alive?) ? book.excel.visible : false
       begin 
-        book = was_not_alive_or_nil ? open(file) :
+        book = was_not_alive_or_nil ? open(file, :if_obstructed => :new_excel) :
                (((not was_readonly) || options[:read_only]) ? book : 
-                (options[:use_this] ? open(file, :force_excel => book.excel) : open(file, :force_excel => :new)))
+                (options[:use_this] ? open(file, :force_excel => book.excel, :if_obstructed => :new_excel) : 
+                                      open(file, :force_excel => :new, :if_obstructed => :new_excel)))
         book.excel.visible = options[:visible]       
         yield book
       ensure

@@ -69,10 +69,9 @@ module RobustExcelOle
                 if ((not book.alive?) || if_unsaved_not_set_or_accept_or_workbook_saved)
                   book.set_defaults(opts)
                   # if the book is opened with a different readonly mode in the same Excel, 
-                  # then save it, close and open the book with the new readonly mode
+                  # close it and open the book with the new readonly mode
                   if (book.alive? && (not book.readonly == @options[:read_only]))
-                    book.Save unless (book.readonly || book.saved)
-                    book.close_workbook
+                    book.close
                   end
                   # reopen the book
                   book.get_workbook   

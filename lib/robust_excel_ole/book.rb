@@ -27,17 +27,6 @@ module RobustExcelOle
       # :force_excel     no matter whether the book was already open
       #                   :new (default)   -> open in a new Excel
       #                   <instance>       -> open in the given Excel instance
-      # :if_locked       if the book is open in another Excel instance, then
-      #                   :readonly (default) -> open the book as readonly, if is should be opened in a new Excel,
-      #                                          use the old book otherwise
-      #                   :take_writable      -> use the Excel instance in which the book is writable,
-      #                                          if such an Excel instance exists
-      #                   :force_writability  -> make it writable in the desired Excel
-      #                   (does not work yet)
-      # :if_locked_unsaved  if the book is open in another Excel instance and contains unsaved changes
-      #                  :raise    -> raise an exception
-      #                  :save     -> save the unsaved book 
-      #                  (not implemented yet)
       # :if_unsaved     if an unsaved book with the same name is open, then
       #                  :raise               -> raise an exception
       #                  :forget              -> close the unsaved book, open the new book             
@@ -59,8 +48,7 @@ module RobustExcelOle
       def open(file, opts={ }, &block)
         @options = {
           :excel => :reuse,
-          :default_excel => :reuse,
-          :if_locked     => :readonly,       
+          :default_excel => :reuse,      
           :if_unsaved    => :new_excel,
           :if_obstructed => :new_excel,
           :read_only => false
@@ -224,10 +212,10 @@ module RobustExcelOle
           # workaround for bug in Excel 2010: workbook.Open does not always return 
           # the workbook with given file name
           @workbook = workbooks.Item(File.basename(filename))
-        #rescue BookStoreError => e
-        #  raise ExcelUserCanceled, "open: canceled by user: #{e}"
-        rescue WIN32OLERuntimeError 
-          raise ExcelUserCanceled, "open: canceled by user"
+        rescue BookStoreError => e
+          raise ExcelUserCanceled, "open: canceled by user: #{e}"
+        #rescue WIN32OLERuntimeError 
+        #  raise ExcelUserCanceled, "open: canceled by user"
         end
       end
     end

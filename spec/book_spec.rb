@@ -773,14 +773,15 @@ describe Book do
     context "with :read_only" do
       
       it "should reopen the book with writable (unsaved changes from readonly are not saved)" do
-        book = Book.open(@simple_file, :read_only => true)
+        book = Book.open(@simple_file, :read_only => true, :visible => true, :displayalerts => true)
         book.ReadOnly.should be_true
         book.should be_alive
         sheet = book[0]
         old_cell_value = sheet[0,0].value
         sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
         book.Saved.should be_false
-        new_book = Book.open(@simple_file, :read_only => false, :if_unsaved => :accept)
+        sleep 30
+        new_book = Book.open(@simple_file, :read_only => false, :if_unsaved => :accept, :visible => true)
         new_book.ReadOnly.should be_false 
         new_book.should be_alive
         book.should be_alive   
@@ -1030,13 +1031,42 @@ describe Book do
       end
 
       # The bold reanimation of the @book
-      it "should keep open the book" do
+      it "should use the excel of the book and keep open the book" do
+        excel = Excel.new(:reuse => false)
         sheet = @book[0]
         old_cell_value = sheet[0,0].value
         @book.close
         @book.should_not be_alive
         Book.unobtrusively(@simple_file, :keep_open => true) do |book|
           book.should be_a Book
+          book.excel.should == @book.excel
+          book.excel.should_not == excel
+          sheet = book[0]
+          cell = sheet[0,0]
+          sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
+          book.Saved.should be_false
+        end
+        @book.should be_alive
+        @book.close
+        new_book = Book.open(@simple_file)
+        sheet = new_book[0]
+        sheet[0,0].value.should_not == old_cell_value
+      end
+
+      it "should use another excel if the Excels are closed" do
+        excel = Excel.new(:reuse => false)
+        p "excel: #{excel}"
+        p "@book.excel: #{@book.excel}"
+        sheet = @book[0]
+        old_cell_value = sheet[0,0].value
+        @book.close
+        @book.should_not be_alive
+        Excel.close_all
+        Book.unobtrusively(@simple_file, :keep_open => true) do |book|
+          book.should be_a Book
+          p "book.excel: #{book.excel}"
+          #book.excel.should == @book.excel
+          #book.excel.should_not == excel
           sheet = book[0]
           cell = sheet[0,0]
           sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
@@ -1093,14 +1123,16 @@ describe Book do
         sheet2[0,0].value.should == cell_value        
       end
 
-      it "should modify one of the unobtrusively books" do
-        book2 = Book.open(@simple_file, :force_excel => :new, :read_only => true)
+      it "should open unobtrusively by default the writable book" do
+        book2 = Book.open(@simple_file, :force_excel => :new, :read_only => false)
         @book.ReadOnly.should be_true
-        book2.Readonly.should be_true
+        book2.Readonly.should be_false
         sheet = @book[0]
         cell_value = sheet[0,0].value
         Book.unobtrusively(@simple_file) do |book|
           book.should be_a Book
+          book.excel.should == book2.excel
+          book.excel.should_not == @book.excel
           sheet = book[0]
           sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
           book.should be_alive
@@ -1115,6 +1147,131 @@ describe Book do
         new_sheet[0,0].value.should_not == cell_value
         book3.close
       end
+
+      it "should open unobtrusively by default the book in a new Excel such that the book is writable" do
+        book2 = Book.open(@simple_file, :force_excel => :new, :read_only => true)
+        @book.ReadOnly.should be_true
+        book2.Readonly.should be_true
+        sheet = @book[0]
+        cell_value = sheet[0,0].value
+        Book.unobtrusively(@simple_file) do |book|
+          book.should be_a Book
+          book.excel.should_not == book2.excel
+          book.excel.should_not == @book.excel
+          sheet = book[0]
+          sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+          book.should be_alive
+          book.Saved.should be_false          
+        end  
+        @book.Saved.should be_true
+        @book.ReadOnly.should be_true
+        @book.close
+        book2.close
+        book3 = Book.open(@simple_file)
+        new_sheet = book3[0]
+        new_sheet[0,0].value.should_not == cell_value
+        book3.close
+      end
+
+      it "should open unobtrusively the book in a new Excel such that the book is writable" do
+        book2 = Book.open(@simple_file, :force_excel => :new, :read_only => true)
+        @book.ReadOnly.should be_true
+        book2.Readonly.should be_true
+        sheet = @book[0]
+        cell_value = sheet[0,0].value
+        Book.unobtrusively(@simple_file, :use_this => false) do |book|
+          book.should be_a Book
+          book.excel.should_not == book2.excel
+          book.excel.should_not == @book.excel
+          sheet = book[0]
+          sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+          book.should be_alive
+          book.Saved.should be_false          
+        end  
+        @book.Saved.should be_true
+        @book.ReadOnly.should be_true
+        @book.close
+        book2.close
+        book3 = Book.open(@simple_file)
+        new_sheet = book3[0]
+        new_sheet[0,0].value.should_not == cell_value
+        book3.close
+      end
+
+      # fails
+      it "should open unobtrusively the book in a running (first) Excel to open the book writable" do
+        excel1 = Excel.new(:reuse => false)
+        excel2 = Excel.new(:reuse => false)
+        book2 = Book.open(@simple_file, :force_excel => :new, :read_only => true)
+        @book.ReadOnly.should be_true
+        book2.Readonly.should be_true
+        sheet = @book[0]
+        cell_value = sheet[0,0].value
+        Book.unobtrusively(@simple_file, :use_this => false) do |book|
+          book.should be_a Book
+          book.excel.should == excel1
+          book.excel.should_not == book2.excel
+          book.excel.should_not == @book.excel
+          sheet = book[0]
+          sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+          book.should be_alive
+          book.Saved.should be_false          
+        end  
+        @book.Saved.should be_true
+        @book.ReadOnly.should be_true
+        @book.close
+        book2.close
+        book3 = Book.open(@simple_file)
+        new_sheet = book3[0]
+        new_sheet[0,0].value.should_not == cell_value
+        book3.close
+      end
+
+      it "should open unobtrusively the book in a running (first) Excel to open the book writable" do
+        excel1 = Excel.new(:reuse => false)
+        excel2 = Excel.new(:reuse => false)
+        book2 = Book.open(@simple_file, :force_excel => :new, :read_only => true)
+        @book.ReadOnly.should be_true
+        book2.Readonly.should be_true
+        sheet = @book[0]
+        cell_value = sheet[0,0].value
+        Book.unobtrusively(@simple_file, :use_this => true) do |book|
+          book.should be_a Book
+          book.excel.should == book2.excel
+          sheet = book[0]
+          sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+          book.should be_alive
+          book.Saved.should be_false          
+        end  
+        book2.Saved.should be_true
+        book2.ReadOnly.should be_true
+        @book.close
+        book2.close
+        book3 = Book.open(@simple_file)
+        new_sheet = book3[0]
+        new_sheet[0,0].value.should_not == cell_value
+        book3.close
+      end
+
+      it "should open unobtrusively the book in the Excel where it was opened most recently" do
+        book2 = Book.open(@simple_file, :force_excel => :new, :read_only => true)
+        @book.ReadOnly.should be_true
+        book2.Readonly.should be_true
+        sheet = @book[0]
+        cell_value = sheet[0,0].value
+        Book.unobtrusively(@simple_file, :read_only => true) do |book|
+          book.should be_a Book
+          book.excel.should == book2.excel
+          book.excel.should_not == @book.excel
+          book.should be_alive
+          book.Saved.should be_true         
+        end  
+        @book.Saved.should be_true
+        @book.ReadOnly.should be_true
+        @book.close
+        book2.close
+      end
+
     end
 
     context "with a virgin Book class" do
@@ -1162,6 +1319,7 @@ describe Book do
           book.Saved.should be_false
           sleep 1
         end
+        @book1.Saved.should be_true
         m_time2 = File.mtime(@book1.stored_filename)
         m_time2.should_not == m_time
       end      
@@ -1279,23 +1437,10 @@ describe Book do
 
     context "with several Excel instances" do
 
-      it "should open unobtrusively the closed book in the most recent Excel" do
-        book1 = Book.open(@simple_file)
-        book2 = Book.open(@simple_file, :force_excel => :new)
-        book1.Readonly.should == false
-        book2.Readonly.should == true
-        book1.close
-        book2.close
-        Book.unobtrusively(@simple_file) do |book| 
-          book.excel.should == book2.excel
-          book.excel.should_not == book1.excel
-          book.Readonly.should == false
-        end
-      end
-
       it "should open unobtrusively the closed book in the most recent Excel where it was open before" do
         book1 = Book.open(@simple_file)
         book2 = Book.open(@simple_file, :force_excel => :new)
+        book1.Readonly.should == false
         book2.Readonly.should == true
         old_sheet = book1[0]
         old_cell_value = old_sheet[0,0].value
@@ -1341,30 +1486,6 @@ describe Book do
         sheet = new_book[0]
         sheet[0,0].value.should_not == old_cell_value
       end
-
-      it "should open unobtrusively the once opened book in a new Excel if the Excel is not alive anymore" do
-        book1 = Book.open(@simple_file)
-        book2 = Book.open(@simple_file, :force_excel => :new)
-        book2.Readonly.should == true
-        old_sheet = book1[0]
-        old_cell_value = old_sheet[0,0].value
-        book1.should be_alive
-        book2.should be_alive
-        Excel.close_all
-        Book.unobtrusively(@simple_file) do |book| 
-          book.ReadOnly.should == false
-          #book.excel.should_not == book1.excel
-          #book.excel.should_not == book2.excel
-          sheet = book[0]
-          cell = sheet[0,0]
-          sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
-          book.Saved.should be_false
-        end
-        new_book = Book.open(@simple_file)
-        sheet = new_book[0]
-        sheet[0,0].value.should_not == old_cell_value
-      end
-
     end
   end
 

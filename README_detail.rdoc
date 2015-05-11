@@ -85,7 +85,7 @@ Simple close.
 
 The option is : +:if_unsaved+ . It can have one of the following values:
 
-+:save+ (default), +:raise+, +:forget+, +:alert+
++:raise+ (default), +:save+, +:forget+, +:alert+
 
 The option specifies: If the book is unsaved, then
 

@@ -84,8 +84,7 @@ module RobustExcelOle
                   # then save it, close and open the book with the new readonly mode
                   if (book.alive? && (not book.readonly == @options[:read_only]))
                     book.Save unless (book.readonly || book.saved)
-                    book.workbook.Close if book.alive?
-                    book.workbook = nil unless book.alive?
+                    book.close_workbook
                   end
                   # reopen the book
                   book.get_workbook   
@@ -237,10 +236,10 @@ module RobustExcelOle
     #
     # options:
     #  :if_unsaved    if book is unsaved
-    #                      :raise          -> raise an exception       
-    #                      :save (default) -> save the book before it is closed                  
-    #                      :forget         -> close the book 
-    #                      :alert          -> give control to excel
+    #                      :raise (default) -> raise an exception       
+    #                      :save            -> save the book before it is closed                  
+    #                      :forget          -> close the book 
+    #                      :alert           -> give control to excel
     def close(opts = {:if_unsaved => :raise})
       if ((alive?) && (not @workbook.Saved) && (not @workbook.ReadOnly)) then
         case opts[:if_unsaved]
@@ -275,7 +274,7 @@ module RobustExcelOle
 
     # modify a book such that its state (open/close, saved/unsaved, readonly/writable) remains unchanged.
     #  options: 
-    #  :visible:   Make the book visible in the Excel (default: false)
+    #  :visible:   Make the Excel instance of the book visible (default: false)
     #  :keep_open: let the book open after modification (default: false)
     #  :read_only: Open the book unobtrusively for reading only  (default: false)
     #  :use_this:  if the book is opened only as ReadOnly and shall be modified, then

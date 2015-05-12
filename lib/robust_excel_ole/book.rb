@@ -208,14 +208,19 @@ module RobustExcelOle
           filename = RobustExcelOle::absolute_path(@file)
           workbooks = @excel.Workbooks
           workbooks.Open(filename,{ 'ReadOnly' => @options[:read_only] })
-          # workaround for bug in Excel 2010: workbook.Open does not always return 
-          # the workbook with given file name
-          @workbook = workbooks.Item(File.basename(filename))
-        rescue BookStoreError => e
-          raise ExcelUserCanceled, "open: canceled by user: #{e}"
         rescue WIN32OLERuntimeError 
           raise ExcelUserCanceled, "open: canceled by user"
         end
+        begin
+          # workaround for bug in Excel 2010: workbook.Open does not always return 
+          # the workbook with given file name
+          @workbook = workbooks.Item(File.basename(filename))
+        rescue WIN32OLERuntimeError
+          raise ExcelErrorOpen, "open: item error"
+        end
+        #rescue BookStoreError => e
+        #  raise ExcelUserCanceled, "open: canceled by user: #{e}"
+        #end
       end
     end
 

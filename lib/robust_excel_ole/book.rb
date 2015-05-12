@@ -266,39 +266,37 @@ module RobustExcelOle
 
     # modify a book such that its state (open/close, saved/unsaved, readonly/writable) remains unchanged.
     #  options: 
-    #  :visible:   Make the Excel instance of the book visible (default: false)
-    #  :keep_open: let the book open after modification (default: false)
     #  :read_only: Open the book unobtrusively for reading only  (default: false)
-    #  :use_this:  if the book is opened only as ReadOnly and shall be modified, then
+    #  :use_readonly_excel:  if the book is opened only as ReadOnly and shall be modified, then
     #              true:  close it and open it as writable in the excel instance where it was open so far
     #              false(default)    open it as writable in another running excel instance, if it exists
     #                                in a new excel instance, otherwise
+    #  :visible:   Make the Excel instance of the book visible (default: false)
+    #  :keep_open: let the book open after unobtrusively opening (default: false)
     def self.unobtrusively(file, opts = { })
       options = {
         :keep_open => false,
         :visible => false,
         :read_only => false,
-        :use_this => false
+        :use_readonly_excel => false
       }.merge(opts)
       book = book_store.fetch(file, :prefer_writable => (not options[:read_only]))
       was_not_alive_or_nil = book.nil? || (not book.alive?)
       was_saved = was_not_alive_or_nil ? true : book.saved
       was_readonly = book.readonly unless was_not_alive_or_nil
-      old_book = book if was_readonly
       old_visible = (book && book.excel.alive?) ? book.excel.visible : false
       begin 
         book = was_not_alive_or_nil ? open(file, :if_obstructed => :new_excel) :
                (((not was_readonly) || options[:read_only]) ? book : 
-                (options[:use_this] ? open(file, :force_excel => book.excel, :if_obstructed => :new_excel) : 
+                (options[:use_readonly_excel] ? open(file, :force_excel => book.excel, :if_obstructed => :new_excel) : 
                                       open(file, :force_excel => :new, :if_obstructed => :new_excel)))
         book.excel.visible = options[:visible]       
         yield book
       ensure
         book.save if (was_not_alive_or_nil || was_saved || (was_readonly && (not options[:read_only]))) && (not book.saved)
         # book was open, readonly and shoud be modified
-        if (not was_not_alive_or_nil) && (not options[:read_only]) && was_readonly && options[:use_this]
-          book.close
-          open(file, :if_obstructed => :new_excel, :read_only => true)
+        if (not was_not_alive_or_nil) && (not options[:read_only]) && was_readonly && options[:use_readonly_excel]
+          open(file, :force_excel => book.excel, :if_obstructed => :new_excel, :read_only => true)
         end
         book.excel.visible = old_visible
         book.close if (was_not_alive_or_nil && (not opts[:keep_open]))

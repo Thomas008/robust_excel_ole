@@ -1030,8 +1030,7 @@ describe Book do
         book3.close
       end
 
-      # fails
-      it "should open unobtrusively the book in a running (first) Excel to open the book writable" do
+      it "should open unobtrusively the book in a new Excel to open the book writable" do
         excel1 = Excel.new(:reuse => false)
         excel2 = Excel.new(:reuse => false)
         book2 = Book.open(@simple_file, :force_excel => :new, :read_only => true)
@@ -1039,11 +1038,13 @@ describe Book do
         book2.Readonly.should be_true
         sheet = @book[0]
         cell_value = sheet[0,0].value
-        Book.unobtrusively(@simple_file, :use_this => false) do |book|
+        Book.unobtrusively(@simple_file, :use_readonly_excel => false) do |book|
           book.should be_a Book
-          book.excel.should == excel1
+          book.ReadOnly.should be_false
           book.excel.should_not == book2.excel
           book.excel.should_not == @book.excel
+          book.excel.should_not == excel1
+          book.excel.should_not == excel2
           sheet = book[0]
           sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
           book.should be_alive
@@ -1059,7 +1060,6 @@ describe Book do
         book3.close
       end
 
-      # fails
       it "should open unobtrusively the book in the same Excel to open the book writable" do
         excel1 = Excel.new(:reuse => false)
         excel2 = Excel.new(:reuse => false)
@@ -1068,7 +1068,7 @@ describe Book do
         book2.Readonly.should be_true
         sheet = @book[0]
         cell_value = sheet[0,0].value
-        Book.unobtrusively(@simple_file, :use_this => true) do |book|
+        Book.unobtrusively(@simple_file, :use_readonly_excel => true) do |book|
           book.should be_a Book
           book.excel.should == book2.excel
           sheet = book[0]

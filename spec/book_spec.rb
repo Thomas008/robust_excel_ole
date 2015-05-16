@@ -270,6 +270,14 @@ describe Book do
       end
     end
 
+    context "with another :force_excel" do
+      it "should do force_excel even if both force_ and default_excel is given" do
+        book2 = Book.open(@simple_file, :force_excel => nil)
+        book2.should be_alive
+        book2.should be_a Book
+      end
+    end
+
     context "with :default_excel" do
 
       before do
@@ -754,6 +762,28 @@ describe Book do
 
       it "should send Fullname to workbook" do
         @book.Fullname.tr('\\','/').should == @simple_file
+      end
+    end
+  end
+
+  describe "hidden_excel" do
+    
+    context "with some open book" do
+
+      before do
+        @book = Book.open(@simple_file)
+      end
+
+      after do
+        @book.close
+      end
+
+      it "should create and use a hidden Excel instance" do
+        book2 = Book.open(@simple_file, :force_excel => @book.book_store.hidden_excel)
+        book2.excel.should_not == @book.excel
+        book2.excel.Visible.should be_false
+        book2.excel.DisplayAlerts.should be_false
+        book2.close 
       end
     end
   end

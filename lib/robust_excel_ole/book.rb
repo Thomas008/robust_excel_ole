@@ -266,19 +266,22 @@ module RobustExcelOle
 
     # modify a book such that its state (open/close, saved/unsaved, readonly/writable) remains unchanged.
     #  options: 
+    #  :if_closed :  :hidden : open closed books in one separate Excel instance that is not visible and has no displayaslerts
+    #                :reuse  : open closed books in the Excel instance of the book, if it exists, reuse another Excel, otherwise         
     #  :read_only: Open the book unobtrusively for reading only  (default: false)
     #  :use_readonly_excel:  if the book is opened only as ReadOnly and shall be modified, then
     #              true:  close it and open it as writable in the excel instance where it was open so far
-    #              false(default)    open it as writable in another running excel instance, if it exists
+    #              false (default)    open it as writable in another running excel instance, if it exists
     #                                in a new excel instance, otherwise
     #  :visible:   Make the Excel instance of the book visible (default: false)
     #  :keep_open: let the book open after unobtrusively opening (default: false)
     def self.unobtrusively(file, opts = { })
       options = {
-        :keep_open => false,
-        :visible => false,
+        :if_closed => :hidden,
         :read_only => false,
-        :use_readonly_excel => false
+        :use_readonly_excel => false,
+        :keep_open => false,
+        :visible => false
       }.merge(opts)
       book = book_store.fetch(file, :prefer_writable => (not options[:read_only]))
       was_not_alive_or_nil = book.nil? || (not book.alive?)
@@ -286,10 +289,23 @@ module RobustExcelOle
       was_readonly = book.readonly unless was_not_alive_or_nil
       old_visible = (book && book.excel.alive?) ? book.excel.visible : false
       begin 
-        book = was_not_alive_or_nil ? open(file, :if_obstructed => :new_excel) :
+        #if was_not_alive_or_nil 
+        #  if options[:if_closed] == :hidden
+        #    hidden_excel = book_store.hidden_excel
+        #    if (not hidden_excel) 
+        #      book_store.hidden_excel = Excel.create
+        #      hidden_excel = book
+        #    end
+        #    open(file, :force_excel => hidden_excel)
+        #  else
+        #    open(file)
+        #  end
+        #else
+
+        book = was_not_alive_or_nil ? 
+                 (options[:if_closed] == :hidden ? open(file, :force_excel => book_store.hidden_excel) : open(file)) :
                (((not was_readonly) || options[:read_only]) ? book : 
-                (options[:use_readonly_excel] ? open(file, :force_excel => book.excel, :if_obstructed => :new_excel) : 
-                                      open(file, :force_excel => :new, :if_obstructed => :new_excel)))
+                (options[:use_readonly_excel] ? open(file, :force_excel => book.excel) : open(file, :force_excel => :new)))
         book.excel.visible = options[:visible]       
         yield book
       ensure

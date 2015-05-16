@@ -11,6 +11,7 @@
 --- 2015-05-09 open with option :reuse_excel: 
                choose the last opened Excel that is different to a certain Excel, if it exists,
                open a new Excel, else
+               use this in unobtrusively
 
 ### short-term
 

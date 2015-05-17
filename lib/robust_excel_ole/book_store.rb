@@ -53,9 +53,9 @@ module RobustExcelOle
       book.stored_filename = book.filename
     end
 
-    # returns a hidden excel
+    # returns a separate Excel instance with Visible and DisplayAlerts false
     def hidden_excel
-      @hidden_excel_instance = WeakRef.new(Excel.create) unless (@hidden_excel_instance && @hidden_excel_instance.weakref_alive?)
+      @hidden_excel_instance = WeakRef.new(Excel.create) unless (@hidden_excel_instance &&  @hidden_excel_instance.__getobj__ && @hidden_excel_instance.__getobj__.alive?)       
       @hidden_excel_instance.__getobj__ if @hidden_excel_instance
     end
 

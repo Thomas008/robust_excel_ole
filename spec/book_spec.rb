@@ -1350,6 +1350,40 @@ describe Book do
         sheet[0,0].value.should_not == old_cell_value
       end
     end
+
+    context "with :hidden" do
+    
+      it "should create a new hidden Excel instance" do
+        book1 = Book.open(@simple_file)
+        book1.close
+        Book.unobtrusively(@simple_file, :if_closed => :hidden) do |book| 
+          book.should be_a Book
+          book.should be_alive
+          book.excel.Visible.should be_false
+          book.excel.DisplayAlerts.should be_false
+        end
+      end
+
+      it "should create a new hidden Excel instance and use this afterwards" do
+        book1 = Book.open(@simple_file)
+        book1.close
+        hidden_excel = nil
+        Book.unobtrusively(@simple_file, :if_closed => :hidden) do |book| 
+          book.should be_a Book
+          book.should be_alive
+          book.excel.Visible.should be_false
+          book.excel.DisplayAlerts.should be_false
+          hidden_excel = book.excel
+        end
+        Book.unobtrusively(@different_file, :if_closed => :hidden) do |book| 
+          book.should be_a Book
+          book.should be_alive
+          book.excel.Visible.should be_false
+          book.excel.DisplayAlerts.should be_false
+          book.excel.should == hidden_excel
+        end
+      end
+    end
   end
 
   describe "nvalue" do
@@ -1381,8 +1415,6 @@ describe Book do
           value = @book1.nvalue("named_formula")
         }.to raise_error(ExcelErrorNValue, "range error in more_simple.xls")
       end
-
-
     end
   end
 

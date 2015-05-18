@@ -124,15 +124,15 @@ Sometimes the user wants to read and possibly modify a book, no matter if it is 
 
 Options are the following:
 
++:if_closed+::  :hidden          : open closed books in one separate Excel instance that is not visible and has no displayaslerts
+              :reuse (default) : open closed books in the Excel instance of the book, if it exists, reuse another Excel, otherwise         
 +:read_only+:: Open the book unobtrusively for reading only  (default: false)
-+:use_this+::  If the book is opened only as ReadOnly and shall be modified, then
-
-               true:  close it and open it as writable in the excel instance where it was open so far
-               false (default): open it as writable in another running excel instance, if it exists
-                                    in a new excel instance, otherwise
-
-+:visible+::   Make the book visible in the Excel (default: false)
-+:keep_open+:: Let the book open after modification (default: false)
++:use_readonly_excel+::  if the book is opened only as ReadOnly and shall be modified, then
+                  true:  close it and open it as writable in the excel instance where it was open so far
+                  false (default)    open it as writable in another running excel instance, if it exists
+                                     in a new excel instance, otherwise
++:visible+::   Make the Excel instance of the book visible (default: false)
++:keep_open+:: let the book open after unobtrusively opening (default: false)
 
   Book.unobtrusively('simple.xls') do |book|
     # some modification

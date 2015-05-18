@@ -412,9 +412,12 @@ describe BookStore do
         h_excel.Visible.should be_false
         h_excel.DisplayAlerts.should be_false
         book2 = Book.open(@simple_file, :force_excel => @bookstore.hidden_excel)
-        book2.excel.should == h_excel
-        book2.excel.should_not == @book.excel    
-        book2.close 
+        book2.excel.should === h_excel
+        book2.excel.should_not === @book.excel
+        Excel.close_all    
+        book3 = Book.unobtrusively(@simple_file, :if_closed => :hidden)
+        book3.excel.should_not === h_excel
+        book3.excel.should_not === @book.excel
       end
     end
   end

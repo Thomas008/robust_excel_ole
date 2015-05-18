@@ -16,82 +16,81 @@ This is work in progress.
 
 == Usage
 
-=== Opening a book.
-
-  include RobustExcelOle
+=== Opening a workbook.
 
 Example:
 
+  include RobustExcelOle
   book = Book.open('simple.xls')
 
-Opening a book with a block. 
+Opening a workbook with a block. 
 The semantics is similar to, e.g.,  File.open.
 
   Book.open('simple.xls') do |book|
     # do something
   end
 
-Options are +default_excel+, +force_excel+, +if_unsaved+, +if_obstructed+, +read_only+, +visible+, +displayalerts+. 
+Options are +:default_excel+, +:force_excel+, +:if_unsaved+, +:if_obstructed+, +:read_only+, +:visible+, +:displayalerts+. 
 
 Here are a few examples:
 
-Opening an book in a new Excel instance and make it visible.
+Opening a workbook in a new Excel instance and make it visible.
 
   book = Book.open('simple.xls', :force_excel => :new, :visible => true)
 
-Opening a book with the same name in a different path. 
-The option +:if_obstructed+ => +:forget+ causes the old book to close such that it does not block the new book anymore.
+Opening a workbook with the same name in a different path. 
+The option +:if_obstructed+ => +:forget+ causes the old workbook to close such that it does not block the new workbook anymore.
 
   book2 = Book.open('path/simple.xls', :if_obstructed => :forget)
 
-Opening another book with the same file name in the running Excel. With the option +:if_unsaved+ => +:accept+  the book remains open if it contains unsaved changes.
+Opening another workbook with the same file name in the running Excel. With the option +:if_unsaved+ => +:accept+  the workbook remains open if it contains unsaved changes.
 
   book3 = Book.open('simple.xls', :if_unsaved => :accept)
 
 
-=== Closing a book.
+=== Closing a workbook.
 
   book.close
 
 The option is : +:if_unsaved+. Example:
 
-Closing the book and saving it before if it has unsaved changes.
+Closing the workbook and saving it before if it has unsaved changes.
 
   book.close(:if_unsaved => :save)
 
 
-=== Reopening books.
+=== Reopening workbooks.
 
-The books can be reopened after closing them. Example:
+The workbooks can be reopened after closing them. Example:
 
   book = Book.open('simple.xls')
   book.close
   reopened_book = Book.open('simple.xls')
 
-robust_excel_ole provides transperency identity. That is the same Book objects refer to the same Excel files, and vice versa.
+robust_excel_ole provides identity transperence. This means that the same Book objects refer to the same Excel files, and vice versa.
 
-  reopened_book == book
+  reopened_book === book
   => true
 
 
-=== Saving a book.
+=== Saving a workbook.
 
   book.save
 
-Saving a book with a file name.
+Saving a workbook with a file name.
 
   book.save_as('another_simple.xls')
 
 The option is +:if_exists+. Example:
 
-Saving a book and overwriting the file if it exists before.
+Saving a workbook and overwriting the file if it exists before.
 
   book.save_as('another_simple.xls', :if_exists => :overwrite)
 
 
-=== Unobtrusively modifying a book
+=== Unobtrusively opening a workbook
 
-Sometimes the user wants to read or modify a book, no matter if it is open in some Excel instance or not, is saved or unsaved. The method +unobtrusively+ provides this service. When opening a book unobtrusively, its status remains unchanged. This status includes, whether the book is opened or closed, saved or unsaved, readonly or writable. 
+Sometimes the user wants to read or modify a workbook, no matter if it is open in some Excel instance or not, is saved or unsaved. The method +unobtrusively+ provides this service. When opening a workbook unobtrusively, its status remains unchanged. This status includes, whether the book is opened or closed, saved or unsaved, readonly or writable. 
 
 Options are +:if_closed+, +:read_only+, +:use_readonly_excel+, +:keep_open, +:visible+
 
@@ -109,9 +108,9 @@ Returning the value of a cell or range that has a with a defined name.
 
   book.nvalue(name)
 
-=== Alive?.
+=== Checking whether the workbook is alive.
 
-Checking whether the referenced Excel workbook responds to methods.
+This method finds out whether the Excel workbook that is referenced by the Book object responds to methods.
 
   if book.alive? then sheet = book[0] end
 

@@ -116,7 +116,7 @@ describe Book do
       end
     end
 
-    context "with transperency identity" do
+    context "with identity transperence" do
 
       before do
         @book = Book.open(@simple_file)
@@ -128,19 +128,19 @@ describe Book do
 
       it "should yield identical Book objects for identical Excel books" do
         book2 = Book.open(@simple_file)
-        book2.should == @book
+        book2.should === @book
         book2.close
       end
 
       it "should yield different Book objects for different Excel books" do
         book2 = Book.open(@different_file)
-        book2.should_not == @book
+        book2.should_not === @book
         book2.close
       end
 
       it "should yield different Book objects when opened the same file in different Excel instances" do
         book2 = Book.open(@simple_file, :force_excel => :new)
-        book2.should_not == @book
+        book2.should_not === @book
         book2.close
       end
 
@@ -148,7 +148,7 @@ describe Book do
         @book.should be_alive
         @book.close
         book2 = Book.open(@simple_file)
-        book2.should == @book
+        book2.should === @book
         book2.should be_alive
         book2.close
       end
@@ -159,7 +159,7 @@ describe Book do
         Excel.close_all
         book2 = Book.open(@simple_file)
         book2.should be_alive
-        book2.should == @book
+        book2.should === @book
         book2.close
       end
 
@@ -169,7 +169,7 @@ describe Book do
         @book.close
         @book.should_not be_alive
         book2 = Book.open(@simple_file, :force_excel => :new)
-        book2.should_not == @book
+        book2.should_not === @book
         book2.should be_alive
         book2.excel.should_not == old_excel
         book2.close
@@ -181,7 +181,7 @@ describe Book do
         @book.close
         @book.should_not be_alive
         book2 = Book.open(@simple_file, :force_excel => new_excel)
-        book2.should_not == @book
+        book2.should_not === @book
         book2.should be_alive
         book2.excel.should == new_excel
         book2.excel.should_not == old_excel
@@ -194,7 +194,7 @@ describe Book do
         @book.close
         @book.should_not be_alive
         book2 = Book.open(@simple_file, :force_excel => old_excel)
-        book2.should == @book
+        book2.should === @book
         book2.should be_alive
         book2.excel.should == old_excel
         @book.should be_alive

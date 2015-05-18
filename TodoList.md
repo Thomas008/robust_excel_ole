@@ -4,7 +4,7 @@
 --- 2015.05-05 unobtrusively:  if_closed: hidden
 --- 2015-04-27 documentation: a crisp one and a detailed one, better examples
 --- 2015-04-02 set options: make it dry
---- 2015-04-17 acceptance test from Testschmiede
+--- 2015-04-17 acceptance tests
 
 ### quick
 

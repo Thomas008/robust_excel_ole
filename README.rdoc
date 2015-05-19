@@ -80,10 +80,6 @@ Identity transperence means that the same Book objects refer to the same Excel f
   reopened_book === book
   => true
 
-  book.alive?
-  => true
-
-
 === Saving a workbook.
 
   book.save
@@ -105,7 +101,7 @@ The method +unobtrusively+ enables the user to read or modify a workbook, no mat
 
 Options are +:if_closed+, +:read_only+, +:use_readonly_excel+, +:keep_open, +:visible+
 
-The option +:if_closed+ => +:hidden+ provokes that a closed book is opened unobtrusively in a separate Excel instance that is not visible and has no DisplayAlerts. Following closed books would be opened in this Excel instance as well with this option.
+The option +:if_closed+ => +:hidden+ provokes that a closed book is opened unobtrusively in a separate Excel instance that is not visible and has no DisplayAlerts. Any following closed book would be opened in this Excel instance as well when using this option.
 
   Book.unobtrusively('simple.xls', :if_closed => :hidden) do |book|
     # some modification
@@ -334,7 +330,7 @@ Reopening the book.
 
 The writable book is being prefered.  
 
-  reopened_book == book
+  reopened_book === book
   => true
 
 Opening another book.
@@ -353,8 +349,6 @@ Opening a book.
 Adding a copy of the first sheet after the second sheet.
 
   book.add_sheet(book[0], :as => 'Sheet1_copy', :after => book[1])
-
-Close the book.
 
 Opening a new book with the same name in a new Excel. Leave the book that contains unsaved changes in the old Excel.
 

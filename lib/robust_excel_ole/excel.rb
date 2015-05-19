@@ -82,12 +82,12 @@ module RobustExcelOle
       self.Hwnd
     end
 
-    # returns true, if the Excel instances are identical, false otherwise
+    # returns true, if the Excel instances are alive and identical, false otherwise
     def == other_excel
-      self.Hwnd == other_excel.Hwnd    if other_excel.is_a?(Excel)
+      self.Hwnd == other_excel.Hwnd    if other_excel.is_a?(Excel) && self.alive? && other_excel.alive?
     end
 
-    # returns true, if the Excel instances is alive, false otherwise
+    # returns true, if the Excel instances responds to VVA methods, false otherwise
     def alive?
       @excel.Name
       true

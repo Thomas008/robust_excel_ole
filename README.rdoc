@@ -43,7 +43,7 @@ The option +:if_obstructed+ => +:forget+ causes the old workbook to close such t
 
   book2 = Book.open('path/simple.xls', :if_obstructed => :forget)
 
-Opening another workbook with the same file name in the running Excel. With the option +:if_unsaved+ => +:accept+  the workbook remains open if it contains unsaved changes.
+Opening another workbook with the same file name in the running Excel. The option +:if_unsaved+ => +:accept+  has the effect that if the workbook contains unsaved changes, then the workbook remains open, but no error is raised, i.e. the program can continue.
 
   book3 = Book.open('simple.xls', :if_unsaved => :accept)
 
@@ -70,6 +70,9 @@ The workbooks can be reopened after closing them. Example:
 robust_excel_ole provides identity transperence. This means that the same Book objects refer to the same Excel files, and vice versa.
 
   reopened_book === book
+  => true
+
+  book.alive?
   => true
 
 

@@ -109,6 +109,12 @@ module RobustExcelOle
         @excel1.should_not == nil
       end
 
+      it "should be false with dead Excel objects" do
+        excel2 = Excel.current
+        Excel.close_all
+        excel2.should_not == @excel1
+      end
+
     end
 
     context "with Visible and DisplayAlerts" do

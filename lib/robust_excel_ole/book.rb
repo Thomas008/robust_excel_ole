@@ -273,7 +273,7 @@ module RobustExcelOle
     #              true:  close it and open it as writable in the excel instance where it was open so far
     #              false (default)    open it as writable in another running excel instance, if it exists
     #                                in a new excel instance, otherwise
-    #  :visible:   Make the Excel instance of the book visible (default: false)
+    #  :visible:   set the visible value of the Excel instance, if this option is set
     #  :keep_open: let the book open after unobtrusively opening (default: false)
     def self.unobtrusively(file, opts = { })
       options = {

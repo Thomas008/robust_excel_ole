@@ -1250,52 +1250,55 @@ describe Book do
     end
 
     context "with visible" do
-       before do
-        @book1 = Book.open(@simple_file)
-      end
 
       after do
-        @book1.close(:if_unsaved => :forget)
+        @book1.close
       end    
 
-      it "should unobtrusively use a book invisible" do
+      it "should let the book invisible" do
+        @book1 = Book.open(@simple_file)
+        @book1.excel.Visible.should be_false
+        Book.unobtrusively(@simple_file) do |book| 
+          book.excel.Visible.should be_false
+        end
         @book1.excel.Visible.should be_false
         Book.unobtrusively(@simple_file, :visible => false) do |book| 
-          @book1.excel.Visible.should be_false
           book.excel.Visible.should be_false
-          sheet = book[0]
-          cell = sheet[0,0]
-          sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
-          sheet = book[0]
         end
         @book1.excel.Visible.should be_false
       end
       
-      it "should unobtrusively use a book visible" do
+      it "should let the book visible" do
+        @book1 = Book.open(@simple_file, :visible => true)
+        @book1.excel.Visible.should be_true
+        Book.unobtrusively(@simple_file) do |book| 
+          book.excel.Visible.should be_true
+        end
+        @book1.excel.Visible.should be_true
+        Book.unobtrusively(@simple_file, :visible => true) do |book| 
+          book.excel.Visible.should be_true
+        end
+        @book1.excel.Visible.should be_true
+      end
+
+      it "should make the book visible" do
+        @book1 = Book.open(@simple_file)
         @book1.excel.Visible.should be_false
         Book.unobtrusively(@simple_file, :visible => true) do |book| 
-          @book1.excel.Visible.should be_true
           book.excel.Visible.should be_true
-          sheet = book[0]
-          cell = sheet[0,0]
-          sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
-          sheet = book[0]
         end
         @book1.excel.Visible.should be_false
       end
 
-      it "should unobtrusively use a book invisible by default" do
-        @book1.excel.Visible.should be_false
-        Book.unobtrusively(@simple_file) do |book| 
-          @book1.excel.Visible.should be_false
-          book.excel.Visible.should be_false
-          sheet = book[0]
-          cell = sheet[0,0]
-          sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
-          sheet = book[0]
+      it "should make the book invisible" do
+        @book1 = Book.open(@simple_file, :visible => true)
+        @book1.excel.Visible.should be_true
+        Book.unobtrusively(@simple_file, :visible => false) do |book| 
+          book.excel.Visible.should be_true
         end
         @book1.excel.Visible.should be_false
       end
+
     end
 
     context "with several Excel instances" do

@@ -927,8 +927,8 @@ describe Book do
         Excel.close_all
         Book.unobtrusively(@simple_file, :keep_open => true) do |book|
           book.should be_a Book
-          #book.excel.should == @book.excel
-          #book.excel.should_not == excel
+          book.excel.should == @book.excel
+          book.excel.should_not == excel
           sheet = book[0]
           cell = sheet[0,0]
           sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
@@ -1338,8 +1338,8 @@ describe Book do
         Excel.close_all
         Book.unobtrusively(@simple_file) do |book| 
           book.ReadOnly.should == false
-          #book.excel.should_not == book1.excel
-          #book.excel.should_not == book2.excel
+          book.excel.should_not == book1.excel
+          book.excel.should_not == book2.excel
           sheet = book[0]
           cell = sheet[0,0]
           sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
@@ -1381,6 +1381,19 @@ describe Book do
           book.excel.Visible.should be_false
           book.excel.DisplayAlerts.should be_false
           book.excel.should == hidden_excel
+        end
+      end
+
+      it "should create a new hidden Excel instance if the Excel is closed" do
+        book1 = Book.open(@simple_file)
+        book1.close
+        Excel.close_all
+        Book.unobtrusively(@simple_file, :if_closed => :hidden) do |book| 
+          book.should be_a Book
+          book.should be_alive
+          book.excel.Visible.should be_false
+          book.excel.DisplayAlerts.should be_false
+          book.excel.should_not == book1.excel
         end
       end
     end

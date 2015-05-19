@@ -424,9 +424,6 @@ describe BookStore do
         book2.excel.should === h_excel2
         book2.excel.should_not === @book.excel
         book2.excel.should_not === book1.excel
-        #book3 = Book.unobtrusively(@simple_file, :if_closed => :hidden)
-        #book3.excel.should_not === h_excel
-        #book3.excel.should_not === @book.excel
       end
     end
   end

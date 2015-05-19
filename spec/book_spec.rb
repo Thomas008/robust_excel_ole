@@ -1281,7 +1281,7 @@ describe Book do
         @book1.excel.Visible.should be_true
       end
 
-      it "should make the book visible" do
+      it "should open the book unobtrusively visible" do
         @book1 = Book.open(@simple_file)
         @book1.excel.Visible.should be_false
         Book.unobtrusively(@simple_file, :visible => true) do |book| 
@@ -1290,13 +1290,13 @@ describe Book do
         @book1.excel.Visible.should be_false
       end
 
-      it "should make the book invisible" do
+      it "should open the book unobtrusively invisible" do
         @book1 = Book.open(@simple_file, :visible => true)
         @book1.excel.Visible.should be_true
         Book.unobtrusively(@simple_file, :visible => false) do |book| 
-          book.excel.Visible.should be_true
+          book.excel.Visible.should be_false
         end
-        @book1.excel.Visible.should be_false
+        @book1.excel.Visible.should be_true
       end
 
     end

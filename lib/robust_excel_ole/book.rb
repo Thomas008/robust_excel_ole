@@ -281,7 +281,6 @@ module RobustExcelOle
         :read_only => false,
         :use_readonly_excel => false,
         :keep_open => false,
-        :visible => false
       }.merge(opts)
       book = book_store.fetch(file, :prefer_writable => (not options[:read_only]))
       was_not_alive_or_nil = book.nil? || (not book.alive?)
@@ -293,7 +292,7 @@ module RobustExcelOle
                  (options[:if_closed] == :hidden ? open(file, :force_excel => book_store.hidden_excel) : open(file)) :
                (((not was_readonly) || options[:read_only]) ? book : 
                 (options[:use_readonly_excel] ? open(file, :force_excel => book.excel) : open(file, :force_excel => :new)))
-        book.excel.visible = options[:visible]       
+        book.excel.visible = opts[:visible] unless opts[:visible].nil?
         yield book
       ensure
         book.save if (was_not_alive_or_nil || was_saved || (was_readonly && (not options[:read_only]))) && (not book.saved)

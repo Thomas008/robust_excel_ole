@@ -1,8 +1,10 @@
 = RobustExcelOle
 
-robust_excel_ole processes Excel files, allows to perform all win32ole operations, 
-provides convenient methods for opening, saving, closing, and modifying Excel files.
-It implements an Excel file management system.
+robust_excel_ole implements methods for accessing Excel files using win32ole.  
+It provides convenient methods for opening, modifying, saving and closing Excel files.
+Furthermore all VBA methods can be sent. 
+
+robust_excel_ole manages open Excel workbooks and Excel instances.
 
 This is work in progress.
 
@@ -26,7 +28,7 @@ Example:
 Opening a workbook with a block. 
 The semantics is similar to, e.g.,  File.open.
 
-  Book.open('simple.xls') do |book|
+  Book.open('simp le.xls') do |book|
     # do something
   end
 
@@ -61,13 +63,19 @@ Closing the workbook and saving it before if it has unsaved changes.
 
 === Reopening workbooks.
 
-The workbooks can be reopened after closing them. Example:
+A special feature of robust_excel_ole is that it allows to reopening books after closing them.
 
   book = Book.open('simple.xls')
   book.close
   reopened_book = Book.open('simple.xls')
 
-robust_excel_ole provides identity transperence. This means that the same Book objects refer to the same Excel files, and vice versa.
+The closed book is now alive again, i.e. responds to Excel methods.
+
+ book.alive?
+  => true
+
+This feature is achieved by providing identity transperence and by storing the file name.
+Identity transperence means that the same Book objects refer to the same Excel files, and vice versa.
 
   reopened_book === book
   => true
@@ -93,11 +101,11 @@ Saving a workbook and overwriting the file if it exists before.
 
 === Unobtrusively opening a workbook
 
-Sometimes the user wants to read or modify a workbook, no matter if it is open in some Excel instance or not, is saved or unsaved. The method +unobtrusively+ provides this service. When opening a workbook unobtrusively, its status remains unchanged. This status includes, whether the book is opened or closed, saved or unsaved, readonly or writable. 
+The method +unobtrusively+ enables the user to read or modify a workbook, no matter if it is open in some Excel instance, if it is saved or unsaved, and if it is writable or not. When opening a workbook unobtrusively, its status remains unchanged. This status includes, whether the book is opened or closed, saved or unsaved, readonly or writable. 
 
 Options are +:if_closed+, +:read_only+, +:use_readonly_excel+, +:keep_open, +:visible+
 
-Example: Open a book unobtrusively in a hidden Excel if the book is not open. The hidden Excel is an Excel instance that is not visible and has no DisplayAlerts. 
+The option +:if_closed+ => +:hidden+ provokes that a closed book is opened unobtrusively in a separate Excel instance that is not visible and has no DisplayAlerts. Following closed books would be opened in this Excel instance as well with this option.
 
   Book.unobtrusively('simple.xls', :if_closed => :hidden) do |book|
     # some modification

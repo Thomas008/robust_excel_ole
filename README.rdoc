@@ -63,7 +63,7 @@ Closing the workbook and saving it before if it has unsaved changes.
 
 === Reopening workbooks.
 
-A special feature of robust_excel_ole is that it allows to reopening books after closing them.
+A special feature of robust_excel_ole is that it allows to reopen books after closing them.
 
   book = Book.open('simple.xls')
   book.close
@@ -71,11 +71,12 @@ A special feature of robust_excel_ole is that it allows to reopening books after
 
 The closed book is now alive again, i.e. responds to Excel methods.
 
- book.alive?
+ book.alive?pro
   => true
 
 This feature is achieved by providing identity transperence and by storing the file name.
 Identity transperence means that the same Book objects refer to the same Excel files, and vice versa.
+In other words, a Book objects is a proxy of an Excel file.
 
   reopened_book === book
   => true

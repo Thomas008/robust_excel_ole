@@ -71,7 +71,7 @@ A special feature of robust_excel_ole is that it allows to reopen books after cl
 
 The closed book is now alive again, i.e. responds to Excel methods.
 
- book.alive?pro
+ book.alive?
   => true
 
 This feature is achieved by providing identity transperence and by storing the file name.

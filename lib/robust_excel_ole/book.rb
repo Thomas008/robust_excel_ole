@@ -9,6 +9,7 @@ module RobustExcelOle
     attr_accessor :excel
     attr_accessor :workbook
     attr_accessor :stored_filename
+    attr_accessor :options
 
     class << self
       
@@ -46,14 +47,7 @@ module RobustExcelOle
       # if :default_excel is set, then DisplayAlerts and Visible are set only if these parameters are given
     
       def open(file, opts={ }, &block)
-        @options = {
-          :excel => :reuse,
-          :default_excel => :reuse,      
-          :if_unsaved    => :raise,
-          :if_obstructed => :raise,
-          :read_only => false
-        }.merge(opts)
-        #self.set_defaults(opts) ???
+        @options = defaults(opts)
         book = nil
         if (not (@options[:force_excel] == :new && (not @options[:if_locked] == :take_writable)))
           # if readonly is true, then prefer a book that is given in force_excel if this option is set
@@ -67,7 +61,7 @@ module RobustExcelOle
                 # condition: :if_unsaved is not set or :accept or workbook is not unsaved
                 if_unsaved_not_set_or_accept_or_workbook_saved = (@options[:if_unsaved] == :accept || @options[:if_unsaved] == :raise || (not book.workbook) || book.workbook.Saved)
                 if ((not book.alive?) || if_unsaved_not_set_or_accept_or_workbook_saved)
-                  book.set_defaults(opts)
+                  book.options = defaults(opts)
                   # if the book is opened with a different readonly mode in the same Excel, 
                   # close it and open the book with the new readonly mode
                   if (book.alive? && (not book.readonly == @options[:read_only]))
@@ -88,7 +82,7 @@ module RobustExcelOle
 
     def initialize(file, opts={ }, &block)
       raise ExcelErrorOpen, "file #{file} not found" unless File.exist?(file)
-      set_defaults(opts)
+      @options = defaults(opts)
       @file = file
       get_excel
       get_workbook
@@ -101,18 +95,21 @@ module RobustExcelOle
         end
       end
     end
-  
-    def set_defaults(opts)
-      @options = {
-        :excel => :reuse,
+    
+    def self.defaults(opts)
+      { :excel => :reuse,
         :default_excel => :reuse,
         :if_locked     => :readonly,       
         :if_unsaved    => :raise,
         :if_obstructed => :raise,
         :read_only => false
-      }.merge(opts)
+      }.merge(opts)  
     end
-    
+
+    def defaults(opts)
+      self.class.defaults(opts)
+    end
+
     def get_excel
       if @options[:excel] == :reuse
         @excel = Excel.new(:reuse => true)

@@ -1,8 +1,7 @@
 
 ### immediately
 
---- 2015.05-05 unobtrusively:  if_closed: hidden
---- 2015-04-27 documentation: a crisp one and a detailed one, better examples
+--- 2015-05-21 documentation: link to detailed, Book accessible in git hub
 --- 2015-04-02 set options: make it dry
 --- 2015-04-17 acceptance tests
 
@@ -26,6 +25,8 @@
 
 ### done
 
+--- 2015.05-05 unobtrusively:  if_closed: hidden
+--- 2015-04-27 documentation: a crisp one and a detailed one, better examples
 --- 2015-04-27 excel.rb: implement sucht that remove attr_writer
 --- 2015-04-17 unobtrusively: readonly
 --- 2015-04-27 tests for life cycle (weakrefs to books)

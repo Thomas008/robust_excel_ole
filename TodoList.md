@@ -2,6 +2,7 @@
 ### immediately
 
 --- 2015-05-21 documentation: link to detailed, Book accessible in git hub
+--- 2015-05-21 opening connected Excel files
 --- 2015-04-17 acceptance tests
 
 ### quick

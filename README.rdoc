@@ -432,6 +432,10 @@ The book is modified, but its status is unchanged.
   => true
 
 
+=== More Details
+
+For more details about usage: see link:Readme_detail_rdoc.html
+
 === Development
 
 robust_excel_ole started as a simple fork from tomiacannondale's wrap_excel adapted to Ruby 1.8.6.

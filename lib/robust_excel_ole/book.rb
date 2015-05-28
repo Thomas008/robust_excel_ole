@@ -263,8 +263,8 @@ module RobustExcelOle
 
     # modify a book such that its state (open/close, saved/unsaved, readonly/writable) remains unchanged.
     #  options: 
-    #  :if_closed :  :hidden          : open closed books in one separate Excel instance that is not visible and has no displayaslerts
-    #                :reuse (default) : open closed books in the Excel instance of the book, if it exists, reuse another Excel, otherwise         
+    #  :if_closed :  :hidden (default) : open closed books in one separate Excel instance that is not visible and has no displayaslerts
+    #                :reuse            : open closed books in the Excel instance of the book, if it exists, reuse another Excel, otherwise         
     #  :read_only: Open the book unobtrusively for reading only  (default: false)
     #  :use_readonly_excel:  if the book is opened only as ReadOnly and shall be modified, then
     #              true:  close it and open it as writable in the excel instance where it was open so far
@@ -274,7 +274,7 @@ module RobustExcelOle
     #  :keep_open: let the book open after unobtrusively opening (default: false)
     def self.unobtrusively(file, opts = { })
       options = {
-        :if_closed => :reuse,
+        :if_closed => :hidden,
         :read_only => false,
         :use_readonly_excel => false,
         :keep_open => false,

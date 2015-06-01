@@ -20,9 +20,10 @@ module RobustExcelOle
       # 
       # options: 
       # :default_excel   if the book was already open in an Excel instance, then open it there.
-      #                  Otherwise, i.e. if the book was not open before or the Excel instance
-      #                   :reuse (default) -> connect to a (the first opened) running Excel instance 
-      #                                       if it exists, open in a new Excel otherwise
+      #                  Otherwise, i.e. if the book was not open before or the Excel instance is not alive
+      #                   :reuse (default) -> connect to a (the first opened) running Excel instance,
+      #                                        excluding the hidden Excel instance, if it exists 
+      #                                       open in a new Excel instance, otherwise
       #                   :new             -> open in a new Excel instance
       #                   <instance>       -> open in the given Excel instance
       # :force_excel     no matter whether the book was already open
@@ -43,18 +44,23 @@ module RobustExcelOle
       #                  :new_excel           -> open the new book in a new Excel                  
       # :read_only     open in read-only mode         (default: false) 
       # :displayalerts enable DisplayAlerts in Excel  (default: false)
-      # :visible       make visibe in Excel           (default: false)
+      # :visible       make visible in Excel           (default: false)
       # if :default_excel is set, then DisplayAlerts and Visible are set only if these parameters are given
     
       def open(file, opts={ }, &block)
+        p "open:"
         @options = defaults(opts)
         book = nil
         if (not (@options[:force_excel] == :new && (not @options[:if_locked] == :take_writable)))
           # if readonly is true, then prefer a book that is given in force_excel if this option is set
           book = book_store.fetch(file, :prefer_writable => (not @options[:read_only]), :prefer_excel => (@options[:read_only] ? @options[:force_excel] : nil)) rescue nil
           if book
+            p "book found"
             if ((not @options[:force_excel]) || (@options[:force_excel] == book.excel))
-              if (not book.excel.alive?)
+              p "not force_excel:"
+              if ((not book.excel.alive?) || book.excel == book.book_store.get_hidden_excel)
+                p "hello"
+                p "book.excel == book.book_store.get_hidden_excel" if book.excel == book.book_store.get_hidden_excel
                 book.get_excel
               end
               if book.excel.alive?
@@ -273,6 +279,7 @@ module RobustExcelOle
     #  :visible:   set the visible value of the Excel instance, if this option is set
     #  :keep_open: let the book open after unobtrusively opening (default: false)
     def self.unobtrusively(file, opts = { })
+      p "unobtrusively:"
       options = {
         :if_closed => :hidden,
         :read_only => false,

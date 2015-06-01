@@ -1481,6 +1481,52 @@ describe Book do
           book.excel.should_not == book1.excel
         end
       end
+
+      it "should exclude hidden Excel when reuse in unobtrusively" do
+        book1 = Book.open(@simple_file)
+        book1.close
+        hidden_excel = nil
+        Book.unobtrusively(@simple_file, :if_closed => :hidden) do |book| 
+          book.should be_a Book
+          book.should be_alive
+          book.excel.Visible.should be_false
+          book.excel.DisplayAlerts.should be_false
+          book.excel.should_not == book1.excel
+          hidden_excel = book.excel
+        end
+        Book.unobtrusively(@simple_file, :if_closed => :reuse) do |book| 
+          book.should be_a Book
+          book.should be_alive
+          book.excel.Visible.should be_false
+          book.excel.DisplayAlerts.should be_false
+          book.excel.should_not == hidden_excel
+        end
+      end
+
+      it "should exclude hidden Excel when reuse in open" do
+        book1 = Book.open(@simple_file)
+        book1.close
+        hidden_excel = nil
+        Book.unobtrusively(@simple_file, :if_closed => :hidden) do |book| 
+          book.should be_a Book
+          book.should be_alive
+          book.excel.Visible.should be_false
+          book.excel.DisplayAlerts.should be_false
+          book.excel.should_not == book1.excel
+          hidden_excel = book.excel
+        end
+        book2 = Book.open(@simple_file, :default_excel => :reuse)
+        book2.excel.should_not == hidden_excel
+      end
+
+      it "should exclude hidden Excel when reuse in open" do
+        book1 = Book.open(@simple_file, :default_excel => :reuse)
+        book1.close
+        book2 = Book.open(@simple_file, :default_excel => :reuse)
+        book2.excel.should == book1.excel
+        book1.should be_alive
+        book2.close
+      end
     end
   end
 

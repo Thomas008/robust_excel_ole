@@ -407,7 +407,10 @@ describe BookStore do
       end
 
       it "should create and use a hidden Excel instance" do
+        h_excel0 = @bookstore.get_hidden_excel
+        h_excel0.should == nil
         h_excel1 = @bookstore.hidden_excel
+        h_excel1.should == @bookstore.get_hidden_excel
         h_excel1.should_not == @book.excel
         h_excel1.Visible.should be_false
         h_excel1.DisplayAlerts.should be_false
@@ -424,6 +427,12 @@ describe BookStore do
         book2.excel.should === h_excel2
         book2.excel.should_not === @book.excel
         book2.excel.should_not === book1.excel
+      end
+
+      it "should" do
+        h_excel1 = @bookstore.get_hidden_excel
+        h_excel1.should == nil
+        p "h_excel1: #{h_excel1}"
       end
     end
   end

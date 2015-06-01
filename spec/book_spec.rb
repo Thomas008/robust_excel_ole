@@ -603,12 +603,30 @@ describe Book do
     end      
     
     context "with non-existing file" do
+
       it "should raise an exception" do
         File.delete @simple_save_file rescue nil
         expect {
           Book.open(@simple_save_file, :if_absent => :raise)
         }.to raise_error(ExcelErrorOpen, "file #{@simple_save_file} not found")
       end
+
+      it "should create a workbook" do
+        File.delete @simple_save_file rescue nil
+        book = Book.open(@simple_save_file, :if_absent => :create)
+        book.should be_a Book
+        book.close
+        File.exist?(@simple_save_file).should be_true
+      end
+
+      it "should create a workbook by default" do
+        File.delete @simple_save_file rescue nil
+        book = Book.open(@simple_save_file, :if_absent => :create)
+        book.should be_a Book
+        book.close
+        File.exist?(@simple_save_file).should be_true
+      end
+
     end
 
     context "with attr_reader excel" do

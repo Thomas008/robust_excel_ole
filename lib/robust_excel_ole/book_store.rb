@@ -11,11 +11,11 @@ module RobustExcelOle
     end
 
     # returns a book with the given filename, if it was open once
-    # prefers open books to closed books, and among them, prefers more recently opened books
+    # prefers open books to closed books, and among them, prefers more recently opened books,
     # options: :prefer_writable   return the writable book, if it is open (default: true)
-    #                             return the book according to the preference order mentioned above, otherwise
-    #          :prefer_excel      return the book in the given excel instance, if it exists
-    #                             proceed according to prefer_writable otherwise
+    #                             otherwise return the book according to the preference order mentioned above
+    #          :prefer_excel      return the book in the given excel instance, if it exists,
+    #                             otherwise proceed according to prefer_writable 
     def fetch(filename, options = {:prefer_writable => true })
       filename_key = RobustExcelOle::canonize(filename)
       weakref_books = @filename2books[filename_key]
@@ -25,6 +25,8 @@ module RobustExcelOle
         if (not wr_book.weakref_alive?)
           @filename2books[filename_key].delete(wr_book)
         else
+          book = wr_book.__getobj__
+          next if wr_book.excel == get_hidden_excel
           if options[:prefer_excel] && wr_book.excel == options[:prefer_excel]
             result = wr_book
             break 

@@ -606,7 +606,7 @@ describe Book do
       it "should raise an exception" do
         File.delete @simple_save_file rescue nil
         expect {
-          Book.open(@simple_save_file)
+          Book.open(@simple_save_file, :if_absent => :raise)
         }.to raise_error(ExcelErrorOpen, "file #{@simple_save_file} not found")
       end
     end
@@ -739,7 +739,7 @@ describe Book do
         path = '~/Abrakadabra.xlsx'
         expected_path = Regexp.new(File.expand_path(path).gsub(/\//, "."))
         expect {
-          Book.open(path)
+          Book.open(path, :if_absent => :raise)
         }.to raise_error(ExcelErrorOpen, "file #{path} not found")
       end
     end

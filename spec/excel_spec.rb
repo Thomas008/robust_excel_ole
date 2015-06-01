@@ -8,8 +8,18 @@ module RobustExcelOle
 
   describe Excel do
 
-    before do
+    before(:all) do
       Excel.close_all
+    end
+
+    before do
+      @dir = create_tmpdir
+      @simple_file = @dir + '/simple.xls'
+    end
+
+    after do
+      Excel.close_all
+      rm_tmp(@dir)
     end
 
     context "excel creation" do
@@ -229,6 +239,18 @@ module RobustExcelOle
         @excel1.should == excel3
         @excel2.should == excel4
         excel3.should_not == excel4 
+      end
+    end
+
+    describe "generate workbook" do
+      context "with standard" do
+        before do
+          @excel1 = Excel.create
+        end
+        it "should" do
+          workbook = Excel.create.generate_workbook(@simple_file)
+          workbook.should be_a WIN32OLE
+        end
       end
     end
   end

@@ -29,7 +29,7 @@ module RobustExcelOle
           book = wr_book.__getobj__
           next if book.excel == try_hidden_excel
           if options[:prefer_excel] && book.excel == options[:prefer_excel]
-            result = wr_book
+            result = book
             break 
           end
           if book.alive?

@@ -217,10 +217,12 @@ Reading a cell from a range object.
   row_range[0]  => first cell in row_range
   column_range[1] => second cell in column_range
 
+Methods to cell are just delegated as VBA methods. Example:
+
 Reading the value of a cell.
 
   cell = sheet[0,0]
-  cell.value  => value of the cell.
+  cell.Value  => value of the cell.
 
 Writing a cell
 

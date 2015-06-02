@@ -335,9 +335,9 @@ describe Book do
         book2 = Book.open(@simple_file, :default_excel => :reuse)
         book2.should be_alive
         book2.should be_a Book
-        #book2.excel.should_not == excel
-        #book2.excel.should_not == new_excel2
-        #book2.excel.should == new_excel
+        book2.excel.should_not == excel
+        book2.excel.should_not == new_excel2
+        book2.excel.should == new_excel
         @book.should be_alive
         book2.should == @book
         book2.close

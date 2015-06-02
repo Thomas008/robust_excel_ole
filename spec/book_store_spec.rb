@@ -273,7 +273,7 @@ describe BookStore do
         @bookstore.store(@book2)
         @bookstore.store(@book3)
         sheet = @book3[0]
-        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+        sheet[0,0] = sheet[0,0].Value == "simple" ? "complex" : "simple"
         @book.ReadOnly.should be_true
         @book2.ReadOnly.should be_false
         @book3.ReadOnly.should be_true
@@ -352,7 +352,7 @@ describe BookStore do
         @book.ReadOnly.should be_false
         @book2.ReadOnly.should be_true
         book_new = @bookstore.fetch(@simple_file, :prefer_excel => @book2.excel)
-        #book_new.should be_a Book
+        book_new.should be_a Book
         book_new.should be_alive
         book_new.should == @book2
       end

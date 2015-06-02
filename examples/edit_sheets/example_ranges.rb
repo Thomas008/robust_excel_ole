@@ -20,7 +20,7 @@ begin
   cell = col_r[0]                    # access the first cell of these cells 
   puts "row range of 1st row: #{row_r.values}"                     # puts the values of the first row
   puts "1st and 2nd cell of the 1st column : #{col_r.values}"      # and the first two cells of the first column
-  puts "1st cell of these cells of the 1st columns: #{cell.value}" # and the first cell of the row range of the 1st row 
+  puts "1st cell of these cells of the 1st columns: #{cell.Value}" # and the first cell of the row range of the 1st row 
   
   i = 0
   row_r.values.each do |value|          # access the values of the first row 

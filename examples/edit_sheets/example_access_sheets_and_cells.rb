@@ -16,12 +16,12 @@ begin
   book = Book.open(simple_file)      # open a book
   sheet = book[0]                    # access a sheet via integer 
   cell = sheet[0,0]                  # access the first cell
-  puts "1st cell: #{cell.value}"     # put the value of the first cell
+  puts "1st cell: #{cell.Value}"     # put the value of the first cell
   sheet[0,0] = "complex"             # write a value into a cell
-  puts "new cell: #{sheet[0,0].value}"
+  puts "new cell: #{sheet[0,0].Value}"
   puts "all cells:"
   sheet.each do |cell|               # access all cells
-    puts "#{cell.value}"             #   for each row: for every column: put the value of the cells
+    puts "#{cell.Value}"             #   for each row: for every column: put the value of the cells
   end
   
   sheet_enum = proc do |enum_method|     # put each cell, each row or each column 
@@ -34,7 +34,7 @@ begin
         when :each_row    : "row"
         when :each_column : "column"
         end 
-      puts "#{item_name} #{i}: #{item.value}" # put values of the item of the sheet
+      puts "#{item_name} #{i}: #{item.Value}" # put values of the item of the sheet
     end
   end
 

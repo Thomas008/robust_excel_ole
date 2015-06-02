@@ -352,10 +352,26 @@ describe BookStore do
         @book.ReadOnly.should be_false
         @book2.ReadOnly.should be_true
         book_new = @bookstore.fetch(@simple_file, :prefer_excel => @book2.excel)
-        book_new.should be_a Book
+        #book_new.should be_a Book
         book_new.should be_alive
         book_new.should == @book2
       end
+    end
+
+    context "with hidden excel" do
+
+      before do
+        @book = Book.open(@simple_file)
+        @bookstore.store(@book)
+        @book.close     
+      end
+
+      it "should exclude hidden excel" do
+        Excel.close_all
+        h_excel = @bookstore.ensure_hidden_excel
+        book = @bookstore.fetch(@simple_file)
+        book.excel.should_not == h_excel
+      end  
     end
   end
   
@@ -407,96 +423,26 @@ describe BookStore do
       end
 
       it "should create and use a hidden Excel instance" do
-        h_excel0 = @bookstore.get_hidden_excel
+        h_excel0 = @bookstore.try_hidden_excel
         h_excel0.should == nil
-        h_excel1 = @bookstore.hidden_excel
-        h_excel1.should == @bookstore.get_hidden_excel
+        h_excel1 = @bookstore.ensure_hidden_excel
+        h_excel1.should == @bookstore.try_hidden_excel
         h_excel1.should_not == @book.excel
         h_excel1.Visible.should be_false
         h_excel1.DisplayAlerts.should be_false
-        book1 = Book.open(@simple_file, :force_excel => @bookstore.hidden_excel)
+        book1 = Book.open(@simple_file, :force_excel => @bookstore.ensure_hidden_excel)
         book1.excel.should === h_excel1
         book1.excel.should_not === @book.excel
         Excel.close_all    
-        h_excel2 = @bookstore.hidden_excel
+        h_excel2 = @bookstore.ensure_hidden_excel
         h_excel2.should_not == @book.excel
         h_excel2.should_not == book1.excel
         h_excel2.Visible.should be_false
         h_excel2.DisplayAlerts.should be_false
-        book2 = Book.open(@simple_file, :force_excel => @bookstore.hidden_excel)
+        book2 = Book.open(@simple_file, :force_excel => @bookstore.ensure_hidden_excel)
         book2.excel.should === h_excel2
         book2.excel.should_not === @book.excel
         book2.excel.should_not === book1.excel
-      end
-
-      it "should" do
-        h_excel1 = @bookstore.get_hidden_excel
-        h_excel1.should == nil
-        p "h_excel1: #{h_excel1}"
-      end
-    end
-  end
-
-  describe "excel_list" do
-
-    context "with no books" do
-      
-      it "should yield nil" do
-        @bookstore.excel_list.should == {}
-      end
-    
-    end
-
-    context "with open books" do
-    
-      before do
-        @book = Book.open(@simple_file)
-        @bookstore.store(@book)
-      end
-
-      after do
-        @book.close
-      end
-
-      it "should yield an excel and the workbook" do
-        excels = @bookstore.excel_list
-        excels.size.should == 1
-        excels.each do |excel,workbooks|
-          excel.should be_a Excel
-          workbooks.size.should == 1
-          workbooks.each do |workbook|
-            workbook.should == @book.workbook
-          end
-        end
-      end
-
-      it "should yield an excel with two books" do
-        book1 = Book.open(@different_file)
-        @bookstore.store(book1)
-        excels = @bookstore.excel_list
-        excels.size.should == 1
-        excels.each do |excel,workbooks|
-          excel.should be_a Excel
-          workbooks.size.should == 2
-          #workbooks[0].should == @book.workbook
-          #workbooks[1].should == book1.workbook
-        end
-      end
-
-      it "should yield two excels and two books" do
-        e = Excel.create
-        book1 = Book.open(@simple_file, :force_excel => :new)
-        @bookstore.store(book1)
-        excels = @bookstore.excel_list
-        excels.size.should == 2
-        num = 0
-        excels.each do |excel,workbooks|
-          num = num + 1
-          excel.should be_a Excel
-          workbooks.size.should == 1
-          #workbooks[0].should == @book.workbook if num == 1          
-          #workbooks[0].should == book1.workbook if num == 2
-        end
       end
     end
   end

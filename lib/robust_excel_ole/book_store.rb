@@ -11,7 +11,8 @@ module RobustExcelOle
     end
 
     # returns a book with the given filename, if it was open once
-    # prefers open books to closed books, and among them, prefers more recently opened books,
+    # prefers open books to closed books, and among them, prefers more recently opened books
+    # excludes hidden Excel instance
     # options: :prefer_writable   return the writable book, if it is open (default: true)
     #                             otherwise return the book according to the preference order mentioned above
     #          :prefer_excel      return the book in the given excel instance, if it exists,
@@ -26,21 +27,21 @@ module RobustExcelOle
           @filename2books[filename_key].delete(wr_book)
         else
           book = wr_book.__getobj__
-          next if wr_book.excel == get_hidden_excel
-          if options[:prefer_excel] && wr_book.excel == options[:prefer_excel]
+          next if book.excel == try_hidden_excel
+          if options[:prefer_excel] && book.excel == options[:prefer_excel]
             result = wr_book
             break 
           end
-          if wr_book.alive?
-            open_book = wr_book
-            break if ((not wr_book.readonly) && options[:prefer_writable])
+          if book.alive?
+            open_book = book
+            break if ((not book.readonly) && options[:prefer_writable])
           else
-            closed_book = wr_book
+            closed_book = book
           end
         end
       end
       result = result ? result : (open_book ? open_book : closed_book)
-      result.__getobj__ if result
+      result if result
     end
 
     # stores a book
@@ -56,31 +57,15 @@ module RobustExcelOle
     end
 
     # creates and returns a separate Excel instance with Visible and DisplayAlerts false
-    def hidden_excel
+    def ensure_hidden_excel
       unless (@hidden_excel_instance &&  @hidden_excel_instance.weakref_alive? && @hidden_excel_instance.__getobj__.alive?)       
         @hidden_excel_instance = WeakRef.new(Excel.create) 
       end
       @hidden_excel_instance.__getobj__
     end
 
-    def get_hidden_excel
+    def try_hidden_excel
       @hidden_excel_instance.__getobj__ if (@hidden_excel_instance &&  @hidden_excel_instance.weakref_alive? && @hidden_excel_instance.__getobj__.alive?)
-    end
-
-    # returns all excel instances and the workbooks that are open in them
-    # first: only the stored excel instances are considered
-    def excel_list
-      excel2books = Hash.new {|hash, key| hash[key] = [] }
-      if @filename2books
-        @filename2books.each do |filename,books|
-          if books
-            books.each do |book|
-              excel2books[book.excel] |= [book.workbook]
-            end
-          end
-        end
-      end
-      excel2books
     end
 
     # prints the book store

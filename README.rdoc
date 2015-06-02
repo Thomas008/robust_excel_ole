@@ -4,7 +4,7 @@ robust_excel_ole implements methods for accessing Excel files using win32ole.
 It provides convenient methods for opening, modifying, saving and closing Excel files.
 Furthermore all VBA methods can be sent. 
 
-robust_excel_ole manages open Excel workbooks and Excel instances.
+robust_excel_ole manages Excel workbooks that have been opened in several Excel instances.
 
 This is work in progress.
 
@@ -32,7 +32,7 @@ The semantics is similar to, e.g.,  File.open.
     # do something
   end
 
-Options are +:default_excel+, +:force_excel+, +:if_unsaved+, +:if_obstructed+, +:read_only+, +:visible+, +:displayalerts+. 
+Options are +:default_excel+, +:force_excel+, +:if_absent+, +:if_unsaved+, +:if_obstructed+, +:read_only+, +:visible+, +:displayalerts+. 
 
 Here are a few examples:
 

@@ -34,6 +34,7 @@ Options are the following:
 
 +:default_excel+::   open in the Excel instance used before if the book was once open (default: +reuse+)
 +:force_excel+::     open in a new or given Excel instance (defaut: +:new+)
++:if_absent+::       create a new workbook and save it if it does not exists (default: +create+)
 +:if_unsaved+::      specify behaviour if the book was unsaved (default: +new_excel+)
 +:if_obstructed+::   specidy behaviour if the book is blocked by another book (default: +new_excel+)
 +:read_only+::       open in read-only mode (default: +false+) 
@@ -54,6 +55,13 @@ No matter if the book was open before,
 
 +:new+:: Open in a new Excel.
 [instance]:: Open in a given Excel instance.
+
+The option +:if_absent  :
+
+If the Excel file does not exists, then
+
++:create+::   Create a new Excel file
++:raise+::    Raise an exception.
 
 The option +:if_unsaved+  : 
 

@@ -287,7 +287,6 @@ module RobustExcelOle
     #                                in a new excel instance, otherwise
     #  :keep_open: let the book open after unobtrusively opening (default: false)
     def self.unobtrusively(file, opts = { })
-      p "unobtrusively:"
       options = {
         :if_closed => :hidden,
         :read_only => false,

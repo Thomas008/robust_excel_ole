@@ -357,22 +357,6 @@ describe BookStore do
         book_new.should == @book2
       end
     end
-
-    context "with hidden excel" do
-
-      before do
-        @book = Book.open(@simple_file)
-        @bookstore.store(@book)
-        @book.close     
-      end
-
-      it "should exclude hidden excel" do
-        Excel.close_all
-        h_excel = @bookstore.ensure_hidden_excel
-        book = @bookstore.fetch(@simple_file)
-        book.excel.should_not == h_excel
-      end  
-    end
   end
   
   describe "book life cycle" do
@@ -444,6 +428,14 @@ describe BookStore do
         book2.excel.should_not === @book.excel
         book2.excel.should_not === book1.excel
       end
+
+      it "should exclude hidden excel" do
+        book1 = Book.open(@simple_file, :force_excel => @bookstore.ensure_hidden_excel)
+        @bookstore.store(book1)
+        book1.close
+        book2 = @bookstore.fetch(@simple_file)
+        book2.should == nil
+      end  
     end
   end
 end

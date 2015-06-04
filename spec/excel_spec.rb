@@ -243,13 +243,21 @@ module RobustExcelOle
     end
 
     describe "generate workbook" do
+
       context "with standard" do
+        
         before do
           @excel1 = Excel.create
         end
-        it "should" do
+
+        it "should generate a workbook" do
           workbook = Excel.create.generate_workbook(@simple_file)
           workbook.should be_a WIN32OLE
+          workbook.Name.should == File.basename(@simple_file)
+          workbook.FullName.should == RobustExcelOle::absolute_path(@simple_file)
+          workbook.Saved.should be_true
+          workbook.ReadOnly.should be_false
+          workbook.Sheets.Count == 1
         end
       end
     end

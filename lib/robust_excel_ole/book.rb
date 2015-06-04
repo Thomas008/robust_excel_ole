@@ -75,7 +75,7 @@ module RobustExcelOle
                   book.options = defaults(opts)
                   # if the book is opened as readonly and should be opened as writable
                   # close it and open the book with the new readonly mode
-                  book.close if (book.alive? && book.readonly && (not @options[:read_only]))
+                  book.close if (book.alive? && (not book.writable) && (not @options[:read_only]))
                   # reopen the book
                   book.get_workbook   
                 end
@@ -247,7 +247,7 @@ module RobustExcelOle
     #                      :forget          -> close the book 
     #                      :alert           -> give control to excel
     def close(opts = {:if_unsaved => :raise})
-      if ((alive?) && (not @workbook.Saved) && (not @workbook.ReadOnly)) then
+      if (alive? && (not @workbook.Saved) && writable) then
         case opts[:if_unsaved]
         when :raise
           raise ExcelErrorClose, "book is unsaved (#{File.basename(self.stored_filename)})"
@@ -298,19 +298,19 @@ module RobustExcelOle
       book = book_store.fetch(file, :prefer_writable => (not options[:read_only]))
       was_not_alive_or_nil = book.nil? || (not book.alive?)
       was_saved = was_not_alive_or_nil ? true : book.saved
-      was_readonly = book.readonly unless was_not_alive_or_nil
+      was_writable = book.writable unless was_not_alive_or_nil
       old_visible = (book && book.excel.alive?) ? book.excel.visible : false
       begin 
         book = was_not_alive_or_nil ? 
                  (options[:if_closed] == :hidden ? open(file, :force_excel => book_store.ensure_hidden_excel) : open(file)) :
-               (((not was_readonly) || options[:read_only]) ? book : 
+               ((was_writable || options[:read_only]) ? book : 
                 (options[:use_readonly_excel] ? open(file, :force_excel => book.excel) : open(file, :force_excel => :new)))
         book.excel.visible = opts[:visible] unless opts[:visible].nil?
         yield book
       ensure
-        book.save if (was_not_alive_or_nil || was_saved || (was_readonly && (not options[:read_only]))) && (not book.saved)
+        book.save if (was_not_alive_or_nil || was_saved || ((not was_writable) && (not options[:read_only]))) && (not book.saved)
         # book was open, readonly and shoud be modified
-        if (not was_not_alive_or_nil) && (not options[:read_only]) && was_readonly && options[:use_readonly_excel]
+        if (not was_not_alive_or_nil) && (not options[:read_only]) && (not was_writable) && options[:use_readonly_excel]
           open(file, :force_excel => book.excel, :if_obstructed => :new_excel, :read_only => true)
         end
         book.excel.visible = old_visible
@@ -354,8 +354,8 @@ module RobustExcelOle
       @workbook.Fullname.tr('\\','/') rescue nil
     end
 
-    def readonly
-      @workbook.ReadOnly if @workbook
+    def writable
+      (not @workbook.ReadOnly) if @workbook
     end
 
     def saved

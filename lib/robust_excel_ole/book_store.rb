@@ -34,7 +34,7 @@ module RobustExcelOle
           end
           if book.alive?
             open_book = book
-            break if ((not book.readonly) && options[:prefer_writable])
+            break if (book.writable && options[:prefer_writable])
           else
             closed_book = book
           end

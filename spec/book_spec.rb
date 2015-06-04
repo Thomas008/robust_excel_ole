@@ -673,7 +673,7 @@ describe Book do
         new_cell_value.should == old_cell_value
       end
 
-      it "should raise an error when trying to reopen the book as read_only while the writable book had unsaved changes" do
+      it "should not raise an error when trying to reopen the book as read_only while the writable book had unsaved changes" do
         book = Book.open(@simple_file, :read_only => false)
         book.ReadOnly.should be_false
         book.should be_alive
@@ -681,9 +681,10 @@ describe Book do
         old_cell_value = sheet[0,0].value        
         sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
         book.Saved.should be_false
-        expect{
-          new_book = Book.open(@simple_file, :read_only => true, :if_unsaved => :accept)
-        }.to raise_error(ExcelErrorClose, "book is unsaved (simple.xls)")
+        new_book = Book.open(@simple_file, :read_only => true, :if_unsaved => :accept)
+        new_book.ReadOnly.should be_false
+        new_book.Saved.should be_false
+        new_book.should == book
       end
 
       it "should reopen the book with writable in the same Excel instance (unsaved changes from readonly will not be saved)" do
@@ -712,9 +713,10 @@ describe Book do
         old_cell_value = sheet[0,0].value        
         sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
         book.Saved.should be_false
-        expect{
-          new_book = Book.open(@simple_file, :force_excel => book.excel, :read_only => true, :if_unsaved => :accept)
-        }.to raise_error(ExcelErrorClose, "book is unsaved (simple.xls)")
+        new_book = Book.open(@simple_file, :force_excel => book.excel, :read_only => true, :if_unsaved => :accept)
+        new_book.ReadOnly.should be_false
+        new_book.Saved.should be_false
+        new_book.should == book
       end
 
       it "should open the second book in another Excel as writable" do

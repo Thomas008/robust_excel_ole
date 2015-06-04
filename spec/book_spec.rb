@@ -41,13 +41,14 @@ describe Book do
         @book.should be_a Book
         @book.close
       end
-      
+
       it "create a new file" do
         File.delete @simple_save_file rescue nil
         Book.create(@simple_save_file)
-        expect {
-          Book.open(@simple_save_file, :if_absent => :raise)
-        }.to_not raise_error
+        book = Book.open(@simple_save_file, :if_absent => :raise)
+        book.should be_a Book
+        book.close
+        File.exist?(@simple_save_file).should be_true
       end
     end
 

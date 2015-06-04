@@ -212,7 +212,8 @@ module RobustExcelOle
 
     def open_or_create_workbook
       if (not File.exist?(@file))
-        @workbook = Excel.new(:reuse => true).generate_workbook(@file)
+        @workbook = self.class.create(@file)
+        #@workbook = Excel.new(:reuse => true).generate_workbook(@file)
         return
       end
       if ((not @workbook) || (@options[:if_unsaved] == :alert) || @options[:if_obstructed]) then
@@ -230,15 +231,13 @@ module RobustExcelOle
         rescue WIN32OLERuntimeError
           raise ExcelErrorOpen, "open: item error"
         end
-        #rescue BookStoreError => e
-        #  raise ExcelUserCanceled, "open: canceled by user: #{e}"
-        #end
       end
     end
 
     # generate, save and close an empty workbook
     def self.create(file)
       @workbook = Excel.new(:reuse => true).generate_workbook(file)
+      @workbook
     end
 
     # closes the book, if it is alive

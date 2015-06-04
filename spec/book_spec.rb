@@ -2149,8 +2149,6 @@ describe Book do
           }.to raise_error(ExcelErrorSheet, "sheet name already exists")
       end
     end
-
-
   end
 
   describe 'access sheet' do

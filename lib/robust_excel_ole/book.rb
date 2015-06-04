@@ -521,20 +521,4 @@ public
   class ExcelErrorSheet < ExcelError    # :nodoc: #
   end
 
-
 end
-
-
-__END__
-
-
-          class Object
-            def update_extracted hash, key
-              value = hash[param_name]
-              self.send("#{key}=", value) if value
-            end
-          end
-          @excel.visible = @options[:visible] if @options[:visible] 
-          @excel.displayalerts = @options[:dispayalerts]    
-          @excel.update_extracted(@options, [:visible, :dispayalerts])
-          @excel.options.merge(@options.extract(:visible, :dispayalerts))

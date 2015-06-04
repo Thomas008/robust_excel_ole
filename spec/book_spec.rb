@@ -34,14 +34,23 @@ describe Book do
 
   describe "create file" do
     context "with standard" do
-      it "simple file with default" do
+      it "open an existing file" do
         expect {
           @book = Book.new(@simple_file)
         }.to_not raise_error
         @book.should be_a Book
         @book.close
       end
+      
+      it "create a new file" do
+        File.delete @simple_save_file rescue nil
+        Book.create(@simple_save_file)
+        expect {
+          Book.open(@simple_save_file, :if_absent => :raise)
+        }.to_not raise_error
+      end
     end
+
   end
   
 

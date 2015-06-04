@@ -236,6 +236,11 @@ module RobustExcelOle
       end
     end
 
+    # generate, save and close an empty workbook
+    def self.create(file)
+      @workbook = Excel.new(:reuse => true).generate_workbook(file)
+    end
+
     # closes the book, if it is alive
     #
     # options:

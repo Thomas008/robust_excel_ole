@@ -285,7 +285,7 @@ module RobustExcelOle
     #  :read_only: Open the book unobtrusively for reading only  (default: false)
     #  :use_readonly_excel:  if the book is opened only as ReadOnly and shall be modified, then
     #              true:  close it and open it as writable in the excel instance where it was open so far
-    #              false (default)    open it as writable in another running excel instance, if it exists
+    #              false (default)    open it as writable in another running excel instance, if it exists,
     #                                in a new excel instance, otherwise
     #  :keep_open: let the book open after unobtrusively opening (default: false)
     def self.unobtrusively(file, opts = { })

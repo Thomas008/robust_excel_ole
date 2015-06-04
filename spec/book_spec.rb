@@ -1188,13 +1188,14 @@ describe Book do
         Book.unobtrusively(@simple_file, :use_readonly_excel => true) do |book|
           book.should be_a Book
           book.excel.should == book2.excel
+          book.ReadOnly.should be_false
           sheet = book[0]
           sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
           book.should be_alive
           book.Saved.should be_false          
         end  
         book2.Saved.should be_true
-        book2.ReadOnly.should be_true
+        book2.ReadOnly.should be_false
         @book.close
         book2.close
         book3 = Book.open(@simple_file)

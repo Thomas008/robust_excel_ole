@@ -59,23 +59,23 @@ module RobustExcelOle
       # if :default_excel is set, then DisplayAlerts and Visible are set only if these parameters are given
 
       def open(file, opts={ }, &block)
-        @options = defaults(opts)
+        current_options = DEFAULT_OPEN_OPTS.merge(opts)
         book = nil
-        if (not (@options[:force_excel] == :new && (not @options[:if_locked] == :take_writable)))
+        if (not (current_options[:force_excel] == :new && (not current_options[:if_locked] == :take_writable)))
           # if readonly is true, then prefer a book that is given in force_excel if this option is set
-          book = book_store.fetch(file, :prefer_writable => (not @options[:read_only]), 
-                                        :prefer_excel    => (@options[:read_only] ? @options[:force_excel] : nil)) rescue nil
+          book = book_store.fetch(file, :prefer_writable => (not current_options[:read_only]), 
+                                        :prefer_excel    => (current_options[:read_only] ? current_options[:force_excel] : nil)) rescue nil
           if book
-            if ((not @options[:force_excel]) || (@options[:force_excel] == book.excel))
+            if ((not current_options[:force_excel]) || (current_options[:force_excel] == book.excel))
               book.get_excel unless book.excel.alive?
               if book.excel.alive?
                 # condition: :if_unsaved is not set or :accept or workbook is not unsaved
-                if_unsaved_not_set_or_accept_or_workbook_saved = ([:accept,:raise].include?(@options[:if_unsaved]) || book.saved)
+                if_unsaved_not_set_or_accept_or_workbook_saved = ([:accept,:raise].include?(current_options[:if_unsaved]) || book.saved)
                 if ((not book.alive?) || if_unsaved_not_set_or_accept_or_workbook_saved)
-                  book.options = defaults(opts)
+                  book.options = DEFAULT_OPEN_OPTS.merge(opts)
                   # if the book is opened as readonly and should be opened as writable
                   # close it and open the book with the new readonly mode
-                  book.close if (book.alive? && (not book.writable) && (not @options[:read_only]))
+                  book.close if (book.alive? && (not book.writable) && (not current_options[:read_only]))
                   # reopen the book
                   book.get_workbook   
                 end
@@ -84,13 +84,13 @@ module RobustExcelOle
             end
           end
         end
-        @options[:excel] = @options[:force_excel] ? @options[:force_excel] : @options[:default_excel]
-        new(file, @options, &block)
+        current_options[:excel] = current_options[:force_excel] ? current_options[:force_excel] : current_options[:default_excel]
+        new(file, current_options, &block)
       end
     end
 
     def initialize(file, opts={ }, &block)
-      @options = defaults(opts)
+      @options = DEFAULT_OPEN_OPTS.merge(opts)
       @file = file      
       get_excel
       get_workbook
@@ -104,20 +104,6 @@ module RobustExcelOle
       end
     end
     
-    def self.defaults(opts)
-      { :excel => :reuse,
-        :default_excel => :reuse,
-        :if_locked     => :readonly,       
-        :if_unsaved    => :raise,
-        :if_obstructed => :raise,
-        :read_only => false
-      }.merge(opts)  
-    end
-
-    def defaults(opts)
-      self.class.defaults(opts)
-    end
-
     def get_excel
       if @options[:excel] == :reuse
         @excel = Excel.new(:reuse => true)

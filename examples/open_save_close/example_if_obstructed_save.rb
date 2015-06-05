@@ -10,8 +10,8 @@ include RobustExcelOle
 Excel.close_all
 begin
   dir = create_tmpdir
-  file_name = dir + 'simple.xls'
-  other_file_name = dir + 'more_data/simple.xls'
+  file_name = dir + 'workbook.xls'
+  other_file_name = dir + 'more_data/workbook.xls'
   book = Book.open(file_name, :visible => true)  # open a book, make Excel visible
   sleep 1
   sheet = book[0]

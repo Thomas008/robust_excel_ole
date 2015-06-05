@@ -9,7 +9,7 @@ include RobustExcelOle
 Excel.close_all
 begin
   dir = create_tmpdir
-  simple_file = dir + 'simple.xls'
+  simple_file = dir + 'workbook.xls'
   book = Book.open(simple_file, :visible => true)  # open a book, make Excel visible
   old_sheet = book[0]
   p "1st cell: #{old_sheet[0,0].value}"

@@ -31,8 +31,8 @@ module RobustExcelOle
       # :default_excel   if the book was already open in an Excel instance, then open it there.
       #                  Otherwise, i.e. if the book was not open before or the Excel instance is not alive
       #                   :reuse (default) -> connect to a (the first opened) running Excel instance,
-      #                                        excluding the hidden Excel instance, if it exists 
-      #                                       open in a new Excel instance, otherwise
+      #                                        excluding the hidden Excel instance, if it exists,
+      #                                       otherwise open in a new Excel instance.
       #                   :new             -> open in a new Excel instance
       #                   <instance>       -> open in the given Excel instance
       # :force_excel     no matter whether the book was already open
@@ -48,8 +48,8 @@ module RobustExcelOle
       #                  :raise (default)     -> raise an exception 
       #                  :forget              -> close the old book, open the new book
       #                  :save                -> save the old book, close it, open the new book
-      #                  :close_if_saved      -> close the old book and open the new book, if the old book is saved
-      #                                          raise an exception otherwise
+      #                  :close_if_saved      -> close the old book and open the new book, if the old book is saved,
+      #                                          otherwise raise an exception.
       #                  :new_excel           -> open the new book in a new Excel    
       # :if_absent       :create              -> creates a new Excel file, if it does not exists  
       #                  :raise               -> raises an exception     , if the file does not exists
@@ -271,8 +271,8 @@ module RobustExcelOle
     #  :read_only: Open the book unobtrusively for reading only  (default: false)
     #  :use_readonly_excel:  if the book is opened only as ReadOnly and shall be modified, then
     #              true:  close it and open it as writable in the excel instance where it was open so far
-    #              false (default)    open it as writable in another running excel instance, if it exists,
-    #                                in a new excel instance, otherwise
+    #              false (default)   open it as writable in another running excel instance, if it exists,
+    #                                otherwise open in a new excel instance.
     #  :keep_open: let the book open after unobtrusively opening (default: false)
     def self.unobtrusively(file, opts = { })
       options = {
@@ -348,7 +348,7 @@ module RobustExcelOle
       @workbook.Saved if @workbook
     end
 
-    # returns true, if the full book names and excel appications are identical, false, otherwise  
+    # returns true, if the full book names and excel appications are identical, false otherwise  
     def == other_book
       other_book.is_a?(Book) &&
       @excel == other_book.excel &&

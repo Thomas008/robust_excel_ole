@@ -10,8 +10,8 @@ include RobustExcelOle
 Excel.close_all
 begin
   dir = create_tmpdir
-  simple_file = dir + 'simple.xls'
-  simple_save_file = dir + 'simple_save.xls'
+  simple_file = dir + 'workbook.xls'
+  simple_save_file = dir + 'workbook_save.xls'
   File.delete simple_save_file rescue nil
   @book = Book.open(simple_file)      # open a book
 

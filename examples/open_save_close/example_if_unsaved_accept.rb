@@ -10,7 +10,7 @@ include RobustExcelOle
 Excel.close_all
 begin
   dir = create_tmpdir
-  file_name = dir + 'simple.xls' 
+  file_name = dir + 'workbook.xls' 
   book = Book.open(file_name)                      # open a book 
   sheet = book[0]                                                  # access a sheet
   sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple" # change a cell

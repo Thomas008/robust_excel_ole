@@ -21,12 +21,12 @@ This is work in progress.
 
 Example:
 
-  book = Book.open('simple.xls')
+  book = Book.open('workbook.xls')
 
 Open a book with a block. 
 The semantics is similar to, e.g.,  File.open.
 
-  Book.open('simple.xls') do |book|
+  Book.open('workbook.xls') do |book|
     # do something
   end
 
@@ -45,7 +45,7 @@ The option +:defaut_excel+  :
 
 If the book was open before, then open it in the Excel instance used before. If the book cannot be reopened, then
 
-+:reuse+:: Connect to a running Excel, if it exists, open a new Excel otherwise.
++:reuse+:: Connect to a running Excel, if it exists, otherwise open a new Excel.
 +:new+:: Open in a new Excel.
 [instance]:: Open in a given Excel instance.
 
@@ -80,8 +80,8 @@ If a book with same name in a different path is open, then
 +:raise+::          Raise an exception. Don't open the book.
 +:forget+::         Close the old book, open the new book.
 +:save+::           Save the old book, close it, open the new book
-+:close_if_saved+:: Close the old book and open the new book, if the old book is saved, raise an exception otherwise
-+:new_excel+::        Open the new book in a new Excel instance.
++:close_if_saved+:: Close the old book and open the new book, if the old book is saved, otherwise raise an exception.
++:new_excel+::      Open the new book in a new Excel instance.
 
 The values :displayalerts and :visible are reached to the class Excel that controls opening and closing Excel instances.
 
@@ -111,7 +111,7 @@ Simple save.
 
 Saving a book with a file name.
 
-  book.save_as('another_simple.xls')
+  book.save_as('another_workbook.xls')
 
 Options are the following:
 
@@ -133,16 +133,16 @@ Sometimes the user wants to read and possibly modify a book, no matter if it is 
 Options are the following:
 
 +:if_closed+::  :hidden (default) : open closed books in one separate Excel instance that is not visible and has no displayaslerts
-                :reuse            : open closed books in the Excel instance of the book, if it exists, reuse another Excel, otherwise         
+                :reuse            : open closed books in the Excel instance of the book, if it exists, otherwise reuse another Excel
 +:read_only+:: Open the book unobtrusively for reading only  (default: false)
 +:use_readonly_excel+::  if the book is opened only as ReadOnly and shall be modified, then
                   true:  close it and open it as writable in the excel instance where it was open so far
-                  false (default)    open it as writable in another running excel instance, if it exists
-                                     in a new excel instance, otherwise
+                  false (default)    open it as writable in another running excel instance, if it exists, 
+                                     otherwise open in a new excel instance
 +:visible+::   Make the Excel instance of the book visible (default: false)
 +:keep_open+:: let the book open after unobtrusively opening (default: false)
 
-  Book.unobtrusively('simple.xls') do |book|
+  Book.unobtrusively('workbook.xls') do |book|
     # some modification
     sheet = book[0]
     sheet[0,0] = "c" 
@@ -314,7 +314,7 @@ Turning on and off in a block.
 
   excel = Excel.create
   excel.with_displayalerts true do
-    book = Book.open('simple.xls')
+    book = Book.open('workbook.xls')
   end
 
 === Closing all Excel instances.
@@ -331,7 +331,7 @@ Including robust_excel_ole.
 
 Opening a book.
 
-  book = Book.open('simple.xls')
+  book = Book.open('workbook.xls')
 
 Accessing a sheet via its name.
 
@@ -347,7 +347,7 @@ Saving the book.
 
 Saving the book with a different name, and overwrite if a file with this name exists.
 
-  book.save_as('different_simple.xls', :if_exists => :overwrite)
+  book.save_as('different_workbook.xls', :if_exists => :overwrite)
 
 Closing the book.
 
@@ -357,15 +357,15 @@ Closing the book.
 
 Opening a book.
 
-  book = Book.open('simple.xls')
+  book = Book.open('workbook.xls')
 
 Opening the book in a new Excel instance and make it visible.
 
-  new_book = Book.open('simple.xls', :force_excel => :new, :visible => true)
+  new_book = Book.open('workbook.xls', :force_excel => :new, :visible => true)
 
 Opening the book in a given Excel instance.
 
-  another_book = Book.open('simple.xls', :force_excel => book.excel)
+  another_book = Book.open('workbook.xls', :force_excel => book.excel)
 
 Closing the books.
 
@@ -375,7 +375,7 @@ Closing the books.
 
 Reopening the book.
 
-  reopened_book = Book.open('simple.xls')
+  reopened_book = Book.open('workbook.xls')
 
 The writable book is being prefered.  
 
@@ -393,7 +393,7 @@ According to :default_excel => :new a new Excel is created, and the book is open
 
 Opening a book.
 
-  book = Book.open('simple.xls')
+  book = Book.open('workbook.xls')
 
 Adding a copy of the first sheet after the second sheet.
 
@@ -403,7 +403,7 @@ Close the book.
 
 Opening a new book with the same name in a new Excel. Leave the book that contains unsaved changes in the old Excel.
 
-  new_book = Book.open('simple.xls', :if_unsaved => :new_excel)
+  new_book = Book.open('workbook.xls', :if_unsaved => :new_excel)
 
 Accessing a sheet and change a cell.
 
@@ -412,7 +412,7 @@ Accessing a sheet and change a cell.
 
 Opening another book with the same name in the running Excel. The book that contains unsaved changes will be closed before. 
 
-  third_book = Book.open('simple.xls', :if_unsaved => :forget)
+  third_book = Book.open('workbook.xls', :if_unsaved => :forget)
 
 Adding a sheet.
 
@@ -430,11 +430,11 @@ Closing the first book and saving it before.
 
 Opening a book.
 
-  book1 = Book.open('simple.xls')
+  book1 = Book.open('workbook.xls')
 
 Opening a book with the same name in a different path. Close the old book.
 
-  book2 = Book.open('more/simple.xls', :if_obstructed => :forget)
+  book2 = Book.open('more/workbook.xls', :if_obstructed => :forget)
 
 Changing its cell.
 
@@ -443,11 +443,11 @@ Changing its cell.
 
 Opening a book with the same name in a different path. The old book that was modified will be saved and closed before.
 
-  book3 = Book.open('simple.xls', :if_obstructed => :save)
+  book3 = Book.open('workbook.xls', :if_obstructed => :save)
 
 Opening a book with the same name in a different path. The other book will be closed, because it does not contain unsaved changes.
 
-  book4 = Book.open('more/simple.xls', :if_obstructed => :close_if_unsaved)
+  book4 = Book.open('more/workbook.xls', :if_obstructed => :close_if_unsaved)
 
 Closing the book.
 
@@ -458,7 +458,7 @@ Closing the book.
 
 Opening a book.
 
-  book = Book.open('simple.xls')
+  book = Book.open('workbook.xls')
 
 Printing its first cell.
 
@@ -467,7 +467,7 @@ Printing its first cell.
 
 Unobtrusively modify the book.
 
-  Book.unobtrusively('simple.xls') do |book|
+  Book.unobtrusively('workbook.xls') do |book|
     sheet = book[0]
     sheet[0,0] = 'simple'
   end

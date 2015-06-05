@@ -10,7 +10,7 @@ include RobustExcelOle
 Excel.close_all
 begin
   dir = create_tmpdir
-  simple_file = dir + 'simple.xls'
+  simple_file = dir + 'workbook.xls'
   book1 = Book.open(simple_file)            # open a book in a new Excel instance since no Excel is open
   book1.excel.visible = true                # make current Excel visible
   sleep 2

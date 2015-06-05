@@ -19,11 +19,11 @@ describe Book do
 
   before do
     @dir = create_tmpdir
-    @simple_file = @dir + '/simple.xls'
-    @simple_save_file = @dir + '/simple_save.xls'
-    @different_file = @dir + '/different_simple.xls'
-    @simple_file_other_path = @dir + '/more_data/simple.xls'
-    @more_simple_file = @dir + '/more_simple.xls'
+    @simple_file = @dir + '/workbook.xls'
+    @simple_save_file = @dir + '/workbook_save.xls'
+    @different_file = @dir + '/different_workbook.xls'
+    @simple_file_other_path = @dir + '/more_data/workbook.xls'
+    @more_simple_file = @dir + '/more_workbook.xls'
   end
 
   after do
@@ -1582,13 +1582,13 @@ describe Book do
       it "should raise an error if name not defined" do
         expect {
           value = @book1.nvalue("foo")
-        }.to raise_error(ExcelErrorNValue, "name foo not in more_simple.xls")
+        }.to raise_error(ExcelErrorNValue, "name foo not in more_workbook.xls")
       end
 
       it "should raise an error if name was defined but contents is calcuated" do
         expect {
           value = @book1.nvalue("named_formula")
-        }.to raise_error(ExcelErrorNValue, "range error in more_simple.xls")
+        }.to raise_error(ExcelErrorNValue, "range error in more_workbook.xls")
       end
     end
   end

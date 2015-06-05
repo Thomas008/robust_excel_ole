@@ -10,8 +10,8 @@ include RobustExcelOle
 Excel.close_all
 begin
   dir = create_tmpdir
-  file_name1 = dir + 'simple.xls'
-  file_name2 = dir + 'different_simple.xls'
+  file_name1 = dir + 'workbook.xls'
+  file_name2 = dir + 'different_workbook.xls'
   file_name3 = dir + 'book_with_blank.xls'
   file_name4 = dir + 'merge_cells.xls'
   book1 = Book.open(file_name1)            # open a book in a new Excel instance since no Excel is open

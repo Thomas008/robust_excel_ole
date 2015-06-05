@@ -47,10 +47,10 @@ describe BookStore do
   before do
     @bookstore = BookStore.new
     @dir = create_tmpdir
-    @simple_file = @dir + '/simple.xls'
-    @simple_save_file = @dir + '/simple_save.xls'
-    @different_file = @dir + '/different_simple.xls'
-    @simple_file_other_path = @dir + '/more_data/simple.xls'
+    @simple_file = @dir + '/workbook.xls'
+    @simple_save_file = @dir + '/workbook_save.xls'
+    @different_file = @dir + '/different_workbook.xls'
+    @simple_file_other_path = @dir + '/more_data/workbook.xls'
   end
 
   after do

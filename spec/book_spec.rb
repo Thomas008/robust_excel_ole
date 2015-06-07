@@ -51,10 +51,8 @@ describe Book do
         File.exist?(@simple_save_file).should be_true
       end
     end
-
   end
   
-
   describe "open" do
 
     context "standard use cases" do
@@ -663,7 +661,7 @@ describe Book do
         old_cell_value = sheet[0,0].value
         sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
         book.Saved.should be_false
-        new_book = Book.open(@simple_file, :read_only => false)
+        new_book = Book.open(@simple_file, :read_only => false, :if_unsaved => :accept)
         new_book.ReadOnly.should be_false 
         new_book.should be_alive
         book.should be_alive   
@@ -695,7 +693,7 @@ describe Book do
         old_cell_value = sheet[0,0].value
         sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
         book.Saved.should be_false
-        new_book = Book.open(@simple_file, :force_excel => book.excel, :read_only => false)
+        new_book = Book.open(@simple_file, :if_unsaved => :accept, :force_excel => book.excel, :read_only => false)
         new_book.ReadOnly.should be_false 
         new_book.should be_alive
         book.should be_alive   

@@ -66,21 +66,15 @@ module RobustExcelOle
           book = book_store.fetch(file, :prefer_writable => (not current_options[:read_only]), 
                                         :prefer_excel    => (current_options[:read_only] ? current_options[:force_excel] : nil)) rescue nil
           if book
-            if ((not current_options[:force_excel]) || (current_options[:force_excel] == book.excel))
+            if (((not current_options[:force_excel]) || (current_options[:force_excel] == book.excel)) &&
+                 (not (book.alive? && (not book.saved) && (not current_options[:if_unsaved] == :accept))))
+              book.options = DEFAULT_OPEN_OPTS.merge(opts)
               book.get_excel unless book.excel.alive?
-              if book.excel.alive?
-                # condition: :if_unsaved is not set or :accept or workbook is not unsaved
-                if_unsaved_not_set_or_accept_or_workbook_saved = ([:accept,:raise].include?(current_options[:if_unsaved]) || book.saved)
-                if ((not book.alive?) || if_unsaved_not_set_or_accept_or_workbook_saved)
-                  book.options = DEFAULT_OPEN_OPTS.merge(opts)
-                  # if the book is opened as readonly and should be opened as writable
-                  # close it and open the book with the new readonly mode
-                  book.close if (book.alive? && (not book.writable) && (not current_options[:read_only]))
-                  # reopen the book
-                  book.get_workbook   
-                end
-                return book if book.alive? && if_unsaved_not_set_or_accept_or_workbook_saved
-              end
+              # if the book is opened as readonly and should be opened as writable, then close it and open the book with the new readonly mode
+              book.close if (book.alive? && (not book.writable) && (not current_options[:read_only]))
+              # reopen the book
+              book.get_workbook unless book.alive?
+              return book
             end
           end
         end
@@ -163,7 +157,7 @@ module RobustExcelOle
             raise ExcelErrorOpen, ":if_obstructed: invalid option"
           end
         else
-          # book open, not obstructed by an other book, but not saved
+          # book open, not obstructed by an other book, but not saved and writable
           if (not @workbook.Saved) then
             case @options[:if_unsaved]
             when :raise

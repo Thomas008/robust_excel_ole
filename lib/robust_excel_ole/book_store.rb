@@ -24,7 +24,13 @@ module RobustExcelOle
       result = open_book = closed_book = nil      
       weakref_books.each do |wr_book|
         if (not wr_book.weakref_alive?)
-          @filename2books[filename_key].delete(wr_book)
+          puts "---------BEFORE DELETE #{@filename2books[filename_key].size}"
+          begin 
+            @filename2books[filename_key].delete(wr_book)
+          rescue
+            puts "Warning: deleting dead reference failed! (file: #{filename})"
+          end
+          puts "---------AFTER  DELETE #{@filename2books[filename_key].size}"
         else
           book = wr_book.__getobj__
           next if book.excel == try_hidden_excel

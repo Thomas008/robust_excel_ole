@@ -387,6 +387,10 @@ describe BookStore do
         book_new = Book.open(@different_file)
         @bookstore.store(book_new)
         @book = nil
+        @book = "Bla"
+        @book = Book.open(@simple_file)
+        @bookstore.store(@book)
+        @book = nil
         GC.start
         @bookstore.fetch(@simple_file).should == nil
         @bookstore.fetch(@different_file).should == book_new

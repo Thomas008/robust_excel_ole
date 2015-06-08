@@ -190,7 +190,7 @@ module RobustExcelOle
 
     def open_or_create_workbook
       if (not File.exist?(@file))
-        @workbook = self.class.create(@file)
+        @workbook = Excel.current.generate_workbook(file)
         #@workbook = Excel.new(:reuse => true).generate_workbook(@file)
         return
       end
@@ -210,12 +210,6 @@ module RobustExcelOle
           raise ExcelErrorOpen, "open: item error"
         end
       end
-    end
-
-    # generate, save and close an empty workbook
-    def self.create(file)
-      @workbook = Excel.new(:reuse => true).generate_workbook(file)
-      @workbook
     end
 
     # closes the book, if it is alive

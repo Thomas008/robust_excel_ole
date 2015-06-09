@@ -190,7 +190,7 @@ module RobustExcelOle
 
     def open_or_create_workbook
       if (not File.exist?(@file))
-        @workbook = Excel.current.generate_workbook(file)
+        @workbook = Excel.current.generate_workbook(@file)
         #@workbook = Excel.new(:reuse => true).generate_workbook(@file)
         return
       end
@@ -276,7 +276,7 @@ module RobustExcelOle
       old_visible = (book && book.excel.alive?) ? book.excel.visible : false
       begin 
         book = was_not_alive_or_nil ? 
-                 (options[:if_closed] == :hidden ? open(file, :force_excel => book_store.ensure_hidden_excel) : open(file)) :
+                 (options[:if_closed] == :hidden ? open(file, :force_excel => book_store.hidden_excel) : open(file)) :
                ((was_writable || options[:read_only]) ? book : 
                 (options[:use_readonly_excel] ? open(file, :force_excel => book.excel) : open(file, :force_excel => :new)))
         book.excel.visible = opts[:visible] unless opts[:visible].nil?

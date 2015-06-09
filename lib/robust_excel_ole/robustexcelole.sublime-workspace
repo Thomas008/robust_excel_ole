@@ -32,10 +32,26 @@
 	"buffers":
 	[
 		{
+			"file": "book_store.rb",
+			"settings":
+			{
+				"buffer_size": 3610,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/C/gim/ats/aSrc/gems/robust_excel_ole/spec/book_store_spec.rb",
+			"settings":
+			{
+				"buffer_size": 12744,
+				"line_ending": "Windows"
+			}
+		},
+		{
 			"file": "book.rb",
 			"settings":
 			{
-				"buffer_size": 2756,
+				"buffer_size": 19471,
 				"line_ending": "Windows"
 			}
 		}
@@ -249,10 +265,66 @@
 			[
 				{
 					"buffer": 0,
+					"file": "book_store.rb",
+					"settings":
+					{
+						"buffer_size": 3610,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								883,
+								883
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Ruby/Ruby.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 299.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "/C/gim/ats/aSrc/gems/robust_excel_ole/spec/book_store_spec.rb",
+					"settings":
+					{
+						"buffer_size": 12744,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								10605,
+								10605
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Ruby/Ruby.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 4865.0,
+						"zoom_level": 1.0
+					},
+					"type": "text"
+				},
+				{
+					"buffer": 2,
 					"file": "book.rb",
 					"settings":
 					{
-						"buffer_size": 2756,
+						"buffer_size": 19471,
 						"regions":
 						{
 						},
@@ -311,7 +383,7 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 301.0
+		"height": 185.0
 	},
 	"output.find_results":
 	{

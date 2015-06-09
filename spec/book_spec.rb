@@ -799,7 +799,7 @@ describe Book do
       end
 
       it "should create and use a hidden Excel instance" do
-        book2 = Book.open(@simple_file, :force_excel => @book.book_store.ensure_hidden_excel)
+        book2 = Book.open(@simple_file, :force_excel => @book.book_store.hidden_excel)
         book2.excel.should_not == @book.excel
         book2.excel.Visible.should be_false
         book2.excel.DisplayAlerts.should be_false

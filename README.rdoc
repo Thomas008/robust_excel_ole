@@ -442,7 +442,7 @@ The book is modified, but its status is unchanged.
 
 === More Details
 
-For more details about usage: see link:Readme_detail_rdoc
+For more details about usage: see link:Readme_detail.rdoc
 
 === Development
 

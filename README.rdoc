@@ -100,7 +100,7 @@ Saving a workbook and overwriting the file if it exists before.
 
 The method +unobtrusively+ enables the user to read or modify a workbook, no matter if it is open in some Excel instance, if it is saved or unsaved, and if it is writable or not. When opening a workbook unobtrusively, its status remains unchanged. This status includes, whether the book is opened or closed, saved or unsaved, readonly or writable. 
 
-Options are +:if_closed+, +:read_only+, +:use_readonly_excel+, +:keep_open, +:visible+
+Options are +:if_closed+, +:read_only+, +:use_readonly_excel+, and +:keep_open.
 
 The option +:if_closed+ => +:hidden+ provokes that a closed book is opened unobtrusively in a separate Excel instance that is not visible and has no DisplayAlerts. Any following closed book would be opened in this Excel instance as well when using this option.
 

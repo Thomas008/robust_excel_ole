@@ -847,6 +847,17 @@ describe Book do
           book.excel.should_not == new_excel
         end
       end
+
+      it "should open unobtrusively in a given Excel" do
+        excel = Excel.new(:reuse => false)
+        new_excel = Excel.new(:reuse => false)
+        Book.unobtrusively(@simple_file, :if_closed => new_excel) do |book|
+          book.should be_a Book
+          book.should be_alive
+          book.excel.should_not == excel
+        end
+      end
+
     end
 
     context "with an open book" do
@@ -1012,6 +1023,41 @@ describe Book do
           book.Saved.should be_false
         end
         @book.should_not be_alive
+        new_book = Book.open(@simple_file)
+        sheet = new_book[0]
+        sheet[0,0].value.should_not == old_cell_value
+      end
+
+      it "should use a given Excel" do
+        @book.close
+        excel = Excel.new(:reuse => false)
+        new_excel = Excel.new(:reuse => false)
+        Book.unobtrusively(@simple_file, :if_closed => new_excel) do |book|
+          book.should be_a Book
+          book.excel.should_not == @book.excel
+          book.excel.should == new_excel
+        end
+      end
+
+      it "should use not the given excel if the Excels are closed" do
+        excel = Excel.new(:reuse => false)
+        sheet = @book[0]
+        old_cell_value = sheet[0,0].value
+        old_excel = @book.excel
+        @book.close
+        @book.should_not be_alive
+        Excel.close_all
+        Book.unobtrusively(@simple_file, :if_closed => excel, :keep_open => true) do |book|
+          book.should be_a Book
+          book.excel.should_not == old_excel
+          book.excel.should == @book.excel
+          book.excel.should_not == excel
+          sheet = book[0]
+          cell = sheet[0,0]
+          sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
+          book.Saved.should be_false
+        end
+        @book.should be_alive
         new_book = Book.open(@simple_file)
         sheet = new_book[0]
         sheet[0,0].value.should_not == old_cell_value

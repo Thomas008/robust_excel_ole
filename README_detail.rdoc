@@ -133,6 +133,7 @@ Sometimes the user wants to read and possibly modify a book, no matter if it is 
 Options are the following:
 
 +:if_closed+::  :hidden (default) : open closed books in one separate Excel instance that is not visible and has no displayaslerts
+                <excel-instance>  : open closed books in the given Excel instance
                 :reuse            : open closed books in the Excel instance of the book, if it exists, otherwise reuse another Excel
 +:read_only+:: Open the book unobtrusively for reading only  (default: false)
 +:use_readonly_excel+::  if the book is opened only as ReadOnly and shall be modified, then

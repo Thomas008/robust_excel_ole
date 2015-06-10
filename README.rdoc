@@ -29,7 +29,7 @@ Example:
   book = Book.open('workbook.xls')
 
 Opening a workbook with a block. 
-The semantics is similar to, e.g.,  File.open.
+The semantics is similar to, e.g.,  +File.open+.
 
   Book.open('workbook.xls') do |book|
     # do something
@@ -37,11 +37,13 @@ The semantics is similar to, e.g.,  File.open.
 
 Options are 
   
-  +:default_excel+, +:force_excel+, +:if_absent+, +:if_unsaved+, +:if_obstructed+, +:read_only+, +:visible+, +:displayalerts+. 
+  +:default_excel+, +:force_excel+, +:if_absent+, +:if_unsaved+, +:if_obstructed+, 
+
+  +:read_only+, +:visible+, +:displayalerts+. 
 
 Here are a few examples:
 
-Opening a workbook in the Excel instance where it was opened before, or opening the workbook in a new Excel instance.
+Opening a workbook in the Excel instance where it was opened before, or opening the workbook in a new Excel instance if it was not opened before.
 
   book = Book.open('workbook.xls', :default_excel => :new)
 
@@ -50,11 +52,11 @@ Opening a workbook in a new Excel instance and make it visible.
   book = Book.open('workbook.xls', :force_excel => :new, :visible => true)
 
 If a workbook contains unsaved changes and a workbook with the same filename shall be opened, then Excel gives an alert message.
-The option +:if_unsaved+ manages this case. +:if_unsaved+ => +:accept+  indicates that the workbook remains open, but no error is raised, i.e. the program can continue.
+The option +:if_unsaved+ manages this case. For example, +:if_unsaved+ => +:accept+  indicates that the workbook remains open, but no error is raised, i.e. the program can continue.
 
   book = Book.open('workbook.xls', :if_unsaved => :accept)
 
-If a workbook is open and a workbook with the same name but in different path shall be opened, then the first workbook blocks opening the other workbook. The option +:if_obstructed+ => handles this situation. +:if_obstructed+ => +:forget+ causes the old workbook to close and to open the new workbook.
+If a workbook is open and a workbook with the same name but in different path shall be opened, then the first workbook blocks opening the other workbook. The option +:if_obstructed+ => handles this situation. For example, +:if_obstructed+ => +:forget+ causes the old workbook to close and to open the new workbook.
 
   book = Book.open('path/workbook.xls', :if_obstructed => :forget)
 

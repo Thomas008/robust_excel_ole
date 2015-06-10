@@ -27,8 +27,8 @@ Example:
 
   book = Book.open('workbook.xls')
 
-Open a workbook with a block. 
-The semantics is similar to, e.g.,  File.open.
+Opening a workbook with a block. 
+The semantics is similar to, e.g., +File.open+.
 
   Book.open('workbook.xls') do |book|
     # do something

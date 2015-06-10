@@ -495,7 +495,7 @@ module RobustExcelOle
   
 public
 
-  class ExcelErrorNValue < WIN32OLERuntimeError # :nodoc #
+  class ExcelErrorNValue < WIN32OLERuntimeError # :nodoc: #
   end
 
   class ExcelUserCanceled < RuntimeError # :nodoc: #

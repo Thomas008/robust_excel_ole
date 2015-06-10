@@ -15,7 +15,7 @@ $VERBOSE = nil
 include RobustExcelOle
 
 module RobustExcelOle
-  class MockBookstore
+  class MockBookstore # :nodoc: #
     def fetch(filename, options = { })
       nil
     end

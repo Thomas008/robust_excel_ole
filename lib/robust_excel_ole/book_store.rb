@@ -99,7 +99,7 @@ module RobustExcelOle
 
   end
 
-  class BookStoreError < WIN32OLERuntimeError
+  class BookStoreError < WIN32OLERuntimeError # :nodoc: #
   end
  
 end

@@ -1,7 +1,11 @@
 = RobustExcelOle
 
-robust_excel_ole processes Excel files, allows to perform all win32ole operations, 
-convenient methods for opening, saving and closing, and implements an Excel file management system.
+robust_excel_ole implements methods for accessing Excel files using win32ole.  
+It provides convenient methods for opening, modifying, saving and closing Excel files.
+Furthermore all VBA methods are deligated to Excel.
+
+robust_excel_ole can manage Excel workbooks that are open in several Excel instances.
+It allows to automatically perform Excel operations while the user can operate with Excel manually.
 
 This is work in progress.
 
@@ -17,13 +21,13 @@ This is work in progress.
 
   include RobustExcelOle
 
-=== Opening a book.
+=== Opening a workbook.
 
 Example:
 
   book = Book.open('workbook.xls')
 
-Open a book with a block. 
+Open a workbook with a block. 
 The semantics is similar to, e.g.,  File.open.
 
   Book.open('workbook.xls') do |book|
@@ -32,18 +36,18 @@ The semantics is similar to, e.g.,  File.open.
 
 Options are the following:
 
-+:default_excel+::   open in the Excel instance used before if the book was once open (default: +reuse+)
-+:force_excel+::     open in a new or given Excel instance (defaut: +:new+)
-+:if_absent+::       create a new workbook and save it if it does not exists (default: +create+)
-+:if_unsaved+::      specify behaviour if the book was unsaved (default: +new_excel+)
-+:if_obstructed+::   specidy behaviour if the book is blocked by another book (default: +new_excel+)
++:default_excel+::   open the workbook in the Excel instance where it was opened before if the book was once open, otherwise in a new or already used Excel instance (default: +reuse+)
++:force_excel+::     open the workbook in a new or given Excel instance (defaut: +:new+)
++:if_absent+::       specify behaviour if the workbook with the given file name does not exist if the workbook does not exist (default: +create+)
++:if_unsaved+::      specify behaviour if the workbook was unsaved (default: +new_excel+)
++:if_obstructed+::   specidy behaviour if the workbook is blocked by another book (default: +new_excel+)
 +:read_only+::       open in read-only mode (default: +false+) 
 +:displayalerts+::   allow display alerts in Excel (default: +false+)
 +:visible+::         make visibe in Excel (default: +false+)
 
 The option +:defaut_excel+  :
 
-If the book was open before, then open it in the Excel instance used before. If the book cannot be reopened, then
+If the workbook was open before, then open it in the Excel instance where it was open before. If the workbook cannot be reopened, then
 
 +:reuse+:: Connect to a running Excel, if it exists, otherwise open a new Excel.
 +:new+:: Open in a new Excel.
@@ -51,9 +55,9 @@ If the book was open before, then open it in the Excel instance used before. If 
 
 The option +:force_excel  :
 
-No matter if the book was open before,
+No matter if the workbook was open before,
 
-+:new+:: Open in a new Excel.
++:new+:: Open in a new Excel instance.
 [instance]:: Open in a given Excel instance.
 
 The option +:if_absent  :
@@ -65,45 +69,45 @@ If the Excel file does not exists, then
 
 The option +:if_unsaved+  : 
 
-If an unsaved book with the same name is open, then
+If a workbook contains unsaved changes and a new workbook with the same file name shall be opened, then
 
-+:raise+::   Raise an exeption. Don't open the book.
-+:accept+::  Let the unsaved book open.
-+:forget+::  Discard any changes and reopen the book.
-+:new_excel+:: Open the new book in a new Excel instance
++:raise+::   Raise an exeption. Don't open the workbook.
++:accept+::  Let the unsaved workbook open.
++:forget+::  Discard any changes and reopen the workbook.
++:new_excel+:: Open the new workbook in a new Excel instance
 +:alert+::   Give control to Excel.
 
 The option +:if_obstructed+ :
 
-If a book with same name in a different path is open, then
+If a workbook is open and a new workbook with same name and a different path is open, then
 
-+:raise+::          Raise an exception. Don't open the book.
-+:forget+::         Close the old book, open the new book.
-+:save+::           Save the old book, close it, open the new book
-+:close_if_saved+:: Close the old book and open the new book, if the old book is saved, otherwise raise an exception.
-+:new_excel+::      Open the new book in a new Excel instance.
++:raise+::          Raise an exception. Don't open the workbook.
++:forget+::         Close the old workbook, open the new workbook.
++:save+::           Save the old workbook, close it, open the new workbook
++:close_if_saved+:: Close the old workbook and open the new workbook, if the old workbook is saved, otherwise raise an exception.
++:new_excel+::      Open the new workbook in a new Excel instance.
 
 The values :displayalerts and :visible are reached to the class Excel that controls opening and closing Excel instances.
 
-=== Closing a book.
+=== Closing a workbook.
 
 Simple close.
 
   book.close
 
-The option is : +:if_unsaved+ . It can have one of the following values:
+There is one option: +:if_unsaved+ . It can have one of the following values:
 
 +:raise+ (default), +:save+, +:forget+, +:alert+
 
-The option specifies: If the book is unsaved, then
+The option specifies: If the workbook is unsaved, then
 
-+:save+::   Save the book before closing it.
-+:raise+::  Raise an exception. Don't close the book.
-+:forget+:: Close the book. 
++:save+::   Save the workbook before closing it.
++:raise+::  Raise an exception. Don't close the workbook.
++:forget+:: Close the workbook. 
 +:alert+::  Give control to Excel.
 
 
-=== Saving a book.
+=== Saving a workbook.
 
 Simple save.
 
@@ -126,21 +130,24 @@ If a book with the file name already exists, then
 +:alert+::     Give the control to Excel.
   
 
-=== Unobtrusively modifying a book
+=== Unobtrusively modifying a workbook
 
-Sometimes the user wants to read and possibly modify a book, no matter if it is open in some Excel instance or not, is saved or unsaved. The method +unobtrusively+ provides this service. When modifying a book unobtrusively, its status remains unchanged. This status includes, wheter the book is opened or closed, saved or unsaved, readonly or writable. If the books were closed and the Excel instance are still running, then the book is opened in the Excel instance where it was opened most recently or in a new Excel. This is relevant if the book has references to other books.
+The method +unobtrusively+ enables the user to read or modify a workbook, no matter if it is open in some Excel instance, if it is saved or unsaved, and if it is writable or not. When opening a workbook unobtrusively, its status remains unchanged. This status includes, whether the book is opened or closed, saved or unsaved, readonly or writable. 
+
+Options are +:if_closed+, +:read_only+, +:use_readonly_excel+, and +:keep_open.
+
+The option +:if_closed+ => +:hidden+ provokes that a closed book is opened unobtrusively in a separate Excel instance that is not visible and has no DisplayAlerts. Any following closed book would be opened in this Excel instance as well when using this option.
 
 Options are the following:
 
-+:if_closed+::  :hidden (default) : open closed books in one separate Excel instance that is not visible and has no displayaslerts
-                <excel-instance>  : open closed books in the given Excel instance
-                :reuse            : open closed books in the Excel instance of the book, if it exists, otherwise reuse another Excel
++:if_closed+::  :hidden (default) : open a closed workbooks in one separate Excel instance that is not visible and has no displayaslerts
+                <excel-instance>  : open a closed workbooks in the given Excel instance
+                :reuse            : open a closed workbooks in the Excel instance of the book, if it exists, otherwise reuse another Excel
 +:read_only+:: Open the book unobtrusively for reading only  (default: false)
 +:use_readonly_excel+::  if the book is opened only as ReadOnly and shall be modified, then
                   true:  close it and open it as writable in the excel instance where it was open so far
                   false (default)    open it as writable in another running excel instance, if it exists, 
                                      otherwise open in a new excel instance
-+:visible+::   Make the Excel instance of the book visible (default: false)
 +:keep_open+:: let the book open after unobtrusively opening (default: false)
 
   Book.unobtrusively('workbook.xls') do |book|
@@ -155,13 +162,11 @@ Returning the value of a cell or range that has a with a defined name.
 
   book.nvalue(name)
 
-=== Alive.
-
-Checking whether the referenced Excel workbook responds to methods.
+=== Checking whether the referenced Excel workbook responds to methods.
 
   if book.alive? then sheet = book[0] end
 
-=== Make an Excel visible or invisible, and enable and disable DisplayAlerts.
+=== Making an Excel visible or invisible, and enable and disable DisplayAlerts.
 
 Make an Excel visible
 

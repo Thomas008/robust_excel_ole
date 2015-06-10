@@ -2,9 +2,12 @@
 
 robust_excel_ole implements methods for accessing Excel files using win32ole.  
 It provides convenient methods for opening, modifying, saving and closing Excel files.
-Furthermore all VBA methods can be sent. 
+Furthermore all VBA methods are deligated to Excel.
 
-robust_excel_ole manages Excel workbooks that have been opened in several Excel instances.
+robust_excel_ole can manage Excel workbooks that are open in several Excel instances.
+It allows to automatically perform Excel operations while the user can operate with Excel manually.
+
+
 
 This is work in progress.
 
@@ -32,34 +35,38 @@ The semantics is similar to, e.g.,  File.open.
     # do something
   end
 
-Options are +:default_excel+, +:force_excel+, +:if_absent+, +:if_unsaved+, +:if_obstructed+, +:read_only+, +:visible+, +:displayalerts+. 
+Options are 
+  
+  +:default_excel+, +:force_excel+, +:if_absent+, +:if_unsaved+, +:if_obstructed+, +:read_only+, +:visible+, +:displayalerts+. 
 
 Here are a few examples:
+
+Opening a workbook in the Excel instance where it was opened before, or opening the workbook in a new Excel instance.
+
+  book = Book.open('workbook.xls', :default_excel => :new)
 
 Opening a workbook in a new Excel instance and make it visible.
 
   book = Book.open('workbook.xls', :force_excel => :new, :visible => true)
 
-Opening a workbook with the same name in a different path. 
-The option +:if_obstructed+ => +:forget+ causes the old workbook to close such that it does not block the new workbook anymore.
+If a workbook contains unsaved changes and a workbook with the same filename shall be opened, then Excel gives an alert message.
+The option +:if_unsaved+ manages this case. +:if_unsaved+ => +:accept+  indicates that the workbook remains open, but no error is raised, i.e. the program can continue.
 
-  book2 = Book.open('path/workbook.xls', :if_obstructed => :forget)
+  book = Book.open('workbook.xls', :if_unsaved => :accept)
 
-Opening another workbook with the same file name in the running Excel. The option +:if_unsaved+ => +:accept+  has the effect that if the workbook contains unsaved changes, then the workbook remains open, but no error is raised, i.e. the program can continue.
+If a workbook is open and a workbook with the same name but in different path shall be opened, then the first workbook blocks opening the other workbook. The option +:if_obstructed+ => handles this situation. +:if_obstructed+ => +:forget+ causes the old workbook to close and to open the new workbook.
 
-  book3 = Book.open('workbook.xls', :if_unsaved => :accept)
-
+  book = Book.open('path/workbook.xls', :if_obstructed => :forget)
 
 === Closing a workbook.
 
   book.close
 
-The option is : +:if_unsaved+. Example:
+There is one option: : +:if_unsaved+. Example:
 
 Closing the workbook and saving it before if it has unsaved changes.
 
   book.close(:if_unsaved => :save)
-
 
 === Reopening workbooks.
 
@@ -69,10 +76,7 @@ A special feature of robust_excel_ole is that it allows to reopen books after cl
   book.close
   reopened_book = Book.open('workbook.xls')
 
-The closed book is now alive again, i.e. responds to Excel methods.
-
- book.alive?
-  => true
+The closed book is now alive again, i.e. is open and responds to Excel methods.
 
 This feature is achieved by providing identity transperence and by storing the file name.
 Identity transperence means that the same Book objects refer to the same Excel files, and vice versa.
@@ -436,7 +440,7 @@ The book is modified, but its status is unchanged.
 
 === More Details
 
-For more details about usage: see link:Readme_detail_rdoc.html
+For more details about usage: see link:Readme_detail_rdoc
 
 === Development
 

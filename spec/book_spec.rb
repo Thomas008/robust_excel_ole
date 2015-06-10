@@ -459,7 +459,7 @@ describe Book do
           @key_sender.puts "{right}{enter}"
           expect{
             Book.open(@simple_file, :if_unsaved => :alert)
-            }.to raise_error(ExcelUserCanceled, "open: canceled by user")
+            }.to raise_error(ExcelErrorOpen, "open: user canceled or open error")
           @book.should be_alive
         end
       end

@@ -199,9 +199,9 @@ module RobustExcelOle
           filename = RobustExcelOle::absolute_path(@file)
           workbooks = @excel.Workbooks
           workbooks.Open(filename,{ 'ReadOnly' => @options[:read_only] })
-        rescue WIN32OLERuntimeError 
-          raise ExcelUserCanceled, "open: canceled by user"
-        end
+        rescue WIN32OLERuntimeError => msg 
+          raise ExcelErrorOpen, "open: user canceled or open error" if msg.message =~ /OLE error code:800A03EC/
+        end   
         begin
           # workaround for bug in Excel 2010: workbook.Open does not always return 
           # the workbook with given file name

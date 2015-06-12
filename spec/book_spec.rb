@@ -24,6 +24,7 @@ describe Book do
     @different_file = @dir + '/different_workbook.xls'
     @simple_file_other_path = @dir + '/more_data/workbook.xls'
     @more_simple_file = @dir + '/more_workbook.xls'
+    @connected_file = @dir + 'workbook_connected_sub.xlsm'
   end
 
   after do
@@ -45,6 +46,14 @@ describe Book do
   end
   
   describe "open" do
+
+    context "with connected workbook" do
+      it "should open connected workbook" do
+        book = Book.open(@connected_file, :visible => true)
+        sleep 5
+        book.close
+      end
+    end
 
     context "standard use cases" do
 

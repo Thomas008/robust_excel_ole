@@ -59,6 +59,7 @@ module RobustExcelOle
       # if :default_excel is set, then DisplayAlerts and Visible are set only if these parameters are given
 
       def open(file, opts={ }, &block)
+        p "open:"
         current_options = DEFAULT_OPEN_OPTS.merge(opts)
         book = nil
         if (not (current_options[:force_excel] == :new && (not current_options[:if_locked] == :take_writable)))
@@ -84,6 +85,7 @@ module RobustExcelOle
     end
 
     def initialize(file, opts={ }, &block)
+      p "initialize"
       @options = DEFAULT_OPEN_OPTS.merge(opts)
       @file = file      
       get_excel
@@ -99,6 +101,7 @@ module RobustExcelOle
     end
     
     def get_excel
+      p "get_excel"
       if @options[:excel] == :reuse
         @excel = Excel.new(:reuse => true)
       end
@@ -121,6 +124,7 @@ module RobustExcelOle
     end
 
     def get_workbook
+      p "get_workbook"
       raise ExcelErrorOpen, "file #{@file} not found" if ((not File.exist?(@file)) && @options[:if_absent] == :raise) 
       @workbook = @excel.Workbooks.Item(File.basename(@file)) rescue nil
       if @workbook then
@@ -189,16 +193,21 @@ module RobustExcelOle
     end
 
     def open_or_create_workbook
+      p "open_or_create_workbook"
       if (not File.exist?(@file))
+        p "here0"
         @workbook = Excel.current.generate_workbook(@file)
-        #@workbook = Excel.new(:reuse => true).generate_workbook(@file)
         return
       end
+      p "here1"
       if ((not @workbook) || (@options[:if_unsaved] == :alert) || @options[:if_obstructed]) then
         begin
+          p "here2"
           filename = RobustExcelOle::absolute_path(@file)
           workbooks = @excel.Workbooks
+          p "before"
           workbooks.Open(filename,{ 'ReadOnly' => @options[:read_only] })
+          p "after"
         rescue WIN32OLERuntimeError => msg 
           raise ExcelErrorOpen, "open: user canceled or open error" if msg.message =~ /OLE error code:800A03EC/
         end   

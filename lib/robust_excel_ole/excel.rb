@@ -62,7 +62,7 @@ module RobustExcelOle
       result
     end
 
-    def initialize(options= {}) # :nodoc:
+    def initialize(options= {}) # :nodoc: #
     end
 
     # generate, save and close an empty workbook
@@ -70,7 +70,15 @@ module RobustExcelOle
       self.Workbooks.Add                           
       empty_workbook = self.Workbooks.Item(1)          
       filename = RobustExcelOle::absolute_path(file_name)
-      empty_workbook.SaveAs(filename.gsub("/","\\"))  
+      begin
+        empty_workbook.SaveAs(filename.gsub("/","\\")) 
+      rescue WIN32OLERuntimeError => msg
+        if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
+          raise ExcelErrorSave, "could not save workbook with filename #{file_name}"
+        else
+          raise ExcelErrorSaveUnknown, "unknown WIN32OELERuntimeError with filename #{file_name}: \n#{msg.message}"
+        end      
+      end
       empty_workbook                               
     end
 
@@ -230,8 +238,4 @@ module RobustExcelOle
     end
 
   end  
-
-
-
-
 end

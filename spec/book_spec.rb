@@ -16,7 +16,6 @@ describe Book do
     Excel.close_all
   end
 
-
   before do
     @dir = create_tmpdir
     @simple_file = @dir + '/workbook.xls'
@@ -24,7 +23,7 @@ describe Book do
     @different_file = @dir + '/different_workbook.xls'
     @simple_file_other_path = @dir + '/more_data/workbook.xls'
     @more_simple_file = @dir + '/more_workbook.xls'
-    @connected_file = @dir + 'workbook_connected_sub.xlsm'
+    @connected_file = @dir + '/workbook_connected_sub.xlsm'
   end
 
   after do
@@ -49,7 +48,7 @@ describe Book do
 
     context "with connected workbook" do
       it "should open connected workbook" do
-        book = Book.open(@connected_file, :visible => true)
+        book = Book.open(@connected_file, :if_absent => :raise, :visible => true)
         sleep 5
         book.close
       end
@@ -629,7 +628,7 @@ describe Book do
 
       it "should create a workbook by default" do
         File.delete @simple_save_file rescue nil
-        book = Book.open(@simple_save_file, :if_absent => :create)
+        book = Book.open(@simple_save_file)
         book.should be_a Book
         book.close
         File.exist?(@simple_save_file).should be_true
@@ -1758,6 +1757,7 @@ describe Book do
   describe "save" do
 
     context "with simple save" do
+      
       it "should save for a file opened without :read_only" do
         @book = Book.open(@simple_file)
         @book.add_sheet(@sheet, :as => 'a_name')
@@ -1776,7 +1776,18 @@ describe Book do
         }.to raise_error(ExcelErrorSave, "Not opened for writing (opened with :read_only option)")
         @book.close
       end
+
+=begin
+      it "should raise error with invalid file name" do
+        @book = Book.open(@simple_file)
+        File.chmod("100","100",@simple_file)
+        expect {
+          @book.save
+        }.to raise_error(ExcelErrorSaveUnknown)
+        @book.close
+      end
     end
+=end
 
     context "with open with read only" do
       before do

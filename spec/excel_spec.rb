@@ -15,6 +15,7 @@ module RobustExcelOle
     before do
       @dir = create_tmpdir
       @simple_file = @dir + '/simple.xls'
+      @invalid_name_file = 'b/simple.xls'
     end
 
     after do
@@ -56,23 +57,17 @@ module RobustExcelOle
 
       it "should create different excel" do
         excel2 = Excel.create
-        #puts "@excel1 #{@excel1.Hwnd}"
-        #puts "excel2  #{excel2.Hwnd}"
         excel2.Hwnd.should_not == @excel1.Hwnd
       end
 
       it "should reuse existing excel" do
         excel2 = Excel.current
-        #puts "@excel1 #{@excel1.Hwnd}"
-        #puts "excel2  #{excel2.Hwnd}"
         excel2.Hwnd.should == @excel1.Hwnd
       end
 
       it "should reuse existing excel with default options for 'new'" do
         excel2 = Excel.new
         excel2.should be_a Excel
-        #puts "@excel1 #{@excel1.Hwnd}"
-        #puts "excel2  #{excel2.Hwnd}"
         excel2.Hwnd.should == @excel1.Hwnd
       end
 
@@ -173,7 +168,6 @@ module RobustExcelOle
 
     end
 
-
     context "with displayalerts" do
       before do
         @excel1 = Excel.new(:displayalerts => true)
@@ -251,18 +245,23 @@ module RobustExcelOle
         end
 
         it "should generate a workbook" do
-          excel = Excel.create
-          workbook = excel.generate_workbook(@simple_file)
-          p "workbook: #{workbook}"
+          workbook = @excel1.generate_workbook(@simple_file)
           workbook.should be_a WIN32OLE
           workbook.Name.should == File.basename(@simple_file)
           workbook.FullName.should == RobustExcelOle::absolute_path(@simple_file)
           workbook.Saved.should be_true
           workbook.ReadOnly.should be_false
           workbook.Sheets.Count == 1
-          workbooks = excel.Workbooks
+          workbooks = @excel1.Workbooks
           workbooks.Count.should == 1
         end
+
+        it "should raise error when book cannot be saved" do
+          expect{
+            workbook = @excel1.generate_workbook(@invalid_name_file)
+          }.to raise_error(ExcelErrorSaveUnknown)
+        end
+
       end
     end
   end
@@ -284,5 +283,5 @@ module RobustExcelOle
   end
 end
 
-class TestError < RuntimeError
+class TestError < RuntimeError  # :nodoc: #
 end

@@ -51,7 +51,7 @@ module RobustExcelOle
       #                  :close_if_saved      -> close the old book and open the new book, if the old book is saved,
       #                                          otherwise raise an exception.
       #                  :new_excel           -> open the new book in a new Excel    
-      # :if_absent       :create              -> creates a new Excel file, if it does not exists  
+      # :if_absent       :create (default)    -> creates a new Excel file, if it does not exists  
       #                  :raise               -> raises an exception     , if the file does not exists
       # :read_only     open in read-only mode         (default: false) 
       # :displayalerts enable DisplayAlerts in Excel  (default: false)
@@ -194,6 +194,7 @@ module RobustExcelOle
 
     def open_or_create_workbook
       p "open_or_create_workbook"
+      p "@file: #{@file}"
       if (not File.exist?(@file))
         p "here0"
         @workbook = Excel.current.generate_workbook(@file)
@@ -370,7 +371,15 @@ module RobustExcelOle
     def save
       raise ExcelErrorSave, "Not opened for writing (opened with :read_only option)" if @options[:read_only]
       if @workbook then
-        @workbook.Save 
+        begin
+          @workbook.Save 
+        rescue WIN32OLERuntimeError => msg
+          if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
+            raise ExcelErrorSave, "workbook not saved"
+          else
+            raise ExcelErrorSaveUnknown, "unknown WIN32OELERuntimeError:\n#{msg.message}"
+          end       
+        end
         true
       else
         nil

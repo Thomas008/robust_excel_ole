@@ -31,7 +31,6 @@ describe Book do
     rm_tmp(@dir)
   end
 
-
   describe "create file" do
     context "with standard" do
       it "open an existing file" do
@@ -48,8 +47,7 @@ describe Book do
 
     context "with connected workbook" do
       it "should open connected workbook" do
-        book = Book.open(@connected_file, :if_absent => :raise, :visible => true)
-        sleep 5
+        book = Book.open(@connected_file, :visible => true)
         book.close
       end
     end
@@ -1413,24 +1411,6 @@ describe Book do
         @book1.excel.Visible.should be_true
       end
 
-      it "should open the book unobtrusively visible" do
-        @book1 = Book.open(@simple_file)
-        @book1.excel.Visible.should be_false
-        Book.unobtrusively(@simple_file, :visible => true) do |book| 
-          book.excel.Visible.should be_true
-        end
-        @book1.excel.Visible.should be_false
-      end
-
-      it "should open the book unobtrusively invisible" do
-        @book1 = Book.open(@simple_file, :visible => true)
-        @book1.excel.Visible.should be_true
-        Book.unobtrusively(@simple_file, :visible => false) do |book| 
-          book.excel.Visible.should be_false
-        end
-        @book1.excel.Visible.should be_true
-      end
-
     end
 
     context "with several Excel instances" do
@@ -1777,17 +1757,7 @@ describe Book do
         @book.close
       end
 
-=begin
-      it "should raise error with invalid file name" do
-        @book = Book.open(@simple_file)
-        File.chmod("100","100",@simple_file)
-        expect {
-          @book.save
-        }.to raise_error(ExcelErrorSaveUnknown)
-        @book.close
-      end
     end
-=end
 
     context "with open with read only" do
       before do

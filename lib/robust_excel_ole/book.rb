@@ -197,10 +197,9 @@ module RobustExcelOle
         begin
           filename = RobustExcelOle::absolute_path(@file)
           workbooks = @excel.Workbooks
-          p "filename: #{filename}"
           workbooks.Open(filename,{ 'ReadOnly' => @options[:read_only] })
         rescue WIN32OLERuntimeError => msg
-          puts "msg: #{msg}" 
+          #puts "msg: #{msg}" 
           raise ExcelErrorOpen, "open: user canceled or open error" if msg.message =~ /OLE error code:800A03EC/
         end   
         begin
@@ -275,7 +274,6 @@ module RobustExcelOle
       was_not_alive_or_nil = book.nil? || (not book.alive?)
       was_saved = was_not_alive_or_nil ? true : book.saved
       was_writable = book.writable unless was_not_alive_or_nil
-      old_visible = (book && book.excel.alive?) ? book.excel.visible : false
       begin 
         book = 
           if was_not_alive_or_nil 
@@ -285,7 +283,17 @@ module RobustExcelOle
             when :reuse
               open(file)
             else 
-              options[:if_closed].alive? ? open(file, :force_excel => options[:if_closed]) : open(file)
+              excel_if_closed = options[:if_closed]
+              begin
+                is_alive = excel_if_closed.alive? 
+              rescue
+                raise ExcelErrorOpen, ":if_closed: invalid option"
+              end
+              if is_alive
+                open(file, :force_excel => excel_if_closed)
+              else
+                raise ExcelErrorOpen, "given excel instance is not alive"
+              end
             end
           else
             if was_writable || options[:read_only]
@@ -296,13 +304,12 @@ module RobustExcelOle
           end
         yield book
       ensure
-        book.save if (was_not_alive_or_nil || was_saved || ((not was_writable) && (not options[:read_only]))) && (not book.saved)
+        book.save if (was_not_alive_or_nil || was_saved || ((not was_writable) && (not options[:read_only]))) && (book && (not book.saved))
         # book was open, readonly and shoud be modified
         if (not was_not_alive_or_nil) && (not options[:read_only]) && (not was_writable) && options[:use_readonly_excel]
           open(file, :force_excel => book.excel, :if_obstructed => :new_excel, :read_only => true)
         end
-        book.excel.visible = old_visible
-        book.close if (was_not_alive_or_nil && (not opts[:keep_open]))
+        book.close if (was_not_alive_or_nil && (not opts[:keep_open]) && book)
       end
     end
 

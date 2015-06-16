@@ -865,6 +865,23 @@ describe Book do
         end
       end
 
+      it "should raise an error if the excel instance is not alive" do
+        excel = Excel.new(:reuse => false)
+        new_excel = Excel.new(:reuse => false)
+        Excel.close_all
+        expect{
+          Book.unobtrusively(@simple_file, :if_closed => new_excel) do |book|
+          end
+        }.to raise_error(ExcelErrorOpen, "given excel instance is not alive")
+      end
+
+      it "should raise an error if the option is invalid" do
+        expect{
+          Book.unobtrusively(@simple_file, :if_closed => :hidde) do |book|
+          end
+        }.to raise_error(ExcelErrorOpen, ":if_closed: invalid option")
+      end
+
     end
 
     context "with an open book" do
@@ -1045,32 +1062,7 @@ describe Book do
           book.excel.should == new_excel
         end
       end
-
-      it "should use not the given excel if the Excels are closed" do
-        excel = Excel.new(:reuse => false)
-        sheet = @book[0]
-        old_cell_value = sheet[0,0].value
-        old_excel = @book.excel
-        @book.close
-        @book.should_not be_alive
-        Excel.close_all
-        Book.unobtrusively(@simple_file, :if_closed => excel, :keep_open => true) do |book|
-          book.should be_a Book
-          book.excel.should_not == old_excel
-          book.excel.should == @book.excel
-          book.excel.should_not == excel
-          sheet = book[0]
-          cell = sheet[0,0]
-          sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
-          book.Saved.should be_false
-        end
-        @book.should be_alive
-        new_book = Book.open(@simple_file)
-        sheet = new_book[0]
-        sheet[0,0].value.should_not == old_cell_value
-      end
     end
-
 
     context "with a read_only book" do
 

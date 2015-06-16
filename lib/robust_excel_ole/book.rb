@@ -197,8 +197,10 @@ module RobustExcelOle
         begin
           filename = RobustExcelOle::absolute_path(@file)
           workbooks = @excel.Workbooks
+          p "filename: #{filename}"
           workbooks.Open(filename,{ 'ReadOnly' => @options[:read_only] })
-        rescue WIN32OLERuntimeError => msg 
+        rescue WIN32OLERuntimeError => msg
+          puts "msg: #{msg}" 
           raise ExcelErrorOpen, "open: user canceled or open error" if msg.message =~ /OLE error code:800A03EC/
         end   
         begin

@@ -76,6 +76,7 @@ module RobustExcelOle
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
           raise ExcelErrorSave, "could not save workbook with filename #{file_name}"
         else
+          # todo some time: find out when this occurs : 
           raise ExcelErrorSaveUnknown, "unknown WIN32OELERuntimeError with filename #{file_name}: \n#{msg.message}"
         end      
       end

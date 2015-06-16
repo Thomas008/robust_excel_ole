@@ -38,7 +38,6 @@ The semantics is similar to, e.g.,  +File.open+.
 Options are 
   
   +:default_excel+, +:force_excel+, +:if_absent+, +:if_unsaved+, +:if_obstructed+, 
-
   +:read_only+, +:visible+, +:displayalerts+. 
 
 Here are a few examples:
@@ -72,7 +71,7 @@ Closing the workbook and saving it before if it has unsaved changes.
 
 === Reopening workbooks.
 
-A special feature of robust_excel_ole is that it allows to reopen books after closing them.
+A special feature of robust_excel_ole is that it allows tog reopen books after closing them.
 
   book = Book.open('workbook.xls')
   book.close

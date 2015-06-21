@@ -5,9 +5,7 @@
 # the sheet's name shall be the name of the Excel name
 # in addition to that, the cell B2 shall be named "name" and get the sheet name as its value 
 
-# todos: global names
-# save the new workbook, keep the old one unchanged (we can copy only within one workbook)
-# avoid create_tmpdir
+# ??? for the global Excel names: which sheet shall be copied?
 
 require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
 require File.join(File.dirname(__FILE__), '../../spec/helpers/create_temporary_dir')
@@ -18,39 +16,35 @@ include RobustExcelOle
 begin
   Excel.close_all
   dir = create_tmpdir
-  workbook_name = 'workbook_named_filled_concat.xls'
+  workbook_name = 'workbook_named_filled_concat_global.xls'
   base_name, suffix = workbook_name.split(".")
   file_name = dir + "/" + workbook_name
   extended_file_name = dir + "/" + base_name + "_expanded" + "." + suffix
   Excel.current.generate_workbook(extended_file_name)
-  book_new = Book.open(extended_file_name, :visible => true)
-  sheet_new  = book_new[0]  
-  sheet_orig_names = []
+  Excel.close_all
+  book_orig = Book.open(file_name)
+  book_orig.save_as(extended_file_name, :if_exists => :overwrite)
+  book_orig.close
+  sheet_names = []
   excel = Excel.create
   excel.visible = true
-  Book.unobtrusively(file_name, :if_closed => excel, :keep_open => true) do |book_orig|     
-    p "file_name: #{file_name}"
-    # todo: global names
-    # for all local names
-    book_orig.each do |sheet_orig|
-      sheet_orig_names << sheet_orig.name 
-      sheet_orig.Names.each do |excel_name|        
+
+  Book.unobtrusively(extended_file_name, :if_closed => excel, :keep_open => true) do |book|     
+    p "file_name: #{extended_file_name}"
+    book.each do |sheet|
+      sheet_names << sheet.name 
+      sheet.Names.each do |excel_name|
         full_name = excel_name.Name
         sheet_name, short_name = full_name.split("!")
-        # we have to work in the same workbook, then save it as the new workbook and close it
-        sheet_new = book_orig.add_sheet(sheet_orig, :as => short_name)
+        sheet_new = book.add_sheet(sheet, :as => short_name)
         sheet_new.Names.Add("Name" => "name", "RefersTo" => "=" + "$B$2")
         sheet_new[1,1].Value = short_name
       end
     end
-    sheet_orig_names.each do |sheet_orig_name|
-      book_orig[sheet_orig_name].Delete()
+    sheet_names.each do |sheet_name|
+      book[sheet_name].Delete()
     end
   end
-
-  book_orig.save_as(extended_file_name)
-  #book_orig.close
-  book_new.close
 
 ensure
   #Excel.close_all

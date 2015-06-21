@@ -189,6 +189,8 @@ module RobustExcelOle
     end
 
     def open_or_create_workbook
+      p "open_or_create_workbook:"
+      p "file: #{@file}"
       if (not File.exist?(@file))
         @workbook = Excel.current.generate_workbook(@file)
         return
@@ -196,10 +198,11 @@ module RobustExcelOle
       if ((not @workbook) || (@options[:if_unsaved] == :alert) || @options[:if_obstructed]) then
         begin
           filename = RobustExcelOle::absolute_path(@file)
+          p "filename: #{filename}"
           workbooks = @excel.Workbooks
           workbooks.Open(filename,{ 'ReadOnly' => @options[:read_only] })
         rescue WIN32OLERuntimeError => msg
-          #puts "msg: #{msg}" 
+          puts "msg: #{msg}" 
           raise ExcelErrorOpen, "open: user canceled or open error" if msg.message =~ /OLE error code:800A03EC/
         end   
         begin

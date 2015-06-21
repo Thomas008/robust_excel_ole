@@ -5,18 +5,15 @@
 # the sheet's name shall be the name of the Excel name
 # in addition to that, the cell B2 shall be named "name" and get the sheet name as its value 
 
-# ??? for the global Excel names: which sheet shall be copied?
-
 require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
-require File.join(File.dirname(__FILE__), '../../spec/helpers/create_temporary_dir')
 require "fileutils"
 
 include RobustExcelOle
 
 begin
   Excel.close_all
-  dir = create_tmpdir
-  workbook_name = 'workbook_named_filled_concat_global.xls'
+  dir = "C:/data"
+  workbook_name = 'workbook_named_filled_concat.xls'
   base_name, suffix = workbook_name.split(".")
   file_name = dir + "/" + workbook_name
   extended_file_name = dir + "/" + base_name + "_expanded" + "." + suffix
@@ -26,11 +23,8 @@ begin
   book_orig.save_as(extended_file_name, :if_exists => :overwrite)
   book_orig.close
   sheet_names = []
-  excel = Excel.create
-  excel.visible = true
-
+  excel = Excel.new(:reuse => false, :visible => true)
   Book.unobtrusively(extended_file_name, :if_closed => excel, :keep_open => true) do |book|     
-    p "file_name: #{extended_file_name}"
     book.each do |sheet|
       sheet_names << sheet.name 
       sheet.Names.each do |excel_name|

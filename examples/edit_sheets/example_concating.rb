@@ -1,15 +1,16 @@
 # example_concatening.rb: 
 # each named cell gets the value of cell right to it appended to its own value
+# (and the names?)
 # the new workbook's name is extended by the suffix "_concat"
 
 require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
-require File.join(File.dirname(__FILE__), '../../spec/helpers/create_temporary_dir')
 require "fileutils"
 
 include RobustExcelOle
 
 begin
-  dir = create_tmpdir
+  Excel.close_all
+  dir = "C:/data"
   workbook_name = 'workbook_named_filled.xls'
   base_name, suffix = workbook_name.split(".")
   file_name = dir + "/" + workbook_name
@@ -17,7 +18,7 @@ begin
   Excel.current.generate_workbook(extended_file_name)
   book_new = Book.open(extended_file_name, :visible => true)
   sheet_new  = book_new[0]
-  excel = Excel.create
+  excel = Excel.new(:reuse => false, :visible => true)
   Book.unobtrusively(file_name, :if_closed => excel, :keep_open => true) do |book_orig|     
     sheet_orig = book_orig[0]
     sheet_orig.each do |cell_orig|      

@@ -489,7 +489,7 @@ describe Book do
       it "should raise an error, if :if_unsaved is invalid option" do
         expect {
           @new_book = Book.open(@simple_file, :if_unsaved => :invalid_option)
-        }.to raise_error(ExcelErrorOpen, ":if_unsaved: invalid option")
+        }.to raise_error(ExcelErrorOpen, ":if_unsaved: invalid option: invalid_option")
       end
     end
 
@@ -518,7 +518,7 @@ describe Book do
           it "should raise an error, if :if_obstructed is :raise" do
             expect {
               @new_book = Book.open(@simple_file, :if_obstructed => :raise)
-            }.to raise_error(ExcelErrorOpen, "blocked by a book with the same name in a different path")
+            }.to raise_error(ExcelErrorOpen, "blocked by a book with the same name in a different path: workbook.xls")
           end
 
           it "should close the other book and open the new book, if :if_obstructed is :forget" do
@@ -542,7 +542,7 @@ describe Book do
               if :if_obstructed is :close_if_saved" do
             expect{
               @new_book = Book.open(@simple_file, :if_obstructed => :close_if_saved)
-            }.to raise_error(ExcelErrorOpen, "book with the same name in a different path is unsaved")
+            }.to raise_error(ExcelErrorOpen, "book with the same name in a different path is unsaved: workbook.xls")
             @book.save
             @new_book = Book.open(@simple_file, :if_obstructed => :close_if_saved)
             @book.should_not be_alive
@@ -564,13 +564,13 @@ describe Book do
           it "should raise an error, if :if_obstructed is default" do
             expect {
               @new_book = Book.open(@simple_file)
-            }.to raise_error(ExcelErrorOpen, "blocked by a book with the same name in a different path")
+            }.to raise_error(ExcelErrorOpen, "blocked by a book with the same name in a different path: workbook.xls")
           end         
 
           it "should raise an error, if :if_obstructed is invalid option" do
             expect {
               @new_book = Book.open(@simple_file, :if_obstructed => :invalid_option)
-            }.to raise_error(ExcelErrorOpen, ":if_obstructed: invalid option")
+            }.to raise_error(ExcelErrorOpen, ":if_obstructed: invalid option: :invalid_option")
           end
         end
       end

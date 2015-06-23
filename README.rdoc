@@ -1,13 +1,15 @@
 = RobustExcelOle
 
-robust_excel_ole implements methods for accessing Excel files using win32ole.  
-It provides convenient methods for opening, modifying, saving and closing Excel files.
-Furthermore all VBA methods are deligated to Excel.
+robust_excel_ole helps to automate modifying and reading Excel files.
+This is done by sending VBA methods via Win32OLE.
+Moreover, robust_excel_ole implements a management system of Excel files and Excel instances and keeps track of all workbooks.
 
-robust_excel_ole can manage Excel workbooks that are open in several Excel instances.
-It allows to automatically perform Excel operations while the user can operate with Excel manually.
-
-
+Goals:
+- support both fully automated operations as well as simultaneous user interactions during the automation
+- be able to cope with all cases of Excel (and user) behaviour, encapsulate errors
+- provide convenient methods for frequent (common) tasks
+- support the use of simultaneously running Excel instances
+- allow the presence of referenced libraries and provide some support for that
 
 This is work in progress.
 
@@ -441,7 +443,7 @@ The book is modified, but its status is unchanged.
 
 === More Details
 
-For more details about usage: see link:README_detail.rdoc
+For more details about usage: see link:https://github.com/Thomas008/robust_excel_ole/blob/master/README_detail.rdoc
 
 === Development
 

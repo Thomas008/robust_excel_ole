@@ -1,6 +1,5 @@
 # example_concatening.rb: 
 # each named cell gets the value of cell right to it appended to its own value
-# (and the names?)
 # the new workbook's name is extended by the suffix "_concat"
 
 require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
@@ -25,7 +24,7 @@ begin
       name = cell_orig.Name.Name rescue nil
       if name
         sheet_new.Cells(cell_orig.Row,cell_orig.Column).Value = cell_orig.Value.to_s + cell_orig.Offset(0,1).Value.to_s
-        # take the names of the original workbook, as well?
+        #sheet_new.Cells(cell_orig.Row,cell_orig.Column).Value = "#{cell_orig.Value}#{cell_orig.Offset(0,1).Value}"
         sheet_new.Names.Add("Name" => name, "RefersTo" => "=" + cell_orig.Address) 
       end
     end

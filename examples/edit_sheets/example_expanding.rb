@@ -18,8 +18,7 @@ begin
   file_name = dir + "/" + workbook_name
   extended_file_name = dir + "/" + base_name + "_expanded" + "." + suffix
   Excel.current.generate_workbook(extended_file_name)
-  Excel.close_all
-  book_orig = Book.open(file_name)
+  Excel.close_all5jigfhghgy
   book_orig.save_as(extended_file_name, :if_exists => :overwrite)
   book_orig.close
   sheet_names = []
@@ -33,6 +32,8 @@ begin
         sheet_new = book.add_sheet(sheet, :as => short_name)
         sheet_new.Names.Add("Name" => "name", "RefersTo" => "=" + "$B$2")
         sheet_new[1,1].Value = short_name
+        sheet_new["name"] = short_name
+        book_new["name"] = short_name
       end
     end
     sheet_names.each do |sheet_name|

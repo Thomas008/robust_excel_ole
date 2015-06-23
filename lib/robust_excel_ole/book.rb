@@ -130,7 +130,7 @@ module RobustExcelOle
         if obstructed_by_other_book then
           case @options[:if_obstructed]
           when :raise
-            raise ExcelErrorOpen, "blocked by a book with the same name in a different path"
+            raise ExcelErrorOpen, "blocked by a book with the same name in a different path: #{File.basename(@file)}"
           when :forget
             @workbook.Close
             @workbook = nil
@@ -142,7 +142,7 @@ module RobustExcelOle
             open_or_create_workbook
           when :close_if_saved
             if (not @workbook.Saved) then
-              raise ExcelErrorOpen, "book with the same name in a different path is unsaved"
+              raise ExcelErrorOpen, "book with the same name in a different path is unsaved: #{File.basename(@file)}"
             else 
               @workbook.Close
               @workbook = nil
@@ -154,7 +154,7 @@ module RobustExcelOle
             @excel = Excel.new(@excel_options)
             open_or_create_workbook
           else
-            raise ExcelErrorOpen, ":if_obstructed: invalid option"
+            raise ExcelErrorOpen, ":if_obstructed: invalid option: #{@options[:if_obstructed]}"
           end
         else
           # book open, not obstructed by an other book, but not saved and writable
@@ -178,7 +178,7 @@ module RobustExcelOle
               @excel = Excel.new(@excel_options)
               open_or_create_workbook
             else
-              raise ExcelErrorOpen, ":if_unsaved: invalid option"
+              raise ExcelErrorOpen, ":if_unsaved: invalid option: #{@options[:if_unsaved]}"
             end
           end
         end
@@ -189,8 +189,6 @@ module RobustExcelOle
     end
 
     def open_or_create_workbook
-      p "open_or_create_workbook:"
-      p "file: #{@file}"
       if (not File.exist?(@file))
         @workbook = Excel.current.generate_workbook(@file)
         return
@@ -198,7 +196,6 @@ module RobustExcelOle
       if ((not @workbook) || (@options[:if_unsaved] == :alert) || @options[:if_obstructed]) then
         begin
           filename = RobustExcelOle::absolute_path(@file)
-          p "filename: #{filename}"
           workbooks = @excel.Workbooks
           workbooks.Open(filename,{ 'ReadOnly' => @options[:read_only] })
         rescue WIN32OLERuntimeError => msg

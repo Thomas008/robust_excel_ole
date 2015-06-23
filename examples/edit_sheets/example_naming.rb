@@ -12,7 +12,7 @@ begin
   Excel.close_all
   dir = "C:/data"
   # for some reason: does not work with workbook.xls
-  workbook_name = 'more_workbook.xls'
+  workbook_name = 'workbook.xls'
   base_name, suffix = workbook_name.split(".")
   file_name = dir + "/" + workbook_name
   extended_file_name = dir + "/" + base_name + "_named" + "." + suffix

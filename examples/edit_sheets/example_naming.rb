@@ -1,6 +1,6 @@
 # example_naming.rb: 
 # each cell is named with the name equaling its value unless it is empty or not a string
-# (and the contents is copied?)
+# the contents of each cell is copied
 # the new workbook's name is extended by the suffix "_named"
 
 require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
@@ -24,8 +24,11 @@ begin
     sheet_orig = book_orig[0]
     sheet_orig.each do |cell_orig|
       contents = cell_orig.Value
-      if contents && (contents.class == String)
-        sheet_new.Names.Add("Name" => contents, "RefersTo" => "=" + cell_orig.Address) 
+      if contents
+        sheet_new.Cells(cell_orig.Row,cell_orig.Column).Value = cell_orig.Value
+        if contents.class == String
+          sheet_new.Names.Add("Name" => contents, "RefersTo" => "=" + cell_orig.Address) 
+        end
       end
     end
   end

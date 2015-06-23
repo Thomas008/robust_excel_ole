@@ -235,7 +235,7 @@ module RobustExcelOle
             close_workbook
           end
         else
-          raise ExcelErrorClose, ":if_unsaved: invalid option"
+          raise ExcelErrorClose, ":if_unsaved: invalid option: #{opts[:if_unsaved]}"
         end
       else
         close_workbook
@@ -287,7 +287,7 @@ module RobustExcelOle
               begin
                 is_alive = excel_if_closed.alive? 
               rescue
-                raise ExcelErrorOpen, ":if_closed: invalid option"
+                raise ExcelErrorOpen, ":if_closed: invalid option: #{options[:if_closed]}"
               end
               if is_alive
                 open(file, :force_excel => excel_if_closed)
@@ -411,7 +411,7 @@ module RobustExcelOle
         when :raise
           raise ExcelErrorSave, "book already exists: #{File.basename(file)}"
         else
-          raise ExcelErrorSave, ":if_exists: invalid option"
+          raise ExcelErrorSave, ":if_exists: invalid option: #{@opts[:if_exists]}"
         end
       else
         save_as_workbook(file)

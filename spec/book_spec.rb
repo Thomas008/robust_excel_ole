@@ -570,7 +570,7 @@ describe Book do
           it "should raise an error, if :if_obstructed is invalid option" do
             expect {
               @new_book = Book.open(@simple_file, :if_obstructed => :invalid_option)
-            }.to raise_error(ExcelErrorOpen, ":if_obstructed: invalid option: :invalid_option")
+            }.to raise_error(ExcelErrorOpen, ":if_obstructed: invalid option: invalid_option")
           end
         end
       end
@@ -877,9 +877,9 @@ describe Book do
 
       it "should raise an error if the option is invalid" do
         expect{
-          Book.unobtrusively(@simple_file, :if_closed => :hidde) do |book|
+          Book.unobtrusively(@simple_file, :if_closed => :invalid_option) do |book|
           end
-        }.to raise_error(ExcelErrorOpen, ":if_closed: invalid option")
+        }.to raise_error(ExcelErrorOpen, ":if_closed: invalid option: invalid_option")
       end
 
     end
@@ -1664,6 +1664,13 @@ describe Book do
         end
       end
 
+      it "should raise an error for invalid option" do
+        expect {
+          @book.close(:if_unsaved => :invalid_option)
+        }.to raise_error(ExcelErrorClose, ":if_unsaved: invalid option: invalid_option") 
+      end
+
+
       it "should save the book before close with option :save" do
         ole_workbook = @book.workbook
         excel = @book.excel
@@ -1942,7 +1949,7 @@ describe Book do
           @book.save_as(@simple_save_file)
           expect {
             @book.save_as(@simple_save_file, :if_exists => :invalid_option)
-            }.to raise_error(ExcelErrorSave, ':if_exists: invalid option')
+            }.to raise_error(ExcelErrorSave, ':if_exists: invalid option: invalid_option')
         end
       end
     end

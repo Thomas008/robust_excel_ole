@@ -245,12 +245,20 @@ describe Book do
         book4.Readonly.should == true
         book4.should_not == book2 
         book4.close
+        book5 = Book.open(@simple_file, :force_excel => book2)
+        book5.should be_alive
+        book5.should be_a Book
+        book5.excel.should == book2.excel
+        book5.Readonly.should == true
+        book5.should_not == book2 
+        book5.close
         book3.close
       end
 
       it "should open in a given Excel, provide identity transparency, because book can be readonly, such that the old and the new book are readonly" do
         book2 = Book.open(@simple_file, :force_excel => :new)
         book2.excel.should_not == @book.excel
+        p "book2.excel: #{book2.excel}"
         book3 = Book.open(@simple_file, :force_excel => :new)
         book3.excel.should_not == book2.excel
         book3.excel.should_not == @book.excel
@@ -264,7 +272,28 @@ describe Book do
         book4.ReadOnly.should be_true
         book4.should == book2
         book4.close
+        book5 = Book.open(@simple_file, :force_excel => book2, :read_only => true)
+        book5.should be_alive
+        book5.should be_a Book
+        book5.excel.should == book2.excel
+        book5.ReadOnly.should be_true
+        book5.should == book2
+        book5.close
         book3.close
+      end
+
+      it "should open in a given Excel, provide identity transparency, because book can be readonly, such that the old and the new book are readonly" do
+        book2 = Book.open(@simple_file, :force_excel => :new)
+        book2.excel.should_not == @book.excel
+        book2.close
+        @book.close
+        book4 = Book.open(@simple_file, :force_excel => book2, :read_only => true)
+        book4.should be_alive
+        book4.should be_a Book
+        book4.excel.should == book2.excel
+        book4.ReadOnly.should be_true
+        book4.should == book2
+        book4.close
       end
 
       it "should do force_excel even if both force_ and default_excel is given" do
@@ -390,6 +419,17 @@ describe Book do
         @book.close
         new_excel = Excel.new(:reuse => false)
         book2 = Book.open(@different_file, :default_excel => @book.excel)
+        book2.should be_alive
+        book2.should be_a Book
+        book2.excel.should_not == new_excel
+        book2.excel.should == @book.excel
+        book2.close
+      end
+
+      it "should open a given excel, if the book cannot be reopened" do
+        @book.close
+        new_excel = Excel.new(:reuse => false)
+        book2 = Book.open(@different_file, :default_excel => @book)
         book2.should be_alive
         book2.should be_a Book
         book2.excel.should_not == new_excel
@@ -862,6 +902,18 @@ describe Book do
           book.should be_a Book
           book.should be_alive
           book.excel.should_not == excel
+          book.excel.should == new_excel
+        end
+      end
+
+      it "should open unobtrusively in a given Excel via a book" do
+        book1 = Book.open(@different_file)
+        book2 = Book.open(@more_simple_file, :force_excel => :new)
+        Book.unobtrusively(@simple_file, :if_closed => book2.excel) do |book|
+          book.should be_a Book
+          book.should be_alive
+          book.excel.should_not == book1.excel
+          book.excel.should == book2.excel
         end
       end
 
@@ -872,14 +924,14 @@ describe Book do
         expect{
           Book.unobtrusively(@simple_file, :if_closed => new_excel) do |book|
           end
-        }.to raise_error(ExcelErrorOpen, "given excel instance is not alive")
+        }.to raise_error(ExcelErrorOpen, "provided Excel instance is not alive")
       end
 
       it "should raise an error if the option is invalid" do
         expect{
           Book.unobtrusively(@simple_file, :if_closed => :invalid_option) do |book|
           end
-        }.to raise_error(ExcelErrorOpen, ":if_closed: invalid option: invalid_option")
+        }.to raise_error(ExcelErrorOpen, "provided instance is neither an Excel nor a Book: invalid_option")
       end
 
     end

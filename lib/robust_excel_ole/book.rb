@@ -34,10 +34,10 @@ module RobustExcelOle
       #                                        excluding the hidden Excel instance, if it exists,
       #                                       otherwise open in a new Excel instance.
       #                   :new             -> open in a new Excel instance
-      #                   <instance>       -> open in the given Excel instance
+      #                   <excel-instance> -> open in the given Excel instance
       # :force_excel     no matter whether the book was already open
       #                   :new (default)   -> open in a new Excel
-      #                   <instance>       -> open in the given Excel instance
+      #                   <excel-instance> -> open in the given Excel instance
       # :if_unsaved     if an unsaved book with the same name is open, then
       #                  :raise (default)              -> raise an exception
       #                  :forget              -> close the unsaved book, open the new book             
@@ -55,7 +55,7 @@ module RobustExcelOle
       #                  :raise               -> raises an exception     , if the file does not exists
       # :read_only     open in read-only mode         (default: false) 
       # :displayalerts enable DisplayAlerts in Excel  (default: false)
-      # :visible       make visible in Excel           (default: false)
+      # :visible       make visible in Excel          (default: false)
       # if :default_excel is set, then DisplayAlerts and Visible are set only if these parameters are given
 
       def open(file, opts={ }, &block)
@@ -63,10 +63,11 @@ module RobustExcelOle
         book = nil
         if (not (current_options[:force_excel] == :new && (not current_options[:if_locked] == :take_writable)))
           # if readonly is true, then prefer a book that is given in force_excel if this option is set
-          book = book_store.fetch(file, :prefer_writable => (not current_options[:read_only]), 
-                                        :prefer_excel    => (current_options[:read_only] ? current_options[:force_excel] : nil)) rescue nil
+          book = book_store.fetch(file, 
+                  :prefer_writable => (not current_options[:read_only]), 
+                  :prefer_excel    => (current_options[:read_only] ? Book.excel(current_options[:force_excel]) : nil)) rescue nil
           if book
-            if (((not current_options[:force_excel]) || (current_options[:force_excel] == book.excel)) &&
+            if (((not current_options[:force_excel]) || (Book.excel(current_options[:force_excel]) == book.excel)) &&
                  (not (book.alive? && (not book.saved) && (not current_options[:if_unsaved] == :accept))))
               book.options = DEFAULT_OPEN_OPTS.merge(opts)
               book.get_excel unless book.excel.alive?
@@ -110,6 +111,7 @@ module RobustExcelOle
           @excel = Excel.new(@excel_options)
         else
           @excel = @options[:excel]
+          @excel = Book.excel(@options[:excel])
         end
       end
       # if :excel => :new or (:excel => :reuse but could not reuse)
@@ -212,6 +214,19 @@ module RobustExcelOle
       end
     end
 
+  private
+  
+    # return an Excel.
+    # return the given instance if it is an Excel and alive. If the given instance is a Book then take the Excel of the Book
+    def self.excel(instance)
+      raise ExcelErrorOpen, "provided instance is neither an Excel nor a Book: #{instance}" unless instance.is_a?(Excel) || instance.is_a?(Book)
+      excel = instance.is_a?(Book) ? instance.excel : instance
+      raise ExcelErrorOpen, "provided Excel instance is not alive" unless excel.alive?
+      excel
+    end
+
+  public
+
     # closes the book, if it is alive
     #
     # options:
@@ -283,17 +298,7 @@ module RobustExcelOle
             when :reuse
               open(file)
             else 
-              excel_if_closed = options[:if_closed]
-              begin
-                is_alive = excel_if_closed.alive? 
-              rescue
-                raise ExcelErrorOpen, ":if_closed: invalid option: #{options[:if_closed]}"
-              end
-              if is_alive
-                open(file, :force_excel => excel_if_closed)
-              else
-                raise ExcelErrorOpen, "given excel instance is not alive"
-              end
+              open(file, :force_excel => Book.excel(options[:if_closed]))
             end
           else
             if was_writable || options[:read_only]

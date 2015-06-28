@@ -1609,8 +1609,10 @@ describe Book do
     end
   end
 
-  describe "nvalue" do
-    context "with standard" do
+  describe "nvalue, rename_range" do
+    
+    context "nvalue" do
+    
       before do
         @book1 = Book.open(@more_simple_file)
       end
@@ -1637,6 +1639,25 @@ describe Book do
         expect {
           value = @book1.nvalue("named_formula")
         }.to raise_error(ExcelErrorNValue, "range error in more_workbook.xls")
+      end
+    end
+
+    context "rename_range" do
+    
+      before do
+        @book1 = Book.open(@more_simple_file)
+      end
+
+      after do
+        @book1.close(:if_unsaved => :forget)
+      end
+
+      it "should rename a range" do
+        @book1.rename_range("four","five")
+        @book1.nvalue("five").should == [[1,2],[3,4]]
+        expect {
+          @book1.rename_range("four","five")
+        }.to raise_error(ExcelErrorRename, "name four not in more_workbook.xls")
       end
     end
   end

@@ -318,7 +318,24 @@ module RobustExcelOle
       end
     end
 
-    # returns the contents of a range or cell with given name
+    # rename a range
+    def rename_range(name,new_name)
+      begin
+        p "name: #{name}"
+        p "new_name: #{new_name}"
+        item = self.Names.Item(name)
+        p "nil" if item.nil?
+      rescue WIN32OLERuntimeError
+        raise ExcelErrorRename, "name #{name} not in #{File.basename(self.stored_filename)}"  
+      end
+      begin
+        item.Name = new_name
+      rescue WIN32OLERuntimeError
+        raise ExcelErrorRename, "name error in #{File.basename(self.stored_filename)}"      
+      end
+    end
+
+    # returns the contents of a range with given name
     def nvalue(name)
       begin
         item = self.Names.Item(name)
@@ -516,13 +533,13 @@ module RobustExcelOle
   
 public
 
-  class ExcelErrorNValue < WIN32OLERuntimeError # :nodoc: #
-  end
-
-  class ExcelUserCanceled < RuntimeError # :nodoc: #
-  end
-
   class ExcelError < RuntimeError    # :nodoc: #
+  end
+
+  class ExcelErrorOpen < ExcelError   # :nodoc: #
+  end
+
+  class ExcelErrorClose < ExcelError    # :nodoc: #
   end
 
   class ExcelErrorSave < ExcelError   # :nodoc: #
@@ -534,12 +551,15 @@ public
   class ExcelErrorSaveUnknown < ExcelErrorSave  # :nodoc: #
   end
 
-  class ExcelErrorOpen < ExcelError   # :nodoc: #
+  class ExcelErrorRename < WIN32OLERuntimeError # :nodoc: #
   end
 
-  class ExcelErrorClose < ExcelError    # :nodoc: #
+  class ExcelErrorNValue < WIN32OLERuntimeError # :nodoc: #
   end
 
+  class ExcelUserCanceled < RuntimeError # :nodoc: #
+  end
+  
   class ExcelErrorSheet < ExcelError    # :nodoc: #
   end
 

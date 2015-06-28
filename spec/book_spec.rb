@@ -1609,7 +1609,7 @@ describe Book do
     end
   end
 
-  describe "nvalue, rename_range" do
+  describe "nvalue, set_nvalue, rename_range" do
     
     context "nvalue" do
     
@@ -1639,6 +1639,22 @@ describe Book do
         expect {
           value = @book1.nvalue("named_formula")
         }.to raise_error(ExcelErrorNValue, "range error in more_workbook.xls")
+      end
+    end
+
+    context "set_nvalue" do
+    
+      before do
+        @book1 = Book.open(@more_simple_file)
+      end
+
+      after do
+        @book1.close(:if_unsaved => :forget)
+      end   
+
+      it "should set value of a range" do
+        @book1.set_nvalue("new","bar")
+        @book1.nvalue("new").should == "bar"
       end
     end
 

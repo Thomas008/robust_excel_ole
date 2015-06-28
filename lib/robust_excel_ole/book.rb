@@ -348,7 +348,26 @@ module RobustExcelOle
         raise ExcelErrorNValue, "range error in #{File.basename(self.stored_filename)}"      
       end
       begin
-        value = referstorange.Value
+        referstorange.Value
+      rescue WIN32OLERuntimeError
+        raise ExcelErrorNValue, "value error in #{File.basename(self.stored_filename)}" 
+      end
+    end
+
+    # set the contents of a range with given name
+    def set_nvalue(name,value) 
+      begin
+        item = self.Names.Item(name)
+      rescue WIN32OLERuntimeError
+        raise ExcelErrorNValue, "name #{name} not in #{File.basename(self.stored_filename)}"  
+      end
+      begin
+        referstorange = item.RefersToRange
+      rescue WIN32OLERuntimeError
+        raise ExcelErrorNValue, "range error in #{File.basename(self.stored_filename)}"      
+      end
+      begin
+        referstorange.Value = value
       rescue WIN32OLERuntimeError
         raise ExcelErrorNValue, "value error in #{File.basename(self.stored_filename)}" 
       end

@@ -3,7 +3,8 @@
 # the contents of each cell is copied
 # the new workbook's name is extended by the suffix "_named"
 
-require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
+require 'rubygems'
+require 'robust_excel_ole'
 require "fileutils"
 
 include RobustExcelOle
@@ -11,7 +12,6 @@ include RobustExcelOle
 begin
   Excel.close_all
   dir = "C:/data"
-  # for some reason: does not work with workbook.xls
   workbook_name = 'workbook.xls'
   base_name, suffix = workbook_name.split(".")
   file_name = dir + "/" + workbook_name

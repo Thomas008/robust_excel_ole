@@ -522,6 +522,9 @@ module RobustExcelOle
       new_sheet
     end        
 
+    def add_name name
+    end
+
     def self.book_store
       @@bookstore ||= BookStore.new
     end

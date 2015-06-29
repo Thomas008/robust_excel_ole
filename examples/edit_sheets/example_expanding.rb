@@ -5,7 +5,8 @@
 # the sheet's name shall be the name of the Excel name
 # in addition to that, the cell B2 shall be named "name" and get the sheet name as its value 
 
-require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
+require 'rubygems'
+require 'robust_excel_ole'
 require "fileutils"
 
 include RobustExcelOle
@@ -18,7 +19,7 @@ begin
   file_name = dir + "/" + workbook_name
   extended_file_name = dir + "/" + base_name + "_expanded" + "." + suffix
   Excel.current.generate_workbook(extended_file_name)
-  Excel.close_all5jigfhghgy
+  Excel.close_all
   book_orig.save_as(extended_file_name, :if_exists => :overwrite)
   book_orig.close
   sheet_names = []

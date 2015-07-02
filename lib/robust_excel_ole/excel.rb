@@ -69,15 +69,17 @@ module RobustExcelOle
     def generate_workbook file_name                  
       self.Workbooks.Add                           
       empty_workbook = self.Workbooks.Item(self.Workbooks.Count)          
-      filename = RobustExcelOle::absolute_path(file_name)
-      begin
-        empty_workbook.SaveAs(filename.gsub("/","\\")) 
-      rescue WIN32OLERuntimeError => msg
-        if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
-          raise ExcelErrorSave, "could not save workbook with filename #{file_name}"
-        else
-          # todo some time: find out when this occurs : 
-          raise ExcelErrorSaveUnknown, "unknown WIN32OELERuntimeError with filename #{file_name}: \n#{msg.message}"
+      filename = RobustExcelOle::absolute_path(file_name).gsub("/","\\")
+      unless File.exists?(filename)
+        begin
+          empty_workbook.SaveAs(filename) 
+        rescue WIN32OLERuntimeError => msg
+          if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
+            raise ExcelErrorSave, "could not save workbook with filename #{file_name}"
+          else
+            # todo some time: find out when this occurs : 
+            raise ExcelErrorSaveUnknown, "unknown WIN32OELERuntimeError with filename #{file_name}: \n#{msg.message}"
+          end
         end      
       end
       empty_workbook                               

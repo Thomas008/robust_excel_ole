@@ -242,18 +242,48 @@ module RobustExcelOle
         
         before do
           @excel1 = Excel.create
+          @file_name = @dir + '/bar.xls'
         end
 
         it "should generate a workbook" do
-          workbook = @excel1.generate_workbook(@simple_file)
+          workbook = @excel1.generate_workbook(@file_name)
           workbook.should be_a WIN32OLE
-          workbook.Name.should == File.basename(@simple_file)
-          workbook.FullName.should == RobustExcelOle::absolute_path(@simple_file)
+          workbook.Name.should == File.basename(@file_name)
+          workbook.FullName.should == RobustExcelOle::absolute_path(@file_name)
           workbook.Saved.should be_true
           workbook.ReadOnly.should be_false
-          workbook.Sheets.Count == 1
+          workbook.Sheets.Count.should == 3
           workbooks = @excel1.Workbooks
           workbooks.Count.should == 1
+        end
+
+        it "should generate the same workbook twice" do
+          workbook = @excel1.generate_workbook(@file_name)
+          workbook.should be_a WIN32OLE
+          workbook.Name.should == File.basename(@file_name)
+          workbook.FullName.should == RobustExcelOle::absolute_path(@file_name)
+          workbook.Saved.should be_true
+          workbook.ReadOnly.should be_false
+          workbook.Sheets.Count.should == 3
+          workbooks = @excel1.Workbooks
+          workbooks.Count.should == 1
+          workbook2 = @excel1.generate_workbook(@file_name)
+          workbook2.should be_a WIN32OLE
+          workbooks = @excel1.Workbooks
+          workbooks.Count.should == 2
+        end
+
+        it "should generate a workbook if one is already existing" do
+          book = Book.open(@simple_file)
+          workbook = @excel1.generate_workbook(@file_name)
+          workbook.should be_a WIN32OLE
+          workbook.Name.should == File.basename(@file_name)
+          workbook.FullName.should == RobustExcelOle::absolute_path(@file_name)
+          workbook.Saved.should be_true
+          workbook.ReadOnly.should be_false
+          workbook.Sheets.Count.should == 3
+          workbooks = @excel1.Workbooks
+          workbooks.Count.should == 2
         end
 
         it "should raise error when book cannot be saved" do

@@ -20,7 +20,7 @@ describe RobustExcelOle::Cell do
 
   context "open simple.xls" do
     before do
-      @book = RobustExcelOle::Book.open(@dir + '/simple.xls', :read_only => true)
+      @book = RobustExcelOle::Book.open(@dir + '/workbook.xls', :read_only => true)
       @sheet = @book[1]
       @cell = @sheet[0, 0]
     end

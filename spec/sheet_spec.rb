@@ -7,7 +7,7 @@ describe RobustExcelOle::Sheet do
   
   before do
     @dir = create_tmpdir
-    @book = RobustExcelOle::Book.open(@dir + '/simple.xls', :read_only => true)
+    @book = RobustExcelOle::Book.open(@dir + '/workbook.xls', :read_only => true)
     @sheet = @book[0]
   end
 
@@ -351,7 +351,7 @@ describe RobustExcelOle::Sheet do
     describe "nvalue" do
       context "with standard" do
         before do
-          @book1 = RobustExcelOle::Book.open(@dir + '/more_simple.xls', :read_only => true)
+          @book1 = RobustExcelOle::Book.open(@dir + '/more_workbook.xls', :read_only => true)
           @sheet1 = @book1[0]
         end
 

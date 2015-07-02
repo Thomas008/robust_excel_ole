@@ -12,7 +12,7 @@ describe RobustExcelOle::Range do
 
   before do
     @dir = create_tmpdir
-    @book = RobustExcelOle::Book.open(@dir + '/simple.xls')
+    @book = RobustExcelOle::Book.open(@dir + '/workbook.xls')
     @sheet = @book[1]
     @range = RobustExcelOle::Range.new(@sheet.sheet.UsedRange.Rows(1))
   end

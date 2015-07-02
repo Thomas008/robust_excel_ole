@@ -47,7 +47,6 @@ describe Book do
 
     context "with connected workbook" do
       it "should open connected workbook" do
-        p "filename: #{@connected_file}"
         book = Book.open(@connected_file, :visible => true)
         book.close
       end

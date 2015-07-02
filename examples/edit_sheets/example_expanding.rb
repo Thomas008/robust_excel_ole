@@ -18,35 +18,54 @@ begin
   base_name, suffix = workbook_name.split(".")
   file_name = dir + "/" + workbook_name
   extended_file_name = dir + "/" + base_name + "_expanded" + "." + suffix
-  #Excel.current.generate_workbook(extended_file_name)
-  #Excel.close_all
-  sheet_names = []
   book_orig = Book.open(file_name)
   book_orig.save_as(extended_file_name, :if_exists => :overwrite) 
   book_orig.close
-  #Excel.close_all
+  sheets = []
+  Excel.close_all
   excel = Excel.new(:reuse => false, :visible => true)
-  Book.unobtrusively(extended_file_name, :if_closed => excel, :keep_open => true) do |book|     
-    p "book: #{book}"
+  Book.unobtrusively(extended_file_name, :if_closed => excel) do |book|     
+    p "book: #{book.stored_filename}"
     book.each do |sheet|
-      p "sheet.name: #{sheet.name}"
-      sheet_names << sheet.name 
-      names = sheet.Names
-      p "names: #{names} #{names.Count}"
-      sheet.Names.each do |excel_name|
-        full_name = excel_name.Name
-        p "full_name: #{full_name}"
-        sheet_name, short_name = full_name.split("!")
-        p "short_name: #{short_name}"
-        sheet_new = book.add_sheet(sheet, :as => short_name)
-        sheet_new.Names.Add("Name" => "name", "RefersTo" => "=" + "$B$2")
-        sheet_new[1,1].Value = short_name
-        #sheet_new["name"] = short_name
-        book_new["name"] = short_name
-      end
+      sheets << sheet
     end
-    sheet_names.each do |sheet_name|
-      book[sheet_name].Delete()
+    book.Names.each do |excel_name|
+      full_name = excel_name.Name
+      sheet_name, short_name = full_name.split("!")
+      p "full_name: #{full_name}"
+      p "short_name: #{short_name}"
+      sheet = excel_name.RefersToRange.Worksheet
+      p "sheet: #{sheet.name}"
+      sheet_name = short_name ? short_name : full_name
+      sheet_new = book.add_sheet(sheet, :as => (short_name ? sheet_name : full_name))
+      sheet_new.Names.Add("Name" => "name", "RefersTo" => "=" + "$B$2")
+      sheet_new[1,1].Value = sheet_name
+      sheet_new.name = sheet_name
+    end
+    sheets.each do |sheet|
+      sheet.Delete()
     end
   end
+  Excel.close_all
 end
+
+    #book.each do |sheet|
+    #  p "sheet.name: #{sheet.name}"
+    #  #sheet_names << sheet.name 
+    #  names = sheet.Names
+    #  p "names: #{names} #{names.Count}"
+      #sheet.Names.each do |excel_name|
+      #  full_name = excel_name.Name
+      #  p "full_name: #{full_name}"
+      #  sheet_name, short_name = full_name.split("!")
+      #  p "short_name: #{short_name}"
+      #  sheet_new = book.add_sheet(sheet, :as => short_name)
+      #  sheet_new.Names.Add("Name" => "name", "RefersTo" => "=" + "$B$2")
+      #  sheet_new[1,1].Value = short_name
+      #  #sheet_new["name"] = short_name
+      #  book_new["name"] = short_name
+      #end
+    #end
+  #  sheet_names.each do |sheet_name|
+  #    book[sheet_name].Delete()
+  #  end

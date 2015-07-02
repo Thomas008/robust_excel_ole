@@ -869,6 +869,13 @@ describe Book do
 
     context "with no open book" do
 
+      it "should open unobtrusively if no Excel is open" do
+        Excel.close_all
+        Book.unobtrusively(@simple_file, :if_closed => :reuse) do |book|
+          book.should be_a Book
+        end
+      end
+
       it "should open unobtrusively in a new Excel" do
         expect{ unobtrusively_ok? }.to_not raise_error
       end
@@ -909,7 +916,7 @@ describe Book do
       it "should open unobtrusively in a given Excel via a book" do
         book1 = Book.open(@different_file)
         book2 = Book.open(@more_simple_file, :force_excel => :new)
-        Book.unobtrusively(@simple_file, :if_closed => book2.excel) do |book|
+        Book.unobtrusively(@simple_file, :if_closed => book2) do |book|
           book.should be_a Book
           book.should be_alive
           book.excel.should_not == book1.excel
@@ -1653,6 +1660,7 @@ describe Book do
       end   
 
       it "should set value of a range" do
+        @book1.nvalue("new").should == "foo"
         @book1.set_nvalue("new","bar")
         @book1.nvalue("new").should == "bar"
       end

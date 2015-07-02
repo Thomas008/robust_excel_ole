@@ -68,7 +68,7 @@ module RobustExcelOle
     # generate, save and close an empty workbook
     def generate_workbook file_name                  
       self.Workbooks.Add                           
-      empty_workbook = self.Workbooks.Item(1)          
+      empty_workbook = self.Workbooks.Item(self.Workbooks.Count)          
       filename = RobustExcelOle::absolute_path(file_name)
       begin
         empty_workbook.SaveAs(filename.gsub("/","\\")) 

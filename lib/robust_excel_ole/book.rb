@@ -67,6 +67,7 @@ module RobustExcelOle
                   :prefer_writable => (not current_options[:read_only]), 
                   :prefer_excel    => (current_options[:read_only] ? Book.excel(current_options[:force_excel]) : nil)) rescue nil
           if book
+            #if (((not current_options[:force_excel]) || (current_options[:force_excel].excel == book.excel)) &&
             if (((not current_options[:force_excel]) || (Book.excel(current_options[:force_excel]) == book.excel)) &&
                  (not (book.alive? && (not book.saved) && (not current_options[:if_unsaved] == :accept))))
               book.options = DEFAULT_OPEN_OPTS.merge(opts)
@@ -219,7 +220,8 @@ module RobustExcelOle
     # return an Excel.
     # return the given instance if it is an Excel and alive. If the given instance is a Book then take the Excel of the Book
     def self.excel(instance)
-      raise ExcelErrorOpen, "provided instance is neither an Excel nor a Book: #{instance}" unless instance.is_a?(Excel) || instance.is_a?(Book)
+      raise ExcelErrorOpen, "provided instance is neither an Excel nor a Book: #{instance}" \
+        unless instance.is_a?(Excel) || instance.is_a?(Book)
       excel = instance.is_a?(Book) ? instance.excel : instance
       raise ExcelErrorOpen, "provided Excel instance is not alive" unless excel.alive?
       excel
@@ -298,7 +300,7 @@ module RobustExcelOle
             when :reuse
               open(file)
             else 
-              open(file, :force_excel => Book.excel(options[:if_closed]))
+              open(file, :force_excel => options[:if_closed])
             end
           else
             if was_writable || options[:read_only]
@@ -508,7 +510,9 @@ module RobustExcelOle
 
       new_sheet_name = opts.delete(:as)
 
-      after_or_before, base_sheet = opts.to_a.first || [:after, RobustExcelOle::Sheet.new(@workbook.Worksheets.Item(@workbook.Worksheets.Count))]
+      ws = @workbook.Worksheets
+      after_or_before, base_sheet = opts.to_a.first || 
+                                    [:after, Sheet.new(ws.Item(ws.Count))]
       base_sheet = base_sheet.sheet
       sheet ? sheet.Copy({ after_or_before.to_s => base_sheet }) : @workbook.WorkSheets.Add({ after_or_before.to_s => base_sheet })
       new_sheet = RobustExcelOle::Sheet.new(@excel.Activesheet)

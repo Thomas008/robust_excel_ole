@@ -24,7 +24,7 @@ begin
     sheet_orig.each do |cell_orig|      
       name = cell_orig.Name.Name rescue nil
       if name
-        sheet_new[cell_orig.Row-1,cell_orig.Column-1].Value = cell_orig.Value.to_s + cell_orig.Offset(0,1).Value.to_s
+        sheet_new[cell_orig.Row-1, cell_orig.Column-1].Value = cell_orig.Value.to_s + cell_orig.Offset(0,1).Value.to_s
         sheet_new.Names.Add("Name" => name, "RefersTo" => "=" + cell_orig.Address) 
       end
     end

@@ -13,25 +13,21 @@ begin
   Excel.close_all
   dir = "C:/data"
   workbook_name = 'workbook.xls'
-  base_name, suffix = workbook_name.split(".")
+  base_name = workbook_name[0,workbook_name.rindex('.')]
+  suffix = workbook_name[workbook_name.rindex('.')+1,workbook_name.length]
   file_name = dir + "/" + workbook_name
   extended_file_name = dir + "/" + base_name + "_named" + "." + suffix
-  Excel.current.generate_workbook(extended_file_name)
-  book_new = Book.open(extended_file_name, :visible => true)
-  sheet_new  = book_new[0]
-  excel = Excel.new(:reuse => false, :visible => true)
-  Book.unobtrusively(file_name, :if_closed => excel, :keep_open => true) do |book_orig|     
-    sheet_orig = book_orig[0]
-    sheet_orig.each do |cell_orig|
-      contents = cell_orig.Value
-      if contents
-        sheet_new.Cells(cell_orig.Row,cell_orig.Column).Value = cell_orig.Value
-        if contents.class == String
-          sheet_new.Names.Add("Name" => contents, "RefersTo" => "=" + cell_orig.Address) 
+  book_orig = Book.open(file_name)
+  book_orig.save_as(extended_file_name, :if_exists => :overwrite) 
+  book_orig.close
+  Book.unobtrusively(extended_file_name) do |book|     
+    book.each do |sheet|
+      sheet.each do |cell_orig|
+        contents = cell_orig.Value
+        if contents && contents.class == String
+          sheet.Names.Add("Name" => contents, "RefersTo" => "=" + cell_orig.Address) 
         end
       end
     end
   end
-  book_new.save
-  #book_new.close
 end

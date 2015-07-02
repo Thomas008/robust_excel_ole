@@ -24,7 +24,7 @@ begin
   sheets = []
   Excel.close_all
   excel = Excel.new(:reuse => false, :visible => true)
-  Book.unobtrusively(extended_file_name, :if_closed => excel) do |book|     
+  Book.unobtrusively(extended_file_name) do |book|     
     p "book: #{book.stored_filename}"
     book.each do |sheet|
       sheets << sheet

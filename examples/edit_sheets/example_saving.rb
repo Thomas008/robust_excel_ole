@@ -11,21 +11,20 @@ begin
   Excel.close_all
   dir = "C:/data"
   workbook_name = 'workbook.xls'
-  base_name, suffix = workbook_name.split(".")
+  base_name = workbook_name[0,workbook_name.rindex('.')]
+  suffix = workbook_name[workbook_name.rindex('.')+1,workbook_name.length]
   file_name = dir + "/" + workbook_name
-  excel = Excel.new(:visible => true) 
-  Book.unobtrusively(file_name, :if_closed => excel) do |book_orig| 
+  Book.unobtrusively(file_name) do |book_orig| 
     book_orig.each do |sheet_orig|
       file_sheet_name = dir + "/" + base_name + "_" + sheet_orig.name + "." + suffix
       Excel.current.generate_workbook(file_sheet_name)
     end
   end
-  Book.unobtrusively(file_name, :if_closed => excel) do |book_orig| 
+  Book.unobtrusively(file_name) do |book_orig| 
     book_orig.each do |sheet_orig|
-      p "sheet.name: #{sheet_orig.name}"
       file_sheet_name = dir + "/" + base_name + "_" + sheet_orig.name + "." + suffix
       # delete all existing sheets, and add the sheet    
-      book = Book.open(file_sheet_name, :visible => true)
+      book = Book.open(file_sheet_name)
       book.add_sheet sheet_orig
       book.each do |sheet|
         sheet.Delete() unless sheet.name == sheet_orig.name 

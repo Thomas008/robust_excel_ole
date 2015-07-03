@@ -1,4 +1,4 @@
-# example_concatening.rb: 
+# example_concating.rb: 
 # each named cell gets the value of cell right to it appended to its own value
 # the new workbook's name is extended by the suffix "_concat"
 
@@ -21,11 +21,12 @@ begin
   book_orig.close
   Book.unobtrusively(extended_file_name) do |book|
     book.each do |sheet|
-      sheet.each do |cell_orig|
-        name = cell_orig.Name.Name rescue nil
+      sheet.each do |cell|
+        name = cell.Name.Name rescue nil
         if name
-          sheet[cell_orig.Row-1, cell_orig.Column-1].Value = cell_orig.Value.to_s + cell_orig.Offset(0,1).Value.to_s
-          sheet.Names.Add("Name" => name, "RefersTo" => "=" + cell_orig.Address) 
+          cell.Value = cell.Value.to_s + cell.Offset(0,1).Value.to_s
+          # alternative: sheet[cell.Row-1, cell.Column-1].Value = cell.Value.to_s + cell.Offset(0,1).Value.to_s
+          sheet.Names.Add("Name" => name, "RefersTo" => "=" + cell.Address) 
         end
       end
     end

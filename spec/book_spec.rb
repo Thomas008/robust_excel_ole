@@ -45,14 +45,6 @@ describe Book do
   
   describe "open" do
 
-    context "test" do
-      it "should" do
-        book = Book.open(@simple_file)
-        c = book.foo
-        p "c: #{c}"
-      end
-    end
-
     context "with connected workbook" do
       it "should open connected workbook" do
         book = Book.open(@connected_file, :visible => true)
@@ -264,7 +256,6 @@ describe Book do
       it "should open in a given Excel, provide identity transparency, because book can be readonly, such that the old and the new book are readonly" do
         book2 = Book.open(@simple_file, :force_excel => :new)
         book2.excel.should_not == @book.excel
-        p "book2.excel: #{book2.excel}"
         book3 = Book.open(@simple_file, :force_excel => :new)
         book3.excel.should_not == book2.excel
         book3.excel.should_not == @book.excel
@@ -300,6 +291,16 @@ describe Book do
         book4.ReadOnly.should be_true
         book4.should == book2
         book4.close
+      end
+
+      it "should raise an error if no Excel or Book is given" do
+        book2 = Book.open(@simple_file, :force_excel => :new)
+        book2.excel.should_not == @book.excel
+        book2.close
+        @book.close
+        expect{
+          Book.open(@simple_file, :force_excel => :book)
+          }.to raise_error(ExcelErrorOpen, "provided instance is neither an Excel nor a Book")
       end
 
       it "should do force_excel even if both force_ and default_excel is given" do
@@ -1228,7 +1229,7 @@ describe Book do
         book2.Readonly.should be_true
         sheet = @book[0]
         cell_value = sheet[0,0].value
-        Book.unobtrusively(@simple_file, :use_this => false) do |book|
+        Book.unobtrusively(@simple_file) do |book|
           book.should be_a Book
           book.excel.should_not == book2.excel
           book.excel.should_not == @book.excel

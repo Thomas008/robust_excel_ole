@@ -6,7 +6,6 @@ require 'weakref'
 module RobustExcelOle
 
   class Book
-    attr_accessor :foo
     attr_accessor :excel
     attr_accessor :workbook
     attr_accessor :stored_filename
@@ -91,7 +90,6 @@ module RobustExcelOle
     def initialize(file, opts={ }, &block)
       @options = DEFAULT_OPEN_OPTS.merge(opts)
       @file = file      
-      @foo = "bar"
       get_excel
       get_workbook
       book_store.store(self)

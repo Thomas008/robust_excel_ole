@@ -6,10 +6,12 @@ require 'weakref'
 module RobustExcelOle
 
   class Book
+    attr_accessor :foo
     attr_accessor :excel
     attr_accessor :workbook
     attr_accessor :stored_filename
     attr_accessor :options
+
 
       DEFAULT_OPEN_OPTS = { 
         :excel => :reuse,
@@ -65,10 +67,11 @@ module RobustExcelOle
           # if readonly is true, then prefer a book that is given in force_excel if this option is set
           book = book_store.fetch(file, 
                   :prefer_writable => (not current_options[:read_only]), 
-                  :prefer_excel    => (current_options[:read_only] ? Book.excel(current_options[:force_excel]) : nil)) rescue nil
+                  :prefer_excel    => (current_options[:read_only] ? current_options[:force_excel].excel : nil)) rescue nil
+                  # old: :prefer_excel    => (current_options[:read_only] ? Book.excel(current_options[:force_excel]) : nil)) rescue nil
           if book
-            #if (((not current_options[:force_excel]) || (current_options[:force_excel].excel == book.excel)) &&
-            if (((not current_options[:force_excel]) || (Book.excel(current_options[:force_excel]) == book.excel)) &&
+            if (((not current_options[:force_excel]) || (current_options[:force_excel].excel == book.excel)) &&
+            #old: if (((not current_options[:force_excel]) || (Book.excel(current_options[:force_excel]) == book.excel)) &&
                  (not (book.alive? && (not book.saved) && (not current_options[:if_unsaved] == :accept))))
               book.options = DEFAULT_OPEN_OPTS.merge(opts)
               book.get_excel unless book.excel.alive?
@@ -88,6 +91,7 @@ module RobustExcelOle
     def initialize(file, opts={ }, &block)
       @options = DEFAULT_OPEN_OPTS.merge(opts)
       @file = file      
+      @foo = "bar"
       get_excel
       get_workbook
       book_store.store(self)
@@ -111,8 +115,7 @@ module RobustExcelOle
           @excel_options[:reuse] = false
           @excel = Excel.new(@excel_options)
         else
-          @excel = @options[:excel]
-          @excel = Book.excel(@options[:excel])
+          @excel = @options[:excel].excel
         end
       end
       # if :excel => :new or (:excel => :reuse but could not reuse)
@@ -214,20 +217,6 @@ module RobustExcelOle
         end
       end
     end
-
-  private
-  
-    # return an Excel.
-    # return the given instance if it is an Excel and alive. If the given instance is a Book then take the Excel of the Book
-    def self.excel(instance)
-      raise ExcelErrorOpen, "provided instance is neither an Excel nor a Book: #{instance}" \
-        unless instance.is_a?(Excel) || instance.is_a?(Book)
-      excel = instance.is_a?(Book) ? instance.excel : instance
-      raise ExcelErrorOpen, "provided Excel instance is not alive" unless excel.alive?
-      excel
-    end
-
-  public
 
     # closes the book, if it is alive
     #

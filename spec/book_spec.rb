@@ -45,6 +45,14 @@ describe Book do
   
   describe "open" do
 
+    context "test" do
+      it "should" do
+        book = Book.open(@simple_file)
+        c = book.foo
+        p "c: #{c}"
+      end
+    end
+
     context "with connected workbook" do
       it "should open connected workbook" do
         book = Book.open(@connected_file, :visible => true)
@@ -229,7 +237,6 @@ describe Book do
         book2.close
       end
 
- 
       it "should open in a given Excel, not provide identity transparency, because old book readonly, new book writable" do
         book2 = Book.open(@simple_file, :force_excel => :new)
         book2.excel.should_not == @book.excel

@@ -32,6 +32,12 @@ module RobustExcelOle
         @excel.Name.should == "Microsoft Excel"
       end
 
+      it "should access excel.excel" do
+        excel = Excel.new(:reuse => false)
+        excel.excel.should == excel
+        excel.excel.should be_a Excel
+      end
+
       it "should work with 'new' " do
         @excel = Excel.new
         creation_ok?

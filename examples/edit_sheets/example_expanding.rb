@@ -31,7 +31,7 @@ begin
       full_name = excel_name.Name
       sheet_name, short_name = full_name.split("!")
       sheet = excel_name.RefersToRange.Worksheet
-      sheet_name = short_name ? short_name : full_name
+      sheet_name = short_name ? short_name : sheet_name
       begin
         sheet_new = book.add_sheet(sheet, :as => sheet_name)
       rescue ExcelErrorSheet => msg

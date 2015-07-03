@@ -33,12 +33,8 @@ begin
       # alternative: delete all other sheets
       #book = Book.open(file_sheet_name, :force_excel => :new, :visible => true)
       #book.each do |sheet|
-      #  p "sheet.Name: #{sheet.Name}"
       #  book[sheet.Name].Delete() unless sheet.Name == sheet_orig.Name
       #end
-      #sleep 3
-      #book.save_as(file_sheet_name, :if_exists => :overwrite)
-      #book.close
     end
   end
 end

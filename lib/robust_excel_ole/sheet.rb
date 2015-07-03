@@ -81,24 +81,29 @@ module RobustExcelOle
       RobustExcelOle::Range.new(@sheet.Range(@sheet.Cells(range.min + 1, col + 1), @sheet.Cells(range.max + 1, col + 1)))
     end
 
-    # returns the contents of a range or cell with given name
-    def nvalue(name)
+    # returns the contents of a range with given name
+    # if no contents could returned, then return default value, if a default value was provided
+    #                                raise an error, otherwise
+    def nvalue(name, opts = {:default => nil})
       begin
         item = self.Names.Item(name)
       rescue WIN32OLERuntimeError
-        raise SheetErrorNValue, "name #{name} not in sheet"  
+        return opts[:default] if opts[:default]
+        raise SheetErrorNValue, "name #{name} not in sheet"
       end
       begin
-        referstorange = item.RefersToRange
-      rescue WIN32OLERuntimeError
-        raise SheetErrorNValue, "range error in sheet"      
+        value = item.RefersToRange.Value
+      rescue  WIN32OLERuntimeError
+        return opts[:default] if opts[:default]
+        raise ExcelErrorNValue, "RefersToRange error of name #{name}"
       end
-      begin
-        value = referstorange.Value
-      rescue WIN32OLERuntimeError
-        raise SheetErrorNValue, "value error in sheet" 
-      end
+      value
     end
+
+    # adds a name to a range
+    def add_name(name,address)
+      @sheet.Names.Add("Name" => name, "RefersTo" => "=" + address) 
+    end   
 
     def method_missing(id, *args)  # :nodoc: #
       @sheet.send(id, *args)

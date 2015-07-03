@@ -349,7 +349,9 @@ describe RobustExcelOle::Sheet do
     end
 
     describe "nvalue" do
+
       context "with standard" do
+      
         before do
           @book1 = RobustExcelOle::Book.open(@dir + '/more_workbook.xls', :read_only => true)
           @sheet1 = @book1[0]
@@ -360,21 +362,18 @@ describe RobustExcelOle::Sheet do
         end   
 
         it "should return value of a range" do
-          @sheet1.nvalue("Sheet1!firstcell").should == "simple"
+          @sheet1.nvalue("firstcell").should == "simple"
         end
 
         it "should raise an error if name not defined" do
           expect {
-            value = @sheet1.nvalue("Sheet1!foo")
-          }.to raise_error(SheetErrorNValue, "name Sheet1!foo not in sheet")
+            value = @sheet1.nvalue("foo")
+          }.to raise_error(SheetErrorNValue, "name foo not in sheet")
         end
 
-        # fails
-        #it "should raise an error if name was defined but contents is calcuated" do
-        #  expect {
-        #    value = @sheet1.nvalue("Sheet1!named_formula")
-        #  }.to raise_error(SheetErrorNValue, "range error in sheet")
-        #end
+        it "should return default value if name not defined" do
+          @sheet1.nvalue("foo", :default => 2).should == 2
+        end
       end
     end
 

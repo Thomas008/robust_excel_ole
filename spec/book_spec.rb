@@ -1652,7 +1652,12 @@ describe Book do
       it "should raise an error if name was defined but contents is calcuated" do
         expect {
           value = @book1.nvalue("named_formula")
-        }.to raise_error(ExcelErrorNValue, "range error in more_workbook.xls")
+        }.to raise_error(ExcelErrorNValue, "RefersToRange error of name named_formula in more_workbook.xls")
+      end
+
+      it "should return default value if name not defined" do
+        @book1.nvalue("foo", :default => 2).should == 2
+        @book1.nvalue("named_formula", :default => 4).should == 4
       end
     end
 

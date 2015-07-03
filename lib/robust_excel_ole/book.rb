@@ -325,22 +325,22 @@ module RobustExcelOle
     end
 
     # returns the contents of a range with given name
-    def nvalue(name)
+    # if no contents could returned, then return default value, if a default value was provided
+    #                                raise an error, otherwise
+    def nvalue(name, opts = {:default => nil})
       begin
         item = self.Names.Item(name)
       rescue WIN32OLERuntimeError
-        raise ExcelErrorNValue, "name #{name} not in #{File.basename(self.stored_filename)}"  
+        return opts[:default] if opts[:default]
+        raise ExcelErrorNValue, "name #{name} not in #{File.basename(self.stored_filename)}"
       end
       begin
-        referstorange = item.RefersToRange
-      rescue WIN32OLERuntimeError
-        raise ExcelErrorNValue, "range error in #{File.basename(self.stored_filename)}"      
+        value = item.RefersToRange.Value
+      rescue  WIN32OLERuntimeError
+        return opts[:default] if opts[:default]
+        raise ExcelErrorNValue, "RefersToRange error of name #{name} in #{File.basename(self.stored_filename)}"
       end
-      begin
-        referstorange.Value
-      rescue WIN32OLERuntimeError
-        raise ExcelErrorNValue, "value error in #{File.basename(self.stored_filename)}" 
-      end
+      value
     end
 
     # set the contents of a range with given name

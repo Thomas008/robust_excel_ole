@@ -31,10 +31,14 @@ module RobustExcelOle
       end
     end
 
-    def [] y, x
-      yx = "#{y}_#{x}"
-      @cells ||= { }
-      @cells[yx] ||= RobustExcelOle::Cell.new(@sheet.Cells.Item(y, x))
+    def [] y, x = nil
+      if x 
+        yx = "#{y}_#{x}"
+        @cells ||= { }
+        @cells[yx] ||= RobustExcelOle::Cell.new(@sheet.Cells.Item(y, x))
+      else
+        nvalue(y)
+      end
     end
 
     def []= (y, x, value)
@@ -95,15 +99,42 @@ module RobustExcelOle
         item = self.Names.Item(name)
       rescue WIN32OLERuntimeError
         return opts[:default] if opts[:default]
-        raise SheetErrorNValue, "name #{name} not in sheet"
+        raise SheetError, "name #{name} not in sheet"
       end
       begin
         value = item.RefersToRange.Value
       rescue  WIN32OLERuntimeError
         return opts[:default] if opts[:default]
-        raise SheetErrorNValue, "RefersToRange of name #{name}"
+        raise SheetError, "RefersToRange of name #{name}"
       end
       value
+    end
+
+    def hey(a , b = 0)
+      if a 
+        p "a:#{a}"
+        p "b:#{b}"       
+      else
+        p "haha"
+      end
+    end
+
+    # returns the contents of a range with given name
+    #def [] name
+    #  nvalue(name)
+    #end
+
+    def set_nvalue(name,value)
+      begin
+        item = self.Names.Item(name)
+      rescue WIN32OLERuntimeError
+        raise SheetError, "name #{name} not in sheet"
+      end
+      begin
+        item.RefersToRange.Value = value
+      rescue  WIN32OLERuntimeError
+        raise SheetError, "RefersToRange of name #{name}"
+      end
     end
 
     # adds a name to a range given by an address
@@ -146,9 +177,6 @@ module RobustExcelOle
   public
   
   class SheetError < RuntimeError    # :nodoc: #
-  end
-
-  class SheetErrorNValue < WIN32OLERuntimeError  # :nodoc: #
   end
 
 end

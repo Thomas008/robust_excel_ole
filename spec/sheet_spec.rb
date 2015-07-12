@@ -360,7 +360,7 @@ describe RobustExcelOle::Sheet do
 
     describe "nvalue, add_name" do
 
-      context "nvalue" do
+      context "nvalue, sheet[<name>]" do
       
         before do
           @book1 = RobustExcelOle::Book.open(@dir + '/more_workbook.xls', :read_only => true)
@@ -373,16 +373,40 @@ describe RobustExcelOle::Sheet do
 
         it "should return value of a range" do
           @sheet1.nvalue("firstcell").should == "simple"
+          @sheet1["firstcell"].should == "simple"
         end
 
         it "should raise an error if name not defined" do
           expect {
             value = @sheet1.nvalue("foo")
-          }.to raise_error(SheetErrorNValue, "name foo not in sheet")
+          }.to raise_error(SheetError, "name foo not in sheet")
+          expect {
+            @sheet1["foo"]
+          }.to raise_error(SheetError, "name foo not in sheet")
         end
 
         it "should return default value if name not defined" do
           @sheet1.nvalue("foo", :default => 2).should == 2
+        end
+      end
+
+      context "set_nvalue, sheet[<name>]=<value>" do
+      
+        before do
+          @book1 = RobustExcelOle::Book.open(@dir + '/more_workbook.xls', :read_only => true)
+          @sheet1 = @book1[0]
+        end
+
+        after do
+          @book1.close
+        end   
+
+        it "should set a range to a value" do
+          @sheet1.nvalue("firstcell").should == "simple"
+          @sheet1[1,1].Value.should == "simple"
+          @sheet1.set_nvalue("firstcell","foo")
+          @sheet1.nvalue("firstcell").should == "foo"
+          @sheet1[1,1].Value.should == "foo"
         end
       end
 

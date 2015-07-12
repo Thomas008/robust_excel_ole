@@ -387,16 +387,24 @@ describe RobustExcelOle::Sheet do
           @book1.close
         end   
 
-        it "should name a range with a giving address" do
+        it "should name an unnamed range with a giving address" do
+          expect{
+            @sheet1[0,1].Name.Name
+          }.to raise_error          
+          @sheet1.add_name(0,1,"foo")
+          @sheet1[0,1].Name.Name.should == "Sheet1!foo"
+        end
+
+        it "should rename an already named range with a giving address" do
           @sheet1[0,0].Name.Name.should == "Sheet1!firstcell"
-          @sheet1.add_name(0,0,"Sheet1!foo")
+          @sheet1.add_name(0,0,"foo")
           @sheet1[0,0].Name.Name.should == "Sheet1!foo"
         end
 
         it "should raise an error" do
           expect{
-            @sheet1.add_name(1000,0,"foo")
-          }.to raise_error(SheetError, "cannot add name foo to cell with row 1000 and column 0")
+            @sheet1.add_name(-2,0,"foo")
+          }.to raise_error(SheetError, "cannot add name foo to cell with row -2 and column 0")
         end
       end
     end

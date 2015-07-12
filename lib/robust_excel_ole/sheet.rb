@@ -104,7 +104,13 @@ module RobustExcelOle
     # row, column are oriented at 0
     def add_name(row,column,name)
       begin
-        self[row,column].Name.Name = name
+        old_name = self[row,column].Name.Name rescue nil
+        if old_name
+          self[row,column].Name.Name = name
+        else
+          address = "Z" + (row + 1).to_s + "S" + (column + 1).to_s 
+          self.Names.Add("Name" => name, "RefersToR1C1" => "=" + address)
+        end
       rescue WIN32OLERuntimeError => msg
         #puts "WIN32OLERuntimeError: #{msg.message}"
         raise SheetError, "cannot add name #{name} to cell with row #{row} and column #{column}"

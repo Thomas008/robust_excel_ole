@@ -22,7 +22,13 @@ module RobustExcelOle
     end
 
     def name= (new_name)
-      @sheet.Name = new_name
+      begin
+        @sheet.Name = new_name
+      rescue WIN32OLERuntimeError => msg
+        if msg.message =~ /OLE error code:800A03EC/ 
+          raise ExcelErrorSheet, "sheet name already exists"
+        end
+      end
     end
 
     def [] y, x

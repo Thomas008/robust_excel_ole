@@ -60,9 +60,19 @@ describe RobustExcelOle::Sheet do
     end
 
     describe "#name=" do
+      
       it 'change sheet1 name to foo' do
         @sheet.name = 'foo'
         @sheet.name.should eq 'foo'
+      end
+
+      it "should raise error when adding the same name" do
+        @sheet.name = 'foo'
+        @sheet.name.should eq 'foo'
+        new_sheet = @book.add_sheet @sheet
+        expect{
+          new_sheet.name = 'foo'
+        }.to raise_error(ExcelErrorSheet, "sheet name already exists")
       end
     end
   end

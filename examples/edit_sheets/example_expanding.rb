@@ -32,26 +32,19 @@ begin
       sheet_name, short_name = full_name.split("!")
       sheet = excel_name.RefersToRange.Worksheet
       sheet_name = short_name ? short_name : sheet_name
-      begin
-        sheet_new = book.add_sheet(sheet, :as => sheet_name)
-      rescue ExcelErrorSheet => msg
-        if msg.message == "sheet name already exists" 
-          sheet_new = book.add_sheet(sheet, :as => (sheet_name+sheet.name))
-        else 
-          puts msg.message
-        end
-      end
-      sheet_new.Names.Add("Name" => "name", "RefersTo" => "=" + "$B$2")
-      sheet_new[1,1].Value = sheet_name
+      sheet_new = book.add_sheet sheet
       begin
         sheet_new.name = sheet_name
-      rescue
-        sheet_new.name = (sheet_name+sheet.name)
+      rescue ExcelErrorSheet => msg
+        sheet_new.name = sheet_name + sheet.name if msg.message == "sheet name already exists" 
       end
+      sheet_new.add_name(1,1,"name")
+      sheet_new[1,1].Value = sheet_name   
     end
     sheet_names.each do |sheet_name|
       book[sheet_name].Delete()
     end
   end
-  Excel.close_all
+  # cannot do this:
+  #Excel.close_all
 end

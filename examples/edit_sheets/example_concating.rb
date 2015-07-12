@@ -25,8 +25,8 @@ begin
         name = cell.Name.Name rescue nil
         if name
           cell.Value = cell.Value.to_s + cell.Offset(0,1).Value.to_s
-          # alternative: sheet[cell.Row-1, cell.Column-1].Value = cell.Value.to_s + cell.Offset(0,1).Value.to_s
-          sheet.Names.Add("Name" => name, "RefersTo" => "=" + cell.Address) 
+          # alternative: sheet[cell.Row-1, cell.Column-1].Value = ...
+          sheet.add_name(cell.Row-1,cell.Column-1,name)
         end
       end
     end

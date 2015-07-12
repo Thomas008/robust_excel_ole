@@ -313,10 +313,7 @@ module RobustExcelOle
     # rename a range
     def rename_range(name,new_name)
       begin
-        p "name: #{name}"
-        p "new_name: #{new_name}"
         item = self.Names.Item(name)
-        p "nil" if item.nil?
       rescue WIN32OLERuntimeError
         raise ExcelErrorRename, "name #{name} not in #{File.basename(self.stored_filename)}"  
       end

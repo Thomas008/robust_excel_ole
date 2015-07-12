@@ -1678,35 +1678,6 @@ describe Book do
       end
     end
 
-    context "name a range" do
-      
-      before do
-        @book1 = Book.open(@more_simple_file)
-      end
-
-      after do
-        @book1.close(:if_unsaved => :forget)
-      end   
-
-      it "should name an unnamed cell" do
-        sheet = @book1[0]
-        cell = sheet[1,2]
-        p "cell.value: #{cell.Value}"
-        p "cell.class: #{cell.class}"
-        cell.name = "foo"
-        cell.name.should == "foo"
-      end
-
-      it "should name an already named cell" do
-        sheet = @book1[0]
-        cell = sheet[1,1]
-        cell.name.should == "workbook"
-        cell.name = "bar"
-        cell.name.should == "bar"
-      end
-
-    end
-
     context "rename_range" do
     
       before do

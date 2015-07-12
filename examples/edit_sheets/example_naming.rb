@@ -24,7 +24,7 @@ begin
     book.each do |sheet|
       sheet.each do |cell_orig|
         contents = cell_orig.Value
-        sheet.add_name(cell_orig.Row-1,cell_orig.Column-1,contents) if contents && contents.class == String
+        sheet.add_name(cell_orig.Row,cell_orig.Column,contents) if contents && contents.class == String
       end
     end
   end

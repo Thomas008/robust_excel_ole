@@ -32,13 +32,13 @@ module RobustExcelOle
     end
 
     def [] y, x
-      yx = "#{y+1}_#{x+1}"
+      yx = "#{y}_#{x}"
       @cells ||= { }
-      @cells[yx] ||= RobustExcelOle::Cell.new(@sheet.Cells.Item(y+1, x+1))
+      @cells[yx] ||= RobustExcelOle::Cell.new(@sheet.Cells.Item(y, x))
     end
 
     def []= (y, x, value)
-      @sheet.Cells.Item(y+1, x+1).Value = value
+      @sheet.Cells.Item(y, x).Value = value
     end
 
     def each
@@ -78,13 +78,13 @@ module RobustExcelOle
     end
 
     def row_range(row, range = nil)
-      range ||= 0..@end_column - 1
-      RobustExcelOle::Range.new(@sheet.Range(@sheet.Cells(row + 1, range.min + 1), @sheet.Cells(row + 1, range.max + 1)))
+      range ||= 1..@end_column
+      RobustExcelOle::Range.new(@sheet.Range(@sheet.Cells(row , range.min ), @sheet.Cells(row , range.max )))
     end
 
     def col_range(col, range = nil)
-      range ||= 0..@end_row - 1
-      RobustExcelOle::Range.new(@sheet.Range(@sheet.Cells(range.min + 1, col + 1), @sheet.Cells(range.max + 1, col + 1)))
+      range ||= 1..@end_row
+      RobustExcelOle::Range.new(@sheet.Range(@sheet.Cells(range.min , col ), @sheet.Cells(range.max , col )))
     end
 
     # returns the contents of a range with given name
@@ -114,7 +114,7 @@ module RobustExcelOle
         if old_name
           self[row,column].Name.Name = name
         else
-          address = "Z" + (row + 1).to_s + "S" + (column + 1).to_s 
+          address = "Z" + row.to_s + "S" + column.to_s 
           self.Names.Add("Name" => name, "RefersToR1C1" => "=" + address)
         end
       rescue WIN32OLERuntimeError => msg

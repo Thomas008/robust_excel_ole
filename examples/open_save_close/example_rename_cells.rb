@@ -14,12 +14,10 @@ begin
   book = Book.open(file_name)                                # open a book.  default:  :read_only => false
   book.excel.visible = true                                          # make current Excel visible
   sheet = book[0]
-  #sheet.Names.Add("Wert","$A$1"
-
   workbook = book.workbook
   fullname = workbook.Fullname
   puts "fullname: #{fullname}"  
-  workbook.Names.Add("a_name", "=$A$1")   # rename cell A1 to "a_name"
+  sheet.add_name(1,1,"a_name")   # rename cell A1 to "a_name"
   number = workbook.Names.Count
   puts "number of name objects :#{number}"
   name_object = workbook.Names("a_name")
@@ -48,17 +46,7 @@ begin
   new_name_object.Visible = false
   puts "visible: #{new_name_object.Visible}"
   sleep 2
-
-  # to do:
-  # read, write contents of the cell (under the old name)
-  # read, write contents in the cell under the new name
-
-  #sheet.Cells
-  # sheet[0,0].value
-  # Worksheets("sheet1").Cells
-
   new_name_object.Delete
-
   sleep 2
   book.close(:if_unsaved => :forget)                        # close the book
 

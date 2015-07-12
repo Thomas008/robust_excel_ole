@@ -157,7 +157,7 @@ Options are the following:
   Book.unobtrusively('workbook.xls') do |book|
     # some modification
     sheet = book[0]
-    sheet[0,0] = "c" 
+    sheet[1,1] = "c" 
   end
   
 === Value of a named cell or range
@@ -220,7 +220,7 @@ A sheet object is enumerable. Use the methods Sheet#each_column, Sheet#each_row 
 
 Reading a cell from a sheet object.
 
-  sheet[0, 0]  => first cell.
+  sheet[1, 1]  => first cell.
 
 Reading a cell from a range object.
 
@@ -231,25 +231,25 @@ Methods to cell are just delegated as VBA methods. Example:
 
 Reading the value of a cell.
 
-  cell = sheet[0,0]
+  cell = sheet[1,1]
   cell.Value  => value of the cell.
 
 Writing a cell
 
-  sheet[0,0] = "new_value"
+  sheet[1,1] = "new_value"
 
 
 === Accessing a range of a row or column. 
 
 Accessing a range of a row.
 
-  sheet.row_range(0)  => first row
-  sheet.row_range(0, 0..2 )  => first three cells of the first row  
+  sheet.row_range(1)  => first row
+  sheet.row_range(1, 1..3 )  => first three cells of the first row  
 
 Accessing a range of a column.
 
-  sheet.col_range(2)  => third column
-  sheet.col_range(2, 0..1)  => first two cells of the third column
+  sheet.col_range(3)  => third column
+  sheet.col_range(3, 1..2)  => first two cells of the third column
 
 
 === Adding a sheet.
@@ -349,7 +349,7 @@ Accessing a sheet via its name.
   
 Changing the first cell.
 
-  sheet[0,0] = "new"
+  sheet[1,1] = "new"
   
 Saving the book.
 
@@ -449,7 +449,7 @@ Opening a book with the same name in a different path. Close the old book.
 Changing its cell.
 
   sheet = book2[0]
-  sheet[0,0] = "new"
+  sheet[1,1] = "new"
 
 Opening a book with the same name in a different path. The old book that was modified will be saved and closed before.
 
@@ -473,19 +473,19 @@ Opening a book.
 Printing its first cell.
 
   sheet = book[0]
-  p "1st cell: #{sheet[0,0].value}"
+  p "1st cell: #{sheet[1,1].Value}"
 
 Unobtrusively modify the book.
 
   Book.unobtrusively('workbook.xls') do |book|
     sheet = book[0]
-    sheet[0,0] = 'simple'
+    sheet[1,1] = 'simple'
   end
 
 The book is modified, but its status is unchanged.
 
   new_sheet = book[0]
-  not (new_sheet[0,0].value == sheet[0,0].value) 
+  not (new_sheet[1,1].Value == sheet[1,1].Value) 
   => true
 
   book.Saved 

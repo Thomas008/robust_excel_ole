@@ -22,7 +22,7 @@ describe RobustExcelOle::Cell do
     before do
       @book = RobustExcelOle::Book.open(@dir + '/workbook.xls', :read_only => true)
       @sheet = @book[1]
-      @cell = @sheet[0, 0]
+      @cell = @sheet[1, 1]
     end
 
     after do
@@ -61,14 +61,14 @@ describe RobustExcelOle::Cell do
     end
 
     it "merged cell get same value" do
-      @sheet[0, 0].value.should be_nil
-      @sheet[1, 0].value.should eq 'first merged'
+      @sheet[1, 1].value.should be_nil
+      @sheet[2, 1].value.should eq 'first merged'
     end
 
     it "set merged cell" do
-      @sheet[1, 0].value = "set merge cell"
-      @sheet[1, 0].value.should eq "set merge cell"
-      @sheet[1, 1].value.should eq "set merge cell"
+      @sheet[2, 1].value = "set merge cell"
+      @sheet[2, 1].value.should eq "set merge cell"
+      @sheet[2, 2].value.should eq "set merge cell"
     end
   end
 end

@@ -35,7 +35,7 @@ describe RobustExcelOle::Sheet do
       end
 
       it "protected sheet can't be write" do
-        expect { @protected_sheet[0,0] = 'write' }.to raise_error
+        expect { @protected_sheet[1,1] = 'write' }.to raise_error
       end
     end
 
@@ -79,23 +79,23 @@ describe RobustExcelOle::Sheet do
 
   describe 'access cell' do
     describe "#[]" do
-      context "access [0,0]" do
-        it { @sheet[0, 0].should be_kind_of RobustExcelOle::Cell }
-        it { @sheet[0, 0].value.should eq 'simple' }
+      context "access [1,1]" do
+        it { @sheet[1, 1].should be_kind_of RobustExcelOle::Cell }
+        it { @sheet[1, 1].value.should eq 'simple' }
       end
 
-      context "access [0, 0], [0, 1], [2, 0]" do
+      context "access [1, 1], [1, 2], [3, 1]" do
         it "should get every values" do
-          @sheet[0, 0].value.should eq 'simple'
-          @sheet[0, 1].value.should eq 'workbook'
-          @sheet[2, 0].value.should eq 'matz'
+          @sheet[1, 1].value.should eq 'simple'
+          @sheet[1, 2].value.should eq 'workbook'
+          @sheet[3, 1].value.should eq 'matz'
         end
       end
     end
 
     it "change a cell to 'foo'" do
-      @sheet[0, 0] = 'foo'
-      @sheet[0, 0].value.should eq 'foo'
+      @sheet[1, 1] = 'foo'
+      @sheet[1, 1].value.should eq 'foo'
     end
 
     describe '#each' do
@@ -312,7 +312,7 @@ describe RobustExcelOle::Sheet do
     describe "#row_range" do
       context "with second argument" do
         before do
-          @row_range = @sheet.row_range(0, 1..2)
+          @row_range = @sheet.row_range(1, 2..3)
         end
 
         it { @row_range.should be_kind_of RobustExcelOle::Range }
@@ -324,7 +324,7 @@ describe RobustExcelOle::Sheet do
 
       context "without second argument" do
         before do
-          @row_range = @sheet.row_range(2)
+          @row_range = @sheet.row_range(3)
         end
 
         it "should get all cells" do
@@ -337,7 +337,7 @@ describe RobustExcelOle::Sheet do
     describe "#col_range" do
       context "with second argument" do
         before do
-          @col_range = @sheet.col_range(0, 1..2)
+          @col_range = @sheet.col_range(1, 2..3)
         end
 
         it { @col_range.should be_kind_of RobustExcelOle::Range }
@@ -349,7 +349,7 @@ describe RobustExcelOle::Sheet do
 
       context "without second argument" do
         before do
-          @col_range = @sheet.col_range(1)
+          @col_range = @sheet.col_range(2)
         end
 
         it "should get all cells" do
@@ -399,22 +399,22 @@ describe RobustExcelOle::Sheet do
 
         it "should name an unnamed range with a giving address" do
           expect{
-            @sheet1[0,1].Name.Name
+            @sheet1[1,2].Name.Name
           }.to raise_error          
-          @sheet1.add_name(0,1,"foo")
-          @sheet1[0,1].Name.Name.should == "Sheet1!foo"
+          @sheet1.add_name(1,2,"foo")
+          @sheet1[1,2].Name.Name.should == "Sheet1!foo"
         end
 
         it "should rename an already named range with a giving address" do
-          @sheet1[0,0].Name.Name.should == "Sheet1!firstcell"
-          @sheet1.add_name(0,0,"foo")
-          @sheet1[0,0].Name.Name.should == "Sheet1!foo"
+          @sheet1[1,1].Name.Name.should == "Sheet1!firstcell"
+          @sheet1.add_name(1,1,"foo")
+          @sheet1[1,1].Name.Name.should == "Sheet1!foo"
         end
 
         it "should raise an error" do
           expect{
-            @sheet1.add_name(-2,0,"foo")
-          }.to raise_error(SheetError, "cannot add name foo to cell with row -2 and column 0")
+            @sheet1.add_name(-2,1,"foo")
+          }.to raise_error(SheetError, "cannot add name foo to cell with row -2 and column 1")
         end
       end
     end

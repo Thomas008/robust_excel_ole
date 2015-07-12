@@ -15,7 +15,7 @@ begin
   book.excel.visible = true                   # make current Excel visible 
   sleep 1
   sheet = book[0]                                                        # access a sheet
-  sheet[0,0] = sheet[0,0].Value == "simple" ? "complex" : "simple"       # change a cell
+  sheet[1,1] = sheet[1,1].Value == "simple" ? "complex" : "simple"       # change a cell
   sleep 1
   begin
     new_book = Book.open(file_name, :if_unsaved => :alert) # open another book with the same file name 

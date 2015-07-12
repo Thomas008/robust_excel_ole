@@ -67,7 +67,7 @@ describe RobustExcelOle::Range do
 
       context "only merged_cell" do
         before do
-          @only_merged_range = @merge_cells_sheet.row_range(3)
+          @only_merged_range = @merge_cells_sheet.row_range(4)
         end
 
         context "without argument" do
@@ -75,14 +75,14 @@ describe RobustExcelOle::Range do
         end
 
         context "with (1..2)" do
-          it { @only_merged_range.values(1..2).should eq ['merged', 'merged'] }
+          it { @only_merged_range.values(2..3).should eq ['merged', 'merged'] }
         end
 
       end
 
       context "mix merged cell and no merge cell" do
         before do
-          @mix_merged_no_merged_range = @merge_cells_sheet.row_range(1)
+          @mix_merged_no_merged_range = @merge_cells_sheet.row_range(2)
         end
 
         context "without argument" do

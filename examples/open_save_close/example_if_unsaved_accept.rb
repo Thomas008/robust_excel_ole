@@ -13,7 +13,7 @@ begin
   file_name = dir + 'workbook.xls' 
   book = Book.open(file_name)                      # open a book 
   sheet = book[0]                                                  # access a sheet
-  sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple" # change a cell
+  sheet[1,1] = sheet[1,1].value == "simple" ? "complex" : "simple" # change a cell
   begin
     new_book = Book.open(file_name)                # open another book with the same file name
   rescue ExcelErrorOpen => msg                     # by default: raises an exception:

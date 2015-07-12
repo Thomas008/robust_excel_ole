@@ -16,7 +16,7 @@ begin
   book.excel.visible = true                                  # make current Excel visible
   sheet = book[0]                                            # access a sheet
   sleep 1     
-  sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"  # change a cell
+  sheet[1,1] = sheet[1,1].value == "simple" ? "complex" : "simple"  # change a cell
   sleep 1
   book.save                                                  # simple save
   begin

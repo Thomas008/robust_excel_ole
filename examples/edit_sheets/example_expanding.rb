@@ -38,8 +38,8 @@ begin
       rescue ExcelErrorSheet => msg
         sheet_new.name = sheet_name + sheet.name if msg.message == "sheet name already exists" 
       end
-      sheet_new.add_name(1,1,"name")
-      sheet_new[1,1].Value = sheet_name   
+      sheet_new.add_name(2,2,"name")
+      sheet_new[2,2].Value = sheet_name   
     end
     sheet_names.each do |sheet_name|
       book[sheet_name].Delete()

@@ -15,10 +15,10 @@ begin
   File.delete simple_save_file rescue nil
   book = Book.open(simple_file)      # open a book
   sheet = book[0]                    # access a sheet via integer 
-  cell = sheet[0,0]                  # access the first cell
+  cell = sheet[1,1]                  # access the first cell
   puts "1st cell: #{cell.Value}"     # put the value of the first cell
-  sheet[0,0] = "complex"             # write a value into a cell
-  puts "new cell: #{sheet[0,0].Value}"
+  sheet[1,1] = "complex"             # write a value into a cell
+  puts "new cell: #{sheet[1,1].Value}"
   puts "all cells:"
   sheet.each do |cell|               # access all cells
     puts "#{cell.Value}"             #   for each row: for every column: put the value of the cells

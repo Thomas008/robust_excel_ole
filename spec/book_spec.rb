@@ -63,7 +63,7 @@ describe Book do
         book.Saved.should be_true
         book.excel.should_not == first_excel
         sheet = book[0]
-        sheet[0,0].value.should == "simple"
+        sheet[1,1].value.should == "simple"
         book.close
       end
 
@@ -76,7 +76,7 @@ describe Book do
         book.Saved.should be_true
         book.excel.should == first_excel
         sheet = book[0]
-        sheet[0,0].value.should == "simple"
+        sheet[1,1].value.should == "simple"
         book.close
       end
 
@@ -704,8 +704,8 @@ describe Book do
         book.ReadOnly.should be_true
         book.should be_alive
         sheet = book[0]
-        old_cell_value = sheet[0,0].value
-        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+        old_cell_value = sheet[1,1].value
+        sheet[1,1] = sheet[1,1].value == "simple" ? "complex" : "simple"
         book.Saved.should be_false
         new_book = Book.open(@simple_file, :read_only => false, :if_unsaved => :accept)
         new_book.ReadOnly.should be_false 
@@ -713,7 +713,7 @@ describe Book do
         book.should be_alive   
         new_book.should == book 
         new_sheet = new_book[0]
-        new_cell_value = new_sheet[0,0].value
+        new_cell_value = new_sheet[1,1].value
         new_cell_value.should == old_cell_value
       end
 
@@ -722,8 +722,8 @@ describe Book do
         book.ReadOnly.should be_false
         book.should be_alive
         sheet = book[0]
-        old_cell_value = sheet[0,0].value        
-        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+        old_cell_value = sheet[1,1].value        
+        sheet[1,1] = sheet[1,1].value == "simple" ? "complex" : "simple"
         book.Saved.should be_false
         new_book = Book.open(@simple_file, :read_only => true, :if_unsaved => :accept)
         new_book.ReadOnly.should be_false
@@ -736,8 +736,8 @@ describe Book do
         book.ReadOnly.should be_true
         book.should be_alive
         sheet = book[0]
-        old_cell_value = sheet[0,0].value
-        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+        old_cell_value = sheet[1,1].value
+        sheet[1,1] = sheet[1,1].value == "simple" ? "complex" : "simple"
         book.Saved.should be_false
         new_book = Book.open(@simple_file, :if_unsaved => :accept, :force_excel => book.excel, :read_only => false)
         new_book.ReadOnly.should be_false 
@@ -745,7 +745,7 @@ describe Book do
         book.should be_alive   
         new_book.should == book 
         new_sheet = new_book[0]
-        new_cell_value = new_sheet[0,0].value
+        new_cell_value = new_sheet[1,1].value
         new_cell_value.should == old_cell_value
       end
 
@@ -754,8 +754,8 @@ describe Book do
         book.ReadOnly.should be_false
         book.should be_alive
         sheet = book[0]
-        old_cell_value = sheet[0,0].value        
-        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+        old_cell_value = sheet[1,1].value        
+        sheet[1,1] = sheet[1,1].value == "simple" ? "complex" : "simple"
         book.Saved.should be_false
         new_book = Book.open(@simple_file, :force_excel => book.excel, :read_only => true, :if_unsaved => :accept)
         new_book.ReadOnly.should be_false
@@ -868,7 +868,7 @@ describe Book do
       Book.unobtrusively(@simple_file) do |book|
         book.should be_a Book
         sheet = book[0]
-        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+        sheet[1,1] = sheet[1,1].value == "simple" ? "complex" : "simple"
         book.should be_alive
         book.Saved.should be_false
       end
@@ -965,18 +965,18 @@ describe Book do
         @book.Saved.should be_true
         @book.should be_alive
         sheet = @book[0]
-        old_cell_value = sheet[0,0].value
+        old_cell_value = sheet[1,1].value
         unobtrusively_ok?
         @book.Saved.should be_true
         @book.should be_alive
         sheet = @book[0]
-        sheet[0,0].value.should_not == old_cell_value
+        sheet[1,1].value.should_not == old_cell_value
       end
 
      it "should let the unsaved book unsaved" do
         sheet = @book[0]
-        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
-        old_cell_value = sheet[0,0].value
+        sheet[1,1] = sheet[1,1].value == "simple" ? "complex" : "simple"
+        old_cell_value = sheet[1,1].value
         @book.Saved.should be_false
         unobtrusively_ok?
         @book.should be_alive
@@ -984,7 +984,7 @@ describe Book do
         @book.close(:if_unsaved => :forget)
         @book2 = Book.open(@simple_file)
         sheet2 = @book2[0]
-        sheet2[0,0].value.should_not == old_cell_value
+        sheet2[1,1].value.should_not == old_cell_value
       end
 
       it "should modify unobtrusively the second, writable book" do
@@ -992,8 +992,8 @@ describe Book do
         @book.ReadOnly.should be_false
         @book2.ReadOnly.should be_true
         sheet = @book2[0]
-        old_cell_value = sheet[0,0].value
-        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+        old_cell_value = sheet[1,1].value
+        sheet[1,1] = sheet[1,1].value == "simple" ? "complex" : "simple"
         unobtrusively_ok?
         @book2.should be_alive
         @book2.Saved.should be_false
@@ -1001,7 +1001,7 @@ describe Book do
         @book.close
         @book = Book.open(@simple_file)
         sheet2 = @book[0]
-        sheet2[0,0].value.should_not == old_cell_value
+        sheet2[1,1].value.should_not == old_cell_value
       end    
     end
     
@@ -1017,21 +1017,21 @@ describe Book do
 
       it "should let the closed book closed by default" do
         sheet = @book[0]
-        old_cell_value = sheet[0,0].value
+        old_cell_value = sheet[1,1].value
         @book.close
         @book.should_not be_alive
         unobtrusively_ok?
         @book.should_not be_alive
         @book = Book.open(@simple_file)
         sheet = @book[0]
-        sheet[0,0].value.should_not == old_cell_value
+        sheet[1,1].value.should_not == old_cell_value
       end
 
       # The bold reanimation of the @book
       it "should use the excel of the book and keep open the book" do
         excel = Excel.new(:reuse => false)
         sheet = @book[0]
-        old_cell_value = sheet[0,0].value
+        old_cell_value = sheet[1,1].value
         @book.close
         @book.should_not be_alive
         Book.unobtrusively(@simple_file, :if_closed => :reuse, :keep_open => true) do |book|
@@ -1039,22 +1039,22 @@ describe Book do
           book.excel.should == @book.excel
           book.excel.should_not == excel
           sheet = book[0]
-          cell = sheet[0,0]
-          sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
+          cell = sheet[1,1]
+          sheet[1,1] = cell.value == "simple" ? "complex" : "simple"
           book.Saved.should be_false
         end
         @book.should be_alive
         @book.close
         new_book = Book.open(@simple_file)
         sheet = new_book[0]
-        sheet[0,0].value.should_not == old_cell_value
+        sheet[1,1].value.should_not == old_cell_value
       end
 
       # book shall be reanimated even with if_closed => hidden
       it "should use the excel of the book and keep open the book" do
         excel = Excel.new(:reuse => false)
         sheet = @book[0]
-        old_cell_value = sheet[0,0].value
+        old_cell_value = sheet[1,1].value
         @book.close
         @book.should_not be_alive
         Book.unobtrusively(@simple_file) do |book|
@@ -1063,20 +1063,20 @@ describe Book do
           book.excel.should_not == @book.excel
           book.excel.should_not == excel
           sheet = book[0]
-          cell = sheet[0,0]
-          sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
+          cell = sheet[1,1]
+          sheet[1,1] = cell.value == "simple" ? "complex" : "simple"
           book.Saved.should be_false
         end
         @book.should_not be_alive
         new_book = Book.open(@simple_file)
         sheet = new_book[0]
-        sheet[0,0].value.should_not == old_cell_value
+        sheet[1,1].value.should_not == old_cell_value
       end
 
       it "should use another excel if the Excels are closed" do
         excel = Excel.new(:reuse => false)
         sheet = @book[0]
-        old_cell_value = sheet[0,0].value
+        old_cell_value = sheet[1,1].value
         @book.close
         @book.should_not be_alive
         Excel.close_all
@@ -1085,21 +1085,21 @@ describe Book do
           book.excel.should == @book.excel
           book.excel.should_not == excel
           sheet = book[0]
-          cell = sheet[0,0]
-          sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
+          cell = sheet[1,1]
+          sheet[1,1] = cell.value == "simple" ? "complex" : "simple"
           book.Saved.should be_false
         end
         @book.should be_alive
         @book.close
         new_book = Book.open(@simple_file)
         sheet = new_book[0]
-        sheet[0,0].value.should_not == old_cell_value
+        sheet[1,1].value.should_not == old_cell_value
       end
 
       it "should use another excel if the Excels are closed" do
         excel = Excel.new(:reuse => false)
         sheet = @book[0]
-        old_cell_value = sheet[0,0].value
+        old_cell_value = sheet[1,1].value
         @book.close
         @book.should_not be_alive
         Excel.close_all
@@ -1108,14 +1108,14 @@ describe Book do
           book.excel.should_not == @book.excel
           book.excel.should_not == excel
           sheet = book[0]
-          cell = sheet[0,0]
-          sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
+          cell = sheet[1,1]
+          sheet[1,1] = cell.value == "simple" ? "complex" : "simple"
           book.Saved.should be_false
         end
         @book.should_not be_alive
         new_book = Book.open(@simple_file)
         sheet = new_book[0]
-        sheet[0,0].value.should_not == old_cell_value
+        sheet[1,1].value.should_not == old_cell_value
       end
 
       it "should use a given Excel" do
@@ -1144,7 +1144,7 @@ describe Book do
         @book.ReadOnly.should be_true
         @book.Saved.should be_true
         sheet = @book[0]
-        old_cell_value = sheet[0,0].value
+        old_cell_value = sheet[1,1].value
         unobtrusively_ok?
         @book.should be_alive
         @book.Saved.should be_true
@@ -1152,16 +1152,16 @@ describe Book do
         @book.close
         book2 = Book.open(@simple_file)
         sheet2 = book2[0]
-        sheet2[0,0].value.should_not == old_cell_value
+        sheet2[1,1].value.should_not == old_cell_value
       end
 
       it "should let the unsaved book unsaved" do
         @book.ReadOnly.should be_true
         sheet = @book[0]
-        sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple" 
+        sheet[1,1] = sheet[1,1].value == "simple" ? "complex" : "simple" 
         @book.Saved.should be_false
         @book.should be_alive
-        cell_value = sheet[0,0].value
+        cell_value = sheet[1,1].value
         unobtrusively_ok?
         @book.should be_alive
         @book.Saved.should be_false
@@ -1170,7 +1170,7 @@ describe Book do
         book2 = Book.open(@simple_file)
         sheet2 = book2[0]
         # modifies unobtrusively the saved version, not the unsaved version
-        sheet2[0,0].value.should == cell_value        
+        sheet2[1,1].value.should == cell_value        
       end
 
       it "should open unobtrusively by default the writable book" do
@@ -1178,13 +1178,13 @@ describe Book do
         @book.ReadOnly.should be_true
         book2.Readonly.should be_false
         sheet = @book[0]
-        cell_value = sheet[0,0].value
+        cell_value = sheet[1,1].value
         Book.unobtrusively(@simple_file) do |book|
           book.should be_a Book
           book.excel.should == book2.excel
           book.excel.should_not == @book.excel
           sheet = book[0]
-          sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+          sheet[1,1] = sheet[1,1].value == "simple" ? "complex" : "simple"
           book.should be_alive
           book.Saved.should be_false          
         end  
@@ -1194,7 +1194,7 @@ describe Book do
         book2.close
         book3 = Book.open(@simple_file)
         new_sheet = book3[0]
-        new_sheet[0,0].value.should_not == cell_value
+        new_sheet[1,1].value.should_not == cell_value
         book3.close
       end
 
@@ -1203,13 +1203,13 @@ describe Book do
         @book.ReadOnly.should be_true
         book2.Readonly.should be_true
         sheet = @book[0]
-        cell_value = sheet[0,0].value
+        cell_value = sheet[1,1].value
         Book.unobtrusively(@simple_file) do |book|
           book.should be_a Book
           book.excel.should_not == book2.excel
           book.excel.should_not == @book.excel
           sheet = book[0]
-          sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+          sheet[1,1] = sheet[1,1].value == "simple" ? "complex" : "simple"
           book.should be_alive
           book.Saved.should be_false          
         end  
@@ -1219,7 +1219,7 @@ describe Book do
         book2.close
         book3 = Book.open(@simple_file)
         new_sheet = book3[0]
-        new_sheet[0,0].value.should_not == cell_value
+        new_sheet[1,1].value.should_not == cell_value
         book3.close
       end
 
@@ -1228,13 +1228,13 @@ describe Book do
         @book.ReadOnly.should be_true
         book2.Readonly.should be_true
         sheet = @book[0]
-        cell_value = sheet[0,0].value
+        cell_value = sheet[1,1].value
         Book.unobtrusively(@simple_file) do |book|
           book.should be_a Book
           book.excel.should_not == book2.excel
           book.excel.should_not == @book.excel
           sheet = book[0]
-          sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+          sheet[1,1] = sheet[1,1].value == "simple" ? "complex" : "simple"
           book.should be_alive
           book.Saved.should be_false          
         end  
@@ -1244,7 +1244,7 @@ describe Book do
         book2.close
         book3 = Book.open(@simple_file)
         new_sheet = book3[0]
-        new_sheet[0,0].value.should_not == cell_value
+        new_sheet[1,1].value.should_not == cell_value
         book3.close
       end
 
@@ -1255,7 +1255,7 @@ describe Book do
         @book.ReadOnly.should be_true
         book2.Readonly.should be_true
         sheet = @book[0]
-        cell_value = sheet[0,0].value
+        cell_value = sheet[1,1].value
         Book.unobtrusively(@simple_file, :use_readonly_excel => false) do |book|
           book.should be_a Book
           book.ReadOnly.should be_false
@@ -1264,7 +1264,7 @@ describe Book do
           book.excel.should_not == excel1
           book.excel.should_not == excel2
           sheet = book[0]
-          sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+          sheet[1,1] = sheet[1,1].value == "simple" ? "complex" : "simple"
           book.should be_alive
           book.Saved.should be_false          
         end  
@@ -1274,7 +1274,7 @@ describe Book do
         book2.close
         book3 = Book.open(@simple_file)
         new_sheet = book3[0]
-        new_sheet[0,0].value.should_not == cell_value
+        new_sheet[1,1].value.should_not == cell_value
         book3.close
       end
 
@@ -1285,13 +1285,13 @@ describe Book do
         @book.ReadOnly.should be_true
         book2.Readonly.should be_true
         sheet = @book[0]
-        cell_value = sheet[0,0].value
+        cell_value = sheet[1,1].value
         Book.unobtrusively(@simple_file, :use_readonly_excel => true) do |book|
           book.should be_a Book
           book.excel.should == book2.excel
           book.ReadOnly.should be_false
           sheet = book[0]
-          sheet[0,0] = sheet[0,0].value == "simple" ? "complex" : "simple"
+          sheet[1,1] = sheet[1,1].value == "simple" ? "complex" : "simple"
           book.should be_alive
           book.Saved.should be_false          
         end  
@@ -1301,7 +1301,7 @@ describe Book do
         book2.close
         book3 = Book.open(@simple_file)
         new_sheet = book3[0]
-        new_sheet[0,0].value.should_not == cell_value
+        new_sheet[1,1].value.should_not == cell_value
         book3.close
       end
 
@@ -1310,7 +1310,7 @@ describe Book do
         @book.ReadOnly.should be_true
         book2.Readonly.should be_true
         sheet = @book[0]
-        cell_value = sheet[0,0].value
+        cell_value = sheet[1,1].value
         Book.unobtrusively(@simple_file, :read_only => true) do |book|
           book.should be_a Book
           book.excel.should == book2.excel
@@ -1365,8 +1365,8 @@ describe Book do
           @book1.Saved.should be_true
           book.Saved.should be_true  
           sheet = book[0]
-          cell = sheet[0,0]
-          sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
+          cell = sheet[1,1]
+          sheet[1,1] = cell.value == "simple" ? "complex" : "simple"
           @book1.Saved.should be_false
           book.Saved.should be_false
           sleep 1
@@ -1414,11 +1414,11 @@ describe Book do
 
       it "should yield the block result with an unmodified book" do
         sheet1 = @book1[0]
-        cell1 = sheet1[0,0].value
+        cell1 = sheet1[1,1].value
         result = 
           Book.unobtrusively(@simple_file) do |book| 
             sheet = book[0]
-            cell = sheet[0,0].value
+            cell = sheet[1,1].value
           end
         result.should == cell1
       end
@@ -1429,7 +1429,7 @@ describe Book do
         result = 
           Book.unobtrusively(@simple_file) do |book| 
             sheet = book[0]
-            sheet[0,0].value = 22
+            sheet[1,1].value = 22
             @book1.Saved.should be_false
             42
           end
@@ -1480,7 +1480,7 @@ describe Book do
         @book1.Readonly.should == false
         @book2.Readonly.should == true
         old_sheet = @book1[0]
-        @old_cell_value = old_sheet[0,0].value
+        @old_cell_value = old_sheet[1,1].value
         @book1.close
         @book2.close
         @book1.should_not be_alive
@@ -1493,13 +1493,13 @@ describe Book do
           book.excel.should_not == @book1.excel
           book.ReadOnly.should == false
           sheet = book[0]
-          cell = sheet[0,0]
-          sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
+          cell = sheet[1,1]
+          sheet[1,1] = cell.value == "simple" ? "complex" : "simple"
           book.Saved.should be_false
         end
         new_book = Book.open(@simple_file)
         sheet = new_book[0]
-        sheet[0,0].value.should_not == @old_cell_value
+        sheet[1,1].value.should_not == @old_cell_value
       end
 
       it "should open unobtrusively the closed book in the new hidden Excel" do
@@ -1508,13 +1508,13 @@ describe Book do
           book.excel.should_not == @book1.excel
           book.ReadOnly.should == false
           sheet = book[0]
-          cell = sheet[0,0]
-          sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
+          cell = sheet[1,1]
+          sheet[1,1] = cell.value == "simple" ? "complex" : "simple"
           book.Saved.should be_false
         end
         new_book = Book.open(@simple_file)
         sheet = new_book[0]
-        sheet[0,0].value.should_not == @old_cell_value
+        sheet[1,1].value.should_not == @old_cell_value
       end
 
       it "should open unobtrusively the closed book in a new Excel if the Excel is not alive anymore" do
@@ -1524,13 +1524,13 @@ describe Book do
           book.excel.should_not == @book1.excel
           book.excel.should_not == @book2.excel
           sheet = book[0]
-          cell = sheet[0,0]
-          sheet[0,0] = cell.value == "simple" ? "complex" : "simple"
+          cell = sheet[1,1]
+          sheet[1,1] = cell.value == "simple" ? "complex" : "simple"
           book.Saved.should be_false
         end
         new_book = Book.open(@simple_file)
         sheet = new_book[0]
-        sheet[0,0].value.should_not == @old_cell_value
+        sheet[1,1].value.should_not == @old_cell_value
       end
     end
 
@@ -1690,7 +1690,7 @@ describe Book do
 
       it "should name an unnamed cell" do
         sheet = @book1[0]
-        cell = sheet[0,1]
+        cell = sheet[1,2]
         p "cell.value: #{cell.Value}"
         p "cell.class: #{cell.class}"
         cell.name = "foo"
@@ -1699,7 +1699,7 @@ describe Book do
 
       it "should name an already named cell" do
         sheet = @book1[0]
-        cell = sheet[0,0]
+        cell = sheet[1,1]
         cell.name.should == "workbook"
         cell.name = "bar"
         cell.name.should == "bar"

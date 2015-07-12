@@ -407,6 +407,9 @@ describe RobustExcelOle::Sheet do
           @sheet1.set_nvalue("firstcell","foo")
           @sheet1.nvalue("firstcell").should == "foo"
           @sheet1[1,1].Value.should == "foo"
+          @sheet1["firstcell"] = "bar"
+          @sheet1.nvalue("firstcell").should == "bar"
+          @sheet1[1,1].Value.should == "bar"
         end
       end
 

@@ -67,10 +67,8 @@ module RobustExcelOle
           book = book_store.fetch(file, 
                   :prefer_writable => (not current_options[:read_only]), 
                   :prefer_excel    => (current_options[:read_only] ? current_options[:force_excel].excel : nil)) rescue nil
-                  # old: :prefer_excel    => (current_options[:read_only] ? Book.excel(current_options[:force_excel]) : nil)) rescue nil
           if book
             if (((not current_options[:force_excel]) || (current_options[:force_excel].excel == book.excel)) &&
-            #old: if (((not current_options[:force_excel]) || (Book.excel(current_options[:force_excel]) == book.excel)) &&
                  (not (book.alive? && (not book.saved) && (not current_options[:if_unsaved] == :accept))))
               book.options = DEFAULT_OPEN_OPTS.merge(opts)
               book.get_excel unless book.excel.alive?
@@ -200,7 +198,12 @@ module RobustExcelOle
       if ((not @workbook) || (@options[:if_unsaved] == :alert) || @options[:if_obstructed]) then
         begin
           filename = RobustExcelOle::absolute_path(@file)
-          workbooks = @excel.Workbooks
+          begin
+            workbooks = @excel.Workbooks
+          rescue RuntimeError => msg
+            puts "RuntimeError: #{msg.message}" 
+            raise ExcelErrorOpen, "Excel instance not alive or damaged" if msg.message =~ /failed to get Dispatch Interface/
+          end
           workbooks.Open(filename,{ 'ReadOnly' => @options[:read_only] })
         rescue WIN32OLERuntimeError => msg
           puts "WIN32OLERuntimeError: #{msg.message}" 

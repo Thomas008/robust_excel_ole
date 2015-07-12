@@ -938,14 +938,14 @@ describe Book do
         expect{
           Book.unobtrusively(@simple_file, :if_closed => new_excel) do |book|
           end
-        }.to raise_error(ExcelErrorOpen, "provided Excel instance is not alive")
+        }.to raise_error(ExcelErrorOpen, "Excel instance not alive or damaged")
       end
 
       it "should raise an error if the option is invalid" do
         expect{
           Book.unobtrusively(@simple_file, :if_closed => :invalid_option) do |book|
           end
-        }.to raise_error(ExcelErrorOpen, "provided instance is neither an Excel nor a Book: invalid_option")
+        }.to raise_error(ExcelErrorOpen, "provided instance is neither an Excel nor a Book")
       end
 
     end

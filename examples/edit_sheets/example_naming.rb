@@ -25,9 +25,8 @@ begin
       sheet.each do |cell_orig|
         contents = cell_orig.Value
         if contents && contents.class == String
-          sheet.Names.Add("Name" => contents, "RefersTo" => "=" + cell_orig.Address) 
-          a = cell_orig.Address
-          p "a: #{a} #{a.class}"
+          sheet.add_name(cell_orig.Row-1,cell_orig.Column-1,contents)
+          #old: sheet.Names.Add("Name" => contents, "RefersTo" => "=" + cell_orig.Address) 
         end
       end
     end

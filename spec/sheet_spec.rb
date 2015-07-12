@@ -348,9 +348,9 @@ describe RobustExcelOle::Sheet do
       end
     end
 
-    describe "nvalue" do
+    describe "nvalue, add_name" do
 
-      context "with standard" do
+      context "nvalue" do
       
         before do
           @book1 = RobustExcelOle::Book.open(@dir + '/more_workbook.xls', :read_only => true)
@@ -373,6 +373,30 @@ describe RobustExcelOle::Sheet do
 
         it "should return default value if name not defined" do
           @sheet1.nvalue("foo", :default => 2).should == 2
+        end
+      end
+
+      context "add_name" do
+
+         before do
+          @book1 = RobustExcelOle::Book.open(@dir + '/more_workbook.xls', :read_only => true, :visible => true)
+          @sheet1 = @book1[0]
+        end
+
+        after do
+          @book1.close
+        end   
+
+        it "should name a range with a giving address" do
+          @sheet1[0,0].Name.Name.should == "Sheet1!firstcell"
+          @sheet1.add_name(0,0,"Sheet1!foo")
+          @sheet1[0,0].Name.Name.should == "Sheet1!foo"
+        end
+
+        it "should raise an error" do
+          expect{
+            @sheet1.add_name(1000,0,"foo")
+          }.to raise_error(SheetError, "cannot add name foo to cell with row 1000 and column 0")
         end
       end
     end

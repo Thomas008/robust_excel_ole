@@ -95,15 +95,21 @@ module RobustExcelOle
         value = item.RefersToRange.Value
       rescue  WIN32OLERuntimeError
         return opts[:default] if opts[:default]
-        raise ExcelErrorNValue, "RefersToRange error of name #{name}"
+        raise SheetErrorNValue, "RefersToRange of name #{name}"
       end
       value
     end
 
-    # adds a name to a range
-    def add_name(name,address)
-      @sheet.Names.Add("Name" => name, "RefersTo" => "=" + address) 
-    end   
+    # adds a name to a range given by an address
+    # row, column are oriented at 0
+    def add_name(row,column,name)
+      begin
+        self[row,column].Name.Name = name
+      rescue WIN32OLERuntimeError => msg
+        #puts "WIN32OLERuntimeError: #{msg.message}"
+        raise SheetError, "cannot add name #{name} to cell with row #{row} and column #{column}"
+      end
+    end
 
     def method_missing(id, *args)  # :nodoc: #
       @sheet.send(id, *args)

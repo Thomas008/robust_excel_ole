@@ -203,7 +203,7 @@ module RobustExcelOle
           workbooks = @excel.Workbooks
           workbooks.Open(filename,{ 'ReadOnly' => @options[:read_only] })
         rescue WIN32OLERuntimeError => msg
-          puts "msg: #{msg}" 
+          puts "WIN32OLERuntimeError: #{msg.message}" 
           raise ExcelErrorOpen, "open: user canceled or open error" if msg.message =~ /OLE error code:800A03EC/
         end   
         begin

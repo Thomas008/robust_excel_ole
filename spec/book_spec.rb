@@ -1641,8 +1641,12 @@ describe Book do
         @book1.nvalue("firstrow").should == [[1,2]]        
         @book1.nvalue("four").should == [[1,2],[3,4]]
         @book1.nvalue("firstrow").should_not == "12"
+        @book1.nvalue("firstcell").should == "simple"
         @book1["new"].should == "foo"
         @book1["one"].should == 1
+        @book1["firstrow"].should == [[1,2]]        
+        @book1["four"].should == [[1,2],[3,4]]        
+        @book1["firstcell"].should == "simple"
       end
 
       it "should raise an error if name not defined" do
@@ -1669,7 +1673,7 @@ describe Book do
       end
     end
 
-    context "set_nvalue" do
+    context "set_nvalue, book[<name>]=" do
     
       before do
         @book1 = Book.open(@more_simple_file)
@@ -1684,33 +1688,29 @@ describe Book do
         @book1.set_nvalue("new","bar")
         @book1.nvalue("new").should == "bar"
       end
-    end
-
-    context "book[<name of a range>]" do
-    
-      before do
-        @book1 = Book.open(@more_simple_file)
-      end
-
-      after do
-        @book1.close
-      end   
-
-      it "should return value of a range" do
-        @book1["new"].should == "foo"
-        @book1["one"].should == 1
-      end
 
       it "should raise an error if name not defined" do
         expect {
-          @book1["foo"]
+          @book1.set_nvalue("foo","bar")
+        }.to raise_error(ExcelErrorNValue, "name foo not in more_workbook.xls")
+        expect {
+          @book1["foo"] = "bar"
         }.to raise_error(ExcelErrorNValue, "name foo not in more_workbook.xls")
       end
 
       it "should raise an error if name was defined but contents is calcuated" do
         expect {
-          @book1["named_formula"]
+          @book1.set_nvalue("named_formula","bar")
         }.to raise_error(ExcelErrorNValue, "RefersToRange error of name named_formula in more_workbook.xls")
+        expect {
+          @book1["named_formula"] = "bar"
+        }.to raise_error(ExcelErrorNValue, "RefersToRange error of name named_formula in more_workbook.xls")
+      end
+
+      it "should set value of a range" do
+        @book1.nvalue("new").should == "foo"
+        @book1["new"] = "bar"
+        @book1.nvalue("new").should == "bar"
       end
     end
 

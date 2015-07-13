@@ -31,8 +31,7 @@ module RobustExcelOle
       end
     end
 
-    # return the value of a cell, if row and column are given
-    # return the value of a cell, if its name is given given
+    # return the value of a cell, if row and column, or its name are given 
     def [] y, x = nil
       if x 
         yx = "#{y}_#{x}"
@@ -43,8 +42,7 @@ module RobustExcelOle
       end
     end
 
-    # set the value of a cell, if row and column are given
-    # set the value of a cell, if its name is given
+    # set the value of a cell, if row and column, or its name are given
     def []= (y, x, value = nil)
       if value
         @sheet.Cells.Item(y, x).Value = value

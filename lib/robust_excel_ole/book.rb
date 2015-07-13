@@ -351,14 +351,9 @@ module RobustExcelOle
         raise ExcelErrorNValue, "name #{name} not in #{File.basename(self.stored_filename)}"  
       end
       begin
-        referstorange = item.RefersToRange
+        referstorange = item.RefersToRange.Value = value
       rescue WIN32OLERuntimeError
-        raise ExcelErrorNValue, "range error in #{File.basename(self.stored_filename)}"      
-      end
-      begin
-        referstorange.Value = value
-      rescue WIN32OLERuntimeError
-        raise ExcelErrorNValue, "value error in #{File.basename(self.stored_filename)}" 
+        raise ExcelErrorNValue, "RefersToRange error of name #{name} in #{File.basename(self.stored_filename)}"    
       end
     end
 
@@ -491,6 +486,11 @@ module RobustExcelOle
       end
     end
 
+    # set the value of a range given its name
+    def []= (name, value)
+      set_nvalue(name,value)
+    end
+
     def each
       @workbook.Worksheets.each do |sheet|
         yield RobustExcelOle::Sheet.new(sheet)
@@ -502,12 +502,9 @@ module RobustExcelOle
         opts = sheet
         sheet = nil
       end
-
       new_sheet_name = opts.delete(:as)
-
       ws = @workbook.Worksheets
-      after_or_before, base_sheet = opts.to_a.first || 
-                                    [:after, Sheet.new(ws.Item(ws.Count))]
+      after_or_before, base_sheet = opts.to_a.first || [:after, Sheet.new(ws.Item(ws.Count))]
       base_sheet = base_sheet.sheet
       sheet ? sheet.Copy({ after_or_before.to_s => base_sheet }) : @workbook.WorkSheets.Add({ after_or_before.to_s => base_sheet })
       new_sheet = RobustExcelOle::Sheet.new(@excel.Activesheet)

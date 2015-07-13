@@ -3,8 +3,7 @@
 # the new workbook's name is extended by the suffix "_concat"
 
 require 'rubygems'
-#require 'robust_excel_ole'
-require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
+require 'robust_excel_ole'
 require "fileutils"
 
 include RobustExcelOle

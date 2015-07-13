@@ -478,9 +478,17 @@ module RobustExcelOle
 
   public
 
-    def [] sheet
-      sheet += 1 if sheet.is_a? Numeric
-      RobustExcelOle::Sheet.new(@workbook.Worksheets.Item(sheet))
+    # returns a sheet, if a name of a sheet or a number is given
+    # returns the value of the range, if a global name of a range in the book is given 
+    def [] name
+      name += 1 if name.is_a? Numeric
+      begin
+        RobustExcelOle::Sheet.new(@workbook.Worksheets.Item(name))
+      rescue WIN32OLERuntimeError => msg
+        if msg.message =~ /OLE error code:8002000B/
+          nvalue(name)
+        end
+      end
     end
 
     def each

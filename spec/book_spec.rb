@@ -1625,7 +1625,7 @@ describe Book do
 
   describe "nvalue, set_nvalue, rename_range" do
     
-    context "nvalue" do
+    context "nvalue, book[<name>]" do
     
       before do
         @book1 = Book.open(@more_simple_file)
@@ -1641,17 +1641,25 @@ describe Book do
         @book1.nvalue("firstrow").should == [[1,2]]        
         @book1.nvalue("four").should == [[1,2],[3,4]]
         @book1.nvalue("firstrow").should_not == "12"
+        @book1["new"].should == "foo"
+        @book1["one"].should == 1
       end
 
       it "should raise an error if name not defined" do
         expect {
-          value = @book1.nvalue("foo")
+          @book1.nvalue("foo")
+        }.to raise_error(ExcelErrorNValue, "name foo not in more_workbook.xls")
+        expect {
+          @book1["foo"]
         }.to raise_error(ExcelErrorNValue, "name foo not in more_workbook.xls")
       end
 
       it "should raise an error if name was defined but contents is calcuated" do
         expect {
-          value = @book1.nvalue("named_formula")
+          @book1.nvalue("named_formula")
+        }.to raise_error(ExcelErrorNValue, "RefersToRange error of name named_formula in more_workbook.xls")
+        expect {
+          @book1["named_formula"]
         }.to raise_error(ExcelErrorNValue, "RefersToRange error of name named_formula in more_workbook.xls")
       end
 
@@ -1675,6 +1683,34 @@ describe Book do
         @book1.nvalue("new").should == "foo"
         @book1.set_nvalue("new","bar")
         @book1.nvalue("new").should == "bar"
+      end
+    end
+
+    context "book[<name of a range>]" do
+    
+      before do
+        @book1 = Book.open(@more_simple_file)
+      end
+
+      after do
+        @book1.close
+      end   
+
+      it "should return value of a range" do
+        @book1["new"].should == "foo"
+        @book1["one"].should == 1
+      end
+
+      it "should raise an error if name not defined" do
+        expect {
+          @book1["foo"]
+        }.to raise_error(ExcelErrorNValue, "name foo not in more_workbook.xls")
+      end
+
+      it "should raise an error if name was defined but contents is calcuated" do
+        expect {
+          @book1["named_formula"]
+        }.to raise_error(ExcelErrorNValue, "RefersToRange error of name named_formula in more_workbook.xls")
       end
     end
 
@@ -2296,4 +2332,5 @@ describe Book do
       }
     end
   end
+
 end

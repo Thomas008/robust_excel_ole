@@ -42,7 +42,7 @@ describe Book do
       end
     end
   end
-  
+
   describe "open" do
 
     context "with connected workbook" do
@@ -1024,7 +1024,7 @@ describe Book do
         @book.should_not be_alive
         @book = Book.open(@simple_file)
         sheet = @book[0]
-        sheet[1,1].value.should_not == old_cell_value
+        sheet[1,1].Value.should_not == old_cell_value
       end
 
       # The bold reanimation of the @book
@@ -1161,8 +1161,14 @@ describe Book do
         sheet[1,1] = sheet[1,1].value == "simple" ? "complex" : "simple" 
         @book.Saved.should be_false
         @book.should be_alive
-        cell_value = sheet[1,1].value
-        unobtrusively_ok?
+        Book.unobtrusively(@simple_file) do |book|
+          book.should be_a Book
+          sheet = book[0]
+          sheet[1,1] = sheet[1,1].value == "simple" ? "complex" : "simple"
+          @cell_value = sheet[1,1].Value
+          book.should be_alive
+          book.Saved.should be_false
+        end
         @book.should be_alive
         @book.Saved.should be_false
         @book.ReadOnly.should be_true
@@ -1170,7 +1176,7 @@ describe Book do
         book2 = Book.open(@simple_file)
         sheet2 = book2[0]
         # modifies unobtrusively the saved version, not the unsaved version
-        sheet2[1,1].value.should == cell_value        
+        sheet2[1,1].value.should == @cell_value        
       end
 
       it "should open unobtrusively by default the writable book" do
@@ -1429,7 +1435,7 @@ describe Book do
         result = 
           Book.unobtrusively(@simple_file) do |book| 
             sheet = book[0]
-            sheet[1,1].value = 22
+            sheet[1,1] = 22
             @book1.Saved.should be_false
             42
           end
@@ -1514,7 +1520,7 @@ describe Book do
         end
         new_book = Book.open(@simple_file)
         sheet = new_book[0]
-        sheet[1,1].value.should_not == @old_cell_value
+        sheet[1,1].Value.should_not == @old_cell_value
       end
 
       it "should open unobtrusively the closed book in a new Excel if the Excel is not alive anymore" do
@@ -1530,7 +1536,7 @@ describe Book do
         end
         new_book = Book.open(@simple_file)
         sheet = new_book[0]
-        sheet[1,1].value.should_not == @old_cell_value
+        sheet[1,1].Value.should_not == @old_cell_value
       end
     end
 
@@ -1621,6 +1627,55 @@ describe Book do
         book2.close
       end
     end
+  end
+
+  describe "for_reading, for_writing" do
+
+    context "for_reading" do
+
+      it "should open unobtrusively for reading" do
+        old_book = Book.open(@simple_file)
+        sheet = old_book[0]
+        old_cell_value = sheet[1,1].value
+        old_book.close
+        Book.for_reading(@simple_file) do |book|
+          book.should be_a Book
+          book.should be_alive
+          book.Saved.should be_true  
+          sheet = book[0]
+          cell = sheet[1,1]
+          sheet[1,1] = cell.value == "simple" ? "complex" : "simple"
+          book.Saved.should be_false
+        end
+        new_book = Book.open(@simple_file, :visible => true)
+        sheet = new_book[0]
+        sheet[1,1].Value.should == old_cell_value
+      end
+    end
+               
+    context "for_modifying" do
+
+      it "should open unobtrusively for modifying" do
+        book1 = Book.open(@simple_file)
+        sheet = book1[0]
+        cell_value = sheet[1,1].value
+        book1.close
+        book1.should_not be_alive
+        Book.for_modifying(@simple_file) do |book|
+          book.should be_a Book
+          sheet = book[0]
+          cell = sheet[1,1]
+          sheet[1,1] = cell.value == "simple" ? "complex" : "simple"
+          book.Saved.should be_false
+        end
+        new_book = Book.open(@simple_file)
+        sheet = new_book[0]
+        sheet[1,1].value.should_not == cell_value
+        new_book.close
+      end
+
+    end
+
   end
 
   describe "nvalue, set_nvalue, rename_range" do

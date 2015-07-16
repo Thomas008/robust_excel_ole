@@ -138,19 +138,18 @@ If a book with the file name already exists, then
 
 The method +unobtrusively+ enables the user to read or modify a workbook, no matter if it is open in some Excel instance, if it is saved or unsaved, and if it is writable or not. When opening a workbook unobtrusively, its status remains unchanged. This status includes, whether the book is opened or closed, saved or unsaved, readonly or writable. 
 
-Options are +:if_closed+, +:read_only+, +:use_readonly_excel+, and +:keep_open.
-
-The option +:if_closed+ => +:hidden+ provokes that a closed book is opened unobtrusively in a separate Excel instance that is not visible and has no DisplayAlerts. Any following closed book would be opened in this Excel instance as well when using this option.
+One option chooses the Excel instance in which a closed book is opened. The options +:reuse (default) indicates that the closed book is opened in the Excel instance of the book, if it exists, or that another Excel instance is reused. The option +:hidden+ provokes that the closed book is opened in a separate Excel instance that is not visible and has no DisplayAlerts. Any following closed book would be opened in this Excel instance as well when using this option. Moreover, an Excel instance can be given directly where to open the closed book.
 
 Options are the following:
 
-+:if_closed+::  :hidden (default) : open a closed workbooks in one separate Excel instance that is not visible and has no displayaslerts
-                <excel-instance>  : open a closed workbooks in the given Excel instance
-                :reuse            : open a closed workbooks in the Excel instance of the book, if it exists, otherwise reuse another Excel
+:reuse (default) : open a closed book in the Excel instance of the book, if it exists, otherwise reuse another Excel
+:hidden          : open a closed book in one separate Excel instance that is not visible and has no displayaslerts
+<excel-instance> : open a closed workbooks in the given Excel instance
+               
 +:read_only+:: Open the book unobtrusively for reading only  (default: false)
-+:use_readonly_excel+::  if the book is opened only as ReadOnly and shall be modified, then
-                  true:  close it and open it as writable in the excel instance where it was open so far
-                  false (default)    open it as writable in another running excel instance, if it exists, 
++:readonly_excel+::  if the book is opened only as ReadOnly and shall be modified, then
+                     true:  close it and open it as writable in the excel instance where it was open so far
+                     false (default) open it as writable in another running excel instance, if it exists, 
                                      otherwise open in a new excel instance
 +:keep_open+:: let the book open after unobtrusively opening (default: false)
 
@@ -160,11 +159,14 @@ Options are the following:
     sheet[1,1] = "c" 
   end
   
-=== Value of a named cell or range
+The methods +for_reading+ and +for_modifying+ indicate unobtrusively reading or modifying.
 
-Returning the value of a cell or range that has a with a defined name.
+  Book.for_modifying('workbook.xls') do |book|
+    # some modification
+    sheet = book[0]
+    sheet[1,1] = "c" 
+  end
 
-  book.nvalue(name)
 
 === Checking whether the referenced Excel workbook responds to methods.
 
@@ -251,6 +253,29 @@ Accessing a range of a column.
   sheet.col_range(3)  => third column
   sheet.col_range(3, 1..2)  => first two cells of the third column
 
+=== Naming a cell
+
+Naming or renaming a cell range given its address.
+
+  book.add_name(1,1,"name")
+
+=== Reading and modifying a Value of a named range
+
+Returning the value of a range, e.g. a cell, that has a with a defined name.
+
+  book.nvalue(name)
+
+or 
+
+  book[name]
+
+Setting the value of a range, e.g. a cell, that has a with a defined name.
+
+  book.set_nvalue(name,value)
+
+or 
+
+  book[name] = value
 
 === Adding a sheet.
 

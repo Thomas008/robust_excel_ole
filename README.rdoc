@@ -107,21 +107,23 @@ Saving a workbook and overwriting the file if it exists before.
 
 The method +unobtrusively+ enables the user to read or modify a workbook, no matter if it is open in some Excel instance, if it is saved or unsaved, and if it is writable or not. When opening a workbook unobtrusively, its status remains unchanged. This status includes, whether the book is opened or closed, saved or unsaved, readonly or writable. 
 
-Options are +:if_closed+, +:read_only+, +:use_readonly_excel+, and +:keep_open.
+One option chooses the Excel instance in which a closed book is opened. The options +:reuse (default) indicates that the closed book is opened in the Excel instance of the book, if it exists, or that another Excel instance is reused. The option +:hidden+ provokes that the closed book is opened in a separate Excel instance that is not visible and has no DisplayAlerts. Any following closed book would be opened in this Excel instance as well when using this option. Moreover, an Excel instance can be given directly where to open the closed book.
 
-The option +:if_closed+ => +:hidden+ provokes that a closed book is opened unobtrusively in a separate Excel instance that is not visible and has no DisplayAlerts. Any following closed book would be opened in this Excel instance as well when using this option.
+Further options are +:read_only+, +:readonly_excel+, and +:keep_open. The option +:readonly_excel+ chooses wheter a book that is opened as ReadOnly and that shall be modified shall be opned as writable in the Excel instance where it was open so far, or if it shall be opened as writable in another running Excel instance, if such an Excel exists, or opened in a new Excel instance.
 
-  Book.unobtrusively('workbook.xls', :if_closed => :hidden) do |book|
+  Book.unobtrusively('workbook.xls', :reuse, :read_only => false, :keep_open => false) do |book|
     # some modification
     sheet = book[0]
     sheet[1,1] = "c" 
   end
   
-=== Value of a named cell or range
+The methods +for_reading+ and +for_modifying+ indicate unobtrusively reading or modifying.
 
-Returning the value of a cell or range that has a with a defined name.
-
-  book.nvalue(name)
+  Book.for_modifying('workbook.xls') do |book|
+    # some modification
+    sheet = book[0]
+    sheet[1,1] = "c" 
+  end
 
 === Checking whether the workbook is alive.
 
@@ -177,7 +179,7 @@ A sheet object is enumerable. Use the methods Sheet#each_column, Sheet#each_row 
 
 Reading a cell from a sheet object.
 
-  sheet[1, 1]  => first cell.
+  sheet[1, 1]  => first cell (first row, first column).
 
 Reading a cell from a range object.
 
@@ -195,7 +197,6 @@ Writing a cell
 
   sheet[1,1] = "new_value"
 
-
 === Accessing a range of a row or column. 
 
 Accessing a range of a row.
@@ -208,6 +209,29 @@ Accessing a range of a column.
   sheet.col_range(3)  => third column
   sheet.col_range(3, 1..2)  => first two cells of the third column
 
+=== Naming a cell
+
+Naming or renaming a cell range given its address.
+
+  book.add_name(1,1,"name")
+
+=== Reading and modifying a Value of a named range
+
+Returning the value of a range, e.g. a cell, that has a with a defined name.
+
+  book.nvalue(name)
+
+or 
+
+  book[name]
+
+Setting the value of a range, e.g. a cell, that has a with a defined name.
+
+  book.set_nvalue(name,value)
+
+or 
+
+  book[name] = value
 
 === Adding a sheet.
 

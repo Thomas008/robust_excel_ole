@@ -4,8 +4,6 @@ module RobustExcelOle
 
   class Excel
 
-    attr_accessor :excel
-
     @@hwnd2excel = {}
 
     # closes all Excel instances
@@ -68,6 +66,10 @@ module RobustExcelOle
       @excel = self
     end
 
+    def excel
+      self
+    end
+
     # generate, save and close an empty workbook
     def generate_workbook file_name                  
       self.Workbooks.Add                           
@@ -106,8 +108,12 @@ module RobustExcelOle
       @this_excel.Name
       true
     rescue
-      puts $!.message
+      #puts $!.message
       false
+    end
+
+    def print_workbooks
+      self.Workbooks.each {|w| puts w.Name}
     end
 
     # set DisplayAlerts in a block

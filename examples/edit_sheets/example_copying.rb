@@ -13,7 +13,7 @@ include RobustExcelOle
 begin
   Excel.close_all
   dir = "C:/data"
-  workbook_name = 'more_workbook.xls'
+  workbook_name = 'another_workbook.xls'
   base_name = workbook_name[0,workbook_name.rindex('.')]
   suffix = workbook_name[workbook_name.rindex('.')+1,workbook_name.length]
   file_name = dir + "/" + workbook_name

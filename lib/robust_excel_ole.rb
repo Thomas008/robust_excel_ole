@@ -33,9 +33,7 @@ end
 
 class Object
   def excel
-    #unless self.is_a?(Excel) || self.is_a?(Book)
-      raise ExcelErrorOpen, "provided instance is neither an Excel nor a Book"
-    #end
+    raise ExcelErrorOpen, "provided instance is neither an Excel nor a Book"
   end
 
 end

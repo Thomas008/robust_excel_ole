@@ -504,7 +504,7 @@ module RobustExcelOle
       begin
         RobustExcelOle::Sheet.new(@workbook.Worksheets.Item(name))
       rescue WIN32OLERuntimeError => msg
-        if msg.message =~ /OLE error code:8002000B/
+        if msg.message =~ /8002000B/
           nvalue(name)
           # nicer: re-raise exceptions with mention of sheet name
         end

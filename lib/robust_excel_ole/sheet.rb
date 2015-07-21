@@ -25,7 +25,7 @@ module RobustExcelOle
       begin
         @worksheet.Name = new_name
       rescue WIN32OLERuntimeError => msg
-        if msg.message =~ /OLE error code:800A03EC/ 
+        if msg.message =~ /800A03EC/ 
           raise ExcelErrorSheet, "sheet name already exists"
         end
       end

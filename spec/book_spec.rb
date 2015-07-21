@@ -672,12 +672,11 @@ describe Book do
         File.exist?(@simple_save_file).should be_true
       end
 
-      it "should create a workbook by default" do
+      it "should raise an exception by default" do
         File.delete @simple_save_file rescue nil
-        book = Book.open(@simple_save_file)
-        book.should be_a Book
-        book.close
-        File.exist?(@simple_save_file).should be_true
+        expect {
+          Book.open(@simple_save_file)
+        }.to raise_error(ExcelErrorOpen, "file #{@simple_save_file} not found")
       end
 
     end
@@ -813,7 +812,7 @@ describe Book do
         path = '~/Abrakadabra.xlsx'
         expected_path = Regexp.new(File.expand_path(path).gsub(/\//, "."))
         expect {
-          Book.open(path, :if_absent => :raise)
+          Book.open(path)
         }.to raise_error(ExcelErrorOpen, "file #{path} not found")
       end
     end

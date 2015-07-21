@@ -18,6 +18,7 @@ module RobustExcelOle
         :if_locked     => :readonly,       
         :if_unsaved    => :raise,
         :if_obstructed => :raise,
+        :if_absent     => :raise,
         :read_only => false
       }
 
@@ -52,8 +53,9 @@ module RobustExcelOle
       #                  :close_if_saved      -> close the old book and open the new book, if the old book is saved,
       #                                          otherwise raise an exception.
       #                  :new_excel           -> open the new book in a new Excel    
-      # :if_absent       :create (default)    -> creates a new Excel file, if it does not exists  
-      #                  :raise               -> raises an exception     , if the file does not exists
+      # :if_absent       :raise (default)     -> raises an exception     , if the file does not exists
+      #                  :create              -> creates a new Excel file, if it does not exists  
+      #                  
       # :read_only     open in read-only mode         (default: false) 
       # :displayalerts enable DisplayAlerts in Excel  (default: false)
       # :visible       make visible in Excel          (default: false)
@@ -123,7 +125,14 @@ module RobustExcelOle
     end
 
     def get_workbook
-      raise ExcelErrorOpen, "file #{@file} not found" if ((not File.exist?(@file)) && @options[:if_absent] == :raise) 
+      unless File.exist?(@file)
+        if @options[:if_absent] == :create
+          @workbook = Excel.current.generate_workbook(@file)
+        else 
+          raise ExcelErrorOpen, "file #{@file} not found"
+        end
+      end
+      #raise ExcelErrorOpen, "file #{@file} not found" if ((not File.exist?(@file)) && @options[:if_absent] == :raise) 
       @workbook = @excel.Workbooks.Item(File.basename(@file)) rescue nil
       if @workbook then
         obstructed_by_other_book = (File.basename(@file) == File.basename(@workbook.Fullname)) && 
@@ -191,10 +200,6 @@ module RobustExcelOle
     end
 
     def open_or_create_workbook
-      if (not File.exist?(@file))
-        @workbook = Excel.current.generate_workbook(@file)
-        return
-      end
       if ((not @workbook) || (@options[:if_unsaved] == :alert) || @options[:if_obstructed]) then
         begin
           filename = RobustExcelOle::absolute_path(@file)

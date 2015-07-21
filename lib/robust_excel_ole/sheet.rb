@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 module RobustExcelOle
   class Sheet
-    attr_reader :sheet
+    attr_reader :worksheet
     include Enumerable
 
     def initialize(win32_worksheet)
-      @sheet = win32_worksheet
-      if @sheet.ProtectContents
-        @sheet.Unprotect
+      @worksheet = win32_worksheet
+      if @worksheet.ProtectContents
+        @worksheet.Unprotect
         @end_row = last_row
         @end_column = last_column
-        @sheet.Protect
+        @worksheet.Protect
       else
         @end_row = last_row
         @end_column = last_column
@@ -18,12 +18,12 @@ module RobustExcelOle
     end
 
     def name
-      @sheet.Name
+      @worksheet.Name
     end
 
     def name= (new_name)
       begin
-        @sheet.Name = new_name
+        @worksheet.Name = new_name
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /OLE error code:800A03EC/ 
           raise ExcelErrorSheet, "sheet name already exists"
@@ -36,18 +36,19 @@ module RobustExcelOle
       if x 
         yx = "#{y}_#{x}"
         @cells ||= { }
-        @cells[yx] ||= RobustExcelOle::Cell.new(@sheet.Cells.Item(y, x))
+        @cells[yx] ||= RobustExcelOle::Cell.new(@worksheet.Cells.Item(y, x))
       else
         nvalue(y)
       end
     end
 
     # set the value of a cell, if row and column, or its name are given
-    def []= (y, x, value = nil)
-      if value
-        @sheet.Cells.Item(y, x).Value = value
+    def []= (y, x, value = :__not_provided)
+      if value != :__not_provided
+        @worksheet.Cells.Item(y, x).Value = value
       else
-        set_nvalue(y,x)
+        name, value = y, x
+        set_nvalue(name, value)
       end
     end
 
@@ -63,7 +64,7 @@ module RobustExcelOle
       offset += 1
       1.upto(@end_row) do |row|
         next if row < offset
-        yield RobustExcelOle::Range.new(@sheet.Range(@sheet.Cells(row, 1), @sheet.Cells(row, @end_column)))
+        yield RobustExcelOle::Range.new(@worksheet.Range(@worksheet.Cells(row, 1), @worksheet.Cells(row, @end_column)))
       end
     end
 
@@ -77,7 +78,7 @@ module RobustExcelOle
       offset += 1
       1.upto(@end_column) do |column|
         next if column < offset
-        yield RobustExcelOle::Range.new(@sheet.Range(@sheet.Cells(1, column), @sheet.Cells(@end_row, column)))
+        yield RobustExcelOle::Range.new(@worksheet.Range(@worksheet.Cells(1, column), @worksheet.Cells(@end_row, column)))
       end
     end
 
@@ -89,12 +90,12 @@ module RobustExcelOle
 
     def row_range(row, range = nil)
       range ||= 1..@end_column
-      RobustExcelOle::Range.new(@sheet.Range(@sheet.Cells(row , range.min ), @sheet.Cells(row , range.max )))
+      RobustExcelOle::Range.new(@worksheet.Range(@worksheet.Cells(row , range.min ), @worksheet.Cells(row , range.max )))
     end
 
     def col_range(col, range = nil)
       range ||= 1..@end_row
-      RobustExcelOle::Range.new(@sheet.Range(@sheet.Cells(range.min , col ), @sheet.Cells(range.max , col )))
+      RobustExcelOle::Range.new(@worksheet.Range(@worksheet.Cells(range.min , col ), @worksheet.Cells(range.max , col )))
     end
 
     # returns the contents of a range with given name
@@ -114,15 +115,6 @@ module RobustExcelOle
         raise SheetError, "RefersToRange of name #{name}"
       end
       value
-    end
-
-    def hey(a , b = 0)
-      if a 
-        p "a:#{a}"
-        p "b:#{b}"       
-      else
-        p "haha"
-      end
     end
 
     # returns the contents of a range with given name
@@ -161,20 +153,20 @@ module RobustExcelOle
     end
 
     def method_missing(id, *args)  # :nodoc: #
-      @sheet.send(id, *args)
+      @worksheet.send(id, *args)
     end
 
     private
     def last_row
-      special_last_row = @sheet.UsedRange.SpecialCells(RobustExcelOle::XlLastCell).Row
-      used_last_row = @sheet.UsedRange.Rows.Count
+      special_last_row = @worksheet.UsedRange.SpecialCells(RobustExcelOle::XlLastCell).Row
+      used_last_row = @worksheet.UsedRange.Rows.Count
 
       special_last_row >= used_last_row ? special_last_row : used_last_row
     end
 
     def last_column
-      special_last_column = @sheet.UsedRange.SpecialCells(RobustExcelOle::XlLastCell).Column
-      used_last_column = @sheet.UsedRange.Columns.Count
+      special_last_column = @worksheet.UsedRange.SpecialCells(RobustExcelOle::XlLastCell).Column
+      used_last_column = @worksheet.UsedRange.Columns.Count
 
       special_last_column >= used_last_column ? special_last_column : used_last_column
     end    

@@ -206,8 +206,8 @@ module RobustExcelOle
           end
           workbooks.Open(filename,{ 'ReadOnly' => @options[:read_only] })
         rescue WIN32OLERuntimeError => msg
-          puts "WIN32OLERuntimeError: #{msg.message}" 
-          raise ExcelErrorOpen, "open: user canceled or open error" if msg.message =~ /OLE error code:800A03EC/
+          #puts "WIN32OLERuntimeError: #{msg.message}" 
+          raise ExcelErrorOpen, "open: user canceled or open error" if msg.message =~ /800A03EC/
         end   
         begin
           # workaround for bug in Excel 2010: workbook.Open does not always return 
@@ -266,6 +266,17 @@ module RobustExcelOle
     def self.for_modifying(file, opts = { }, &block)
       unobtrusively(file, {:read_only => false}.merge(opts), &block)
     end
+
+=begin
+    def self.for_modifying(*args, &block)
+      args = args.dup
+      opts = args.last.is_a?(Hash) ? args.pop : {}
+      opts = {:read_only => false}.merge(opts)
+      #opts.reverse_erge{:read_only => false}
+      args.push opts
+      unobtrusively(*args, &block)
+    end
+=end
 
     # modify a book such that its state (open/close, saved/unsaved, readonly/writable) remains unchanged.
     #  options:
@@ -364,7 +375,7 @@ module RobustExcelOle
         raise ExcelErrorNValue, "name #{name} not in #{File.basename(self.stored_filename)}"  
       end
       begin
-        referstorange = item.RefersToRange.Value = value
+        item.RefersToRange.Value = value
       rescue WIN32OLERuntimeError
         raise ExcelErrorNValue, "RefersToRange error of name #{name} in #{File.basename(self.stored_filename)}"    
       end
@@ -495,6 +506,7 @@ module RobustExcelOle
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /OLE error code:8002000B/
           nvalue(name)
+          # nicer: re-raise exceptions with mention of sheet name
         end
       end
     end
@@ -518,13 +530,13 @@ module RobustExcelOle
       new_sheet_name = opts.delete(:as)
       ws = @workbook.Worksheets
       after_or_before, base_sheet = opts.to_a.first || [:after, Sheet.new(ws.Item(ws.Count))]
-      base_sheet = base_sheet.sheet
+      base_sheet = base_sheet.worksheet
       sheet ? sheet.Copy({ after_or_before.to_s => base_sheet }) : @workbook.WorkSheets.Add({ after_or_before.to_s => base_sheet })
       new_sheet = RobustExcelOle::Sheet.new(@excel.Activesheet)
       begin
         new_sheet.name = new_sheet_name if new_sheet_name
       rescue WIN32OLERuntimeError => msg
-        if msg.message =~ /OLE error code:800A03EC/ 
+        if msg.message =~ /800A03EC/ 
           raise ExcelErrorSheet, "sheet name already exists"
         end
       end

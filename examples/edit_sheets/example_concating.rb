@@ -3,7 +3,8 @@
 # the new workbook's name is extended by the suffix "_concat"
 
 require 'rubygems'
-require 'robust_excel_ole'
+#require 'robust_excel_ole'
+require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
 require "fileutils"
 
 include RobustExcelOle
@@ -25,8 +26,7 @@ begin
         name = cell.Name.Name rescue nil
         if name
           cell.Value = cell.Value.to_s + cell.Offset(0,1).Value.to_s
-          # alternative: sheet[cell.Row, cell.Column].Value = ...
-          sheet.add_name(cell.Row,cell.Column,name)
+          sheet.add_name(cell.Row, cell.Column, name)
         end
       end
     end

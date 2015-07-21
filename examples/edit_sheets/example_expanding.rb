@@ -6,7 +6,8 @@
 # in addition to that, the cell B2 shall be named "name" and get the sheet name as its value 
 
 require 'rubygems'
-require 'robust_excel_ole'
+#require 'robust_excel_ole'
+require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
 require "fileutils"
 
 include RobustExcelOle
@@ -22,11 +23,15 @@ begin
   book_orig = Book.open(file_name)
   book_orig.save_as(extended_file_name, :if_exists => :overwrite) 
   book_orig.close
-  sheet_names = []
+  
   Book.unobtrusively(extended_file_name) do |book|     
+    sheet_names = []
     book.each do |sheet|
       sheet_names << sheet.name
-    end
+    end    
+    #book.extend Enumerable
+    sheet_names = book.map { |sheet| sheet.name }
+
     book.Names.each do |excel_name|
       full_name = excel_name.Name
       sheet_name, short_name = full_name.split("!")
@@ -38,8 +43,9 @@ begin
       rescue ExcelErrorSheet => msg
         sheet_new.name = sheet_name + sheet.name if msg.message == "sheet name already exists" 
       end
-      sheet_new.add_name(2,2,"name")
-      sheet_new[2,2].Value = sheet_name   
+      sheet_new.add_name(2, 2, "name")
+      sheet_new["name"] = sheet_name   
+      #sheet_new[2, 2] = sheet_name   
     end
     sheet_names.each do |sheet_name|
       book[sheet_name].Delete()

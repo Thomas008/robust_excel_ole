@@ -22,7 +22,7 @@ describe Book do
     @simple_save_file = @dir + '/workbook_save.xls'
     @different_file = @dir + '/different_workbook.xls'
     @simple_file_other_path = @dir + '/more_data/workbook.xls'
-    @more_simple_file = @dir + '/more_workbook.xls'
+    @another_simple_file = @dir + '/another_workbook.xls'
     @connected_file = @dir + '/workbook.xlsx'
   end
 
@@ -921,7 +921,7 @@ describe Book do
 
       it "should open unobtrusively in a given Excel via a book" do
         book1 = Book.open(@different_file)
-        book2 = Book.open(@more_simple_file, :force_excel => :new)
+        book2 = Book.open(@another_simple_file, :force_excel => :new)
         Book.unobtrusively(@simple_file, book2) do |book|
           book.should be_a Book
           book.should be_alive
@@ -1646,7 +1646,7 @@ describe Book do
     context "nvalue, book[<name>]" do
     
       before do
-        @book1 = Book.open(@more_simple_file)
+        @book1 = Book.open(@another_simple_file)
       end
 
       after do
@@ -1670,19 +1670,19 @@ describe Book do
       it "should raise an error if name not defined" do
         expect {
           @book1.nvalue("foo")
-        }.to raise_error(ExcelErrorNValue, "name foo not in more_workbook.xls")
+        }.to raise_error(ExcelErrorNValue, "name foo not in another_workbook.xls")
         expect {
           @book1["foo"]
-        }.to raise_error(ExcelErrorNValue, "name foo not in more_workbook.xls")
+        }.to raise_error(ExcelErrorNValue, "name foo not in another_workbook.xls")
       end
 
       it "should raise an error if name was defined but contents is calcuated" do
         expect {
           @book1.nvalue("named_formula")
-        }.to raise_error(ExcelErrorNValue, "RefersToRange error of name named_formula in more_workbook.xls")
+        }.to raise_error(ExcelErrorNValue, "RefersToRange error of name named_formula in another_workbook.xls")
         expect {
           @book1["named_formula"]
-        }.to raise_error(ExcelErrorNValue, "RefersToRange error of name named_formula in more_workbook.xls")
+        }.to raise_error(ExcelErrorNValue, "RefersToRange error of name named_formula in another_workbook.xls")
       end
 
       it "should return default value if name not defined" do
@@ -1694,7 +1694,7 @@ describe Book do
     context "set_nvalue, book[<name>]=" do
     
       before do
-        @book1 = Book.open(@more_simple_file)
+        @book1 = Book.open(@another_simple_file)
       end
 
       after do
@@ -1710,19 +1710,19 @@ describe Book do
       it "should raise an error if name not defined" do
         expect {
           @book1.set_nvalue("foo","bar")
-        }.to raise_error(ExcelErrorNValue, "name foo not in more_workbook.xls")
+        }.to raise_error(ExcelErrorNValue, "name foo not in another_workbook.xls")
         expect {
           @book1["foo"] = "bar"
-        }.to raise_error(ExcelErrorNValue, "name foo not in more_workbook.xls")
+        }.to raise_error(ExcelErrorNValue, "name foo not in another_workbook.xls")
       end
 
       it "should raise an error if name was defined but contents is calcuated" do
         expect {
           @book1.set_nvalue("named_formula","bar")
-        }.to raise_error(ExcelErrorNValue, "RefersToRange error of name named_formula in more_workbook.xls")
+        }.to raise_error(ExcelErrorNValue, "RefersToRange error of name named_formula in another_workbook.xls")
         expect {
           @book1["named_formula"] = "bar"
-        }.to raise_error(ExcelErrorNValue, "RefersToRange error of name named_formula in more_workbook.xls")
+        }.to raise_error(ExcelErrorNValue, "RefersToRange error of name named_formula in another_workbook.xls")
       end
 
       it "should set value of a range" do
@@ -1735,7 +1735,7 @@ describe Book do
     context "rename_range" do
     
       before do
-        @book1 = Book.open(@more_simple_file)
+        @book1 = Book.open(@another_simple_file)
       end
 
       after do
@@ -1747,7 +1747,7 @@ describe Book do
         @book1.nvalue("five").should == [[1,2],[3,4]]
         expect {
           @book1.rename_range("four","five")
-        }.to raise_error(ExcelErrorRename, "name four not in more_workbook.xls")
+        }.to raise_error(ExcelErrorRename, "name four not in another_workbook.xls")
       end
     end
   end

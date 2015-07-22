@@ -27,27 +27,34 @@ module RobustExcelOle
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /800A03EC/ 
           raise ExcelErrorSheet, "sheet name already exists"
+        else
+          puts "#{msg.message}"
+          raise ExcelErrorSheetUnknown
         end
       end
     end
 
     # return the value of a cell, if row and column, or its name are given 
-    def [] y, x = nil
-      if x 
+    def [] p1, p2 = :__not_provided
+      if p2 != :__not_provided  
+        y, x = p1, p2
         yx = "#{y}_#{x}"
         @cells ||= { }
         @cells[yx] ||= RobustExcelOle::Cell.new(@worksheet.Cells.Item(y, x))
       else
-        nvalue(y)
+        name = p1
+        nvalue(name)
       end
     end
 
     # set the value of a cell, if row and column, or its name are given
-    def []= (y, x, value = :__not_provided)
-      if value != :__not_provided
+    def []= (p1, p2, p3 = :__not_provided)
+      if p3 != :__not_provided
+        y, x, value = p1, p2, p3
         @worksheet.Cells.Item(y, x).Value = value
+        #@worksheet.Cells.Item(y, x).Value = @cells[yx] = value
       else
-        name, value = y, x
+        name, value = p1, p2
         set_nvalue(name, value)
       end
     end
@@ -117,11 +124,6 @@ module RobustExcelOle
       value
     end
 
-    # returns the contents of a range with given name
-    #def [] name
-    #  nvalue(name)
-    #end
-
     def set_nvalue(name,value)
       begin
         item = self.Names.Item(name)
@@ -135,9 +137,8 @@ module RobustExcelOle
       end
     end
 
-    # adds a name to a range given by an address
-    # row, column are oriented at 0
-    def add_name(row,column,name)
+    # assigns a name to a range (a cell) given by an address
+    def set_name(name,row,column)
       begin
         old_name = self[row,column].Name.Name rescue nil
         if old_name
@@ -147,7 +148,7 @@ module RobustExcelOle
           self.Names.Add("Name" => name, "RefersToR1C1" => "=" + address)
         end
       rescue WIN32OLERuntimeError => msg
-        #puts "WIN32OLERuntimeError: #{msg.message}"
+        puts "WIN32OLERuntimeError: #{msg.message}"
         raise SheetError, "cannot add name #{name} to cell with row #{row} and column #{column}"
       end
     end

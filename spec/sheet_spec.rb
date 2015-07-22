@@ -91,11 +91,24 @@ describe RobustExcelOle::Sheet do
           @sheet[3, 1].value.should eq 'matz'
         end
       end
+
+      context "supplying nil as parameter" do
+        it "should access [1,1]" do
+          @sheet[1, nil].value.should eq 'simple'
+          @sheet[nil, 1].value.should eq 'simple'
+        end
+      end
+
     end
 
     it "change a cell to 'foo'" do
       @sheet[1, 1] = 'foo'
       @sheet[1, 1].value.should eq 'foo'
+    end
+
+    it "should change a cell to nil" do
+      @sheet[1, 1] = nil
+      @sheet[1, 1].value.should eq nil
     end
 
     describe '#each' do
@@ -276,9 +289,7 @@ describe RobustExcelOle::Sheet do
                                 [nil, nil, 'third', 'merged']
                            ]
         end
-
       end
-
     end
 
     describe "#each_column_with_index" do
@@ -358,12 +369,12 @@ describe RobustExcelOle::Sheet do
       end
     end
 
-    describe "nvalue, add_name" do
+    describe "nvalue" do
 
-      context "nvalue, sheet[<name>]" do
+      context "returning the value of a range" do
       
         before do
-          @book1 = RobustExcelOle::Book.open(@dir + '/more_workbook.xls', :read_only => true)
+          @book1 = RobustExcelOle::Book.open(@dir + '/another_workbook.xls', :read_only => true)
           @sheet1 = @book1[0]
         end
 
@@ -371,7 +382,7 @@ describe RobustExcelOle::Sheet do
           @book1.close
         end   
 
-        it "should return value of a range" do
+        it "should return value of a range with nvalue and brackets operator" do
           @sheet1.nvalue("firstcell").should == "simple"
           @sheet1["firstcell"].should == "simple"
         end
@@ -389,11 +400,14 @@ describe RobustExcelOle::Sheet do
           @sheet1.nvalue("foo", :default => 2).should == 2
         end
       end
+    end
 
-      context "set_nvalue, sheet[<name>]=<value>" do
+    describe "set_nvalue" do
+
+      context "setting the value of a range" do
       
         before do
-          @book1 = RobustExcelOle::Book.open(@dir + '/more_workbook.xls', :read_only => true)
+          @book1 = RobustExcelOle::Book.open(@dir + '/another_workbook.xls', :read_only => true)
           @sheet1 = @book1[0]
         end
 
@@ -412,11 +426,14 @@ describe RobustExcelOle::Sheet do
           @sheet1[1,1].Value.should == "bar"
         end
       end
+    end
 
-      context "add_name" do
+    describe "set_name" do
+
+      context "setting the name of a range" do
 
          before do
-          @book1 = RobustExcelOle::Book.open(@dir + '/more_workbook.xls', :read_only => true, :visible => true)
+          @book1 = RobustExcelOle::Book.open(@dir + '/another_workbook.xls', :read_only => true, :visible => true)
           @sheet1 = @book1[0]
         end
 
@@ -428,19 +445,19 @@ describe RobustExcelOle::Sheet do
           expect{
             @sheet1[1,2].Name.Name
           }.to raise_error          
-          @sheet1.add_name(1,2,"foo")
+          @sheet1.set_name("foo",1,2)
           @sheet1[1,2].Name.Name.should == "Sheet1!foo"
         end
 
         it "should rename an already named range with a giving address" do
           @sheet1[1,1].Name.Name.should == "Sheet1!firstcell"
-          @sheet1.add_name(1,1,"foo")
+          @sheet1.set_name("foo",1,1)
           @sheet1[1,1].Name.Name.should == "Sheet1!foo"
         end
 
         it "should raise an error" do
           expect{
-            @sheet1.add_name(-2,1,"foo")
+            @sheet1.set_name("foo",-2,1)
           }.to raise_error(SheetError, "cannot add name foo to cell with row -2 and column 1")
         end
       end

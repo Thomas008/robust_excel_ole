@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 
 require 'weakref'
@@ -15,7 +14,7 @@ module RobustExcelOle
       DEFAULT_OPEN_OPTS = { 
         :excel => :reuse,
         :default_excel => :reuse,
-        :if_locked     => :readonly,       
+        :if_lockraiseed     => :readonly,       
         :if_unsaved    => :raise,
         :if_obstructed => :raise,
         :if_absent     => :raise,
@@ -132,7 +131,6 @@ module RobustExcelOle
           raise ExcelErrorOpen, "file #{@file} not found"
         end
       end
-      #raise ExcelErrorOpen, "file #{@file} not found" if ((not File.exist?(@file)) && @options[:if_absent] == :raise) 
       @workbook = @excel.Workbooks.Item(File.basename(@file)) rescue nil
       if @workbook then
         obstructed_by_other_book = (File.basename(@file) == File.basename(@workbook.Fullname)) && 
@@ -511,7 +509,8 @@ module RobustExcelOle
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /8002000B/
           nvalue(name)
-          # nicer: re-raise exceptions with mention of sheet name
+        else
+          raise ExcelErrorBrackets, "could neither return a sheet nor a value of a range when giving the name #{name}"
         end
       end
     end
@@ -543,6 +542,9 @@ module RobustExcelOle
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /800A03EC/ 
           raise ExcelErrorSheet, "sheet name already exists"
+        else
+          puts "#{msg.message}"
+          raise ExcelErrorSheetUnknown
         end
       end
       new_sheet
@@ -599,6 +601,10 @@ public
   class ExcelErrorRename < WIN32OLERuntimeError # :nodoc: #
   end
 
+  class ExcelErrorBrackets < WIN32OLERuntimeError # :nodoc: #
+  end
+
+
   class ExcelErrorNValue < WIN32OLERuntimeError # :nodoc: #
   end
 
@@ -608,4 +614,6 @@ public
   class ExcelErrorSheet < ExcelError    # :nodoc: #
   end
 
+  class ExcelErrorSheetUnknown < ExcelErrorSheet    # :nodoc: #
+  end
 end

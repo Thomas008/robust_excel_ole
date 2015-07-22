@@ -26,7 +26,7 @@ begin
         name = cell.Name.Name rescue nil
         if name
           cell.Value = cell.Value.to_s + cell.Offset(0,1).Value.to_s
-          sheet.add_name(cell.Row, cell.Column, name)
+          sheet.set_name(name, cell.Row, cell.Column)
         end
       end
     end

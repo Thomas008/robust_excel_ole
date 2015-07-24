@@ -854,8 +854,8 @@ describe Book do
       it "should create and use a hidden Excel instance" do
         book2 = Book.open(@simple_file, :force_excel => @book.book_store.hidden_excel)
         book2.excel.should_not == @book.excel
-        book2.excel.Visible.should be_false
-        book2.excel.DisplayAlerts.should be_false
+        book2.excel.visible.should be_false
+        book2.excel.displayalerts.should be_false
         book2.close 
       end
     end
@@ -1049,7 +1049,7 @@ describe Book do
         sheet[1,1].value.should_not == old_cell_value
       end
 
-      # book shall be reanimated even with if_closed => hidden
+      # book shall be reanimated even with :hidden
       it "should use the excel of the book and keep open the book" do
         excel = Excel.new(:reuse => false)
         sheet = @book[0]
@@ -1115,18 +1115,60 @@ describe Book do
         new_book = Book.open(@simple_file)
         sheet = new_book[0]
         sheet[1,1].value.should_not == old_cell_value
+      end      
+    end
+
+    context "with various options for an Excel instance in which to open a closed book" do
+
+      before do
+        @book = Book.open(@simple_file)
+        @book.close
       end
 
       it "should use a given Excel" do
-        @book.close
-        excel = Excel.new(:reuse => false)
         new_excel = Excel.new(:reuse => false)
-        Book.unobtrusively(@simple_file, new_excel) do |book|
-          book.should be_a Book
+        another_excel = Excel.new(:reuse => false)
+        Book.unobtrusively(@simple_file, another_excel) do |book|
           book.excel.should_not == @book.excel
-          book.excel.should == new_excel
+          book.excel.should_not == new_excel
+          book.excel.should == another_excel
         end
       end
+
+      it "should use the hidden Excel" do
+        new_excel = Excel.new(:reuse => false)
+        Book.unobtrusively(@simple_file, :hidden) do |book|
+          book.excel.should_not == @book.excel
+          book.excel.should_not == new_excel
+          book.excel.visible.should be_false
+          book.excel.displayalerts.should be_false
+          @hidden_excel = book.excel
+        end
+        Book.unobtrusively(@simple_file, :hidden) do |book|
+          book.excel.should_not == @book.excel
+          book.excel.should_not == new_excel
+          book.excel.visible.should be_false
+          book.excel.displayalerts.should be_false
+          book.excel.should == @hidden_excel 
+        end
+      end
+
+      it "should reuse Excel" do
+        new_excel = Excel.new(:reuse => false)
+        Book.unobtrusively(@simple_file, :reuse) do |book|
+          book.excel.should == @book.excel
+          book.excel.should_not == new_excel
+        end
+      end
+
+      it "should reuse Excel by default" do
+        new_excel = Excel.new(:reuse => false)
+        Book.unobtrusively(@simple_file) do |book|
+          book.excel.should == @book.excel
+          book.excel.should_not == new_excel
+        end
+      end
+
     end
 
     context "with a read_only book" do
@@ -1594,15 +1636,18 @@ describe Book do
     end
   end
 
-  describe "for_reading, for_writing" do
+  describe "for_reading, for_modifying" do
 
-    context "for_reading" do
+    context "open unobtrusively for reading and modifying" do
 
-      it "should open unobtrusively for reading" do
-        old_book = Book.open(@simple_file)
-        sheet = old_book[0]
-        old_cell_value = sheet[1,1].value
-        old_book.close
+      before do
+        @book = Book.open(@simple_file)
+        sheet = @book[0]
+        @old_cell_value = sheet[1,1].value
+        @book.close
+      end
+
+      it "should not change the value" do
         Book.for_reading(@simple_file) do |book|
           book.should be_a Book
           book.should be_alive
@@ -1611,32 +1656,83 @@ describe Book do
           cell = sheet[1,1]
           sheet[1,1] = cell.value == "simple" ? "complex" : "simple"
           book.Saved.should be_false
+          book.excel.should == @book.excel
         end
         new_book = Book.open(@simple_file, :visible => true)
         sheet = new_book[0]
-        sheet[1,1].Value.should == old_cell_value
+        sheet[1,1].Value.should == @old_cell_value
       end
-    end
-               
-    context "for_modifying" do
 
-      it "should open unobtrusively for modifying" do
-        book1 = Book.open(@simple_file)
-        sheet = book1[0]
-        cell_value = sheet[1,1].value
-        book1.close
-        book1.should_not be_alive
-        Book.for_modifying(@simple_file) do |book|
-          book.should be_a Book
+      it "should not change the value and use a given Excel" do
+        new_excel = Excel.new(:reuse => false)
+        another_excel = Excel.new(:reuse => false)
+        Book.for_reading(@simple_file, another_excel) do |book|
           sheet = book[0]
           cell = sheet[1,1]
           sheet[1,1] = cell.value == "simple" ? "complex" : "simple"
-          book.Saved.should be_false
+          book.excel.should == another_excel
         end
-        new_book = Book.open(@simple_file)
+        new_book = Book.open(@simple_file, :visible => true)
         sheet = new_book[0]
-        sheet[1,1].value.should_not == cell_value
-        new_book.close
+        sheet[1,1].Value.should == @old_cell_value
+      end
+
+      it "should not change the value and use the hidden Excel instance" do
+        new_excel = Excel.new(:reuse => false)
+        Book.for_reading(@simple_file, :hidden) do |book|
+          sheet = book[0]
+          cell = sheet[1,1]
+          sheet[1,1] = cell.value == "simple" ? "complex" : "simple"
+          book.excel.should_not == @book.excel
+          book.excel.should_not == new_excel
+          book.excel.visible.should be_false
+          book.excel.displayalerts.should be_false
+        end
+        new_book = Book.open(@simple_file, :visible => true)
+        sheet = new_book[0]
+        sheet[1,1].Value.should == @old_cell_value
+      end
+
+      it "should change the value" do
+        Book.for_modifying(@simple_file) do |book|
+          sheet = book[0]
+          cell = sheet[1,1]
+          sheet[1,1] = cell.value == "simple" ? "complex" : "simple"
+          book.excel.should == @book.excel
+        end
+        new_book = Book.open(@simple_file, :visible => true)
+        sheet = new_book[0]
+        sheet[1,1].Value.should_not == @old_cell_value
+      end
+
+      it "should change the value and use a given Excel" do
+        new_excel = Excel.new(:reuse => false)
+        another_excel = Excel.new(:reuse => false)
+        Book.for_modifying(@simple_file, another_excel) do |book|
+          sheet = book[0]
+          cell = sheet[1,1]
+          sheet[1,1] = cell.value == "simple" ? "complex" : "simple"
+          book.excel.should == another_excel
+        end
+        new_book = Book.open(@simple_file, :visible => true)
+        sheet = new_book[0]
+        sheet[1,1].Value.should_not == @old_cell_value
+      end
+
+      it "should change the value and use the hidden Excel instance" do
+        new_excel = Excel.new(:reuse => false)
+        Book.for_modifying(@simple_file, :hidden) do |book|
+          sheet = book[0]
+          cell = sheet[1,1]
+          sheet[1,1] = cell.value == "simple" ? "complex" : "simple"
+          book.excel.should_not == @book.excel
+          book.excel.should_not == new_excel
+          book.excel.visible.should be_false
+          book.excel.displayalerts.should be_false
+        end
+        new_book = Book.open(@simple_file, :visible => true)
+        sheet = new_book[0]
+        sheet[1,1].Value.should_not == @old_cell_value
       end
     end
   end

@@ -262,24 +262,29 @@ module RobustExcelOle
 
   public
 
-    def self.for_reading(file, opts = { }, &block)
-      unobtrusively(file, {:read_only => true}.merge(opts), &block)
+    #def self.for_reading(file, opts = { }, &block)
+    #  unobtrusively(file, {:read_only => true}.merge(opts), &block)
+    #end
+
+    #def self.for_modifying(file, opts = { }, &block)
+    #  unobtrusively(file, {:read_only => false}.merge(opts), &block)
+    #end
+
+    def self.for_reading(*args, &block)
+      args = args.dup
+      opts = args.last.is_a?(Hash) ? args.pop : {}
+      opts = {:read_only => true}.merge(opts)
+      args.push opts
+      unobtrusively(*args, &block)
     end
 
-    def self.for_modifying(file, opts = { }, &block)
-      unobtrusively(file, {:read_only => false}.merge(opts), &block)
-    end
-
-=begin
     def self.for_modifying(*args, &block)
       args = args.dup
       opts = args.last.is_a?(Hash) ? args.pop : {}
       opts = {:read_only => false}.merge(opts)
-      #opts.reverse_erge{:read_only => false}
       args.push opts
       unobtrusively(*args, &block)
     end
-=end
 
     # modify a book such that its state (open/close, saved/unsaved, readonly/writable) remains unchanged.
     #  options:

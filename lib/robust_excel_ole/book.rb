@@ -124,6 +124,7 @@ module RobustExcelOle
     end
 
     def get_workbook
+      @file = @stored_filename ? @stored_filename : @file
       unless File.exist?(@file)
         if @options[:if_absent] == :create
           @workbook = Excel.current.generate_workbook(@file)
@@ -297,7 +298,7 @@ module RobustExcelOle
     #                    false (default)   open it as writable in another running excel instance, if it exists,
     #                                      otherwise open in a new excel instance.
     #  :keep_open: let the book open after unobtrusively opening (default: false)
-    def self.unobtrusively(file, if_closed = nil, opts = { }, &block)    
+    def self.unobtrusively(file, if_closed = nil, opts = { }, &block) 
       if if_closed.is_a? Hash
         opts = if_closed
         if_closed = nil

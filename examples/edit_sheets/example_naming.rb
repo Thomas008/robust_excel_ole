@@ -22,10 +22,10 @@ begin
   suffix = workbook_name[workbook_name.rindex('.')+1,workbook_name.length]
   file_name = dir + "/" + workbook_name
   extended_file_name = dir + "/" + base_name + "_named" + "." + suffix
-  #book_orig = Book.open(file_name)
-  #book_orig.save_as(extended_file_name, :if_exists => :overwrite) 
-  FileUtils.copy file_name, extended_file_name 
-  #book_orig.close
+  book_orig = Book.open(file_name)
+  book_orig.save_as(extended_file_name, :if_exists => :overwrite) 
+  #FileUtils.copy file_name, extended_file_name 
+  book_orig.close
   Book.unobtrusively(extended_file_name) do |book|     
     book.each do |sheet|
       sheet.each do |cell_orig|
@@ -34,5 +34,4 @@ begin
       end
     end
   end
-  #book_orig.close
 end

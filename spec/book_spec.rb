@@ -1116,6 +1116,29 @@ describe Book do
         sheet = new_book[0]
         sheet[1,1].value.should_not == old_cell_value
       end      
+
+      it "should modify unobtrusively the copied file" do
+        sheet = @book[0]
+        old_cell_value = sheet[1,1].value
+        File.delete simple_save_file rescue nil
+        @book.save_as(@simple_save_file)
+        @book.close
+        Book.unobtrusively(@simple_save_file) do |book|
+          sheet = book[0]
+          cell = sheet[1,1]
+          sheet[1,1] = cell.Value == "simple" ? "complex" : "simple"
+        end
+        old_book = Book.open(@simple_file)
+        old_sheet = old_book[0]
+        old_sheet[1,1].Value.should == old_cell_value
+        old_book.close
+        new_book = Book.open(@simple_save_file)
+        new_sheet = new_book[0]
+        new_sheet[1,1].Value.should_not == old_cell_value
+        new_book.close
+      end
+
+
     end
 
     context "with various options for an Excel instance in which to open a closed book" do

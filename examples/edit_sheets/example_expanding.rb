@@ -13,23 +13,17 @@ require "fileutils"
 include RobustExcelOle
 
 begin
-  Excel.close_all
   dir = "C:/data"
   workbook_name = 'workbook_named_concat.xls'
-  base_name = workbook_name[0,workbook_name.rindex('.')]
-  suffix = workbook_name[workbook_name.rindex('.')+1,workbook_name.length]
+  ws = workbook_name.split(".")
+  base_name = ws[0,ws.length-1].join(".")
+  suffix = ws.last  
   file_name = dir + "/" + workbook_name
   extended_file_name = dir + "/" + base_name + "_expanded" + "." + suffix
-  book_orig = Book.open(file_name)
-  book_orig.save_as(extended_file_name, :if_exists => :overwrite) 
-  book_orig.close
+  FileUtils.copy file_name, extended_file_name 
   
   Book.unobtrusively(extended_file_name) do |book|     
-    sheet_names = []
-    book.each do |sheet|
-      sheet_names << sheet.name
-    end    
-    #book.extend Enumerable
+    book.extend Enumerable
     sheet_names = book.map { |sheet| sheet.name }
 
     book.Names.each do |excel_name|
@@ -43,14 +37,12 @@ begin
       rescue ExcelErrorSheet => msg
         sheet_new.name = sheet_name + sheet.name if msg.message == "sheet name already exists" 
       end
-      sheet_new.add_name("name", 2, 2)
+      sheet_new.set_name("name", 2, 2)
       sheet_new["name"] = sheet_name   
-      #sheet_new[2, 2] = sheet_name   
     end
+    
     sheet_names.each do |sheet_name|
       book[sheet_name].Delete()
     end
   end
-  # cannot do this:
-  #Excel.close_all
 end

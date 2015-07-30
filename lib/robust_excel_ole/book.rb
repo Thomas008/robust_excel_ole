@@ -347,12 +347,12 @@ module RobustExcelOle
       begin
         item = self.Names.Item(name)
       rescue WIN32OLERuntimeError
-        raise ExcelErrorRename, "name #{name} not in #{File.basename(self.stored_filename)}"  
+        raise ExcelError, "name #{name} not in #{File.basename(self.stored_filename)}"  
       end
       begin
         item.Name = new_name
       rescue WIN32OLERuntimeError
-        raise ExcelErrorRename, "name error in #{File.basename(self.stored_filename)}"      
+        raise ExcelError, "name error in #{File.basename(self.stored_filename)}"      
       end
     end
 
@@ -386,6 +386,16 @@ module RobustExcelOle
         item.RefersToRange.Value = value
       rescue WIN32OLERuntimeError
         raise ExcelErrorNValue, "RefersToRange error of name #{name} in #{File.basename(self.stored_filename)}"    
+      end
+    end
+
+    def activate
+      @excel.visible = true
+      begin
+        self.Activate
+        self.ActiveSheet.Activate
+      rescue WIN32OLERuntimeError
+        raise ExcelError, "cannot activate"
       end
     end
 
@@ -514,8 +524,8 @@ module RobustExcelOle
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /8002000B/
           nvalue(name)
-        else
-          raise ExcelErrorBrackets, "could neither return a sheet nor a value of a range when giving the name #{name}"
+        se
+          raise ExcelError, "could neither return a sheet nor a value of a range when giving the name #{name}"
         end
       end
     end
@@ -603,14 +613,7 @@ public
   class ExcelErrorSaveUnknown < ExcelErrorSave  # :nodoc: #
   end
 
-  class ExcelErrorRename < WIN32OLERuntimeError # :nodoc: #
-  end
-
-  class ExcelErrorBrackets < WIN32OLERuntimeError # :nodoc: #
-  end
-
-
-  class ExcelErrorNValue < WIN32OLERuntimeError # :nodoc: #
+  class ExcelErrorNValue < ExcelError  # :nodoc: #
   end
 
   class ExcelUserCanceled < RuntimeError # :nodoc: #

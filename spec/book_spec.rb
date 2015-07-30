@@ -1866,7 +1866,7 @@ describe Book do
         @book1.nvalue("five").should == [[1,2],[3,4]]
         expect {
           @book1.rename_range("four","five")
-        }.to raise_error(ExcelErrorRename, "name four not in another_workbook.xls")
+        }.to raise_error(ExcelError, "name four not in another_workbook.xls")
       end
     end
   end
@@ -2237,7 +2237,7 @@ describe Book do
     end
   end
 
-  describe "== , alive?, filename, visible, empty_workbook" do
+  describe "alive?, filename, ==, visible, displayalerts, activate" do
 
     context "with alive?" do
 
@@ -2342,9 +2342,42 @@ describe Book do
         @book.excel.displayalerts = true
         @book.excel.displayalerts.should be_true
       end
-
     end
 
+    context "with activate" do
+
+      before do
+        @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"        
+        @book = Book.open(@simple_file, :visible => true)
+        @book2 = Book.open(@another_simple_file, :force_excel => :new, :visible => true)
+      end
+
+      after do
+        @book.close(:if_unsaved => :forget)
+        @book2.close(:if_unsaved => :forget)
+        @key_sender.close
+      end
+
+      it "should activate a book" do
+        sheet = @book[1]
+        sheet.Activate
+        sheet[2,3].Activate
+        sheet2 = @book2[2]
+        sheet2.Activate
+        sheet2[3,2].Activate
+        Excel.current.should == @book.excel
+        @book2.activate
+        @key_sender.puts "{a}{enter}"
+        sleep 1
+        sheet2[3,2].Value.should == "a"
+        #Excel.current.should == @book2.excel
+        @book.activate
+        @key_sender.puts "{a}{enter}"
+        sleep 1
+        sheet[2,3].Value.should == "a"
+        Excel.current.should == @book.excel
+      end
+    end
   end
 
   describe "#add_sheet" do

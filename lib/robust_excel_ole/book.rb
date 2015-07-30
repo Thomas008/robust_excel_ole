@@ -524,7 +524,7 @@ module RobustExcelOle
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /8002000B/
           nvalue(name)
-        se
+        else
           raise ExcelError, "could neither return a sheet nor a value of a range when giving the name #{name}"
         end
       end

@@ -14,7 +14,7 @@ describe RobustExcelOle::Range do
     @dir = create_tmpdir
     @book = RobustExcelOle::Book.open(@dir + '/workbook.xls')
     @sheet = @book[1]
-    @range = RobustExcelOle::Range.new(@sheet.sheet.UsedRange.Rows(1))
+    @range = RobustExcelOle::Range.new(@sheet.worksheet.UsedRange.Rows(1))
   end
 
   after do
@@ -50,9 +50,9 @@ describe RobustExcelOle::Range do
     context "when instance is column range" do
       before do
         @sheet = @book[0]
-        @range = RobustExcelOle::Range.new(@sheet.sheet.UsedRange.Columns(1))
+        @range = RobustExcelOle::Range.new(@sheet.worksheet.UsedRange.Columns(1))
       end
-      it { @range.values.should eq ['simple', 'foo', 'matz'] }
+      it { @range.values.should eq ['foo', 'foo', 'matz'] }
     end
 
     context "read 'merge_cells.xls'" do

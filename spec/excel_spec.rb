@@ -14,8 +14,9 @@ module RobustExcelOle
 
     before do
       @dir = create_tmpdir
-      @simple_file = @dir + '/simple.xls'
-      @invalid_name_file = 'b/simple.xls'
+      @simple_file = @dir + '/workbook.xls'
+      @another_simple_file = @dir + '/another_workbook.xls'
+      @invalid_name_file = 'b/workbook.xls'
     end
 
     after do
@@ -239,6 +240,27 @@ module RobustExcelOle
         @excel1.should == excel3
         @excel2.should == excel4
         excel3.should_not == excel4 
+      end
+    end
+
+    describe "unsaved_workbooks" do
+
+      context "with standard" do
+        
+        before do
+          @excel = Excel.create
+          @book = Book.open(@simple_file)
+          @book2 = Book.open(@another_simple_file)
+          sheet = @book[0]
+          sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
+        end
+
+        it "should list unsaved workbooks" do
+          @book.Saved.should be_false
+          @book2.Saved.should be_true
+          @excel.unsaved_workbooks.should == [@book]
+        end
+
       end
     end
 

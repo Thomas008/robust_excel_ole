@@ -9,7 +9,6 @@ describe RobustExcelOle::Sheet do
     @dir = create_tmpdir
     @book = RobustExcelOle::Book.open(@dir + '/workbook.xls', :read_only => true)
     @sheet = @book[0]
-    p "1. @sheet: #{@sheet}"
   end
 
   after do
@@ -18,7 +17,6 @@ describe RobustExcelOle::Sheet do
   end
 
   describe ".initialize" do
-    p "2. @sheet: #{@sheet}"
     context "when open sheet protected(with password is 'protect')" do
       before do
         @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"
@@ -55,7 +53,6 @@ describe RobustExcelOle::Sheet do
   end
 
   describe "access sheet name" do
-    p "@sheet: #{@sheet}"
     describe "#name" do
       it 'get sheet1 name' do
         @sheet.name.should eq 'Sheet1'
@@ -81,16 +78,18 @@ describe RobustExcelOle::Sheet do
   end
 
   describe 'access cell' do
-    p "@sheet: #{@sheet}"
-    describe "#[]" do
+
+    describe "#[]" do      
+
       context "access [1,1]" do
+
         it { @sheet[1, 1].should be_kind_of RobustExcelOle::Cell }
         it { @sheet[1, 1].value.should eq 'foo' }
       end
 
       context "access [1, 1], [1, 2], [3, 1]" do
         it "should get every values" do
-          @sheet[1, 1].value.should eq 'simple'
+          @sheet[1, 1].value.should eq 'foo'
           @sheet[1, 2].value.should eq 'workbook'
           @sheet[3, 1].value.should eq 'matz'
         end
@@ -98,16 +97,16 @@ describe RobustExcelOle::Sheet do
 
       context "supplying nil as parameter" do
         it "should access [1,1]" do
-          @sheet[1, nil].value.should eq 'simple'
-          @sheet[nil, 1].value.should eq 'simple'
+          @sheet[1, nil].value.should eq 'foo'
+          @sheet[nil, 1].value.should eq 'foo'
         end
       end
 
     end
 
-    it "change a cell to 'foo'" do
-      @sheet[1, 1] = 'foo'
-      @sheet[1, 1].value.should eq 'foo'
+    it "change a cell to 'bar'" do
+      @sheet[1, 1] = 'bar'
+      @sheet[1, 1].value.should eq 'bar'
     end
 
     it "should change a cell to nil" do
@@ -120,7 +119,7 @@ describe RobustExcelOle::Sheet do
         @sheet.each_with_index do |cell, i|
           case i
           when 0
-            cell.value.should eq 'simple'
+            cell.value.should eq 'foo'
           when 1
             cell.value.should eq 'workbook'
           when 2
@@ -301,7 +300,7 @@ describe RobustExcelOle::Sheet do
         @sheet.each_column_with_index do |columns, idx|
           case idx
           when 0
-            columns.values.should eq ['simple', 'foo', 'matz']
+            columns.values.should eq ['foo', 'foo', 'matz']
           when 1
             columns.values.should eq ['workbook', nil, 'is']
           when 2
@@ -387,8 +386,8 @@ describe RobustExcelOle::Sheet do
         end   
 
         it "should return value of a range with nvalue and brackets operator" do
-          @sheet1.nvalue("firstcell").should == "simple"
-          @sheet1["firstcell"].should == "simple"
+          @sheet1.nvalue("firstcell").should == "foo"
+          @sheet1["firstcell"].should == "foo"
         end
 
         it "should raise an error if name not defined" do
@@ -420,8 +419,8 @@ describe RobustExcelOle::Sheet do
         end   
 
         it "should set a range to a value" do
-          @sheet1.nvalue("firstcell").should == "simple"
-          @sheet1[1,1].Value.should == "simple"
+          @sheet1.nvalue("firstcell").should == "foo"
+          @sheet1[1,1].Value.should == "foo"
           @sheet1.set_nvalue("firstcell","foo")
           @sheet1.nvalue("firstcell").should == "foo"
           @sheet1[1,1].Value.should == "foo"
@@ -469,7 +468,7 @@ describe RobustExcelOle::Sheet do
 
     describe "#method_missing" do
       it "can access COM method" do
-        @sheet.Cells(1,1).Value.should eq 'simple'
+        @sheet.Cells(1,1).Value.should eq 'foo'
       end
 
       context "unknown method" do

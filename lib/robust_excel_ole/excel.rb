@@ -116,6 +116,10 @@ module RobustExcelOle
       self.Workbooks.each {|w| puts w.Name}
     end
 
+    def unsaved_workbooks
+      self.Workbooks.each {|w| (not w.Saved)}
+    end
+
     # set DisplayAlerts in a block
     def with_displayalerts displayalerts_value
       old_displayalerts = @this_excel.DisplayAlerts

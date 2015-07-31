@@ -27,8 +27,8 @@ module RobustExcelOle
     end
 
     def [] index
-      @cells ||= []
-      @cells[index + 1] ||= RobustExcelOle::Cell.new(@range.Cells.Item(index + 1))
+      @cells = []
+      @cells[index + 1] = RobustExcelOle::Cell.new(@range.Cells.Item(index + 1))
     end
 
     def method_missing(id, *args)  # :nodoc: #

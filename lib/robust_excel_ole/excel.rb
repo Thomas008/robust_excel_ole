@@ -117,7 +117,15 @@ module RobustExcelOle
     end
 
     def unsaved_workbooks
-      self.Workbooks.each {|w| (not w.Saved)}
+      result = []
+      self.Workbooks.each {|w| result << w unless w.Saved}
+      result
+
+      # yields different WIN32OLE objects than book.workbook
+      #self.extend Enumerable
+      #self.Workbooks.map {|w| (not w.Saved)}
+
+
     end
 
     # set DisplayAlerts in a block

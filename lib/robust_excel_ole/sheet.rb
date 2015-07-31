@@ -39,8 +39,8 @@ module RobustExcelOle
       if p2 != :__not_provided  
         y, x = p1, p2
         yx = "#{y}_#{x}"
-        @cells ||= { }
-        @cells[yx] ||= RobustExcelOle::Cell.new(@worksheet.Cells.Item(y, x))
+        @cells = { }
+        @cells[yx] = RobustExcelOle::Cell.new(@worksheet.Cells.Item(y, x))
       else
         name = p1
         nvalue(name)
@@ -52,7 +52,6 @@ module RobustExcelOle
       if p3 != :__not_provided
         y, x, value = p1, p2, p3
         @worksheet.Cells.Item(y, x).Value = value
-        #@worksheet.Cells.Item(y, x).Value = @cells[yx] = value
       else
         name, value = p1, p2
         set_nvalue(name, value)

@@ -248,7 +248,6 @@ module RobustExcelOle
       context "with standard" do
         
         before do
-          @excel = Excel.create
           @book = Book.open(@simple_file)
           @book2 = Book.open(@another_simple_file)
           sheet = @book[0]
@@ -258,7 +257,11 @@ module RobustExcelOle
         it "should list unsaved workbooks" do
           @book.Saved.should be_false
           @book2.Saved.should be_true
-          @excel.unsaved_workbooks.should == [@book]
+          excel = @book.excel
+          # unsaved_workbooks yields different WIN32OLE objects than book.workbook
+          uw_names = []
+          excel.unsaved_workbooks.each {|uw| uw_names << uw.Name}
+          uw_names.should == [@book.workbook.Name]
         end
 
       end

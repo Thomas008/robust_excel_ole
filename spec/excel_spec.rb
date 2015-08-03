@@ -14,6 +14,7 @@ module RobustExcelOle
 
     before do
       @dir = create_tmpdir
+      #print "tmpdir: "; p @dir
       @simple_file = @dir + '/workbook.xls'
       @another_simple_file = @dir + '/another_workbook.xls'
       @invalid_name_file = 'b/workbook.xls'
@@ -256,6 +257,7 @@ module RobustExcelOle
 
         it "should list unsaved workbooks" do
           @book.Saved.should be_false
+          @book2.Save
           @book2.Saved.should be_true
           excel = @book.excel
           # unsaved_workbooks yields different WIN32OLE objects than book.workbook
@@ -320,7 +322,8 @@ module RobustExcelOle
         it "should raise error when book cannot be saved" do
           expect{
             workbook = @excel1.generate_workbook(@invalid_name_file)
-          }.to raise_error(ExcelErrorSaveUnknown)
+          #}.to raise_error(ExcelErrorSaveUnknown)
+          }.to raise_error(ExcelErrorSave)
         end
 
       end
@@ -329,11 +332,20 @@ module RobustExcelOle
 
   describe "RobustExcelOle" do
     context "#absolute_path" do
+      before do
+        @previous_dir = Dir.getwd
+      end
+      
+      after do
+        Dir.chdir @previous_dir
+      end
+
       it "should work" do
         RobustExcelOle::absolute_path("C:/abc").should == "C:\\abc"
         RobustExcelOle::absolute_path("C:\\abc").should == "C:\\abc"
-        RobustExcelOle::absolute_path("C:abc").should == Dir.pwd.gsub("/","\\") + "\\abc"
-        RobustExcelOle::absolute_path("C:abc").should == File.expand_path("abc").gsub("/","\\")
+        Dir.chdir "C:/windows"
+        RobustExcelOle::absolute_path("C:abc").downcase.should == Dir.pwd.gsub("/","\\").downcase + "\\abc"
+        RobustExcelOle::absolute_path("C:abc").upcase.should   == File.expand_path("abc").gsub("/","\\").upcase
       end
 
       it "should return right absolute path name" do

@@ -32,7 +32,7 @@ describe Book do
 
   after do
     Excel.close_all
-    #rm_tmp(@dir)
+    rm_tmp(@dir)
   end
 
   describe "create file" do
@@ -911,7 +911,7 @@ describe Book do
       end
 
       after do
-        @book1.close
+        @book1.close(:if_unsaved => :forget)
       end   
 
       it "should return value of a range" do

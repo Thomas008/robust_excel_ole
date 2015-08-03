@@ -23,12 +23,14 @@ describe Book do
     @different_file = @dir + '/different_workbook.xls'
     @simple_file_other_path = @dir + '/more_data/workbook.xls'
     @another_simple_file = @dir + '/another_workbook.xls'
-    @connected_file = @dir + '/workbook.xlsx'
+    @linked_file = @dir + '/workbook_linked.xlsm'
+    @simple_file_xlsm = @dir + '/workbook.xls'
+    @simple_file_xlsx = @dir + '/workbook.xlsx'
   end
 
   after do
     Excel.close_all
-    rm_tmp(@dir)
+    #rm_tmp(@dir)
   end
 
   describe "create file" do
@@ -45,9 +47,20 @@ describe Book do
 
   describe "open" do
 
-    context "with connected workbook" do
-      it "should open connected workbook" do
-        book = Book.open(@connected_file, :visible => true)
+    context "with various file formats" do
+
+      it "should open linked workbook" do
+        book = Book.open(@linked_file, :visible => true)
+        book.close
+      end
+
+      it "should open xlsm file" do
+        book = Book.open(@simple_file_xlsm, :visible => true)
+        book.close
+      end
+
+      it "should open xlsx file" do
+        book = Book.open(@simple_file_xlsx, :visible => true)
         book.close
       end
     end
@@ -152,6 +165,7 @@ describe Book do
       it "should yield identical Book objects for identical Excel books when reopening" do
         @book.should be_alive
         @book.close
+        @book.should_not be_alive
         book2 = Book.open(@simple_file)
         book2.should === @book
         book2.should be_alive
@@ -814,6 +828,31 @@ describe Book do
         expect {
           Book.open(path)
         }.to raise_error(ExcelErrorOpen, "file #{path} not found")
+      end
+    end
+  end
+
+  describe "reopen" do
+
+    context "with standard" do
+      
+      before do
+        @book = Book.open(@simple_file)
+      end
+
+      after do
+        @book.close
+      end
+
+      it "should reopen the closed book" do
+        @book.should be_alive
+        book1 = @book
+        @book.close
+        @book.should_not be_alive
+        @book.reopen
+        @book.should be_a Book
+        @book.should be_alive
+        @book.should === book1
       end
     end
   end

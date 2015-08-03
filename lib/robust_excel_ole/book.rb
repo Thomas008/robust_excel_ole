@@ -262,14 +262,6 @@ module RobustExcelOle
 
   public
 
-    #def self.for_reading(file, opts = { }, &block)
-    #  unobtrusively(file, {:read_only => true}.merge(opts), &block)
-    #end
-
-    #def self.for_modifying(file, opts = { }, &block)
-    #  unobtrusively(file, {:read_only => false}.merge(opts), &block)
-    #end
-
     def self.for_reading(*args, &block)
       args = args.dup
       opts = args.last.is_a?(Hash) ? args.pop : {}
@@ -340,6 +332,10 @@ module RobustExcelOle
         end
         book.close if (was_not_alive_or_nil && (not opts[:keep_open]) && book)
       end
+    end
+
+    def reopen
+      self.class.open(self.stored_filename)
     end
 
     # rename a range

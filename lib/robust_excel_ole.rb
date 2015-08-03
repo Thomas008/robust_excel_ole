@@ -37,3 +37,74 @@ class Object
   end
 
 end
+
+class ::String
+  def / path_part
+    if empty?
+      path_part
+    else
+      begin 
+        File.join self, path_part
+      rescue TypeError
+        raise "Only strings can be parts of paths (given: #{path_part.inspect} of class #{path_part.class})"
+      end
+    end
+  end
+
+  # taken from http://apidock.com/rails/ActiveSupport/Inflector/underscore
+  def underscore
+    word = gsub('::', '/')
+    word.gsub!(/([A-Z\d]+)([A-Z][a-z])/,'\1_\2')
+    word.gsub!(/([a-z\d])([A-Z])/,'\1_\2')
+    word.tr!("-", "_")
+    word.downcase!
+    word
+  end
+
+  # taken from http://apidock.com/rails/ActiveSupport/Inflector/constantize
+  # File activesupport/lib/active_support/inflector/methods.rb, line 226
+  def constantize #(camel_cased_word)
+    names = self.split('::')
+
+    # Trigger a builtin NameError exception including the ill-formed constant in the message.
+    Object.const_get(self) if names.empty?
+
+    # Remove the first blank element in case of '::ClassName' notation.
+    names.shift if names.size > 1 && names.first.empty?
+
+    names.inject(Object) do |constant, name|
+      if constant == Object
+        constant.const_get(name)
+      else
+        candidate = constant.const_get(name)
+        next candidate if constant.const_defined?(name)
+        next candidate unless Object.const_defined?(name)
+
+        # Go down the ancestors to check it it's owned
+        # directly before we reach Object or the end of ancestors.
+        constant = constant.ancestors.inject do |const, ancestor|
+          break const    if ancestor == Object
+          break ancestor if ancestor.const_defined?(name)
+          const
+        end
+
+        # owner is in Object, so raise
+        constant.const_get(name)
+      end
+    end
+  end
+end
+
+# taken from http://api.rubyonrails.org/v2.3.8/classes/ActiveSupport/CoreExtensions/Module.html#M000806
+class Module
+  def parent_name
+    unless defined? @parent_name
+      @parent_name = name =~ /::[^:]+\Z/ ? $`.freeze : nil
+    end
+    @parent_name
+  end
+  def parent
+    parent_name ? parent_name.constantize : Object
+  end
+end
+

@@ -7,7 +7,14 @@ $VERBOSE = nil
 
 include RobustExcelOle
 
-require File.expand_path("../book_unobtr_spec", __FILE__)
+unless Object.method_defined?(:require_relative)
+  def require_relative path
+    require File.expand_path(path, File.dirname(__FILE__))  
+  end
+end
+
+require_relative "book_unobtr_spec"
+require_relative "book_subclass_spec"
 
 describe Book do
 

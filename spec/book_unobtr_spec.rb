@@ -58,59 +58,57 @@ describe Book do
       it "should open unobtrusively in a new Excel" do
         expect{ unobtrusively_ok? }.to_not raise_error
       end
+          
+      context "with two running excel instances" do
+        before :all do
+          Excel.close_all
+        end
+
+        before do
+          @excel1 = Excel.new(:reuse => false)
+          @excel2 = Excel.new(:reuse => false)
+        end
+
+        after do
+          @excel1.close
+          @excel2.close
+        end
 
       it "should open unobtrusively in the first opened Excel" do
-        excel = Excel.new(:reuse => false)
-        new_excel = Excel.new(:reuse => false)
         Book.unobtrusively(@simple_file) do |book|
           book.should be_a Book
           book.should be_alive
-          book.excel.should == excel
-          book.excel.should_not == new_excel
-        end
+            book.excel.should     == @excel1
+            book.excel.should_not == @excel2
+          end
       end
 
       it "should open unobtrusively in a new Excel" do
-        excel = Excel.new(:reuse => false)
-        new_excel = Excel.new(:reuse => false)
         Book.unobtrusively(@simple_file, :hidden) do |book|
           book.should be_a Book
           book.should be_alive
-          book.excel.should_not == excel
-          book.excel.should_not == new_excel
-        end
+            book.excel.should_not == @excel1
+            book.excel.should_not == @excel2
+          end
       end
 
       it "should open unobtrusively in a given Excel" do
-        excel = Excel.new(:reuse => false)
-        new_excel = Excel.new(:reuse => false)
-        Book.unobtrusively(@simple_file, new_excel) do |book|
+        Book.unobtrusively(@simple_file, @excel2) do |book|
           book.should be_a Book
           book.should be_alive
-          book.excel.should_not == excel
-          book.excel.should == new_excel
+            book.excel.should_not == @excel1
+            book.excel.should     == @excel2
         end
       end
-
-      it "should open unobtrusively in a given Excel via a book" do
-        book1 = Book.open(@different_file)
-        book2 = Book.open(@another_simple_file, :force_excel => :new)
-        Book.unobtrusively(@simple_file, book2) do |book|
-          book.should be_a Book
-          book.should be_alive
-          book.excel.should_not == book1.excel
-          book.excel.should == book2.excel
+  
+        it "should raise an error if the excel instance is not alive" do
+          Excel.close_all
+          expect{
+            Book.unobtrusively(@simple_file, @excel2) do |book|
+            end
+          }.to raise_error(ExcelErrorOpen, "Excel instance not alive or damaged")
         end
-      end
 
-      it "should raise an error if the excel instance is not alive" do
-        excel = Excel.new(:reuse => false)
-        new_excel = Excel.new(:reuse => false)
-        Excel.close_all
-        expect{
-          Book.unobtrusively(@simple_file, new_excel) do |book|
-          end
-        }.to raise_error(ExcelErrorOpen, "Excel instance not alive or damaged")
       end
 
       it "should raise an error if the option is invalid" do
@@ -131,6 +129,17 @@ describe Book do
       after do
         @book.close(:if_unsaved => :forget)
         @book2.close(:if_unsaved => :forget) rescue nil
+      end
+
+      it "should open in the Excel of the given Book" do
+        #book1 = Book.open(@different_file)
+        @book2 = Book.open(@another_simple_file, :force_excel => :new)
+        Book.unobtrusively(@different_file, @book2) do |book|
+          book.should be_a Book
+          book.should be_alive
+          book.excel.should_not == @book.excel
+          book.excel.should     == @book2.excel
+        end
       end
 
       it "should let a saved book saved" do

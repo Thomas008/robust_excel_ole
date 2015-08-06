@@ -16,6 +16,7 @@ module RobustExcelOle
       @dir = create_tmpdir
       @simple_file = @dir + '/workbook.xls'
       @another_simple_file = @dir + '/another_workbook.xls'
+      @different_file = @dir + '/different_workbook.xls'
       @invalid_name_file = 'b/workbook.xls'
     end
 
@@ -99,6 +100,158 @@ module RobustExcelOle
         expect { WIN32OLE.connect("Excel.Application") }.to raise_error
       end
     end
+
+    describe "close" do
+
+      # testing private methods
+      context "close_excel" do
+
+        before do
+          @book = Book.open(@simple_file, :visible => true)
+          @excel = @book.excel
+          @book2 = Book.open(@simple_file, :force_excel => :new, :visible => true)
+          @excel2 = @book2.excel
+        end
+
+        it "should close one Excel" do
+          @excel.should be_alive
+          @excel2.should be_alive
+          @book.should be_alive
+          @book2.should be_alive
+          @excel.close_excel(:hard => false)
+          @excel.should_not be_alive
+          @book.should_not be_alive
+          @excel2.should be_alive
+          @book2.should be_alive
+        end
+      end
+
+      context "save_workbook" do
+
+        before do
+          @book = Book.open(@simple_file)
+          sheet = @book[0]
+          @old_cell_value = sheet[1,1].value
+          sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
+        end 
+
+        after do
+          @book.close
+        end
+
+        it "should save the workbook" do
+          workbook = @book.workbook
+          workbook.Saved.should be_false
+          Excel.save_workbook(workbook)
+          workbook.Saved.should be_true
+          @book.close
+          new_book = Book.open(@simple_file)
+          new_sheet = new_book[0]
+          new_sheet[1,1].value.should_not == @old_cell_value
+        end
+
+      end
+
+      context "close: with a saved workbook" do
+
+        before do
+          @excel = Excel.create
+          @book = Book.open(@simple_file)
+        end
+
+        it "should close the Excel" do
+          @excel.should be_alive
+          @book.should be_alive
+          @excel.close
+          @excel.should_not be_alive
+          @book.should_not be_alive
+        end
+      end
+
+      context "close: with an unsaved workbook" do
+
+        before do
+          @excel = Excel.create
+          @book = Book.open(@simple_file)
+          sheet = @book[0]
+          @old_cell_value = sheet[1,1].value
+          sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
+        end
+
+        it "should raise an error" do
+          @excel.should be_alive
+          @book.should be_alive
+          @book.saved.should be_false
+          expect{
+            @excel.close(:if_unsaved => :raise)
+          }.to raise_error(ExcelErrorClose, "Excel contains unsaved workbooks")
+          @excel.should be_alive
+          @book.should be_alive
+        end
+
+        it "should close the Excel without saving the workbook" do
+          @excel.should be_alive
+          @book.should be_alive
+          @book.saved.should be_false
+          @excel.close(:if_unsaved => :forget)
+          @excel.should_not be_alive
+          @book.should_not be_alive
+          new_book = Book.open(@simple_file)
+          new_sheet = new_book[0]
+          new_sheet[1,1].value.should == @old_cell_value
+          new_book.close          
+        end
+
+        it "should close the Excel with saving the workbook" do
+          @excel.should be_alive
+          @book.should be_alive
+          @book.saved.should be_false
+          @excel.close(:if_unsaved => :save)
+          @excel.should_not be_alive
+          @book.should_not be_alive
+          new_book = Book.open(@simple_file)
+          new_sheet = new_book[0]
+          new_sheet[1,1].value.should_not == @old_cell_value
+          new_book.close          
+        end
+
+        it "should raise an error for invalid option" do
+          expect {
+            @excel.close(:if_unsaved => :invalid_option)
+          }.to raise_error(ExcelErrorClose, ":if_unsaved: invalid option: invalid_option") 
+        end
+
+        it "should raise an error by default" do
+          @excel.should be_alive
+          @book.should be_alive
+          @book.saved.should be_false
+          expect{
+            @excel.close
+          }.to raise_error(ExcelErrorClose, "Excel contains unsaved workbooks")
+          @excel.should be_alive
+          @book.should be_alive
+        end
+      end
+    end
+
+#        context "with :if_unsaved => :alert" do
+#          before do
+#            @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
+#          end
+#
+#          after do
+#            @key_sender.close
+#          end
+#
+#         possible_answers = [:yes, :no, :cancel]
+#          possible_answers.each_with_index do |answer, position|
+#            it "should" + (answer == :yes ? "" : " not") + " the unsaved book and" + (answer == :cancel ? " not" : "") + " close it" + "if user answers '#{answer}'" do
+#            # "Yes" is the  default. "No" is right of "Yes", "Cancel" is right of "No" --> language independent
+#            @key_sender.puts  "{right}" * position + "{enter}"
+#          end
+#        end
+#      end
+
 
     describe "==" do
       before do
@@ -250,13 +403,17 @@ module RobustExcelOle
         before do
           @book = Book.open(@simple_file)
           @book2 = Book.open(@another_simple_file)
+          @book3 = Book.open(@different_file, :read_only => true)
           sheet = @book[0]
           sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
+          sheet3 = @book3[0]
+          sheet3[1,1] = sheet3[1,1].value == "foo" ? "bar" : "foo"
         end
 
         it "should list unsaved workbooks" do
           @book.Saved.should be_false
           @book2.Saved.should be_true
+          @book3.Saved.should be_false
           excel = @book.excel
           # unsaved_workbooks yields different WIN32OLE objects than book.workbook
           uw_names = []

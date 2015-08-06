@@ -6,16 +6,6 @@ module RobustExcelOle
 
     @@hwnd2excel = {}
 
-    # closes all Excel instances
-    def self.close_all
-      while current_excel do
-        close_one_excel
-        GC.start
-        sleep 0.3
-        #free_all_ole_objects
-      end
-    end
-
     # creates a new Excel instance
     def self.create
       new(:reuse => false)
@@ -65,6 +55,123 @@ module RobustExcelOle
     def initialize(options= {}) # :nodoc: #
       @excel = self
     end
+
+    # closes all Excel instances
+    # options:
+    #  :if_unsaved    if unsaved workbooks are open in an Excel instance
+    #                      :raise (default) -> raise an exception       
+    #                      :save            -> save the workbooks before closing
+    #                      :forget          -> close the excel instance without saving the workbooks 
+    #                      :alert           -> give control to Excel
+    #  :hard          kill the Excel instances hard (default: false) 
+    def self.close_all(options={})
+      options = {
+        :if_unsaved => :raise,
+        :hard => false
+      }.merge(options)
+      while current_excel do
+        #current_excel.close(options)
+        close_one_excel
+        GC.start
+        sleep 0.3
+        # free_all_ole_objects if options[:hard] ???
+      end
+    end
+
+    # close the Excel
+    #  :if_unsaved    if unsaved workbooks are open in an Excel instance
+    #                      :raise (default) -> raise an exception       
+    #                      :save            -> save the workbooks before closing
+    #                      :forget          -> close the excel instance without saving the workbooks 
+    #                      :alert           -> give control to Excel
+    #  :hard          kill the Excel instance hard (default: false) 
+    def close(options = {})
+      options = {
+        :if_unsaved => :raise,
+        :hard => false
+      }.merge(options)
+      unsaved_books = self.unsaved_workbooks
+      puts "unsaved_books: #{unsaved_books}"
+      if unsaved_books != [] then
+        case options[:if_unsaved]
+        when :raise
+          raise ExcelErrorClose, "Excel contains unsaved workbooks"
+        when :save
+          unsaved_workbooks.each do |workbook|
+            Excel.save_workbook(workbook)
+          end
+          close_excel(:hard => options[:hard])
+        when :forget
+          close_excel(:hard => options[:hard])
+        when :alert
+          @excel.with_displayalerts true do
+            unsaved_workbooks.each do |workbook|
+              Excel.save_workbook(workbook)
+            end
+            close_excel(:hard => options[:hard])
+          end
+        else
+          raise ExcelErrorClose, ":if_unsaved: invalid option: #{options[:if_unsaved]}"
+        end
+      else
+        close_excel(:hard => options[:hard])
+      end
+      raise ExcelUserCanceled, "close: canceled by user" if options[:if_unsaved] == :alert && self.unsaved_workbooks
+    end
+
+  #private
+
+    def self.save_workbook(workbook)
+      begin
+        file = workbook.Fullname
+        dirname, basename = File.split(file)
+        file_format =
+          case File.extname(basename)
+            when '.xls' : RobustExcelOle::XlExcel8
+            when '.xlsx': RobustExcelOle::XlOpenXMLWorkbook
+            when '.xlsm': RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
+          end
+        workbook.SaveAs(RobustExcelOle::absolute_path(file), file_format)
+      rescue WIN32OLERuntimeError => msg
+        if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
+          raise ExcelErrorSave, "saving workbook: #{msg.message}" 
+        else
+          raise ExcelErrorSaveUnknown, "unknown WIN32OELERuntimeError:\n#{msg.message}"
+        end       
+      end
+    end
+
+    def close_excel(options)
+      excel = @this_excel
+      excel.Workbooks.Close
+      excel_hwnd = excel.HWnd
+      excel.Quit
+      weak_excel_ref = WeakRef.new(excel)
+      excel = nil
+      GC.start
+      sleep 0.2
+      if weak_excel_ref.weakref_alive? then
+        #if WIN32OLE.ole_reference_count(weak_xlapp) > 0
+        begin
+          weak_excel_ref.ole_free
+          puts "successfully ole_freed #{weak_excel_ref}"
+        rescue
+          puts "could not do ole_free on #{weak_excel_ref}"
+        end
+      end
+      hwnd2excel(excel_hwnd).die rescue nil
+      #@@hwnd2excel[excel_hwnd] = nil
+      #Excel.free_all_ole_objects
+      if options[:hard] then
+        process_id = Win32API.new("user32", "GetWindowThreadProcessId", ["I","P"], "I")
+        pid_puffer = " " * 32
+        process_id.call(excel_hwnd, pid_puffer)
+        pid = pid_puffer.unpack("L")[0]
+        Process.kill("KILL", pid)    
+      end
+    end
+
+  public
 
     def excel
       self
@@ -118,15 +225,12 @@ module RobustExcelOle
 
     def unsaved_workbooks
       result = []
-      self.Workbooks.each {|w| result << w unless w.Saved}
+      self.Workbooks.each {|w| result << w unless (w.Saved || w.ReadOnly)}
       result
-
-      # yields different WIN32OLE objects than book.workbook
-      #self.extend Enumerable
-      #self.Workbooks.map {|w| (not w.Saved)}
-
-
     end
+    # yields different WIN32OLE objects than book.workbook
+    #self.class.extend Enumerable
+    #self.class.map {|w| (not w.Saved)}
 
     # set DisplayAlerts in a block
     def with_displayalerts displayalerts_value
@@ -163,7 +267,7 @@ module RobustExcelOle
   private
 
     # closes one Excel instance
-    def self.close_one_excel  
+    def self.close_one_excel(options={})
       excel = current_excel
       if excel then
         excel.Workbooks.Close

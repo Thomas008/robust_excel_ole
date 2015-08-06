@@ -30,7 +30,7 @@ describe Book do
 
   after do
     Excel.close_all
-    #rm_tmp(@dir)
+    rm_tmp(@dir)
   end
 
   describe "create file" do
@@ -1940,7 +1940,6 @@ describe Book do
         new_book.workbook.Worksheets.Count.should ==  @sheet_count
         new_book.close
       end
-
     end
 
     context "with unsaved book" do
@@ -2276,7 +2275,7 @@ describe Book do
     end
   end
 
-  describe "alive?, filename, ==, visible, displayalerts, activate" do
+  describe "alive?, filename, ==, visible, displayalerts, activate, saved" do
 
     context "with alive?" do
 
@@ -2355,6 +2354,27 @@ describe Book do
         @book.should_not == "hallo"
         @book.should_not == 7
         @book.should_not == nil
+      end
+    end
+
+    context "with saved" do
+
+      before do
+        @book = Book.open(@simple_file)
+      end
+
+      after do
+        @book.close(:if_unsaved => :forget)
+      end
+
+      it "should yield true for a saved book" do
+        @book.saved.should be_true
+      end
+
+      it "should yield false for an unsaved book" do
+        sheet = @book[0]
+        sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
+        @book.saved.should be_false
       end
     end
 

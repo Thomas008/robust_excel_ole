@@ -268,9 +268,13 @@ module RobustExcelOle
       @this_excel.Visible
     end
 
-    #def inspect
-    #  "#{Excel hwnd_xxxx}"
-    #end
+    def to_s
+      "Excel" + "#{hwnd_xxxx.to_s}"
+    end
+
+    def inspect
+      self.to_s
+    end
 
   private
 

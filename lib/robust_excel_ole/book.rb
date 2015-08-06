@@ -99,17 +99,31 @@ module RobustExcelOle
         end
       end
     end
+
+    def self.excel_class
+      @excel_class ||= begin
+        module_name = self.parent_name
+        "#{module_name}::Excel".constantize
+      rescue NameError => e
+        Excel
+      end
+    end
+
+    def excel_class
+      self.class.excel_class
+    end
+
     
     def get_excel
       if @options[:excel] == :reuse
-        @excel = Excel.new(:reuse => true)
+        @excel = excel_class.new(:reuse => true)
       end
       @excel_options = nil
       if (not @excel)
         if @options[:excel] == :new
           @excel_options = {:displayalerts => false, :visible => false}.merge(@options)
           @excel_options[:reuse] = false
-          @excel = Excel.new(@excel_options)
+          @excel = excel_class.new(@excel_options)
         else
           @excel = @options[:excel].excel
         end
@@ -126,7 +140,7 @@ module RobustExcelOle
       file = @stored_filename ? @stored_filename : file
       unless File.exist?(file)
         if @options[:if_absent] == :create
-          @workbook = Excel.current.generate_workbook(file)
+          @workbook = excel_class.current.generate_workbook(file)
         else 
           raise ExcelErrorOpen, "file #{file} not found"
         end
@@ -160,7 +174,7 @@ module RobustExcelOle
           when :new_excel 
             @excel_options = {:displayalerts => false, :visible => false}.merge(@options)   
             @excel_options[:reuse] = false
-            @excel = Excel.new(@excel_options)
+            @excel = excel_class.new(@excel_options)
             open_or_create_workbook file
           else
             raise ExcelErrorOpen, ":if_obstructed: invalid option: #{@options[:if_obstructed]}"
@@ -184,7 +198,7 @@ module RobustExcelOle
             when :new_excel
               @excel_options = {:displayalerts => false, :visible => false}.merge(@options)
               @excel_options[:reuse] = false
-              @excel = Excel.new(@excel_options)
+              @excel = excel_class.new(@excel_options)
               open_or_create_workbook file
             else
               raise ExcelErrorOpen, ":if_unsaved: invalid option: #{@options[:if_unsaved]}"

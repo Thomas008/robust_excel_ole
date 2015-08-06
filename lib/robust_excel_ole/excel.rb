@@ -276,12 +276,30 @@ module RobustExcelOle
       self.to_s
     end
 
+    def close
+      if @this_excel
+        weak_ole_excel = WeakRef.new(@this_excel)
+        @this_excel = nil
+        self.class.close_excel_ole_instance(weak_ole_excel.__getobj__)
+      end
+    end
+
   private
 
     # closes one Excel instance
     def self.close_one_excel(options={})
       excel = current_excel
       if excel then
+        weak_ole_excel = WeakRef.new(excel)
+        excel = nil
+        close_excel_ole_instance(weak_ole_excel.__getobj__)
+      end
+    end
+
+    def self.close_excel_ole_instance(ole_excel)
+      excel = ole_excel
+      ole_excel = nil
+      begin
         excel.Workbooks.Close
         excel_hwnd = excel.HWnd
         excel.Quit
@@ -302,6 +320,10 @@ module RobustExcelOle
 
         hwnd2excel(excel_hwnd).die rescue nil
         #@@hwnd2excel[excel_hwnd] = nil
+
+      rescue => e
+        puts "Error when closing Excel: " + e.message
+        #puts e.backtrace
       end
 
 

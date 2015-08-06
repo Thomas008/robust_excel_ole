@@ -70,6 +70,12 @@ module RobustExcelOle
         :hard => false
       }.merge(options)
       while current_excel do
+        # current_excel: yields a WIN32OLE object
+        # close works on an Excel object, so can't use just excel.close
+        # do another abstract layer:
+        #   close_an_excel(excel,options)
+        # Excel.close_all: calls close_an_excel(current_excel)
+        # Excel#close: calls close_an_excel(@this_excel)
         #current_excel.close(options)
         close_one_excel
         GC.start
@@ -91,7 +97,6 @@ module RobustExcelOle
         :hard => false
       }.merge(options)
       unsaved_books = self.unsaved_workbooks
-      puts "unsaved_books: #{unsaved_books}"
       if unsaved_books != [] then
         case options[:if_unsaved]
         when :raise
@@ -104,7 +109,7 @@ module RobustExcelOle
         when :forget
           close_excel(:hard => options[:hard])
         when :alert
-          @excel.with_displayalerts true do
+          with_displayalerts true do
             unsaved_workbooks.each do |workbook|
               Excel.save_workbook(workbook)
             end
@@ -119,7 +124,7 @@ module RobustExcelOle
       raise ExcelUserCanceled, "close: canceled by user" if options[:if_unsaved] == :alert && self.unsaved_workbooks
     end
 
-  #private
+  private
 
     def self.save_workbook(workbook)
       begin
@@ -263,6 +268,9 @@ module RobustExcelOle
       @this_excel.Visible
     end
 
+    #def inspect
+    #  "#{Excel hwnd_xxxx}"
+    #end
 
   private
 
@@ -347,7 +355,6 @@ module RobustExcelOle
     def die 
       @this_excel = nil
     end
-
 
     def method_missing(name, *args) 
       if name.to_s[0,1] =~ /[A-Z]/ 

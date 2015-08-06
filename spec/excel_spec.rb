@@ -101,8 +101,7 @@ module RobustExcelOle
       end
     end
 
-    describe "close" do
-
+=begin
       # testing private methods
       context "close_excel" do
 
@@ -151,8 +150,34 @@ module RobustExcelOle
         end
 
       end
+=end
 
-      context "close: with a saved workbook" do
+    describe "close_all" do
+
+      context "with saved workbooks" do
+
+        before do
+          book = Book.open(@simple_file, :visible => true)
+          book2 = Book.open(@simple_file, :force_excel => :new, :visible => true)
+          @excel = book.excel
+          @excel2 = book2.excel
+        end
+
+        it "should close the Excel instances" do
+          @excel.should be_alive
+          @excel2.should be_alive
+          Excel.close_all
+          @excel.should_not be_alive
+          @excel2.should_not be_alive
+        end
+
+      end
+
+    end
+
+    describe "close" do
+
+      context "with a saved workbook" do
 
         before do
           @excel = Excel.create
@@ -168,7 +193,7 @@ module RobustExcelOle
         end
       end
 
-      context "close: with an unsaved workbook" do
+      context "with an unsaved workbook" do
 
         before do
           @excel = Excel.create

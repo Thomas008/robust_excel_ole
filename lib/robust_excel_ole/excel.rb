@@ -269,19 +269,11 @@ module RobustExcelOle
     end
 
     def to_s
-      "Excel" + "#{hwnd_xxxx.to_s}"
+      "Excel" + "#{hwnd_xxxx}"
     end
 
     def inspect
       self.to_s
-    end
-
-    def close
-      if @this_excel
-        weak_ole_excel = WeakRef.new(@this_excel)
-        @this_excel = nil
-        self.class.close_excel_ole_instance(weak_ole_excel.__getobj__)
-      end
     end
 
   private

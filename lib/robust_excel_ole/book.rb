@@ -583,6 +583,14 @@ module RobustExcelOle
       self.class.book_store
     end   
 
+    def to_s
+      "Book" + " #{File.basename(@workbook.Fullname)} #{@workbook}"
+    end
+
+    def inspect
+      self.to_s
+    end
+
   private
 
     def method_missing(name, *args)

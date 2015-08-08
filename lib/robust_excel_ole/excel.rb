@@ -269,7 +269,7 @@ module RobustExcelOle
     end
 
     def to_s
-      "Excel" + "#{hwnd_xxxx}"
+      "#<" + "EXCEL:#{hwnd_xxxx}" + ("#{"not alive" unless self.alive?}") + ">"
     end
 
     def inspect

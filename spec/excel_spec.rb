@@ -504,6 +504,7 @@ module RobustExcelOle
         it "should raise error when book cannot be saved" do
           expect{
             workbook = @excel1.generate_workbook(@invalid_name_file)
+          # not always Unknown ???? ToDo #*#
           #}.to raise_error(ExcelErrorSaveUnknown)
           }.to raise_error(ExcelErrorSave)
         end

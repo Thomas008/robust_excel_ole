@@ -70,12 +70,6 @@ module RobustExcelOle
         :hard => false
       }.merge(options)
       while current_excel do
-        # current_excel: yields a WIN32OLE object
-        # close works on an Excel object, so can't use just excel.close
-        # do another abstract layer:
-        #   close_an_excel(excel,options)
-        # Excel.close_all: calls close_an_excel(current_excel)
-        # Excel#close: calls close_an_excel(@this_excel)
         #current_excel.close(options)
         close_one_excel
         GC.start
@@ -97,13 +91,13 @@ module RobustExcelOle
         :hard => false
       }.merge(options)
       unsaved_books = self.unsaved_workbooks
-      if unsaved_books != [] then
+      unless unsaved_books.empty? 
         case options[:if_unsaved]
         when :raise
           raise ExcelErrorClose, "Excel contains unsaved workbooks"
         when :save
           unsaved_workbooks.each do |workbook|
-            Excel.save_workbook(workbook)
+            workbook.Save
           end
           close_excel(:hard => options[:hard])
         when :forget
@@ -111,7 +105,7 @@ module RobustExcelOle
         when :alert
           with_displayalerts true do
             unsaved_workbooks.each do |workbook|
-              Excel.save_workbook(workbook)
+              workbook.Save
             end
             close_excel(:hard => options[:hard])
           end
@@ -125,26 +119,6 @@ module RobustExcelOle
     end
 
   private
-
-    def self.save_workbook(workbook)
-      begin
-        file = workbook.Fullname
-        dirname, basename = File.split(file)
-        file_format =
-          case File.extname(basename)
-            when '.xls' : RobustExcelOle::XlExcel8
-            when '.xlsx': RobustExcelOle::XlOpenXMLWorkbook
-            when '.xlsm': RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
-          end
-        workbook.SaveAs(RobustExcelOle::absolute_path(file), file_format)
-      rescue WIN32OLERuntimeError => msg
-        if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
-          raise ExcelErrorSave, "saving workbook: #{msg.message}" 
-        else
-          raise ExcelErrorSaveUnknown, "unknown WIN32OELERuntimeError:\n#{msg.message}"
-        end       
-      end
-    end
 
     def close_excel(options)
       excel = @this_excel

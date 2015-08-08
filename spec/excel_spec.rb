@@ -126,31 +126,6 @@ module RobustExcelOle
         end
       end
 
-      context "save_workbook" do
-
-        before do
-          @book = Book.open(@simple_file)
-          sheet = @book[0]
-          @old_cell_value = sheet[1,1].value
-          sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
-        end 
-
-        after do
-          @book.close
-        end
-
-        it "should save the workbook" do
-          workbook = @book.workbook
-          workbook.Saved.should be_false
-          Excel.save_workbook(workbook)
-          workbook.Saved.should be_true
-          @book.close
-          new_book = Book.open(@simple_file)
-          new_sheet = new_book[0]
-          new_sheet[1,1].value.should_not == @old_cell_value
-        end
-
-      end
 =end
 
     describe "close_all" do
@@ -171,9 +146,7 @@ module RobustExcelOle
           @excel.should_not be_alive
           @excel2.should_not be_alive
         end
-
       end
-
     end
 
     describe "close" do

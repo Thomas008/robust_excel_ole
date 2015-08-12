@@ -13,6 +13,11 @@ unless Object.method_defined?(:require_relative)
   end
 end
 
+require_relative "book_open_spec"
+require_relative "book_close_spec"
+require_relative "book_save_spec"
+require_relative "book_misc_spec"
+require_relative "book_sheet_spec"
 require_relative "book_unobtr_spec"
 require_relative "book_subclass_spec"
 
@@ -900,7 +905,7 @@ describe Book do
       end
 
       it "should create and use a hidden Excel instance" do
-        book2 = Book.open(@simple_file, :force_excel => @book.book_store.hidden_excel)
+        book2 = Book.open(@simple_file, :force_excel => @book.bookstore.hidden_excel)
         book2.excel.should_not == @book.excel
         book2.excel.visible.should be_false
         book2.excel.displayalerts.should be_false

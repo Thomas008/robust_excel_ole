@@ -3,7 +3,7 @@
 
 module RobustExcelOle
 
-  class BookStore
+  class Bookstore
 
     def initialize
       @filename2books = Hash.new {|hash, key| hash[key] = [] }
@@ -99,7 +99,7 @@ module RobustExcelOle
 
   end
 
-  class BookStoreError < WIN32OLERuntimeError # :nodoc: #
+  class BookstoreError < WIN32OLERuntimeError # :nodoc: #
   end
  
 end

@@ -204,7 +204,12 @@ module RobustExcelOle
 
     def unsaved_workbooks
       result = []
-      self.Workbooks.each {|w| result << w unless (w.Saved || w.ReadOnly)}
+      begin
+        self.Workbooks.each {|w| result << w unless (w.Saved || w.ReadOnly)}
+      rescue RuntimeError => msg
+        puts "RuntimeError: #{msg.message}" 
+        raise ExcelErrorOpen, "Excel instance not alive or damaged" if msg.message =~ /failed to get Dispatch Interface/
+      end
       result
     end
     # yields different WIN32OLE objects than book.workbook

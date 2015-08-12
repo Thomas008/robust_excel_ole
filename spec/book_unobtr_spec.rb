@@ -70,8 +70,13 @@ describe Book do
         end
 
         after do
-          @excel1.close
-          @excel2.close
+          #Excel.close_all
+          begin
+            @excel1.close
+            @excel2.close 
+          rescue ExcelErrorOpen => msg
+            puts "ExcelError: #{msg.message}" if msg.message =~ /Excel instance not alive or damaged/
+          end
         end
 
       it "should open unobtrusively in the first opened Excel" do
@@ -101,14 +106,13 @@ describe Book do
         end
       end
   
-        it "should raise an error if the excel instance is not alive" do
-          Excel.close_all
-          expect{
-            Book.unobtrusively(@simple_file, @excel2) do |book|
-            end
-          }.to raise_error(ExcelErrorOpen, "Excel instance not alive or damaged")
+      it "should raise an error if the excel instance is not alive" do
+        Excel.close_all
+        expect{
+          Book.unobtrusively(@simple_file, @excel2) do |book|
+          end
+        }.to raise_error(ExcelErrorOpen, "Excel instance not alive or damaged")
         end
-
       end
 
       it "should raise an error if the option is invalid" do

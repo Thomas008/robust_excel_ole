@@ -65,7 +65,7 @@ module RobustExcelOle
         book = nil
         if (not (current_options[:force_excel] == :new && (not current_options[:if_locked] == :take_writable)))
           # if readonly is true, then prefer a book that is given in force_excel if this option is set
-          book = book_store.fetch(file, 
+          book = bookstore.fetch(file, 
                   :prefer_writable => (not current_options[:read_only]), 
                   :prefer_excel    => (current_options[:read_only] ? current_options[:force_excel].excel : nil)) rescue nil
           if book
@@ -90,7 +90,7 @@ module RobustExcelOle
       @options = DEFAULT_OPEN_OPTS.merge(opts)      
       get_excel
       get_workbook file
-      book_store.store(self)
+      bookstore.store(self)
       if block
         begin
           yield self
@@ -314,7 +314,7 @@ module RobustExcelOle
         :readonly_excel => false,
         :keep_open => false,
       }.merge(opts)
-      book = book_store.fetch(file, :prefer_writable => (not options[:read_only]))
+      book = bookstore.fetch(file, :prefer_writable => (not options[:read_only]))
       was_not_alive_or_nil = book.nil? || (not book.alive?)
       was_saved = was_not_alive_or_nil ? true : book.saved
       was_writable = book.writable unless was_not_alive_or_nil
@@ -325,7 +325,7 @@ module RobustExcelOle
             when :reuse
               open(file, :read_only => options[:read_only])
             when :hidden 
-              open(file, :force_excel => book_store.hidden_excel, :read_only => options[:read_only])
+              open(file, :force_excel => bookstore.hidden_excel, :read_only => options[:read_only])
             else 
               open(file, :force_excel => if_closed, :read_only => options[:read_only])
             end
@@ -508,7 +508,7 @@ module RobustExcelOle
             when '.xlsm': RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
           end
         @workbook.SaveAs(RobustExcelOle::absolute_path(file), file_format)
-        book_store.store(self)
+        bookstore.store(self)
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
           if @opts[:if_exists] == :alert then 
@@ -575,12 +575,12 @@ module RobustExcelOle
       new_sheet
     end      
 
-    def self.book_store
-      @@bookstore ||= BookStore.new
+    def self.bookstore
+      @@bookstore ||= Bookstore.new
     end
 
-    def book_store
-      self.class.book_store
+    def bookstore
+      self.class.bookstore
     end   
 
     def to_s

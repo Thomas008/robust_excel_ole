@@ -129,11 +129,24 @@ This method finds out whether the Excel workbook that is referenced by the Book 
 
   if book.alive? then sheet = book[0] end
 
-=== Setting and getting the contents of a range
+=== Setting and getting the contents of a range.
+
+Setting:
 
   book["name"] = "value"
 
+or
+
+  book.set_nvalue("name") = "value"
+
+Getting:
+
   book["name"] 
+  => "value"
+
+or
+
+  book.nvalue("name")
   => "value"
 
 === Making an Excel visible or invisible, and enable and disable DisplayAlerts.
@@ -310,6 +323,11 @@ Turning on and off in a block.
   excel.with_displayalerts true do
     book = Book.open('workbook.xls')
   end
+
+=== Closing an Excel
+
+  excel = Excel.current
+  excel.close
 
 === Closing all Excel instances.
 

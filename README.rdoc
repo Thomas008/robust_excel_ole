@@ -71,13 +71,13 @@ Closing the workbook and saving it before if it has unsaved changes.
 
   book.close(:if_unsaved => :save)
 
-=== Reopening workbooks.
+=== Reopening a workbook.
 
-A special feature of robust_excel_ole is that it allows tog reopen books after closing them.
+A special feature of robust_excel_ole is that it allows to reopen books after closing them.
 
   book = Book.open('workbook.xls')
   book.close
-  reopened_book = Book.open('workbook.xls')
+  book.reopen
 
 The closed book is now alive again, i.e. is open and responds to Excel methods.
 
@@ -85,8 +85,6 @@ This feature is achieved by providing identity transperence and by storing the f
 Identity transperence means that the same Book objects refer to the same Excel files, and vice versa.
 In other words, a Book objects is a proxy of an Excel file.
 
-  reopened_book === book
-  => true
 
 === Saving a workbook.
 
@@ -109,7 +107,7 @@ The method +unobtrusively+ enables the user to read or modify a workbook, no mat
 
 One option chooses the Excel instance in which a closed book is opened. The options +:reuse (default) indicates that the closed book is opened in the Excel instance of the book, if it exists, or that another Excel instance is reused. The option +:hidden+ provokes that the closed book is opened in a separate Excel instance that is not visible and has no DisplayAlerts. Any following closed book would be opened in this Excel instance as well when using this option. Moreover, an Excel instance can be given directly where to open the closed book.
 
-Further options are +:read_only+, +:readonly_excel+, and +:keep_open. The option +:readonly_excel+ chooses wheter a book that is opened as ReadOnly and that shall be modified shall be opned as writable in the Excel instance where it was open so far, or if it shall be opened as writable in another running Excel instance, if such an Excel exists, or opened in a new Excel instance.
+Further options are +:read_only+, +:readonly_excel+, and +:keep_open. The option +:readonly_excel+ chooses whether a book that is opened as ReadOnly and that shall be modified shall be opned as writable in the Excel instance where it was open so far, or if it shall be opened as writable in another running Excel instance, if such an Excel exists, or opened in a new Excel instance.
 
   Book.unobtrusively('workbook.xls', :reuse, :read_only => false, :keep_open => false) do |book|
     # some modification
@@ -130,6 +128,13 @@ The methods +for_reading+ and +for_modifying+ indicate unobtrusively reading or 
 This method finds out whether the Excel workbook that is referenced by the Book object responds to methods.
 
   if book.alive? then sheet = book[0] end
+
+=== Setting and getting the contents of a range
+
+  book["name"] = "value"
+
+  book["name"] 
+  => "value"
 
 === Making an Excel visible or invisible, and enable and disable DisplayAlerts.
 
@@ -461,7 +466,7 @@ The book is modified, but its status is unchanged.
   not (new_sheet[1,1].Value == sheet[1,1].Value) 
   => true
 
-  book.Saved 
+  book.saved 
   => true
 
 

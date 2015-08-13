@@ -110,6 +110,20 @@ The option specifies: If the workbook is unsaved, then
 +:forget+:: Close the workbook. 
 +:alert+::  Give control to Excel.
 
+=== Reopening a workbook.
+
+A special feature of robust_excel_ole is that it allows to reopen books after closing them.
+
+  book = Book.open('workbook.xls')
+  book.close
+  book.reopen
+
+The closed book is now alive again, i.e. is open and responds to Excel methods.
+
+This feature is achieved by providing identity transperence and by storing the file name.
+Identity transperence means that the same Book objects refer to the same Excel files, and vice versa.
+In other words, a Book objects is a proxy of an Excel file.
+
 
 === Saving a workbook.
 
@@ -170,7 +184,14 @@ The methods +for_reading+ and +for_modifying+ indicate unobtrusively reading or 
 
 === Checking whether the referenced Excel workbook responds to methods.
 
-  if book.alive? then sheet = book[0] end
+  book.alive?
+
+=== Setting and getting the contents of a range
+
+  book["name"] = "value"
+
+  book["name"] 
+  => "value"
 
 === Making an Excel visible or invisible, and enable and disable DisplayAlerts.
 
@@ -513,7 +534,7 @@ The book is modified, but its status is unchanged.
   not (new_sheet[1,1].Value == sheet[1,1].Value) 
   => true
 
-  book.Saved 
+  book.saved 
   => true
 
 

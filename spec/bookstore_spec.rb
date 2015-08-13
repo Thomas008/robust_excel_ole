@@ -35,7 +35,7 @@ class Book
 end
 
 
-describe BookStore do
+describe Bookstore do
 
   before(:all) do
     excel = Excel.new(:reuse => true)
@@ -45,7 +45,7 @@ describe BookStore do
   end
 
   before do
-    @bookstore = BookStore.new
+    @bookstore = Bookstore.new
     @dir = create_tmpdir
     @simple_file = @dir + '/workbook.xls'
     @simple_save_file = @dir + '/workbook_save.xls'
@@ -62,9 +62,9 @@ describe BookStore do
     context "with standard" do
       it "should create book store" do
         expect {
-          @book_store = BookStore.new
+          @book_store = Bookstore.new
         }.to_not raise_error
-        @book_store.should be_a BookStore
+        @book_store.should be_a Bookstore
       end
     end
   end
@@ -273,7 +273,7 @@ describe BookStore do
         @bookstore.store(@book2)
         @bookstore.store(@book3)
         sheet = @book3[0]
-        sheet[0,0] = sheet[0,0].Value == "simple" ? "complex" : "simple"
+        sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
         @book.ReadOnly.should be_true
         @book2.ReadOnly.should be_false
         @book3.ReadOnly.should be_true

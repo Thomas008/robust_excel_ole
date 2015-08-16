@@ -316,6 +316,14 @@ module RobustExcelOle
       }.merge(opts)
       book = bookstore.fetch(file, :prefer_writable => (not options[:read_only]))
       was_not_alive_or_nil = book.nil? || (not book.alive?)
+      workbook = book.excel.Workbooks.Item(File.basename(file)) rescue nil
+      now_alive = 
+        begin 
+          workbook.Name
+          true
+        rescue 
+          false
+      end
       was_saved = was_not_alive_or_nil ? true : book.saved
       was_writable = book.writable unless was_not_alive_or_nil
       begin 
@@ -344,7 +352,7 @@ module RobustExcelOle
         if (not was_not_alive_or_nil) && (not options[:read_only]) && (not was_writable) && options[:readonly_excel]
           open(file, :force_excel => book.excel, :if_obstructed => :new_excel, :read_only => true)
         end
-        book.close if (was_not_alive_or_nil && (not options[:keep_open]) && book)
+        book.close if (was_not_alive_or_nil && (not now_alive) && (not options[:keep_open]) && book)
       end
     end
 

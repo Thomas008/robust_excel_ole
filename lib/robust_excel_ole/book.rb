@@ -344,7 +344,7 @@ module RobustExcelOle
         if (not was_not_alive_or_nil) && (not options[:read_only]) && (not was_writable) && options[:readonly_excel]
           open(file, :force_excel => book.excel, :if_obstructed => :new_excel, :read_only => true)
         end
-        book.close if (was_not_alive_or_nil && (not opts[:keep_open]) && book)
+        book.close if (was_not_alive_or_nil && (not options[:keep_open]) && book)
       end
     end
 

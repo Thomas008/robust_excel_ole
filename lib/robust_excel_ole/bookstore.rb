@@ -6,7 +6,7 @@ module RobustExcelOle
   class Bookstore
 
     def initialize
-      @filename2books = Hash.new {|hash, key| hash[key] = [] }
+      @filename2books ||= Hash.new {|hash, key| hash[key] = [] }
       @hidden_excel_instance = nil
     end
 
@@ -17,7 +17,8 @@ module RobustExcelOle
     #                             otherwise return the book according to the preference order mentioned above
     #          :prefer_excel      return the book in the given excel instance, if it exists,
     #                             otherwise proceed according to prefer_writable 
-    def fetch(filename, options = {:prefer_writable => true })
+    def fetch(file, options = {:prefer_writable => true })
+      filename = RobustExcelOle::absolute_path(file).tr('\\','/')
       filename_key = RobustExcelOle::canonize(filename)
       weakref_books = @filename2books[filename_key]
       return nil unless weakref_books
@@ -68,7 +69,7 @@ module RobustExcelOle
       @hidden_excel_instance.__getobj__
     end
 
-  private
+  #private
 
     def try_hidden_excel
       @hidden_excel_instance.__getobj__ if (@hidden_excel_instance &&  @hidden_excel_instance.weakref_alive? && @hidden_excel_instance.__getobj__.alive?)
@@ -81,13 +82,12 @@ module RobustExcelOle
         @filename2books.each do |filename,books|
           p " filename: #{filename}"
           p " books:"
-          p " []" if books == []
-          if books
+          if books.empty? 
+            p " []" 
+          else
             books.each do |book|
               if book.weakref_alive?
                 p "#{book}"
-                p "excel: #{book.excel}"
-                p "alive: #{book.alive?}"
               else
                 p "weakref not alive"
               end

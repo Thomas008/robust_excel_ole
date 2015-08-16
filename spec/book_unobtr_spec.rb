@@ -135,6 +135,42 @@ describe Book do
         @book2.close(:if_unsaved => :forget) rescue nil
       end
 
+      #it "should let an open Book open" do
+      #  Book.unobtrusively(@simple_file) do |book|
+      #    book.should be_a Book
+      #    book.should be_alive
+      #    book.excel.should == @book.excel
+      #  end        
+      #  @book.should be_alive
+      #  @book.should be_a Book
+      #end
+
+      it "should let an open Book open if it has been closed and opened again" do
+        @book.close
+        @book.reopen
+        Book.unobtrusively(@simple_file) do |book|
+          book.should be_a Book
+          book.should be_alive
+          book.excel.should == @book.excel
+        end        
+        @book.should be_alive
+        @book.should be_a Book
+      end
+
+      it "should let an open Book open if two books have been opened and one has been closed and opened again" do
+        book2 = Book.open(@different_file, :force_excel => :new)
+        @book.close
+        book2.close
+        @book.reopen
+        Book.unobtrusively(@simple_file) do |book|
+          book.should be_a Book
+          book.should be_alive
+          book.excel.should == @book.excel
+        end        
+        @book.should be_alive
+        @book.should be_a Book
+      end
+
       it "should open in the Excel of the given Book" do
         #book1 = Book.open(@different_file)
         @book2 = Book.open(@another_simple_file, :force_excel => :new)
@@ -323,8 +359,31 @@ describe Book do
         new_sheet[1,1].Value.should_not == old_cell_value
         new_book.close
       end
+    end
 
+    context "with a visible book" do
 
+      before do
+        @book = Book.open(@simple_file, :visible => true)
+      end
+
+      after do
+        @book.close(:if_unsaved => :forget)
+        @book2.close(:if_unsaved => :forget) rescue nil
+      end
+
+      it "should let an open Book open" do
+        Book.unobtrusively(@simple_file) do |book|
+          book.should be_a Book
+          book.should be_alive
+          book.excel.should == @book.excel
+          book.excel.Visible.should be_true
+        end        
+        @book.should be_alive
+        @book.should be_a Book
+        @book.excel.Visible.should be_true
+      end
+      
     end
 
     context "with various options for an Excel instance in which to open a closed book" do

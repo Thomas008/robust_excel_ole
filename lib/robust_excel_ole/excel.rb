@@ -248,7 +248,7 @@ module RobustExcelOle
     end
 
     def to_s
-      "#<" + "EXCEL:#{hwnd_xxxx}" + ("#{"not alive" unless self.alive?}") + ">"
+      "#<EXCEL:" + "#{hwnd_xxxx}" + ("#{"not alive" unless self.alive?}") + ">"
     end
 
     def inspect
@@ -345,7 +345,7 @@ module RobustExcelOle
     end
 
     def hwnd_xxxx  
-      self.HWnd #rescue Win32 nil
+      self.HWnd rescue nil
     end
 
     # set this Excel instance to nil

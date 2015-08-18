@@ -69,7 +69,7 @@ module RobustExcelOle
       @hidden_excel_instance.__getobj__
     end
 
-  #private
+  private
 
     def try_hidden_excel
       @hidden_excel_instance.__getobj__ if (@hidden_excel_instance &&  @hidden_excel_instance.weakref_alive? && @hidden_excel_instance.__getobj__.alive?)

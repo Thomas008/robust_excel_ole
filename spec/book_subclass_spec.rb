@@ -4,10 +4,10 @@ require File.join(File.dirname(__FILE__), './spec_helper')
 
 
 module My # :nodoc: #
-  class Excel < RobustExcelOle::Excel
+  class Excel < RobustExcelOle::Excel # :nodoc: #
   end
 
-  class Book < RobustExcelOle::Book
+  class Book < RobustExcelOle::Book   # :nodoc: #
   end
 end
 

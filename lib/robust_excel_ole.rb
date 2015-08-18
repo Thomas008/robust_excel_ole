@@ -31,14 +31,14 @@ module RobustExcelOle
 
 end
 
-class Object
+class Object      # :nodoc: #
   def excel
     raise ExcelErrorOpen, "provided instance is neither an Excel nor a Book"
   end
 
 end
 
-class ::String
+class ::String    # :nodoc: #
   def / path_part
     if empty?
       path_part
@@ -96,7 +96,7 @@ class ::String
 end
 
 # taken from http://api.rubyonrails.org/v2.3.8/classes/ActiveSupport/CoreExtensions/Module.html#M000806
-class Module
+class Module   # :nodoc: #
   def parent_name
     unless defined? @parent_name
       @parent_name = name =~ /::[^:]+\Z/ ? $`.freeze : nil

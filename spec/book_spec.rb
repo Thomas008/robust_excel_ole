@@ -53,11 +53,6 @@ describe Book do
         book = Book.open(@linked_file, :visible => true)
         book.close
       end
-
-      it "should open xlsm file" do
-        book = Book.open(@simple_file_xlsm, :visible => true)
-        book.close
-      end
     end
 
     context "with standard options" do
@@ -588,31 +583,6 @@ describe Book do
         @book.close
       end
 
-      it "should open unobtrusively by default the book in a new Excel such that the book is writable" do
-        book2 = Book.open(@simple_file, :force_excel => :new, :read_only => true)
-        @book.ReadOnly.should be_true
-        book2.Readonly.should be_true
-        sheet = @book[0]
-        cell_value = sheet[1,1].value
-        Book.unobtrusively(@simple_file, :hidden) do |book|
-          book.should be_a Book
-          book.excel.should_not == book2.excel
-          book.excel.should_not == @book.excel
-          sheet = book[0]
-          sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
-          book.should be_alive
-          book.Saved.should be_false          
-        end  
-        @book.Saved.should be_true
-        @book.ReadOnly.should be_true
-        @book.close
-        book2.close
-        book3 = Book.open(@simple_file)
-        new_sheet = book3[0]
-        new_sheet[1,1].value.should_not == cell_value
-        book3.close
-      end
-
       it "should open unobtrusively the book in a new Excel such that the book is writable" do
         book2 = Book.open(@simple_file, :force_excel => :new, :read_only => true)
         @book.ReadOnly.should be_true
@@ -660,34 +630,6 @@ describe Book do
       it "should open the book" do
         expect{ unobtrusively_ok? }.to_not raise_error
       end
-    end
-
-    context "with a saved book" do
-
-      before do
-        @book1 = Book.open(@simple_file)
-      end
-
-      after do
-        @book1.close(:if_unsaved => :forget)
-      end
-
-      it "should save if the book was modified during unobtrusively" do
-        m_time = File.mtime(@book1.stored_filename)
-        Book.unobtrusively(@simple_file, :hidden) do |book|
-          @book1.Saved.should be_true
-          book.Saved.should be_true  
-          sheet = book[0]
-          cell = sheet[1,1]
-          sheet[1,1] = cell.value == "foo" ? "bar" : "foo"
-          @book1.Saved.should be_false
-          book.Saved.should be_false
-          sleep 1
-        end
-        @book1.Saved.should be_true
-        m_time2 = File.mtime(@book1.stored_filename)
-        m_time2.should_not == m_time
-      end      
     end
 
     context "with block result" do
@@ -852,32 +794,6 @@ describe Book do
       it "should send Saved to workbook" do
         @book.Saved.should be_true
       end
-
-      it "should send Fullname to workbook" do
-        @book.Fullname.tr('\\','/').should == @simple_file
-      end
-    end
-  end
-
-  describe "hidden_excel" do
-    
-    context "with some open book" do
-
-      before do
-        @book = Book.open(@simple_file)
-      end
-
-      after do
-        @book.close
-      end
-
-      it "should create and use a hidden Excel instance" do
-        book2 = Book.open(@simple_file, :force_excel => @book.bookstore.hidden_excel)
-        book2.excel.should_not == @book.excel
-        book2.excel.visible.should be_false
-        book2.excel.displayalerts.should be_false
-        book2.close 
-      end
     end
   end
 
@@ -917,12 +833,6 @@ describe Book do
       after do
         @book1.close(:if_unsaved => :forget)
       end   
-
-      it "should set value of a range" do
-        @book1.nvalue("new").should == "foo"
-        @book1.set_nvalue("new","bar")
-        @book1.nvalue("new").should == "bar"
-      end
 
       it "should set value of a range" do
         @book1.nvalue("new").should == "foo"
@@ -1005,23 +915,6 @@ describe Book do
       end
     end
 
-    context "with open with read only" do
-      before do
-        @book = Book.open(@simple_file, :read_only => true)
-      end
-
-      after do
-        @book.close
-      end
-
-      it {
-        expect {
-          @book.save_as(@simple_file)
-        }.to raise_error(IOError,
-                     "Not opened for writing(open with :read_only option)")
-      }
-    end
-
     context "with argument" do
       before do
         Book.open(@simple_file) do |book|
@@ -1031,111 +924,6 @@ describe Book do
 
       it "should save to 'simple_save_file.xlsx'" do
         File.exist?(@simple_save_file).should be_true
-      end
-    end
-
-    context "with different extensions" do
-      before do
-        @book = Book.open(@simple_file)
-      end
-
-      after do
-        @book.close
-      end
-
-      possible_extensions = ['xls', 'xlsm', 'xlsx']
-      possible_extensions.each do |extensions_value|
-        it "should save to 'simple_save_file.#{extensions_value}'" do
-          simple_save_file = @dir + '/simple_save_file.' + extensions_value
-          File.delete simple_save_file rescue nil
-          @book.save_as(simple_save_file, :if_exists => :overwrite)
-          File.exist?(simple_save_file).should be_true
-          new_book = Book.open(simple_save_file)
-          new_book.should be_a Book
-          new_book.close
-        end
-      end
-    end
-
-    # options :overwrite, :raise, :excel, no option, invalid option
-    possible_displayalerts = [true, false]
-    possible_displayalerts.each do |displayalert_value|
-      context "with displayalerts=#{displayalert_value}" do
-        before do
-          @book = Book.open(@simple_file, :displayalerts => displayalert_value)
-        end
-
-        after do
-          @book.close
-        end
-
-        it "should raise an error if the book is open" do
-          File.delete @simple_save_file rescue nil
-          FileUtils.copy @simple_file, @simple_save_file
-          book_save = Book.open(@simple_save_file, :excel => :new)
-          expect{
-            @book.save_as(@simple_save_file, :if_exists => :overwrite)
-            }.to raise_error(ExcelErrorSave, "book is open and used in Excel")
-          book_save.close
-        end
-
-        context "with :if_exists => :alert" do
-          before do
-            File.delete @simple_save_file rescue nil
-            File.open(@simple_save_file,"w") do | file |
-              file.puts "garbage"
-            end
-            @garbage_length = File.size?(@simple_save_file)
-            @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
-          end
-
-          after do
-            @key_sender.close
-          end
-
-          it "should save if user answers 'yes'" do
-            # "Yes" is to the left of "No", which is the  default. --> language independent
-            @key_sender.puts "{left}{enter}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
-            @book.save_as(@simple_save_file, :if_exists => :alert)
-            File.exist?(@simple_save_file).should be_true
-            File.size?(@simple_save_file).should > @garbage_length
-            @book.excel.DisplayAlerts.should == displayalert_value
-            new_book = Book.open(@simple_save_file, :excel => :new)
-            new_book.should be_a Book
-            new_book.close
-            @book.excel.DisplayAlerts.should == displayalert_value
-          end
-
-          it "should not save if user answers 'no'" do
-            # Just give the "Enter" key, because "No" is the default. --> language independent
-            # strangely, in the "no" case, the question will sometimes be repeated three times
-            @key_sender.puts "{enter}"
-            @key_sender.puts "{enter}"
-            @key_sender.puts "{enter}"
-            #@key_sender.puts "%{n}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
-            expect{
-              @book.save_as(@simple_save_file, :if_exists => :alert)
-              }.to raise_error(ExcelErrorSave, "not saved or canceled by user")
-            File.exist?(@simple_save_file).should be_true
-            File.size?(@simple_save_file).should == @garbage_length
-            @book.excel.DisplayAlerts.should == displayalert_value
-          end
-
-          it "should not save if user answers 'cancel'" do
-            # 'Cancel' is right from 'yes'
-            # strangely, in the "no" case, the question will sometimes be repeated three times
-            @key_sender.puts "{right}{enter}"
-            @key_sender.puts "{right}{enter}"
-            @key_sender.puts "{right}{enter}"
-            #@key_sender.puts "%{n}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
-            expect{
-              @book.save_as(@simple_save_file, :if_exists => :alert)
-              }.to raise_error(ExcelErrorSave, "not saved or canceled by user")
-            File.exist?(@simple_save_file).should be_true
-            File.size?(@simple_save_file).should == @garbage_length
-            @book.excel.DisplayAlerts.should == displayalert_value
-          end
-        end
       end
     end
   end
@@ -1193,16 +981,6 @@ describe Book do
       it "should be true with two identical books" do
         @new_book = Book.open(@simple_file)
         @new_book.should == @book
-      end
-
-      it "should be false with two different books" do
-        @new_book = Book.new(@different_file)
-        @new_book.should_not == @book
-      end
-
-      it "should be false with same book names but different paths" do       
-        @new_book = Book.new(@simple_file_other_path, :excel => :new)
-        @new_book.should_not == @book
       end
     end
 
@@ -1265,23 +1043,6 @@ describe Book do
     end
 
     context "with first argument" do
-      context "with second argument is {:as => 'copyed_name'}" do
-        it "copyed sheet name should be 'copyed_name'" do
-          @book.add_sheet(@sheet, :as => 'copyed_name').name.should eq 'copyed_name'
-        end
-      end
-
-      context "with second argument is {:before => @sheet}" do
-        it "should add the first sheet" do
-          @book.add_sheet(@sheet, :before => @sheet).name.should eq @book[0].name
-        end
-      end
-
-      context "with second argument is {:after => @sheet}" do
-        it "should add the first sheet" do
-          @book.add_sheet(@sheet, :after => @sheet).name.should eq @book[1].name
-        end
-      end
 
       context "with second argument is {:before => @book[2], :after => @sheet}" do
         it "should arguments in the first is given priority" do
@@ -1311,9 +1072,6 @@ describe Book do
     end
 
     context "without argument" do
-      it "should add empty sheet" do
-        expect { @book.add_sheet }.to change{ @book.workbook.Worksheets.Count }.from(3).to(4)
-      end
 
       it "should return copyed sheet" do
         sheet = @book.add_sheet

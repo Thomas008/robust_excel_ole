@@ -219,19 +219,27 @@ module RobustExcelOle
             workbooks = @excel.Workbooks
           rescue RuntimeError => msg
             puts "RuntimeError: #{msg.message}" 
-            raise ExcelErrorOpen, "Excel instance not alive or damaged" if msg.message =~ /failed to get Dispatch Interface/
+            if msg.message =~ /failed to get Dispatch Interface/
+              raise ExcelErrorOpen, "Excel instance not alive or damaged" 
+            else
+              raise ExcelErrorOpen, "unknown RuntimeError"
+            end
           end
           workbooks.Open(filename,{ 'ReadOnly' => @options[:read_only] })
         rescue WIN32OLERuntimeError => msg
           puts "WIN32OLERuntimeError: #{msg.message}" 
-          raise ExcelErrorOpen, "open: user canceled or open error" if msg.message =~ /800A03EC/
+          if msg.message =~ /800A03EC/
+            raise ExcelErrorOpen, "open: user canceled or open error"
+          else 
+            raise ExcelErrorOpen, "unknown WIN32OLERuntimeError"
+          end
         end   
         begin
           # workaround for bug in Excel 2010: workbook.Open does not always return 
           # the workbook with given file name
           @workbook = workbooks.Item(File.basename(filename))
         rescue WIN32OLERuntimeError
-          raise ExcelErrorOpen, "open: item error"
+          raise ExcelErrorOpen, "cannot find the file #{File.basename(filename)}"
         end
       end
     end

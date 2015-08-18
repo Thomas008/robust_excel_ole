@@ -3,7 +3,7 @@
 require File.join(File.dirname(__FILE__), './spec_helper')
 
 
-module My
+module My # :nodoc: #
   class Excel < RobustExcelOle::Excel
   end
 

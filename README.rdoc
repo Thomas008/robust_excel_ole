@@ -73,16 +73,16 @@ Closing the workbook and saving it before if it has unsaved changes.
 
 === Reopening a workbook.
 
-A special feature of robust_excel_ole is that it allows to reopen books after closing them.
+A special feature of robust_excel_ole is that it allows to reopen workbooks after closing them.
 
   book = Book.open('workbook.xls')
   book.close
   book.reopen
 
-The closed book is now alive again, i.e. is open and responds to Excel methods.
+The closed workbook is now alive again, i.e. is open and responds to Excel methods.
 
-This feature is achieved by providing identity transperence and by storing the file name.
-Identity transperence means that the same Book objects refer to the same Excel files, and vice versa.
+This feature is a result of providing identity transparence and storing the file name.
+Identity transparence means that the same Book objects refer to the same Excel files (workbooks), and vice versa.
 In other words, a Book objects is a proxy of an Excel file.
 
 
@@ -103,9 +103,9 @@ Saving a workbook and overwriting the file if it exists before.
 
 === Unobtrusively opening a workbook
 
-The method +unobtrusively+ enables the user to read or modify a workbook, no matter if it is open in some Excel instance, if it is saved or unsaved, and if it is writable or not. When opening a workbook unobtrusively, its status remains unchanged. This status includes, whether the book is opened or closed, saved or unsaved, readonly or writable. 
+The method +unobtrusively+ enables the user to read or modify a workbook, no matter if it is open in some Excel instance, if it is saved or unsaved, and if it is writable or not. When opening a workbook unobtrusively, its status remains unchanged. This status includes, whether the workbook is opened or closed, saved or unsaved, readonly or writable. 
 
-One option chooses the Excel instance in which a closed book is opened. The options +:reuse (default) indicates that the closed book is opened in the Excel instance of the book, if it exists, or that another Excel instance is reused. The option +:hidden+ provokes that the closed book is opened in a separate Excel instance that is not visible and has no DisplayAlerts. Any following closed book would be opened in this Excel instance as well when using this option. Moreover, an Excel instance can be given directly where to open the closed book.
+One option chooses the Excel instance in which a closed workbook is opened. The options +:reuse (default) indicates that the closed workbook is opened in the Excel instance of the workbook, if it exists, or that another Excel instance is reused. The option +:hidden+ provokes that the closed workbook is opened in a separate Excel instance that is not visible and has no DisplayAlerts. Any following closed workbook would be opened in this Excel instance as well when using this option. Moreover, an Excel instance can be given directly where to open the closed workbook.
 
 Further options are +:read_only+, +:readonly_excel+, and +:keep_open. The option +:readonly_excel+ chooses whether a book that is opened as ReadOnly and that shall be modified shall be opned as writable in the Excel instance where it was open so far, or if it shall be opened as writable in another running Excel instance, if such an Excel exists, or opened in a new Excel instance.
 
@@ -363,7 +363,7 @@ Closing the book.
 
 === Example 2
 
-Opening a book.
+Opening a workbook.
 
   book = Book.open('workbook.xls')
 
@@ -381,25 +381,25 @@ Closing the books.
   new_book.close
   another_book.close
 
-Reopening the book.
+Reopening the workbook.
 
-  reopened_book = Book.open('workbook.xls')
+  reopened_book = book.reopen
 
-The writable book is being prefered.  
+The writable workbook is being prefered.  
 
   reopened_book === book
   => true
 
-Opening another book.
-Since the book was not open before, reopening the book fails and the :default_excel option applies.
-According to :default_excel => :new a new Excel is created, and the book is opened there.
+Opening another workbook.
+Since the workbook was not open before, reopening the workbook fails and the :default_excel option applies.
+According to :default_excel => :new a new Excel is created, and the workbook is opened there.
 
   different_book = Book.open('different.xls', :default_excel => :new)
   
 
 === Example 3
 
-Opening a book.
+Opening a workbook.
 
   book = Book.open('workbook.xls')
 
@@ -407,7 +407,7 @@ Adding a copy of the first sheet after the second sheet.
 
   book.add_sheet(book[0], :as => 'Sheet1_copy', :after => book[1])
 
-Opening a new book with the same name in a new Excel. Leave the book that contains unsaved changes in the old Excel.
+Opening a new workbook with the same name in a new Excel. Leave the workbook that contains unsaved changes in the old Excel.
 
   new_book = Book.open('workbook.xls', :if_unsaved => :new_excel)
 
@@ -416,7 +416,7 @@ Accessing a sheet and change a cell.
   sheet = new_book[0]
   sheet[1,1] = "another"
 
-Opening another book with the same name in the running Excel. The book that contains unsaved changes will be closed before. 
+Opening another workbook with the same name in the running Excel. The book that contains unsaved changes will be closed before. 
 
   third_book = Book.open('workbook.xls', :if_unsaved => :forget)
 
@@ -424,21 +424,21 @@ Adding a sheet.
 
   third_book.add_sheet
 
-Closing the book without saving it.
+Closing the workbook without saving it.
 
   third_book.close(:if_unsaved => :forget)
 
-Closing the first book and saving it before.
+Closing the first workbook and saving it before.
 
   book.close(:if_unsaved => :save)
 
 === Example 4
 
-Opening a book.
+Opening a workbook.
 
   book1 = Book.open('workbook.xls')
 
-Opening a book with the same name in a different path. Close the old book.
+Opening a book with the same name in a different path. Close the old workbook.
 
   book2 = Book.open('more/workbook.xls', :if_obstructed => :forget)
 
@@ -447,22 +447,22 @@ Changing its cell.
   sheet = book2[0]
   sheet[1,1] = "new"
 
-Opening a book with the same name in a different path. The old book that was modified will be saved and closed before.
+Opening a workbook with the same name in a different path. The old workbook that was modified will be saved and closed before.
 
   book3 = Book.open('workbook.xls', :if_obstructed => :save)
 
-Opening a book with the same name in a different path. The other book will be closed, because it does not contain unsaved changes.
+Opening a workbook with the same name in a different path. The other workbook will be closed, because it does not contain unsaved changes.
 
   book4 = Book.open('more/workbook.xls', :if_obstructed => :close_if_unsaved)
 
-Closing the book.
+Closing the workbook.
 
   book4.close
 
 
 === Example 5
 
-Opening a book.
+Opening a workbook.
 
   book = Book.open('workbook.xls')
 
@@ -471,14 +471,14 @@ Printing its first cell.
   sheet = book[0]
   p "1st cell: #{sheet[1,1].Value}"
 
-Unobtrusively modify the book.
+Unobtrusively modify the workbook.
 
   Book.unobtrusively('workbook.xls') do |book|
     sheet = book[0]
     sheet[1,1] = 'simple'
   end
 
-The book is modified, but its status is unchanged.
+The workbook is modified, but its status is unchanged.
 
   new_sheet = book[0]
   not (new_sheet[1,1].Value == sheet[1,1].Value) 
@@ -497,12 +497,12 @@ For more details about usage: see link:https://github.com/Thomas008/robust_excel
 robust_excel_ole started as a simple fork from tomiacannondale's wrap_excel adapted to Ruby 1.8.6.
 The functionality of wrap_excel is optimised and extended by new features.
 Most notable extensions include:
-* books can be opened in already running Excel instances (instead of opening a new Excel whenever a book is opened)
-* a book management system stores all books that have been open. This book store is being used, e.g., for reopening a book that has been closed before. It provides transperency identity, i.e., equal Excel books correspond to equal Book objects of RobustExcelOle.
+* workbooks can be opened in already running Excel instances (instead of opening a new Excel whenever a book is opened)
+* a workbook management system stores all workbooks that have been open. This workbook store is being used, e.g., for reopening a workbook that has been closed before. It provides transparency identity, i.e., equal Excel workbooks correspond to equal Book objects of RobustExcelOle.
 
 Some features in robust_excel_ole that are not compatible with wrap_excel:
 * +open+ uses by default a running Excel instance instead of creating a new one,
-  and opens a book by default in writable mode instead of read_only 
+  and opens a workbook by default in writable mode instead of read_only 
 * +close+ closes the workbook instead of closing all workbooks and the Excel instance.
 * +save_as+ instead of +save+.
 

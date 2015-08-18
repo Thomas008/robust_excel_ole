@@ -600,11 +600,11 @@ module RobustExcelOle
     end   
 
     def to_s
-      "<#BOOK:" + "#{"not alive " unless alive?}" + "#{File.basename(@stored_filename)}" + " #{@workbook} #{@excel}"  + ">"
+      "<#Book: #{File.basename(@stored_filename)}>"
     end
 
     def inspect
-      self.to_s
+      "<#Book: " + "#{"not alive " unless alive?}" + "#{File.basename(@stored_filename)}" + " #{@workbook} #{@excel}"  + ">"
     end
 
   private

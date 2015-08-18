@@ -45,7 +45,7 @@ module RobustExcelOle
         result = stored
       else
         result = super(options)
-        result.instance_variable_set(:@this_excel, excel)
+        result.instance_variable_set(:@ole_excel, excel)
         WIN32OLE.const_load(excel, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
         @@hwnd2excel[hwnd] = result        
       end
@@ -121,7 +121,7 @@ module RobustExcelOle
   private
 
     def close_excel(options)
-      excel = @this_excel
+      excel = @ole_excel
       excel.Workbooks.Close
       excel_hwnd = excel.HWnd
       excel.Quit
@@ -191,7 +191,7 @@ module RobustExcelOle
 
     # returns true, if the Excel instances responds to VVA methods, false otherwise
     def alive?
-      @this_excel.Name
+      @ole_excel.Name
       true
     rescue
       #puts $!.message
@@ -218,37 +218,37 @@ module RobustExcelOle
 
     # set DisplayAlerts in a block
     def with_displayalerts displayalerts_value
-      old_displayalerts = @this_excel.DisplayAlerts
-      @this_excel.DisplayAlerts = displayalerts_value
+      old_displayalerts = @ole_excel.DisplayAlerts
+      @ole_excel.DisplayAlerts = displayalerts_value
       begin
          yield self
       ensure
-        @this_excel.DisplayAlerts = old_displayalerts
+        @ole_excel.DisplayAlerts = old_displayalerts
       end
     end
 
     # enable DisplayAlerts in the current Excel instance
     def displayalerts= displayalerts_value
-      @this_excel.DisplayAlerts = displayalerts_value
+      @ole_excel.DisplayAlerts = displayalerts_value
     end
 
     # return if in the current Excel instance DisplayAlerts is enabled
     def displayalerts 
-      @this_excel.DisplayAlerts
+      @ole_excel.DisplayAlerts
     end
 
     # make the current Excel instance visible or invisible
     def visible= visible_value
-      @this_excel.Visible = visible_value
+      @ole_excel.Visible = visible_value
     end
 
     # return if the current Excel instance is visible
     def visible 
-      @this_excel.Visible
+      @ole_excel.Visible
     end
 
     def to_s
-      "#<EXCEL:" + "#{hwnd_xxxx}" + ("#{"not alive" unless self.alive?}") + ">"
+      "#<Excel: " + "#{hwnd_xxxx}" + ("#{"not alive" unless self.alive?}") + ">"
     end
 
     def inspect
@@ -350,13 +350,13 @@ module RobustExcelOle
 
     # set this Excel instance to nil
     def die 
-      @this_excel = nil
+      @ole_excel = nil
     end
 
     def method_missing(name, *args) 
       if name.to_s[0,1] =~ /[A-Z]/ 
         begin
-          @this_excel.send(name, *args)
+          @ole_excel.send(name, *args)
         rescue WIN32OLERuntimeError => msg
           if msg.message =~ /unknown property or method/
             raise VBAMethodMissingError, "unknown VBA property or method #{name}"

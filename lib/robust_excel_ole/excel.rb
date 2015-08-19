@@ -210,7 +210,7 @@ module RobustExcelOle
     end
 
     def print_workbooks
-      self.Workbooks.each {|w| puts w.Name}
+      self.Workbooks.each {|w| puts "#{w.Name} #{w}"}
     end
 
     def unsaved_workbooks

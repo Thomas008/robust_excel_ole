@@ -47,7 +47,7 @@ module RobustExcelOle
         result = super(options)
         result.instance_variable_set(:@ole_excel, excel)
         WIN32OLE.const_load(excel, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
-        @@hwnd2excel[hwnd] = result        
+        @@hwnd2excel[hwnd] = WeakRef.new(result)
       end
       result
     end
@@ -177,7 +177,18 @@ module RobustExcelOle
     end
 
     def self.hwnd2excel(hwnd)
-      @@hwnd2excel[hwnd]
+      if @@hwnd2excel[hwnd]
+        if (not @@hwnd2excel[hwnd].weakref_alive?)
+          puts "dead reference to an Excel"
+          begin 
+            @@hwnd2excel.delete(hwnd)
+          rescue
+            puts "Warning: deleting dead reference failed! (hwnd: #{hwnd})"
+          end
+        else
+          @@hwnd2excel[hwnd].__getobj__
+        end
+      end
     end
 
     def hwnd

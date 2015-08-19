@@ -10,6 +10,7 @@ Goals:
 - provide convenient methods for frequent (common) tasks
 - support the use of simultaneously running Excel instances
 - allow the presence of referenced libraries and provide some support for that
+- supports EXCEL 2010, EXCEL 2007
 
 This is work in progress.
 

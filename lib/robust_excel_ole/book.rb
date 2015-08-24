@@ -390,15 +390,25 @@ module RobustExcelOle
         item = self.Names.Item(name)
       rescue WIN32OLERuntimeError
         return opts[:default] if opts[:default]
-        raise ExcelErrorNValue, "name #{name} not in #{File.basename(self.stored_filename)}"
+        raise ExcelError, "name #{name} not in #{File.basename(self.stored_filename)}"
       end
       begin
         value = item.RefersToRange.Value
       rescue  WIN32OLERuntimeError
-        return opts[:default] if opts[:default]
-        raise ExcelErrorNValue, "RefersToRange error of name #{name} in #{File.basename(self.stored_filename)}"
+        begin
+          sheet = self[0]
+          value = sheet.Evaluate(name)
+        rescue WIN32OLERuntimeError
+          return opts[:default] if opts[:default]
+          raise SheetError, "cannot evaluate name #{name} in sheet"
+        end
       end
-      value
+      if value == -2146826259
+        return opts[:default] if opts[:default]
+        raise SheetError, "cannot evaluate name #{name} in sheet"
+      end 
+      return opts[:default] if (value.nil? && opts[:default])
+      value      
     end
 
     # set the contents of a range with given name
@@ -406,20 +416,20 @@ module RobustExcelOle
       begin
         item = self.Names.Item(name)
       rescue WIN32OLERuntimeError
-        raise ExcelErrorNValue, "name #{name} not in #{File.basename(self.stored_filename)}"  
+        raise ExcelError, "name #{name} not in #{File.basename(self.stored_filename)}"  
       end
       begin
         item.RefersToRange.Value = value
       rescue WIN32OLERuntimeError
-        raise ExcelErrorNValue, "RefersToRange error of name #{name} in #{File.basename(self.stored_filename)}"    
+        raise ExcelError, "RefersToRange error of name #{name} in #{File.basename(self.stored_filename)}"    
       end
     end
 
+    # activates this workbook, makes it available for inputs by keyboard, and makes the Excel visible
     def activate
       @excel.visible = true
       begin
         self.Activate
-        self.ActiveSheet.Activate
       rescue WIN32OLERuntimeError
         raise ExcelError, "cannot activate"
       end
@@ -631,6 +641,7 @@ module RobustExcelOle
     def method_missing(name, *args)
       if name.to_s[0,1] =~ /[A-Z]/ 
         begin
+          raise ExcelError, "workbook not alive" unless alive?
           @workbook.send(name, *args)
         rescue WIN32OLERuntimeError => msg
           if msg.message =~ /unknown property or method/
@@ -664,9 +675,6 @@ public
   end
 
   class ExcelErrorSaveUnknown < ExcelErrorSave  # :nodoc: #
-  end
-
-  class ExcelErrorNValue < ExcelError  # :nodoc: #
   end
 
   class ExcelUserCanceled < RuntimeError # :nodoc: #

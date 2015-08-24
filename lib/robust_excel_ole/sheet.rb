@@ -109,17 +109,17 @@ module RobustExcelOle
     #                                raise an error, otherwise
     def nvalue(name, opts = {:default => nil})
       begin
-        item = self.Names.Item(name)
+        value = self.Evaluate(name)
+        value = value.Value if value.class == WIN32OLE
       rescue WIN32OLERuntimeError
         return opts[:default] if opts[:default]
-        raise SheetError, "name #{name} not in sheet"
+        raise SheetError, "cannot evaluate name #{name} in sheet"
       end
-      begin
-        value = item.RefersToRange.Value
-      rescue  WIN32OLERuntimeError
+      if value == -2146826259
         return opts[:default] if opts[:default]
-        raise SheetError, "RefersToRange of name #{name}"
+        raise SheetError, "cannot evaluate name #{name} in sheet"
       end
+      return opts[:default] if (value.nil? && opts[:default])
       value
     end
 

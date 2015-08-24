@@ -377,7 +377,7 @@ describe RobustExcelOle::Sheet do
       context "returning the value of a range" do
       
         before do
-          @book1 = RobustExcelOle::Book.open(@dir + '/another_workbook.xls', :read_only => true)
+          @book1 = RobustExcelOle::Book.open(@dir + '/another_workbook.xls')
           @sheet1 = @book1[0]
         end
 
@@ -393,14 +393,18 @@ describe RobustExcelOle::Sheet do
         it "should raise an error if name not defined" do
           expect {
             value = @sheet1.nvalue("foo")
-          }.to raise_error(SheetError, "name foo not in sheet")
+          }.to raise_error(SheetError, "cannot evaluate name foo in sheet")
           expect {
             @sheet1["foo"]
-          }.to raise_error(SheetError, "name foo not in sheet")
+          }.to raise_error(SheetError, "cannot evaluate name foo in sheet")
         end
 
-        it "should return default value if name not defined" do
+        it "should return default value if name not defined and default value is given" do
           @sheet1.nvalue("foo", :default => 2).should == 2
+        end
+
+        it "should evaluate a formula" do
+          @sheet1.nvalue("named_formula").should == 4
         end
       end
     end

@@ -63,7 +63,28 @@ describe Book do
       it "should send Fullname to workbook" do
         @book.Fullname.tr('\\','/').should == @simple_file
       end
+
+      it "should raise an error for unknown methods or properties" do
+        expect{
+          @book.Foo
+        }.to raise_error(VBAMethodMissingError, "unknown VBA property or method Foo")
+      end
     end
+
+    context "with dead object" do
+      
+      before do
+        @book = Book.open(@simple_file)
+        @book.close
+      end
+
+      it "should raise an error" do
+        expect{
+          @book.Saved.should be_true
+          }.to raise_error(ExcelError, "workbook not alive")
+      end
+    end
+
   end
 
   describe "hidden_excel" do
@@ -117,24 +138,19 @@ describe Book do
       it "should raise an error if name not defined" do
         expect {
           @book1.nvalue("foo")
-        }.to raise_error(ExcelErrorNValue, "name foo not in another_workbook.xls")
+        }.to raise_error(ExcelError, "name foo not in another_workbook.xls")
         expect {
           @book1["foo"]
-        }.to raise_error(ExcelErrorNValue, "name foo not in another_workbook.xls")
+        }.to raise_error(ExcelError, "name foo not in another_workbook.xls")
       end
 
-      it "should raise an error if name was defined but contents is calcuated" do
-        expect {
-          @book1.nvalue("named_formula")
-        }.to raise_error(ExcelErrorNValue, "RefersToRange error of name named_formula in another_workbook.xls")
-        expect {
-          @book1["named_formula"]
-        }.to raise_error(ExcelErrorNValue, "RefersToRange error of name named_formula in another_workbook.xls")
+      it "should evaluate a formula" do
+        @book1.nvalue("named_formula").should == 4
+        @book1["named_formula"].should == 4
       end
 
       it "should return default value if name not defined" do
         @book1.nvalue("foo", :default => 2).should == 2
-        @book1.nvalue("named_formula", :default => 4).should == 4
       end
     end
 
@@ -157,19 +173,19 @@ describe Book do
       it "should raise an error if name not defined" do
         expect {
           @book1.set_nvalue("foo","bar")
-        }.to raise_error(ExcelErrorNValue, "name foo not in another_workbook.xls")
+        }.to raise_error(ExcelError, "name foo not in another_workbook.xls")
         expect {
           @book1["foo"] = "bar"
-        }.to raise_error(ExcelErrorNValue, "name foo not in another_workbook.xls")
+        }.to raise_error(ExcelError, "name foo not in another_workbook.xls")
       end
 
       it "should raise an error if name was defined but contents is calcuated" do
         expect {
           @book1.set_nvalue("named_formula","bar")
-        }.to raise_error(ExcelErrorNValue, "RefersToRange error of name named_formula in another_workbook.xls")
+        }.to raise_error(ExcelError, "RefersToRange error of name named_formula in another_workbook.xls")
         expect {
           @book1["named_formula"] = "bar"
-        }.to raise_error(ExcelErrorNValue, "RefersToRange error of name named_formula in another_workbook.xls")
+        }.to raise_error(ExcelError, "RefersToRange error of name named_formula in another_workbook.xls")
       end
 
       it "should set value of a range" do

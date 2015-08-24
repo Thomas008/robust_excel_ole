@@ -150,6 +150,13 @@ or
   book.nvalue("name")
   => "value"
 
+=== Activating a workbook.
+
+Bring the focus to a workbook. Make it available for keyboard inputs and make the Excel instance visible.
+
+  book.activate
+
+
 === Making an Excel visible or invisible, and enable and disable DisplayAlerts.
 
 Make an Excel visible

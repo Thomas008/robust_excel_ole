@@ -367,6 +367,7 @@ module RobustExcelOle
     def method_missing(name, *args) 
       if name.to_s[0,1] =~ /[A-Z]/ 
         begin
+          raise ExcelError, "Excel not alive" unless alive?
           @ole_excel.send(name, *args)
         rescue WIN32OLERuntimeError => msg
           if msg.message =~ /unknown property or method/

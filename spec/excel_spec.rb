@@ -485,31 +485,6 @@ module RobustExcelOle
       end
     end
   end
-
-  describe "RobustExcelOle" do
-    context "#absolute_path" do
-      before do
-        @previous_dir = Dir.getwd
-      end
-      
-      after do
-        Dir.chdir @previous_dir
-      end
-
-      it "should work" do
-        RobustExcelOle::absolute_path("C:/abc").should == "C:\\abc"
-        RobustExcelOle::absolute_path("C:\\abc").should == "C:\\abc"
-        Dir.chdir "C:/windows"
-        RobustExcelOle::absolute_path("C:abc").downcase.should == Dir.pwd.gsub("/","\\").downcase + "\\abc"
-        RobustExcelOle::absolute_path("C:abc").upcase.should   == File.expand_path("abc").gsub("/","\\").upcase
-      end
-
-      it "should return right absolute path name" do
-        @filename = 'C:/Dokumente und Einstellungen/Zauberthomas/Eigene Dateien/robust_excel_ole/spec/book_spec.rb'
-        RobustExcelOle::absolute_path(@filename).gsub("\\","/").should == @filename
-      end
-    end
-  end
 end
 
 class TestError < RuntimeError  # :nodoc: #

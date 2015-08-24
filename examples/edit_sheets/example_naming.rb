@@ -21,6 +21,7 @@ begin
   #base_name = workbook_name.sub(/^.*(\.[^.])$/; '')
   #base_name = workbook_name[0,workbook_name.rindex('.')]
   #suffix = workbook_name[workbook_name.rindex('.')+1,workbook_name.length]
+  #suffix = workbook_name.scan(/\.[^.\/]+$/).last
   file_name = dir + "/" + workbook_name
   extended_file_name = dir + "/" + base_name + "_named" + "." + suffix
   FileUtils.copy file_name, extended_file_name 

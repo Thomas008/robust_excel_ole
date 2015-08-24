@@ -20,8 +20,16 @@ module RobustExcelOle
   end
 
   def canonize(filename)
-    raise "No string given to canonize, but #{filename.inspect}" unless filename.is_a?(String)
-    filename.downcase rescue nil
+    raise "No string given to canonize, but #{filename.inspect}" unless filename.is_a?(String)  
+    normalize(filename).downcase rescue nil
+  end
+
+  def normalize(path)
+    path = path.gsub('/./', '/') + '/'
+    path = path.gsub(/[\/\\]+/, "/")
+    nil while path.gsub!(/(\/|^)(?!\.\.?)([^\/]+)\/\.\.\//, '\1') 
+    path = path.chomp("/")
+    path
   end
 
   module_function :absolute_path, :canonize

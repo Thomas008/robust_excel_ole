@@ -486,17 +486,21 @@ module RobustExcelOle
     #               :alert     -> give control to Excel
     # returns true, if successfully saved, nil otherwise
     def save_as(file = nil, opts = {:if_exists => :raise} )
-      raise IOError, "Not opened for writing(open with :read_only option)" if @options[:read_only]
+      raise ExcelErrorSave, "Not opened for writing (opened with :read_only option)" if @options[:read_only]
       @opts = opts
       if File.exist?(file) then
         case @opts[:if_exists]
         when :overwrite
-          begin
-            File.delete(file) 
-          rescue Errno::EACCES
-            raise ExcelErrorSave, "book is open and used in Excel"
+          if file == self.filename
+            save
+          else
+            begin
+              File.delete(file) 
+                rescue Errno::EACCES
+              raise ExcelErrorSave, "book is open and used in Excel"
+            end
+            save_as_workbook(file)
           end
-          save_as_workbook(file)
         when :alert 
           @excel.with_displayalerts true do
             save_as_workbook(file)

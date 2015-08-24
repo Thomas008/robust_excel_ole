@@ -70,8 +70,8 @@ describe Book do
       it {
         expect {
           @book.save_as(@simple_file)
-        }.to raise_error(IOError,
-                     "Not opened for writing(open with :read_only option)")
+        }.to raise_error(ExcelErrorSave,
+                     "Not opened for writing (opened with :read_only option)")
       }
     end
 
@@ -130,7 +130,7 @@ describe Book do
             @book.save_as(@simple_save_file, :if_exists => :overwrite)
             }.to raise_error(ExcelErrorSave, "book is open and used in Excel")
           book_save.close
-        end
+        end        
 
         it "should save to simple_save_file.xls with :if_exists => :overwrite" do
           File.delete @simple_save_file rescue nil
@@ -143,6 +143,18 @@ describe Book do
           new_book.should be_a Book
           new_book.close
         end
+
+        it "should simple save if file name is equal to the old one with :if_exists => :overwrite" do
+          sheet = @book[0]
+          sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
+          new_value = sheet[1,1].value
+          @book.save_as(@simple_file, :if_exists => :overwrite)
+          new_book = Book.open(@simple_file)
+          new_sheet = new_book[0]
+          new_sheet[1,1].value.should == new_value
+          new_book.close
+        end
+
         it "should save to 'simple_save_file.xls' with :if_exists => :raise" do
           dirname, basename = File.split(@simple_save_file)
           File.delete @simple_save_file rescue nil

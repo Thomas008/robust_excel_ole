@@ -499,6 +499,21 @@ module RobustExcelOle
                 rescue Errno::EACCES
               raise ExcelErrorSave, "book is open and used in Excel"
             end
+            # can this case occur: blocked by another file? how to test this?
+            blocking_workbook = 
+              begin
+                @excel.Workbooks.Item(File.basename(file))
+              rescue WIN32OLERuntimeError => msg
+                #puts "#{msg.message}"
+                nil
+              end
+            if blocking_workbook then
+              if blocking_workbook.Saved then
+                blocking_workbook.Close
+              else
+                raise ExcelErrorSave, "blocked by another workbook with the same name (filename: #{filename})"
+              end
+            end
             save_as_workbook(file)
           end
         when :alert 

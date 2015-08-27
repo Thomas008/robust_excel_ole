@@ -318,7 +318,7 @@ describe Book do
       end
     end
 
-    context "with visible and displayalerts" do
+    context "with visible" do
 
       before do
         @book = Book.open(@simple_file)
@@ -328,19 +328,21 @@ describe Book do
         @book.close
       end
 
-      it "should make Excel visible" do
-        @book.excel.visible = false
-        @book.excel.visible.should be_false
+      it "should make the workbook visible" do
         @book.excel.visible = true
         @book.excel.visible.should be_true
+        @book.visible.should be_true
+        @book.excel.Windows(@book.workbook.Name).Visible.should be_true
+        @book.visible = false
+        @book.excel.visible.should be_true
+        @book.visible.should be_false
+        @book.excel.Windows(@book.workbook.Name).Visible.should be_false
+        @book.visible = true
+        @book.excel.visible.should be_true
+        @book.visible.should be_true
+        @book.excel.Windows(@book.workbook.Name).Visible.should be_true
       end
 
-      it "should enable DisplayAlerts in Excel" do
-        @book.excel.displayalerts = false
-        @book.excel.displayalerts.should be_false
-        @book.excel.displayalerts = true
-        @book.excel.displayalerts.should be_true
-      end
     end
 
     context "with activate" do

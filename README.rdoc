@@ -160,6 +160,20 @@ Brings the window of a workbook to the foreground . Make it available for keyboa
   book.activate
 
 
+=== Making a workbook visible or invisible
+
+Open a workbook and make the Excel instance visible.
+
+  book = Book.open('workbook.xls', :visivble => true)
+
+Make the workbook invisible.
+
+  book.visible = false
+
+Make the workbook visible
+
+  book.visible = true
+
 === Making an Excel visible or invisible, and enable and disable DisplayAlerts.
 
 Make an Excel visible

@@ -13,10 +13,10 @@ module RobustExcelOle
     # returns a book with the given filename, if it was open once
     # prefers open books to closed books, and among them, prefers more recently opened books
     # excludes hidden Excel instance
-    # options: :prefer_writable   return the writable book, if it is open (default: true)
-    #                             otherwise return the book according to the preference order mentioned above
-    #          :prefer_excel      return the book in the given excel instance, if it exists,
-    #                             otherwise proceed according to prefer_writable 
+    # options: :prefer_writable   returns the writable book, if it is open (default: true)
+    #                             otherwise returns the book according to the preference order mentioned above
+    #          :prefer_excel      returns the book in the given Excel instance, if it exists,
+    #                             otherwise proceeds according to prefer_writable 
     def fetch(filename, options = {:prefer_writable => true })
       filename = absolute_path(filename)
       filename_key = RobustExcelOle::canonize(filename)
@@ -61,7 +61,7 @@ module RobustExcelOle
       book.stored_filename = book.filename
     end
 
-    # creates and returns a separate Excel instance with Visible and DisplayAlerts false
+    # creates and returns a separate Excel instance with Visible and DisplayAlerts equal false
     def hidden_excel
       unless (@hidden_excel_instance &&  @hidden_excel_instance.weakref_alive? && @hidden_excel_instance.__getobj__.alive?)       
         @hidden_excel_instance = WeakRef.new(Excel.create) 

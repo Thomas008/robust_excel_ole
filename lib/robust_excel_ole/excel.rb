@@ -19,9 +19,9 @@ module RobustExcelOle
 
     # returns an Excel instance  
     # options:
-    #  :reuse          use an already running Excel instance (default: true)
-    #  :displayalerts  allow display alerts in Excel         (default: false)
-    #  :visible        make visible in Excel                 (default: false)
+    #  :reuse          uses an already running Excel instance (default: true)
+    #  :displayalerts  allows display alerts in Excel         (default: false)
+    #  :visible        makes the Excel visible                (default: false)
     #  if :reuse => true, then DisplayAlerts and Visible are set only if they are given
     def self.new(options= {})
       options = {:reuse => true}.merge(options)
@@ -59,11 +59,11 @@ module RobustExcelOle
     # closes all Excel instances
     # options:
     #  :if_unsaved    if unsaved workbooks are open in an Excel instance
-    #                      :raise (default) -> raise an exception       
-    #                      :save            -> save the workbooks before closing
-    #                      :forget          -> close the excel instance without saving the workbooks 
-    #                      :alert           -> give control to Excel
-    #  :hard          kill the Excel instances hard (default: false) 
+    #                      :raise (default) -> raises an exception       
+    #                      :save            -> saves the workbooks before closing
+    #                      :forget          -> closes the excel instance without saving the workbooks 
+    #                      :alert           -> gives control to Excel
+    #  :hard          kills the Excel instances hard (default: false) 
     def self.close_all(options={})
       options = {
         :if_unsaved => :raise,
@@ -80,10 +80,10 @@ module RobustExcelOle
 
     # close the Excel
     #  :if_unsaved    if unsaved workbooks are open in an Excel instance
-    #                      :raise (default) -> raise an exception       
-    #                      :save            -> save the workbooks before closing
-    #                      :forget          -> close the excel instance without saving the workbooks 
-    #                      :alert           -> give control to Excel
+    #                      :raise (default) -> raises an exception       
+    #                      :save            -> saves the workbooks before closing
+    #                      :forget          -> closes the Excel instance without saving the workbooks 
+    #                      :alert           -> gives control to Excel
     #  :hard          kill the Excel instance hard (default: false) 
     def close(options = {})
       options = {
@@ -156,7 +156,7 @@ module RobustExcelOle
       self
     end
 
-    # generate, save and close an empty workbook
+    # empty workbook is generated, saved and closed 
     def generate_workbook file_name                  
       self.Workbooks.Add                           
       empty_workbook = self.Workbooks.Item(self.Workbooks.Count)          
@@ -200,7 +200,7 @@ module RobustExcelOle
       self.Hwnd == other_excel.Hwnd    if other_excel.is_a?(Excel) && self.alive? && other_excel.alive?
     end
 
-    # returns true, if the Excel instances responds to VVA methods, false otherwise
+    # returns true, if the Excel instances responds to VBA methods, false otherwise
     def alive?
       @ole_excel.Name
       true
@@ -227,7 +227,7 @@ module RobustExcelOle
     #self.class.extend Enumerable
     #self.class.map {|w| (not w.Saved)}
 
-    # set DisplayAlerts in a block
+    # sets DisplayAlerts in a block
     def with_displayalerts displayalerts_value
       old_displayalerts = @ole_excel.DisplayAlerts
       @ole_excel.DisplayAlerts = displayalerts_value
@@ -238,7 +238,7 @@ module RobustExcelOle
       end
     end
 
-    # enable DisplayAlerts in the current Excel instance
+    # enables DisplayAlerts in the current Excel instance
     def displayalerts= displayalerts_value
       @ole_excel.DisplayAlerts = displayalerts_value
     end
@@ -248,12 +248,12 @@ module RobustExcelOle
       @ole_excel.DisplayAlerts
     end
 
-    # make the current Excel instance visible or invisible
+    # makes the current Excel instance visible or invisible
     def visible= visible_value
       @ole_excel.Visible = visible_value
     end
 
-    # return if the current Excel instance is visible
+    # returns whether the current Excel instance is visible
     def visible 
       @ole_excel.Visible
     end
@@ -359,7 +359,7 @@ module RobustExcelOle
       self.HWnd rescue nil
     end
 
-    # set this Excel instance to nil
+    # sets this Excel instance to nil
     def die 
       @ole_excel = nil
     end

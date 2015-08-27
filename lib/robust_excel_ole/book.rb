@@ -437,14 +437,16 @@ module RobustExcelOle
       end
     end
 
-    # makes a workbook visible or invisible
-    def visible= visible_value
-      @excel.Windows(self.filename).Visible = visible_value
-    end
-
     # returns whether the workbook is visible or invisible
     def visible
-      @excel.Windows(self.filename).Visible
+      @excel.Windows(@workbook.Name).Visible
+    end
+
+    # makes a workbook visible or invisible
+    def visible= visible_value
+      saved = @workbook.Saved
+      @excel.Windows(@workbook.Name).Visible = visible_value
+      save if saved 
     end
 
     # returns true, if the workbook reacts to methods, false otherwise

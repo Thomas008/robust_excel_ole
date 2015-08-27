@@ -216,6 +216,20 @@ Bring the focus to a workbook. Make it available for keyboard inputs and make th
 
   book.activate
 
+=== Making a workbook visible or invisible
+
+Open a workbook and make the Excel instance visible.
+
+  book = Book.open('workbook.xls', :visivble => true)
+
+Make the workbook invisible.
+
+  book.visible = false
+
+Make the workbook visible
+
+  book.visible = true
+
 === Making an Excel visible or invisible, and enable and disable DisplayAlerts.
 
 Make an Excel visible

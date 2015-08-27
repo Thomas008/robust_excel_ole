@@ -155,7 +155,7 @@ or
 
 === Activating a workbook.
 
-Bring the focus to a workbook. Make it available for keyboard inputs and make the Excel instance visible.
+Brings the window of a workbook to the foreground . Make it available for keyboard inputs and make the Excel instance visible.
 
   book.activate
 

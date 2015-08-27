@@ -41,7 +41,7 @@ end
 
 class Object      # :nodoc: #
   def excel
-    raise ExcelErrorOpen, "provided instance is neither an Excel nor a Book"
+    raise ExcelError, "receiver instance is neither an Excel nor a Book"
   end
 
 end

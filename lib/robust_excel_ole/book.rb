@@ -425,11 +425,12 @@ module RobustExcelOle
       end
     end
 
-    # activates this workbook, makes it available for inputs by keyboard, and makes the Excel visible
-    def activate
+    # brings the workbook to the foreground and available for heyboard inputs, and makes the Excel instance visible
+    def activate      
       @excel.visible = true
       begin
-        self.Activate
+        Win32API.new("user32","SetForegroundWindow","I","I").call(@excel.hwnd)     # Excel  2010
+        @workbook.Activate   # Excel 2007
       rescue WIN32OLERuntimeError
         raise ExcelError, "cannot activate"
       end

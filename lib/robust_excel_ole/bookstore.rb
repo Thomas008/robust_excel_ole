@@ -49,7 +49,7 @@ module RobustExcelOle
       result if result
     end
 
-    # stores a book
+    # stores a workbook
     def store(book)
       filename_key = RobustExcelOle::canonize(book.filename)      
       if book.stored_filename

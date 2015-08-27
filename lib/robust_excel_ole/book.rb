@@ -629,7 +629,7 @@ module RobustExcelOle
     end   
 
     def to_s
-      "<#Book: #{File.basename(@stored_filename)}>"
+      "#{self.filename}"
     end
 
     def inspect

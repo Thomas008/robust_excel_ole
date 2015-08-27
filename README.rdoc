@@ -81,9 +81,12 @@ A special feature of robust_excel_ole is that it allows to reopen workbooks afte
   book.reopen
 
 The closed workbook is now alive again, i.e. is open and responds to Excel methods.
-
 This feature is a result of providing identity transparence and storing the file name.
-Identity transparence means that the same Book objects refer to the same Excel files (workbooks), and vice versa.
+
+=== The Book objects and transperence identity
+
+An Excel file (or workbook) is represented by a Book object. A Book object is defined by the full name of the workbook and the Excel instance in which it is opened. RobustExcelOle aims to ensure identity transperency.
+Identity transparence means that the same Book objects refer to the same Excel files, and vice versa.
 In other words, a Book objects is a proxy of an Excel file.
 
 

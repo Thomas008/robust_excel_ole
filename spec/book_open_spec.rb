@@ -396,7 +396,7 @@ describe Book do
       it "should raise an error, if :if_unsaved is :raise" do
         expect {
           @new_book = Book.open(@simple_file, :if_unsaved => :raise)
-        }.to raise_error(ExcelErrorOpen, "book is already open but not saved (#{File.basename(@simple_file)})")
+        }.to raise_error(ExcelErrorOpen, "workbook is already open but not saved (#{File.basename(@simple_file)})")
       end
 
       it "should let the book open, if :if_unsaved is :accept" do
@@ -459,7 +459,7 @@ describe Book do
       it "should raise an error, if :if_unsaved is default" do
         expect {
           @new_book = Book.open(@simple_file, :if_unsaved => :raise)
-        }.to raise_error(ExcelErrorOpen, "book is already open but not saved (#{File.basename(@simple_file)})")
+        }.to raise_error(ExcelErrorOpen, "workbook is already open but not saved (#{File.basename(@simple_file)})")
       end
 
       it "should raise an error, if :if_unsaved is invalid option" do
@@ -518,7 +518,7 @@ describe Book do
               if :if_obstructed is :close_if_saved" do
             expect{
               @new_book = Book.open(@simple_file, :if_obstructed => :close_if_saved)
-            }.to raise_error(ExcelErrorOpen, "book with the same name in a different path is unsaved: workbook.xls")
+            }.to raise_error(ExcelErrorOpen, "workbook with the same name in a different path is unsaved: workbook.xls")
             @book.save
             @new_book = Book.open(@simple_file, :if_obstructed => :close_if_saved)
             @book.should_not be_alive
@@ -540,7 +540,7 @@ describe Book do
           it "should raise an error, if :if_obstructed is default" do
             expect {
               @new_book = Book.open(@simple_file)
-            }.to raise_error(ExcelErrorOpen, "blocked by a book with the same name in a different path: workbook.xls")
+            }.to raise_error(ExcelErrorOpen, "blocked by a workbook with the same name in a different path: workbook.xls")
           end         
 
           it "should raise an error, if :if_obstructed is invalid option" do

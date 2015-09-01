@@ -41,15 +41,15 @@ module RobustExcelOle
       #                   <excel-instance> -> opens in the given Excel instance
       # :if_unsaved     if an unsaved workbook with the same name is open, then
       #                  :raise (default)     -> raises an exception
-      #                  :forget              -> close the unsaved book, open the new book             
+      #                  :forget              -> close the unsaved workbook, open the new workbook             
       #                  :accept              -> lets the unsaved workbook open                  
       #                  :alert               -> gives control to Excel
       #                  :new_excel           -> opens the new workbook in a new Excel instance
       # :if_obstructed  if a workbook with the same name in a different path is open, then
       #                  :raise (default)     -> raises an exception 
-      #                  :forget              -> closes the old workbook, open the new book
-      #                  :save                -> saves the old workbook, close it, open the new book
-      #                  :close_if_saved      -> closes the old workbook and open the new book, if the old book is saved,
+      #                  :forget              -> closes the old workbook, open the new workbook
+      #                  :save                -> saves the old workbook, close it, open the new workbook
+      #                  :close_if_saved      -> closes the old workbook and open the new workbook, if the old workbook is saved,
       #                                          otherwise raises an exception.
       #                  :new_excel           -> opens the new workbook in a new Excel instance   
       # :if_absent       :raise (default)     -> raises an exception     , if the file does not exists
@@ -165,7 +165,7 @@ module RobustExcelOle
             open_or_create_workbook file
           when :close_if_saved
             if (not @workbook.Saved) then
-              raise ExcelErrorOpen, "book with the same name in a different path is unsaved: #{File.basename(file)}"
+              raise ExcelErrorOpen, "workbook with the same name in a different path is unsaved: #{File.basename(file)}"
             else 
               @workbook.Close
               @workbook = nil
@@ -184,7 +184,7 @@ module RobustExcelOle
           if (not @workbook.Saved) then
             case @options[:if_unsaved]
             when :raise
-              raise ExcelErrorOpen, "book is already open but not saved (#{File.basename(file)})"
+              raise ExcelErrorOpen, "workbook is already open but not saved (#{File.basename(file)})"
             when :forget
               @workbook.Close
               @workbook = nil
@@ -256,7 +256,7 @@ module RobustExcelOle
       if (alive? && (not @workbook.Saved) && writable) then
         case opts[:if_unsaved]
         when :raise
-          raise ExcelErrorClose, "book is unsaved (#{File.basename(self.stored_filename)})"
+          raise ExcelErrorClose, "workbook is unsaved (#{File.basename(self.stored_filename)})"
         when :save
           save
           close_workbook
@@ -508,20 +508,29 @@ module RobustExcelOle
     #               :raise     -> raises an exception, dont't write the file  (default)
     #               :overwrite -> writes the file, delete the old file
     #               :alert     -> gives control to Excel
+    #  :if_obstructed   if a workbook with the same name and different path is already open and blocks the saving, then
+    #                  :raise (default)     -> raises an exception 
+    #                  :forget              -> closes the blocking workbook
+    #                  :save                -> saves the blocking workbook and closes it
+    #                  :close_if_saved      -> closes the blocking workbook, if it is saved, 
+    #                                          otherwise raises an exception.
     # returns true, if successfully saved, nil otherwise
-    def save_as(file = nil, opts = {:if_exists => :raise} )
+    def save_as(file = nil, opts = { } )
       raise ExcelErrorSave, "Not opened for writing (opened with :read_only option)" if @options[:read_only]
-      @opts = opts
+      options = {
+        :if_exists => :raise,
+        :if_obstructed => :raise,
+      }.merge(opts)
       if File.exist?(file) then
-        case @opts[:if_exists]
+        case options[:if_exists]
         when :overwrite
           if file == self.filename
             save
           else
             begin
-              File.delete(file) 
-                rescue Errno::EACCES
-              raise ExcelErrorSave, "book is open and used in Excel"
+              File.delete(file)
+            rescue Errno::EACCES
+              raise ExcelErrorSave, "workbook is open and used in Excel"
             end
             blocking_workbook = 
               begin
@@ -530,12 +539,22 @@ module RobustExcelOle
                 #puts "#{msg.message}"
                 nil
               end
+            puts "blocking_workbook: #{blocking_workbook}"
+            puts "name: #{blocking_workbook.Name}" if blocking_workbook
             if blocking_workbook then
-              if blocking_workbook.Saved then
-                blocking_workbook.Close
+              case options[:if_obstructed]
+              when :raise
+                raise ExcelErrorSave, "blocked by another workbook (#{File.basename(file)})"
+              when :forget
+                # nothing
+              when :save
+                blocking_workbook.Save
+              when :close_if_saved
+                raise ExcelErrorSave, "blocking workbook is unsaved (#{File.basename(file)})" unless blocking_workbook.Saved
               else
-                raise ExcelErrorSave, "blocked by another workbook with the same name (filename: #{filename})"
+                raise ExcelErrorSave, ":if_obstructed: invalid option (#{options[:if_obstructed]})"
               end
+              blocking_workbook.Close
             end
             save_as_workbook(file)
           end
@@ -544,9 +563,9 @@ module RobustExcelOle
             save_as_workbook(file)
           end
         when :raise
-          raise ExcelErrorSave, "book already exists: #{File.basename(file)}"
+          raise ExcelErrorSave, "workbook already exists: #{File.basename(file)}"
         else
-          raise ExcelErrorSave, ":if_exists: invalid option: #{@opts[:if_exists]}"
+          raise ExcelErrorSave, ":if_exists: invalid option: #{options[:if_exists]}"
         end
       else
         save_as_workbook(file)

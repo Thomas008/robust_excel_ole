@@ -80,13 +80,13 @@ describe Book do
       it "should raise error with option :raise" do
         expect{
           @book.close(:if_unsaved => :raise)
-        }.to raise_error(ExcelErrorClose, "book is unsaved (#{File.basename(@simple_file)})")
+        }.to raise_error(ExcelErrorClose, "workbook is unsaved (#{File.basename(@simple_file)})")
       end
 
       it "should raise error by default" do
         expect{
           @book.close(:if_unsaved => :raise)
-        }.to raise_error(ExcelErrorClose, "book is unsaved (#{File.basename(@simple_file)})")
+        }.to raise_error(ExcelErrorClose, "workbook is unsaved (#{File.basename(@simple_file)})")
       end
 
       it "should close the book and leave its file untouched with option :forget" do

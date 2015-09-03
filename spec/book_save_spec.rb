@@ -118,7 +118,7 @@ describe Book do
       end
 
       after do
-        @book.close
+        @book.close(:if_unsaved => :forget)
         @book2.close
       end
 
@@ -237,14 +237,12 @@ describe Book do
         }.to raise_error(ExcelErrorSave, "blocked by another workbook (workbook.xls)")
       end
 
-      it "should save if the file does not exist and an workbook with the same name and other path exists" do
+      it "should raise an error if the file does not exist and an workbook with the same name and other path exists" do
         File.delete @simple_file_other_path rescue nil
         File.exist?(@simple_file_other_path).should be_false
-        @book2.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :raise)
-        File.exist?(@simple_file_other_path).should be_true
-        new_book = Book.open(@simple_file_other_path)
-        new_book.should be_a Book
-        new_book.close
+        expect{
+          @book2.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :raise)
+          }.to raise_error(ExcelErrorSave, "blocked by another workbook (workbook.xls)")
       end
 
       it "should raise an error if the file exists and an workbook with the same name and other path exists" do

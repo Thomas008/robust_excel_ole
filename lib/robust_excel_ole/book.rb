@@ -513,7 +513,8 @@ module RobustExcelOle
     #                  :forget              -> closes the blocking workbook
     #                  :save                -> saves the blocking workbook and closes it
     #                  :close_if_saved      -> closes the blocking workbook, if it is saved, 
-    #                                          otherwise raises an exception.
+    #                                          otherwise raises an exception
+    #                  :alert               -> gives control to Excel
     # returns true, if successfully saved, nil otherwise
     def save_as(file = nil, opts = { } )
       raise ExcelErrorSave, "Not opened for writing (opened with :read_only option)" if @options[:read_only]
@@ -522,8 +523,10 @@ module RobustExcelOle
         :if_obstructed => :raise,
       }.merge(opts)
       if File.exist?(file) then
+        p "file exists"
         case options[:if_exists]
         when :overwrite
+          p "overwrite:"
           if file == self.filename
             save
           else
@@ -532,6 +535,7 @@ module RobustExcelOle
             rescue Errno::EACCES
               raise ExcelErrorSave, "workbook is open and used in Excel"
             end
+            # finds the own workbook?
             blocking_workbook = 
               begin
                 @excel.Workbooks.Item(File.basename(file))
@@ -539,9 +543,15 @@ module RobustExcelOle
                 #puts "#{msg.message}"
                 nil
               end
+
             puts "blocking_workbook: #{blocking_workbook}"
-            puts "name: #{blocking_workbook.Name}" if blocking_workbook
+            puts "@workbook: #{@workbook}"            
             if blocking_workbook then
+              puts "true" if ((File.basename(blocking_workbook.Fullname) == File.basename(@workbook.Fullname)) && 
+                            (not (blocking_workbook.Fullname == @workbook.Fullname)))
+              puts "name: #{blocking_workbook.Name}"
+              puts "blocking_workbook.fullname: #{blocking_workbook.Fullname}"
+              puts "@workbook.fullname: #{@workbook.Fullname}" 
               case options[:if_obstructed]
               when :raise
                 raise ExcelErrorSave, "blocked by another workbook (#{File.basename(file)})"
@@ -554,16 +564,20 @@ module RobustExcelOle
               else
                 raise ExcelErrorSave, ":if_obstructed: invalid option (#{options[:if_obstructed]})"
               end
-              blocking_workbook.Close
+              #p "before close:"
+              #blocking_workbook.Close
+              #p "after close:"
             end
+            p "before save_as_workbook:"
             save_as_workbook(file)
+            p "after save_as_workbook:"
           end
         when :alert 
           @excel.with_displayalerts true do
             save_as_workbook(file)
           end
         when :raise
-          raise ExcelErrorSave, "workbook already exists: #{File.basename(file)}"
+          raise ExcelErrorSave, "file already exists: #{File.basename(file)}"
         else
           raise ExcelErrorSave, ":if_exists: invalid option: #{options[:if_exists]}"
         end
@@ -576,6 +590,8 @@ module RobustExcelOle
   private
 
     def save_as_workbook(file)
+      p "save_as_workbook:"
+      puts "@workbook: #{@workbook}"
       begin
         dirname, basename = File.split(file)
         file_format =

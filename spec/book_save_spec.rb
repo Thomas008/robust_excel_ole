@@ -114,96 +114,104 @@ describe Book do
 
       before do
         @book = Book.open(@simple_file)
+        @book2 = Book.open(@another_simple_file)
       end
 
       after do
         @book.close
+        @book2.close
       end
 
-      it "should raise an error with :obstruced => :raise" do
+      it "should raise an error with :obstructed => :raise" do
         File.delete @simple_file_other_path rescue nil
         File.open(@simple_file_other_path,"w") do | file |
           file.puts "garbage"
         end
         File.exist?(@simple_file_other_path).should be_true
         expect{
-          @book.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :raise)
+          @book2.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :raise)
         }.to raise_error(ExcelErrorSave, "blocked by another workbook (workbook.xls)")
       end
 
-      it "should close the blocking workbook without saving, and save the current workbook with :obstruced => :forget" do
-        sheet = @book[0]
-        old_cell_value = sheet[1,1].value
-        sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
-        @book.Saved.should be_false
+      it "should close the blocking workbook without saving, and save the current workbook with :if_obstructed => :forget" do
         File.delete @simple_file_other_path rescue nil
         File.open(@simple_file_other_path,"w") do | file |
           file.puts "garbage"
         end
-        @book.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :forget)
-        File.exist?(@simple_save_other_path).should be_true
-        new_book = Book.open(@simple_save_other_path)
+        @book2.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :forget)
+        @book.should_not be_alive
+        File.exist?(@simple_file_other_path).should be_true
+        new_book = Book.open(@simple_file_other_path)
         new_book.should be_a Book
         new_book.close
-        old_book = Book.open(@simple_file)
-        old_sheet = old_book[0]
-        old_sheet[1,1].value.should == old_cell_value
-        old_book.close
       end
 
-      it "should save and close the blocking workbook, and save the current workbook with :obstruced => :save" do
-        sheet = @book[0]
-        old_cell_value = sheet[1,1].value
-        sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
-        @book.Saved.should be_false
+      it "should close the blocking workbook without saving even if it is unsaved with :if_obstructed => :forget" do
         File.delete @simple_file_other_path rescue nil
         File.open(@simple_file_other_path,"w") do | file |
           file.puts "garbage"
         end
-        @book.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :save)
-        File.exist?(@simple_save_other_path).should be_true
-        new_book = Book.open(@simple_save_other_path)
+        sheet = @book[0]
+        cell_value = sheet[1,1].value
+        sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
+        @book.Saved.should be_false
+        @book2.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :forget)
+        @book.should_not be_alive
+        @book2.should be_alive
+        File.exist?(@simple_file_other_path).should be_true
+        new_book = Book.open(@simple_file_other_path)
         new_book.should be_a Book
         new_book.close
         old_book = Book.open(@simple_file)
         old_sheet = old_book[0]
-        old_sheet[1,1].value.should_not == old_cell_value
+        old_sheet[1,1].value.should == cell_value
         old_book.close
       end
 
-      it "should close the blocking workbook if it was saved, and save the current workbook with :obstruced => :close_if_saved" do
+      it "should save and close the blocking workbook, and save the current workbook with :if_obstructed => :save" do
+        File.delete @simple_file_other_path rescue nil
+        File.open(@simple_file_other_path,"w") do | file |
+          file.puts "garbage"
+        end
         sheet = @book[0]
-        old_cell_value = sheet[1,1].value
+        cell_value = sheet[1,1].value
         sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
         @book.Saved.should be_false
-        @book.save
+        @book2.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :save)
+        @book.should_not be_alive
+        @book2.should be_alive
+        File.exist?(@simple_file_other_path).should be_true
+        new_book = Book.open(@simple_file_other_path)
+        new_book.should be_a Book
+        new_book.close
+        old_book = Book.open(@simple_file)
+        old_sheet = old_book[0]
+        old_sheet[1,1].value.should_not == cell_value
+        old_book.close
+      end
+
+      it "should close the blocking workbook if it was saved, and save the current workbook with :if_obstructed => :close_if_saved" do
+        File.delete @simple_file_other_path rescue nil
+        File.open(@simple_file_other_path,"w") do | file |
+          file.puts "garbage"
+        end
         @book.Saved.should be_true
-        File.delete @simple_file_other_path rescue nil
-        File.open(@simple_file_other_path,"w") do | file |
-          file.puts "garbage"
-        end
-        @book.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :close_if_saved)
-        File.exist?(@simple_save_other_path).should be_true
-        new_book = Book.open(@simple_save_other_path)
+        @book2.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :close_if_saved)
+        @book.should_not be_alive
+        @book2.should be_alive
+        File.exist?(@simple_file_other_path).should be_true
+        new_book = Book.open(@simple_file_other_path)
         new_book.should be_a Book
         new_book.close
-        old_book = Book.open(@simple_file)
-        old_sheet = old_book[0]
-        old_sheet[1,1].value.should_not == old_cell_value
-        old_book.close
       end
 
-      it "should raise an error if the blocking workbook was unsaved with :obstruced => :close_if_saved" do
+      it "should raise an error if the blocking workbook was unsaved with :if_obstructed => :close_if_saved" do
         sheet = @book[0]
-        old_cell_value = sheet[1,1].value
+        cell_value = sheet[1,1].value
         sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
-        @book.Saved.should be_false
-        File.delete @simple_file_other_path rescue nil
-        File.open(@simple_file_other_path,"w") do | file |
-          file.puts "garbage"
-        end
+        @book.Saved.should be_false      
         expect{
-          @book.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :close_if_saved)
+          @book2.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :close_if_saved)
         }.to raise_error(ExcelErrorSave, "blocking workbook is unsaved (workbook.xls)")
       end
 
@@ -214,7 +222,7 @@ describe Book do
         end
         File.exist?(@simple_file_other_path).should be_true
         expect{
-          @book.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :invalid)
+          @book2.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :invalid)
         }.to raise_error(ExcelErrorSave, ":if_obstructed: invalid option (invalid)")
       end
 
@@ -225,9 +233,31 @@ describe Book do
         end
         File.exist?(@simple_file_other_path).should be_true
         expect{
-          @book.save_as(@simple_file_other_path, :if_exists => :overwrite)
+          @book2.save_as(@simple_file_other_path, :if_exists => :overwrite)
         }.to raise_error(ExcelErrorSave, "blocked by another workbook (workbook.xls)")
       end
+
+      it "should save if the file does not exist and an workbook with the same name and other path exists" do
+        File.delete @simple_file_other_path rescue nil
+        File.exist?(@simple_file_other_path).should be_false
+        @book2.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :raise)
+        File.exist?(@simple_file_other_path).should be_true
+        new_book = Book.open(@simple_file_other_path)
+        new_book.should be_a Book
+        new_book.close
+      end
+
+      it "should raise an error if the file exists and an workbook with the same name and other path exists" do
+        File.delete @simple_file_other_path rescue nil
+        File.open(@simple_file_other_path,"w") do | file |
+          file.puts "garbage"
+        end
+        File.exist?(@simple_file_other_path).should be_true
+        expect{
+          @book.save_as(@simple_file_other_path, :if_exists => :raise, :if_obstructed => :raise)
+        }.to raise_error(ExcelErrorSave, "file already exists: workbook.xls")
+      end
+
     end
 
 
@@ -286,7 +316,7 @@ describe Book do
           booklength = File.size?(@simple_save_file)
           expect {
             @book.save_as(@simple_save_file, :if_exists => :raise)
-            }.to raise_error(ExcelErrorSave, 'workbook already exists: ' + basename)
+            }.to raise_error(ExcelErrorSave, 'file already exists: ' + basename)
           File.exist?(@simple_save_file).should be_true
           File.size?(@simple_save_file).should == booklength
         end
@@ -371,7 +401,7 @@ describe Book do
           booklength = File.size?(@simple_save_file)
           expect {
             @book.save_as(@simple_save_file)
-            }.to raise_error(ExcelErrorSave, 'workbook already exists: ' + basename)
+            }.to raise_error(ExcelErrorSave, 'file already exists: ' + basename)
           File.exist?(@simple_save_file).should be_true
           File.size?(@simple_save_file).should == booklength
         end

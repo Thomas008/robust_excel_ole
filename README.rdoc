@@ -98,12 +98,17 @@ Saving a workbook with a file name.
 
   book.save_as('another_workbook.xls')
 
-The option is +:if_exists+. Example:
+The options are +:if_exists+ and +if_obstructed+.
 
 Saving a workbook and overwriting the file if it exists before.
 
   book.save_as('another_workbook.xls', :if_exists => :overwrite)
 
+If a workbook is blocking the workbook that should be saved, then the former one can be saved and closed before.
+
+  book = Book.open('workbook.xls')
+  book2 = Book.open('another_workbook.xls')
+  book2.save_as('dir/workbook.xls', :if_exists => :overwrite, :if_obstructed => :save)
 
 === Unobtrusively opening a workbook
 

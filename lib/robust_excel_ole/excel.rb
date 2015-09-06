@@ -177,16 +177,17 @@ module RobustExcelOle
     end
 
     def self.hwnd2excel(hwnd)
-      if @@hwnd2excel[hwnd]
-        if (not @@hwnd2excel[hwnd].weakref_alive?)
+      excel_weakref = @@hwnd2excel[hwnd]
+      if excel_weakref
+        if excel_weakref.weakref_alive?
+          excel_weakref.__getobj__
+        else
           puts "dead reference to an Excel"
           begin 
-            @@hwnd2excel.delete(hwnd)
+            @@hwnd2excel[hwnd].delete(hwnd)
           rescue
             puts "Warning: deleting dead reference failed! (hwnd: #{hwnd})"
           end
-        else
-          @@hwnd2excel[hwnd].__getobj__
         end
       end
     end

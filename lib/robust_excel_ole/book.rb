@@ -514,22 +514,19 @@ module RobustExcelOle
     #                  :save                -> saves the blocking workbook and closes it
     #                  :close_if_saved      -> closes the blocking workbook, if it is saved, 
     #                                          otherwise raises an exception
-    #                  :alert               -> gives control to Excel
     # returns true, if successfully saved, nil otherwise
     def save_as(file = nil, opts = { } )
       raise ExcelErrorSave, "Not opened for writing (opened with :read_only option)" if @options[:read_only]
-      options = {
+      @options_save = {
         :if_exists => :raise,
         :if_obstructed => :raise,
       }.merge(opts)
       if File.exist?(file) then
-        p "file exists"
-        case options[:if_exists]
+        case @options_save[:if_exists]
         when :overwrite
-          p "overwrite:"
           if file == self.filename
-            p "simple save"
             save
+            return
           else
             begin
               File.delete(file)
@@ -541,28 +538,22 @@ module RobustExcelOle
           @excel.with_displayalerts true do
             save_as_workbook(file)
           end
+          true
+          return
         when :raise
           raise ExcelErrorSave, "file already exists: #{File.basename(file)}"
         else
-          raise ExcelErrorSave, ":if_exists: invalid option: #{options[:if_exists]}"
+          raise ExcelErrorSave, ":if_exists: invalid option: #{@options_save[:if_exists]}"
         end
       end
       blocking_workbook = 
         begin
           @excel.Workbooks.Item(File.basename(file))
         rescue WIN32OLERuntimeError => msg
-          #puts "#{msg.message}"
           nil
         end
-      puts "blocking_workbook: #{blocking_workbook}"
-      puts "@workbook: #{@workbook}"            
       if blocking_workbook then
-        puts "true" if ((File.basename(blocking_workbook.Fullname) == File.basename(@workbook.Fullname)) && 
-                      (not (blocking_workbook.Fullname == @workbook.Fullname)))
-        puts "name: #{blocking_workbook.Name}"
-        puts "blocking_workbook.fullname: #{blocking_workbook.Fullname}"
-        puts "@workbook.fullname: #{@workbook.Fullname}" 
-        case options[:if_obstructed]
+        case @options_save[:if_obstructed]
         when :raise
           raise ExcelErrorSave, "blocked by another workbook (#{File.basename(file)})"
         when :forget
@@ -571,29 +562,18 @@ module RobustExcelOle
           blocking_workbook.Save
         when :close_if_saved
           raise ExcelErrorSave, "blocking workbook is unsaved (#{File.basename(file)})" unless blocking_workbook.Saved
-        when :alert
-          @excel.with_displayalerts true do
-            save_as_workbook(file)
-          end
-          return
         else
-          raise ExcelErrorSave, ":if_obstructed: invalid option (#{options[:if_obstructed]})"
+          raise ExcelErrorSave, ":if_obstructed: invalid option (#{@options_save[:if_obstructed]})"
         end
-        p "before close:"
         blocking_workbook.Close
-        p "after close:"
       end
-      p "before save_as_workbook:"
       save_as_workbook(file)
-      p "after save_as_workbook:"
       true
     end
 
   private
 
     def save_as_workbook(file)
-      p "save_as_workbook:"
-      puts "@workbook: #{@workbook}"
       begin
         dirname, basename = File.split(file)
         file_format =
@@ -606,7 +586,7 @@ module RobustExcelOle
         bookstore.store(self)
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
-          if @opts[:if_exists] == :alert then 
+          if @options_save[:if_exists] == :alert then 
             raise ExcelErrorSave, "not saved or canceled by user"
           else
             return nil

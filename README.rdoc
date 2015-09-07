@@ -89,6 +89,13 @@ An Excel file (or workbook) is represented by a Book object. A Book object is de
 Identity transparence means that the same Book objects refer to the same Excel files, and vice versa.
 In other words, a Book objects is a proxy of an Excel file.
 
+=== Lift a workbook to a Book object
+
+A Book object can be created when giving a Excel workbook.
+
+   book = Book.open('workbook.xls')
+   workbook = book.workbook
+   another_book = Book.new(workbook) 
 
 === Saving a workbook.
 

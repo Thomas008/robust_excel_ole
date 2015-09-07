@@ -14,7 +14,7 @@ module RobustExcelOle
       DEFAULT_OPEN_OPTS = { 
         :excel => :reuse,
         :default_excel => :reuse,
-        :if_lockraiseed     => :readonly,       
+        :if_lockraiseed => :readonly,       
         :if_unsaved    => :raise,
         :if_obstructed => :raise,
         :if_absent     => :raise,
@@ -86,16 +86,28 @@ module RobustExcelOle
       end
     end
 
-    def initialize(file, opts={ }, &block)
-      @options = DEFAULT_OPEN_OPTS.merge(opts)      
-      get_excel
-      get_workbook file
-      bookstore.store(self)
-      if block
-        begin
-          yield self
-        ensure
-          close
+    # creates a new Book object, if a file name is given
+    # lifts the workbook to a Book object, if a workbook is given
+    def initialize(file_or_workbook, opts={ }, &block)
+      if file_or_workbook.class == WIN32OLE
+        workbook = file_or_workbook
+        filename = workbook.Fullname.tr('\\','/')
+        self.class.open(filename)
+        book = self.class.open(filename)
+        @workbook = book.workbook
+        @excel = book.excel
+      else
+        file = file_or_workbook
+        @options = DEFAULT_OPEN_OPTS.merge(opts)      
+        get_excel
+        get_workbook file
+        bookstore.store(self)
+        if block
+          begin
+            yield self
+          ensure
+            close
+          end
         end
       end
     end
@@ -474,7 +486,7 @@ module RobustExcelOle
       @workbook.Saved if @workbook
     end
 
-    # returns true, if the full book names and excel appications are identical, false otherwise  
+    # returns true, if the full book names and excel Instances are identical, false otherwise  
     def == other_book
       other_book.is_a?(Book) &&
       @excel == other_book.excel &&

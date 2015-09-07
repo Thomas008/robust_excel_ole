@@ -47,6 +47,29 @@ describe Book do
 
   describe "open" do
 
+    context "lift a workbook to a Book object" do
+
+      before do
+        @book = Book.open(@simple_file)
+      end
+
+      after do
+        @book.close
+      end
+
+      it "should yield an identical Book" do
+        workbook = @book.workbook
+        new_book = Book.new(workbook)
+        new_book.should be_a Book
+        new_book.should be_alive
+        new_book.should == @book
+        new_book.filename.should == @book.filename
+        new_book.excel.should == @book.excel
+        new_book.should === @book
+        new_book.close
+      end
+    end
+
     context "with various file formats" do
 
       it "should open linked workbook" do

@@ -56,6 +56,70 @@ module RobustExcelOle
       @excel = self
     end
 
+    def self.get_excel_processes
+      wmi = WIN32OLE.connect("winmgmts://")
+      processes = wmi.ExecQuery("select * from win32_process where commandline like '%excel.exe\"% /automation %'")
+      for process in processes 
+        puts "name: #{process.Name} process-id: #{process.ProcessID}"
+        #a = create_pid_to_hwnd_dic
+      end
+      #alternative:
+      #procs = WIN32OLE.connect("winmgmts:\\\\.")
+      #procs.InstancesOf("win32_process").each do |p|
+      #  puts "name:#{p.name.to_s} process_id:#{p.processid}"  if p.name == "EXCEL.EXE"       
+      #end
+    end
+
+=begin
+    def self.create_pid_to_hwnd_dic
+      dic = {}
+      EnumWindows.call( Win32::API::Callback.new('LP', 'I'){ |handle, param|
+      pid=[0].pack('L');
+      GetWindowThreadProcessId.call(handle, pid);
+      dic[pid.unpack('L')[0]] = handle
+      }, nil )
+      dic
+    end
+
+    # Convert pid to window handler. if process not has window, return nil
+    def self.pid_to_hwnd
+      pid_to_hwnd = create_pid_to_hwnd_dic unless pid_to_hwnd
+      pid_to_hwnd
+    end
+=end
+
+    def self.kill_excel_processes
+      wmi = WIN32OLE.connect("winmgmts://")
+      processes = wmi.ExecQuery("select * from win32_process where commandline like '%excel.exe\"% /automation %'")
+      for process in processes 
+        Process.kill('KILL', process.ProcessID.to_i)
+      end
+    end
+
+    def reanimate 
+      # - generated Excel instance differs from all other Excel Instances
+      #   (but this is done anyway with Excel.create?!)
+      # - keep the old properties: visible, dispayalerts
+      # - necessary or even possible? 
+      #   traverse hwnd2excel:
+      #   find all Excel objects with the old hwnd
+      #   (but for each hwnd I have not all Excel objects that refere to the Excel instance with this hwnd)
+      #   assign them to the new Excel object
+
+      #excel = self.class.create
+      #new(:reuse => false, :visible => @ole_excel.Visible, :displayalerts => @ole_excel.Displayalerts)
+      #self
+      #excel = new(:reuse => false, :visible => @ole_excel.Visible, :displayalerts => @ole_excel.Displayalerts)
+      #@excel = self
+    end
+
+    def self.print_hwnd2excel
+      @@hwnd2excel.each do |hwnd,wr_excel|
+        excel_string = (wr_excel.weakref_alive? ? wr_excel.__getobj__.to_s : "not alive") 
+        puts "hwnd: #{hwnd} => excel: #{excel_string}"
+      end
+    end
+
     # closes all Excel instances
     # options:
     #  :if_unsaved    if unsaved workbooks are open in an Excel instance
@@ -69,12 +133,16 @@ module RobustExcelOle
         :if_unsaved => :raise,
         :hard => false
       }.merge(options)
-      while current_excel do
-        #current_excel.close(options)
-        close_one_excel
-        GC.start
-        sleep 0.3
-        # free_all_ole_objects if options[:hard] ???
+      if options[:hard]
+        kill_excel_processes
+      else
+        while current_excel do
+          #current_excel.close(options)
+          close_one_excel
+          GC.start
+          sleep 0.3
+          # free_all_ole_objects if options[:hard] ???
+        end
       end
     end
 

@@ -9,7 +9,7 @@ module RobustExcelOle
   describe Excel do
 
     before(:all) do
-      Excel.close_all
+      Excel.close_all(:hard => true)
     end
 
     before do
@@ -22,7 +22,7 @@ module RobustExcelOle
     end
 
     after do
-      Excel.close_all
+      Excel.close_all(:hard => true)
       rm_tmp(@dir)
     end
 
@@ -55,32 +55,121 @@ module RobustExcelOle
         @excel = Excel.create
         creation_ok?
       end
-
     end
 
-    context "with existing excel" do
+    context "with identity transparence" do
 
       before do
         @excel1 = Excel.create
       end
 
-      it "should create different excel" do
+      it "should create different Excel instances" do
         excel2 = Excel.create
+        excel2.should_not == @excel1
         excel2.Hwnd.should_not == @excel1.Hwnd
       end
 
-      it "should reuse existing excel" do
+      it "should reuse the existing Excel instances" do
         excel2 = Excel.current
+        excel2.should === @excel1
         excel2.Hwnd.should == @excel1.Hwnd
       end
 
-      it "should reuse existing excel with default options for 'new'" do
+      it "should reuse existing Excel instance with default options for 'new'" do
         excel2 = Excel.new
-        excel2.should be_a Excel
+        excel2.should === @excel1
         excel2.Hwnd.should == @excel1.Hwnd
+      end
+
+      it "should yield the same Excel instances for the same Excel objects" do
+        excel2 = @excel1
+        excel2.Hwnd.should == @excel1.Hwnd
+        excel2.should === @excel1
+      end
+    end
+
+    context "with Excel processes" do
+        
+      before do
+        @excel1 = Excel.create
+        p "hwnd: #{@excel1.hwnd}"
+      end
+
+      it "should show processes" do        
+        Excel.get_excel_processes       
+      end
+
+      it "should kill Excel processes" do
+        Excel.kill_excel_processes
       end
 
     end
+
+    context "with reanimating Excel instances" do
+
+      it "should reanimate a single Excel instance" do
+        excel1 = Excel.create
+        excel1.close
+        excel1 = Excel.new(:reuse => false)
+        excel1.should be_a Excel
+        excel1.should be_alive
+      end
+
+      it "should reanimate an Excel instance and keep identity transparence" do        
+        excel1 = Excel.create
+        excel2 = excel1
+        excel3 = Excel.create       
+        #Excel.print_hwnd2excel
+        excel2.should === excel1
+        excel2.Hwnd.should == excel1.Hwnd        
+        excel3.should_not == excel1
+        excel3.Hwnd.should_not == excel1.Hwnd
+        excel1.close
+        excel1.should_not be_alive
+        excel2.should_not be_alive
+        excel3.should be_alive
+        #Excel.print_hwnd2excel
+        #excel1.reanmiate
+        #excel1 = Excel.new(:reuse => false)
+        excel1 = Excel.create
+        excel1.should be_alive
+        
+        # necessary?
+        #excel2.should be_alive
+        #excel2.should === @excel1
+        #excel2.Hwnd.should == @excel1.Hwnd
+        #excel3.should_not == @excel1
+        #excel3.Hwnd.should_not == @excel1.Hwnd
+      end
+
+      it "should reanimate an Excel instance and keep visible and displayalerts" do        
+        excel1 = Excel.new(:reuse => false, :visible => true, :displayalerts => true)
+        excel2 = excel1
+        excel3 = Excel.create       
+        #Excel.print_hwnd2excel
+        excel2.should === excel1
+        excel2.Hwnd.should == excel1.Hwnd        
+        excel3.should_not == excel1
+        excel3.Hwnd.should_not == excel1.Hwnd
+        excel1.close
+        excel1.should_not be_alive
+        excel2.should_not be_alive
+        excel3.should be_alive
+        #Excel.print_hwnd2excel
+        #excel1.reanimate
+        excel1 = Excel.create        
+        excel1.should be_alive
+        excel1.Visible.should be_true
+        excel1.DisplayAlerts.should be_true
+        
+        # necessary?
+        #excel2.should be_alive
+        #excel2.should === @excel1
+        #excel2.Hwnd.should == @excel1.Hwnd
+        #excel3.should_not == @excel1
+        #excel3.Hwnd.should_not == @excel1.Hwnd
+      end
+    end    
 
     context "close excel instances" do
       def direct_excel_creation_helper  # :nodoc: #

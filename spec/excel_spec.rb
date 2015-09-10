@@ -129,9 +129,8 @@ module RobustExcelOle
         excel2.should_not be_alive
         excel3.should be_alive
         #Excel.print_hwnd2excel
-        #excel1.reanmiate
+        excel1.reanimate
         #excel1 = Excel.new(:reuse => false)
-        excel1 = Excel.create
         excel1.should be_alive
         
         # necessary?

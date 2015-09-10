@@ -57,43 +57,23 @@ module RobustExcelOle
     end
 
     def self.get_excel_processes
-      wmi = WIN32OLE.connect("winmgmts://")
-      processes = wmi.ExecQuery("select * from win32_process where commandline like '%excel.exe\"% /automation %'")
-      for process in processes 
-        puts "name: #{process.Name} process-id: #{process.ProcessID}"
-        #a = create_pid_to_hwnd_dic
+      procs = WIN32OLE.connect("winmgmts:\\\\.")
+      procs.InstancesOf("win32_process").each do |p|
+        puts "name:#{p.name.to_s} process_id:#{p.processid}"  if p.name == "EXCEL.EXE"       
       end
-      #alternative:
-      #procs = WIN32OLE.connect("winmgmts:\\\\.")
-      #procs.InstancesOf("win32_process").each do |p|
-      #  puts "name:#{p.name.to_s} process_id:#{p.processid}"  if p.name == "EXCEL.EXE"       
-      #end
     end
-
-=begin
-    def self.create_pid_to_hwnd_dic
-      dic = {}
-      EnumWindows.call( Win32::API::Callback.new('LP', 'I'){ |handle, param|
-      pid=[0].pack('L');
-      GetWindowThreadProcessId.call(handle, pid);
-      dic[pid.unpack('L')[0]] = handle
-      }, nil )
-      dic
-    end
-
-    # Convert pid to window handler. if process not has window, return nil
-    def self.pid_to_hwnd
-      pid_to_hwnd = create_pid_to_hwnd_dic unless pid_to_hwnd
-      pid_to_hwnd
-    end
-=end
 
     def self.kill_excel_processes
-      wmi = WIN32OLE.connect("winmgmts://")
-      processes = wmi.ExecQuery("select * from win32_process where commandline like '%excel.exe\"% /automation %'")
-      for process in processes 
-        Process.kill('KILL', process.ProcessID.to_i)
+      procs = WIN32OLE.connect("winmgmts:\\\\.")
+      procs.InstancesOf("win32_process").each do |p|
+        puts "name:#{p.name.to_s} process_id:#{p.processid}"  if p.name == "EXCEL.EXE" 
+        Process.kill('KILL', p.processid) if p.name == "EXCEL.EXE"        
       end
+      #wmi = WIN32OLE.connect("winmgmts://")
+      #processes = wmi.ExecQuery("select * from win32_process where commandline like '%excel.exe\"% /automation %'")
+      #for process in processes 
+      #  Process.kill('KILL', process.ProcessID.to_i)
+      #end
     end
 
     def reanimate 
@@ -252,9 +232,9 @@ module RobustExcelOle
         else
           puts "dead reference to an Excel"
           begin 
-            @@hwnd2excel[hwnd].delete(hwnd)
+            @@hwnd2excel.delete(hwnd)
           rescue
-            puts "Warning: deleting dead reference failed! (hwnd: #{hwnd})"
+            puts "Warning: deleting dead reference failed! (hwnd: #{hwnd.inspect})"
           end
         end
       end

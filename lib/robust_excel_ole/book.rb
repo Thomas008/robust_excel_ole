@@ -231,7 +231,8 @@ module RobustExcelOle
             workbooks = @excel.Workbooks
           rescue RuntimeError => msg
             puts "RuntimeError: #{msg.message}" 
-            if msg.message =~ /failed to get Dispatch Interface/
+            if msg.message =~ /failed/
+            #if msg.message =~ /failed to get Dispatch Interface/
               raise ExcelErrorOpen, "Excel instance not alive or damaged" 
             else
               raise ExcelErrorOpen, "unknown RuntimeError"
@@ -336,6 +337,11 @@ module RobustExcelOle
       }.merge(opts)
       book = bookstore.fetch(file, :prefer_writable => (not options[:read_only]))
       was_not_alive_or_nil = book.nil? || (not book.alive?)
+      # does not work:
+      #workbook = WIN32OLE.connect(RobustExcelOle::absolute_path(file))
+      #p "workbook: #{workbook}"
+      #hwnd = workbook.Application.hwnd
+      #puts "hwnd: #{hwnd}"
       workbook = book.excel.Workbooks.Item(File.basename(file)) rescue nil
       now_alive = 
         begin 
@@ -343,7 +349,7 @@ module RobustExcelOle
           true
         rescue 
           false
-      end
+        end
       was_saved = was_not_alive_or_nil ? true : book.saved
       was_writable = book.writable unless was_not_alive_or_nil
       begin 
@@ -575,7 +581,7 @@ module RobustExcelOle
         when :close_if_saved
           raise ExcelErrorSave, "blocking workbook is unsaved (#{File.basename(file)})" unless blocking_workbook.Saved
         else
-          raise ExcelErrorSave, ":if_obstructed: invalid option (#{@options_save[:if_obstructed]})"
+          raise ExcelErrorSave, ":if_obstructed: invalid option (#{@options_save[:if_obstructed].inspect})"
         end
         blocking_workbook.Close
       end

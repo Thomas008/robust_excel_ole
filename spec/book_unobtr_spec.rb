@@ -119,7 +119,7 @@ describe Book do
         expect{
           Book.unobtrusively(@simple_file, :invalid_option) do |book|
           end
-        }.to raise_error(ExcelErrorOpen, "provided instance is neither an Excel nor a Book")
+        }.to raise_error(ExcelError, "receiver instance is neither an Excel nor a Book")
       end
 
     end

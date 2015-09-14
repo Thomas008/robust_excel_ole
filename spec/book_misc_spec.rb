@@ -138,10 +138,10 @@ describe Book do
       it "should raise an error if name not defined" do
         expect {
           @book1.nvalue("foo")
-        }.to raise_error(ExcelError, "name foo not in another_workbook.xls")
+        }.to raise_error(ExcelError, /name "foo" not in "another_workbook.xls"/)
         expect {
           @book1["foo"]
-        }.to raise_error(ExcelError, "name foo not in another_workbook.xls")
+        }.to raise_error(ExcelError, /name "foo" not in "another_workbook.xls"/)
       end
 
       it "should evaluate a formula" do
@@ -173,19 +173,19 @@ describe Book do
       it "should raise an error if name not defined" do
         expect {
           @book1.set_nvalue("foo","bar")
-        }.to raise_error(ExcelError, "name foo not in another_workbook.xls")
+        }.to raise_error(ExcelError, /name "foo" not in "another_workbook.xls"/)
         expect {
           @book1["foo"] = "bar"
-        }.to raise_error(ExcelError, "name foo not in another_workbook.xls")
+        }.to raise_error(ExcelError, /name "foo" not in "another_workbook.xls"/)
       end
 
       it "should raise an error if name was defined but contents is calcuated" do
         expect {
           @book1.set_nvalue("named_formula","bar")
-        }.to raise_error(ExcelError, "RefersToRange error of name named_formula in another_workbook.xls")
+        }.to raise_error(ExcelError, /RefersToRange error of name "named_formula" in "another_workbook.xls"/)
         expect {
           @book1["named_formula"] = "bar"
-        }.to raise_error(ExcelError, "RefersToRange error of name named_formula in another_workbook.xls")
+        }.to raise_error(ExcelError, /RefersToRange error of name "named_formula" in "another_workbook.xls"/)
       end
 
       it "should set value of a range" do
@@ -210,7 +210,7 @@ describe Book do
         @book1.nvalue("five").should == [[1,2],[3,4]]
         expect {
           @book1.rename_range("four","five")
-        }.to raise_error(ExcelError, "name four not in another_workbook.xls")
+        }.to raise_error(ExcelError, /name "four" not in "another_workbook.xls"/)
       end
     end
   end

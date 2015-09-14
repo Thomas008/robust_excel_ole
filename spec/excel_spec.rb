@@ -9,7 +9,7 @@ module RobustExcelOle
   describe Excel do
 
     before(:all) do
-      Excel.close_all(:hard => true)
+      Excel.close_all
     end
 
     before do
@@ -22,7 +22,7 @@ module RobustExcelOle
     end
 
     after do
-      Excel.close_all(:hard => true)
+      Excel.close_all
       rm_tmp(@dir)
     end
 
@@ -453,12 +453,18 @@ module RobustExcelOle
       end
 
       it "should raise WIN32OLERuntimeError" do
-        expect{ @excel1.NonexistingMethod }.to raise_error(VBAMethodMissingError)
+        expect{ @excel1.NonexistingMethod }.to raise_error(VBAMethodMissingError, /unknown VBA property or method :NonexistingMethod/)
       end
 
       it "should raise NoMethodError for uncapitalized methods" do
         expect{ @excel1.nonexisting_method }.to raise_error(NoMethodError)
       end
+
+      it "should report that Excel is not alive" do
+        @excel1.close
+        expect{ @excel1.Nonexisting_method }.to raise_error(ExcelError, "method missing: Excel not alive")
+      end
+
     end
 
     context "with hwnd and hwnd2excel" do

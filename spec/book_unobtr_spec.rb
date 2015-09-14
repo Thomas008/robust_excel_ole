@@ -74,8 +74,9 @@ describe Book do
           begin
             @excel1.close
             @excel2.close 
-          rescue ExcelErrorOpen => msg
-            puts "ExcelError: #{msg.message}" if msg.message =~ /Excel instance not alive or damaged/
+          rescue RuntimeError => msg
+            #puts "RuntimeError: #{msg.message}" if msg.message =~ /Excel instance not alive or damaged/
+            nil
           end
         end
 

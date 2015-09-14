@@ -80,13 +80,13 @@ describe Book do
       it "should raise error with option :raise" do
         expect{
           @book.close(:if_unsaved => :raise)
-        }.to raise_error(ExcelErrorClose, "workbook is unsaved (#{File.basename(@simple_file)})")
+        }.to raise_error(ExcelErrorClose, /workbook is unsaved: "workbook.xls"/)
       end
 
       it "should raise error by default" do
         expect{
           @book.close(:if_unsaved => :raise)
-        }.to raise_error(ExcelErrorClose, "workbook is unsaved (#{File.basename(@simple_file)})")
+        }.to raise_error(ExcelErrorClose, /workbook is unsaved: "workbook.xls"/)
       end
 
       it "should close the book and leave its file untouched with option :forget" do
@@ -110,7 +110,7 @@ describe Book do
       it "should raise an error for invalid option" do
         expect {
           @book.close(:if_unsaved => :invalid_option)
-        }.to raise_error(ExcelErrorClose, ":if_unsaved: invalid option: invalid_option") 
+        }.to raise_error(ExcelErrorClose, ":if_unsaved: invalid option: :invalid_option") 
       end
 
 

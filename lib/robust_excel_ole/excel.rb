@@ -158,7 +158,7 @@ module RobustExcelOle
             close_excel(:hard => options[:hard])
           end
         else
-          raise ExcelErrorClose, ":if_unsaved: invalid option: #{options[:if_unsaved]}"
+          raise ExcelErrorClose, ":if_unsaved: invalid option: #{options[:if_unsaved].inpect}"
         end
       else
         close_excel(:hard => options[:hard])
@@ -214,10 +214,10 @@ module RobustExcelOle
           empty_workbook.SaveAs(filename) 
         rescue WIN32OLERuntimeError => msg
           if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
-            raise ExcelErrorSave, "could not save workbook with filename #{file_name}"
+            raise ExcelErrorSave, "could not save workbook with filename #{file_name.inspect}"
           else
             # todo some time: find out when this occurs : 
-            raise ExcelErrorSaveUnknown, "unknown WIN32OELERuntimeError with filename #{file_name}: \n#{msg.message}"
+            raise ExcelErrorSaveUnknown, "unknown WIN32OELERuntimeError with filename #{file_name.inspect}: \n#{msg.message}"
           end
         end      
       end
@@ -415,12 +415,12 @@ module RobustExcelOle
 
     def method_missing(name, *args) 
       if name.to_s[0,1] =~ /[A-Z]/ 
-        begin
-          raise ExcelError, "Excel not alive" unless alive?
+        begin          
+          raise ExcelError, "method missing: Excel not alive" unless alive?
           @ole_excel.send(name, *args)
         rescue WIN32OLERuntimeError => msg
           if msg.message =~ /unknown property or method/
-            raise VBAMethodMissingError, "unknown VBA property or method #{name}"
+            raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
           else 
             raise msg
           end

@@ -154,7 +154,7 @@ module RobustExcelOle
         if @options[:if_absent] == :create
           @workbook = excel_class.current.generate_workbook(file)
         else 
-          raise ExcelErrorOpen, "file #{file} not found"
+          raise ExcelErrorOpen, "file #{file.inspect} not found"
         end
       end
       @workbook = @excel.Workbooks.Item(File.basename(file)) rescue nil
@@ -165,7 +165,7 @@ module RobustExcelOle
         if obstructed_by_other_book then
           case @options[:if_obstructed]
           when :raise
-            raise ExcelErrorOpen, "blocked by a book with the same name in a different path: #{File.basename(file)}"
+            raise ExcelErrorOpen, "blocked by a book with the same name in a different path: #{File.basename(file).inspect}"
           when :forget
             @workbook.Close
             @workbook = nil
@@ -177,7 +177,7 @@ module RobustExcelOle
             open_or_create_workbook file
           when :close_if_saved
             if (not @workbook.Saved) then
-              raise ExcelErrorOpen, "workbook with the same name in a different path is unsaved: #{File.basename(file)}"
+              raise ExcelErrorOpen, "workbook with the same name in a different path is unsaved: #{File.basename(file).inspect}"
             else 
               @workbook.Close
               @workbook = nil
@@ -189,14 +189,14 @@ module RobustExcelOle
             @excel = excel_class.new(@excel_options)
             open_or_create_workbook file
           else
-            raise ExcelErrorOpen, ":if_obstructed: invalid option: #{@options[:if_obstructed]}"
+            raise ExcelErrorOpen, ":if_obstructed: invalid option: #{@options[:if_obstructed].inspect}"
           end
         else
           # book open, not obstructed by an other book, but not saved and writable
           if (not @workbook.Saved) then
             case @options[:if_unsaved]
             when :raise
-              raise ExcelErrorOpen, "workbook is already open but not saved (#{File.basename(file)})"
+              raise ExcelErrorOpen, "workbook is already open but not saved: #{File.basename(file).inspect}"
             when :forget
               @workbook.Close
               @workbook = nil
@@ -213,7 +213,7 @@ module RobustExcelOle
               @excel = excel_class.new(@excel_options)
               open_or_create_workbook file
             else
-              raise ExcelErrorOpen, ":if_unsaved: invalid option: #{@options[:if_unsaved]}"
+              raise ExcelErrorOpen, ":if_unsaved: invalid option: #{@options[:if_unsaved].inspect}"
             end
           end
         end
@@ -230,9 +230,8 @@ module RobustExcelOle
           begin
             workbooks = @excel.Workbooks
           rescue RuntimeError => msg
-            puts "RuntimeError: #{msg.message}" 
-            if msg.message =~ /failed/
-            #if msg.message =~ /failed to get Dispatch Interface/
+            #puts "RuntimeError: #{msg.message}" 
+            if msg.message =~ /method missing: Excel not alive/
               raise ExcelErrorOpen, "Excel instance not alive or damaged" 
             else
               raise ExcelErrorOpen, "unknown RuntimeError"
@@ -252,7 +251,7 @@ module RobustExcelOle
           # the workbook with given file name
           @workbook = workbooks.Item(File.basename(filename))
         rescue WIN32OLERuntimeError
-          raise ExcelErrorOpen, "cannot find the file #{File.basename(filename)}"
+          raise ExcelErrorOpen, "cannot find the file #{File.basename(filename).inspect}"
         end
       end
     end
@@ -269,7 +268,7 @@ module RobustExcelOle
       if (alive? && (not @workbook.Saved) && writable) then
         case opts[:if_unsaved]
         when :raise
-          raise ExcelErrorClose, "workbook is unsaved (#{File.basename(self.stored_filename)})"
+          raise ExcelErrorClose, "workbook is unsaved: #{File.basename(self.stored_filename).inspect}"
         when :save
           save
           close_workbook
@@ -280,7 +279,7 @@ module RobustExcelOle
             close_workbook
           end
         else
-          raise ExcelErrorClose, ":if_unsaved: invalid option: #{opts[:if_unsaved]}"
+          raise ExcelErrorClose, ":if_unsaved: invalid option: #{opts[:if_unsaved].inspect}"
         end
       else
         close_workbook
@@ -392,12 +391,12 @@ module RobustExcelOle
       begin
         item = self.Names.Item(name)
       rescue WIN32OLERuntimeError
-        raise ExcelError, "name #{name} not in #{File.basename(self.stored_filename)}"  
+        raise ExcelError, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"  
       end
       begin
         item.Name = new_name
       rescue WIN32OLERuntimeError
-        raise ExcelError, "name error in #{File.basename(self.stored_filename)}"      
+        raise ExcelError, "name error in #{File.basename(self.stored_filename).inspect}"      
       end
     end
 
@@ -409,7 +408,7 @@ module RobustExcelOle
         item = self.Names.Item(name)
       rescue WIN32OLERuntimeError
         return opts[:default] if opts[:default]
-        raise ExcelError, "name #{name} not in #{File.basename(self.stored_filename)}"
+        raise ExcelError, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"
       end
       begin
         value = item.RefersToRange.Value
@@ -419,12 +418,12 @@ module RobustExcelOle
           value = sheet.Evaluate(name)
         rescue WIN32OLERuntimeError
           return opts[:default] if opts[:default]
-          raise SheetError, "cannot evaluate name #{name} in sheet"
+          raise SheetError, "cannot evaluate name #{name.inspect} in sheet"
         end
       end
       if value == -2146826259
         return opts[:default] if opts[:default]
-        raise SheetError, "cannot evaluate name #{name} in sheet"
+        raise SheetError, "cannot evaluate name #{name.inspect} in sheet"
       end 
       return opts[:default] if (value.nil? && opts[:default])
       value      
@@ -435,12 +434,12 @@ module RobustExcelOle
       begin
         item = self.Names.Item(name)
       rescue WIN32OLERuntimeError
-        raise ExcelError, "name #{name} not in #{File.basename(self.stored_filename)}"  
+        raise ExcelError, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"  
       end
       begin
         item.RefersToRange.Value = value
       rescue WIN32OLERuntimeError
-        raise ExcelError, "RefersToRange error of name #{name} in #{File.basename(self.stored_filename)}"    
+        raise ExcelError, "RefersToRange error of name #{name.inspect} in #{File.basename(self.stored_filename).inspect}"    
       end
     end
 
@@ -559,9 +558,9 @@ module RobustExcelOle
           true
           return
         when :raise
-          raise ExcelErrorSave, "file already exists: #{File.basename(file)}"
+          raise ExcelErrorSave, "file already exists: #{File.basename(file).inspect}"
         else
-          raise ExcelErrorSave, ":if_exists: invalid option: #{@options_save[:if_exists]}"
+          raise ExcelErrorSave, ":if_exists: invalid option: #{@options_save[:if_exists].inspect}"
         end
       end
       blocking_workbook = 
@@ -573,13 +572,13 @@ module RobustExcelOle
       if blocking_workbook then
         case @options_save[:if_obstructed]
         when :raise
-          raise ExcelErrorSave, "blocked by another workbook (#{File.basename(file)})"
+          raise ExcelErrorSave, "blocked by another workbook (#{File.basename(file).inspect})"
         when :forget
           # nothing
         when :save
           blocking_workbook.Save
         when :close_if_saved
-          raise ExcelErrorSave, "blocking workbook is unsaved (#{File.basename(file)})" unless blocking_workbook.Saved
+          raise ExcelErrorSave, "blocking workbook is unsaved (#{File.basename(file).inspect})" unless blocking_workbook.Saved
         else
           raise ExcelErrorSave, ":if_obstructed: invalid option (#{@options_save[:if_obstructed].inspect})"
         end
@@ -628,7 +627,7 @@ module RobustExcelOle
         if msg.message =~ /8002000B/
           nvalue(name)
         else
-          raise ExcelError, "could neither return a sheet nor a value of a range when giving the name #{name}"
+          raise ExcelError, "could neither return a sheet nor a value of a range when giving the name #{name.inspect}"
         end
       end
     end

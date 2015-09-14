@@ -229,7 +229,7 @@ describe Book do
         @book.close
         expect{
           Book.open(@simple_file, :force_excel => :book)
-          }.to raise_error(ExcelErrorOpen, "provided instance is neither an Excel nor a Book")
+          }.to raise_error(ExcelError, "receiver instance is neither an Excel nor a Book")
       end
 
       it "should do force_excel even if both force_ and default_excel is given" do
@@ -396,7 +396,7 @@ describe Book do
       it "should raise an error, if :if_unsaved is :raise" do
         expect {
           @new_book = Book.open(@simple_file, :if_unsaved => :raise)
-        }.to raise_error(ExcelErrorOpen, "workbook is already open but not saved (#{File.basename(@simple_file)})")
+        }.to raise_error(ExcelErrorOpen, /workbook is already open but not saved: "workbook.xls"/)
       end
 
       it "should let the book open, if :if_unsaved is :accept" do
@@ -459,13 +459,13 @@ describe Book do
       it "should raise an error, if :if_unsaved is default" do
         expect {
           @new_book = Book.open(@simple_file, :if_unsaved => :raise)
-        }.to raise_error(ExcelErrorOpen, "workbook is already open but not saved (#{File.basename(@simple_file)})")
+        }.to raise_error(ExcelErrorOpen, /workbook is already open but not saved: "workbook.xls"/)
       end
 
       it "should raise an error, if :if_unsaved is invalid option" do
         expect {
           @new_book = Book.open(@simple_file, :if_unsaved => :invalid_option)
-        }.to raise_error(ExcelErrorOpen, ":if_unsaved: invalid option: invalid_option")
+        }.to raise_error(ExcelErrorOpen, ":if_unsaved: invalid option: :invalid_option")
       end
     end
 
@@ -494,7 +494,7 @@ describe Book do
           it "should raise an error, if :if_obstructed is :raise" do
             expect {
               @new_book = Book.open(@simple_file, :if_obstructed => :raise)
-            }.to raise_error(ExcelErrorOpen, "blocked by a book with the same name in a different path: workbook.xls")
+            }.to raise_error(ExcelErrorOpen, /blocked by a book with the same name in a different path: "workbook.xls"/)
           end
 
           it "should close the other book and open the new book, if :if_obstructed is :forget" do
@@ -518,7 +518,7 @@ describe Book do
               if :if_obstructed is :close_if_saved" do
             expect{
               @new_book = Book.open(@simple_file, :if_obstructed => :close_if_saved)
-            }.to raise_error(ExcelErrorOpen, "workbook with the same name in a different path is unsaved: workbook.xls")
+            }.to raise_error(ExcelErrorOpen, /workbook with the same name in a different path is unsaved: "workbook.xls"/)
             @book.save
             @new_book = Book.open(@simple_file, :if_obstructed => :close_if_saved)
             @book.should_not be_alive
@@ -539,14 +539,14 @@ describe Book do
 
           it "should raise an error, if :if_obstructed is default" do
             expect {
-              @new_book = Book.open(@simple_file)
-            }.to raise_error(ExcelErrorOpen, "blocked by a workbook with the same name in a different path: workbook.xls")
+              @new_book = Book.open(@simple_file)              
+            }.to raise_error(ExcelErrorOpen, /blocked by a book with the same name in a different path: "workbook.xls"/)
           end         
 
           it "should raise an error, if :if_obstructed is invalid option" do
             expect {
               @new_book = Book.open(@simple_file, :if_obstructed => :invalid_option)
-            }.to raise_error(ExcelErrorOpen, ":if_obstructed: invalid option: invalid_option")
+            }.to raise_error(ExcelErrorOpen, ":if_obstructed: invalid option: :invalid_option")
           end
         end
       end
@@ -590,7 +590,7 @@ describe Book do
         File.delete @simple_save_file rescue nil
         expect {
           Book.open(@simple_save_file, :if_absent => :raise)
-        }.to raise_error(ExcelErrorOpen, "file #{@simple_save_file} not found")
+        }.to raise_error(ExcelErrorOpen, "file \"#{@simple_save_file}\" not found")
       end
 
       it "should create a workbook" do
@@ -605,7 +605,7 @@ describe Book do
         File.delete @simple_save_file rescue nil
         expect {
           Book.open(@simple_save_file)
-        }.to raise_error(ExcelErrorOpen, "file #{@simple_save_file} not found")
+        }.to raise_error(ExcelErrorOpen, "file \"#{@simple_save_file}\" not found")
       end
 
     end
@@ -761,7 +761,7 @@ describe Book do
         expected_path = Regexp.new(File.expand_path(path).gsub(/\//, "."))
         expect {
           Book.open(path)
-        }.to raise_error(ExcelErrorOpen, "file #{path} not found")
+        }.to raise_error(ExcelErrorOpen, "file \"#{path}\" not found")
       end
     end
   end

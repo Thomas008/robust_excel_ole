@@ -67,21 +67,12 @@ describe Book do
       it "should raise an error for unknown methods or properties" do
         expect{
           @book.Foo
-        }.to raise_error(VBAMethodMissingError, "unknown VBA property or method Foo")
+        }.to raise_error(VBAMethodMissingError, /unknown VBA property or method :Foo/)
       end
-    end
 
-    context "with dead object" do
-      
-      before do
-        @book = Book.open(@simple_file)
+      it "should report that workbook is not alive" do
         @book.close
-      end
-
-      it "should raise an error" do
-        expect{
-          @book.Saved.should be_true
-          }.to raise_error(ExcelError, "workbook not alive")
+        expect{ @book.Nonexisting_method }.to raise_error(ExcelError, "method missing: workbook not alive")
       end
     end
 

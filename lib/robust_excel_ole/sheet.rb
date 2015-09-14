@@ -26,7 +26,7 @@ module RobustExcelOle
         @worksheet.Name = new_name
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /800A03EC/ 
-          raise ExcelErrorSheet, "sheet name already exists"
+          raise ExcelErrorSheet, "sheet name #{new_name.inspect} already exists"
         else
           puts "#{msg.message}"
           raise ExcelErrorSheetUnknown
@@ -113,11 +113,11 @@ module RobustExcelOle
         value = value.Value if value.class == WIN32OLE
       rescue WIN32OLERuntimeError
         return opts[:default] if opts[:default]
-        raise SheetError, "cannot evaluate name #{name} in sheet"
+        raise SheetError, "cannot evaluate name #{name.inspect} in sheet"
       end
       if value == -2146826259
         return opts[:default] if opts[:default]
-        raise SheetError, "cannot evaluate name #{name} in sheet"
+        raise SheetError, "cannot evaluate name #{name.inspect} in sheet"
       end
       return opts[:default] if (value.nil? && opts[:default])
       value
@@ -127,12 +127,12 @@ module RobustExcelOle
       begin
         item = self.Names.Item(name)
       rescue WIN32OLERuntimeError
-        raise SheetError, "name #{name} not in sheet"
+        raise SheetError, "name #{name.inspect} not in sheet"
       end
       begin
         item.RefersToRange.Value = value
       rescue  WIN32OLERuntimeError
-        raise SheetError, "RefersToRange of name #{name}"
+        raise SheetError, "RefersToRange of name #{name.inspect}"
       end
     end
 
@@ -148,7 +148,7 @@ module RobustExcelOle
         end
       rescue WIN32OLERuntimeError => msg
         puts "WIN32OLERuntimeError: #{msg.message}"
-        raise SheetError, "cannot add name #{name} to cell with row #{row} and column #{column}"
+        raise SheetError, "cannot add name #{name.inspect} to cell with row #{row.inspect} and column #{column.inspect}"
       end
     end
 

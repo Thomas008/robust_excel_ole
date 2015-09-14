@@ -20,7 +20,7 @@ module RobustExcelOle
   end
 
   def canonize(filename)
-    raise "No string given to canonize, but #{filename.inspect}" unless filename.is_a?(String)  
+    raise ExcelError, "No string given to canonize, but #{filename.inspect}" unless filename.is_a?(String)  
     normalize(filename).downcase rescue nil
   end
 

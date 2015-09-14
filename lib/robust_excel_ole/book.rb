@@ -688,11 +688,11 @@ module RobustExcelOle
     def method_missing(name, *args)
       if name.to_s[0,1] =~ /[A-Z]/ 
         begin
-          raise ExcelError, "workbook not alive" unless alive?
+          raise ExcelError, "method missing: workbook not alive" unless alive?
           @workbook.send(name, *args)
         rescue WIN32OLERuntimeError => msg
           if msg.message =~ /unknown property or method/
-            raise VBAMethodMissingError, "unknown VBA property or method #{name}"
+            raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
           else 
             raise msg
           end

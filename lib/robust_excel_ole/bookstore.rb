@@ -28,7 +28,7 @@ module RobustExcelOle
           begin 
             @filename2books[filename_key].delete(wr_book)
           rescue
-            puts "Warning: deleting dead reference failed! (file: #{filename})"
+            puts "Warning: deleting dead reference failed: file: #{filename.inspect}"
           end
         else
           book = wr_book.__getobj__

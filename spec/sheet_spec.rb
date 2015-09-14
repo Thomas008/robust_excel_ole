@@ -16,6 +16,14 @@ describe RobustExcelOle::Sheet do
     rm_tmp(@dir)
   end
 
+  before(:all) do
+    Excel.close_all
+  end 
+
+  after(:all) do
+    Excel.close_all
+  end 
+
   describe ".initialize" do
     context "when open sheet protected(with password is 'protect')" do
       before do
@@ -72,7 +80,7 @@ describe RobustExcelOle::Sheet do
         new_sheet = @book.add_sheet @sheet
         expect{
           new_sheet.name = 'foo'
-        }.to raise_error(ExcelErrorSheet, "sheet name already exists")
+        }.to raise_error(ExcelErrorSheet, /sheet name "foo" already exists/)
       end
     end
   end
@@ -393,10 +401,10 @@ describe RobustExcelOle::Sheet do
         it "should raise an error if name not defined" do
           expect {
             value = @sheet1.nvalue("foo")
-          }.to raise_error(SheetError, "cannot evaluate name foo in sheet")
+          }.to raise_error(SheetError, /cannot evaluate name "foo" in sheet/)
           expect {
             @sheet1["foo"]
-          }.to raise_error(SheetError, "cannot evaluate name foo in sheet")
+          }.to raise_error(SheetError, /cannot evaluate name "foo" in sheet/)
         end
 
         it "should return default value if name not defined and default value is given" do
@@ -432,6 +440,12 @@ describe RobustExcelOle::Sheet do
           @sheet1.nvalue("firstcell").should == "bar"
           @sheet1[1,1].Value.should == "bar"
         end
+
+        it "should raise an error" do
+          expect{
+            @sheet1.nvalue("foo")
+            }.to raise_error(SheetError, /cannot evaluate name "foo" in sheet/)
+        end
       end
     end
 
@@ -465,7 +479,7 @@ describe RobustExcelOle::Sheet do
         it "should raise an error" do
           expect{
             @sheet1.set_name("foo",-2,1)
-          }.to raise_error(SheetError, "cannot add name foo to cell with row -2 and column 1")
+          }.to raise_error(SheetError, /cannot add name "foo" to cell with row -2 and column 1/)
         end
       end
     end

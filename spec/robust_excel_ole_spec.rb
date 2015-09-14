@@ -86,6 +86,13 @@ describe Book do
         canonize("/This/IS/tHe/path").should == "/this/is/the/path"
         canonize("///THIS/.///./////iS//the/../PatH/////").should == "/this/is/path"
       end
+
+      it "should raise an error for no strings" do
+        expect{
+          canonize(1)
+        }.to raise_error(ExcelError, "No string given to canonize, but 1")
+      end
+
     end
   end
 

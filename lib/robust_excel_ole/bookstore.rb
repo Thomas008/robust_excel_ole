@@ -18,7 +18,7 @@ module RobustExcelOle
     #          :prefer_excel      returns the book in the given Excel instance, if it exists,
     #                             otherwise proceeds according to prefer_writable 
     def fetch(filename, options = {:prefer_writable => true })
-      filename = absolute_path(filename)
+      filename = RobustExcelOle::absolute_path(filename)
       filename_key = RobustExcelOle::canonize(filename)
       weakref_books = @filename2books[filename_key]
       return nil unless weakref_books

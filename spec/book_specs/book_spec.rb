@@ -240,7 +240,7 @@ describe Book do
 
       context "with :if_unsaved => :alert" do
         before do
-         @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"
+         @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '../helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"
         end
 
         after do
@@ -1010,7 +1010,7 @@ describe Book do
     context "with activate" do
 
       before do
-        @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"        
+        @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '../helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"        
         @book = Book.open(@simple_file, :visible => true)
         @book2 = Book.open(@another_simple_file, :force_excel => :new, :visible => true)
       end

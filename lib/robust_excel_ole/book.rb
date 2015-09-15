@@ -121,8 +121,21 @@ module RobustExcelOle
       end
     end
 
+    def self.sheet_class
+      @sheet_class ||= begin
+        module_name = self.parent_name
+        "#{module_name}::Sheet".constantize
+      rescue NameError => e
+        Sheet
+      end
+    end
+
     def excel_class
       self.class.excel_class
+    end
+
+    def sheet_class
+      self.class.sheet_class
     end
 
     def ensure_excel(options)
@@ -414,7 +427,7 @@ module RobustExcelOle
       rescue  WIN32OLERuntimeError
         begin
           sheet = self[0]
-          value = sheet.Evaluate(name)
+          value = sheet_class.Evaluate(name)
         rescue WIN32OLERuntimeError
           return opts[:default] if opts[:default]
           raise SheetError, "cannot evaluate name #{name.inspect} in sheet"
@@ -621,7 +634,7 @@ module RobustExcelOle
     def [] name
       name += 1 if name.is_a? Numeric
       begin
-        RobustExcelOle::Sheet.new(@workbook.Worksheets.Item(name))
+        sheet_class.new(@workbook.Worksheets.Item(name))
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /8002000B/
           nvalue(name)
@@ -638,7 +651,7 @@ module RobustExcelOle
 
     def each
       @workbook.Worksheets.each do |sheet|
-        yield RobustExcelOle::Sheet.new(sheet)
+        yield sheet_class.new(sheet)
       end
     end
 
@@ -649,10 +662,10 @@ module RobustExcelOle
       end
       new_sheet_name = opts.delete(:as)
       ws = @workbook.Worksheets
-      after_or_before, base_sheet = opts.to_a.first || [:after, Sheet.new(ws.Item(ws.Count))]
+      after_or_before, base_sheet = opts.to_a.first || [:after, sheet_class.new(ws.Item(ws.Count))]
       base_sheet = base_sheet.worksheet
       sheet ? sheet.Copy({ after_or_before.to_s => base_sheet }) : @workbook.WorkSheets.Add({ after_or_before.to_s => base_sheet })
-      new_sheet = RobustExcelOle::Sheet.new(@excel.Activesheet)
+      new_sheet = sheet_class.new(@excel.Activesheet)
       begin
         new_sheet.name = new_sheet_name if new_sheet_name
       rescue WIN32OLERuntimeError => msg

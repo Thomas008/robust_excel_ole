@@ -119,7 +119,7 @@ describe Book do
         @book.add_sheet(@sheet, :as => 'new_sheet')
         expect{
           @book.add_sheet(@sheet, :as => 'new_sheet')
-          }.to raise_error(ExcelErrorSheet, "sheet name already exists")
+          }.to raise_error(ExcelErrorSheet, /sheet name "new_sheet" already exists/)
       end
     end
   end

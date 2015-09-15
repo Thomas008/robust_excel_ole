@@ -484,6 +484,24 @@ describe RobustExcelOle::Sheet do
       end
     end
 
+    describe "send methods to worksheet" do
+
+      it "should send methods to worksheet" do
+        @sheet.Cells(1,1).Value.should eq 'foo'
+      end
+
+      it "should raise an error for unknown methods or properties" do
+        expect{
+          @sheet.Foo
+        }.to raise_error(VBAMethodMissingError, /unknown VBA property or method :Foo/)
+      end
+
+  #    it "should report that worksheet is not alive" do
+  #      @book.close
+  #      expect{ @sheet.Nonexisting_method }.to raise_error(ExcelError, "method missing: worksheet nil")
+  #    end
+    end
+
     describe "#method_missing" do
       it "can access COM method" do
         @sheet.Cells(1,1).Value.should eq 'foo'

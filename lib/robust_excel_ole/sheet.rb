@@ -152,11 +152,25 @@ module RobustExcelOle
       end
     end
 
-    def method_missing(id, *args)  # :nodoc: #
-      @worksheet.send(id, *args)
-    end
-
     private
+
+    def method_missing(name, *args) 
+    if name.to_s[0,1] =~ /[A-Z]/ 
+      begin
+        @worksheet.send(name, *args)
+      rescue WIN32OLERuntimeError => msg
+        if msg.message =~ /unknown property or method/
+          raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
+        else 
+          raise msg
+        end
+      end
+    else  
+      super 
+    end
+  end
+
+
     def last_row
       special_last_row = @worksheet.UsedRange.SpecialCells(RobustExcelOle::XlLastCell).Row
       used_last_row = @worksheet.UsedRange.Rows.Count

@@ -158,7 +158,7 @@ module RobustExcelOle
             close_excel(:hard => options[:hard])
           end
         else
-          raise ExcelErrorClose, ":if_unsaved: invalid option: #{options[:if_unsaved].inpect}"
+          raise ExcelErrorClose, ":if_unsaved: invalid option: #{options[:if_unsaved].inspect}"
         end
       else
         close_excel(:hard => options[:hard])

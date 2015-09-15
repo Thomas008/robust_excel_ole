@@ -56,7 +56,7 @@ module RobustExcelOle
       @excel = self
     end
 
-    def self.get_excel_processes
+    def self.excel_processes
       procs = WIN32OLE.connect("winmgmts:\\\\.")
       procs.InstancesOf("win32_process").each do |p|
         puts "name:#{p.name.to_s} process_id:#{p.processid}"  if p.name == "EXCEL.EXE"       

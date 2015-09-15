@@ -96,7 +96,7 @@ module RobustExcelOle
       end
 
       it "should show processes" do        
-        Excel.get_excel_processes       
+        Excel.excel_processes       
       end
 
       it "should kill Excel processes" do
@@ -305,7 +305,7 @@ module RobustExcelOle
         it "should raise an error for invalid option" do
           expect {
             @excel.close(:if_unsaved => :invalid_option)
-          }.to raise_error(ExcelErrorClose, ":if_unsaved: invalid option: invalid_option") 
+          }.to raise_error(ExcelErrorClose, ":if_unsaved: invalid option: :invalid_option") 
         end
 
         it "should raise an error by default" do

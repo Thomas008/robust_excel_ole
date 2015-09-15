@@ -72,11 +72,11 @@ module RobustExcelOle
             if (((not options[:force_excel]) || (options[:force_excel].excel == book.excel)) &&
                  (not (book.alive? && (not book.saved) && (not options[:if_unsaved] == :accept))))
               book.options = DEFAULT_OPEN_OPTS.merge(opts)
-              book.get_excel(options) unless book.excel.alive?
+              book.ensure_excel(options) unless book.excel.alive?
               # if the book is opened as readonly and should be opened as writable, then close it and open the book with the new readonly mode
               book.close if (book.alive? && (not book.writable) && (not options[:read_only]))
               # reopens the book
-              book.get_workbook(file,options) unless book.alive?
+              book.ensure_workbook(file,options) unless book.alive?
               return book
             end
           end
@@ -99,8 +99,8 @@ module RobustExcelOle
       else
         file = file_or_workbook
         options = DEFAULT_OPEN_OPTS.merge(opts)      
-        get_excel(options)
-        get_workbook(file,options)
+        ensure_excel(options)
+        ensure_workbook(file,options)
         bookstore.store(self)
         if block
           begin
@@ -125,7 +125,7 @@ module RobustExcelOle
       self.class.excel_class
     end
 
-    def get_excel(options)
+    def ensure_excel(options)
       if options[:excel] == :reuse
         @excel = excel_class.new(:reuse => true)
       end
@@ -147,7 +147,7 @@ module RobustExcelOle
       end
     end
 
-    def get_workbook(file, options)
+    def ensure_workbook(file, options)
       file = @stored_filename ? @stored_filename : file
       unless File.exist?(file)
         if options[:if_absent] == :create

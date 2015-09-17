@@ -58,22 +58,21 @@ module RobustExcelOle
 
     def self.excel_processes
       procs = WIN32OLE.connect("winmgmts:\\\\.")
-      procs.InstancesOf("win32_process").each do |p|
-        puts "name:#{p.name.to_s} process_id:#{p.processid}"  if p.name == "EXCEL.EXE"       
+      processes = procs.InstancesOf("win32_process")
+      processes.each do |p|
+        printf("name: %9s  process_id: %5d\n", p.name.to_s, p.processid) if p.name == "EXCEL.EXE"
       end
+      processes.select{|p| (p.name == "EXCEL.EXE")}.size
     end
 
     def self.kill_excel_processes
       procs = WIN32OLE.connect("winmgmts:\\\\.")
+      processes = procs.InstancesOf("win32_process")
+      number = processes.select{|p| (p.name == "EXCEL.EXE")}.size
       procs.InstancesOf("win32_process").each do |p|
-        puts "name:#{p.name.to_s} process_id:#{p.processid}"  if p.name == "EXCEL.EXE" 
         Process.kill('KILL', p.processid) if p.name == "EXCEL.EXE"        
       end
-      #wmi = WIN32OLE.connect("winmgmts://")
-      #processes = wmi.ExecQuery("select * from win32_process where commandline like '%excel.exe\"% /automation %'")
-      #for process in processes 
-      #  Process.kill('KILL', process.ProcessID.to_i)
-      #end
+      number
     end
 
     def reanimate 
@@ -95,9 +94,10 @@ module RobustExcelOle
 
     def self.print_hwnd2excel
       @@hwnd2excel.each do |hwnd,wr_excel|
-        excel_string = (wr_excel.weakref_alive? ? wr_excel.__getobj__.to_s : "not alive") 
-        puts "hwnd: #{hwnd} => excel: #{excel_string}"
+        excel_string = (wr_excel.weakref_alive? ? wr_excel.__getobj__.to_s : "weakref not alive") 
+        printf("hwnd: %5i => excel: %s\n", hwnd, excel_string)
       end
+      @@hwnd2excel.size
     end
 
     # closes all Excel instances

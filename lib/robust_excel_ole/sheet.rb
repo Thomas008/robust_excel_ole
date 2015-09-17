@@ -2,7 +2,6 @@
 module RobustExcelOle
   class Sheet
     attr_reader :worksheet
-    include Enumerable
 
     def initialize(win32_worksheet)
       @worksheet = win32_worksheet

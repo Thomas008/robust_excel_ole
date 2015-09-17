@@ -11,6 +11,8 @@ require File.join(File.dirname(__FILE__), 'robust_excel_ole/version')
 
 REO = RobustExcelOle
 
+include Enumerable
+
 module RobustExcelOle
 
   def absolute_path(file)

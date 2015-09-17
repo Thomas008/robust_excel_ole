@@ -95,7 +95,7 @@ module RobustExcelOle
     def self.print_hwnd2excel
       @@hwnd2excel.each do |hwnd,wr_excel|
         excel_string = (wr_excel.weakref_alive? ? wr_excel.__getobj__.to_s : "weakref not alive") 
-        printf("hwnd: %5i => excel: %s\n", hwnd, excel_string)
+        printf("hwnd: %8i => excel: %s\n", hwnd, excel_string)
       end
       @@hwnd2excel.size
     end

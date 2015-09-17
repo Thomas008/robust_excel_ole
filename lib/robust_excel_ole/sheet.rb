@@ -27,7 +27,7 @@ module RobustExcelOle
         if msg.message =~ /800A03EC/ 
           raise ExcelErrorSheet, "sheet name #{new_name.inspect} already exists"
         else
-          puts "#{msg.message}"
+          #puts "#{msg.message}"
           raise ExcelErrorSheetUnknown
         end
       end
@@ -146,7 +146,7 @@ module RobustExcelOle
           self.Names.Add("Name" => name, "RefersToR1C1" => "=" + address)
         end
       rescue WIN32OLERuntimeError => msg
-        puts "WIN32OLERuntimeError: #{msg.message}"
+        #puts "WIN32OLERuntimeError: #{msg.message}"
         raise SheetError, "cannot add name #{name.inspect} to cell with row #{row.inspect} and column #{column.inspect}"
       end
     end

@@ -13,6 +13,14 @@ REO = RobustExcelOle
 
 include Enumerable
 
+=begin
+log_file = "reo_log.txt"
+orig_std_out = STDOUT.clone 
+$stdout.reopen(log_file, "w") 
+$stdout.sync = true 
+$stderr.reopen($stdout) 
+=end
+
 module RobustExcelOle
 
   def absolute_path(file)

@@ -181,9 +181,9 @@ module RobustExcelOle
         #if WIN32OLE.ole_reference_count(weak_xlapp) > 0
         begin
           weak_excel_ref.ole_free
-          puts "successfully ole_freed #{weak_excel_ref}"
+          #puts "successfully ole_freed #{weak_excel_ref}"
         rescue
-          puts "could not do ole_free on #{weak_excel_ref}"
+          #puts "could not do ole_free on #{weak_excel_ref}"
         end
       end
       hwnd2excel(excel_hwnd).die rescue nil
@@ -230,11 +230,11 @@ module RobustExcelOle
         if excel_weakref.weakref_alive?
           excel_weakref.__getobj__
         else
-          puts "dead reference to an Excel"
+          #puts "dead reference to an Excel"
           begin 
             @@hwnd2excel.delete(hwnd)
           rescue
-            puts "Warning: deleting dead reference failed! (hwnd: #{hwnd.inspect})"
+            #puts "Warning: deleting dead reference failed! (hwnd: #{hwnd.inspect})"
           end
         end
       end
@@ -267,7 +267,7 @@ module RobustExcelOle
       begin
         self.Workbooks.each {|w| result << w unless (w.Saved || w.ReadOnly)}
       rescue RuntimeError => msg
-        puts "RuntimeError: #{msg.message}" 
+        #puts "RuntimeError: #{msg.message}" 
         raise ExcelErrorOpen, "Excel instance not alive or damaged" if msg.message =~ /failed to get Dispatch Interface/
       end
       result
@@ -343,9 +343,9 @@ module RobustExcelOle
           #if WIN32OLE.ole_reference_count(weak_xlapp) > 0
           begin
             weak_excel_ref.ole_free
-            puts "successfully ole_freed #{weak_excel_ref}"
+            #puts "successfully ole_freed #{weak_excel_ref}"
           rescue
-            puts "could not do ole_free on #{weak_excel_ref}"
+            #puts "could not do ole_free on #{weak_excel_ref}"
           end
         end
 
@@ -353,7 +353,7 @@ module RobustExcelOle
         #@@hwnd2excel[excel_hwnd] = nil
 
       rescue => e
-        puts "Error when closing Excel: " + e.message
+        #puts "Error when closing Excel: " + e.message
         #puts e.backtrace
       end
 
@@ -387,7 +387,7 @@ module RobustExcelOle
           #puts $!.backtrace.first(9).join "\n"
         end
       end
-      puts "went through #{anz_objekte} OLE objects"
+      #puts "went through #{anz_objekte} OLE objects"
     end
 
     # returns the current Excel instance
@@ -397,7 +397,7 @@ module RobustExcelOle
         begin
           result.Visible    # send any method, just to see if it responds
         rescue 
-          puts "dead excel app " + ("Window-handle = #{result.HWnd}" rescue "without window handle")
+          #puts "dead excel app " + ("Window-handle = #{result.HWnd}" rescue "without window handle")
           return nil
         end
       end

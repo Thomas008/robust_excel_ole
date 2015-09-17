@@ -251,7 +251,7 @@ module RobustExcelOle
           end
           workbooks.Open(filename,{ 'ReadOnly' => options[:read_only] })
         rescue WIN32OLERuntimeError => msg
-          puts "WIN32OLERuntimeError: #{msg.message}" 
+          #puts "WIN32OLERuntimeError: #{msg.message}" 
           if msg.message =~ /800A03EC/
             raise ExcelErrorOpen, "open: user canceled or open error"
           else 
@@ -672,7 +672,7 @@ module RobustExcelOle
         if msg.message =~ /800A03EC/ 
           raise ExcelErrorSheet, "sheet name already exists"
         else
-          puts "#{msg.message}"
+          #puts "#{msg.message}"
           raise ExcelErrorSheetUnknown
         end
       end

@@ -1055,7 +1055,10 @@ describe Book do
 
     context "only first argument" do
       it "should add worksheet" do
-        expect { @book.add_sheet @sheet }.to change{ @book.workbook.Worksheets.Count }.from(3).to(4)
+        @book.workbook.Worksheets.Count.should == 3
+        @book.add_sheet @sheet
+        @book.workbook.Worksheets.Count.should == 4
+        #expect { @book.add_sheet @sheet }.to change{ @book.workbook.Worksheets.Count }.from(3).to(4)
       end
 
       it "should return copyed sheet" do

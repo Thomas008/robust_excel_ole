@@ -242,7 +242,7 @@ module RobustExcelOle
           begin
             workbooks = @excel.Workbooks
           rescue RuntimeError => msg
-            #puts "RuntimeError: #{msg.message}" 
+            t "RuntimeError: #{msg.message}" 
             if msg.message =~ /method missing: Excel not alive/
               raise ExcelErrorOpen, "Excel instance not alive or damaged" 
             else
@@ -251,7 +251,7 @@ module RobustExcelOle
           end
           workbooks.Open(filename,{ 'ReadOnly' => options[:read_only] })
         rescue WIN32OLERuntimeError => msg
-          #puts "WIN32OLERuntimeError: #{msg.message}" 
+          t "WIN32OLERuntimeError: #{msg.message}" 
           if msg.message =~ /800A03EC/
             raise ExcelErrorOpen, "open: user canceled or open error"
           else 
@@ -348,11 +348,6 @@ module RobustExcelOle
       }.merge(opts)
       book = bookstore.fetch(file, :prefer_writable => (not options[:read_only]))
       was_not_alive_or_nil = book.nil? || (not book.alive?)
-      # does not work:
-      #workbook = WIN32OLE.connect(RobustExcelOle::absolute_path(file))
-      #p "workbook: #{workbook}"
-      #hwnd = workbook.Application.hwnd
-      #puts "hwnd: #{hwnd}"
       workbook = book.excel.Workbooks.Item(File.basename(file)) rescue nil
       now_alive = 
         begin 
@@ -485,7 +480,7 @@ module RobustExcelOle
         true
       rescue 
         @workbook = nil  # dead object won't be alive again
-        #puts $!.message
+        t $!.message
         false
       end
     end
@@ -672,7 +667,7 @@ module RobustExcelOle
         if msg.message =~ /800A03EC/ 
           raise ExcelErrorSheet, "sheet name already exists"
         else
-          #puts "#{msg.message}"
+          t "#{msg.message}"
           raise ExcelErrorSheetUnknown
         end
       end
@@ -744,4 +739,5 @@ public
 
   class ExcelErrorSheetUnknown < ExcelErrorSheet    # :nodoc: #
   end
+
 end

@@ -92,7 +92,6 @@ module RobustExcelOle
         
       before do
         @excel1 = Excel.create
-        p "hwnd: #{@excel1.hwnd}"
       end
 
       it "should show processes" do        

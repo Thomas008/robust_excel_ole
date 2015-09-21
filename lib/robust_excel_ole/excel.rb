@@ -4,6 +4,8 @@ module RobustExcelOle
 
   class Excel
 
+    include RobustExcelOle
+
     @@hwnd2excel = {}
 
     # creates a new Excel instance
@@ -60,7 +62,7 @@ module RobustExcelOle
       procs = WIN32OLE.connect("winmgmts:\\\\.")
       processes = procs.InstancesOf("win32_process")
       processes.each do |p|
-        printf("name: %9s  process_id: %5d\n", p.name.to_s, p.processid) if p.name == "EXCEL.EXE"
+        #printf("name: %9s  process_id: %5d\n", p.name.to_s, p.processid) if p.name == "EXCEL.EXE"
       end
       processes.select{|p| (p.name == "EXCEL.EXE")}.size
     end
@@ -166,7 +168,7 @@ module RobustExcelOle
       raise ExcelUserCanceled, "close: canceled by user" if options[:if_unsaved] == :alert && self.unsaved_workbooks
     end
 
-  private
+  #private
 
     def close_excel(options)
       excel = @ole_excel
@@ -181,13 +183,13 @@ module RobustExcelOle
         #if WIN32OLE.ole_reference_count(weak_xlapp) > 0
         begin
           weak_excel_ref.ole_free
-          #puts "successfully ole_freed #{weak_excel_ref}"
+          t "successfully ole_freed #{weak_excel_ref}"
         rescue
-          #puts "could not do ole_free on #{weak_excel_ref}"
+          t "could not do ole_free on #{weak_excel_ref}"
         end
       end
       hwnd2excel(excel_hwnd).die rescue nil
-      #@@hwnd2excel[excel_hwnd] = nil
+      @@hwnd2excel.delete(excel_hwnd)
       #Excel.free_all_ole_objects
       if options[:hard] then
         process_id = Win32API.new("user32", "GetWindowThreadProcessId", ["I","P"], "I")
@@ -230,11 +232,11 @@ module RobustExcelOle
         if excel_weakref.weakref_alive?
           excel_weakref.__getobj__
         else
-          #puts "dead reference to an Excel"
+          t "dead reference to an Excel"
           begin 
             @@hwnd2excel.delete(hwnd)
           rescue
-            #puts "Warning: deleting dead reference failed! (hwnd: #{hwnd.inspect})"
+            t "Warning: deleting dead reference failed! (hwnd: #{hwnd.inspect})"
           end
         end
       end
@@ -254,12 +256,12 @@ module RobustExcelOle
       @ole_excel.Name
       true
     rescue
-      #puts $!.message
+      t $!.message
       false
     end
 
     def print_workbooks
-      self.Workbooks.each {|w| puts "#{w.Name} #{w}"}
+      self.Workbooks.each {|w| t "#{w.Name} #{w}"}
     end
 
     def unsaved_workbooks
@@ -267,7 +269,7 @@ module RobustExcelOle
       begin
         self.Workbooks.each {|w| result << w unless (w.Saved || w.ReadOnly)}
       rescue RuntimeError => msg
-        #puts "RuntimeError: #{msg.message}" 
+        t "RuntimeError: #{msg.message}" 
         raise ExcelErrorOpen, "Excel instance not alive or damaged" if msg.message =~ /failed to get Dispatch Interface/
       end
       result
@@ -315,7 +317,7 @@ module RobustExcelOle
       self.to_s
     end
 
-  private
+  #private
 
     # closes one Excel instance
     def self.close_one_excel(options={})
@@ -343,18 +345,18 @@ module RobustExcelOle
           #if WIN32OLE.ole_reference_count(weak_xlapp) > 0
           begin
             weak_excel_ref.ole_free
-            #puts "successfully ole_freed #{weak_excel_ref}"
+            t "successfully ole_freed #{weak_excel_ref}"
           rescue
-            #puts "could not do ole_free on #{weak_excel_ref}"
+            t "could not do ole_free on #{weak_excel_ref}"
           end
         end
 
         hwnd2excel(excel_hwnd).die rescue nil
-        #@@hwnd2excel[excel_hwnd] = nil
+        @@hwnd2excel.delete(excel_hwnd)
 
       rescue => e
-        #puts "Error when closing Excel: " + e.message
-        #puts e.backtrace
+        #t "Error when closing Excel: #{e.message}"
+        #t e.backtrace
       end
 
 
@@ -373,21 +375,21 @@ module RobustExcelOle
       anz_objekte = 0
       ObjectSpace.each_object(WIN32OLE) do |o|
         anz_objekte += 1
-        #p [:Name, (o.Name rescue (o.Count rescue "no_name"))]
-        #p [:ole_object_name, (o.ole_object_name rescue nil)]
-        #p [:methods, (o.ole_methods rescue nil)] unless (o.Name rescue false)
-        #puts o.ole_type rescue nil
+        #t [:Name, (o.Name rescue (o.Count rescue "no_name"))]
+        #t [:ole_object_name, (o.ole_object_name rescue nil)]
+        #t [:methods, (o.ole_methods rescue nil)] unless (o.Name rescue false)
+        #t o.ole_type rescue nil
         #trc_info :obj_hwnd, o.HWnd rescue   nil
         #trc_info :obj_Parent, o.Parent rescue nil
         begin
           o.ole_free
-          #puts "olefree OK"
+          #t "olefree OK"
         rescue
-          #puts "olefree_error: #{$!}"
-          #puts $!.backtrace.first(9).join "\n"
+          #t "olefree_error: #{$!}"
+          #t $!.backtrace.first(9).join "\n"
         end
       end
-      #puts "went through #{anz_objekte} OLE objects"
+      RobustExcelOle::t "went through #{anz_objekte} OLE objects"
     end
 
     # returns the current Excel instance
@@ -397,7 +399,7 @@ module RobustExcelOle
         begin
           result.Visible    # send any method, just to see if it responds
         rescue 
-          #puts "dead excel app " + ("Window-handle = #{result.HWnd}" rescue "without window handle")
+          t "dead excel app " + ("Window-handle = #{result.HWnd}" rescue "without window handle")
           return nil
         end
       end

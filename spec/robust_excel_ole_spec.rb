@@ -6,7 +6,7 @@ $VERBOSE = nil
 
 include RobustExcelOle
 
-describe Book do
+describe RobustExcelOle do
 
   before(:all) do
     excel = Excel.new(:reuse => true)
@@ -23,6 +23,20 @@ describe Book do
   after do
     #Excel.close_all
     rm_tmp(@dir)
+  end
+
+  describe "t" do
+
+    it "should put some" do
+      a = 4
+      t "some text #{a}"
+    end
+
+    it "should put another text" do
+      a = 5
+      t "another text #{a}"
+    end
+
   end
 
   describe "#absolute_path" do

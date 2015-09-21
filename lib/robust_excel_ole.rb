@@ -13,15 +13,23 @@ REO = RobustExcelOle
 
 include Enumerable
 
-=begin
-log_file = "reo_log.txt"
-orig_std_out = STDOUT.clone 
-$stdout.reopen(log_file, "w") 
-$stdout.sync = true 
-$stderr.reopen($stdout) 
-=end
+LOG_TO_STDOUT = false
+
+REO_LOG_FILE = "reo.log"
+
+File.delete REO_LOG_FILE rescue nil
 
 module RobustExcelOle
+
+  def t(text)
+    if LOG_TO_STDOUT 
+      puts text
+    else
+      File.open(REO_LOG_FILE,"a") do | file |
+        file.puts text
+      end
+    end
+  end
 
   def absolute_path(file)
     file = File.expand_path(file)
@@ -42,7 +50,7 @@ module RobustExcelOle
     path
   end
 
-  module_function :absolute_path, :canonize
+  module_function :t, :absolute_path, :canonize
 
   class VBAMethodMissingError < RuntimeError  # :nodoc: #
   end

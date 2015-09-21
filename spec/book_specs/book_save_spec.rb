@@ -326,7 +326,7 @@ describe Book do
               file.puts "garbage"
             end
             @garbage_length = File.size?(@simple_save_file)
-            @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
+            @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '../helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
           end
 
           after do

@@ -4,8 +4,6 @@ module RobustExcelOle
 
   class Excel
 
-    include RobustExcelOle
-
     @@hwnd2excel = {}
 
     # creates a new Excel instance
@@ -168,7 +166,7 @@ module RobustExcelOle
       raise ExcelUserCanceled, "close: canceled by user" if options[:if_unsaved] == :alert && self.unsaved_workbooks
     end
 
-  #private
+  private
 
     def close_excel(options)
       excel = @ole_excel
@@ -389,7 +387,7 @@ module RobustExcelOle
           #t $!.backtrace.first(9).join "\n"
         end
       end
-      RobustExcelOle::t "went through #{anz_objekte} OLE objects"
+      t "went through #{anz_objekte} OLE objects"
     end
 
     # returns the current Excel instance

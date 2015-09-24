@@ -4,8 +4,6 @@ module RobustExcelOle
 
   class Excel
 
-    @@hwnd2excel = {}
-
     # creates a new Excel instance
     def self.create
       new(:reuse => false)
@@ -79,10 +77,6 @@ module RobustExcelOle
       result
     end
 
-    def self.uplift
-      
-    end
-
     def self.kill_excel_processes
       procs = WIN32OLE.connect("winmgmts:\\\\.")
       processes = procs.InstancesOf("win32_process")
@@ -131,6 +125,7 @@ module RobustExcelOle
         :if_unsaved => :raise,
         :hard => false
       }.merge(options)
+      sinit
       if options[:hard]
         kill_excel_processes
       else
@@ -142,6 +137,10 @@ module RobustExcelOle
           # free_all_ole_objects if options[:hard] ???
         end
       end
+    end
+
+    def self.init
+      @@hwnd2excel = {}
     end
 
     # close the Excel

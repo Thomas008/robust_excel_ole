@@ -125,7 +125,7 @@ module RobustExcelOle
         :if_unsaved => :raise,
         :hard => false
       }.merge(options)
-      sinit
+      init
       if options[:hard]
         kill_excel_processes
       else

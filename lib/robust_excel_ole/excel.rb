@@ -59,10 +59,28 @@ module RobustExcelOle
     def self.excel_processes
       procs = WIN32OLE.connect("winmgmts:\\\\.")
       processes = procs.InstancesOf("win32_process")
-      processes.each do |p|
-        #printf("name: %9s  process_id: %5d\n", p.name.to_s, p.processid) if p.name == "EXCEL.EXE"
+      pid2excel = {}
+      @@hwnd2excel.each do |hwnd,wr_excel|
+        process_id = Win32API.new("user32", "GetWindowThreadProcessId", ["I","P"], "I")
+        pid_puffer = " " * 32
+        process_id.call(hwnd, pid_puffer)
+        pid = pid_puffer.unpack("L")[0]
+        pid2excel[pid] = wr_excel
       end
-      processes.select{|p| (p.name == "EXCEL.EXE")}.size
+      result = []
+      processes.each do |p|
+        if p.name == "EXCEL.EXE"
+          excel = pid2excel[p.processid].__getobj__
+          # how to connect with an Excel instance that is not in hwnd2excel (uplifting Excel)?
+          #excel = Excel.uplift unless (excel && excel.alive?)
+          result << excel 
+        end
+      end
+      result
+    end
+
+    def self.uplift
+      
     end
 
     def self.kill_excel_processes
@@ -328,6 +346,7 @@ module RobustExcelOle
     end
 
     def self.close_excel_ole_instance(ole_excel)
+      @@hwnd2excel.delete(ole_excel.Hwnd)
       excel = ole_excel
       ole_excel = nil
       begin

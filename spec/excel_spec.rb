@@ -90,18 +90,32 @@ module RobustExcelOle
       end
     end
 
-    context "with Excel processes" do
+    context "excel_processes" do
         
       before do
         @excel1 = Excel.create
+        @excel2 = Excel.create
       end
 
-      it "should show processes" do        
-        Excel.excel_processes       
+      it "should yield Excel objects" do        
+        excels = Excel.excel_processes       
+        excels[0].should == @excel1
+        excels[1].should == @excel2
+      end
+
+    end
+
+    context "with killing Excel processes" do
+
+      before do
+        @excel1 = Excel.create
+        @excel2 = Excel.create
       end
 
       it "should kill Excel processes" do
         Excel.kill_excel_processes
+        @excel1.alive?.should be_false
+        @excel2.alive?.should be_false
       end
 
     end
@@ -340,6 +354,20 @@ module RobustExcelOle
 #        end
 #      end
 
+    describe "alive" do
+
+      it "should yield alive" do
+        excel = Excel.create
+        excel.alive?.should be_true
+      end
+
+      it "should yield not alive" do
+        excel = Excel.create
+        excel.close
+        excel.alive?.should be_false
+      end
+
+    end
 
     describe "==" do
       before do

@@ -81,7 +81,7 @@ module RobustExcelOle
       result
     end
 
-    def self.kill_excel_processes
+    def self.kill_all
       procs = WIN32OLE.connect("winmgmts:\\\\.")
       processes = procs.InstancesOf("win32_process")
       number = processes.select{|p| (p.name == "EXCEL.EXE")}.size

@@ -105,7 +105,7 @@ module RobustExcelOle
 
     end
 
-    context "with killing Excel processes" do
+    context "kill Excel processes hard" do
 
       before do
         @excel1 = Excel.create
@@ -113,7 +113,7 @@ module RobustExcelOle
       end
 
       it "should kill Excel processes" do
-        Excel.kill_excel_processes
+        Excel.kill_all
         @excel1.alive?.should be_false
         @excel2.alive?.should be_false
       end

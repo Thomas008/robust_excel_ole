@@ -120,21 +120,21 @@ module RobustExcelOle
 
     end
 
-    context "with reanimating Excel instances" do
+    context "with recreating Excel instances" do
 
-      it "should reanimate a single Excel instance" do
+      it "should recreate a single Excel instance" do
         excel1 = Excel.create
         excel1.close
-        excel1 = Excel.new(:reuse => false)
-        excel1.should be_a Excel
-        excel1.should be_alive
+        excel2 = Excel.recreate
+        excel2.should be_a Excel
+        excel2.should be_alive
+        #excel2.should == excel1
       end
 
-      it "should reanimate an Excel instance and keep identity transparence" do        
+      it "should recreate several Excel instances" do        
         excel1 = Excel.create
         excel2 = excel1
         excel3 = Excel.create       
-        #Excel.print_hwnd2excel
         excel2.should === excel1
         excel2.Hwnd.should == excel1.Hwnd        
         excel3.should_not == excel1
@@ -143,12 +143,8 @@ module RobustExcelOle
         excel1.should_not be_alive
         excel2.should_not be_alive
         excel3.should be_alive
-        #Excel.print_hwnd2excel
-        excel1.reanimate
-        #excel1 = Excel.new(:reuse => false)
+        excel1.recreate
         excel1.should be_alive
-        
-        # necessary?
         #excel2.should be_alive
         #excel2.should === @excel1
         #excel2.Hwnd.should == @excel1.Hwnd
@@ -160,7 +156,6 @@ module RobustExcelOle
         excel1 = Excel.new(:reuse => false, :visible => true, :displayalerts => true)
         excel2 = excel1
         excel3 = Excel.create       
-        #Excel.print_hwnd2excel
         excel2.should === excel1
         excel2.Hwnd.should == excel1.Hwnd        
         excel3.should_not == excel1
@@ -169,14 +164,10 @@ module RobustExcelOle
         excel1.should_not be_alive
         excel2.should_not be_alive
         excel3.should be_alive
-        #Excel.print_hwnd2excel
-        #excel1.reanimate
-        excel1 = Excel.create        
+        excel1.recreate
         excel1.should be_alive
         excel1.Visible.should be_true
         excel1.DisplayAlerts.should be_true
-        
-        # necessary?
         #excel2.should be_alive
         #excel2.should === @excel1
         #excel2.Hwnd.should == @excel1.Hwnd
@@ -333,26 +324,80 @@ module RobustExcelOle
           @excel.should be_alive
           @book.should be_alive
         end
+  
+        it "should close the Excel without saving the workbook hard" do
+          @excel.should be_alive
+          @book.should be_alive
+          @book.saved.should be_false
+          @excel.close(:if_unsaved => :forget, :hard => true)
+          @excel.should_not be_alive
+          @book.should_not be_alive
+          new_book = Book.open(@simple_file)
+          new_sheet = new_book[0]
+          new_sheet[1,1].value.should == @old_cell_value
+          new_book.close    
+          new_book.excel.close(:hard => true)
+          procs = WIN32OLE.connect("winmgmts:\\\\.")
+          processes = procs.InstancesOf("win32_process")     
+          result = []
+          processes.each do |p|
+            result << p if p.name == "EXCEL.EXE"
+          end
+          result.should be_empty
+        end
+
+        context "with :if_unsaved => :alert" do
+          before do
+            @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
+          end
+
+          after do
+            @key_sender.close
+          end
+
+          it "should save if user answers 'yes'" do
+            # "Yes" is to the left of "No", which is the  default. --> language independent
+            @excel.should be_alive
+            @book.should be_alive
+            @book.saved.should be_false
+            @key_sender.puts "{enter}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
+            @excel.close(:if_unsaved => :alert)
+            @excel.should_not be_alive
+            @book.should_not be_alive
+            new_book = Book.open(@simple_file)
+            new_sheet = new_book[0]
+            new_sheet[1,1].value.should_not == @old_cell_value
+            new_book.close          
+          end
+
+          it "should not save if user answers 'no'" do            
+            @excel.should be_alive
+            @book.should be_alive
+            @book.saved.should be_false
+            @key_sender.puts "{right}{enter}"
+            @excel.close(:if_unsaved => :alert)
+            @excel.should_not be_alive
+            @book.should_not be_alive
+            new_book = Book.open(@simple_file)
+            new_sheet = new_book[0]
+            new_sheet[1,1].value.should == @old_cell_value
+            new_book.close     
+          end
+
+          it "should not save if user answers 'cancel'" do
+            # strangely, in the "cancel" case, the question will sometimes be repeated twice            
+            @excel.should be_alive
+            @book.should be_alive
+            @book.saved.should be_false
+            @key_sender.puts "{left}{enter}"
+            @key_sender.puts "{left}{enter}"
+            expect{
+              @excel.close(:if_unsaved => :alert)
+              }.to raise_error(ExcelUserCanceled, "close: canceled by user")
+          end
+        end
       end
     end
-
-#        context "with :if_unsaved => :alert" do
-#          before do
-#            @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
-#          end
-#
-#          after do
-#            @key_sender.close
-#          end
-#
-#         possible_answers = [:yes, :no, :cancel]
-#          possible_answers.each_with_index do |answer, position|
-#            it "should" + (answer == :yes ? "" : " not") + " the unsaved book and" + (answer == :cancel ? " not" : "") + " close it" + "if user answers '#{answer}'" do
-#            # "Yes" is the  default. "No" is right of "Yes", "Cancel" is right of "No" --> language independent
-#            @key_sender.puts  "{right}" * position + "{enter}"
-#          end
-#        end
-#      end
 
     describe "alive" do
 

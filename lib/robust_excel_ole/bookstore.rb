@@ -69,6 +69,21 @@ module RobustExcelOle
       @hidden_excel_instance.__getobj__
     end
 
+    # returns all stored books
+    def books
+      result = []
+      if @filename2books
+        @filename2books.each do |filename,books|
+          unless books.empty? 
+            books.each do |wr_book|
+              result << wr_book.__getobj__ if wr_book.weakref_alive?
+            end
+          end
+        end      
+      end
+      result
+    end
+
   private
 
     def try_hidden_excel

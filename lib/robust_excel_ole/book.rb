@@ -84,7 +84,7 @@ module RobustExcelOle
         options[:excel] = options[:force_excel] ? options[:force_excel] : options[:default_excel]
         new(file, options, &block)
       end
-    end
+    end    
 
     # creates a new Book object, if a file name is given
     # lifts the workbook to a Book object, if a workbook is given
@@ -110,6 +110,10 @@ module RobustExcelOle
           end
         end
       end
+    end
+
+    def self.show_books
+      bookstore.books
     end
 
     def self.excel_class
@@ -480,7 +484,7 @@ module RobustExcelOle
         true
       rescue 
         @workbook = nil  # dead object won't be alive again
-        t $!.message
+        #t $!.message
         false
       end
     end
@@ -682,12 +686,16 @@ module RobustExcelOle
       self.class.bookstore
     end   
 
+    def self.show_books
+      bookstore.books
+    end
+
     def to_s
       "#{self.filename}"
     end
 
     def inspect
-      "<#Book: " + "#{"not alive " unless alive?}" + "#{File.basename(self.filename)}" + " #{@workbook} #{@excel}"  + ">"
+      "<#Book: " + "#{"not alive " unless alive?}" + "#{File.basename(self.filename) if alive?}" + " #{@workbook} #{@excel}"  + ">"
     end
 
   private

@@ -4,6 +4,8 @@ module RobustExcelOle
 
   class Excel
 
+    @@hwnd2excel = {}
+
     # creates a new Excel instance
     def self.create
       new(:reuse => false)
@@ -55,8 +57,6 @@ module RobustExcelOle
     end
 
     def self.excel_processes
-      procs = WIN32OLE.connect("winmgmts:\\\\.")
-      processes = procs.InstancesOf("win32_process")
       pid2excel = {}
       @@hwnd2excel.each do |hwnd,wr_excel|
         process_id = Win32API.new("user32", "GetWindowThreadProcessId", ["I","P"], "I")
@@ -65,13 +65,17 @@ module RobustExcelOle
         pid = pid_puffer.unpack("L")[0]
         pid2excel[pid] = wr_excel
       end
+      procs = WIN32OLE.connect("winmgmts:\\\\.")
+      processes = procs.InstancesOf("win32_process")     
       result = []
       processes.each do |p|
         if p.name == "EXCEL.EXE"
-          excel = pid2excel[p.processid].__getobj__
+          if pid2excel.include?(p.processid)
+            excel = pid2excel[p.processid].__getobj__ 
+            result << excel
+          end
           # how to connect with an Excel instance that is not in hwnd2excel (uplifting Excel)?
           #excel = Excel.uplift unless (excel && excel.alive?)
-          result << excel 
         end
       end
       result
@@ -87,21 +91,46 @@ module RobustExcelOle
       number
     end
 
-    def reanimate 
-      # - generated Excel instance differs from all other Excel Instances
-      #   (but this is done anyway with Excel.create?!)
-      # - keep the old properties: visible, dispayalerts
-      # - necessary or even possible? 
-      #   traverse hwnd2excel:
-      #   find all Excel objects with the old hwnd
-      #   (but for each hwnd I have not all Excel objects that refere to the Excel instance with this hwnd)
-      #   assign them to the new Excel object
-
-      #excel = self.class.create
-      #new(:reuse => false, :visible => @ole_excel.Visible, :displayalerts => @ole_excel.Displayalerts)
-      #self
-      #excel = new(:reuse => false, :visible => @ole_excel.Visible, :displayalerts => @ole_excel.Displayalerts)
-      #@excel = self
+    def recreate
+      unless self.alive?
+        # - generated Excel instance differs from all other Excel Instances
+        #   (but this is done anyway with Excel.create?!)
+        # - keep the old properties: visible, dispayalerts
+        puts "not alive"
+        new_excel = Excel.new(:reuse => false)
+        # how to get the old visible and displayalerts values?: record them in book, or in Excel as attr_reader
+        # new_excel = Excel.new(:reuse => false, :visible => @ole_excel.Visible, :displayalerts => @ole_excel.DisplayAlerts)      
+        # - find all workbooks that were open in the old Excel instance
+        # (- what about the workbooks opened interactively by the user?)
+        #   in filename2books: go through all books:        
+        #    if in the book the book.excel is identical with the old Excel instance (self), then
+        #      open the workbook with this filename in the new Excel  
+        #      record in book.excel the new_excel (this is done by Book.open anyway)
+        # does not work:  book.excel is nil, self is nil
+        #  need another data structure ???
+        # but with close we want to delete everything
+        bookstore = Book.bookstore
+        books = bookstore.books
+        puts "books: #{books}"
+        if books
+          books.each do |book|
+            puts "workbook: #{book.workbook}"
+            puts "filename: #{book.stored_filename}"
+            puts "true" if book.excel == self
+            puts "book.excel: #{book.excel}"
+            puts "self: #{self}"
+            new_book = Book.open(:force_excel => new_excel) # if this workbook was open in this Excel ???
+          end
+        end
+        new_bookstore = Book.bookstore
+        new_books = new_bookstore.books
+        puts "new_books: #{new_books}"
+        puts "workbooks:"
+        new_excel.print_workbooks
+        @ole_excel = new_excel
+        #self ?
+        #new_excel ?
+      end
     end
 
     def self.print_hwnd2excel
@@ -155,8 +184,8 @@ module RobustExcelOle
         :if_unsaved => :raise,
         :hard => false
       }.merge(options)
-      unsaved_books = self.unsaved_workbooks
-      unless unsaved_books.empty? 
+      unsaved_workbooks = self.unsaved_workbooks
+      unless unsaved_workbooks.empty? 
         case options[:if_unsaved]
         when :raise
           raise ExcelErrorClose, "Excel contains unsaved workbooks"
@@ -164,30 +193,31 @@ module RobustExcelOle
           unsaved_workbooks.each do |workbook|
             workbook.Save
           end
-          close_excel(:hard => options[:hard])
+          close_excel(options)
         when :forget
-          close_excel(:hard => options[:hard])
+          close_excel(options)
         when :alert
           with_displayalerts true do
-            unsaved_workbooks.each do |workbook|
-              workbook.Save
-            end
-            close_excel(:hard => options[:hard])
+            close_excel(options)
           end
         else
           raise ExcelErrorClose, ":if_unsaved: invalid option: #{options[:if_unsaved].inspect}"
         end
       else
-        close_excel(:hard => options[:hard])
+        close_excel(options)
       end
-      raise ExcelUserCanceled, "close: canceled by user" if options[:if_unsaved] == :alert && self.unsaved_workbooks
     end
 
   private
 
     def close_excel(options)
       excel = @ole_excel
-      excel.Workbooks.Close
+      begin
+        excel.Workbooks.Close
+      rescue WIN32OLERuntimeError => msg
+        raise ExcelUserCanceled, "close: canceled by user" if msg.message =~ /80020009/ && 
+              options[:if_unsaved] == :alert && (not self.unsaved_workbooks.empty?)
+      end
       excel_hwnd = excel.HWnd
       excel.Quit
       weak_excel_ref = WeakRef.new(excel)
@@ -205,13 +235,13 @@ module RobustExcelOle
       end
       hwnd2excel(excel_hwnd).die rescue nil
       @@hwnd2excel.delete(excel_hwnd)
-      #Excel.free_all_ole_objects
+      Excel.free_all_ole_objects
       if options[:hard] then
         process_id = Win32API.new("user32", "GetWindowThreadProcessId", ["I","P"], "I")
         pid_puffer = " " * 32
         process_id.call(excel_hwnd, pid_puffer)
         pid = pid_puffer.unpack("L")[0]
-        Process.kill("KILL", pid)    
+        Process.kill("KILL", pid) rescue nil   
       end
     end
 
@@ -271,7 +301,7 @@ module RobustExcelOle
       @ole_excel.Name
       true
     rescue
-      t $!.message
+      #t $!.message
       false
     end
 
@@ -284,10 +314,10 @@ module RobustExcelOle
       begin
         self.Workbooks.each {|w| result << w unless (w.Saved || w.ReadOnly)}
       rescue RuntimeError => msg
-        t "RuntimeError: #{msg.message}" 
+        #t "RuntimeError: #{msg.message}" 
         raise ExcelErrorOpen, "Excel instance not alive or damaged" if msg.message =~ /failed to get Dispatch Interface/
       end
-      result
+      result      
     end
     # yields different WIN32OLE objects than book.workbook
     #self.class.extend Enumerable
@@ -300,7 +330,7 @@ module RobustExcelOle
       begin
          yield self
       ensure
-        @ole_excel.DisplayAlerts = old_displayalerts
+        @ole_excel.DisplayAlerts = old_displayalerts if alive?
       end
     end
 
@@ -332,7 +362,7 @@ module RobustExcelOle
       self.to_s
     end
 
-  #private
+  private
 
     # closes one Excel instance
     def self.close_one_excel(options={})

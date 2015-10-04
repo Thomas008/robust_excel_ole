@@ -105,18 +105,15 @@ module RobustExcelOle
 
   private
 
-    # closes one Excel instance to which one was connected
-    def self.close_one_excel(options={})
-      excel = current_excel
-      return unless excel
+    def self.manage_unsaved_workbooks(this_excel, ole_excel, options)
+      #this_excel = excel == 0 ? self : excel
       unsaved_workbooks = []
       begin
-        excel.Workbooks.each {|w| unsaved_workbooks << w unless (w.Saved || w.ReadOnly)}
+        this_excel.Workbooks.each {|w| unsaved_workbooks << w unless (w.Saved || w.ReadOnly)}
       rescue RuntimeError => msg
         t "RuntimeError: #{msg.message}" 
         raise ExcelErrorOpen, "Excel instance not alive or damaged" if msg.message =~ /failed to get Dispatch Interface/
       end
-      puts "unsaved_workbooks: #{unsaved_workbooks}"
       unless unsaved_workbooks.empty? 
         case options[:if_unsaved]
         when :raise
@@ -128,11 +125,26 @@ module RobustExcelOle
         when :forget
           # nothing
         when :alert
-          @ole_excel.DisplayAlerts = true
+          ole_excel.DisplayAlerts = true
         else
           raise ExcelErrorClose, ":if_unsaved: invalid option: #{options[:if_unsaved].inspect}"
         end
       end
+    end
+
+    # closes one Excel instance to which one was connected
+    def self.close_one_excel(options={})
+      excel = current_excel
+      return unless excel
+      #unsaved_workbooks = []
+      #begin
+      #  excel.Workbooks.each {|w| unsaved_workbooks << w unless (w.Saved || w.ReadOnly)}
+      #rescue RuntimeError => msg
+      #  t "RuntimeError: #{msg.message}" 
+      #  raise ExcelErrorOpen, "Excel instance not alive or damaged" if msg.message =~ /failed to get Dispatch Interface/
+      #end
+      manage_unsaved_workbooks(excel, @ole_excel, options)
+      #manage_unsaved_workbooks(unsaved_workbooks, @ole_excel, options)
       weak_ole_excel = WeakRef.new(excel)
       excel = nil
       close_excel_ole_instance(weak_ole_excel.__getobj__)
@@ -211,23 +223,8 @@ module RobustExcelOle
         :if_unsaved => :raise,
         :hard => false
       }.merge(options)
-      unsaved_workbooks = self.unsaved_workbooks
-      unless unsaved_workbooks.empty? 
-        case options[:if_unsaved]
-        when :raise
-          raise ExcelErrorClose, "Excel contains unsaved workbooks"
-        when :save
-          unsaved_workbooks.each do |workbook|
-            workbook.Save
-          end
-        when :forget
-          # nothing
-        when :alert
-          @ole_excel.DisplayAlerts = true
-        else
-          raise ExcelErrorClose, ":if_unsaved: invalid option: #{options[:if_unsaved].inspect}"
-        end
-      end
+      #self.class.manage_unsaved_workbooks(self.unsaved_workbooks, @ole_excel, options)
+      self.class.manage_unsaved_workbooks(self, @ole_excel, options)
       close_excel(options)
     end
 

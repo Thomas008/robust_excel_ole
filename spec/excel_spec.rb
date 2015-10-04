@@ -26,7 +26,7 @@ module RobustExcelOle
 
     after do
       #Excel.close_all
-      #Excel.kill_all
+      Excel.kill_all
       #rm_tmp(@dir)
     end
 
@@ -254,25 +254,21 @@ module RobustExcelOle
           new_book2.close   
           new_book3 = Book.open(@another_simple_file)
           new_sheet3 = new_book3[0]
-          new_sheet3[1,1].value.should == @old_cell_value4
+          new_sheet3[1,1].value.should == @old_cell_value3
           new_book3.close   
         end
 
         it "should close the Excel instances with saving the unsaved workbooks" do
-          puts "@old_cell_value2: #{@old_cell_value2}"
-          puts "@old_cell_value3: #{@old_cell_value3}"
           Excel.close_all(:if_unsaved => :save)
           @excel1.should_not be_alive
           @excel2.should_not be_alive
           @excel4.should_not be_alive
           new_book2 = Book.open(@simple_file)
           new_sheet2 = new_book2[0]
-          puts "new_sheet2[1,1].value: #{new_sheet2[1,1].value}"
           new_sheet2[1,1].value.should_not == @old_cell_value2
           new_book2.close   
           new_book3 = Book.open(@another_simple_file)
           new_sheet3 = new_book3[0]
-          puts "new_sheet3[1,1].value: #{new_sheet3[1,1].value}"
           new_sheet3[1,1].value.should_not == @old_cell_value3
           new_book3.close
         end

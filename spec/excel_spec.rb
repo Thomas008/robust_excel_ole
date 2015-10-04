@@ -290,6 +290,19 @@ module RobustExcelOle
       context "with :if_unsaved => :alert" do
         before do
           @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
+          #book1 = Book.open(@simple_file, :read_only => true)
+          book2 = Book.open(@simple_file, :force_excel => :new)
+          #book3 = Book.open(@another_simple_file, :force_excel => book2.excel)
+          #book4 = Book.open(@different_file, :force_excel => :new)
+          #@excel1 = book1.excel
+          @excel2 = book2.excel
+          #@excel4 = book4.excel
+          sheet2 = book2[0]
+          @old_cell_value2 = sheet2[1,1].value
+          sheet2[1,1] = sheet2[1,1].value == "foo" ? "bar" : "foo"
+          #sheet3 = book3[0]
+          #@old_cell_value3 = sheet3[1,1].value
+          #sheet3[1,1] = sheet3[1,1].value == "foo" ? "bar" : "foo"          
         end
 
         after do
@@ -298,49 +311,48 @@ module RobustExcelOle
 
         it "should save if user answers 'yes'" do
           @key_sender.puts "{enter}"
-          @key_sender.puts "{enter}"
-          Excel.close_all(:if_unsaved => :forget)
-          @excel1.should_not be_alive
+          Excel.close_all(:if_unsaved => :alert)
+          #@excel1.should_not be_alive
           @excel2.should_not be_alive
-          @excel4.should_not be_alive
-          @excel5.should_not be_alive
-          new_book2 = Book.open(@simple_file)
-          new_sheet2 = new_book2[0]
-          new_sheet2[1,1].value.should == @old_cell_value2
-          new_book2.close   
-          new_book3 = Book.open(@another_simple_file)
-          new_sheet3 = new_book3[0]
-          new_sheet3[1,1].value.should == @old_cell_value3
-          new_book3.close       
-        end
-
-        it "should not save if user answers 'no'" do            
-          @key_sender.puts "{right}{enter}"
-          @key_sender.puts "{right}{enter}"
-          Excel.close_all(:if_unsaved => :save)
-          @excel1.should_not be_alive
-          @excel2.should_not be_alive
-          @excel4.should_not be_alive
-          @excel5.should_not be_alive
+          #@excel4.should_not be_alive
+          #@excel5.should_not be_alive
           new_book2 = Book.open(@simple_file)
           new_sheet2 = new_book2[0]
           new_sheet2[1,1].value.should_not == @old_cell_value2
           new_book2.close   
-          new_book4 = Book.open(@different_file)
-          new_sheet4 = new_book4[0]
-          new_sheet4[1,1].value.should_not == @old_cell_value4
-          new_book4.close   
+          #new_book3 = Book.open(@another_simple_file)
+          #new_sheet3 = new_book3[0]
+          #new_sheet3[1,1].value.should == @old_cell_value3
+          #new_book3.close       
         end
 
-        it "should not save if user answers 'cancel'" do
-          @key_sender.puts "{left}{enter}"
-          @key_sender.puts "{left}{enter}"
-          @key_sender.puts "{left}{enter}"
-          @key_sender.puts "{left}{enter}"
-          expect{
-            Excel.close_all(:if_unsaved => :alert)
-            }.to raise_error(ExcelUserCanceled, "close: canceled by user")
+        it "should not save if user answers 'no'" do            
+          @key_sender.puts "{right}{enter}"
+          #@key_sender.puts "{right}{enter}"
+          Excel.close_all(:if_unsaved => :alert)
+          #@excel1.should_not be_alive
+          @excel2.should_not be_alive
+          #@excel4.should_not be_alive
+          #@excel5.should_not be_alive
+          new_book2 = Book.open(@simple_file)
+          new_sheet2 = new_book2[0]
+          new_sheet2[1,1].value.should == @old_cell_value2
+          new_book2.close   
+          #new_book4 = Book.open(@different_file)
+          #new_sheet4 = new_book4[0]
+          #new_sheet4[1,1].value.should_not == @old_cell_value4
+          #new_book4.close   
         end
+
+      #  it "should not save if user answers 'cancel'" do
+      #    @key_sender.puts "{left}{enter}"
+      #    @key_sender.puts "{left}{enter}"
+      #    @key_sender.puts "{left}{enter}"
+      #    @key_sender.puts "{left}{enter}"
+      #    expect{
+      #      Excel.close_all(:if_unsaved => :alert)
+      #      }.to raise_error(ExcelUserCanceled, "close: canceled by user")
+      #  end
       end
     end
 

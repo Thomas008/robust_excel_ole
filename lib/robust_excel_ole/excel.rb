@@ -136,15 +136,7 @@ module RobustExcelOle
     def self.close_one_excel(options={})
       excel = current_excel
       return unless excel
-      #unsaved_workbooks = []
-      #begin
-      #  excel.Workbooks.each {|w| unsaved_workbooks << w unless (w.Saved || w.ReadOnly)}
-      #rescue RuntimeError => msg
-      #  t "RuntimeError: #{msg.message}" 
-      #  raise ExcelErrorOpen, "Excel instance not alive or damaged" if msg.message =~ /failed to get Dispatch Interface/
-      #end
-      manage_unsaved_workbooks(excel, @ole_excel, options)
-      #manage_unsaved_workbooks(unsaved_workbooks, @ole_excel, options)
+      manage_unsaved_workbooks(excel, excel, options)
       weak_ole_excel = WeakRef.new(excel)
       excel = nil
       close_excel_ole_instance(weak_ole_excel.__getobj__)
@@ -223,7 +215,6 @@ module RobustExcelOle
         :if_unsaved => :raise,
         :hard => false
       }.merge(options)
-      #self.class.manage_unsaved_workbooks(self.unsaved_workbooks, @ole_excel, options)
       self.class.manage_unsaved_workbooks(self, @ole_excel, options)
       close_excel(options)
     end

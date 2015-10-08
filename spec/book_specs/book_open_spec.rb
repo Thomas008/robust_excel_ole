@@ -13,7 +13,8 @@ describe Book do
     excel = Excel.new(:reuse => true)
     open_books = excel == nil ? 0 : excel.Workbooks.Count
     puts "*** open books *** : #{open_books}" if open_books > 0
-    Excel.close_all
+    #Excel.close_all
+    Excel.kill_all
   end
 
   before do
@@ -29,7 +30,8 @@ describe Book do
   end
 
   after do
-    Excel.close_all
+    Excel.kill_all
+    #Excel.close_all
     rm_tmp(@dir)
   end
 
@@ -788,6 +790,42 @@ describe Book do
         @book.should be_alive
         @book.should === book1
       end
+    end
+  end
+
+  describe "uplifting" do
+
+    context "with standard" do
+
+      before do
+        @book = Book.open(@simple_file)
+      end
+
+      after do
+        @book.close
+      end
+
+      it "should uplift a workbook to a book" do
+        workbook = @book.workbook
+        @book.close
+        book1 = Book.new(workbook)
+        book1.should be_a Book
+        book1.should be_alive
+        book1.filename.should == @book.filename
+        book1.workbook.should == @book.workbook
+        book1.should == @book
+      end
+
+      it "should uplift a workbook to a book with a closed Excel" do
+        workbook = @book.workbook
+        Excel.close_all
+        book1 = Book.new(workbook)
+        book1.should be_a Book
+        book1.should be_alive
+        book1.should == @book
+        book1.filename.should == @book.filename
+      end
+
     end
   end
 end

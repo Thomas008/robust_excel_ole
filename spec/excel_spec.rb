@@ -27,7 +27,7 @@ module RobustExcelOle
     after do
       #Excel.close_all
       Excel.kill_all
-      #rm_tmp(@dir)
+      rm_tmp(@dir)
     end
 
     context "excel creation" do

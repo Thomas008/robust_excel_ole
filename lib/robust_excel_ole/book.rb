@@ -87,54 +87,33 @@ module RobustExcelOle
     end    
 
 =begin
-    def self.new(file_or_workbook, opts={ }, &block)
-      p "new:"
-      if file_or_workbook.class == WIN32OLE
-        workbook = file_or_workbook
-        @workbook = workbook
-        book = bookstore.fetch(filename)
-        if book
-          @excel = book.excel          
+    def self.new(workbook, options)      
+      if workbook && workbook.class = WIN32OLE
+        filename = workbook.Fullname.tr('\\','/') rescue nil
+        if filename
+          book = bookstore.fetch(filename)
+          if book
+          result = book
         else
-          @excel = WIN32OLE.connect(filename)
+          @workbook = workbook
+          @excel = WIN32OLE.connect(filename).Application rescue nil
+          t "@excel: #{@excel}"
+          ensure_excel unless (@excel && @excel.alive?)
         end
-        ensure_excel unless (@excel && @excel.alive?)
-        if block
-          begin
-            yield self
-          ensure
-            close
-          end
-        end
+      end
       else
-        file = file_or_workbook
-        initialize(file, opts, &block)
+        super
       end
     end
 =end
 
     # creates a new Book object, if a file name is given
     # lifts the workbook to a Book object, if a workbook is given
-    def initialize(file_or_workbook, opts={ }, &block)
-      options = DEFAULT_OPEN_OPTS.merge(opts)      
-      if file_or_workbook.class == WIN32OLE
-        workbook = file_or_workbook
-        @workbook = workbook
-        # cannot do Fullname!
-        filename = @workbook.Fullname.tr('\\','/') rescue nil
-        book = bookstore.fetch(filename)
-        if book
-          @excel = book.excel          
-        else
-          @excel = WIN32OLE.connect(filename)
-        end
-        ensure_excel unless (@excel && @excel.alive?)
-      else
-        file = file_or_workbook
-        ensure_excel(options)
-        ensure_workbook(file,options)
-        bookstore.store(self)
-      end
+    def initialize(file, opts={ }, &block)
+      options = DEFAULT_OPEN_OPTS.merge(opts)           
+      ensure_excel(options)
+      ensure_workbook(file,options)
+      bookstore.store(self)
       if block
         begin
           yield self
@@ -269,7 +248,7 @@ module RobustExcelOle
 
   private
 
-    def open_or_create_workbook(file,options)
+    def open_or_create_workbook(file, options)
       if ((not @workbook) || (options[:if_unsaved] == :alert) || options[:if_obstructed]) then
         begin
           filename = RobustExcelOle::absolute_path(file)

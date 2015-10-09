@@ -328,7 +328,7 @@ module RobustExcelOle
 
         it "should not save if user answers 'no'" do            
           @key_sender.puts "{right}{enter}"
-          #@key_sender.puts "{right}{enter}"
+          @key_sender.puts "{right}{enter}"
           Excel.close_all(:if_unsaved => :alert)
           #@excel1.should_not be_alive
           @excel2.should_not be_alive

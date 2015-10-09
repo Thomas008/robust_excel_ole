@@ -805,7 +805,15 @@ describe Book do
         @book.close
       end
 
-      it "should uplift a workbook to a book" do
+      it "should uplift a workbook to a book with an open book" do
+        workbook = @book.workbook
+        book1 = Book.new(workbook)
+        book1.should be_a Book
+        book1.should be_alive
+        book1.should == @book
+      end
+
+      it "should uplift a workbook to a book for a closed book" do
         workbook = @book.workbook
         @book.close
         book1 = Book.new(workbook)
@@ -822,10 +830,8 @@ describe Book do
         book1 = Book.new(workbook)
         book1.should be_a Book
         book1.should be_alive
-        book1.should == @book
         book1.filename.should == @book.filename
       end
-
     end
   end
 end

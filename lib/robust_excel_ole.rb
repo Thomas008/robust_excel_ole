@@ -13,7 +13,7 @@ REO = RobustExcelOle
 
 include Enumerable
 
-LOG_TO_STDOUT = true
+LOG_TO_STDOUT = false
 
 REO_LOG_FILE = "reo.log"
 

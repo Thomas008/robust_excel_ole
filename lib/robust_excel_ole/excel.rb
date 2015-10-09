@@ -263,40 +263,13 @@ module RobustExcelOle
         # - generated Excel instance differs from all other Excel Instances
         #   (but this is done anyway with Excel.create?!)
         # - keep the old properties: visible, dispayalerts
-        puts "not alive"
         new_excel = Excel.new(:reuse => false)
         # how to get the old visible and displayalerts values?: record them in book, or in Excel as attr_reader
         # new_excel = Excel.new(:reuse => false, :visible => @ole_excel.Visible, :displayalerts => @ole_excel.DisplayAlerts)      
-        # - find all workbooks that were open in the old Excel instance
-        # (- what about the workbooks opened interactively by the user?)
-        #   in filename2books: go through all books:        
-        #    if in the book the book.excel is identical with the old Excel instance (self), then
-        #      open the workbook with this filename in the new Excel  
-        #      record in book.excel the new_excel (this is done by Book.open anyway)
-        # does not work:  book.excel is nil, self is nil
-        #  need another data structure ???
-        # but with close we want to delete everything
-        bookstore = Book.bookstore
-        books = bookstore.books
-        puts "books: #{books}"
-        if books
-          books.each do |book|
-            puts "workbook: #{book.workbook}"
-            puts "filename: #{book.stored_filename}"
-            puts "true" if book.excel == self
-            puts "book.excel: #{book.excel}"
-            puts "self: #{self}"
-            new_book = Book.open(:force_excel => new_excel) # if this workbook was open in this Excel ???
-          end
-        end
-        new_bookstore = Book.bookstore
-        new_books = new_bookstore.books
-        puts "new_books: #{new_books}"
-        puts "workbooks:"
-        new_excel.print_workbooks
+        # the books are opened in the new Excel anyway
         @ole_excel = new_excel
         #self ?
-        #new_excel ?
+        new_excel 
       end
     end
 

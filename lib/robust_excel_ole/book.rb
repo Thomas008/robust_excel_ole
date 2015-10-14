@@ -123,32 +123,6 @@ module RobustExcelOle
       end
     end 
 
-    def self.excel_class
-      @excel_class ||= begin
-        module_name = self.parent_name
-        "#{module_name}::Excel".constantize
-      rescue NameError => e
-        Excel
-      end
-    end
-
-    def self.sheet_class
-      @sheet_class ||= begin
-        module_name = self.parent_name
-        "#{module_name}::Sheet".constantize
-      rescue NameError => e
-        Sheet
-      end
-    end
-
-    def excel_class
-      self.class.excel_class
-    end
-
-    def sheet_class
-      self.class.sheet_class
-    end
-
     def ensure_excel(options)
       if options[:excel] == :reuse
         @excel = excel_class.new(:reuse => true)
@@ -520,7 +494,7 @@ module RobustExcelOle
       self.filename == other_book.filename  
     end
 
-    def self.show_books
+    def self.books
       bookstore.books
     end
 
@@ -711,6 +685,32 @@ module RobustExcelOle
 
     def inspect
       "<#Book: " + "#{"not alive " unless alive?}" + "#{File.basename(self.filename) if alive?}" + " #{@workbook} #{@excel}"  + ">"
+    end
+
+    def self.excel_class
+      @excel_class ||= begin
+        module_name = self.parent_name
+        "#{module_name}::Excel".constantize
+      rescue NameError => e
+        Excel
+      end
+    end
+
+    def self.sheet_class
+      @sheet_class ||= begin
+        module_name = self.parent_name
+        "#{module_name}::Sheet".constantize
+      rescue NameError => e
+        Sheet
+      end
+    end
+
+    def excel_class
+      self.class.excel_class
+    end
+
+    def sheet_class
+      self.class.sheet_class
     end
 
   private

@@ -56,6 +56,30 @@ module RobustExcelOle
       @excel = self
     end
 
+    def recreate
+      unless self.alive?
+        # - generated Excel instance differs from all other Excel Instances
+        #   (but this is done anyway with Excel.create?!)
+        new_excel = self.class.new(:reuse => false)
+        @ole_excel = new_excel 
+        # how to get the old visible and displayalerts values?: record them in book, or in Excel as attr_reader
+        # the books that were opened in the old Excel have to be reopened in the new Excel
+        
+        books = Book.books
+        puts "books: #{books}"
+        books.each do |book|
+          puts "book: #{book}"
+          puts "book.alive? #{book.alive?}"
+          puts "book.excel.alive? #{book.excel.alive?}"
+          puts "book.excel: #{book.excel}"
+          puts "reopen" if ((not book.alive?) && book.excel == new_excel)
+          #book.excel = new_excel unless (book.alive? || book.excel.alive?)
+          book.reopen if ((not book.alive?) && book.excel == new_excel)
+        end
+        new_excel 
+      end
+    end
+
   private
     
     # returns an Excel instance to which one 'connect' was possible
@@ -258,21 +282,6 @@ module RobustExcelOle
     end
 
   public
-
-    def recreate
-      unless self.alive?
-        # - generated Excel instance differs from all other Excel Instances
-        #   (but this is done anyway with Excel.create?!)
-        # - keep the old properties: visible, dispayalerts
-        new_excel = Excel.new(:reuse => false)
-        # how to get the old visible and displayalerts values?: record them in book, or in Excel as attr_reader
-        # new_excel = Excel.new(:reuse => false, :visible => @ole_excel.Visible, :displayalerts => @ole_excel.DisplayAlerts)      
-        # the books are opened in the new Excel anyway
-        @ole_excel = new_excel
-        #self ?
-        new_excel 
-      end
-    end
 
     def self.kill_all
       procs = WIN32OLE.connect("winmgmts:\\\\.")

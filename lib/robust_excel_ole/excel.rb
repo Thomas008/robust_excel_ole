@@ -86,16 +86,17 @@ module RobustExcelOle
       options = {
         :if_unsaved => :raise,
         :hard => false
-      }.merge(options)
-      init
-      n = 0
-      # kill all after 20 repetitions
-      while current_excel && n<20 do
+      }.merge(options)      
+      excels_number = excel_processes.size
+      # kill hard if the number of Excel instqnces does not decrease
+      while current_excel do
         close_one_excel(options)
         GC.start
         sleep 0.3
-        n = n+1
+        current_excels_number = excel_processes.size
+        (current_excels_number < excels_number) ? (excels_number = current_excels_number) : kill_all
       end
+      init
       kill_all if options[:hard]
     end
 

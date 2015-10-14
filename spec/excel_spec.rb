@@ -100,7 +100,8 @@ module RobustExcelOle
       end
 
       it "should yield Excel objects" do        
-        excels = Excel.excel_processes       
+        excels = Excel.excel_processes    
+        puts "excels: #{excels}"   
         excels[0].should == @excel1
         excels[1].should == @excel2
       end

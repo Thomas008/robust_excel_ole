@@ -125,56 +125,47 @@ module RobustExcelOle
     context "with recreating Excel instances" do
 
       it "should recreate a single Excel instance" do
-        excel1 = Excel.create
-        excel1.close
-        excel2 = Excel.recreate
-        excel2.should be_a Excel
-        excel2.should be_alive
-        #excel2.should == excel1
+        book = Book.open(@simple_file)
+        excel = book.excel
+        excel.close
+        excel.should_not be_alive
+        excel.recreate
+        excel.should be_a Excel
+        excel.should be_alive
+        book.should be_alive
+        excel.close
+        excel.should_not be_alive
       end
 
-      it "should recreate several Excel instances" do        
-        excel1 = Excel.create
-        excel2 = excel1
-        excel3 = Excel.create       
-        excel2.should === excel1
-        excel2.Hwnd.should == excel1.Hwnd        
-        excel3.should_not == excel1
-        excel3.Hwnd.should_not == excel1.Hwnd
-        excel1.close
-        excel1.should_not be_alive
-        excel2.should_not be_alive
+      it "should recreate several Excel instances" do  
+        book = Book.open(@simple_file)      
+        book2 = Book.open(@another_simple_file, :force_excel => book)
+        book3 = Book.open(@different_file, :force_excel => :new)
+        excel = book.excel
+        excel3 = book3.excel
+        excel.close
+        excel3.close
+        excel.should_not be_alive
+        excel3.should_not be_alive
+        excel.recreate(:visible => true)
+        excel.should be_alive
+        excel.should be_a Excel
+        excel.visible.should be_true
+        excel.displayalerts.should be_false
+        book.should be_alive
+        book2.should be_alive
+        book.excel.should == excel
+        book2.excel.should == excel
+        excel3.recreate(:visible => true, :displayalerts => true)
         excel3.should be_alive
-        excel1.recreate
-        excel1.should be_alive
-        #excel2.should be_alive
-        #excel2.should === @excel1
-        #excel2.Hwnd.should == @excel1.Hwnd
-        #excel3.should_not == @excel1
-        #excel3.Hwnd.should_not == @excel1.Hwnd
-      end
-
-      it "should recreate an Excel instance and keep visible and displayalerts" do        
-        excel1 = Excel.new(:reuse => false, :visible => true, :displayalerts => true)
-        excel2 = excel1
-        excel3 = Excel.create       
-        excel2.should === excel1
-        excel2.Hwnd.should == excel1.Hwnd        
-        excel3.should_not == excel1
-        excel3.Hwnd.should_not == excel1.Hwnd
-        excel1.close
-        excel1.should_not be_alive
-        excel2.should_not be_alive
-        excel3.should be_alive
-        excel1.recreate
-        excel1.should be_alive
-        excel1.Visible.should be_true
-        excel1.DisplayAlerts.should be_true
-        #excel2.should be_alive
-        #excel2.should === @excel1
-        #excel2.Hwnd.should == @excel1.Hwnd
-        #excel3.should_not == @excel1
-        #excel3.Hwnd.should_not == @excel1.Hwnd
+        excel3.should be_a Excel
+        excel3.visible.should be_true
+        excel3.displayalerts.should be_true
+        book3.should be_alive
+        excel.close
+        excel.should_not be_alive
+        excel3.close
+        excel3.should_not be_alive
       end
     end    
 

@@ -48,6 +48,7 @@ module RobustExcelOle
         result.instance_variable_set(:@ole_excel, excel)
         WIN32OLE.const_load(excel, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
         @@hwnd2excel[hwnd] = WeakRef.new(result)
+
       end
       result
     end
@@ -56,28 +57,23 @@ module RobustExcelOle
       @excel = self
     end
 
-    def recreate
+    # reopens a closed Excel instance
+    def recreate(opts = {})      
       unless self.alive?
-        # - generated Excel instance differs from all other Excel Instances
-        #   (but this is done anyway with Excel.create?!)
-        new_excel = self.class.new(:reuse => false)
+        options = {
+          :displayalerts => false,
+          :visible => false,
+        }.merge(opts)
+        new_excel = WIN32OLE.new('Excel.Application')
+        #new_excel.DisplayAlerts = opts[:displayalerts]
+        #new_excel.Visible = opts[:visible]
         @ole_excel = new_excel 
-        # how to get the old visible and displayalerts values?: record them in book, or in Excel as attr_reader
-        # the books that were opened in the old Excel have to be reopened in the new Excel
-        
         books = Book.books
-        puts "books: #{books}"
         books.each do |book|
-          puts "book: #{book}"
-          puts "book.alive? #{book.alive?}"
-          puts "book.excel.alive? #{book.excel.alive?}"
-          puts "book.excel: #{book.excel}"
-          puts "reopen" if ((not book.alive?) && book.excel == new_excel)
-          #book.excel = new_excel unless (book.alive? || book.excel.alive?)
-          book.reopen if ((not book.alive?) && book.excel == new_excel)
-        end
-        new_excel 
+          book.reopen if ((not book.alive?) && book.excel.alive?)
+        end        
       end
+      self 
     end
 
   private
@@ -215,11 +211,7 @@ module RobustExcelOle
         end
       end
       t "went through #{anz_objekte} OLE objects"
-    end
-
-    def hwnd_xxxx  
-      self.HWnd rescue nil
-    end
+    end   
 
     # sets this Excel instance to nil
     def die 
@@ -265,7 +257,8 @@ module RobustExcelOle
         begin
           weak_excel_ref.ole_free
           t "successfully ole_freed #{weak_excel_ref}"
-        rescue
+        rescue => msg
+          t "#{msg.message}"
           t "could not do ole_free on #{weak_excel_ref}"
         end
       end
@@ -338,9 +331,9 @@ module RobustExcelOle
       end
     end
 
-    def hwnd
-      self.Hwnd
-    end
+    #def hwnd
+    #  self.Hwnd
+    #end
 
     def self.print_hwnd2excel
       @@hwnd2excel.each do |hwnd,wr_excel|
@@ -430,6 +423,10 @@ module RobustExcelOle
     # returns whether the current Excel instance is visible
     def visible 
       @ole_excel.Visible
+    end
+
+    def hwnd_xxxx  
+      self.HWnd rescue nil
     end
 
     def to_s

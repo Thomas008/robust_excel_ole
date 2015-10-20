@@ -60,13 +60,13 @@ module RobustExcelOle
     # reopens a closed Excel instance
     def recreate(opts = {})      
       unless self.alive?
-        options = {
+        opts = {
           :displayalerts => false,
           :visible => false,
         }.merge(opts)
         new_excel = WIN32OLE.new('Excel.Application')
-        #new_excel.DisplayAlerts = opts[:displayalerts]
-        #new_excel.Visible = opts[:visible]
+        new_excel.DisplayAlerts = opts[:displayalerts]
+        new_excel.Visible = opts[:visible]
         @ole_excel = new_excel 
         books = Book.books
         books.each do |book|

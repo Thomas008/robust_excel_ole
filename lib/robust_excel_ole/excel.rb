@@ -18,15 +18,17 @@ module RobustExcelOle
     end
 
     # returns an Excel instance  
-    # options:
+    # 
     #  :reuse          uses an already running Excel instance (default: true)
     #  :displayalerts  allows display alerts in Excel         (default: false)
     #  :visible        makes the Excel visible                (default: false)
     #  if :reuse => true, then DisplayAlerts and Visible are set only if they are given
     def self.new(options= {})
       options = {:reuse => true}.merge(options)
-      if options[:reuse] then
+      if options[:reuse] == true then
         excel = current_excel
+      elsif options[:reuse].class == WIN32OLE then
+        excel = options[:reuse]
       end
       if not (excel)
         excel = WIN32OLE.new('Excel.Application')
@@ -331,9 +333,9 @@ module RobustExcelOle
       end
     end
 
-    #def hwnd
-    #  self.Hwnd
-    #end
+    def hwnd
+      self.Hwnd rescue nil
+    end
 
     def self.print_hwnd2excel
       @@hwnd2excel.each do |hwnd,wr_excel|
@@ -423,14 +425,10 @@ module RobustExcelOle
     # returns whether the current Excel instance is visible
     def visible 
       @ole_excel.Visible
-    end
-
-    def hwnd_xxxx  
-      self.HWnd rescue nil
-    end
+    end    
 
     def to_s
-      "#<Excel: " + "#{hwnd_xxxx}" + ("#{"not alive" unless self.alive?}") + ">"
+      "#<Excel: " + "#{hwnd}" + ("#{"not alive" unless self.alive?}") + ">"
     end
 
     def inspect

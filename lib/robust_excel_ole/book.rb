@@ -86,33 +86,36 @@ module RobustExcelOle
       end
     end    
 
-=begin
-    def self.new(workbook, options)      
-      if workbook && workbook.class = WIN32OLE
-        filename = workbook.Fullname.tr('\\','/') rescue nil
+    # creates a Book object, if a workbook or a file name is given
+    def self.new(workbook, opts={ }, &block)      
+      if workbook && workbook.class == WIN32OLE
+        options = DEFAULT_OPEN_OPTS.merge(opts)
+        options[:excel] = options[:force_excel] ? options[:force_excel] : options[:default_excel]
+        fullname = workbook.Fullname
+        filename = fullname.tr('\\','/') rescue nil
         if filename
           book = bookstore.fetch(filename)
-          if book
-          result = book
-        else
-          @workbook = workbook
-          @excel = WIN32OLE.connect(filename).Application rescue nil
-          t "@excel: #{@excel}"
-          ensure_excel unless (@excel && @excel.alive?)
+          return book if book && book.alive?
         end
-      end
+        @workbook = workbook        
+        # here: only win32ole object
+        win32ole_excel = WIN32OLE.connect(fullname).Application rescue nil   
+        # lift up Excel instance in which the given workbook is opened, from a win32ole object to an Excel object
+        @excel = new(win32ole_excel, options)     
+        # if the Excel could not be ifted up, then create it ?        
+        ensure_excel(options) unless (@excel && @excel.alive?)
+        t "@excel: #{@excel}"
       else
         super
       end
     end
-=end
 
     # creates a new Book object, if a file name is given
     # lifts the workbook to a Book object, if a workbook is given
     def initialize(file, opts={ }, &block)
       options = DEFAULT_OPEN_OPTS.merge(opts)           
       ensure_excel(options)
-      ensure_workbook(file,options)
+      ensure_workbook(file, options)
       bookstore.store(self)
       if block
         begin
@@ -166,25 +169,25 @@ module RobustExcelOle
           when :forget
             @workbook.Close
             @workbook = nil
-            open_or_create_workbook(file,options)
+            open_or_create_workbook(file, options)
           when :save
             save unless @workbook.Saved
             @workbook.Close
             @workbook = nil
-            open_or_create_workbook(file,options)
+            open_or_create_workbook(file, options)
           when :close_if_saved
             if (not @workbook.Saved) then
               raise ExcelErrorOpen, "workbook with the same name in a different path is unsaved: #{File.basename(file).inspect}"
             else 
               @workbook.Close
               @workbook = nil
-              open_or_create_workbook(file,options)
+              open_or_create_workbook(file, options)
             end
           when :new_excel 
             excel_options = {:displayalerts => false, :visible => false}.merge(options)   
             excel_options[:reuse] = false
             @excel = excel_class.new(excel_options)
-            open_or_create_workbook(file,options)
+            open_or_create_workbook(file, options)
           else
             raise ExcelErrorOpen, ":if_obstructed: invalid option: #{options[:if_obstructed].inspect}"
           end
@@ -197,7 +200,7 @@ module RobustExcelOle
             when :forget
               @workbook.Close
               @workbook = nil
-              open_or_create_workbook(file,options)
+              open_or_create_workbook(file, options)
             when :accept
               # do nothing
             when :alert
@@ -208,7 +211,7 @@ module RobustExcelOle
               excel_options = {:displayalerts => false, :visible => false}.merge(options)
               excel_options[:reuse] = false
               @excel = excel_class.new(excel_options)
-              open_or_create_workbook(file,options)
+              open_or_create_workbook(file, options)
             else
               raise ExcelErrorOpen, ":if_unsaved: invalid option: #{options[:if_unsaved].inspect}"
             end
@@ -216,7 +219,7 @@ module RobustExcelOle
         end
       else
         # book is not open
-        open_or_create_workbook(file,options)
+        open_or_create_workbook(file, options)
       end
     end
 
@@ -383,7 +386,7 @@ module RobustExcelOle
     end
 
     # renames a range
-    def rename_range(name,new_name)
+    def rename_range(name, new_name)
       begin
         item = self.Names.Item(name)
       rescue WIN32OLERuntimeError
@@ -426,7 +429,7 @@ module RobustExcelOle
     end
 
     # set the contents of a range with given name
-    def set_nvalue(name,value) 
+    def set_nvalue(name, value) 
       begin
         item = self.Names.Item(name)
       rescue WIN32OLERuntimeError
@@ -553,7 +556,7 @@ module RobustExcelOle
           end
         when :alert 
           @excel.with_displayalerts true do
-            save_as_workbook(file,options)
+            save_as_workbook(file, options)
           end
           true
           return
@@ -584,13 +587,13 @@ module RobustExcelOle
         end
         blocking_workbook.Close
       end
-      save_as_workbook(file,options)
+      save_as_workbook(file, options)
       true
     end
 
   private
 
-    def save_as_workbook(file,options)
+    def save_as_workbook(file, options)
       begin
         dirname, basename = File.split(file)
         file_format =

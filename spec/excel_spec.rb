@@ -55,9 +55,37 @@ module RobustExcelOle
         creation_ok?
       end
 
+      it "should work with 'reuse' " do
+        excel = Excel.create
+        @excel = Excel.new(:reuse => true)
+        creation_ok?
+        @excel.should === excel
+        @excel = Excel.current
+        creation_ok?
+        @excel.should === excel
+      end
+
       it "should work with 'create' " do
+        excel = Excel.create
+        @excel = Excel.new(:reuse => false)
+        creation_ok?
+        @excel.should_not == excel
         @excel = Excel.create
         creation_ok?
+        @excel.should_not == excel
+      end
+
+      it "should work with reusing (uplifting) an Excel given as WIN32Ole object" do
+        excel0 = Excel.create
+        book = Book.open(@simple_file)
+        excel = book.excel
+        win32ole_excel = WIN32OLE.connect(book.workbook.Fullname).Application
+        puts "win32ole_excel: #{win32ole_excel}"
+        @excel = Excel.new(:reuse => win32ole_excel)
+        creation_ok?
+        @excel.should be_a Excel
+        @excel.should be_alive
+        @excel.should == excel
       end
     end
 
@@ -299,6 +327,7 @@ module RobustExcelOle
         after do
           @key_sender.close
         end
+
 
         it "should save if user answers 'yes'" do
           @key_sender.puts "{enter}"

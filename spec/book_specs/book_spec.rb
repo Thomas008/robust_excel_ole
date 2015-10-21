@@ -393,6 +393,28 @@ describe Book do
     end
   end
 
+  describe "uplifting" do
+
+    context "with standard" do
+
+      before do
+        @book = Book.open(@simple_file)
+      end
+
+      after do
+        @book.close
+      end
+
+      it "should uplift a workbook to a book with an open book" do
+        workbook = @book.workbook
+        book1 = Book.new(workbook)
+        book1.should be_a Book
+        book1.should be_alive
+        book1.should == @book
+      end
+    end
+  end
+
   describe "unobtrusively" do
 
     def unobtrusively_ok? # :nodoc: #
@@ -905,9 +927,9 @@ describe Book do
       it "should save the book before close with option :save" do
         ole_workbook = @book.workbook
         excel = @book.excel
-        expect {
-          @book.close(:if_unsaved => :save)
-        }.to change {excel.Workbooks.Count }.by(-1)
+        excel.Workbooks.Count.should == 1
+        @book.close(:if_unsaved => :save)
+        excel.Workbooks.Count.should == 0
         @book.workbook.should == nil
         @book.should_not be_alive
         expect{

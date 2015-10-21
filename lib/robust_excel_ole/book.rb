@@ -81,41 +81,43 @@ module RobustExcelOle
             end
           end
         end
-        options[:excel] = options[:force_excel] ? options[:force_excel] : options[:default_excel]
+        #options[:excel] = options[:force_excel] ? options[:force_excel] : options[:default_excel]
         new(file, options, &block)
       end
     end    
 
-    # creates a Book object, if a workbook or a file name is given
+    # creates a Book object for a given workbook or file name
     def self.new(workbook, opts={ }, &block)      
       if workbook && workbook.class == WIN32OLE
-        options = DEFAULT_OPEN_OPTS.merge(opts)
-        options[:excel] = options[:force_excel] ? options[:force_excel] : options[:default_excel]
-        fullname = workbook.Fullname
-        filename = fullname.tr('\\','/') rescue nil
+        filename = workbook.Fullname.tr('\\','/') rescue nil
         if filename
           book = bookstore.fetch(filename)
           return book if book && book.alive?
         end
-        @workbook = workbook        
-        # here: only win32ole object
-        win32ole_excel = WIN32OLE.connect(fullname).Application rescue nil   
-        # lift up Excel instance in which the given workbook is opened, from a win32ole object to an Excel object
-        @excel = new(win32ole_excel, options)     
-        # if the Excel could not be ifted up, then create it ?        
-        ensure_excel(options) unless (@excel && @excel.alive?)
-        t "@excel: #{@excel}"
-      else
-        super
       end
+      super
     end
 
     # creates a new Book object, if a file name is given
-    # lifts the workbook to a Book object, if a workbook is given
-    def initialize(file, opts={ }, &block)
-      options = DEFAULT_OPEN_OPTS.merge(opts)           
-      ensure_excel(options)
-      ensure_workbook(file, options)
+    # lifts the workbook to a Book object, if a workbook is given    
+    def initialize(file_or_workbook, opts={ }, &block)
+      options = DEFAULT_OPEN_OPTS.merge(opts)
+      options[:excel] = options[:force_excel] ? options[:force_excel] : options[:default_excel]
+      if file_or_workbook.class == WIN32OLE
+        workbook = file_or_workbook
+        @workbook = workbook        
+        # use the Excel instance where the workbook is opened
+        win32ole_excel = WIN32OLE.connect(workbook.Fullname).Application rescue nil   
+        options = {:reuse => win32ole_excel}.merge(options)
+        @excel = Excel.new(options)     
+        # if the Excel could not be lifted up, then create it         
+        ensure_excel(options) unless (@excel && @excel.alive?)
+        t "@excel: #{@excel}"
+      else
+        file = file_or_workbook
+        ensure_excel(options)
+        ensure_workbook(file, options)
+      end
       bookstore.store(self)
       if block
         begin
@@ -124,7 +126,7 @@ module RobustExcelOle
           close
         end
       end
-    end 
+    end
 
     def ensure_excel(options)
       if options[:excel] == :reuse

@@ -2,13 +2,14 @@
 
 require File.join(File.dirname(__FILE__), './spec_helper')
 
+=begin
 RSpec.configure do |config|
 
   config.mock_with :rspec do |mocks|
     mocks.syntax = :should
   end
 end
-
+=end
 
 $VERBOSE = nil
 
@@ -26,7 +27,6 @@ module RobustExcelOle
     end
   end
 end
-
 
 $mock_bookstore = MockBookstore.new
 
@@ -54,8 +54,15 @@ describe Bookstore do
   end
 
   after do
-    Excel.close_all
-    rm_tmp(@dir)
+    begin
+      Excel.close_all
+    rescue WeakRef::RefError => msg
+      puts "#{msg.message}"
+      Excel.kill_all
+    end
+    begin
+      rm_tmp(@dir) rescue nil
+    end
   end
 
   describe "create bookstore" do

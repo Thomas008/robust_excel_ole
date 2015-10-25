@@ -1,6 +1,22 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.3.6] - 2015-10-25
+
+### Added
+- Excel#recreate: reopening a closed Excel
+- Excel::new: uplifting a WIN32OLE object to an Excel object
+- Excel#close, Excel::close_all: with managing unsaved workbooks
+- Excel::kill_all
+- Excel::excel_processes: yield Excel objects opened with RobustExcelOle
+- Book::new: uplifting a WIN32OLE object to a Book object
+- Subclassing for Sheet
+- Method missing: error messages for dead objects
+- trace to stdout or file
+
+
+### Changed
+
 ## [0.3.5] - 2015-08-13
 
 ### Added

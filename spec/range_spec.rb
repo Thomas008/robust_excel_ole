@@ -1,18 +1,20 @@
 # -*- cdoing: utf-8 -*-
 require File.join(File.dirname(__FILE__), './spec_helper')
 
+include RobustExcelOle
+
 describe RobustExcelOle::Range do
 
   before(:all) do
-    excel = RobustExcelOle::Excel.new(:reuse => true)
+    excel = Excel.new(:reuse => true)
     open_books = excel == nil ? 0 : excel.Workbooks.Count
     puts "*** open books *** : #{open_books}" if open_books > 0
-    RobustExcelOle::Excel.close_all
+    Excel.close_all
   end
 
   before do
     @dir = create_tmpdir
-    @book = RobustExcelOle::Book.open(@dir + '/workbook.xls')
+    @book = Book.open(@dir + '/workbook.xls')
     @sheet = @book[1]
     @range = RobustExcelOle::Range.new(@sheet.worksheet.UsedRange.Rows(1))
   end
@@ -57,7 +59,7 @@ describe RobustExcelOle::Range do
 
     context "read 'merge_cells.xls'" do
       before do
-        @merge_cells_book = RobustExcelOle::Book.open("#{@dir}/merge_cells.xls")
+        @merge_cells_book = Book.open("#{@dir}/merge_cells.xls")
         @merge_cells_sheet = @merge_cells_book[0]
       end
 

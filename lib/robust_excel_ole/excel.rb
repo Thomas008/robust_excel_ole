@@ -278,6 +278,7 @@ module RobustExcelOle
 
   public
 
+    # kill all Excel instances
     def self.kill_all
       procs = WIN32OLE.connect("winmgmts:\\\\.")
       processes = procs.InstancesOf("win32_process")
@@ -288,6 +289,9 @@ module RobustExcelOle
       number
     end
 
+    # provide Excel objects 
+    # (so far restricted to all Excel instances opened with RobustExcelOle,
+    #  not for Excel instances opened by the user)
     def self.excel_processes
       pid2excel = {}
       @@hwnd2excel.each do |hwnd,wr_excel|

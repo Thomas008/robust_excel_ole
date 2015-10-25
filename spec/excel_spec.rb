@@ -80,7 +80,6 @@ module RobustExcelOle
         book = Book.open(@simple_file)
         excel = book.excel
         win32ole_excel = WIN32OLE.connect(book.workbook.Fullname).Application
-        puts "win32ole_excel: #{win32ole_excel}"
         @excel = Excel.new(:reuse => win32ole_excel)
         creation_ok?
         @excel.should be_a Excel

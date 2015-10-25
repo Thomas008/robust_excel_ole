@@ -133,12 +133,19 @@ module RobustExcelOle
         @excel = excel_class.new(:reuse => true)
       end
       excel_options = nil
-      if (not @excel)
-        if options[:excel] == :new
+      if @excel 
+        dead_or_recycled = begin
+          (not @excel.alive?)
+        rescue WeakRef::RefError => msg
+          true
+        end
+      end
+      if (not @excel) || dead_or_recycled
+        if options[:excel] == :new || dead_or_recycled
           excel_options = {:displayalerts => false, :visible => false}.merge(options)
           excel_options[:reuse] = false
           @excel = excel_class.new(excel_options)
-        else
+        else 
           @excel = options[:excel].excel
         end
       end
@@ -240,6 +247,9 @@ module RobustExcelOle
             else
               raise ExcelErrorOpen, "unknown RuntimeError"
             end
+          rescue WeakRef::RefError => msg
+            t "WeakRefError: #{msg.message}"
+            raise ExcelErrorOpen, "#{msg.message}"
           end
           workbooks.Open(filename,{ 'ReadOnly' => options[:read_only] })
         rescue WIN32OLERuntimeError => msg

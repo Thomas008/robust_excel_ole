@@ -13,9 +13,10 @@ REO = RobustExcelOle
 
 include Enumerable
 
-LOG_TO_STDOUT = true
+LOG_TO_STDOUT = false
 
 REO_LOG_FILE = "reo.log"
+REO_LOG_DIR = ""
 
 File.delete REO_LOG_FILE rescue nil
 
@@ -25,7 +26,14 @@ module RobustExcelOle
     if LOG_TO_STDOUT 
       puts text
     else
-      File.open(REO_LOG_FILE,"a") do | file |
+      if REO_LOG_DIR.empty?
+        homes = ["HOME", "HOMEPATH"]
+        home = homes.detect {|h| ENV[h] != nil}
+        reo_log_dir = ENV[home]
+      else
+        reo_log_dir = REO_LOG_DIR
+      end
+      File.open(reo_log_dir + "/" + REO_LOG_FILE,"a") do | file |
         file.puts text
       end
     end

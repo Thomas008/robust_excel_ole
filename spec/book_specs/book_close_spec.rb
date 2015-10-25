@@ -92,9 +92,9 @@ describe Book do
       it "should close the book and leave its file untouched with option :forget" do
         ole_workbook = @book.workbook
         excel = @book.excel
-        expect {
-          @book.close(:if_unsaved => :forget)
-        }.to change {excel.Workbooks.Count }.by(-1)
+        excel.Workbooks.Count.should == 1
+        @book.close(:if_unsaved => :forget)
+        excel.Workbooks.Count.should == 0
         @book.workbook.should == nil
         @book.should_not be_alive
         expect{
@@ -117,9 +117,9 @@ describe Book do
       it "should save the book before close with option :save" do
         ole_workbook = @book.workbook
         excel = @book.excel
-        expect {
-          @book.close(:if_unsaved => :save)
-        }.to change {excel.Workbooks.Count }.by(-1)
+        excel.Workbooks.Count.should == 1
+        @book.close(:if_unsaved => :save)
+        excel.Workbooks.Count.should == 0
         @book.workbook.should == nil
         @book.should_not be_alive
         expect{
@@ -157,9 +157,9 @@ describe Book do
               @book.workbook.should_not == nil
               @book.should be_alive
             else
-              expect {
-                @book.close(:if_unsaved => :alert)
-              }.to change {@book.excel.Workbooks.Count }.by(-1)
+              @book.excel.Workbooks.Count.should == 1
+              @book.close(:if_unsaved => :alert)
+              @book.excel.Workbooks.Count.should == 0
               @book.workbook.should == nil
               @book.should_not be_alive
               expect{ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)

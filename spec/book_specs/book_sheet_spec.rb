@@ -45,7 +45,9 @@ describe Book do
 
     context "only first argument" do
       it "should add worksheet" do
-        expect { @book.add_sheet @sheet }.to change{ @book.workbook.Worksheets.Count }.from(3).to(4)
+        @book.workbook.Worksheets.Count == 3
+        @book.add_sheet @sheet
+        @book.workbook.Worksheets.Count == 4
       end
 
       it "should return copyed sheet" do
@@ -104,7 +106,9 @@ describe Book do
 
     context "without argument" do
       it "should add empty sheet" do
-        expect { @book.add_sheet }.to change{ @book.workbook.Worksheets.Count }.from(3).to(4)
+        @book.workbook.Worksheets.Count.should == 3
+        @book.add_sheet
+        @book.workbook.Worksheets.Count.should == 4
       end
 
       it "should return copyed sheet" do

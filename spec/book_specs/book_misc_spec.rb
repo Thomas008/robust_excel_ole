@@ -272,12 +272,12 @@ describe Book do
       end
 
       it "should be false with same book names but different paths" do       
-        @new_book = Book.new(@simple_file_other_path, :excel => :new)
+        @new_book = Book.new(@simple_file_other_path, :force_excel => :new)
         @new_book.should_not == @book
       end
 
       it "should be false with same book names but different excel instances" do
-        @new_book = Book.new(@simple_file, :excel => :new)
+        @new_book = Book.new(@simple_file, :force_excel => :new)
         @new_book.should_not == @book
       end
 
@@ -339,7 +339,7 @@ describe Book do
     context "with activate" do
 
       before do
-        @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"        
+        @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '../helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"        
         @book = Book.open(@simple_file, :visible => true)
         @book2 = Book.open(@another_simple_file, :force_excel => :new, :visible => true)
       end

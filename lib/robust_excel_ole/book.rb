@@ -426,7 +426,7 @@ module RobustExcelOle
       rescue  WIN32OLERuntimeError
         begin
           sheet = self[0]
-          value = sheet_class.Evaluate(name)
+          value = sheet.Evaluate(name)
         rescue WIN32OLERuntimeError
           return opts[:default] if opts[:default]
           raise SheetError, "cannot evaluate name #{name.inspect} in sheet"
@@ -587,15 +587,15 @@ module RobustExcelOle
       if blocking_workbook then
         case options[:if_obstructed]
         when :raise
-          raise ExcelErrorSave, "blocked by another workbook (#{File.basename(file).inspect})"
+          raise ExcelErrorSave, "blocked by another workbook: #{File.basename(file).inspect}"
         when :forget
           # nothing
         when :save
           blocking_workbook.Save
         when :close_if_saved
-          raise ExcelErrorSave, "blocking workbook is unsaved (#{File.basename(file).inspect})" unless blocking_workbook.Saved
+          raise ExcelErrorSave, "blocking workbook is unsaved: #{File.basename(file).inspect}" unless blocking_workbook.Saved
         else
-          raise ExcelErrorSave, ":if_obstructed: invalid option (#{options[:if_obstructed].inspect})"
+          raise ExcelErrorSave, ":if_obstructed: invalid option: #{options[:if_obstructed].inspect}"
         end
         blocking_workbook.Close
       end

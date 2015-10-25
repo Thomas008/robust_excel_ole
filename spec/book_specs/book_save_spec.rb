@@ -223,7 +223,7 @@ describe Book do
         File.exist?(@simple_file_other_path).should be_true
         expect{
           @book2.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :invalid)
-        }.to raise_error(ExcelErrorSave, ":if_obstructed: invalid option :invalid")
+        }.to raise_error(ExcelErrorSave, ":if_obstructed: invalid option: :invalid")
       end
 
       it "should raise an error by default" do
@@ -314,7 +314,7 @@ describe Book do
           booklength = File.size?(@simple_save_file)
           expect {
             @book.save_as(@simple_save_file, :if_exists => :raise)
-            }.to raise_error(ExcelErrorSave, 'file already exists: ' + basename)
+            }.to raise_error(ExcelErrorSave, /file already exists: "workbook_save.xls"/)
           File.exist?(@simple_save_file).should be_true
           File.size?(@simple_save_file).should == booklength
         end
@@ -399,17 +399,17 @@ describe Book do
           booklength = File.size?(@simple_save_file)
           expect {
             @book.save_as(@simple_save_file)
-            }.to raise_error(ExcelErrorSave, 'file already exists: ' + basename)
+            }.to raise_error(ExcelErrorSave, /file already exists: "workbook_save.xls"/)
           File.exist?(@simple_save_file).should be_true
           File.size?(@simple_save_file).should == booklength
         end
 
-        it "should save to 'simple_save_file.xls' with :if_exists => :invalid_option" do
+        it "should save to 'simple_save_file.xls' with :if_exists => :invalid" do
           File.delete @simple_save_file rescue nil
           @book.save_as(@simple_save_file)
           expect {
-            @book.save_as(@simple_save_file, :if_exists => :invalid_option)
-            }.to raise_error(ExcelErrorSave, ':if_exists: invalid option: invalid_option')
+            @book.save_as(@simple_save_file, :if_exists => :invalid)
+            }.to raise_error(ExcelErrorSave, ':if_exists: invalid option: :invalid')
         end
       end
     end

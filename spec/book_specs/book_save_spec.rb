@@ -381,7 +381,7 @@ describe Book do
             @book.workbook.Close
             expect{
               @book.save_as(@simple_save_file, :if_exists => :alert)
-              }.to raise_error(ExcelErrorSaveUnknown)
+              }.to raise_error(ExcelErrorSave, "Workbook is not alive")
             File.exist?(@simple_save_file).should be_true
             File.size?(@simple_save_file).should == @garbage_length
             @book.excel.DisplayAlerts.should == displayalert_value

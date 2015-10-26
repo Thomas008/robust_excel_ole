@@ -514,23 +514,20 @@ module RobustExcelOle
     end
 
     # simple save of a workbook.
-    # returns true, if successfully saved, nil otherwise
-    def save
+    # returns true, if successfully saved, nil or error otherwise
+    def save      
+      raise ExcelErrorSave, "Workbook is not alive" if (not alive?)
       raise ExcelErrorSave, "Not opened for writing (opened with :read_only option)" if @workbook.ReadOnly
-      if @workbook then
-        begin
-          @workbook.Save 
-        rescue WIN32OLERuntimeError => msg
-          if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
-            raise ExcelErrorSave, "workbook not saved"
-          else
-            raise ExcelErrorSaveUnknown, "unknown WIN32OELERuntimeError:\n#{msg.message}"
-          end       
-        end
-        true
-      else
-        nil
+      begin
+        @workbook.Save 
+      rescue WIN32OLERuntimeError => msg
+        if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
+          raise ExcelErrorSave, "workbook not saved"
+        else
+          raise ExcelErrorSaveUnknown, "unknown WIN32OELERuntimeError:\n#{msg.message}"
+        end       
       end
+      true
     end
 
     # saves a workbook with a given file name.
@@ -546,8 +543,9 @@ module RobustExcelOle
     #                  :save                -> saves the blocking workbook and closes it
     #                  :close_if_saved      -> closes the blocking workbook, if it is saved, 
     #                                          otherwise raises an exception
-    # returns true, if successfully saved, nil otherwise
+    # returns true, if successfully saved, nil or error otherwise
     def save_as(file = nil, opts = { } )
+      raise ExcelErrorSave, "Workbook is not alive" if (not alive?)
       raise ExcelErrorSave, "Not opened for writing (opened with :read_only option)" if @workbook.ReadOnly
       options = {
         :if_exists => :raise,

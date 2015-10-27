@@ -5,7 +5,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - Excel#recreate: reopening a closed Excel
-- Excel::new: uplifting a WIN32OLE object to an Excel object
+- Excel::new(:reuse => <WIN32OLE_excel>): 
+  uplifting an Excel represented as object of the class WIN32OLE to an object of the class Excel
 - Excel#close, Excel::close_all: with managing unsaved workbooks
 - Excel::kill_all
 - Excel::excel_processes: yield Excel objects opened with RobustExcelOle

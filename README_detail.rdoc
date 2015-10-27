@@ -129,13 +129,12 @@ An Excel file (or workbook) is represented by a Book object. A Book object is de
 Identity transparence means that the same Book objects refer to the same Excel files, and vice versa.
 In other words, a Book objects is a proxy of an Excel file.
 
-=== Lift a workbook to a Book object
+=== Uplifting a workbook to a Book object
 
-A Book object can be created when giving a Excel workbook.
+A Book object can be created when giving an Excel workbook.
 
-   book = Book.open('workbook.xls')
-   workbook = book.workbook
-   another_book = Book.new(workbook) 
+   book = Book.new(win32ole_workbook)
+
 
 === Saving a workbook.
 
@@ -391,11 +390,11 @@ Getting a running Excel instance and reusing it.
 
 Reusing a running Excel instance, making it visible and turning on displayalerts.
 
-   excel2 = Excel.new(:reuse => true, :visible => true, :displayalerts => true).
+  excel2 = Excel.new(:reuse => true, :visible => true, :displayalerts => true).
 
-Reusing a certain running Excel instance.
+Uplifting an Excel instance represented as WIN32OLE object to an Excel object
 
-   excel3 = Excel.new(:excel => excel1)
+  excel = Excel.new(:reuse => win32ole_object)
 
 === Making Excel visible or invisible
 
@@ -403,7 +402,6 @@ Making Excel visible.
 
   excel = Excel.create
   excel.visible = true
-  puts "visible" if excel.visible
 
 Making Excel invisible
 
@@ -415,29 +413,55 @@ Turning DisplayAlerts on.
 
   excel = Excel.create
   excel.displayalerts = true
-  puts "allows displayalerts" if excel.displayalerts
 
 Turning DisplayAlerts off.
 
   excel.displayalerts = false
 
 Turning on and off in a block.
-  
-  with_displayalerts
 
   excel = Excel.create
   excel.with_displayalerts true do
     book = Book.open('workbook.xls')
   end
 
-=== Closing all Excel instances.
-
-  Excel.close_all
-
 === Closing an Excel
 
   excel = Excel.current
   excel.close
+
+Closing the Excel instance and terminating the Excel process
+
+  excel.close(:hard => true)
+
+=== Closing all Excel instances.
+
+  Excel.close_all
+
+ Closing the Excel instances and terminating the Excel processes
+
+  Excel.close_all(:hard => true) 
+
+=== Terminating all Excel processes
+
+  Excel.kill_all
+
+=== Recreating an Excel instance    
+
+Reopening the closed Excel instance. This includes reopening all workbooks that were open in that Excel instance.
+
+  excel.close
+  excel.recreate
+
+Options are :visible and :displayalerts
+
+  excel.recreate(:visible => true, :displayalerts => true)
+
+=== Providing Excel instances
+
+Providing all Excel instances (opened via RobustExcelOle) as objects of the class Excel
+
+  Excel.excel_objects
 
 
 === Examples

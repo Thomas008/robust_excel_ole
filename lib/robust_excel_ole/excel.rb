@@ -18,8 +18,9 @@ module RobustExcelOle
     end
 
     # returns an Excel instance  
-    # 
-    #  :reuse          uses an already running Excel instance (default: true)
+    # options:
+    #  :reuse          uses an already running Excel instance (true) or 
+    #                  uses the Excel instance represented as WIN32OLE object (default: true)
     #  :displayalerts  allows display alerts in Excel         (default: false)
     #  :visible        makes the Excel visible                (default: false)
     #  if :reuse => true, then DisplayAlerts and Visible are set only if they are given
@@ -60,6 +61,7 @@ module RobustExcelOle
     end
 
     # reopens a closed Excel instance
+    # options: :visible (default: false), :displayalerts (default: false)
     def recreate(opts = {})      
       unless self.alive?
         opts = {
@@ -367,6 +369,7 @@ module RobustExcelOle
       self.Workbooks.each {|w| t "#{w.Name} #{w}"}
     end
 
+    # returns all unsaved workbooks
     def unsaved_workbooks
       result = []
       begin

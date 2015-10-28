@@ -65,8 +65,8 @@ module RobustExcelOle
     def recreate(opts = {})      
       unless self.alive?
         opts = {
-          :displayalerts => false,
-          :visible => false,
+          :displayalerts => @displayalerts,
+          :visible => @visible,
         }.merge(opts)
         new_excel = WIN32OLE.new('Excel.Application')
         new_excel.DisplayAlerts = opts[:displayalerts]
@@ -415,22 +415,22 @@ module RobustExcelOle
 
     # enables DisplayAlerts in the current Excel instance
     def displayalerts= displayalerts_value
-      @ole_excel.DisplayAlerts = displayalerts_value
+      @displayalerts = @ole_excel.DisplayAlerts = displayalerts_value
     end
 
     # return if in the current Excel instance DisplayAlerts is enabled
     def displayalerts 
-      @ole_excel.DisplayAlerts
+      @displayalerts = @ole_excel.DisplayAlerts
     end
 
     # makes the current Excel instance visible or invisible
     def visible= visible_value
-      @ole_excel.Visible = visible_value
+      @visible = @ole_excel.Visible = visible_value
     end
 
     # returns whether the current Excel instance is visible
     def visible 
-      @ole_excel.Visible
+      @visible = @ole_excel.Visible
     end    
 
     def to_s

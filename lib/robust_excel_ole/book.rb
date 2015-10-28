@@ -109,9 +109,9 @@ module RobustExcelOle
         # use the Excel instance where the workbook is opened
         win32ole_excel = WIN32OLE.connect(workbook.Fullname).Application rescue nil   
         options = {:reuse => win32ole_excel}.merge(options)
-        @excel = Excel.new(options)     
+        @excel = excel_class.new(options)     
         # if the Excel could not be lifted up, then create it         
-        ensure_excel(options) unless (@excel && @excel.alive?)
+        ensure_excel(options) #unless (@excel && @excel.alive?)
         t "@excel: #{@excel}"
       else
         file = file_or_workbook
@@ -129,6 +129,7 @@ module RobustExcelOle
     end
 
     def ensure_excel(options)
+      return if @excel && @excel.alive?
       if options[:excel] == :reuse
         @excel = excel_class.new(:reuse => true)
       end

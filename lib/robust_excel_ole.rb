@@ -28,7 +28,7 @@ module RobustExcelOle
     else
       if REO_LOG_DIR.empty?
         homes = ["HOME", "HOMEPATH"]
-        home = homes.detect {|h| ENV[h] != nil}
+        home = homes.find {|h| ENV[h] != nil}
         reo_log_dir = ENV[home]
       else
         reo_log_dir = REO_LOG_DIR

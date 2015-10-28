@@ -74,7 +74,7 @@ module RobustExcelOle
         @ole_excel = new_excel 
         books = Book.books
         books.each do |book|
-          book.reopen if ((not book.alive?) && book.excel.alive?)
+          book.reopen if ((not book.alive?) && book.excel.alive? && book.excel == self)
         end        
       end
       self 
@@ -104,7 +104,6 @@ module RobustExcelOle
     #                      :raise (default) -> raises an exception       
     #                      :save            -> saves the workbooks before closing
     #                      :forget          -> closes the excel instance without saving the workbooks 
-    #                      :alert           -> gives control to Excel
     #  :hard          kills the Excel instances hard (default: false) 
     def self.close_all(options={})
       options = {
@@ -119,9 +118,9 @@ module RobustExcelOle
         sleep 0.3
         current_excels_number = excel_processes.size
         (current_excels_number < excels_number) ? (excels_number = current_excels_number) : kill_all
-      end
-      init
+      end      
       kill_all if options[:hard]
+      init
     end
 
     def self.init
@@ -229,7 +228,6 @@ module RobustExcelOle
     #                      :raise (default) -> raises an exception       
     #                      :save            -> saves the workbooks before closing
     #                      :forget          -> closes the Excel instance without saving the workbooks 
-    #                      :alert           -> gives control to Excel
     #  :hard          kill the Excel instance hard (default: false) 
     def close(options = {})
       options = {
@@ -297,11 +295,12 @@ module RobustExcelOle
     def self.excel_processes
       pid2excel = {}
       @@hwnd2excel.each do |hwnd,wr_excel|
+        excel = wr_excel.__getobj__
         process_id = Win32API.new("user32", "GetWindowThreadProcessId", ["I","P"], "I")
         pid_puffer = " " * 32
         process_id.call(hwnd, pid_puffer)
         pid = pid_puffer.unpack("L")[0]
-        pid2excel[pid] = wr_excel
+        pid2excel[pid] = excel
       end
       procs = WIN32OLE.connect("winmgmts:\\\\.")
       processes = procs.InstancesOf("win32_process")     
@@ -309,7 +308,7 @@ module RobustExcelOle
       processes.each do |p|
         if p.name == "EXCEL.EXE"
           if pid2excel.include?(p.processid)
-            excel = pid2excel[p.processid].__getobj__ 
+            excel = pid2excel[p.processid]
             result << excel
           end
           # how to connect with an Excel instance that is not in hwnd2excel (uplifting Excel)?

@@ -12,7 +12,6 @@ module RobustExcelOle
 
     before(:all) do
       Excel.kill_all
-      #Excel.close_all
     end
 
     before do
@@ -25,7 +24,6 @@ module RobustExcelOle
     end
 
     after do
-      #Excel.close_all
       Excel.kill_all
       rm_tmp(@dir)
     end

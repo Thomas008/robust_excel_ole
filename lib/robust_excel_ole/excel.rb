@@ -66,7 +66,7 @@ module RobustExcelOle
       unless self.alive?
         opts = {
           :displayalerts => @displayalerts,
-          :visible => @visible,
+          :visible => @visible
         }.merge(opts)
         new_excel = WIN32OLE.new('Excel.Application')
         new_excel.DisplayAlerts = opts[:displayalerts]
@@ -130,7 +130,6 @@ module RobustExcelOle
   private
 
     def self.manage_unsaved_workbooks(excel, options)
-      #this_excel = excel == 0 ? self : excel
       unsaved_workbooks = []
       begin
         excel.Workbooks.each {|w| unsaved_workbooks << w unless (w.Saved || w.ReadOnly)}
@@ -179,7 +178,6 @@ module RobustExcelOle
         GC.start
         sleep 0.2
         if weak_excel_ref.weakref_alive? then
-          #if WIN32OLE.ole_reference_count(weak_xlapp) > 0
           begin
             weak_excel_ref.ole_free
             t "successfully ole_freed #{weak_excel_ref}"
@@ -187,7 +185,6 @@ module RobustExcelOle
             t "could not do ole_free on #{weak_excel_ref}"
           end
         end
-        hwnd2excel(excel_hwnd).die rescue nil
         @@hwnd2excel.delete(excel_hwnd)
       rescue => e
         t "Error when closing Excel: #{e.message}"
@@ -215,11 +212,6 @@ module RobustExcelOle
       end
       t "went through #{anz_objekte} OLE objects"
     end   
-
-    # sets this Excel instance to nil
-    def die 
-      @ole_excel = nil
-    end
 
   public
 
@@ -255,7 +247,6 @@ module RobustExcelOle
       GC.start
       sleep 0.2
       if weak_excel_ref.weakref_alive? then
-        #if WIN32OLE.ole_reference_count(weak_xlapp) > 0
         begin
           weak_excel_ref.ole_free
           t "successfully ole_freed #{weak_excel_ref}"
@@ -264,7 +255,6 @@ module RobustExcelOle
           t "could not do ole_free on #{weak_excel_ref}"
         end
       end
-      hwnd2excel(excel_hwnd).die rescue nil
       @@hwnd2excel.delete(excel_hwnd)      
       if options[:hard] then
         Excel.free_all_ole_objects
@@ -286,6 +276,7 @@ module RobustExcelOle
       procs.InstancesOf("win32_process").each do |p|
         Process.kill('KILL', p.processid) if p.name == "EXCEL.EXE"        
       end
+      init
       number
     end
 

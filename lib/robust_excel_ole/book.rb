@@ -92,7 +92,10 @@ module RobustExcelOle
         filename = workbook.Fullname.tr('\\','/') rescue nil
         if filename
           book = bookstore.fetch(filename)
-          return book if book && book.alive?
+          if book && book.alive?
+            book.apply_options(opts)
+            return book 
+          end
         end
       end
       super
@@ -109,8 +112,7 @@ module RobustExcelOle
         # use the Excel instance where the workbook is opened
         win32ole_excel = WIN32OLE.connect(workbook.Fullname).Application rescue nil   
         @excel = excel_class.new(win32ole_excel)     
-        @excel.visible = options[:visible] unless options[:visible].nil?
-        @excel.displayalerts = options[:displayalerts] unless options[:displayalerts].nil?
+        self.apply_options(options)       
         # if the Excel could not be lifted up, then create it         
         ensure_excel(options) #unless (@excel && @excel.alive?)
         t "@excel: #{@excel}"
@@ -127,6 +129,11 @@ module RobustExcelOle
           close
         end
       end
+    end
+
+    def apply_options(options)
+      @excel.visible = options[:visible] unless options[:visible].nil?
+      @excel.displayalerts = options[:displayalerts] unless options[:displayalerts].nil? 
     end
 
     def ensure_excel(options)

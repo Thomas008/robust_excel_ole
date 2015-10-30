@@ -57,7 +57,7 @@ describe Book do
         @book.close
       end
 
-      it "should yield an identical Book" do
+      it "should fetch the workbook" do
         workbook = @book.workbook
         new_book = Book.new(workbook)
         new_book.should be_a Book
@@ -65,6 +65,22 @@ describe Book do
         new_book.should == @book
         new_book.filename.should == @book.filename
         new_book.excel.should == @book.excel
+        new_book.excel.Visible.should be_false
+        new_book.excel.DisplayAlerts.should be_false
+        new_book.should === @book
+        new_book.close
+      end
+
+      it "should fetch the workbook" do
+        workbook = @book.workbook
+        new_book = Book.new(workbook, :visible => true)
+        new_book.should be_a Book
+        new_book.should be_alive
+        new_book.should == @book
+        new_book.filename.should == @book.filename
+        new_book.excel.should == @book.excel
+        new_book.excel.Visible.should be_true
+        new_book.excel.DisplayAlerts.should be_false
         new_book.should === @book
         new_book.close
       end

@@ -88,7 +88,7 @@ module RobustExcelOle
 
     # creates a Book object for a given workbook or file name
     def self.new(workbook, opts={ }, &block)      
-      if workbook && workbook.class == WIN32OLE
+      if workbook && (workbook.is_a? WIN32OLE)
         filename = workbook.Fullname.tr('\\','/') rescue nil
         if filename
           book = bookstore.fetch(filename)
@@ -103,13 +103,14 @@ module RobustExcelOle
     def initialize(file_or_workbook, opts={ }, &block)
       options = DEFAULT_OPEN_OPTS.merge(opts)
       options[:excel] = options[:force_excel] ? options[:force_excel] : options[:default_excel]
-      if file_or_workbook.class == WIN32OLE
+      if file_or_workbook.is_a? WIN32OLE
         workbook = file_or_workbook
         @workbook = workbook        
         # use the Excel instance where the workbook is opened
         win32ole_excel = WIN32OLE.connect(workbook.Fullname).Application rescue nil   
-        options = {:reuse => win32ole_excel}.merge(options)
-        @excel = excel_class.new(options)     
+        @excel = excel_class.new(win32ole_excel)     
+        @excel.visible = options[:visible] unless options[:visible].nil?
+        @excel.displayalerts = options[:displayalerts] unless options[:displayalerts].nil?
         # if the Excel could not be lifted up, then create it         
         ensure_excel(options) #unless (@excel && @excel.alive?)
         t "@excel: #{@excel}"

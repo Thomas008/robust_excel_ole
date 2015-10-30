@@ -19,17 +19,19 @@ module RobustExcelOle
 
     # returns an Excel instance  
     # options:
-    #  :reuse          uses an already running Excel instance (true) or 
-    #                  uses the Excel instance represented as WIN32OLE object (default: true)
+    #  :reuse          connects to an already running Excel instance (true) or
+    #                  creates a new Excel instance (false)   (default: true)
     #  :displayalerts  allows display alerts in Excel         (default: false)
     #  :visible        makes the Excel visible                (default: false)
     #  if :reuse => true, then DisplayAlerts and Visible are set only if they are given
-    def self.new(options= {})
-      options = {:reuse => true}.merge(options)
-      if options[:reuse] == true then
-        excel = current_excel
-      elsif options[:reuse].class == WIN32OLE then
-        excel = options[:reuse]
+    def self.new(options = {})
+      if options.is_a? WIN32OLE
+        excel = options
+      else
+        options = {:reuse => true}.merge(options)
+        if options[:reuse] == true then
+          excel = current_excel
+        end
       end
       if not (excel)
         excel = WIN32OLE.new('Excel.Application')
@@ -38,8 +40,10 @@ module RobustExcelOle
           :visible => false,
         }.merge(options)
       end
-      excel.DisplayAlerts = options[:displayalerts] unless options[:displayalerts].nil?
-      excel.Visible = options[:visible] unless options[:visible].nil?
+      unless options.is_a? WIN32OLE
+        excel.DisplayAlerts = options[:displayalerts] unless options[:displayalerts].nil?
+        excel.Visible = options[:visible] unless options[:visible].nil?
+      end
 
       hwnd = excel.HWnd
       stored = hwnd2excel(hwnd)
@@ -61,21 +65,24 @@ module RobustExcelOle
     end
 
     # reopens a closed Excel instance
-    # options: :visible (default: false), :displayalerts (default: false)
+    # options: reopen_workbooks (default: false): reopen the workbooks in the Excel instances
+    #          :visible (default: false), :displayalerts (default: false)
     def recreate(opts = {})      
       unless self.alive?
         opts = {
-          :displayalerts => @displayalerts,
-          :visible => @visible
+          :displayalerts => @displayalerts ? @displayalerts : false,
+          :visible => @visible ? @visible : false
         }.merge(opts)
         new_excel = WIN32OLE.new('Excel.Application')
         new_excel.DisplayAlerts = opts[:displayalerts]
         new_excel.Visible = opts[:visible]
         @ole_excel = new_excel 
-        books = Book.books
-        books.each do |book|
-          book.reopen if ((not book.alive?) && book.excel.alive? && book.excel == self)
-        end        
+        if opts[:reopen_workbooks]
+          books = Book.books
+          books.each do |book|
+            book.reopen if ((not book.alive?) && book.excel.alive? && book.excel == self)
+          end        
+        end
       end
       self 
     end
@@ -302,8 +309,8 @@ module RobustExcelOle
             excel = pid2excel[p.processid]
             result << excel
           end
-          # how to connect with an Excel instance that is not in hwnd2excel (uplifting Excel)?
-          #excel = Excel.uplift unless (excel && excel.alive?)
+          # how to connect to an (interactively opened) Excel instance and get a WIN32OLE object?
+          # after that, lift it to an Excel object
         end
       end
       result

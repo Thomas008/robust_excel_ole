@@ -68,6 +68,21 @@ describe Book do
         new_book.should === @book
         new_book.close
       end
+
+      it "should yield an identical Book and set visible and displayalerts values" do
+        workbook = @book.workbook
+        new_book = Book.new(workbook, :visible => true, :displayalerts => true)
+        new_book.should be_a Book
+        new_book.should be_alive
+        new_book.should == @book
+        new_book.filename.should == @book.filename
+        new_book.excel.should == @book.excel
+        new_book.should === @book
+        new_book.excel.visible.should be_true
+        new_book.excel.displayalerts.should be_true
+        new_book.close
+      end
+
     end
 
     context "with various file formats" do

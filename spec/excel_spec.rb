@@ -73,20 +73,24 @@ module RobustExcelOle
         @excel.should_not == excel
       end
 
-      it "should work with reusing (uplifting) an Excel given as WIN32Ole object" do
-        excel0 = Excel.create
-        book = Book.open(@simple_file)
-        excel = book.excel
-        win32ole_excel = WIN32OLE.connect(book.workbook.Fullname).Application
-        @excel = Excel.new(:reuse => win32ole_excel)
-        creation_ok?
-        @excel.should be_a Excel
-        @excel.should be_alive
-        @excel.should == excel
+      context "lifting an Excel instance given as WIN32Ole object" do
+
+        before do
+          @book = Book.open(@simple_file)
+          @excel = book.excel
+          @win32ole_excel = WIN32OLE.connect(book.workbook.Fullname).Application
+        end
+
+        it "lifting an Excel instance given as WIN32Ole object" do    
+          excel = Excel.new(win32ole_excel)
+          excel.should be_a Excel
+          excel.should be_alive
+          excel.should === @excel
+        end
       end
     end
 
-    context "with identity transparence" do
+    context "identity transparence" do
 
       before do
         @excel1 = Excel.create
@@ -147,52 +151,113 @@ module RobustExcelOle
 
     end
 
-    context "with recreating Excel instances" do
+    context "recreating Excel instances" do
 
-      it "should recreate a single Excel instance" do
-        book = Book.open(@simple_file)
-        excel = book.excel
-        excel.close
-        excel.should_not be_alive
-        excel.recreate
-        excel.should be_a Excel
-        excel.should be_alive
-        book.should be_alive
-        excel.close
-        excel.should_not be_alive
+      context "with a single Excel instance" do
+
+        before do
+          @book1 = Book.open(@simple_file)
+          @excel1 = @book1.excel
+        end
+
+        it "should recreate an Excel instance" do
+          @excel1.close
+          @excel1.should_not be_alive
+          @excel1.recreate
+          @excel1.should be_a Excel
+          @excel1.should be_alive
+          @excel1.Visible.should be_false
+          @excel1.DisplayAlerts.should be_false
+          @book1.should_not be_alive
+          @book1.reopen
+          @book1.should be_alive
+          @excel1.close
+          @excel1.should_not be_alive        
+        end
+
+        it "should recreate an Excel instance with old visible and displayalerts values" do
+          @excel1.visible = true
+          @excel1.displayalerts = true
+          @excel1.close
+          @excel1.should_not be_alive
+          @excel1.recreate
+          @excel1.should be_a Excel
+          @excel1.should be_alive
+          @excel1.Visible.should be_true
+          @excel1.DisplayAlerts.should be_true
+          @book1.reopen
+          @book1.should be_alive
+          @excel1.close
+          @excel1.should_not be_alive
+        end
+
+        it "should recreate an Excel instance with new visible and displayalerts values" do
+          @excel1.close
+          @excel1.should_not be_alive
+          @excel1.recreate(:visible => true, :displayalerts => true)
+          @excel1.should be_a Excel
+          @excel1.should be_alive
+          @excel1.Visible.should be_true
+          @excel1.DisplayAlerts.should be_true
+          @book1.reopen
+          @book1.should be_alive
+          @excel1.close
+          @excel1.should_not be_alive
+        end
+
+        it "should recreate an Excel instance and reopen the book" do
+          @excel1.close
+          @excel1.should_not be_alive
+          @excel1.recreate(:reopen_workbooks => true)
+          @excel1.should be_a Excel
+          @excel1.should be_alive
+          @excel1.Visible.should be_false
+          @excel1.DisplayAlerts.should be_false
+          @book1.should be_alive
+          @excel1.close
+          @excel1.should_not be_alive
+        end
       end
 
-      it "should recreate several Excel instances" do  
-        book = Book.open(@simple_file)      
-        book2 = Book.open(@another_simple_file, :force_excel => book)
-        book3 = Book.open(@different_file, :force_excel => :new)
-        excel = book.excel
-        excel3 = book3.excel
-        excel.close
-        excel3.close
-        excel.should_not be_alive
-        excel3.should_not be_alive
-        excel.recreate(:visible => true)
-        excel.should be_alive
-        excel.should be_a Excel
-        excel.visible.should be_true
-        excel.displayalerts.should be_false
-        book.should be_alive
-        book2.should be_alive
-        book.excel.should == excel
-        book2.excel.should == excel
-        excel3.recreate(:visible => true, :displayalerts => true)
-        excel3.should be_alive
-        excel3.should be_a Excel
-        excel3.visible.should be_true
-        excel3.displayalerts.should be_true
-        book3.should be_alive
-        excel.close
-        excel.should_not be_alive
-        excel3.close
-        excel3.should_not be_alive
-      end
-    end    
+      context "with several Excel instances" do
+
+        before do
+          @book1 = Book.open(@simple_file)      
+          @book2 = Book.open(@another_simple_file, :force_excel => @book1)
+          @book3 = Book.open(@different_file, :force_excel => :new)
+          @excel1 = @book1.excel
+          @excel3 = @book3.excel
+          @excel1.visible = true
+          @excel3.displayalerts = true
+        end
+
+        it "should recreate several Excel instances" do  
+          @excel1.close
+          @excel3.close
+          @excel1.should_not be_alive
+          @excel3.should_not be_alive
+          @excel1.recreate(:reopen_workbooks => true, :displayalerts => true)
+          @excel1.should be_alive
+          @excel1.should be_a Excel
+          @excel1.visible.should be_true
+          @excel1.displayalerts.should be_true
+          @book1.should be_alive
+          @book2.should be_alive
+          @excel3.recreate(:visible => true)
+          @excel3.should be_alive
+          @excel3.should be_a Excel
+          @excel3.visible.should be_true
+          @excel3.displayalerts.should be_true
+          @book3.reopen
+          @book3.should be_alive
+          @book3.excel.should == @excel3
+          @excel1.close
+          @excel1.should_not be_alive
+          @excel3.close
+          @excel3.should_not be_alive
+        end
+      end    
+    end
 
     context "close excel instances" do
       def direct_excel_creation_helper  # :nodoc: #

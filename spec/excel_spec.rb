@@ -77,16 +77,29 @@ module RobustExcelOle
 
         before do
           @book = Book.open(@simple_file)
-          @excel = book.excel
-          @win32ole_excel = WIN32OLE.connect(book.workbook.Fullname).Application
+          @excel = @book.excel          
         end
 
-        it "lifting an Excel instance given as WIN32Ole object" do    
+        it "lifts an Excel instance given as WIN32Ole object" do    
+          win32ole_excel = WIN32OLE.connect(@book.workbook.Fullname).Application
           excel = Excel.new(win32ole_excel)
           excel.should be_a Excel
           excel.should be_alive
           excel.should === @excel
         end
+
+        it "lifts an Excel instance given as WIN32Ole object with options" do    
+          @excel.Visible = true
+          @excel.DisplayAlerts = true
+          win32ole_excel = WIN32OLE.connect(@book.workbook.Fullname).Application
+          excel = Excel.new(win32ole_excel)
+          excel.should be_a Excel
+          excel.should be_alive
+          excel.should === @excel
+          excel.Visible.should be_true
+          excel.DisplayAlerts.should be_true
+        end
+
       end
     end
 

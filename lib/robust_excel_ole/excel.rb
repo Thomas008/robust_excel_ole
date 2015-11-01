@@ -55,7 +55,6 @@ module RobustExcelOle
         result.instance_variable_set(:@ole_excel, excel)
         WIN32OLE.const_load(excel, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
         @@hwnd2excel[hwnd] = WeakRef.new(result)
-
       end
       result
     end
@@ -111,20 +110,25 @@ module RobustExcelOle
     #                      :raise (default) -> raises an exception       
     #                      :save            -> saves the workbooks before closing
     #                      :forget          -> closes the excel instance without saving the workbooks 
-    #  :hard          kills the Excel instances hard (default: false) 
+    #  :hard          closes Excel instances soft (default: false), or, additionally kills the Excel processes hard (true)
     def self.close_all(options={})
       options = {
         :if_unsaved => :raise,
         :hard => false
       }.merge(options)      
       excels_number = excel_processes.size
-      # kill hard if the number of Excel instqnces does not decrease
+      #puts "excels_number:#{excels_number}"
       while current_excel do
         close_one_excel(options)
         GC.start
         sleep 0.3
         current_excels_number = excel_processes.size
-        (current_excels_number < excels_number) ? (excels_number = current_excels_number) : kill_all
+        #puts "current_excels_number: #{current_excels_number}"
+        #puts "excels_number: #{excels_number}"
+        if current_excels_number == excels_number && excels_number > 0
+          raise ExcelError, "some Excel instance cannot be closed"
+        end
+        excels_number = current_excels_number
       end      
       kill_all if options[:hard]
       init
@@ -350,7 +354,7 @@ module RobustExcelOle
 
     # returns true, if the Excel instances are alive and identical, false otherwise
     def == other_excel
-      self.Hwnd == other_excel.Hwnd    if other_excel.is_a?(Excel) && self.alive? && other_excel.alive?
+      self.Hwnd == other_excel.Hwnd  if other_excel.is_a?(Excel) && self.alive? && other_excel.alive?
     end
 
     # returns true, if the Excel instances responds to VBA methods, false otherwise

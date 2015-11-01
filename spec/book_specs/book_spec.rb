@@ -47,6 +47,37 @@ describe Book do
 
   describe "open" do
 
+    context "with various file formats" do
+
+      it "should open linked workbook" do
+        book = Book.open(@linked_file, :visible => true)
+        book.close
+      end
+    end
+
+
+    context "with class identifier 'Workbook'" do
+
+      before do
+        @book = Workbook.open(@simple_file)
+      end
+
+      after do
+        @book.close rescue nil
+      end
+
+      it "should open in a new Excel" do
+        book2 = Workbook.open(@simple_file, :force_excel => :new)
+        book2.should be_alive
+        book2.should be_a Book
+        book2.excel.should_not == @book.excel 
+        book2.should_not == @book
+        @book.Readonly.should be_false
+        book2.Readonly.should be_true
+        book2.close
+      end
+    end
+
     context "lift a workbook to a Book object" do
 
       before do
@@ -55,34 +86,6 @@ describe Book do
 
       after do
         @book.close
-      end
-
-      it "should fetch the workbook" do
-        workbook = @book.workbook
-        new_book = Book.new(workbook)
-        new_book.should be_a Book
-        new_book.should be_alive
-        new_book.should == @book
-        new_book.filename.should == @book.filename
-        new_book.excel.should == @book.excel
-        new_book.excel.Visible.should be_false
-        new_book.excel.DisplayAlerts.should be_false
-        new_book.should === @book
-        new_book.close
-      end
-
-      it "should fetch the workbook" do
-        workbook = @book.workbook
-        new_book = Book.new(workbook, :visible => true)
-        new_book.should be_a Book
-        new_book.should be_alive
-        new_book.should == @book
-        new_book.filename.should == @book.filename
-        new_book.excel.should == @book.excel
-        new_book.excel.Visible.should be_true
-        new_book.excel.DisplayAlerts.should be_false
-        new_book.should === @book
-        new_book.close
       end
 
       it "should yield an identical Book and set visible and displayalerts values" do
@@ -101,13 +104,6 @@ describe Book do
 
     end
 
-    context "with various file formats" do
-
-      it "should open linked workbook" do
-        book = Book.open(@linked_file, :visible => true)
-        book.close
-      end
-    end
 
     context "with standard options" do
       before do

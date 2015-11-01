@@ -758,6 +758,8 @@ module RobustExcelOle
   
 public
 
+  Workbook = Book
+
   class ExcelError < RuntimeError    # :nodoc: #
   end
 

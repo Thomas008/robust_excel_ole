@@ -78,7 +78,7 @@ module RobustExcelOle
         new_excel.Visible = opts[:visible]
         @ole_excel = new_excel 
         if opts[:reopen_workbooks]
-          books = Book.books
+          books = book_class.books
           books.each do |book|
             book.reopen if ((not book.alive?) && book.excel.alive? && book.excel == self)
           end        
@@ -437,6 +437,19 @@ module RobustExcelOle
 
     def inspect
       self.to_s
+    end
+
+    def self.book_class
+      @book_class ||= begin
+        module_name = self.parent_name
+        "#{module_name}::Book".constantize
+      rescue NameError => e
+        book
+      end
+    end
+
+    def book_class
+      self.class.book_class
     end
 
   private

@@ -110,7 +110,6 @@ module RobustExcelOle
     #                      :raise (default) -> raises an exception       
     #                      :save            -> saves the workbooks before closing
     #                      :forget          -> closes the excel instance without saving the workbooks 
-    #                      :keep_open       -> let Excel instances with unsaved workbooks open
     #                      :alert           -> give control to Excel
     #  :hard          closes Excel instances soft (default: false), or, additionally kills the Excel processes hard (true)
     def self.close_all(options={})
@@ -171,11 +170,10 @@ module RobustExcelOle
     def self.close_one_excel(options={})
       excel = current_excel
       return unless excel
-      unless manage_unsaved_workbooks(excel, options) == :keep_open
-        weak_ole_excel = WeakRef.new(excel)
-        excel = nil
-        close_excel_ole_instance(weak_ole_excel.__getobj__)
-      end
+      manage_unsaved_workbooks(excel, options)
+      weak_ole_excel = WeakRef.new(excel)
+      excel = nil
+      close_excel_ole_instance(weak_ole_excel.__getobj__)
     end
 
     def self.close_excel_ole_instance(ole_excel)

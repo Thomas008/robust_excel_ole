@@ -374,7 +374,7 @@ Closing the Excel instance, saving unsaved wrkbooks and terminating the Excel pr
 
   Excel.close_all
 
-The options are +:if_unsaved+ and +:hard+ . Values for :if_unsaved+ are +raise+, +save+, +forget+ and +keep_open+ .Example:
+The options are +:if_unsaved+ and +:hard+ . Values for :if_unsaved+ are +raise+, +save+, +forget+. Example:
 
 Closing all Excel instances, not saving unsaved workbooks and terminating the Excel processes
 

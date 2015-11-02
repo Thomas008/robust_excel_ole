@@ -43,6 +43,8 @@ Options are
   +:default_excel+, +:force_excel+, +:if_absent+, +:if_unsaved+, +:if_obstructed+, 
   +:read_only+, +:visible+, +:displayalerts+. 
 
+Values for +:default_excel+ are +:reuse+, +:new+ or some Excel instance. Values for +:force_excel+ are +:new+ or some Excel instance. 
+
 Here are a few examples:
 
 Opening a workbook in the Excel instance where it was opened before, or opening the workbook in a new Excel instance if it was not opened before.
@@ -372,7 +374,7 @@ Closing the Excel instance, saving unsaved wrkbooks and terminating the Excel pr
 
   Excel.close_all
 
-The options are +:if_unsaved+ and +:hard+ . Example:
+The options are +:if_unsaved+ and +:hard+ . Values for :if_unsaved+ are +raise+, +save+, +forget+ and +keep_open+ .Example:
 
 Closing all Excel instances, not saving unsaved workbooks and terminating the Excel processes
 

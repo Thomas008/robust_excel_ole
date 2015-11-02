@@ -110,6 +110,8 @@ module RobustExcelOle
     #                      :raise (default) -> raises an exception       
     #                      :save            -> saves the workbooks before closing
     #                      :forget          -> closes the excel instance without saving the workbooks 
+    #                      :keep_open       -> let Excel instances with unsaved workbooks open
+    #                      :alert           -> give control to Excel
     #  :hard          closes Excel instances soft (default: false), or, additionally kills the Excel processes hard (true)
     def self.close_all(options={})
       options = {
@@ -117,14 +119,11 @@ module RobustExcelOle
         :hard => false
       }.merge(options)      
       excels_number = excel_processes.size
-      #puts "excels_number:#{excels_number}"
       while current_excel do
         close_one_excel(options)
         GC.start
         sleep 0.3
         current_excels_number = excel_processes.size
-        #puts "current_excels_number: #{current_excels_number}"
-        #puts "excels_number: #{excels_number}"
         if current_excels_number == excels_number && excels_number > 0
           raise ExcelError, "some Excel instance cannot be closed"
         end
@@ -158,6 +157,8 @@ module RobustExcelOle
           end
         when :forget
           # nothing
+        when :keep_open
+          return :keep_open
         when :alert
           excel.DisplayAlerts = true
         else
@@ -170,10 +171,11 @@ module RobustExcelOle
     def self.close_one_excel(options={})
       excel = current_excel
       return unless excel
-      manage_unsaved_workbooks(excel, options)
-      weak_ole_excel = WeakRef.new(excel)
-      excel = nil
-      close_excel_ole_instance(weak_ole_excel.__getobj__)
+      unless manage_unsaved_workbooks(excel, options) == :keep_open
+        weak_ole_excel = WeakRef.new(excel)
+        excel = nil
+        close_excel_ole_instance(weak_ole_excel.__getobj__)
+      end
     end
 
     def self.close_excel_ole_instance(ole_excel)
@@ -237,8 +239,9 @@ module RobustExcelOle
         :if_unsaved => :raise,
         :hard => false
       }.merge(options)
-      self.class.manage_unsaved_workbooks(@ole_excel, options)
-      close_excel(options)
+      unless self.class.manage_unsaved_workbooks(@ole_excel, options) == :keep_open
+        close_excel(options)
+      end
     end
 
   private

@@ -367,6 +367,13 @@ module RobustExcelOle
           new_book3.close
         end
 
+        it "should keep the Excel with unsaved workbooks open" do
+          Excel.close_all(:if_unsaved => :keep_open)
+          @excel1.should_not be_alive
+          @excel2.should be_alive
+          @excel4.should_not be_alive
+        end
+
         it "should raise an error for invalid option" do
           expect {
             Excel.close_all(:if_unsaved => :invalid_option)
@@ -520,6 +527,13 @@ module RobustExcelOle
           new_sheet2 = new_book2[0]
           new_sheet2[1,1].value.should_not == @old_cell_value2
           new_book2.close   
+        end
+
+        it "should close the Excel with saving the workbook" do
+          @excel.should be_alive
+          @excel.close(:if_unsaved => :keep_open)
+          @excel.should be_alive
+          @excel.close(:if_unsaved => :forget)
         end
 
         it "should raise an error for invalid option" do

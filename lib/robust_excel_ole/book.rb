@@ -288,6 +288,7 @@ module RobustExcelOle
     #                      :raise (default) -> raises an exception       
     #                      :save            -> saves the workbook before it is closed                  
     #                      :forget          -> closes the workbook 
+    #                      :keep_open       -> keep the workbook open
     #                      :alert           -> gives control to excel
     def close(opts = {:if_unsaved => :raise})
       if (alive? && (not @workbook.Saved) && writable) then
@@ -299,6 +300,8 @@ module RobustExcelOle
           close_workbook
         when :forget
           close_workbook
+        when :keep_open
+          # nothing
         when :alert
           @excel.with_displayalerts true do
             close_workbook

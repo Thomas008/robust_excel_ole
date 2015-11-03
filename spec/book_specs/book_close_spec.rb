@@ -89,6 +89,15 @@ describe Book do
         }.to raise_error(ExcelErrorClose, /workbook is unsaved: "workbook.xls"/)
       end
 
+      it "should keep the book open" do
+        ole_workbook = @book.workbook
+        excel = @book.excel
+        excel.Workbooks.Count.should == 1
+        @book.close(:if_unsaved => :keep_open)
+        excel.Workbooks.Count.should == 1
+        @book.should be_alive
+      end
+
       it "should close the book and leave its file untouched with option :forget" do
         ole_workbook = @book.workbook
         excel = @book.excel

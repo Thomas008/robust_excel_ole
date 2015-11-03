@@ -43,7 +43,7 @@ Options are
   +:default_excel+, +:force_excel+, +:if_absent+, +:if_unsaved+, +:if_obstructed+, 
   +:read_only+, +:visible+, +:displayalerts+. 
 
-Values for +:default_excel+ are +:reuse+, +:new+ or some Excel instance. Values for +:force_excel+ are +:new+ or some Excel instance. 
+Values for +:default_excel+ are +:reuse+, +:new+ or some Excel instance. Values for +:force_excel+ are +:new+ or some Excel instance. Values for +:if_unsaved+ are +:raise+, +:accept+, +:forget+, +:alert+ and +:new_excel+. Values for +:if_obstructed+ are +:raise+, +:save+, +:close_if_saved+, +:forget+, +:alert+ and +:new_excel+. Values for +:if_absent+ are +:raise+ and +:create+.
 
 Here are a few examples:
 
@@ -68,7 +68,7 @@ If a workbook is open and a workbook with the same name but in different path sh
 
   book.close
 
-There is one option: : +:if_unsaved+. Example:
+There is one option: : +:if_unsaved+. Values for this option are +:raise+, +:save+, +:forget+, +:alert+ and +:keep_open+. Example:
 
 Closing the workbook and saving it before if it has unsaved changes.
 

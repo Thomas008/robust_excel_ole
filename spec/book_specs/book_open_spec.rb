@@ -225,6 +225,24 @@ describe Book do
         @book.close rescue nil
       end
 
+      it "should open in a given Excel provided as Excel, Book, or WIN32OLE representing an Excel or Workbook" do
+        book2 = Book.open(@another_simple_file)
+        book3 = Book.open(@different_file)
+        book3 = Book.open(@simple_file, :force_excel => book2.excel)
+        book3.excel.should === book2.excel
+        book4 = Book.open(@simple_file, :force_excel => @book) 
+        book4.excel.should === @book.excel
+        book3.close
+        book4.close
+        book5 = Book.open(@simple_file, :force_excel => book2.workbook)
+        book5.excel.should ===  book2.excel
+        win32ole_excel1 = WIN32OLE.connect(@book.workbook.Fullname).Application
+        puts "win32ole_excel1: #{win32ole_excel1}"
+        book6 = Book.open(@simple_file, :force_excel => win32ole_excel1)
+        book6.excel.should === @book.excel
+      end
+
+
       it "should open in a new Excel" do
         book2 = Book.open(@simple_file, :force_excel => :new)
         book2.should be_alive

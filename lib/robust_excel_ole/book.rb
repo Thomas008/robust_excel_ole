@@ -67,9 +67,9 @@ module RobustExcelOle
           # if readonly is true, then prefer a book that is given in force_excel if this option is set
           book = bookstore.fetch(file, 
                   :prefer_writable => (not options[:read_only]), 
-                  :prefer_excel    => (options[:read_only] ? options[:force_excel].excel : nil)) rescue nil
+                  :prefer_excel    => (options[:read_only] ? excel_of(options[:force_excel]) : nil)) rescue nil
           if book
-            if (((not options[:force_excel]) || (options[:force_excel].excel == book.excel)) &&
+            if (((not options[:force_excel]) || (excel_of(options[:force_excel]) == book.excel)) &&
                  (not (book.alive? && (not book.saved) && (not options[:if_unsaved] == :accept))))
               book.options = DEFAULT_OPEN_OPTS.merge(opts)
               book.ensure_excel(options) unless book.excel.alive?
@@ -81,7 +81,6 @@ module RobustExcelOle
             end
           end
         end
-        #options[:excel] = options[:force_excel] ? options[:force_excel] : options[:default_excel]
         new(file, options, &block)
       end
     end    
@@ -114,8 +113,7 @@ module RobustExcelOle
         @excel = excel_class.new(win32ole_excel)     
         self.apply_options(options)       
         # if the Excel could not be lifted up, then create it         
-        ensure_excel(options) #unless (@excel && @excel.alive?)
-        t "@excel: #{@excel}"
+        ensure_excel(options)
       else
         file = file_or_workbook
         ensure_excel(options)
@@ -136,6 +134,27 @@ module RobustExcelOle
       @excel.displayalerts = options[:displayalerts] unless options[:displayalerts].nil? 
     end
 
+  private
+
+    # returns an Excel object when given: Excel, Book or Win32ole object representing a Workbook or an Excel
+    def self.excel_of(object)
+      begin
+        if (object.is_a? WIN32OLE) 
+          begin
+            excel_class.new(object)
+          rescue WIN32OLERuntimeError 
+            new(object).excel 
+          end
+        else
+          object.excel
+        end
+      rescue
+        t "no Excel, Book, or WIN32OLE object representing a Workbook or an Excel instance"
+      end
+    end
+
+  public
+
     def ensure_excel(options)
       return if @excel && @excel.alive?
       if options[:excel] == :reuse
@@ -155,7 +174,7 @@ module RobustExcelOle
           excel_options[:reuse] = false
           @excel = excel_class.new(excel_options)
         else 
-          @excel = options[:excel].excel
+          @excel = self.class.excel_of(options[:excel])
         end
       end
       # if :excel => :new or (:excel => :reuse but could not reuse)

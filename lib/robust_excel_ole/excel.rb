@@ -18,7 +18,7 @@ module RobustExcelOle
     end
 
     # returns an Excel instance  
-    # options:
+    # given: a WIN32OLE object representing an Excel instance, or a Hash representing options:
     #  :reuse          connects to an already running Excel instance (true) or
     #                  creates a new Excel instance (false)   (default: true)
     #  :displayalerts  allows display alerts in Excel         (default: false)

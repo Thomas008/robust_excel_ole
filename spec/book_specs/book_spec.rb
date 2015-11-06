@@ -235,6 +235,25 @@ describe Book do
         book2.excel.should_not == @book.excel
         book2.close
       end
+
+      it "should open in a given Excel provided as Excel, Book, or WIN32OLE representing an Excel or Workbook" do
+        book2 = Book.open(@another_simple_file)
+        book3 = Book.open(@different_file, :default_excel => book2.excel)
+        book3.excel.should === book2.excel
+        book3.close
+        book4 = Book.open(@different_file, :default_excel => book2) 
+        book4.excel.should === book2.excel
+        book4.close
+        book5 = Book.open(@different_file, :default_excel => book2.workbook)
+        book5.excel.should ===  book2.excel
+        book5.close
+        win32ole_excel1 = WIN32OLE.connect(book2.workbook.Fullname).Application
+        book6 = Book.open(@different_file, :default_excel => win32ole_excel1)
+        book6.excel.should === book2.excel
+        book6.close
+      end
+
+
     end
 
     context "with :if_unsaved" do

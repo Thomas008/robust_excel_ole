@@ -129,14 +129,14 @@ module RobustExcelOle
       end
     end
 
-    def apply_options(options)
+    def apply_options(options) # :nodoc: #
       @excel.visible = options[:visible] unless options[:visible].nil?
       @excel.displayalerts = options[:displayalerts] unless options[:displayalerts].nil? 
     end
 
   private
 
-    # returns an Excel object when given: Excel, Book or Win32ole object representing a Workbook or an Excel
+    # returns an Excel object when given Excel, Book or Win32ole object representing a Workbook or an Excel
     def self.excel_of(object)
       begin
         if (object.is_a? WIN32OLE) 

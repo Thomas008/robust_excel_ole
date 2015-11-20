@@ -279,7 +279,13 @@ module RobustExcelOle
             t "WeakRefError: #{msg.message}"
             raise ExcelErrorOpen, "#{msg.message}"
           end
+          # workaround for linked workbooks for Excel 2007: 
+          # opening and closing a dummy workbook if Excel has no workbooks.
+          # delay: with visible: 0.2 sec, without visible almost none
+          count = workbooks.Count
+          workbooks.Add if count == 0
           workbooks.Open(filename,{ 'ReadOnly' => options[:read_only] })
+          workbooks.Item(1).Close if count == 0
         rescue WIN32OLERuntimeError => msg
           t "WIN32OLERuntimeError: #{msg.message}" 
           if msg.message =~ /800A03EC/

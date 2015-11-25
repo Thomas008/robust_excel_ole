@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+require 'timeout'
+
 module RobustExcelOle
 
   class Excel
@@ -90,15 +92,18 @@ module RobustExcelOle
     
     # returns an Excel instance to which one 'connect' was possible
     def self.current_excel   # :nodoc: #
+      #p "current_excel:"
       result = WIN32OLE.connect('Excel.Application') rescue nil
+      #p "result: #{result}"
       if result
         begin
-          result.Visible    # send any method, just to see if it responds
+          # result.Visible    # send any method, just to see if it responds
         rescue 
           t "dead excel " + ("Window-handle = #{result.HWnd}" rescue "without window handle")
           return nil
         end
       end
+      #p "result: #{result}"
       result
     end
 
@@ -112,23 +117,33 @@ module RobustExcelOle
     #                      :forget          -> closes the excel instance without saving the workbooks 
     #                      :alert           -> give control to Excel
     #  :hard          closes Excel instances soft (default: false), or, additionally kills the Excel processes hard (true)
+    #  :kill_if_timeout:  kills Excel instances hard if the closing process exceeds a certain time limit (default: true)
     def self.close_all(options={})
       options = {
         :if_unsaved => :raise,
-        :hard => false
+        :hard => false,
+        :kill_if_timeout => false
       }.merge(options)      
       excels_number = excel_processes.size
-      while current_excel do
-        close_one_excel(options)
-        GC.start
-        sleep 0.3
-        current_excels_number = excel_processes.size
-        if current_excels_number == excels_number && excels_number > 0
-          raise ExcelError, "some Excel instance cannot be closed"
-        end
-        excels_number = current_excels_number
-      end      
-      kill_all if options[:hard]
+      timeout = false
+      begin
+        status = Timeout::timeout(5) {
+          while current_excel do
+            close_one_excel(options)
+            GC.start
+            sleep 0.3
+            current_excels_number = excel_processes.size
+            if current_excels_number == excels_number && excels_number > 0
+              raise ExcelError, "some Excel instance cannot be closed"
+            end
+            excels_number = current_excels_number
+          end   
+        }
+      rescue Timeout::Error
+        raise ExcelError, "close_all: timeout" unless options[:kill_if_timeout]
+        timeout = true
+      end
+      kill_all if options[:hard] || (timeout && options[:kill_if_timeout])
       init
     end
 

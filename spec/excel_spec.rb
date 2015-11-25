@@ -11,7 +11,7 @@ module RobustExcelOle
   describe Excel do
 
     before(:all) do
-      Excel.kill_all
+      Excel.close_all(:if_unsaved => :forget)
     end
 
     before do
@@ -24,7 +24,7 @@ module RobustExcelOle
     end
 
     after do
-      Excel.kill_all
+      Excel.close_all(:if_unsaved => :forget)
       rm_tmp(@dir)
     end
 

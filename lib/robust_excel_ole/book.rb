@@ -5,6 +5,7 @@ require 'weakref'
 module RobustExcelOle
 
   class Book
+
     attr_accessor :excel
     attr_accessor :workbook
     attr_accessor :stored_filename
@@ -149,7 +150,7 @@ module RobustExcelOle
           object.excel
         end
       rescue
-        t "no Excel, Book, or WIN32OLE object representing a Workbook or an Excel instance"
+        # t "no Excel, Book, or WIN32OLE object representing a Workbook or an Excel instance"
       end
     end
 

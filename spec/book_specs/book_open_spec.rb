@@ -319,12 +319,8 @@ describe Book do
       end
 
       it "should raise an error if no Excel or Book is given" do
-        book2 = Book.open(@simple_file, :force_excel => :new)
-        book2.excel.should_not == @book.excel
-        book2.close
-        @book.close
         expect{
-          Book.open(@simple_file, :force_excel => :book)
+          Book.open(@simple_file, :force_excel => :b)
           }.to raise_error(ExcelError, "receiver instance is neither an Excel nor a Book")
       end
 

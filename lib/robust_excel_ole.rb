@@ -69,7 +69,19 @@ class Object      # :nodoc: #
   def excel
     raise ExcelError, "receiver instance is neither an Excel nor a Book"
   end
+end
 
+class WIN32OLE
+  def excel
+    case self.ole_obj_help.name
+    when /Workbook/i 
+      new(self).excel 
+    when /Application/i
+      excel.R.new(self)
+    else
+      super
+    end
+  end
 end
 
 class ::String    # :nodoc: #

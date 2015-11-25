@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+fe# -*- coding: utf-8 -*-
 
 require 'weakref'
 
@@ -139,19 +139,20 @@ module RobustExcelOle
 
     # returns an Excel object when given Excel, Book or Win32ole object representing a Workbook or an Excel
     def self.excel_of(object)
-      begin
-        if (object.is_a? WIN32OLE) 
-          begin
-            excel_class.new(object)
-          rescue WIN32OLERuntimeError 
-            new(object).excel 
-          end
+
+      if object.is_a? WIN32OLE
+        case object.ole_obj_help.name
+        when /Workbook/i 
+          new(object).excel 
+        when /Application/i
+          excel_class.new(object)
         else
           object.excel
         end
-      rescue
+      else
+        object.excel
+      #rescue
         # t "no Excel, Book, or WIN32OLE object representing a Workbook or an Excel instance"
-      end
     end
 
   public

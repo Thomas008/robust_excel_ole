@@ -97,7 +97,7 @@ module RobustExcelOle
       #p "result: #{result}"
       if result
         begin
-          # result.Visible    # send any method, just to see if it responds
+          result.Visible    # send any method, just to see if it responds
         rescue 
           t "dead excel " + ("Window-handle = #{result.HWnd}" rescue "without window handle")
           return nil
@@ -172,23 +172,31 @@ module RobustExcelOle
         when :forget
           # nothing
         when :keep_open
-          return :keep_open
+          return
         when :alert
-          excel.DisplayAlerts = true
+          begin
+            excel.DisplayAlerts = true
+            yield
+          ensure
+            excel.DisplayAlerts = false
+          end
+          return
         else
           raise ExcelErrorClose, ":if_unsaved: invalid option: #{options[:if_unsaved].inspect}"
         end
       end
+      yield
     end
 
     # closes one Excel instance to which one was connected
     def self.close_one_excel(options={})
       excel = current_excel
       return unless excel
-      manage_unsaved_workbooks(excel, options)
-      weak_ole_excel = WeakRef.new(excel)
-      excel = nil
-      close_excel_ole_instance(weak_ole_excel.__getobj__)
+      manage_unsaved_workbooks(excel, options) do
+        weak_ole_excel = WeakRef.new(excel)
+        excel = nil
+        close_excel_ole_instance(weak_ole_excel.__getobj__)
+      end
     end
 
     def self.close_excel_ole_instance(ole_excel)
@@ -246,13 +254,14 @@ module RobustExcelOle
     #                      :raise (default) -> raises an exception       
     #                      :save            -> saves the workbooks before closing
     #                      :forget          -> closes the Excel instance without saving the workbooks 
+    #                      :keep_open       -> keeps the Excel instance open 
     #  :hard          kill the Excel instance hard (default: false) 
     def close(options = {})
       options = {
         :if_unsaved => :raise,
         :hard => false
       }.merge(options)
-      unless self.class.manage_unsaved_workbooks(@ole_excel, options) == :keep_open
+      self.class.manage_unsaved_workbooks(@ole_excel, options) do 
         close_excel(options)
       end
     end

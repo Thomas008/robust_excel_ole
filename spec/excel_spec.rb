@@ -789,24 +789,36 @@ module RobustExcelOle
         
         before do
           @book = Book.open(@simple_file)
-          @book2 = Book.open(@another_simple_file)
           @book3 = Book.open(@different_file, :read_only => true)
           sheet = @book[0]
           sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
           sheet3 = @book3[0]
           sheet3[1,1] = sheet3[1,1].value == "foo" ? "bar" : "foo"
+          @book2 = Book.open(@another_simple_file, :force_excel => :new)
+          sheet2 = @book2[0]
+          sheet2[1,1] = sheet2[1,1].value == "foo" ? "bar" : "foo"
         end
 
         it "should list unsaved workbooks" do
           @book.Saved.should be_false
-          @book2.Save
-          @book2.Saved.should be_true
+          @book2.Saved.should be_false
           @book3.Saved.should be_false
           excel = @book.excel
           # unsaved_workbooks yields different WIN32OLE objects than book.workbook
           uw_names = []
           excel.unsaved_workbooks.each {|uw| uw_names << uw.Name}
           uw_names.should == [@book.workbook.Name]
+        end
+
+        it "should list all unsaved workbooks" do
+          result = []
+          Excel.unsaved_workbooks_all.each do |unsaved_workbooks| 
+            uw_names = []
+            unsaved_workbooks.each {|uw| uw_names << uw.Name}
+            result << uw_names
+          end
+          result.include?([@book.workbook.Name]).should be_true
+          result.include?([@book2.workbook.Name]).should be_true
         end
 
       end

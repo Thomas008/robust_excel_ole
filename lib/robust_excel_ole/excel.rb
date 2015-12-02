@@ -391,11 +391,18 @@ module RobustExcelOle
       false
     end
 
-    def print_workbooks
-      self.Workbooks.each {|w| t "#{w.Name} #{w}"}
+    
+    # returns all unsaved workbooks in Excel instances
+    def self.unsaved_workbooks_all
+      result = []
+      @@hwnd2excel.each do |hwnd,wr_excel| 
+        excel = wr_excel.__getobj__
+        result << excel.unsaved_workbooks
+      end
+      result
     end
 
-    # returns all unsaved workbooks
+    # returns unsaved workbooks
     def unsaved_workbooks
       result = []
       begin
@@ -408,6 +415,11 @@ module RobustExcelOle
     end
     # yields different WIN32OLE objects than book.workbook
     #self.class.map {|w| (not w.Saved)}
+
+    def print_workbooks
+      self.Workbooks.each {|w| t "#{w.Name} #{w}"}
+    end
+
 
     # empty workbook is generated, saved and closed 
     def generate_workbook file_name                  

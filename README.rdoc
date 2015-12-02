@@ -64,6 +64,8 @@ If a workbook is open and a workbook with the same name but in different path sh
 
   book = Book.open('path/workbook.xls', :if_obstructed => :forget)
 
+Opening linked workbooks for EXCEL 2007 is supported
+
 === Closing a workbook.
 
   book.close

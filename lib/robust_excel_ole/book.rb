@@ -739,6 +739,10 @@ module RobustExcelOle
       "<#Book: " + "#{"not alive " unless alive?}" + "#{File.basename(self.filename) if alive?}" + " #{@workbook} #{@excel}"  + ">"
     end
 
+    def self.in_context(klass)
+      
+    end
+
     def self.excel_class
       @excel_class ||= begin
         module_name = self.parent_name

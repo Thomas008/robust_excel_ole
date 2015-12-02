@@ -72,16 +72,6 @@ class Object      # :nodoc: #
 end
 
 class WIN32OLE
-  def excel
-    case self.ole_obj_help.name
-    when /Workbook/i 
-      new(self).excel 
-    when /Application/i
-      excel.R.new(self)
-    else
-      super
-    end
-  end
 end
 
 class ::String    # :nodoc: #

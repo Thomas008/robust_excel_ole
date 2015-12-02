@@ -13,8 +13,7 @@ describe Book do
     excel = Excel.new(:reuse => true)
     open_books = excel == nil ? 0 : excel.Workbooks.Count
     puts "*** open books *** : #{open_books}" if open_books > 0
-    #Excel.close_all
-    Excel.kill_all
+    Excel.close_all
   end
 
   before do
@@ -31,7 +30,6 @@ describe Book do
 
   after do
     Excel.kill_all
-    #Excel.close_all
     rm_tmp(@dir)
   end
 

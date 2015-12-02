@@ -11,7 +11,7 @@ module RobustExcelOle
   describe Excel do
 
     before(:all) do
-      Excel.kill_all
+      Excel.close_all
     end
 
     before do

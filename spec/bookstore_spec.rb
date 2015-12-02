@@ -55,7 +55,7 @@ describe Bookstore do
 
   after do
     begin
-      Excel.close_all
+      Excel.kill_all
     rescue WeakRef::RefError => msg
       puts "#{msg.message}"
       Excel.kill_all

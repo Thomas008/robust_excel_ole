@@ -26,7 +26,7 @@ describe "subclassed Book" do
   end
 
   after do
-    RobustExcelOle::Excel.close_all
+    RobustExcelOle::Excel.kill_all
     rm_tmp(@dir)
   end
 

@@ -21,7 +21,7 @@ describe RobustExcelOle::Sheet do
   end 
 
   after(:all) do
-    Excel.close_all
+    Excel.kill_all
   end 
 
   describe ".initialize" do

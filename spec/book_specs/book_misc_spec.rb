@@ -29,7 +29,7 @@ describe Book do
   end
 
   after do
-    Excel.close_all
+    Excel.kill_all
     rm_tmp(@dir)
   end
 

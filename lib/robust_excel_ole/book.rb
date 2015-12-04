@@ -87,6 +87,9 @@ module RobustExcelOle
     end    
 
     # creates a Book object for a given workbook or file name
+    # @param [WIN32OLE] workbook a workbook
+    # @options opts [Symbol] see above
+    # @return [Book] a Book object
     def self.new(workbook, opts={ }, &block)      
       if workbook && (workbook.is_a? WIN32OLE)
         filename = workbook.Fullname.tr('\\','/') rescue nil
@@ -479,7 +482,9 @@ module RobustExcelOle
       value      
     end
 
-    # set the contents of a range with given name
+    # sets the contents of a range with given name
+    # @param [String] name the range name
+    # @param [Variant] value the contents of the range
     def set_nvalue(name, value) 
       begin
         item = self.Names.Item(name)
@@ -553,7 +558,7 @@ module RobustExcelOle
     end
 
     # simple save of a workbook.
-    # returns true, if successfully saved, nil or error otherwise
+    # @return [Boolean] true, if successfully saved, nil or error otherwise
     def save      
       raise ExcelErrorSave, "Workbook is not alive" if (not alive?)
       raise ExcelErrorSave, "Not opened for writing (opened with :read_only option)" if @workbook.ReadOnly
@@ -570,6 +575,8 @@ module RobustExcelOle
     end
 
     # saves a workbook with a given file name.
+    # @param [String] file the file name
+    # @option opts [Symbol] :if_exists if a file with the same name exists, then  
     #
     # options:
     #  :if_exists   if a file with the same name exists, then  
@@ -669,7 +676,7 @@ module RobustExcelOle
 
   public
 
-    # returns a sheet, if a name of a sheet or a number is given
+    # returns a sheet, if a sheet name or a number is given
     # returns the value of the range, if a global name of a range in the book is given 
     def [] name
       name += 1 if name.is_a? Numeric
@@ -685,6 +692,8 @@ module RobustExcelOle
     end
 
     # sets the value of a range given its name
+    # @param [String] name the name of the range
+    # @param [Variant] value the contents of the range
     def []= (name, value)
       set_nvalue(name,value)
     end
@@ -695,6 +704,11 @@ module RobustExcelOle
       end
     end
 
+    # adds a sheet to the workbook
+    # @param [Sheet] sheet a sheet
+    # @option opts [Symbol] :as new name of the copyed sheet
+    # @option opts [Symbol] :before a sheet before which the sheet shall be inserted
+    # @option opts [Symbol] :after a sheet after which the sheet shall be inserted
     def add_sheet(sheet = nil, opts = { })
       if sheet.is_a? Hash
         opts = sheet

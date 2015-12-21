@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
+
+#include Utilties
+
 module RobustExcelOle
+
   class Sheet
     attr_reader :worksheet
 
@@ -27,7 +31,7 @@ module RobustExcelOle
         if msg.message =~ /800A03EC/ 
           raise ExcelErrorSheet, "sheet name #{new_name.inspect} already exists"
         else
-          t "#{msg.message}"
+          trace "#{msg.message}"
           raise ExcelErrorSheetUnknown
         end
       end
@@ -146,7 +150,7 @@ module RobustExcelOle
           self.Names.Add("Name" => name, "RefersToR1C1" => "=" + address)
         end
       rescue WIN32OLERuntimeError => msg
-        t "WIN32OLERuntimeError: #{msg.message}"
+        trace "WIN32OLERuntimeError: #{msg.message}"
         raise SheetError, "cannot add name #{name.inspect} to cell with row #{row.inspect} and column #{column.inspect}"
       end
     end

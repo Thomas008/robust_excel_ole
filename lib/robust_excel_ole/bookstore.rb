@@ -1,6 +1,8 @@
 
 # -*- coding: utf-8 -*-
 
+#include Utilities
+
 module RobustExcelOle
 
   class Bookstore
@@ -29,7 +31,7 @@ module RobustExcelOle
           begin 
             @filename2books[filename_key].delete(wr_book)
           rescue
-            t "Warning: deleting dead reference failed: file: #{filename.inspect}"
+            trace "Warning: deleting dead reference failed: file: #{filename.inspect}"
           end
         else
           book = wr_book.__getobj__
@@ -93,19 +95,19 @@ module RobustExcelOle
 
     # prints the book store
     def print
-      t "@filename2books:"
+      trace "@filename2books:"
       if @filename2books
         @filename2books.each do |filename,books|
-          t " filename: #{filename}"
-          t " books:"
+          trace " filename: #{filename}"
+          trace " books:"
           if books.empty? 
-            t " []" 
+            trace " []" 
           else
             books.each do |book|
               if book.weakref_alive?
-                t "#{book}"
+                trace "#{book}"
               else
-                t "weakref not alive"
+                trace "weakref not alive"
               end
             end
           end

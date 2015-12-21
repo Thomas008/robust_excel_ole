@@ -2,6 +2,8 @@
 
 require 'weakref'
 
+#include Utilities
+
 module RobustExcelOle
 
   class Book
@@ -155,7 +157,7 @@ module RobustExcelOle
         object.excel
       end
       #rescue
-        # t "no Excel, Book, or WIN32OLE object representing a Workbook or an Excel instance"
+        # trace "no Excel, Book, or WIN32OLE object representing a Workbook or an Excel instance"
     end
 
   public
@@ -274,14 +276,14 @@ module RobustExcelOle
           begin
             workbooks = @excel.Workbooks
           rescue RuntimeError => msg
-            t "RuntimeError: #{msg.message}" 
+            trace "RuntimeError: #{msg.message}" 
             if msg.message =~ /method missing: Excel not alive/
               raise ExcelErrorOpen, "Excel instance not alive or damaged" 
             else
               raise ExcelErrorOpen, "unknown RuntimeError"
             end
           rescue WeakRef::RefError => msg
-            t "WeakRefError: #{msg.message}"
+            trace "WeakRefError: #{msg.message}"
             raise ExcelErrorOpen, "#{msg.message}"
           end
           # workaround for linked workbooks for Excel 2007: 
@@ -292,7 +294,7 @@ module RobustExcelOle
           workbooks.Open(filename,{ 'ReadOnly' => options[:read_only] })
           workbooks.Item(1).Close if @excel.Version == "12.0" && count == 0
         rescue WIN32OLERuntimeError => msg
-          t "WIN32OLERuntimeError: #{msg.message}" 
+          trace "WIN32OLERuntimeError: #{msg.message}" 
           if msg.message =~ /800A03EC/
             raise ExcelErrorOpen, "open: user canceled or open error"
           else 
@@ -726,7 +728,7 @@ module RobustExcelOle
         if msg.message =~ /800A03EC/ 
           raise ExcelErrorSheet, "sheet name already exists"
         else
-          t "#{msg.message}"
+          trace "#{msg.message}"
           raise ExcelErrorSheetUnknown
         end
       end

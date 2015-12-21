@@ -7,22 +7,54 @@ require File.join(File.dirname(__FILE__), 'robust_excel_ole/cell')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/range')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/cygwin') if RUBY_PLATFORM =~ /cygwin/
 #+#require "robust_excel_ole/version"
+require File.join(File.dirname(__FILE__), 'robust_excel_ole/utilities')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/version')
 
 REO = RobustExcelOle
 
-include Enumerable
-
 LOG_TO_STDOUT = true
-
 REO_LOG_FILE = "reo.log"
 REO_LOG_DIR = ""
 
 File.delete REO_LOG_FILE rescue nil
 
-module RobustExcelOle
 
-  def t(text)
+include Enumerable
+
+module RobustExcelOle  
+
+  def rot
+    # allocate 4 bytes to store a pointer to the IRunningObjectTable object
+    irot_ptr = 0.chr * 4      # or [0].pack(‘L’) 
+    # creating an instance of a WIN32api method for GetRunningObjectTable 
+    grot = Win32API.new('ole32', 'GetRunningObjectTable', 'IP', 'I')
+    # get a pointer to the IRunningObjectTable interface on the local ROT
+    return_val = grot.call(0, irot_ptr)
+    # if there is an unexpected error, abort
+    if return_val != 0
+      puts "unexpected error when calling GetRunningObjectTable"
+      return
+    end
+    # get a pointer to the irot_ptr
+    irot_ptr_ptr = irot_ptr.unpack('L').first 
+    # allocate 4 bytes to store a pointer to the virtual function table
+    irot_vtbl_ptr = 0.chr * 4    # or irot_vtbl_ptr = [0].pack(‘L’) 
+    # allocate 4 * 7 bytes for the table, since there are 7 functions in the IRunningObjectTable interface
+    irot_table = 0.chr * (4 * 70)
+    # creating an instance of a WIN32api method for memcpy
+    memcpy = Win32API.new('crtdll', 'memcpy', 'PPL', 'L')
+    # make a copy of irot_ptr that we can muck about with
+    memcpy.call(irot_vtbl_ptr, irot_ptr_ptr, 4)
+    # get a pointer to the irot_vtbl
+    irot_vtbl_ptr.unpack('L').first
+    # Copy the 4*7 bytes at the irot_vtbl_ptr memory address to iuia_table
+    memcpy.call(irot_table, irot_vtbl_ptr.unpack('L').first, 4 * 70)
+    # unpack the contents of the virtual function table into the 'irot_table' array.
+    irot_table = irot_table.unpack('L*')
+    puts "Number of elements in the vtbl is: " + irot_table.length.to_s
+  end
+
+  def trace(text)
     if LOG_TO_STDOUT 
       puts text
     else
@@ -37,7 +69,7 @@ module RobustExcelOle
         file.puts text
       end
     end
-  end
+  end    
 
   def absolute_path(file)
     file = File.expand_path(file)
@@ -58,11 +90,14 @@ module RobustExcelOle
     path
   end
 
-  module_function :t, :absolute_path, :canonize
+  module_function :absolute_path, :canonize, :trace, :rot
 
   class VBAMethodMissingError < RuntimeError  # :nodoc: #
   end
 
+  #module RobustExcelOle::Utilites  # :nodoc: #
+
+  #end
 end
 
 class Object      # :nodoc: #

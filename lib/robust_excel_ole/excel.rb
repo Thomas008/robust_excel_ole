@@ -2,7 +2,9 @@
 
 require 'timeout'
 
-module RobustExcelOle
+#include Utilities
+
+module RobustExcelOle    
 
   class Excel
 
@@ -99,7 +101,7 @@ module RobustExcelOle
         begin
           result.Visible    # send any method, just to see if it responds
         rescue 
-          t "dead excel " + ("Window-handle = #{result.HWnd}" rescue "without window handle")
+          trace "dead excel " + ("Window-handle = #{result.HWnd}" rescue "without window handle")
           return nil
         end
       end
@@ -158,7 +160,7 @@ module RobustExcelOle
       begin
         excel.Workbooks.each {|w| unsaved_workbooks << w unless (w.Saved || w.ReadOnly)}
       rescue RuntimeError => msg
-        t "RuntimeError: #{msg.message}" 
+        trace "RuntimeError: #{msg.message}" 
         raise ExcelErrorOpen, "Excel instance not alive or damaged" if msg.message =~ /failed to get Dispatch Interface/
       end
       unless unsaved_workbooks.empty? 
@@ -214,14 +216,14 @@ module RobustExcelOle
         if weak_excel_ref.weakref_alive? then
           begin
             weak_excel_ref.ole_free
-            t "successfully ole_freed #{weak_excel_ref}"
+            trace "successfully ole_freed #{weak_excel_ref}"
           rescue
-            t "could not do ole_free on #{weak_excel_ref}"
+            trace "could not do ole_free on #{weak_excel_ref}"
           end
         end
         @@hwnd2excel.delete(excel_hwnd)
       rescue => e
-        t "Error when closing Excel: #{e.message}"
+        trace "Error when closing Excel: #{e.message}"
         #t e.backtrace
       end
       free_all_ole_objects
@@ -238,13 +240,13 @@ module RobustExcelOle
         #t o.ole_type rescue nil
         begin
           o.ole_free
-          #t "olefree OK"
+          #trace "olefree OK"
         rescue
-          #t "olefree_error: #{$!}"
-          #t $!.backtrace.first(9).join "\n"
+          #trace "olefree_error: #{$!}"
+          #trace $!.backtrace.first(9).join "\n"
         end
       end
-      t "went through #{anz_objekte} OLE objects"
+      trace "went through #{anz_objekte} OLE objects"
     end   
 
   public
@@ -285,10 +287,10 @@ module RobustExcelOle
       if weak_excel_ref.weakref_alive? then
         begin
           weak_excel_ref.ole_free
-          t "successfully ole_freed #{weak_excel_ref}"
+          trace "successfully ole_freed #{weak_excel_ref}"
         rescue => msg
-          t "#{msg.message}"
-          t "could not do ole_free on #{weak_excel_ref}"
+          trace "#{msg.message}"
+          trace "could not do ole_free on #{weak_excel_ref}"
         end
       end
       @@hwnd2excel.delete(excel_hwnd)      
@@ -355,11 +357,11 @@ module RobustExcelOle
         if excel_weakref.weakref_alive?
           excel_weakref.__getobj__
         else
-          t "dead reference to an Excel"
+          trace "dead reference to an Excel"
           begin 
             @@hwnd2excel.delete(hwnd)
           rescue
-            t "Warning: deleting dead reference failed! (hwnd: #{hwnd.inspect})"
+            trace "Warning: deleting dead reference failed! (hwnd: #{hwnd.inspect})"
           end
         end
       end
@@ -408,7 +410,7 @@ module RobustExcelOle
       begin
         self.Workbooks.each {|w| result << w unless (w.Saved || w.ReadOnly)}
       rescue RuntimeError => msg
-        t "RuntimeError: #{msg.message}" 
+        trace "RuntimeError: #{msg.message}" 
         raise ExcelErrorOpen, "Excel instance not alive or damaged" if msg.message =~ /failed to get Dispatch Interface/
       end
       result      
@@ -417,7 +419,7 @@ module RobustExcelOle
     #self.class.map {|w| (not w.Saved)}
 
     def print_workbooks
-      self.Workbooks.each {|w| t "#{w.Name} #{w}"}
+      self.Workbooks.each {|w| puts "#{w.Name} #{w}"}
     end
 
 

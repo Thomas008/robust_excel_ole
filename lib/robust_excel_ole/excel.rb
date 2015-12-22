@@ -2,7 +2,7 @@
 
 require 'timeout'
 
-#include Utilities
+include Utilities
 
 module RobustExcelOle    
 

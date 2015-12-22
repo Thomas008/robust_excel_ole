@@ -2,7 +2,7 @@
 
 require 'weakref'
 
-#include Utilities
+include Utilities
 
 module RobustExcelOle
 

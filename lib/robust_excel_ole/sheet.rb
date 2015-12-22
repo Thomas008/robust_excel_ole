@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#include Utilties
+include Utilities
 
 module RobustExcelOle
 

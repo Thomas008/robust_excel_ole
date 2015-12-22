@@ -1,4 +1,5 @@
 require "win32ole"
+require File.join(File.dirname(__FILE__), 'robust_excel_ole/utilities')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/excel')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/bookstore')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/book')
@@ -7,17 +8,9 @@ require File.join(File.dirname(__FILE__), 'robust_excel_ole/cell')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/range')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/cygwin') if RUBY_PLATFORM =~ /cygwin/
 #+#require "robust_excel_ole/version"
-require File.join(File.dirname(__FILE__), 'robust_excel_ole/utilities')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/version')
 
 REO = RobustExcelOle
-
-LOG_TO_STDOUT = true
-REO_LOG_FILE = "reo.log"
-REO_LOG_DIR = ""
-
-File.delete REO_LOG_FILE rescue nil
-
 
 include Enumerable
 
@@ -54,23 +47,6 @@ module RobustExcelOle
     puts "Number of elements in the vtbl is: " + irot_table.length.to_s
   end
 
-  def trace(text)
-    if LOG_TO_STDOUT 
-      puts text
-    else
-      if REO_LOG_DIR.empty?
-        homes = ["HOME", "HOMEPATH"]
-        home = homes.find {|h| ENV[h] != nil}
-        reo_log_dir = ENV[home]
-      else
-        reo_log_dir = REO_LOG_DIR
-      end
-      File.open(reo_log_dir + "/" + REO_LOG_FILE,"a") do | file |
-        file.puts text
-      end
-    end
-  end    
-
   def absolute_path(file)
     file = File.expand_path(file)
     file = RobustExcelOle::Cygwin.cygpath('-w', file) if RUBY_PLATFORM =~ /cygwin/
@@ -90,7 +66,7 @@ module RobustExcelOle
     path
   end
 
-  module_function :absolute_path, :canonize, :trace, :rot
+  module_function :absolute_path, :canonize, :rot
 
   class VBAMethodMissingError < RuntimeError  # :nodoc: #
   end

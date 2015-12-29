@@ -33,18 +33,24 @@ module RobustExcelOle
     # allocate 4 bytes to store a pointer to the virtual function table
     irot_vtbl_ptr = 0.chr * 4    # or irot_vtbl_ptr = [0].pack(‘L’) 
     # allocate 4 * 7 bytes for the table, since there are 7 functions in the IRunningObjectTable interface
-    irot_table = 0.chr * (4 * 70)
+    irot_table = 0.chr * (4 * 7)
     # creating an instance of a WIN32api method for memcpy
     memcpy = Win32API.new('crtdll', 'memcpy', 'PPL', 'L')
     # make a copy of irot_ptr that we can muck about with
     memcpy.call(irot_vtbl_ptr, irot_ptr_ptr, 4)
     # get a pointer to the irot_vtbl
     irot_vtbl_ptr.unpack('L').first
-    # Copy the 4*7 bytes at the irot_vtbl_ptr memory address to iuia_table
-    memcpy.call(irot_table, irot_vtbl_ptr.unpack('L').first, 4 * 70)
+    # Copy the 4*7 bytes at the irot_vtbl_ptr memory address to irot_table
+    memcpy.call(irot_table, irot_vtbl_ptr.unpack('L').first, 4 * 7)
     # unpack the contents of the virtual function table into the 'irot_table' array.
     irot_table = irot_table.unpack('L*')
     puts "Number of elements in the vtbl is: " + irot_table.length.to_s
+    # EnumRunning is the 1st function in the vtbl.  
+    enumRunning = Win32::API::Function.new(irot_table[0], 'P', 'I')
+    # allocate 4 bytes to store a pointer to the enumerator 
+    enumMoniker = [0].pack('L') # or 0.chr * 4
+    # create a pointer to the enumerator
+    return_val_er = enumRunning.call(enumMoniker)
   end
 
   def absolute_path(file)

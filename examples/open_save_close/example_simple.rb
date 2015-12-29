@@ -1,14 +1,19 @@
 # example_simple.rb: 
 # open a book, simple save, save_as, close
 
+LOG_TO_STDOUT = false
+REO_LOG_FILE = "reo2.log"
+REO_LOG_DIR = ""
+
 require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
 require File.join(File.dirname(__FILE__), '../../spec/helpers/create_temporary_dir')
 require "fileutils"
 
 include RobustExcelOle
 
-Excel.close_all
+Excel.kill_all
 begin
+  trace "hello"
   dir = create_tmpdir
   file_name = dir + 'workbook.xls'
   other_file_name = dir + 'different_workbook.xls'

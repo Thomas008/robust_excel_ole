@@ -3,7 +3,7 @@
 
 LOG_TO_STDOUT = false
 REO_LOG_FILE = "reo2.log"
-REO_LOG_DIR = ""
+#REO_LOG_DIR = "C:/"
 
 require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
 require File.join(File.dirname(__FILE__), '../../spec/helpers/create_temporary_dir')

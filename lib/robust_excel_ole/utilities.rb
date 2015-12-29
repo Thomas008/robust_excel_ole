@@ -1,10 +1,20 @@
 
 begin
-  LOG_TO_STDOUT   
+  LOG_TO_STDOUT
 rescue NameError
-  LOG_TO_STDOUT = true
-  REO_LOG_FILE = "reo.log"
-  REO_LOG_DIR = ""
+  LOG_TO_STDOUT = false
+end
+unless LOG_TO_STDOUT
+  begin
+    REO_LOG_FILE
+  rescue NameError
+    REO_LOG_FILE = "reo.log"
+  end
+  begin
+    REO_LOG_DIR
+  rescue NameError
+    REO_LOG_DIR = ""
+  end
 end
 
 File.delete REO_LOG_FILE rescue nil

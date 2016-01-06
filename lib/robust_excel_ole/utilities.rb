@@ -1,4 +1,9 @@
+LOG_TO_STDOUT = false     unless Object.const_defined?(:LOG_TO_STDOUT)
+REO_LOG_DIR   = ""        unless Object.const_defined?(:REO_LOG_DIR)
+REO_LOG_FILE  = "reo.log" unless Object.const_defined?(:REO_LOG_FILE)
+  
 
+=begin
 begin
   LOG_TO_STDOUT
 rescue NameError
@@ -16,6 +21,7 @@ unless LOG_TO_STDOUT
     REO_LOG_DIR = ""
   end
 end
+=end
 
 File.delete REO_LOG_FILE rescue nil
 

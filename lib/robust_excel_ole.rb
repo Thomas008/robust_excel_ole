@@ -96,10 +96,14 @@ class ::String    # :nodoc: #
     if empty?
       path_part
     else
-      begin 
-        File.join self, path_part
-      rescue TypeError
-        raise "Only strings can be parts of paths (given: #{path_part.inspect} of class #{path_part.class})"
+      if path_part.nil? or path_part.empty?
+        self
+      else
+        begin 
+          File.join self, path_part
+        rescue TypeError
+          raise "Only strings can be parts of paths (given: #{path_part.inspect} of class #{path_part.class})"
+        end
       end
     end
   end

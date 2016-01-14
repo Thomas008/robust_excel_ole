@@ -20,10 +20,13 @@ module RobustExcelOle
       end
     end
 
+    # returns name of the workbook
     def name
       @worksheet.Name
     end
 
+    # name the sheet
+    # @param [String] new_name the new name of the sheet 
     def name= (new_name)
       begin
         @worksheet.Name = new_name
@@ -108,8 +111,12 @@ module RobustExcelOle
     end
 
     # returns the contents of a range with given name
+    # @param [String] name  the range name
+    # @param [Hash]   opts  the options
+    # @options opts [Variant] :default default value (default: nil)
     # if no contents could returned, then return default value, if a default value was provided
     #                                raise an error, otherwise
+    # @raise SheetError if value of the range cannot be evaluated
     def nvalue(name, opts = {:default => nil})
       begin
         value = self.Evaluate(name)
@@ -120,12 +127,16 @@ module RobustExcelOle
       end
       if value == -2146826259
         return opts[:default] if opts[:default]
-        raise SheetError, "cannot evaluate name #{name.inspect} in sheet"
+        raise SheeetError, "cannot evaluate name #{name.inspect} in sheet"
       end
       return opts[:default] if (value.nil? && opts[:default])
       value
     end
 
+    # assigns a value to a range with given name
+    # @param [String]  name   the range name
+    # @param [Variant] value  the assigned value
+    # @raise SheetError if name is not in the sheet or the value cannot be assigned
     def set_nvalue(name,value)
       begin
         item = self.Names.Item(name)
@@ -140,6 +151,9 @@ module RobustExcelOle
     end
 
     # assigns a name to a range (a cell) given by an address
+    # @param [String] name   the range name
+    # @param [Fixnum] row    the row
+    # @param [Fixnum] column the column
     def set_name(name,row,column)
       begin
         old_name = self[row,column].Name.Name rescue nil

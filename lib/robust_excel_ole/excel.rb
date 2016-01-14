@@ -11,23 +11,31 @@ module RobustExcelOle
     @@hwnd2excel = {}
 
     # creates a new Excel instance
+    # @return [Excel] a new Excel instance
     def self.create
       new(:reuse => false)
     end
 
     # uses the current Excel instance (connects), if such a running Excel instance exists
     # creates a new one, otherwise 
+    # @return [Excel] an Excel instance
     def self.current
       new(:reuse => true)
     end
 
     # returns an Excel instance  
-    # given: a WIN32OLE object representing an Excel instance, or a Hash representing options:
+    # given a WIN32OLE object representing an Excel instance, or a Hash representing options:
+    # @param [Hash] options the options
+    # @option options [Boolean] :reuse  
+    # @option options [Boolean] :displayalerts 
+    # @option options [Boolean] :visible 
+    # options: 
     #  :reuse          connects to an already running Excel instance (true) or
     #                  creates a new Excel instance (false)   (default: true)
     #  :displayalerts  allows display alerts in Excel         (default: false)
     #  :visible        makes the Excel visible                (default: false)
     #  if :reuse => true, then DisplayAlerts and Visible are set only if they are given
+    # @return [Excel] an Excel instance
     def self.new(options = {})
       if options.is_a? WIN32OLE
         excel = options
@@ -68,8 +76,13 @@ module RobustExcelOle
     end
 
     # reopens a closed Excel instance
+    # @param [Hash] opts the options
+    # @option opts [Boolean] :reopen_workbooks
+    # @option opts [Boolean] :displayalerts
+    # @option opts [Boolean] :visible
     # options: reopen_workbooks (default: false): reopen the workbooks in the Excel instances
     #          :visible (default: false), :displayalerts (default: false)
+    # @return [Excel] an Excel instance
     def recreate(opts = {})      
       unless self.alive?
         opts = {
@@ -112,14 +125,21 @@ module RobustExcelOle
   public
 
     # closes all Excel instances
+    # @param [Hash] options the options
+    # @option options [Symbol]  :if_unsaved :raise, :save, :forget, :alert, or :keep_open
+    # @option options [Boolean] :hard
+    # @option options [Boolean] :kill_if_timeout
     # options:
     #  :if_unsaved    if unsaved workbooks are open in an Excel instance
     #                      :raise (default) -> raises an exception       
     #                      :save            -> saves the workbooks before closing
     #                      :forget          -> closes the excel instance without saving the workbooks 
+    #                      :keep_open       -> let the workbooks open
     #                      :alert           -> give control to Excel
     #  :hard          closes Excel instances soft (default: false), or, additionally kills the Excel processes hard (true)
     #  :kill_if_timeout:  kills Excel instances hard if the closing process exceeds a certain time limit (default: true)
+    # @raise ExcelError if time limit has exceeded, some Excel instance cannot be closed, or
+    #                   unsaved workbooks exist and option :if_unsaved is :raise
     def self.close_all(options={})
       options = {
         :if_unsaved => :raise,
@@ -252,6 +272,9 @@ module RobustExcelOle
   public
 
     # closes the Excel
+    # @param [Hash] options the options
+    # @option options [Symbol] :if_unsaved :raise, :save, :forget, or :keep_open
+    # @option options [Boolean] :hard      
     #  :if_unsaved    if unsaved workbooks are open in an Excel instance
     #                      :raise (default) -> raises an exception       
     #                      :save            -> saves the workbooks before closing
@@ -307,6 +330,7 @@ module RobustExcelOle
   public
 
     # kill all Excel instances
+    # @return [Fixnum] number of killed Excel processes
     def self.kill_all
       procs = WIN32OLE.connect("winmgmts:\\\\.")
       processes = procs.InstancesOf("win32_process")
@@ -423,7 +447,7 @@ module RobustExcelOle
     end
 
 
-    # empty workbook is generated, saved and closed 
+    # generates, saves, and closes empty workbook
     def generate_workbook file_name                  
       self.Workbooks.Add                           
       empty_workbook = self.Workbooks.Item(self.Workbooks.Count)          
@@ -459,7 +483,7 @@ module RobustExcelOle
       @displayalerts = @ole_excel.DisplayAlerts = displayalerts_value
     end
 
-    # return if in the current Excel instance DisplayAlerts is enabled
+    # return whether DisplayAlerts is enabled in the current Excel instance
     def displayalerts 
       @displayalerts = @ole_excel.DisplayAlerts
     end

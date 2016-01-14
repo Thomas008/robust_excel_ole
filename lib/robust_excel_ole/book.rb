@@ -27,42 +27,48 @@ module RobustExcelOle
     class << self
       
       # opens a workbook.
-      # 
-      # when reopening a workbook that was opened and closed before, transparency identity is ensured:
-      # same Book objects refer to the same Excel files, and vice versa
-      # 
+      # @param [String] file the file name
+      # @param [Hash] opts the options
+      # @option opts [Variant] :default_excel  :reuse (default), :new, or <excel-instance>     
+      # @option opts [Variant] :force_excel    :new (default), or <excel-instance>
+      # @option opts [Symbol]  :if_unsaved     :raise (default), :forget, :accept, :alert, or :new_excel
+      # @option opts [Symbol]  :if_obstructed  :raise (default), :forget, :save, :close_if_saved, or _new_excel
+      # @option opts [Symbol]  :if_absent      :raise (default), or :create
+      # @option opts [Boolean] :read_only      true (default), or false
+      # @option opts [Boolean] :displayalerts  true, or false (default)
+      # @option opts [Boolean] :visible        true, or false (default) 
       # options: 
       # :default_excel   if the workbook was already open in an Excel instance, then open it there.
       #                  Otherwise, i.e. if the workbook was not open before or the Excel instance is not alive
-      #                   :reuse (default) -> connects to a (the first opened) running Excel instance,
+      #                   :reuse           -> connects to a (the first opened) running Excel instance,
       #                                        excluding the hidden Excel instance, if it exists,
       #                                       otherwise opens in a new Excel instance.
       #                   :new             -> opens in a new Excel instance
       #                   <excel-instance> -> opens in the given Excel instance
       # :force_excel     no matter whether the workbook was already open
-      #                   :new (default)   -> opens in a new Excel instance
+      #                   :new             -> opens in a new Excel instance
       #                   <excel-instance> -> opens in the given Excel instance
       # :if_unsaved     if an unsaved workbook with the same name is open, then
-      #                  :raise (default)     -> raises an exception
+      #                  :raise               -> raises an exception
       #                  :forget              -> close the unsaved workbook, open the new workbook             
       #                  :accept              -> lets the unsaved workbook open                  
       #                  :alert               -> gives control to Excel
       #                  :new_excel           -> opens the new workbook in a new Excel instance
       # :if_obstructed  if a workbook with the same name in a different path is open, then
-      #                  :raise (default)     -> raises an exception 
+      #                  :raise               -> raises an exception 
       #                  :forget              -> closes the old workbook, open the new workbook
       #                  :save                -> saves the old workbook, close it, open the new workbook
       #                  :close_if_saved      -> closes the old workbook and open the new workbook, if the old workbook is saved,
       #                                          otherwise raises an exception.
       #                  :new_excel           -> opens the new workbook in a new Excel instance   
-      # :if_absent       :raise (default)     -> raises an exception     , if the file does not exists
+      # :if_absent       :raise               -> raises an exception     , if the file does not exists
       #                  :create              -> creates a new Excel file, if it does not exists  
       #                  
-      # :read_only     opens in read-only mode         (default: false) 
-      # :displayalerts enables DisplayAlerts in Excel  (default: false)
-      # :visible       makes visible in Excel          (default: false)
+      # :read_only     opens in read-only mode         
+      # :displayalerts enables DisplayAlerts in Excel  
+      # :visible       makes visible in Excel          
       # if :default_excel is set, then DisplayAlerts and Visible are set only if these parameters are given
-
+      # @return [Book] a workbook
       def open(file, opts={ }, &block)
         options = DEFAULT_OPEN_OPTS.merge(opts)
         book = nil
@@ -90,8 +96,9 @@ module RobustExcelOle
 
     # creates a Book object for a given workbook or file name
     # @param [WIN32OLE] workbook a workbook
-    # @options opts [Symbol] see above
-    # @return [Book] a Book object
+    # @param [Hash] opts the options
+    # @option opts [Symbol] see above
+    # @return [Book] a workbook
     def self.new(workbook, opts={ }, &block)      
       if workbook && (workbook.is_a? WIN32OLE)
         filename = workbook.Fullname.tr('\\','/') rescue nil
@@ -108,6 +115,10 @@ module RobustExcelOle
 
     # creates a new Book object, if a file name is given
     # lifts the workbook to a Book object, if a workbook is given    
+    # @param [Variant] file_or_workbook  file name or workbook
+    # @param [Hash]    opts              the options
+    # @option opts [Symbol] see above
+    # @return [Book] a workbook
     def initialize(file_or_workbook, opts={ }, &block)
       options = DEFAULT_OPEN_OPTS.merge(opts)
       options[:excel] = options[:force_excel] ? options[:force_excel] : options[:default_excel]
@@ -314,14 +325,17 @@ module RobustExcelOle
   public
 
     # closes the workbook, if it is alive
-    #
+    # @param [Hash] opts the options
+    # @option opts [Symbol] :if_unsaved :raise (default), :save, :forget, :keep_open, or :alert
     # options:
     #  :if_unsaved    if the workbook is unsaved
-    #                      :raise (default) -> raises an exception       
+    #                      :raise           -> raises an exception       
     #                      :save            -> saves the workbook before it is closed                  
     #                      :forget          -> closes the workbook 
     #                      :keep_open       -> keep the workbook open
     #                      :alert           -> gives control to excel
+    # @raise ExcelErrorClose if the option :if_unsaved is :raise and the workbook is unsaved, or option is invalid
+    # @raise ExcelErrorCanceled if the user has canceled 
     def close(opts = {:if_unsaved => :raise})
       if (alive? && (not @workbook.Saved) && writable) then
         case opts[:if_unsaved]
@@ -372,17 +386,27 @@ module RobustExcelOle
       unobtrusively(*args, &block)
     end
 
-    # modifies a workbook such that its state (open/close, saved/unsaved, readonly/writable) remains unchanged.
-    #  options:
-    #  :reuse (default)  : opens closed workbooks in the Excel instance of the workbook, if it exists, reuse another Excel, otherwise          
-    #  :hidden           : opens closed workbooks in one separate Excel instance that is not visible and has no displayaslerts    
-    #  <excel-instance>  : opens closed workbooks in the given Excel instance
+    # modifies a workbook such that its state (open/close, saved/unsaved, readonly/writable) remains unchanged
+    # @param [String] file        the file name
+    # @param [Symbol] :if_closed  an option
+    # @param [Hash]   opts        the options
+    # @option opts [Variant] :if_closed  :reuse (default), :hidden or a Excel instance
+    # @option opts [Boolean] :read_only whether the file is opened for read-only
+    # @option opts [Boolean] :readonly_excel behaviour when workbook is opened read-only and shall be modified
+    # @option opts [Boolean] :keep_open whether the workbook shall be kept open after unobtrusively opening
+    #  options: 
+    #   :if_closed :   if the workbook is closed, then open it in
+    #                    :reuse  -> the Excel instance of the workbook, if it exists, 
+    #                               reuse another Excel, otherwise          
+    #                    :hidden -> a separate Excel instance that is not visible and has no displayaslerts
+    #                    <excel-instance> -> the given Excel instance
     #  :read_only        : opens the workbook unobtrusively for reading only  (default: false)
     #  :readonly_excel:  if the workbook is opened only as ReadOnly and shall be modified, then
     #                    true:  closes it and open it as writable in the Excel instance where it was open so far
     #                    false (default)   opens it as writable in another running excel instance, if it exists,
     #                                      otherwise open in a new Excel instance.
     #  :keep_open: lets the workbook open after unobtrusively opening (default: false)
+    # @return [Book] a workbook
     def self.unobtrusively(file, if_closed = nil, opts = { }, &block) 
       if if_closed.is_a? Hash
         opts = if_closed
@@ -442,6 +466,9 @@ module RobustExcelOle
     end
 
     # renames a range
+    # @param [String] name     the previous range name
+    # @param [String] new_name the new range name
+    # @raise ExcelError if name is not in the file, or if new_name cannot be set
     def rename_range(name, new_name)
       begin
         item = self.Names.Item(name)
@@ -456,8 +483,14 @@ module RobustExcelOle
     end
 
     # returns the contents of a range with given name
-    # if no contents could returned, then return default value, if a default value was provided
-    #                                raise an error, otherwise
+    # @param  [String]      name      the range name
+    # @param  [Hash]        opts      the options
+    # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
+    # @raise  ExcelError if range name is not in the workbook
+    # @raise  SheetError if range value could not be evaluated
+    # @return [Variant] the contents of a range with given name
+    # if no contents could be returned, then return default value, if a default value was provided
+    #                                   raise an error, otherwise
     def nvalue(name, opts = {:default => nil})
       begin
         item = self.Names.Item(name)
@@ -485,8 +518,9 @@ module RobustExcelOle
     end
 
     # sets the contents of a range with given name
-    # @param [String] name the range name
+    # @param [String]  name  the range name
     # @param [Variant] value the contents of the range
+    # @raise ExcelError if range name is not in the workbook or if a RefersToRange error occurs
     def set_nvalue(name, value) 
       begin
         item = self.Names.Item(name)
@@ -500,7 +534,8 @@ module RobustExcelOle
       end
     end
 
-    # brings the workbook to the foreground and available for heyboard inputs, and makes the Excel instance visible
+    # brings workbook to foreground, makes it available for heyboard inputs, makes the Excel instance visible
+    # @raise ExcelError if workbook cannot be activated    
     def activate      
       @excel.visible = true
       begin
@@ -511,12 +546,13 @@ module RobustExcelOle
       end
     end
 
-    # returns whether the workbook is visible or invisible
+    # returns true, if the workbook is visible, false otherwise 
     def visible
       @excel.Windows(@workbook.Name).Visible
     end
 
     # makes a workbook visible or invisible
+    # @param [Boolean] visible_value value that determines whether the workbook shall be visible
     def visible= visible_value
       saved = @workbook.Saved
       @excel.Windows(@workbook.Name).Visible = visible_value
@@ -548,7 +584,7 @@ module RobustExcelOle
       @workbook.Saved if @workbook
     end
 
-    # returns true, if the full book names and excel Instances are identical, false otherwise  
+    # @return [Boolean] true, if the full book names and excel Instances are identical, false otherwise  
     def == other_book
       other_book.is_a?(Book) &&
       @excel == other_book.excel &&
@@ -560,7 +596,8 @@ module RobustExcelOle
     end
 
     # simple save of a workbook.
-    # @return [Boolean] true, if successfully saved, nil or error otherwise
+    # @raise ExcelErrorSave if workbook is not alive or opened for read-only, or another error occurs
+    # @return [Boolean] true, if successfully saved, nil otherwise
     def save      
       raise ExcelErrorSave, "Workbook is not alive" if (not alive?)
       raise ExcelErrorSave, "Not opened for writing (opened with :read_only option)" if @workbook.ReadOnly
@@ -577,21 +614,25 @@ module RobustExcelOle
     end
 
     # saves a workbook with a given file name.
-    # @param [String] file the file name
-    # @option opts [Symbol] :if_exists if a file with the same name exists, then  
-    #
-    # options:
-    #  :if_exists   if a file with the same name exists, then  
+    # @param [String] file   file name
+    # @param [Hash]   opts   the options
+    # @option opts [Symbol] :if_exists      :raise (default), :overwrite, or :alert
+    # @option opts [Symbol] :if_obstructed  :raise (default), :forget, :save, or :close_if_saved
+    # options: 
+    # :if_exists  if a file with the same name exists, then  
     #               :raise     -> raises an exception, dont't write the file  (default)
     #               :overwrite -> writes the file, delete the old file
     #               :alert     -> gives control to Excel
     #  :if_obstructed   if a workbook with the same name and different path is already open and blocks the saving, then
-    #                  :raise (default)     -> raises an exception 
+    #                  :raise               -> raises an exception 
     #                  :forget              -> closes the blocking workbook
     #                  :save                -> saves the blocking workbook and closes it
     #                  :close_if_saved      -> closes the blocking workbook, if it is saved, 
     #                                          otherwise raises an exception
-    # returns true, if successfully saved, nil or error otherwise
+    # @raise ExcelErrorSave if workbook is not alive, opened in read-only mode, invalid options,
+    #                          the file already exists (with option :if_exists :raise),
+    #                          the workbook is blocked by another one (with option :if_obstructed :raise)
+    # @return [Boolean] true, if successfully saved, nil otherwise
     def save_as(file = nil, opts = { } )
       raise ExcelErrorSave, "Workbook is not alive" if (not alive?)
       raise ExcelErrorSave, "Not opened for writing (opened with :read_only option)" if @workbook.ReadOnly
@@ -694,7 +735,7 @@ module RobustExcelOle
     end
 
     # sets the value of a range given its name
-    # @param [String] name the name of the range
+    # @param [String]  name  the name of the range
     # @param [Variant] value the contents of the range
     def []= (name, value)
       set_nvalue(name,value)
@@ -708,9 +749,12 @@ module RobustExcelOle
 
     # adds a sheet to the workbook
     # @param [Sheet] sheet a sheet
-    # @option opts [Symbol] :as new name of the copyed sheet
+    # @param [Hash]  opts  the options
+    # @option opts [Symbol] :as     new name of the copyed sheet
     # @option opts [Symbol] :before a sheet before which the sheet shall be inserted
-    # @option opts [Symbol] :after a sheet after which the sheet shall be inserted
+    # @option opts [Symbol] :after  a sheet after which the sheet shall be inserted
+    # @raise  ExcelErrorSheet if the sheet name already exists
+    # @return [Sheet] the added sheet
     def add_sheet(sheet = nil, opts = { })
       if sheet.is_a? Hash
         opts = sheet

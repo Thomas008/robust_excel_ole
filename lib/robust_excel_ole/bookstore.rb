@@ -13,6 +13,10 @@ module RobustExcelOle
     end
 
     # returns a book with the given filename, if it was open once
+    # @param [String] filename  the file name
+    # @param [Hash]   options   the options
+    # @option option [Boolean] :prefer_writable
+    # @option option [Boolean] :prefer_excel
     # prefers open books to closed books, and among them, prefers more recently opened books
     # excludes hidden Excel instance
     # options: :prefer_writable   returns the writable book, if it is open (default: true)
@@ -53,6 +57,7 @@ module RobustExcelOle
     end
 
     # stores a workbook
+    # @param [Book] book a given book
     def store(book)
       filename_key = RobustExcelOle::canonize(book.filename)      
       if book.stored_filename

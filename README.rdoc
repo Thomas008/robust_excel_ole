@@ -10,7 +10,7 @@ Goals:
 - provide convenient methods for frequent (common) tasks
 - support the use of simultaneously running Excel instances
 - allow the presence of referenced libraries and provide some support for that
-- supports EXCEL 2010, EXCEL 2007
+- support EXCEL 2010, EXCEL 2007
 
 This is work in progress.
 
@@ -43,7 +43,7 @@ Options are
   +:default_excel+, +:force_excel+, +:if_absent+, +:if_unsaved+, +:if_obstructed+, 
   +:read_only+, +:visible+, +:displayalerts+. 
 
-Values for +:default_excel+ are +:reuse+, +:new+ or some Excel instance. Values for +:force_excel+ are +:new+ or some Excel instance. Values for +:if_unsaved+ are +:raise+, +:accept+, +:forget+, +:alert+ and +:new_excel+. Values for +:if_obstructed+ are +:raise+, +:save+, +:close_if_saved+, +:forget+, +:alert+ and +:new_excel+. Values for +:if_absent+ are +:raise+ and +:create+.
+Valid values for +:default_excel+ are +:reuse+, +:new+ or some Excel instance, for +:force_excel+ : +:new+ or some Excel instance, for +:if_unsaved+ : +:raise+, +:accept+, +:forget+, +:alert+ and +:new_excel+, for +:if_obstructed+ : +:raise+, +:save+, +:close_if_saved+, +:forget+, +:alert+ and +:new_excel+ , for +:if_absent+ : +:raise+ and +:create+.
 
 Here are a few examples:
 
@@ -60,7 +60,7 @@ The option +:if_unsaved+ manages this case. For example, +:if_unsaved+ => +:acce
 
   book = Book.open('workbook.xls', :if_unsaved => :accept)
 
-If a workbook is open and a workbook with the same name but in different path shall be opened, then the first workbook blocks opening the other workbook. The option +:if_obstructed+ => handles this situation. For example, +:if_obstructed+ => +:forget+ causes the old workbook to close and to open the new workbook.
+If a workbook is open and a workbook with the same name but in different path shall be opened, then the first workbook blocks opening the other workbook. The option +:if_obstructed+ handles this situation. For example, +:if_obstructed+ => +:forget+ causes the old workbook to close and to open the new workbook.
 
   book = Book.open('path/workbook.xls', :if_obstructed => :forget)
 
@@ -70,7 +70,7 @@ Opening linked workbooks for EXCEL 2007 is supported
 
   book.close
 
-There is one option: : +:if_unsaved+. Values for this option are +:raise+, +:save+, +:forget+, +:alert+ and +:keep_open+. Example:
+There is one option: : +:if_unsaved+. Valid values for this option are +:raise+, +:save+, +:forget+, +:alert+ and +:keep_open+. Example:
 
 Closing the workbook and saving it before if it has unsaved changes.
 
@@ -93,7 +93,7 @@ An Excel file (or workbook) is represented by a Book object. A Book object is de
 Identity transparence means that the same Book objects refer to the same Excel files, and vice versa.
 In other words, a Book objects is a proxy of an Excel file.
 
-=== Lifting a workbook to a Book object
+=== Casting a workbook to a Book object
 
 A Book object can be created when giving an Excel workbook.
 
@@ -107,7 +107,7 @@ Saving a workbook with a file name.
 
   book.save_as('another_workbook.xls')
 
-The options are +:if_exists+ and +if_obstructed+.
+The options are +:if_exists+ and +if_obstructed+. 
 
 Saving a workbook and overwriting the file if it exists before.
 
@@ -123,9 +123,9 @@ If a workbook is blocking the workbook that should be saved, then the former one
 
 The method +unobtrusively+ enables the user to read or modify a workbook, no matter if it is open in some Excel instance, if it is saved or unsaved, and if it is writable or not. When opening a workbook unobtrusively, its status remains unchanged. This status includes, whether the workbook is opened or closed, saved or unsaved, readonly or writable. 
 
-One option chooses the Excel instance in which a closed workbook is opened. The options +:reuse (default) indicates that the closed workbook is opened in the Excel instance of the workbook, if it exists, or that another Excel instance is reused. The option +:hidden+ provokes that the closed workbook is opened in a separate Excel instance that is not visible and has no DisplayAlerts. Any following closed workbook would be opened in this Excel instance as well when using this option. Moreover, an Excel instance can be given directly where to open the closed workbook.
+Some options determine the Excel instance in which a closed workbook is opened. The options +:reuse (default) indicates that the closed workbook is opened in the Excel instance where the workbooks is opened, if such an Excel instance exists, otherwise that another Excel instance is reused. The option +:hidden+ provokes that the closed workbook is opened in a separate Excel instance that is not visible and has no DisplayAlerts. Any following closed workbook would be opened in this Excel instance as well when using this option. Moreover, an Excel instance can be given directly where to open the closed workbook.
 
-Further options are +:read_only+, +:readonly_excel+, and +:keep_open. The option +:readonly_excel+ chooses whether a book that is opened as ReadOnly and that shall be modified shall be opned as writable in the Excel instance where it was open so far, or if it shall be opened as writable in another running Excel instance, if such an Excel exists, or opened in a new Excel instance.
+Further options are +:read_only+, +:readonly_excel+, and +:keep_open. The option +:readonly_excel+ chooses whether a book that is opened in read only mode. If the workbook is opened as read only, then the option +:readonly_excel+ determines whether to close the workbook and open it as writable in the Excel instance where it was open so far, or to open it as writable in another running Excel instance, if such an instance exists, or to open it in a new Excel instance.
 
   Book.unobtrusively('workbook.xls', :reuse, :read_only => false, :keep_open => false) do |book|
     # some modification
@@ -133,7 +133,7 @@ Further options are +:read_only+, +:readonly_excel+, and +:keep_open. The option
     sheet[1,1] = "c" 
   end
   
-The methods +for_reading+ and +for_modifying+ indicate unobtrusively reading or modifying.
+The methods +for_reading+ and +for_modifying+ are methods for unobtrusively reading or modifying.
 
   Book.for_modifying('workbook.xls') do |book|
     # some modification
@@ -169,7 +169,7 @@ or
 
 === Activating a workbook.
 
-Brings the window of a workbook to the foreground . Make it available for keyboard inputs and make the Excel instance visible.
+Bring the window of a workbook to the foreground, make it available for keyboard inputs, and make the Excel instance visible.
 
   book.activate
 
@@ -328,7 +328,7 @@ Reusing a running Excel instance, making it visible and turning on displayalerts
 
   excel2 = Excel.new(:reuse => true, :visible => true, :displayalerts => true).
 
-Lifting an Excel instance represented as WIN32OLE object to an Excel object
+Casting an Excel instance represented as WIN32OLE object to an Excel object
 
   excel = Excel.new(:reuse => win32ole_object)
 
@@ -376,7 +376,7 @@ Closing the Excel instance, saving unsaved wrkbooks and terminating the Excel pr
 
   Excel.close_all
 
-The options are +:if_unsaved+ and +:hard+ . Values for :if_unsaved+ are +raise+, +save+, +forget+. Example:
+The options are +:if_unsaved+ and +:hard+ . Values for :if_unsaved+ are +raise+, +save+, and +forget+. Example:
 
 Closing all Excel instances, not saving unsaved workbooks and terminating the Excel processes
 

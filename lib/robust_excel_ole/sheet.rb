@@ -171,21 +171,21 @@ module RobustExcelOle
 
     private
 
-    def method_missing(name, *args) 
-    if name.to_s[0,1] =~ /[A-Z]/ 
-      begin
-        @worksheet.send(name, *args)
-      rescue WIN32OLERuntimeError => msg
-        if msg.message =~ /unknown property or method/
-          raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
-        else 
-          raise msg
+    def method_missing(name, *args)    # :nodoc: #
+      if name.to_s[0,1] =~ /[A-Z]/ 
+        begin
+          @worksheet.send(name, *args)
+        rescue WIN32OLERuntimeError => msg
+          if msg.message =~ /unknown property or method/
+            raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
+          else 
+            raise msg
+          end
         end
+      else  
+        super 
       end
-    else  
-      super 
     end
-  end
 
 
     def last_row

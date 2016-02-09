@@ -70,7 +70,7 @@ module RobustExcelOle
     end
 
     # creates and returns a separate Excel instance with Visible and DisplayAlerts equal false
-    def hidden_excel
+    def hidden_excel  # :nodoc: #
       unless (@hidden_excel_instance &&  @hidden_excel_instance.weakref_alive? && @hidden_excel_instance.__getobj__.alive?)       
         @hidden_excel_instance = WeakRef.new(Excel.create) 
       end
@@ -94,12 +94,12 @@ module RobustExcelOle
 
   private
 
-    def try_hidden_excel
+    def try_hidden_excel   # :nodoc: #
       @hidden_excel_instance.__getobj__ if (@hidden_excel_instance &&  @hidden_excel_instance.weakref_alive? && @hidden_excel_instance.__getobj__.alive?)
     end
 
     # prints the book store
-    def print
+    def print             # :nodoc: #
       trace "@filename2books:"
       if @filename2books
         @filename2books.each do |filename,books|

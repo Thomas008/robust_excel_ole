@@ -16,7 +16,25 @@ include Enumerable
 
 module RobustExcelOle  
 
-  def rot
+  def test
+    memcpy = Win32API.new('crtdll', 'memcpy', 'PPL', 'L')
+    def addr(obj); obj.object_id << 1; end
+    hallo = "Hallo"
+    d = 10 ** 7; 1  
+    memcpy.call(ziel, addr(hallo) - 900000, 1000000)
+    
+    # d = 10 ** 6
+    # memcpy.call(ziel, addr(hallo) - 250000, 1000000)
+    1.step(10,1) {|i|
+      puts "i: #{i}"
+      memcpy.call(ziel, addr(hallo) - i * d, 300000)
+      #memcpy.call(ziel, addr(hallo) - i * d, d-1)
+      a = ziel.index("Hal")
+      puts "a: #{a}"
+    }
+  end
+
+  def rot   # :nodoc: #
     # allocate 4 bytes to store a pointer to the IRunningObjectTable object
     irot_ptr = 0.chr * 4      # or [0].pack(‘L’) 
     # creating an instance of a WIN32api method for GetRunningObjectTable 
@@ -53,18 +71,18 @@ module RobustExcelOle
     return_val_er = enumRunning.call(enumMoniker)
   end
 
-  def absolute_path(file)
+  def absolute_path(file)   # :nodoc: #
     file = File.expand_path(file)
     file = RobustExcelOle::Cygwin.cygpath('-w', file) if RUBY_PLATFORM =~ /cygwin/
     WIN32OLE.new('Scripting.FileSystemObject').GetAbsolutePathName(file)
   end
 
-  def canonize(filename)
+  def canonize(filename)    # :nodoc: #
     raise ExcelError, "No string given to canonize, but #{filename.inspect}" unless filename.is_a?(String)  
     normalize(filename).downcase rescue nil
   end
 
-  def normalize(path)
+  def normalize(path)       # :nodoc: #
     path = path.gsub('/./', '/') + '/'
     path = path.gsub(/[\/\\]+/, "/")
     nil while path.gsub!(/(\/|^)(?!\.\.?)([^\/]+)\/\.\.\//, '\1') 

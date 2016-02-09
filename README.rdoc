@@ -93,7 +93,7 @@ An Excel file (or workbook) is represented by a Book object. A Book object is de
 Identity transparence means that the same Book objects refer to the same Excel files, and vice versa.
 In other words, a Book objects is a proxy of an Excel file.
 
-=== Casting a workbook to a Book object
+=== Promoting a workbook to a Book object
 
 A Book object can be created when giving an Excel workbook.
 
@@ -328,7 +328,7 @@ Reusing a running Excel instance, making it visible and turning on displayalerts
 
   excel2 = Excel.new(:reuse => true, :visible => true, :displayalerts => true).
 
-Casting an Excel instance represented as WIN32OLE object to an Excel object
+Promoting an Excel instance represented as WIN32OLE object to an Excel object
 
   excel = Excel.new(:reuse => win32ole_object)
 

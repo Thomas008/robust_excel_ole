@@ -235,7 +235,6 @@ describe Book do
         book5 = Book.open(@simple_file, :force_excel => book2.workbook)
         book5.excel.should ===  book2.excel
         win32ole_excel1 = WIN32OLE.connect(@book.workbook.Fullname).Application
-        puts "win32ole_excel1: #{win32ole_excel1}"
         book6 = Book.open(@simple_file, :force_excel => win32ole_excel1)
         book6.excel.should === @book.excel
       end

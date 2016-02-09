@@ -175,7 +175,7 @@ module RobustExcelOle
 
   private
 
-    def self.manage_unsaved_workbooks(excel, options)
+    def self.manage_unsaved_workbooks(excel, options)     # :nodoc: #
       unsaved_workbooks = []
       begin
         excel.Workbooks.each {|w| unsaved_workbooks << w unless (w.Saved || w.ReadOnly)}
@@ -221,7 +221,7 @@ module RobustExcelOle
       end
     end
 
-    def self.close_excel_ole_instance(ole_excel)
+    def self.close_excel_ole_instance(ole_excel)  # :nodoc: #
       @@hwnd2excel.delete(ole_excel.Hwnd)
       excel = ole_excel
       ole_excel = nil
@@ -250,7 +250,7 @@ module RobustExcelOle
     end
 
     # frees all OLE objects in the object space
-    def self.free_all_ole_objects   
+    def self.free_all_ole_objects     # :nodoc: #
       anz_objekte = 0
       ObjectSpace.each_object(WIN32OLE) do |o|
         anz_objekte += 1
@@ -371,11 +371,11 @@ module RobustExcelOle
       result
     end
 
-    def excel
+    def excel   # :nodoc: #
       self
     end
 
-    def self.hwnd2excel(hwnd)
+    def self.hwnd2excel(hwnd)   # :nodoc: #
       excel_weakref = @@hwnd2excel[hwnd]
       if excel_weakref
         if excel_weakref.weakref_alive?
@@ -391,11 +391,11 @@ module RobustExcelOle
       end
     end
 
-    def hwnd
+    def hwnd   # :nodoc: #
       self.Hwnd rescue nil
     end
 
-    def self.print_hwnd2excel
+    def self.print_hwnd2excel    # :nodoc: #
       @@hwnd2excel.each do |hwnd,wr_excel|
         excel_string = (wr_excel.weakref_alive? ? wr_excel.__getobj__.to_s : "weakref not alive") 
         printf("hwnd: %8i => excel: %s\n", hwnd, excel_string)
@@ -419,7 +419,7 @@ module RobustExcelOle
 
     
     # returns all unsaved workbooks in Excel instances
-    def self.unsaved_workbooks_all
+    def self.unsaved_workbooks_all    # :nodoc: #
       result = []
       @@hwnd2excel.each do |hwnd,wr_excel| 
         excel = wr_excel.__getobj__
@@ -498,15 +498,15 @@ module RobustExcelOle
       @visible = @ole_excel.Visible
     end    
 
-    def to_s
+    def to_s              # :nodoc: #
       "#<Excel: " + "#{hwnd}" + ("#{"not alive" unless self.alive?}") + ">"
     end
 
-    def inspect
+    def inspect           # :nodoc: #
       self.to_s
     end
 
-    def self.book_class
+    def self.book_class   # :nodoc: #
       @book_class ||= begin
         module_name = self.parent_name
         "#{module_name}::Book".constantize
@@ -515,13 +515,13 @@ module RobustExcelOle
       end
     end
 
-    def book_class
+    def book_class        # :nodoc: #
       self.class.book_class
     end
 
   private
 
-    def method_missing(name, *args) 
+    def method_missing(name, *args)    # :nodoc: #
       if name.to_s[0,1] =~ /[A-Z]/ 
         begin          
           raise ExcelError, "method missing: Excel not alive" unless alive?

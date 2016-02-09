@@ -129,7 +129,7 @@ module RobustExcelOle
         win32ole_excel = WIN32OLE.connect(workbook.Fullname).Application rescue nil   
         @excel = excel_class.new(win32ole_excel)     
         self.apply_options(options)       
-        # if the Excel could not be lifted up, then create it         
+        # if the Excel could not be promoted, then create it         
         ensure_excel(options)
       else
         file = file_or_workbook
@@ -154,7 +154,7 @@ module RobustExcelOle
   private
 
     # returns an Excel object when given Excel, Book or Win32ole object representing a Workbook or an Excel
-    def self.excel_of(object)
+    def self.excel_of(object)  # :nodoc: #
       if object.is_a? WIN32OLE
         case object.ole_obj_help.name
         when /Workbook/i 
@@ -173,7 +173,7 @@ module RobustExcelOle
 
   public
 
-    def ensure_excel(options)
+    def ensure_excel(options)   # :nodoc: #
       return if @excel && @excel.alive?
       if options[:excel] == :reuse
         @excel = excel_class.new(:reuse => true)
@@ -203,7 +203,7 @@ module RobustExcelOle
       end
     end
 
-    def ensure_workbook(file, options)
+    def ensure_workbook(file, options)     # :nodoc: #
       file = @stored_filename ? @stored_filename : file
       unless File.exist?(file)
         if options[:if_absent] == :create
@@ -280,7 +280,7 @@ module RobustExcelOle
 
   private
 
-    def open_or_create_workbook(file, options)
+    def open_or_create_workbook(file, options)   # :nodoc: #
       if ((not @workbook) || (options[:if_unsaved] == :alert) || options[:if_obstructed]) then
         begin
           filename = RobustExcelOle::absolute_path(file)
@@ -576,11 +576,11 @@ module RobustExcelOle
       @workbook.Fullname.tr('\\','/') rescue nil
     end
 
-    def writable
+    def writable   # :nodoc: #
       (not @workbook.ReadOnly) if @workbook
     end
 
-    def saved
+    def saved   # :nodoc: #
       @workbook.Saved if @workbook
     end
 
@@ -692,7 +692,7 @@ module RobustExcelOle
 
   private
 
-    def save_as_workbook(file, options)
+    def save_as_workbook(file, options)   # :nodoc: #
       begin
         dirname, basename = File.split(file)
         file_format =
@@ -779,31 +779,31 @@ module RobustExcelOle
       new_sheet
     end      
 
-    def self.bookstore
+    def self.bookstore   # :nodoc: #
       @@bookstore ||= Bookstore.new
     end
 
-    def bookstore
+    def bookstore    # :nodoc: #
       self.class.bookstore
     end   
 
-    def self.show_books
+    def self.show_books   # :nodoc: #
       bookstore.books
     end
 
-    def to_s
+    def to_s    # :nodoc: #
       "#{self.filename}"
     end
 
-    def inspect
-      "<#Book: " + "#{"not alive " unless alive?}" + "#{File.basename(self.filename) if alive?}" + " #{@workbook} #{@excel}"  + ">"
+    def inspect    # :nodoc: #
+      "#<Book: " + "#{"not alive " unless alive?}" + "#{File.basename(self.filename) if alive?}" + " #{@workbook} #{@excel}"  + ">"
     end
 
-    def self.in_context(klass)
+    def self.in_context(klass)  # :nodoc: #
       
     end
 
-    def self.excel_class
+    def self.excel_class    # :nodoc: #
       @excel_class ||= begin
         module_name = self.parent_name
         "#{module_name}::Excel".constantize
@@ -812,7 +812,7 @@ module RobustExcelOle
       end
     end
 
-    def self.sheet_class
+    def self.sheet_class    # :nodoc: #
       @sheet_class ||= begin
         module_name = self.parent_name
         "#{module_name}::Sheet".constantize
@@ -821,17 +821,26 @@ module RobustExcelOle
       end
     end
 
-    def excel_class
+    def excel_class        # :nodoc: #
       self.class.excel_class
     end
 
-    def sheet_class
+    def sheet_class        # :nodoc: #
       self.class.sheet_class
+    end
+
+    def respond_to?(name, include_private = false)  # :nodoc: #    
+      raise ExcelError, "respond_to?: workbook not alive" unless alive?
+      super
+    end
+
+    def methods   # :nodoc: # 
+      super
     end
 
   private
 
-    def method_missing(name, *args)
+    def method_missing(name, *args)   # :nodoc: #
       if name.to_s[0,1] =~ /[A-Z]/ 
         begin
           raise ExcelError, "method missing: workbook not alive" unless alive?
@@ -847,6 +856,8 @@ module RobustExcelOle
         super 
       end
     end
+
+
 
   end
   

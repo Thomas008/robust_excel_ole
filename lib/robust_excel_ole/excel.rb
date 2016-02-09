@@ -519,6 +519,16 @@ module RobustExcelOle
       self.class.book_class
     end
 
+    def respond_to?(name, include_private = false)  # :nodoc: #    
+      raise ExcelError, "respond_to?: Excel not alive" unless alive?
+      super
+    end
+
+    def methods   # :nodoc: # 
+      super
+    end
+
+
   private
 
     def method_missing(name, *args)    # :nodoc: #

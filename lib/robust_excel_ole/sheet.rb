@@ -169,6 +169,14 @@ module RobustExcelOle
       end
     end
 
+    def respond_to?(name, include_private = false)  # :nodoc: #    
+      super
+    end
+
+    def methods   # :nodoc: # 
+      super
+    end
+
     private
 
     def method_missing(name, *args)    # :nodoc: #

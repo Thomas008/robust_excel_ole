@@ -388,7 +388,7 @@ module RobustExcelOle
 
     # modifies a workbook such that its state (open/close, saved/unsaved, readonly/writable) remains unchanged
     # @param [String] file        the file name
-    # @param [Symbol] :if_closed  an option
+    # @param [Hash]   if_closed   an option
     # @param [Hash]   opts        the options
     # @option opts [Variant] :if_closed  :reuse (default), :hidden or a Excel instance
     # @option opts [Boolean] :read_only whether the file is opened for read-only
@@ -834,8 +834,16 @@ module RobustExcelOle
       super
     end
 
+    #alias old_book_methods methods
+
     def methods   # :nodoc: # 
-      super
+      #(old_book_methods + @workbook.ole_methods.map{|m| m.to_s}).uniq
+      (super + @workbook.ole_methods.map{|m| m.to_s}).uniq
+    end
+
+    def book_methods    # :nodoc: # 
+      (methods - Object.methods).sort
+
     end
 
   private

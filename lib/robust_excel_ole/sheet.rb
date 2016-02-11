@@ -113,7 +113,7 @@ module RobustExcelOle
     # returns the contents of a range with given name
     # @param [String] name  the range name
     # @param [Hash]   opts  the options
-    # @options opts [Variant] :default default value (default: nil)
+    # @option opts [Variant] :default default value (default: nil)
     # if no contents could returned, then return default value, if a default value was provided
     #                                raise an error, otherwise
     # @raise SheetError if value of the range cannot be evaluated

@@ -1,6 +1,35 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+
+## [0.3.8] - 2016-02-12
+
+### Added
+ - mark down comments
+ - trace
+ - Excel, Book: respond_to?, methods, special_methods, special_methods
+ 
+### Changed
+  
+## [0.3.7] - 2015-12-04
+
+### Added
+ - Book::new: includes lifting Win32Ole objects
+ - Book: class synonym: Workbook
+ - Book::open: can force_excel can contain an win32ole object
+ - Book#excel_of
+ - Book: consider Excel version for opening linked workbooks
+ - Book#close: with keep_open
+ - Excel::new: includes lifting Win32ole objects
+ - Excel::close_all: with a little time out
+ - Excel: sublassing for Books
+ 
+### Changed
+ - Excel::close_all: bug fix
+ - Excel#recreate: reopening closed workbooks, restrict reopening, visible, displayalerts
+
+ 
+
 ## [0.3.6] - 2015-10-27
 
 ### Added

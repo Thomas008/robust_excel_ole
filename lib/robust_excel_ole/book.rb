@@ -841,7 +841,7 @@ module RobustExcelOle
       (super + @workbook.ole_methods.map{|m| m.to_s}).uniq
     end
 
-    def book_methods    # :nodoc: # 
+    def special_methods    # :nodoc: # 
       (methods - Object.methods).sort
     end
 

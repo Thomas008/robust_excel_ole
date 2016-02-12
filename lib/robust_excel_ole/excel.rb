@@ -525,7 +525,11 @@ module RobustExcelOle
     end
 
     def methods   # :nodoc: # 
-      super
+      (super + @ole_excel.ole_methods.map{|m| m.to_s}).uniq
+    end
+
+    def excel_methods    # :nodoc: # 
+      (methods - Object.methods).sort
     end
 
 

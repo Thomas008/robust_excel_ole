@@ -843,7 +843,6 @@ module RobustExcelOle
 
     def book_methods    # :nodoc: # 
       (methods - Object.methods).sort
-
     end
 
   private

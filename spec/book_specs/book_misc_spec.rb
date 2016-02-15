@@ -323,15 +323,15 @@ describe Book do
         @book.excel.visible = true
         @book.excel.visible.should be_true
         @book.visible.should be_true
-        @book.excel.Windows(@book.workbook.Name).Visible.should be_true
+        @book.excel.Windows(@book.ole_workbook.Name).Visible.should be_true
         @book.visible = false
         @book.excel.visible.should be_true
         @book.visible.should be_false
-        @book.excel.Windows(@book.workbook.Name).Visible.should be_false
+        @book.excel.Windows(@book.ole_workbook.Name).Visible.should be_false
         @book.visible = true
         @book.excel.visible.should be_true
         @book.visible.should be_true
-        @book.excel.Windows(@book.workbook.Name).Visible.should be_true
+        @book.excel.Windows(@book.ole_workbook.Name).Visible.should be_true
       end
 
     end

@@ -439,8 +439,6 @@ module RobustExcelOle
       end
       result      
     end
-    # yields different WIN32OLE objects than book.workbook
-    #self.class.map {|w| (not w.Saved)}
 
     def print_workbooks
       self.Workbooks.each {|w| puts "#{w.Name} #{w}"}
@@ -525,10 +523,13 @@ module RobustExcelOle
     end
 
     def methods   # :nodoc: # 
-      (super + @ole_excel.ole_methods.map{|m| m.to_s}).uniq
+      #(super + @ole_excel.ole_methods.map{|m| m.to_s}).uniq
+      a = (super + @ole_excel.ole_methods.map{|m| m.to_s}).uniq
+      #result - result.map{|m| m =~ /\_[.]+ / }
+      a
     end
 
-    def special_methods    # :nodoc: # 
+    def own_methods    # :nodoc: # 
       (methods - Object.methods).sort
     end
 

@@ -81,7 +81,7 @@ module RobustExcelOle
         end
 
         it "lifts an Excel instance given as WIN32Ole object" do    
-          win32ole_excel = WIN32OLE.connect(@book.workbook.Fullname).Application
+          win32ole_excel = WIN32OLE.connect(@book.ole_workbook.Fullname).Application
           excel = Excel.new(win32ole_excel)
           excel.should be_a Excel
           excel.should be_alive
@@ -91,7 +91,7 @@ module RobustExcelOle
         it "lifts an Excel instance given as WIN32Ole object with options" do    
           @excel.Visible = true
           @excel.DisplayAlerts = true
-          win32ole_excel = WIN32OLE.connect(@book.workbook.Fullname).Application
+          win32ole_excel = WIN32OLE.connect(@book.ole_workbook.Fullname).Application
           excel = Excel.new(win32ole_excel)
           excel.should be_a Excel
           excel.should be_alive
@@ -807,7 +807,7 @@ module RobustExcelOle
           # unsaved_workbooks yields different WIN32OLE objects than book.workbook
           uw_names = []
           excel.unsaved_workbooks.each {|uw| uw_names << uw.Name}
-          uw_names.should == [@book.workbook.Name]
+          uw_names.should == [@book.ole_workbook.Name]
         end
 
         it "should list all unsaved workbooks" do
@@ -817,8 +817,8 @@ module RobustExcelOle
             unsaved_workbooks.each {|uw| uw_names << uw.Name}
             result << uw_names
           end
-          result.include?([@book.workbook.Name]).should be_true
-          result.include?([@book2.workbook.Name]).should be_true
+          result.include?([@book.ole_workbook.Name]).should be_true
+          result.include?([@book2.ole_workbook.Name]).should be_true
         end
 
       end

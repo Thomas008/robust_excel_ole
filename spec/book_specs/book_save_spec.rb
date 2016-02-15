@@ -40,11 +40,11 @@ describe Book do
       it "should save for a file opened without :read_only" do
         @book = Book.open(@simple_file)
         @book.add_sheet(@sheet, :as => 'a_name')
-        @new_sheet_count = @book.workbook.Worksheets.Count
+        @new_sheet_count = @book.ole_workbook.Worksheets.Count
         expect {
           @book.save
         }.to_not raise_error
-        @book.workbook.Worksheets.Count.should ==  @new_sheet_count
+        @book.ole_workbook.Worksheets.Count.should ==  @new_sheet_count
         @book.close
       end
 
@@ -378,7 +378,7 @@ describe Book do
 
           it "should report save errors and leave DisplayAlerts unchanged" do
             #@key_sender.puts "{left}{enter}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
-            @book.workbook.Close
+            @book.ole_workbook.Close
             expect{
               @book.save_as(@simple_save_file, :if_exists => :alert)
               }.to raise_error(ExcelErrorSave, "Workbook is not alive")

@@ -89,7 +89,7 @@ describe Book do
       end
 
       it "should yield an identical Book and set visible and displayalerts values" do
-        workbook = @book.workbook
+        workbook = @book.ole_workbook
         new_book = Book.new(workbook, :visible => true, :displayalerts => true)
         new_book.should be_a Book
         new_book.should be_alive
@@ -244,10 +244,10 @@ describe Book do
         book4 = Book.open(@different_file, :default_excel => book2) 
         book4.excel.should === book2.excel
         book4.close
-        book5 = Book.open(@different_file, :default_excel => book2.workbook)
+        book5 = Book.open(@different_file, :default_excel => book2.ole_workbook)
         book5.excel.should ===  book2.excel
         book5.close
-        win32ole_excel1 = WIN32OLE.connect(book2.workbook.Fullname).Application
+        win32ole_excel1 = WIN32OLE.connect(book2.ole_workbook.Fullname).Application
         book6 = Book.open(@different_file, :default_excel => win32ole_excel1)
         book6.excel.should === book2.excel
         book6.close
@@ -329,7 +329,7 @@ describe Book do
               book_before.close
             end
             @book = Book.open(@simple_file_other_path)
-            @sheet_count = @book.workbook.Worksheets.Count
+            @sheet_count = @book.ole_workbook.Worksheets.Count
             @sheet = @book[0]
             @book.add_sheet(@sheet, :as => 'a_name')
           end
@@ -345,7 +345,7 @@ describe Book do
             @new_book.should be_alive
             @new_book.filename.downcase.should == @simple_file.downcase
             old_book = Book.open(@simple_file_other_path, :if_obstructed => :forget)
-            old_book.workbook.Worksheets.Count.should ==  @sheet_count + 1
+            old_book.ole_workbook.Worksheets.Count.should ==  @sheet_count + 1
             old_book.close
           end
 
@@ -360,7 +360,7 @@ describe Book do
             @new_book.should be_alive
             @new_book.filename.downcase.should == @simple_file.downcase
             old_book = Book.open(@simple_file_other_path, :if_obstructed => :forget)
-            old_book.workbook.Worksheets.Count.should ==  @sheet_count + 1
+            old_book.ole_workbook.Worksheets.Count.should ==  @sheet_count + 1
             old_book.close
           end
         end
@@ -452,7 +452,7 @@ describe Book do
       end
 
       it "should uplift a workbook to a book with an open book" do
-        workbook = @book.workbook
+        workbook = @book.ole_workbook
         book1 = Book.new(workbook)
         book1.should be_a Book
         book1.should be_alive
@@ -938,7 +938,7 @@ describe Book do
     context "with unsaved read_only book" do
       before do
         @book = Book.open(@simple_file, :read_only => true)
-        @sheet_count = @book.workbook.Worksheets.Count
+        @sheet_count = @book.ole_workbook.Worksheets.Count
         @book.add_sheet(@sheet, :as => 'a_name')
       end
 
@@ -947,7 +947,7 @@ describe Book do
           @book.close
           }.to_not raise_error
         new_book = Book.open(@simple_file)
-        new_book.workbook.Worksheets.Count.should ==  @sheet_count
+        new_book.ole_workbook.Worksheets.Count.should ==  @sheet_count
         new_book.close
       end
     end
@@ -955,7 +955,7 @@ describe Book do
     context "with unsaved book" do
       before do
         @book = Book.open(@simple_file)
-        @sheet_count = @book.workbook.Worksheets.Count
+        @sheet_count = @book.ole_workbook.Worksheets.Count
         @book.add_sheet(@sheet, :as => 'a_name')
         @sheet = @book[0]
       end
@@ -971,18 +971,18 @@ describe Book do
       end
 
       it "should save the book before close with option :save" do
-        ole_workbook = @book.workbook
+        ole_workbook = @book.ole_workbook
         excel = @book.excel
         excel.Workbooks.Count.should == 1
         @book.close(:if_unsaved => :save)
         excel.Workbooks.Count.should == 0
-        @book.workbook.should == nil
+        @book.ole_workbook.should == nil
         @book.should_not be_alive
         expect{
           ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
         new_book = Book.open(@simple_file)
         begin
-          new_book.workbook.Worksheets.Count.should == @sheet_count + 1
+          new_book.ole_workbook.Worksheets.Count.should == @sheet_count + 1
         ensure
           new_book.close
         end
@@ -997,11 +997,11 @@ describe Book do
       it "should save for a file opened without :read_only" do
         @book = Book.open(@simple_file)
         @book.add_sheet(@sheet, :as => 'a_name')
-        @new_sheet_count = @book.workbook.Worksheets.Count
+        @new_sheet_count = @book.ole_workbook.Worksheets.Count
         expect {
           @book.save
         }.to_not raise_error
-        @book.workbook.Worksheets.Count.should ==  @new_sheet_count
+        @book.ole_workbook.Worksheets.Count.should ==  @new_sheet_count
         @book.close
       end
     end
@@ -1123,15 +1123,15 @@ describe Book do
 
     context "only first argument" do
       it "should add worksheet" do
-        @book.workbook.Worksheets.Count.should == 3
+        @book.ole_workbook.Worksheets.Count.should == 3
         @book.add_sheet @sheet
-        @book.workbook.Worksheets.Count.should == 4
+        @book.ole_workbook.Worksheets.Count.should == 4
         #expect { @book.add_sheet @sheet }.to change{ @book.workbook.Worksheets.Count }.from(3).to(4)
       end
 
       it "should return copyed sheet" do
         sheet = @book.add_sheet @sheet
-        copyed_sheet = @book.workbook.Worksheets.Item(@book.workbook.Worksheets.Count)
+        copyed_sheet = @book.ole_workbook.Worksheets.Item(@book.ole_workbook.Worksheets.Count)
         sheet.name.should eq copyed_sheet.name
       end
     end
@@ -1169,7 +1169,7 @@ describe Book do
 
       it "should return copyed sheet" do
         sheet = @book.add_sheet
-        copyed_sheet = @book.workbook.Worksheets.Item(@book.workbook.Worksheets.Count)
+        copyed_sheet = @book.ole_workbook.Worksheets.Item(@book.ole_workbook.Worksheets.Count)
         sheet.name.should eq copyed_sheet.name
       end
     end

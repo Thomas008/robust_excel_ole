@@ -68,7 +68,7 @@ describe Book do
       end
 
       it "should fetch the workbook" do
-        workbook = @book.workbook
+        workbook = @book.ole_workbook
         new_book = Book.new(workbook)
         new_book.should be_a Book
         new_book.should be_alive
@@ -82,7 +82,7 @@ describe Book do
       end
 
       it "should fetch the workbook" do
-        workbook = @book.workbook
+        workbook = @book.ole_workbook
         new_book = Book.new(workbook, :visible => true)
         new_book.should be_a Book
         new_book.should be_alive
@@ -96,7 +96,7 @@ describe Book do
       end
 
       it "should yield an identical Book and set visible and displayalerts values" do
-        workbook = @book.workbook
+        workbook = @book.ole_workbook
         new_book = Book.new(workbook, :visible => true, :displayalerts => true)
         new_book.should be_a Book
         new_book.should be_alive
@@ -232,9 +232,9 @@ describe Book do
         book4.excel.should === @book.excel
         book3.close
         book4.close
-        book5 = Book.open(@simple_file, :force_excel => book2.workbook)
+        book5 = Book.open(@simple_file, :force_excel => book2.ole_workbook)
         book5.excel.should ===  book2.excel
-        win32ole_excel1 = WIN32OLE.connect(@book.workbook.Fullname).Application
+        win32ole_excel1 = WIN32OLE.connect(@book.ole_workbook.Fullname).Application
         book6 = Book.open(@simple_file, :force_excel => win32ole_excel1)
         book6.excel.should === @book.excel
       end
@@ -570,7 +570,7 @@ describe Book do
               book_before.close
             end
             @book = Book.open(@simple_file_other_path)
-            @sheet_count = @book.workbook.Worksheets.Count
+            @sheet_count = @book.ole_workbook.Worksheets.Count
             @sheet = @book[0]
             @book.add_sheet(@sheet, :as => 'a_name')
           end
@@ -599,7 +599,7 @@ describe Book do
             @new_book.should be_alive
             @new_book.filename.downcase.should == @simple_file.downcase
             old_book = Book.open(@simple_file_other_path, :if_obstructed => :forget)
-            old_book.workbook.Worksheets.Count.should ==  @sheet_count + 1
+            old_book.ole_workbook.Worksheets.Count.should ==  @sheet_count + 1
             old_book.close
           end
 
@@ -614,7 +614,7 @@ describe Book do
             @new_book.should be_alive
             @new_book.filename.downcase.should == @simple_file.downcase
             old_book = Book.open(@simple_file_other_path, :if_obstructed => :forget)
-            old_book.workbook.Worksheets.Count.should ==  @sheet_count + 1
+            old_book.ole_workbook.Worksheets.Count.should ==  @sheet_count + 1
             old_book.close
           end
 
@@ -893,7 +893,7 @@ describe Book do
       end
 
       it "should uplift a workbook to a book with an open book" do
-        workbook = @book.workbook
+        workbook = @book.ole_workbook
         book1 = Book.new(workbook)
         book1.should be_a Book
         book1.should be_alive

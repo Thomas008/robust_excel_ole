@@ -51,7 +51,7 @@ describe Book do
     context "with unsaved read_only book" do
       before do
         @book = Book.open(@simple_file, :read_only => true)
-        @sheet_count = @book.workbook.Worksheets.Count
+        @sheet_count = @book.ole_workbook.Worksheets.Count
         @book.add_sheet(@sheet, :as => 'a_name')
       end
 
@@ -60,7 +60,7 @@ describe Book do
           @book.close
           }.to_not raise_error
         new_book = Book.open(@simple_file)
-        new_book.workbook.Worksheets.Count.should ==  @sheet_count
+        new_book.ole_workbook.Worksheets.Count.should ==  @sheet_count
         new_book.close
       end
     end
@@ -68,7 +68,7 @@ describe Book do
     context "with unsaved book" do
       before do
         @book = Book.open(@simple_file)
-        @sheet_count = @book.workbook.Worksheets.Count
+        @sheet_count = @book.ole_workbook.Worksheets.Count
         @book.add_sheet(@sheet, :as => 'a_name')
         @sheet = @book[0]
       end
@@ -90,7 +90,7 @@ describe Book do
       end
 
       it "should keep the book open" do
-        ole_workbook = @book.workbook
+        ole_workbook = @book.ole_workbook
         excel = @book.excel
         excel.Workbooks.Count.should == 1
         @book.close(:if_unsaved => :keep_open)
@@ -99,18 +99,18 @@ describe Book do
       end
 
       it "should close the book and leave its file untouched with option :forget" do
-        ole_workbook = @book.workbook
+        ole_workbook = @book.ole_workbook
         excel = @book.excel
         excel.Workbooks.Count.should == 1
         @book.close(:if_unsaved => :forget)
         excel.Workbooks.Count.should == 0
-        @book.workbook.should == nil
+        @book.ole_workbook.should == nil
         @book.should_not be_alive
         expect{
           ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
         new_book = Book.open(@simple_file)
         begin
-          new_book.workbook.Worksheets.Count.should ==  @sheet_count
+          new_book.ole_workbook.Worksheets.Count.should ==  @sheet_count
         ensure
           new_book.close
         end
@@ -124,18 +124,18 @@ describe Book do
 
 
       it "should save the book before close with option :save" do
-        ole_workbook = @book.workbook
+        ole_workbook = @book.ole_workbook
         excel = @book.excel
         excel.Workbooks.Count.should == 1
         @book.close(:if_unsaved => :save)
         excel.Workbooks.Count.should == 0
-        @book.workbook.should == nil
+        @book.ole_workbook.should == nil
         @book.should_not be_alive
         expect{
           ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
         new_book = Book.open(@simple_file)
         begin
-          new_book.workbook.Worksheets.Count.should == @sheet_count + 1
+          new_book.ole_workbook.Worksheets.Count.should == @sheet_count + 1
         ensure
           new_book.close
         end
@@ -155,27 +155,27 @@ describe Book do
           it "should" + (answer == :yes ? "" : " not") + " the unsaved book and" + (answer == :cancel ? " not" : "") + " close it" + "if user answers '#{answer}'" do
             # "Yes" is the  default. "No" is right of "Yes", "Cancel" is right of "No" --> language independent
             @key_sender.puts  "{right}" * position + "{enter}"
-            ole_workbook = @book.workbook
+            ole_workbook = @book.ole_workbook
             excel = @book.excel
             displayalert_value = @book.excel.DisplayAlerts
             if answer == :cancel then
               expect {
               @book.close(:if_unsaved => :alert)
               }.to raise_error(ExcelUserCanceled, "close: canceled by user")
-              @book.workbook.Saved.should be_false
-              @book.workbook.should_not == nil
+              @book.ole_workbook.Saved.should be_false
+              @book.ole_workbook.should_not == nil
               @book.should be_alive
             else
               @book.excel.Workbooks.Count.should == 1
               @book.close(:if_unsaved => :alert)
               @book.excel.Workbooks.Count.should == 0
-              @book.workbook.should == nil
+              @book.ole_workbook.should == nil
               @book.should_not be_alive
               expect{ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
             end
             new_book = Book.open(@simple_file, :if_unsaved => :forget)
             begin
-              new_book.workbook.Worksheets.Count.should == @sheet_count + (answer==:yes ? 1 : 0)
+              new_book.ole_workbook.Worksheets.Count.should == @sheet_count + (answer==:yes ? 1 : 0)
               new_book.excel.DisplayAlerts.should == displayalert_value
             ensure
               new_book.close

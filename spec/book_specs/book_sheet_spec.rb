@@ -45,14 +45,14 @@ describe Book do
 
     context "only first argument" do
       it "should add worksheet" do
-        @book.workbook.Worksheets.Count == 3
+        @book.ole_workbook.Worksheets.Count == 3
         @book.add_sheet @sheet
-        @book.workbook.Worksheets.Count == 4
+        @book.ole_workbook.Worksheets.Count == 4
       end
 
       it "should return copyed sheet" do
         sheet = @book.add_sheet @sheet
-        copyed_sheet = @book.workbook.Worksheets.Item(@book.workbook.Worksheets.Count)
+        copyed_sheet = @book.ole_workbook.Worksheets.Item(@book.ole_workbook.Worksheets.Count)
         sheet.name.should eq copyed_sheet.name
       end
     end
@@ -106,14 +106,14 @@ describe Book do
 
     context "without argument" do
       it "should add empty sheet" do
-        @book.workbook.Worksheets.Count.should == 3
+        @book.ole_workbook.Worksheets.Count.should == 3
         @book.add_sheet
-        @book.workbook.Worksheets.Count.should == 4
+        @book.ole_workbook.Worksheets.Count.should == 4
       end
 
       it "should return copyed sheet" do
         sheet = @book.add_sheet
-        copyed_sheet = @book.workbook.Worksheets.Item(@book.workbook.Worksheets.Count)
+        copyed_sheet = @book.ole_workbook.Worksheets.Item(@book.ole_workbook.Worksheets.Count)
         sheet.name.should eq copyed_sheet.name
       end
     end

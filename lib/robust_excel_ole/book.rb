@@ -834,11 +834,8 @@ module RobustExcelOle
       super
     end
 
-    #alias old_book_methods methods
-
     def methods   # :nodoc: # 
-      #(old_book_methods + @ole_workbook.ole_methods.map{|m| m.to_s}).uniq
-      (super + @ole_workbook.ole_methods.map{|m| m.to_s}).uniq
+      (super + @ole_workbook.ole_methods.map{|m| m.to_s}).uniq.select{|m| m =~ /^(?!\_)/}.sort
     end
 
     def own_methods    # :nodoc: # 
@@ -863,9 +860,6 @@ module RobustExcelOle
         super 
       end
     end
-
-
-
   end
   
 public

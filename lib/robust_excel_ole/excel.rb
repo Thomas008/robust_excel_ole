@@ -523,10 +523,7 @@ module RobustExcelOle
     end
 
     def methods   # :nodoc: # 
-      #(super + @ole_excel.ole_methods.map{|m| m.to_s}).uniq
-      a = (super + @ole_excel.ole_methods.map{|m| m.to_s}).uniq
-      #result - result.map{|m| m =~ /\_[.]+ / }
-      a
+      (super + @ole_excel.ole_methods.map{|m| m.to_s}).uniq.select{|m| m =~ /^(?!\_)/}.sort
     end
 
     def own_methods    # :nodoc: # 

@@ -517,19 +517,18 @@ module RobustExcelOle
       self.class.book_class
     end
 
-    def respond_to?(name, include_private = false)  # :nodoc: #    
+    def respond_to?(meth_name, include_private = false)  # :nodoc: #    
       raise ExcelError, "respond_to?: Excel not alive" unless alive?
       super
     end
 
-    def methods   # :nodoc: # 
-      (super + @ole_excel.ole_methods.map{|m| m.to_s}).uniq.select{|m| m =~ /^(?!\_)/}.sort
+    def methods
+      RobustExcelOle::reo_methods @ole_excel
     end
 
-    def own_methods    # :nodoc: # 
-      (methods - Object.methods).sort
+    def own_methods
+      RobustExcelOle::own_methods @ole_excel
     end
-
 
   private
 

@@ -90,14 +90,24 @@ module RobustExcelOle
     path
   end
 
-  module_function :absolute_path, :canonize, :rot
+  #def respond_to?(meth_name, include_private = false)  # :nodoc: #    
+  #  raise ExcelError, "respond_to?: #{self.class.name} not alive" unless alive?
+  #  super
+  #end
+
+  def reo_methods ole_object  # :nodoc: # 
+    (Object.methods + ole_object.ole_methods.map{|m| m.to_s}).uniq.select{|m| m =~ /^(?!\_)/}.sort
+  end
+
+  def own_methods ole_object  # :nodoc: # 
+    (reo_methods(ole_object) - Object.methods).sort
+  end
+
+  module_function :absolute_path, :canonize, :rot, :reo_methods, :own_methods
 
   class VBAMethodMissingError < RuntimeError  # :nodoc: #
   end
 
-  #module RobustExcelOle::Utilites  # :nodoc: #
-
-  #end
 end
 
 class Object      # :nodoc: #

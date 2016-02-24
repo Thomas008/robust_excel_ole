@@ -116,9 +116,15 @@ module RobustExcelOle
 end
 
 class Object      # :nodoc: #
+
   def excel
     raise ExcelError, "receiver instance is neither an Excel nor a Book"
   end
+
+  #def own_methods
+  #  (self.methods - super).sort
+  #end
+
 end
 
 class WIN32OLE

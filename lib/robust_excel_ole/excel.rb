@@ -8,7 +8,11 @@ module RobustExcelOle
 
   class Excel
 
-    @@hwnd2excel = {}
+    attr_accessor :ole_excel
+
+    alias ole_object ole_excel
+
+    @@hwnd2excel = {}    
 
     # creates a new Excel instance
     # @return [Excel] a new Excel instance
@@ -517,18 +521,7 @@ module RobustExcelOle
       self.class.book_class
     end
 
-    def respond_to?(meth_name, include_private = false)  # :nodoc: #    
-      raise ExcelError, "respond_to?: Excel not alive" unless alive?
-      super
-    end
-
-    def methods
-      RobustExcelOle::reo_methods @ole_excel
-    end
-
-    def own_methods
-      RobustExcelOle::own_methods @ole_excel
-    end
+    include MethodHelpers
 
   private
 

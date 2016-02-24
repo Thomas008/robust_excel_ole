@@ -13,6 +13,7 @@ module RobustExcelOle
     attr_accessor :stored_filename
     attr_accessor :options
 
+    alias ole_object ole_workbook
 
       DEFAULT_OPEN_OPTS = { 
         :excel => :reuse,
@@ -806,7 +807,7 @@ module RobustExcelOle
     def self.excel_class    # :nodoc: #
       @excel_class ||= begin
         module_name = self.parent_name
-        "#{module_name}::Excel".constantize
+        "#{module_name}::Excel".constantsize
       rescue NameError => e
         Excel
       end
@@ -829,19 +830,7 @@ module RobustExcelOle
       self.class.sheet_class
     end
 
-    def respond_to?(meth_name, include_private = false)  # :nodoc: #    
-      raise ExcelError, "respond_to?: workbook not alive" unless alive?
-      super
-    end
-
-    def methods   # :nodoc: # 
-      RobustExcelOle::reo_methods @ole_workbook
-    end
-
-    def own_methods
-      RobustExcelOle::own_methods @ole_workbook
-    end
-
+    include MethodHelpers
 
   private
 

@@ -1,3 +1,19 @@
+  module MethodHelpers
+
+    def respond_to?(meth_name, include_private = false)  # :nodoc: #    
+      raise ExcelError, "respond_to?: #{self.class.name} not alive" unless alive?
+      super
+    end
+
+    def methods   # :nodoc: # 
+      (super + ole_object.ole_methods.map{|m| m.to_s}).uniq.select{|m| m =~ /^(?!\_)/}.sort
+    end
+
+    def own_methods  # :nodoc: # 
+      (methods - Object.methods).sort
+    end
+  end
+
 require "win32ole"
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/utilities')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/excel')
@@ -90,20 +106,9 @@ module RobustExcelOle
     path
   end
 
-  #def respond_to?(meth_name, include_private = false)  # :nodoc: #    
-  #  raise ExcelError, "respond_to?: #{self.class.name} not alive" unless alive?
-  #  super
-  #end
 
-  def reo_methods ole_object  # :nodoc: # 
-    (Object.methods + ole_object.ole_methods.map{|m| m.to_s}).uniq.select{|m| m =~ /^(?!\_)/}.sort
-  end
 
-  def own_methods ole_object  # :nodoc: # 
-    (reo_methods(ole_object) - Object.methods).sort
-  end
-
-  module_function :absolute_path, :canonize, :rot, :reo_methods, :own_methods
+  module_function :absolute_path, :canonize, :rot
 
   class VBAMethodMissingError < RuntimeError  # :nodoc: #
   end

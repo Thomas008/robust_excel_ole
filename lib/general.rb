@@ -9,9 +9,6 @@ module MethodHelpers
     (super + ole_object.ole_methods.map{|m| m.to_s}).uniq.select{|m| m =~ /^(?!\_)/}.sort
   end
 
-  def own_methods  # :nodoc: # 
-    (methods - Object.methods).sort
-  end
 end
 
 require "win32ole"
@@ -119,9 +116,9 @@ class Object      # :nodoc: #
     raise ExcelError, "receiver instance is neither an Excel nor a Book"
   end
 
-  #def own_methods
-  #  (self.methods - super).sort
-  #end
+  def own_methods
+    (self.methods - Object.methods).sort
+  end
 
 end
 

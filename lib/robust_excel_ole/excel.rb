@@ -204,7 +204,11 @@ module RobustExcelOle
             excel.DisplayAlerts = true
             yield
           ensure
-            excel.DisplayAlerts = false
+            begin
+              excel.DisplayAlerts = false 
+            rescue RuntimeError => msg
+              trace "RuntimeError: #{msg.message}" if msg.message =~ /failed to get Dispatch Interface/
+            end
           end
           return
         else

@@ -404,7 +404,6 @@ module RobustExcelOle
           @key_sender.close
         end
 
-
         it "should save if user answers 'yes'" do
           @key_sender.puts "{enter}"
           Excel.close_all(:if_unsaved => :alert)

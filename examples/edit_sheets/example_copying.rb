@@ -4,8 +4,8 @@
 # if a sheet does not contain any named cell, then the sheet shall not be copied
 
 require 'rubygems'
-#require 'robust_excel_ole'
-require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
+#require 'general'
+require File.join(File.dirname(__FILE__), '../../lib/general')
 require "fileutils"
 
 include RobustExcelOle

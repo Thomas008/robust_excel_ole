@@ -5,6 +5,7 @@ require File.join(File.dirname(__FILE__), './spec_helper')
 $VERBOSE = nil
 
 include RobustExcelOle
+include General
 
 module RobustExcelOle
 
@@ -837,7 +838,7 @@ module RobustExcelOle
           workbook = @excel1.generate_workbook(@file_name)
           workbook.should be_a WIN32OLE
           workbook.Name.should == File.basename(@file_name)
-          workbook.FullName.should == RobustExcelOle::absolute_path(@file_name)
+          workbook.FullName.should == General::absolute_path(@file_name)
           workbook.Saved.should be_true
           workbook.ReadOnly.should be_false
           workbook.Sheets.Count.should == 3
@@ -849,7 +850,7 @@ module RobustExcelOle
           workbook = @excel1.generate_workbook(@file_name)
           workbook.should be_a WIN32OLE
           workbook.Name.should == File.basename(@file_name)
-          workbook.FullName.should == RobustExcelOle::absolute_path(@file_name)
+          workbook.FullName.should == General::absolute_path(@file_name)
           workbook.Saved.should be_true
           workbook.ReadOnly.should be_false
           workbook.Sheets.Count.should == 3
@@ -866,7 +867,7 @@ module RobustExcelOle
           workbook = @excel1.generate_workbook(@file_name)
           workbook.should be_a WIN32OLE
           workbook.Name.should == File.basename(@file_name)
-          workbook.FullName.should == RobustExcelOle::absolute_path(@file_name)
+          workbook.FullName.should == General::absolute_path(@file_name)
           workbook.Saved.should be_true
           workbook.ReadOnly.should be_false
           workbook.Sheets.Count.should == 3

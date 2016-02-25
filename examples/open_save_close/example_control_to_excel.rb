@@ -1,7 +1,7 @@
 # example_give_control_to_excel.rb: 
 # open, close, save  with giving control to Excel 
 
-require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
+require File.join(File.dirname(__FILE__), '../../lib/general')
 require File.join(File.dirname(__FILE__), '../../spec/helpers/create_temporary_dir')
 require "fileutils"
 

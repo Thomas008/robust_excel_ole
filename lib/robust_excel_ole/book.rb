@@ -216,7 +216,7 @@ module RobustExcelOle
       @ole_workbook = @excel.Workbooks.Item(File.basename(file)) rescue nil
       if @ole_workbook then
         obstructed_by_other_book = (File.basename(file) == File.basename(@ole_workbook.Fullname)) && 
-                                   (not (RobustExcelOle::absolute_path(file) == @ole_workbook.Fullname))
+                                   (not (General::absolute_path(file) == @ole_workbook.Fullname))
         # if book is obstructed by a book with same name and different path
         if obstructed_by_other_book then
           case options[:if_obstructed]
@@ -284,7 +284,7 @@ module RobustExcelOle
     def open_or_create_workbook(file, options)   # :nodoc: #
       if ((not @ole_workbook) || (options[:if_unsaved] == :alert) || options[:if_obstructed]) then
         begin
-          filename = RobustExcelOle::absolute_path(file)
+          filename = General::absolute_path(file)
           begin
             workbooks = @excel.Workbooks
           rescue RuntimeError => msg
@@ -702,7 +702,7 @@ module RobustExcelOle
             when '.xlsx': RobustExcelOle::XlOpenXMLWorkbook
             when '.xlsm': RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
           end
-        @ole_workbook.SaveAs(RobustExcelOle::absolute_path(file), file_format)
+        @ole_workbook.SaveAs(General::absolute_path(file), file_format)
         bookstore.store(self)
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then

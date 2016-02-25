@@ -1,7 +1,7 @@
-
-
 #require 'lib/robust_excel_ole'
 include REO
+include RobustExcelOle
+include General
 
 require 'irb/completion'
 require 'irb/ext/save-history'

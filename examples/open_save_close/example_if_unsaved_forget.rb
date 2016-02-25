@@ -1,7 +1,7 @@
 # example_ifunsaved_forget.rb:
 # open with :if_unsaved => :forget, :new_excel, close with :if_unsaved => :save 
 
-require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
+require File.join(File.dirname(__FILE__), '../../lib/general')
 require File.join(File.dirname(__FILE__), '../../spec/helpers/create_temporary_dir')
 require "fileutils"
 

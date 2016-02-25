@@ -1,7 +1,7 @@
 # example_access_sheets_and_cells.rb: 
 # access sheets, print cells, rows, and columns of a sheet
 
-require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
+require File.join(File.dirname(__FILE__), '../../lib/general')
 require File.join(File.dirname(__FILE__), '../../spec/helpers/create_temporary_dir')
 require "fileutils"
 

@@ -453,7 +453,7 @@ module RobustExcelOle
     def generate_workbook file_name                  
       self.Workbooks.Add                           
       empty_workbook = self.Workbooks.Item(self.Workbooks.Count)          
-      filename = RobustExcelOle::absolute_path(file_name).gsub("/","\\")
+      filename = General::absolute_path(file_name).gsub("/","\\")
       unless File.exists?(filename)
         begin
           empty_workbook.SaveAs(filename) 

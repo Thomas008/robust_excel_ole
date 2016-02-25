@@ -1,7 +1,7 @@
 # example_if_obstructed_close_if_saved.rb:
 # open with :if_obstructed: :close_if_saved
 
-require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
+require File.join(File.dirname(__FILE__), '../../lib/general')
 require File.join(File.dirname(__FILE__), '../../spec/helpers/create_temporary_dir')
 require "fileutils"
 

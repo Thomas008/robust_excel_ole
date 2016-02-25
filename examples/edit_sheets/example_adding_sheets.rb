@@ -1,7 +1,7 @@
 # example_adding_sheets.rb: 
 # adding new and copied at various positions with various sheet names
 
-require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
+require File.join(File.dirname(__FILE__), '../../lib/general')
 require File.join(File.dirname(__FILE__), '../../spec/helpers/create_temporary_dir')
 require "fileutils"
 

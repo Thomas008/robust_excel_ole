@@ -6,8 +6,8 @@
 # in addition to that, the cell B2 shall be named "name" and get the sheet name as its value 
 
 require 'rubygems'
-#require 'robust_excel_ole'
-require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
+#require 'general'
+require File.join(File.dirname(__FILE__), '../../lib/general')
 require "fileutils"
 
 include RobustExcelOle

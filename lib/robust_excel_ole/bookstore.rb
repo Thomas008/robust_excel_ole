@@ -25,8 +25,8 @@ module RobustExcelOle
     #                             otherwise proceeds according to prefer_writable 
     def fetch(filename, options = {:prefer_writable => true })
       return nil unless filename
-      filename = RobustExcelOle::absolute_path(filename)
-      filename_key = RobustExcelOle::canonize(filename)
+      filename = General::absolute_path(filename)
+      filename_key = General::canonize(filename)
       weakref_books = @filename2books[filename_key]
       return nil unless weakref_books
       result = open_book = closed_book = nil      
@@ -59,9 +59,9 @@ module RobustExcelOle
     # stores a workbook
     # @param [Book] book a given book
     def store(book)
-      filename_key = RobustExcelOle::canonize(book.filename)      
+      filename_key = General::canonize(book.filename)      
       if book.stored_filename
-        old_filename_key = RobustExcelOle::canonize(book.stored_filename)
+        old_filename_key = General::canonize(book.stored_filename)
         # deletes the weak reference to the book
         @filename2books[old_filename_key].delete(book)
       end

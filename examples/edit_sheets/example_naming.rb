@@ -4,8 +4,8 @@
 # the new workbook's name is extended by the suffix "_named"
 
 require 'rubygems'
-#require 'robust_excel_ole'
-require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
+#require 'general'
+require File.join(File.dirname(__FILE__), '../../lib/general')
 require "fileutils"
 
 include RobustExcelOle

@@ -1,6 +1,6 @@
 # example_reuse.rb: open a book in a new Excel and a running Excel instance. make visible
 
-require File.join(File.dirname(__FILE__), '../../lib/robust_excel_ole')
+require File.join(File.dirname(__FILE__), '../../lib/general')
 require File.join(File.dirname(__FILE__), '../../spec/helpers/create_temporary_dir')
 require "fileutils"
 

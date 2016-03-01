@@ -48,28 +48,7 @@ module RobustExcelOle
           ["ActiveCell", "ActiveSheet", "ActiveWorkbook", "Application",  "Calculate", "Cells", "Columns",
             "DisplayAlerts", "Evaluate", "Hwnd", "Name", "Names", "Quit", "Range", "Ready", "Save", 
             "Sheets", "UserName", "Value", "Visible", "Workbooks", "Worksheets"]
-        @excel_methods = ["alive?", "book_class", "close", "displayalerts", "recreate", "visible", "with_displayalerts"]                         
-        @underscore_and_class_methods = 
-            ["<", "<=", "<=>", ">", ">=", "__id__", "__send__", "allocate", "ancestors", "any_instance", 
-             "autoload", "autoload?", "class_eval", "class_variable_defined?", "class_variables", 
-             "const_defined?", "const_get", "const_missing", "const_set", "constants", "describe", 
-             "included_modules", "instance_method", "instance_methods", "method_defined?", "module_eval", 
-             "name", "new", "parent", "parent_name", "private_class_method", "private_instance_methods", 
-             "private_method_defined?", "protected_instance_methods", "protected_method_defined?", 
-             "public_class_method", "public_instance_methods", "public_method_defined?", "share_as", 
-             "share_examples_for", "shared_context", "shared_example_groups", "shared_examples", 
-             "shared_examples_for", "superclass", "yaml_as", "yaml_tag_class_name", "yaml_tag_read_class", 
-             "yaml_tag_subclasses?"]           
-        @object_methods =
-            ["==", "===", "=~", "all?", "any?", "class", "clone", "collect", "detect", "display", "dup", 
-             "each_with_index", "entries", "eql?", "equal?", "excel", "extend", "find", "find_all",
-             "freeze", "frozen?", "grep", "hash", "id", "include?", "inject", "inspect", "instance_eval",
-             "instance_of?", "instance_variable_defined?", "instance_variable_get", "instance_variable_set",
-            "instance_variables", "is_a?", "kind_of?", "map", "max", "member?", "method", "methods", "min", 
-            "nil?", "normalize", "object_id", "own_methods", "partition", "private_methods", 
-            "protected_methods", "public_methods", "reject", "respond_to?", "select", "send", 
-            "singleton_methods", "sort", "sort_by", "taint", "tainted?", "test", "to_a", "to_s", 
-            "untaint", "zip"]
+        @excel_methods = ["alive?", "book_class", "close", "displayalerts", "recreate", "visible", "with_displayalerts"] 
       end
 
       after do
@@ -78,12 +57,12 @@ module RobustExcelOle
 
       it "should do methods for book" do
         ((@ole_workbook_methods + @book_methods) - @book1.methods).should be_empty
-        (Object.instance_methods - @book1.methods).sort.should == @underscore_and_class_methods
+        (Object.instance_methods.select{|m| m =~ /^(?!\_)/} - @book1.methods).should be_empty
       end
 
       it "should do own_methods with popular ole_workbook and workbook methods" do
         ((@ole_workbook_methods + @book_methods) - @book1.own_methods).should be_empty
-        (@object_methods - (Object.methods - @book1.own_methods)).sort.should be_empty
+        (Object.instance_methods - @book1.own_methods).should == Object.instance_methods 
       end
 
       it "should respond to popular workbook methods" do
@@ -92,12 +71,12 @@ module RobustExcelOle
 
       it "should do methods for excel" do
         ((@ole_excel_methods + @excel_methods) - @book1.excel.methods).should be_empty
-        (Object.instance_methods - @book1.excel.methods).sort.should == @underscore_and_class_methods
-        (@object_methods - (Object.methods - @book1.excel.own_methods)).sort.should be_empty
+        (Object.instance_methods.select{|m| m =~ /^(?!\_)/}  - @book1.excel.methods).sort.should be_empty       
       end
 
       it "should do own_methods with popular ole_excel and excel methods" do
         ((@ole_excel_methods + @excel_methods) - @book1.excel.own_methods).should be_empty
+         (Object.instance_methods - @book1.excel.own_methods).should == Object.instance_methods
       end
 
       it "should respond to popular excel methods" do

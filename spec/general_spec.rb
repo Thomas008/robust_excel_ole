@@ -5,6 +5,7 @@ require File.join(File.dirname(__FILE__), './spec_helper')
 $VERBOSE = nil
 
 include General
+include RobustExcelOle
 
 module RobustExcelOle
 

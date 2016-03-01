@@ -5,6 +5,7 @@ require File.join(File.dirname(__FILE__), './../spec_helper')
 
 $VERBOSE = nil
 
+include RobustExcelOle
 include General
 
 describe Book do
@@ -301,7 +302,7 @@ describe Book do
         old_cell_value = sheet[1,1].value
         @book.close
         @book.should_not be_alive
-        Excel.close_all
+        Excel.kill_all
         Book.unobtrusively(@simple_file, :keep_open => true) do |book|
           book.should be_a Book
           book.excel.should == @book.excel

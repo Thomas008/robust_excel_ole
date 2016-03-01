@@ -2,7 +2,7 @@
 require "rspec"
 require 'tmpdir'
 require "fileutils"
-require File.join(File.dirname(__FILE__), '../lib/general')
+require File.join(File.dirname(__FILE__), '../lib/robust_excel_ole')
 
 module RobustExcelOle::SpecHelpers
   def create_tmpdir     # :nodoc: #

@@ -1,28 +1,3 @@
-module MethodHelpers
-
-  def respond_to?(meth_name, include_private = false)  # :nodoc: #    
-    raise ExcelError, "respond_to?: #{self.class.name} not alive" unless alive?
-    super
-  end
-
-  def methods   # :nodoc: # 
-    (super + ole_object.ole_methods.map{|m| m.to_s}).uniq.select{|m| m =~ /^(?!\_)/}.sort
-  end
-
-end
-
-require "win32ole"
-require File.join(File.dirname(__FILE__), 'robust_excel_ole/utilities')
-require File.join(File.dirname(__FILE__), 'robust_excel_ole/excel')
-require File.join(File.dirname(__FILE__), 'robust_excel_ole/bookstore')
-require File.join(File.dirname(__FILE__), 'robust_excel_ole/book')
-require File.join(File.dirname(__FILE__), 'robust_excel_ole/sheet')
-require File.join(File.dirname(__FILE__), 'robust_excel_ole/cell')
-require File.join(File.dirname(__FILE__), 'robust_excel_ole/range')
-require File.join(File.dirname(__FILE__), 'robust_excel_ole/cygwin') if RUBY_PLATFORM =~ /cygwin/
-#+#require "robust_excel_ole/version"
-require File.join(File.dirname(__FILE__), 'robust_excel_ole/version')
-
 include Enumerable
 
 module General
@@ -200,3 +175,16 @@ class Module   # :nodoc: #
 end
 
 REO = General
+
+module MethodHelpers
+
+  def respond_to?(meth_name, include_private = false)  # :nodoc: #    
+    raise ExcelError, "respond_to?: #{self.class.name} not alive" unless alive?
+    super
+  end
+
+  def methods   # :nodoc: # 
+    (super + ole_object.ole_methods.map{|m| m.to_s}).uniq.select{|m| m =~ /^(?!\_)/}.sort
+  end
+
+end

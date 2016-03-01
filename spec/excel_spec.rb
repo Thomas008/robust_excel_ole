@@ -4,7 +4,6 @@ require File.join(File.dirname(__FILE__), './spec_helper')
 
 $VERBOSE = nil
 
-include RobustExcelOle
 include General
 
 module RobustExcelOle
@@ -17,7 +16,6 @@ module RobustExcelOle
 
     before do
       @dir = create_tmpdir
-      #print "tmpdir: "; p @dir
       @simple_file = @dir + '/workbook.xls'
       @another_simple_file = @dir + '/another_workbook.xls'
       @different_file = @dir + '/different_workbook.xls'

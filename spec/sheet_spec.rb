@@ -1,35 +1,38 @@
 # -*- coding: utf-8 -*-
+
 require File.join(File.dirname(__FILE__), './spec_helper')
 
 include RobustExcelOle
 
 describe RobustExcelOle::Sheet do
-  
+ 
+  before(:all) do
+    excel = Excel.new(:reuse => true)
+    open_books = excel == nil ? 0 : excel.Workbooks.Count
+    puts "*** open books *** : #{open_books}" if open_books > 0
+    Excel.close_all
+  end 
+
   before do
     @dir = create_tmpdir
-    @book = RobustExcelOle::Book.open(@dir + '/workbook.xls', :read_only => true)
+    @book = Book.open(@dir + '/workbook.xls', :read_only => true)
     @sheet = @book[0]
+    Excel.close_all
   end
 
   after do
     @book.close
+    Excel.kill_all
     rm_tmp(@dir)
   end
 
-  before(:all) do
-    Excel.close_all
-  end 
-
-  after(:all) do
-    Excel.kill_all
-  end 
-
+ 
   describe ".initialize" do
     context "when open sheet protected(with password is 'protect')" do
       before do
         @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"
         @key_sender.puts "{p}{r}{o}{t}{e}{c}{t}{enter}"
-        @book_protect = RobustExcelOle::Book.open(@dir + '/protected_sheet.xls', :visible => true, :read_only => true)
+        @book_protect = RobustExcelOle::Book.open(@dir + '/protected_sheet.xls', :visible => true, :read_only => true, :force_excel => :new)
         @protected_sheet = @book_protect['protect']
       end
 

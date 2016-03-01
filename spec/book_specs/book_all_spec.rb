@@ -5,7 +5,6 @@ require File.join(File.dirname(__FILE__), './../spec_helper')
 
 $VERBOSE = nil
 
-include RobustExcelOle
 include General
 
 unless Object.method_defined?(:require_relative)

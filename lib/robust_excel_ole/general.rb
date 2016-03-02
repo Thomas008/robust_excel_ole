@@ -65,7 +65,7 @@ module General
 
   def canonize(filename)    # :nodoc: #
     raise ExcelError, "No string given to canonize, but #{filename.inspect}" unless filename.is_a?(String)  
-    normalize(filename).downcase rescue nil
+    normalize(filename).downcase
   end
 
   def normalize(path)       # :nodoc: #
@@ -76,9 +76,7 @@ module General
     path
   end
 
-
-
-  module_function :absolute_path, :canonize, :rot
+  module_function :absolute_path, :canonize, :normalize, :rot
 
   class VBAMethodMissingError < RuntimeError  # :nodoc: #
   end

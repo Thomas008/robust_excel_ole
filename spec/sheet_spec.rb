@@ -2,9 +2,12 @@
 
 require File.join(File.dirname(__FILE__), './spec_helper')
 
-include RobustExcelOle
+$VERBOSE = nil
 
-describe RobustExcelOle::Sheet do
+include RobustExcelOle
+include General
+
+describe Sheet do
  
   before(:all) do
     excel = Excel.new(:reuse => true)
@@ -15,24 +18,26 @@ describe RobustExcelOle::Sheet do
 
   before do
     @dir = create_tmpdir
-    @book = Book.open(@dir + '/workbook.xls', :read_only => true)
+    @simple_file = @dir + '/workbook.xls'
+    @protected_file = @dir + '/protected_sheet.xls'
+    @blank_file = @dir + '/book_with_blank.xls'
+    @merge_file = @dir + '/merge_cells.xls'
+    @book = Book.open(@simple_file)
     @sheet = @book[0]
-    Excel.close_all
   end
 
   after do
-    @book.close
+    @book.close(:if_unsaved => :forget)
     Excel.kill_all
     rm_tmp(@dir)
   end
 
- 
   describe ".initialize" do
     context "when open sheet protected(with password is 'protect')" do
       before do
         @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"
+        @book_protect = Book.open(@protected_file, :visible => true, :read_only => true, :force_excel => :new)
         @key_sender.puts "{p}{r}{o}{t}{e}{c}{t}{enter}"
-        @book_protect = RobustExcelOle::Book.open(@dir + '/protected_sheet.xls', :visible => true, :read_only => true, :force_excel => :new)
         @protected_sheet = @book_protect['protect']
       end
 
@@ -54,7 +59,7 @@ describe RobustExcelOle::Sheet do
 
   shared_context "sheet 'open book with blank'" do
     before do
-      @book_with_blank = RobustExcelOle::Book.open(@dir + '/book_with_blank.xls', :read_only => true)
+      @book_with_blank = Book.open(@blank_file, :read_only => true)
       @sheet_with_blank = @book_with_blank[0]
     end
 
@@ -94,7 +99,7 @@ describe RobustExcelOle::Sheet do
 
       context "access [1,1]" do
 
-        it { @sheet[1, 1].should be_kind_of RobustExcelOle::Cell }
+        it { @sheet[1, 1].should be_kind_of Cell }
         it { @sheet[1, 1].value.should eq 'foo' }
       end
 
@@ -283,7 +288,7 @@ describe RobustExcelOle::Sheet do
 
       context "read sheet which last cell is merged" do
         before do
-          @book_merge_cells = RobustExcelOle::Book.open(@dir + '/merge_cells.xls')
+          @book_merge_cells = Book.open(@merge_file)
           @sheet_merge_cell = @book_merge_cells[0]
         end
 
@@ -388,7 +393,7 @@ describe RobustExcelOle::Sheet do
       context "returning the value of a range" do
       
         before do
-          @book1 = RobustExcelOle::Book.open(@dir + '/another_workbook.xls')
+          @book1 = Book.open(@dir + '/another_workbook.xls')
           @sheet1 = @book1[0]
         end
 
@@ -425,7 +430,7 @@ describe RobustExcelOle::Sheet do
       context "setting the value of a range" do
       
         before do
-          @book1 = RobustExcelOle::Book.open(@dir + '/another_workbook.xls', :read_only => true)
+          @book1 = Book.open(@dir + '/another_workbook.xls', :read_only => true)
           @sheet1 = @book1[0]
         end
 
@@ -457,7 +462,7 @@ describe RobustExcelOle::Sheet do
       context "setting the name of a range" do
 
          before do
-          @book1 = RobustExcelOle::Book.open(@dir + '/another_workbook.xls', :read_only => true, :visible => true)
+          @book1 = Book.open(@dir + '/another_workbook.xls', :read_only => true, :visible => true)
           @sheet1 = @book1[0]
         end
 

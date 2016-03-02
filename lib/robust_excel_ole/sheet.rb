@@ -127,7 +127,7 @@ module RobustExcelOle
       end
       if value == -2146826259
         return opts[:default] if opts[:default]
-        raise SheeetError, "cannot evaluate name #{name.inspect} in sheet"
+        raise SheetError, "cannot evaluate name #{name.inspect} in sheet"
       end
       return opts[:default] if (value.nil? && opts[:default])
       value

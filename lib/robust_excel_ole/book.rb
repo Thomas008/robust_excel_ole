@@ -406,7 +406,6 @@ module RobustExcelOle
     #                    true:  closes it and open it as writable in the Excel instance where it was open so far
     #                    false (default)   opens it as writable in another running excel instance, if it exists,
     #                                      otherwise open in a new Excel instance.
-    #  :keep_open: lets the workbook open after unobtrusively opening (default: false)
     # @return [Book] a workbook
     def self.unobtrusively(file, if_closed = nil, opts = { }, &block) 
       if if_closed.is_a? Hash
@@ -807,8 +806,9 @@ module RobustExcelOle
     def self.excel_class    # :nodoc: #
       @excel_class ||= begin
         module_name = self.parent_name
-        "#{module_name}::Excel".constantsize
+        "#{module_name}::Excel".constantize
       rescue NameError => e
+        #trace "excel_class: NameError: #{e}"
         Excel
       end
     end

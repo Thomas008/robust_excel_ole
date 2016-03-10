@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.3.9] - 2016-03-03
+
+### Added
+- methods, respond_to?, own_methods in new module General
+- yardopts option --legacy for ruby 1.8.6. such that class Book is included in the documentation
 
 ## [0.3.8] - 2016-02-12
 

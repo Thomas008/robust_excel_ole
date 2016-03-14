@@ -124,6 +124,25 @@ describe Book do
         }.to raise_error(ExcelError, "receiver instance is neither an Excel nor a Book")
       end
 
+      it "should be visible and displayalerts" do
+        Book.unobtrusively(@simple_file, :visible => true, :displayalerts => true) do |book|
+          book.should be_a Book
+          book.should be_alive
+          book.excel.visible.should be_true
+          book.excel.displayalerts.should be_true
+        end
+      end
+
+      it "should be visible" do
+        excel = Excel.new(:reuse => false, :displayalerts => true)
+        Book.unobtrusively(@simple_file, :visible => true) do |book|
+          book.should be_a Book
+          book.should be_alive
+          book.excel.visible.should be_true
+          book.excel.displayalerts.should be_true
+        end
+      end
+
     end
 
     context "with an open book" do

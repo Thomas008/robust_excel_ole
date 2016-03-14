@@ -395,6 +395,8 @@ module RobustExcelOle
     # @option opts [Boolean] :read_only whether the file is opened for read-only
     # @option opts [Boolean] :readonly_excel behaviour when workbook is opened read-only and shall be modified
     # @option opts [Boolean] :keep_open whether the workbook shall be kept open after unobtrusively opening
+    # @option opts [Boolean] :displayalerts  true, or false (default)
+    # @option opts [Boolean] :visible        true, or false (default) 
     #  options: 
     #   :if_closed :   if the workbook is closed, then open it in
     #                    :reuse  -> the Excel instance of the workbook, if it exists, 
@@ -406,6 +408,8 @@ module RobustExcelOle
     #                    true:  closes it and open it as writable in the Excel instance where it was open so far
     #                    false (default)   opens it as writable in another running excel instance, if it exists,
     #                                      otherwise open in a new Excel instance.
+    # :displayalerts enables DisplayAlerts in Excel  
+    # :visible       makes visible in Excel 
     # @return [Book] a workbook
     def self.unobtrusively(file, if_closed = nil, opts = { }, &block) 
       if if_closed.is_a? Hash
@@ -416,7 +420,7 @@ module RobustExcelOle
       options = {
         :read_only => false,
         :readonly_excel => false,
-        :keep_open => false,
+        :keep_open => false
       }.merge(opts)
       book = bookstore.fetch(file, :prefer_writable => (not options[:read_only]))
       was_not_alive_or_nil = book.nil? || (not book.alive?)
@@ -449,6 +453,8 @@ module RobustExcelOle
                                          open(file, :force_excel => :new, :read_only => options[:read_only])
             end
           end
+        book.excel.displayalerts = options[:displayalerts] unless options[:displayalerts].nil?
+        book.excel.visible = options[:visible] unless options[:visible].nil?
         yield book
       ensure
         book.save if (was_not_alive_or_nil || was_saved || ((not options[:read_only]) && (not was_writable))) && (not options[:read_only]) && book && (not book.saved)

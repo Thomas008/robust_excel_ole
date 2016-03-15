@@ -179,8 +179,8 @@ One option chooses the Excel instance in which a closed workbook is opened. The 
 
 Options are the following:
 
-:reuse (default) : open a closed workbook in the Excel instance of the workbook, if it exists, otherwise reuse another Excel
-:hidden          : open a closed workbook in one separate Excel instance that is not visible and has no displayalerts
++:reuse+:: (default) : open a closed workbook in the Excel instance of the workbook, if it exists, otherwise reuse another Excel
++:hidden+::          : open a closed workbook in one separate Excel instance that is not visible and has no displayalerts
 <excel-instance> : open a closed workbooks in the given Excel instance
                
 +:read_only+:: Open the workbook unobtrusively for reading only  (default: false)
@@ -189,6 +189,8 @@ Options are the following:
                      false (default) open it as writable in another running excel instance, if it exists, 
                                      otherwise open in a new excel instance
 +:keep_open+:: let the workbook open after unobtrusively opening (default: false)
++:visible+::   change the Excel into visible or invisible
++:displayalerts+:: change the Excel into enable or disable displayalerts
 
   Book.unobtrusively('workbook.xls') do |book|
     # some modification

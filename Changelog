@@ -1,6 +1,18 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.4] - 2016-03-16
+
+### Added
+- options visible, displayalerts in unobtrusively, for_reading, for_writing
+
+## [0.3.8] - 2016-02-12
+
+### Added
+ - mark down comments
+ - trace
+ - Excel, Book: respond_to?, methods, special_methods, special_methods 
+
 ## [0.3.9] - 2016-03-03
 
 ### Added

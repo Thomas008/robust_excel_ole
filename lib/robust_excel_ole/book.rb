@@ -194,12 +194,7 @@ module RobustExcelOle
           @excel = self.class.excel_of(options[:excel])
         end
       end
-      # if :excel => :new or (:excel => :reuse but could not reuse)
-      #   keep the old values for :visible and :displayalerts, set them only if the parameters are given
-      if (not excel_options)
-        @excel.displayalerts = options[:displayalerts] unless options[:displayalerts].nil?
-        @excel.visible = options[:visible] unless options[:visible].nil?
-      end
+      apply_options(options) unless excel_options
     end
 
     def ensure_workbook(file, options)     # :nodoc: #
@@ -280,7 +275,6 @@ module RobustExcelOle
   private
 
     def open_or_create_workbook(file, options)   # :nodoc: #
-      trace "Hurra!"
       if ((not @ole_workbook) || (options[:if_unsaved] == :alert) || options[:if_obstructed]) then
         begin
           filename = General::absolute_path(file)

@@ -2,8 +2,6 @@
 
 require 'weakref'
 
-include Utilities
-
 module RobustExcelOle
 
   class Book
@@ -282,6 +280,7 @@ module RobustExcelOle
   private
 
     def open_or_create_workbook(file, options)   # :nodoc: #
+      trace "Hurra!"
       if ((not @ole_workbook) || (options[:if_unsaved] == :alert) || options[:if_obstructed]) then
         begin
           filename = General::absolute_path(file)

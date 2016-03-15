@@ -2,8 +2,6 @@
 
 require 'timeout'
 
-include Utilities
-
 module RobustExcelOle    
 
   class Excel

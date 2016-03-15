@@ -1,6 +1,5 @@
 require "win32ole"
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/general')
-require File.join(File.dirname(__FILE__), 'robust_excel_ole/utilities')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/excel')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/bookstore')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/book')

@@ -1,8 +1,6 @@
 
 # -*- coding: utf-8 -*-
 
-include Utilities
-
 module RobustExcelOle
 
   class Bookstore

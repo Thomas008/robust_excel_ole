@@ -10,6 +10,7 @@ module RobustExcelOle
     attr_accessor :ole_workbook
     attr_accessor :stored_filename
     attr_accessor :options
+    attr_accessor :can_be_closed
 
     alias ole_object ole_workbook
 
@@ -298,6 +299,7 @@ module RobustExcelOle
           workbooks.Add if @excel.Version == "12.0" && count == 0
           workbooks.Open(filename,{ 'ReadOnly' => options[:read_only] })
           workbooks.Item(1).Close if @excel.Version == "12.0" && count == 0
+          @can_be_closed = false
         rescue WIN32OLERuntimeError => msg
           trace "WIN32OLERuntimeError: #{msg.message}" 
           if msg.message =~ /800A03EC/
@@ -455,6 +457,7 @@ module RobustExcelOle
         if (not was_not_alive_or_nil) && (not options[:read_only]) && (not was_writable) && options[:readonly_excel]
           open(file, :force_excel => book.excel, :if_obstructed => :new_excel, :read_only => true)
         end
+        @can_be_closed = true if options[:keep_open] && book
         book.close if (was_not_alive_or_nil && (not now_alive) && (not options[:keep_open]) && book)
       end
     end

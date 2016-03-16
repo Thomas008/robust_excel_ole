@@ -292,6 +292,19 @@ describe Book do
         sheet[1,1].value.should_not == old_cell_value
       end
 
+      it "should set can_be_closed" do
+        Excel.close_all
+        Book.unobtrusively(@simple_file, :keep_open => true) do |book|
+          book.should be_a Book
+          book.should be_alive
+          book.can_be_closed.should be_false
+          @book2 = book
+        end
+        @book2.should be_alive
+        book = Book.open(@simple_file)
+        book.can_be_closed.should be_true
+      end
+
       # book shall be reanimated even with :hidden
       it "should use the excel of the book and keep open the book" do
         excel = Excel.new(:reuse => false)

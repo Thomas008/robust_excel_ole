@@ -299,7 +299,7 @@ module RobustExcelOle
           workbooks.Add if @excel.Version == "12.0" && count == 0
           workbooks.Open(filename,{ 'ReadOnly' => options[:read_only] })
           workbooks.Item(1).Close if @excel.Version == "12.0" && count == 0
-          @can_be_closed = false
+          @can_be_closed = false if @can_be_closed.nil?
         rescue WIN32OLERuntimeError => msg
           trace "WIN32OLERuntimeError: #{msg.message}" 
           if msg.message =~ /800A03EC/

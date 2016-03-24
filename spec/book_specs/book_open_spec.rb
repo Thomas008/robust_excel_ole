@@ -537,6 +537,38 @@ describe Book do
         end
       end
 
+      context "with :if_unsaved => :excel" do
+        before do
+         @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '../helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"
+        end
+
+        after do
+          @key_sender.close
+        end
+
+        it "should open the new book and close the unsaved book, if user answers 'yes'" do
+          # "Yes" is the  default. --> language independent
+          @key_sender.puts "{enter}"
+          @new_book = Book.open(@simple_file, :if_unsaved => :excel)
+          @new_book.should be_alive
+          @new_book.filename.downcase.should == @simple_file.downcase
+          @book.should_not be_alive
+        end
+
+        it "should not open the new book and not close the unsaved book, if user answers 'no'" do
+          # "No" is right to "Yes" (the  default). --> language independent
+          # strangely, in the "no" case, the question will sometimes be repeated three times
+          #@book.excel.Visible = true
+          @key_sender.puts "{right}{enter}"
+          @key_sender.puts "{right}{enter}"
+          @key_sender.puts "{right}{enter}"
+          expect{
+            Book.open(@simple_file, :if_unsaved => :excel)
+            }.to raise_error(ExcelErrorOpen, "open: user canceled or open error")
+          @book.should be_alive
+        end
+      end
+
       it "should open the book in a new excel instance, if :if_unsaved is :new_excel" do
         @new_book = Book.open(@simple_file, :if_unsaved => :new_excel)
         @book.should be_alive

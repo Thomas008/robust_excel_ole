@@ -184,6 +184,49 @@ describe Book do
           end
         end
       end
+
+      context "with :if_unsaved => :excel" do
+        before do
+          @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '../helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
+        end
+
+        after do
+          @key_sender.close
+        end
+
+        possible_answers = [:yes, :no, :cancel]
+        possible_answers.each_with_index do |answer, position|
+          it "should" + (answer == :yes ? "" : " not") + " the unsaved book and" + (answer == :cancel ? " not" : "") + " close it" + "if user answers '#{answer}'" do
+            # "Yes" is the  default. "No" is right of "Yes", "Cancel" is right of "No" --> language independent
+            @key_sender.puts  "{right}" * position + "{enter}"
+            ole_workbook = @book.ole_workbook
+            excel = @book.excel
+            displayalert_value = @book.excel.DisplayAlerts
+            if answer == :cancel then
+              expect {
+              @book.close(:if_unsaved => :excel)
+              }.to raise_error(ExcelUserCanceled, "close: canceled by user")
+              @book.ole_workbook.Saved.should be_false
+              @book.ole_workbook.should_not == nil
+              @book.should be_alive
+            else
+              @book.excel.Workbooks.Count.should == 1
+              @book.close(:if_unsaved => :excel)
+              @book.excel.Workbooks.Count.should == 0
+              @book.ole_workbook.should == nil
+              @book.should_not be_alive
+              expect{ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
+            end
+            new_book = Book.open(@simple_file, :if_unsaved => :forget)
+            begin
+              new_book.ole_workbook.Worksheets.Count.should == @sheet_count + (answer==:yes ? 1 : 0)
+              new_book.excel.DisplayAlerts.should == displayalert_value
+            ensure
+              new_book.close
+            end
+          end
+        end
+      end
     end
   end
 end

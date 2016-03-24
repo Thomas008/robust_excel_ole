@@ -31,7 +31,7 @@ module RobustExcelOle
       # @param [Hash] opts the options
       # @option opts [Variant] :default_excel  :reuse (default), :new, or <excel-instance>     
       # @option opts [Variant] :force_excel    :new (default), or <excel-instance>
-      # @option opts [Symbol]  :if_unsaved     :raise (default), :forget, :accept, :alert, or :new_excel
+      # @option opts [Symbol]  :if_unsaved     :raise (default), :forget, :accept, :alert, :excel, or :new_excel
       # @option opts [Symbol]  :if_obstructed  :raise (default), :forget, :save, :close_if_saved, or _new_excel
       # @option opts [Symbol]  :if_absent      :raise (default), or :create
       # @option opts [Boolean] :read_only      true (default), or false
@@ -52,7 +52,7 @@ module RobustExcelOle
       #                  :raise               -> raises an exception
       #                  :forget              -> close the unsaved workbook, open the new workbook             
       #                  :accept              -> lets the unsaved workbook open                  
-      #                  :alert               -> gives control to Excel
+      #                  :alert or :excel     -> gives control to Excel
       #                  :new_excel           -> opens the new workbook in a new Excel instance
       # :if_obstructed  if a workbook with the same name in a different path is open, then
       #                  :raise               -> raises an exception 
@@ -253,7 +253,7 @@ module RobustExcelOle
               open_or_create_workbook(file, options)
             when :accept
               # do nothing
-            when :alert
+            when :alert, :excel
               @excel.with_displayalerts true do
                 open_or_create_workbook(file,options)
               end 
@@ -329,7 +329,7 @@ module RobustExcelOle
     #                      :save            -> saves the workbook before it is closed                  
     #                      :forget          -> closes the workbook 
     #                      :keep_open       -> keep the workbook open
-    #                      :alert           -> gives control to excel
+    #                      :alert or :excel -> gives control to excel
     # @raise ExcelErrorClose if the option :if_unsaved is :raise and the workbook is unsaved, or option is invalid
     # @raise ExcelErrorCanceled if the user has canceled 
     def close(opts = {:if_unsaved => :raise})
@@ -344,7 +344,7 @@ module RobustExcelOle
           close_workbook
         when :keep_open
           # nothing
-        when :alert
+        when :alert, :excel
           @excel.with_displayalerts true do
             close_workbook
           end
@@ -354,7 +354,8 @@ module RobustExcelOle
       else
         close_workbook
       end
-      raise ExcelUserCanceled, "close: canceled by user" if alive? && opts[:if_unsaved] == :alert && (not @ole_workbook.Saved)
+      raise ExcelUserCanceled, "close: canceled by user" if alive? && 
+      (opts[:if_unsaved] == :alert || opts[:if_unsaved] == :excel) && (not @ole_workbook.Saved)
     end
 
   private
@@ -618,13 +619,13 @@ module RobustExcelOle
     # saves a workbook with a given file name.
     # @param [String] file   file name
     # @param [Hash]   opts   the options
-    # @option opts [Symbol] :if_exists      :raise (default), :overwrite, or :alert
+    # @option opts [Symbol] :if_exists      :raise (default), :overwrite, or :alert, :excel
     # @option opts [Symbol] :if_obstructed  :raise (default), :forget, :save, or :close_if_saved
     # options: 
     # :if_exists  if a file with the same name exists, then  
     #               :raise     -> raises an exception, dont't write the file  (default)
     #               :overwrite -> writes the file, delete the old file
-    #               :alert     -> gives control to Excel
+    #               :alert or :excel -> gives control to Excel
     #  :if_obstructed   if a workbook with the same name and different path is already open and blocks the saving, then
     #                  :raise               -> raises an exception 
     #                  :forget              -> closes the blocking workbook
@@ -655,7 +656,7 @@ module RobustExcelOle
               raise ExcelErrorSave, "workbook is open and used in Excel"
             end
           end
-        when :alert 
+        when :alert, :excel 
           @excel.with_displayalerts true do
             save_as_workbook(file, options)
           end
@@ -707,7 +708,7 @@ module RobustExcelOle
         bookstore.store(self)
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
-          if options[:if_exists] == :alert then 
+          if options[:if_exists] == :alert || options[:if_exists] == :excel then 
             raise ExcelErrorSave, "not saved or canceled by user"
           else
             return nil

@@ -390,6 +390,76 @@ describe Book do
 
         end
 
+        context "with :if_exists => :excel" do
+          before do
+            File.delete @simple_save_file rescue nil
+            File.open(@simple_save_file,"w") do | file |
+              file.puts "garbage"
+            end
+            @garbage_length = File.size?(@simple_save_file)
+            @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '../helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
+          end
+
+          after do
+            @key_sender.close
+          end
+
+          it "should save if user answers 'yes'" do
+            # "Yes" is to the left of "No", which is the  default. --> language independent
+            @key_sender.puts "{left}{enter}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
+            @book.save_as(@simple_save_file, :if_exists => :excel)
+            File.exist?(@simple_save_file).should be_true
+            File.size?(@simple_save_file).should > @garbage_length
+            @book.excel.DisplayAlerts.should == displayalert_value
+            new_book = Book.open(@simple_save_file, :excel => :new)
+            new_book.should be_a Book
+            new_book.close
+            @book.excel.DisplayAlerts.should == displayalert_value
+          end
+
+          it "should not save if user answers 'no'" do
+            # Just give the "Enter" key, because "No" is the default. --> language independent
+            # strangely, in the "no" case, the question will sometimes be repeated three times
+            @key_sender.puts "{enter}"
+            @key_sender.puts "{enter}"
+            @key_sender.puts "{enter}"
+            #@key_sender.puts "%{n}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
+            expect{
+              @book.save_as(@simple_save_file, :if_exists => :excel)
+              }.to raise_error(ExcelErrorSave, "not saved or canceled by user")
+            File.exist?(@simple_save_file).should be_true
+            File.size?(@simple_save_file).should == @garbage_length
+            @book.excel.DisplayAlerts.should == displayalert_value
+          end
+
+          it "should not save if user answers 'cancel'" do
+            # 'Cancel' is right from 'yes'
+            # strangely, in the "no" case, the question will sometimes be repeated three times
+            @key_sender.puts "{right}{enter}"
+            @key_sender.puts "{right}{enter}"
+            @key_sender.puts "{right}{enter}"
+            #@key_sender.puts "%{n}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
+            expect{
+              @book.save_as(@simple_save_file, :if_exists => :excel)
+              }.to raise_error(ExcelErrorSave, "not saved or canceled by user")
+            File.exist?(@simple_save_file).should be_true
+            File.size?(@simple_save_file).should == @garbage_length
+            @book.excel.DisplayAlerts.should == displayalert_value
+          end
+
+          it "should report save errors and leave DisplayAlerts unchanged" do
+            #@key_sender.puts "{left}{enter}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
+            @book.ole_workbook.Close
+            expect{
+              @book.save_as(@simple_save_file, :if_exists => :excel)
+              }.to raise_error(ExcelErrorSave, "Workbook is not alive")
+            File.exist?(@simple_save_file).should be_true
+            File.size?(@simple_save_file).should == @garbage_length
+            @book.excel.DisplayAlerts.should == displayalert_value
+          end
+
+        end
+
         it "should save to 'simple_save_file.xls' with :if_exists => nil" do
           dirname, basename = File.split(@simple_save_file)
           File.delete @simple_save_file rescue nil

@@ -31,7 +31,7 @@ describe Book do
 
   after do
     Excel.kill_all
-    rm_tmp(@dir)
+    #rm_tmp(@dir)
   end
 
   describe "create file" do
@@ -207,7 +207,7 @@ describe Book do
     end
   end
 
-  describe "alive?, filename, ==, visible, displayalerts, activate, saved, check compatibility" do
+  describe "alive?, filename, ==, visible, displayalerts, activate, saved, check_compatibility" do
 
     context "with alive?" do
 
@@ -375,14 +375,14 @@ describe Book do
     context "with compatibility" do      
 
       it "should open and check compatibility" do
-        book = Book.open(@simple_file, :visible => true, :checkcompatibility => false)
+        book = Book.open(@simple_file, :visible => true, :check_compatibility => false)
         book.CheckCompatibility.should be_false
         book.CheckCompatibility = true
         book.CheckCompatibility.should be_true
-        Book.unobtrusively(@simple_file, :visible => true, :checkcompatibility => false) do |book|
+        Book.unobtrusively(@simple_file, :visible => true, :check_compatibility => false) do |book|
           book.CheckCompatibility.should be_false
         end
-        Book.unobtrusively(@simple_file, :visible => true, :checkcompatibility => true) do |book|
+        Book.unobtrusively(@simple_file, :visible => true, :check_compatibility => true) do |book|
           book.CheckCompatibility.should be_true
         end
 

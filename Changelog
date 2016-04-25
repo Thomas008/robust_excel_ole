@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.4.1] - 2016-05-05
+
+### Added
+- option check_compatibility
+
 ## [0.4] - 2016-03-16
 
 ### Added

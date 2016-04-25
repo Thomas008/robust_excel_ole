@@ -47,7 +47,7 @@ Options are the following:
 +:if_unsaved+::      specify behaviour if the workbook was unsaved (default: +new_excel+)
 +:if_obstructed+::   specidy behaviour if the workbook is blocked by another book (default: +new_excel+)
 +:read_only+::       open in read-only mode (default: +false+) 
-+:checkcompatibility:: check compatibility when saving
++:check_compatibility:: check compatibility when saving
 +:displayalerts+::   allow display alerts in Excel (default: +false+)
 +:visible+::         make visibe in Excel (default: +false+)
 
@@ -192,7 +192,7 @@ Options are the following:
 +:keep_open+::          let the workbook open after unobtrusively opening (default: false)
 +:visible+::            change the Excel into visible or invisible
 +:displayalerts+::      change the Excel into enable or disable displayalerts
-+:checkcompatibility+:: checks compatibility when saving
++:check_compatibility+:: checks compatibility when saving
 
   Book.unobtrusively('workbook.xls') do |book|
     # some modification

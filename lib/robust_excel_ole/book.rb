@@ -22,7 +22,7 @@ module RobustExcelOle
         :if_obstructed => :raise,
         :if_absent     => :raise,
         :read_only => false,
-        :checkcompatibility => true
+        :check_compatibility => true
       }
 
     class << self
@@ -68,7 +68,7 @@ module RobustExcelOle
       # :read_only     opens in read-only mode         
       # :displayalerts enables DisplayAlerts in Excel  
       # :visible       makes visible in Excel        
-      # :checkcompatibility  check compatibility when saving
+      # :check_compatibility  check compatibility when saving
       # if :default_excel is set, then DisplayAlerts and Visible are set only if these parameters are given
       # @return [Book] a workbook
       def open(file, opts={ }, &block)
@@ -301,7 +301,7 @@ module RobustExcelOle
           workbooks.Add if @excel.Version == "12.0" && count == 0
           workbooks.Open(filename,{ 'ReadOnly' => options[:read_only] })
           workbooks.Item(1).Close if @excel.Version == "12.0" && count == 0
-          workbooks.Item(1).CheckCompatibility = options[:checkcompatibility]
+          workbooks.Item(1).CheckCompatibility = options[:check_compatibility]
           @can_be_closed = false if @can_be_closed.nil?
         rescue WIN32OLERuntimeError => msg
           trace "WIN32OLERuntimeError: #{msg.message}" 
@@ -409,7 +409,7 @@ module RobustExcelOle
     #                                      otherwise open in a new Excel instance.
     # :displayalerts      enables DisplayAlerts in Excel  
     # :visible            makes visible in Excel 
-    # :checkcompatibility checks compatibility when saving
+    # :check_compatibility checks compatibility when saving
     # @return [Book] a workbook
     def self.unobtrusively(file, if_closed = nil, opts = { }, &block) 
       if if_closed.is_a? Hash
@@ -421,7 +421,7 @@ module RobustExcelOle
         :read_only => false,
         :readonly_excel => false,
         :keep_open => false,
-        :checkcompatibility => true
+        :check_compatibility => true
       }.merge(opts)
       book = bookstore.fetch(file, :prefer_writable => (not options[:read_only]))
       was_not_alive_or_nil = book.nil? || (not book.alive?)
@@ -456,7 +456,7 @@ module RobustExcelOle
           end
         book.excel.displayalerts = options[:displayalerts] unless options[:displayalerts].nil?
         book.excel.visible = options[:visible] unless options[:visible].nil?
-        book.CheckCompatibility = options[:checkcompatibility]
+        book.CheckCompatibility = options[:check_compatibility]
         yield book
       ensure
         book.save if (was_not_alive_or_nil || was_saved || ((not options[:read_only]) && (not was_writable))) && (not options[:read_only]) && book && (not book.saved)

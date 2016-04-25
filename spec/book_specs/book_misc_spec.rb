@@ -207,7 +207,7 @@ describe Book do
     end
   end
 
-  describe "alive?, filename, ==, visible, displayalerts, activate, saved" do
+  describe "alive?, filename, ==, visible, displayalerts, activate, saved, check compatibility" do
 
     context "with alive?" do
 
@@ -371,5 +371,24 @@ describe Book do
         Excel.current.should == @book.excel
       end
     end
+
+    context "with compatibility" do      
+
+      it "should open and check compatibility" do
+        book = Book.open(@simple_file, :visible => true, :checkcompatibility => false)
+        book.CheckCompatibility.should be_false
+        book.CheckCompatibility = true
+        book.CheckCompatibility.should be_true
+        Book.unobtrusively(@simple_file, :visible => true, :checkcompatibility => false) do |book|
+          book.CheckCompatibility.should be_false
+        end
+        Book.unobtrusively(@simple_file, :visible => true, :checkcompatibility => true) do |book|
+          book.CheckCompatibility.should be_true
+        end
+
+      end
+
+    end
+
   end
 end

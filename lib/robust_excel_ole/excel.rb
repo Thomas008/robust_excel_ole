@@ -12,6 +12,9 @@ module RobustExcelOle
 
     @@hwnd2excel = {}    
 
+    XlCalculationManual = -4135
+    XlCalculationAutomatic = -4105
+
     # creates a new Excel instance
     # @return [Excel] a new Excel instance
     def self.create
@@ -480,7 +483,7 @@ module RobustExcelOle
       ensure
         @ole_excel.DisplayAlerts = old_displayalerts if alive?
       end
-    end
+    end    
 
     # enables DisplayAlerts in the current Excel instance
     def displayalerts= displayalerts_value
@@ -501,6 +504,20 @@ module RobustExcelOle
     def visible 
       @visible = @ole_excel.Visible
     end    
+
+    # sets calculation mode
+    def with_calculate(calculation_mode = :automatic)
+      old_calculation_mode = @ole_excel.Calculation
+      old_calculation_before_save_mode = @ole_excel.CalculationBeforeSave
+      @ole_excel.Calculation = calculation_mode == :automatic ? XlCalculationAutomatic : XlCalculationManual
+      @ole_excel.CalculationBeforeSave = (calculation_mode == :automatic)
+      begin
+         yield self
+      ensure
+        @ole_excel.Calculation = old_calculation_mode if alive?
+        @ole_excel.CalculationBeforeSave = old_calculation_before_save_mode if alive?
+      end
+    end
 
     def to_s              # :nodoc: #
       "#<Excel: " + "#{hwnd}" + ("#{"not alive" unless self.alive?}") + ">"

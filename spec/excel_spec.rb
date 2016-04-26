@@ -11,7 +11,7 @@ module RobustExcelOle
   describe Excel do
 
     before(:all) do
-      Excel.close_all
+      Excel.kill_all
     end
 
     before do
@@ -736,7 +736,35 @@ module RobustExcelOle
           @excel2.DisplayAlerts.should be_false
         end
       end
+    end
 
+    context "with calculation" do
+
+      before do
+        #@excel1 = Excel.new(:visible => true)
+        @excel1 = Excel.create
+      end
+
+      it "should" do
+        @excel1.Calculation = -4105
+        @excel1.Calculation.should == -4105
+        @excel1.CalculateBeforeSave = false
+        @excel1.CalculateBeforeSave.should be_false
+      end
+
+      it "should do calculation automatically" do
+        @excel1.with_calculate(:automatic) do
+          @excel1.Calculation.should == -4105
+          @excel1.CalculateBeforeSave.should be_true
+        end
+      end
+
+      it "should do calculation manually" do
+        @excel1.with_calculate(:manual) do
+          @excel1.Calculation.should == -4135
+          @excel1.CalculateBeforeSave.should be_false
+        end
+      end
     end
 
     context "method delegation for capitalized methods" do

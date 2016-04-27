@@ -3,7 +3,7 @@
 
 module RobustExcelOle
 
-  class Bookstore
+  class Bookstore < REOCommon
 
     def initialize
       @filename2books ||= Hash.new {|hash, key| hash[key] = [] }

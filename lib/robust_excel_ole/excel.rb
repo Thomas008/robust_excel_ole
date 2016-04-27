@@ -4,7 +4,7 @@ require 'timeout'
 
 module RobustExcelOle    
 
-  class Excel
+  class Excel < REOCommon
 
     attr_accessor :ole_excel
 

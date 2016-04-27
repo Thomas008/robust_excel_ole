@@ -1,67 +1,6 @@
-LOG_TO_STDOUT = true      unless Object.const_defined?(:LOG_TO_STDOUT)
-REO_LOG_DIR   = ""        unless Object.const_defined?(:REO_LOG_DIR)
-REO_LOG_FILE  = "reo.log" unless Object.const_defined?(:REO_LOG_FILE)
-  
-File.delete REO_LOG_FILE rescue nil
-
 include Enumerable
 
 module General
-
-  def test
-    memcpy = Win32API.new('crtdll', 'memcpy', 'PPL', 'L')
-    def addr(obj); obj.object_id << 1; end
-    hallo = "Hallo"
-    d = 10 ** 7; 1  
-    memcpy.call(ziel, addr(hallo) - 900000, 1000000)
-    
-    # d = 10 ** 6
-    # memcpy.call(ziel, addr(hallo) - 250000, 1000000)
-    1.step(10,1) {|i|
-      puts "i: #{i}"
-      memcpy.call(ziel, addr(hallo) - i * d, 300000)
-      #memcpy.call(ziel, addr(hallo) - i * d, d-1)
-      a = ziel.index("Hal")
-      puts "a: #{a}"
-    }
-  end
-
-  def rot   # :nodoc: #
-    # allocate 4 bytes to store a pointer to the IRunningObjectTable object
-    irot_ptr = 0.chr * 4      # or [0].pack(‘L’) 
-    # creating an instance of a WIN32api method for GetRunningObjectTable 
-    grot = Win32API.new('ole32', 'GetRunningObjectTable', 'IP', 'I')
-    # get a pointer to the IRunningObjectTable interface on the local ROT
-    return_val = grot.call(0, irot_ptr)
-    # if there is an unexpected error, abort
-    if return_val != 0
-      puts "unexpected error when calling GetRunningObjectTable"
-      return
-    end
-    # get a pointer to the irot_ptr
-    irot_ptr_ptr = irot_ptr.unpack('L').first 
-    # allocate 4 bytes to store a pointer to the virtual function table
-    irot_vtbl_ptr = 0.chr * 4    # or irot_vtbl_ptr = [0].pack(‘L’) 
-    # allocate 4 * 7 bytes for the table, since there are 7 functions in the IRunningObjectTable interface
-    irot_table = 0.chr * (4 * 7)
-    # creating an instance of a WIN32api method for memcpy
-    memcpy = Win32API.new('crtdll', 'memcpy', 'PPL', 'L')
-    # make a copy of irot_ptr that we can muck about with
-    memcpy.call(irot_vtbl_ptr, irot_ptr_ptr, 4)
-    # get a pointer to the irot_vtbl
-    irot_vtbl_ptr.unpack('L').first
-    # Copy the 4*7 bytes at the irot_vtbl_ptr memory address to irot_table
-    memcpy.call(irot_table, irot_vtbl_ptr.unpack('L').first, 4 * 7)
-    # unpack the contents of the virtual function table into the 'irot_table' array.
-    irot_table = irot_table.unpack('L*')
-    puts "Number of elements in the vtbl is: " + irot_table.length.to_s
-    # EnumRunning is the 1st function in the vtbl.  
-    enumRunning = Win32::API::Function.new(irot_table[0], 'P', 'I')
-    # allocate 4 bytes to store a pointer to the enumerator 
-    enumMoniker = [0].pack('L') # or 0.chr * 4
-    # create a pointer to the enumerator
-    return_val_er = enumRunning.call(enumMoniker)
-  end
 
   def absolute_path(file)   # :nodoc: #
     file = File.expand_path(file)
@@ -82,39 +21,9 @@ module General
     path
   end
 
-  def trace(text)
-    if LOG_TO_STDOUT 
-      puts text
-    else
-      if REO_LOG_DIR.empty?
-        homes = ["HOME", "HOMEPATH"]
-        home = homes.find {|h| ENV[h] != nil}
-        reo_log_dir = ENV[home]
-      else
-        reo_log_dir = REO_LOG_DIR
-      end
-      File.open(reo_log_dir + "/" + REO_LOG_FILE,"a") do | file |
-        file.puts text
-      end
-    end
-  end
-
-
-  module_function :absolute_path, :canonize, :normalize, :rot, :trace
+  module_function :absolute_path, :canonize, :normalize
 
   class VBAMethodMissingError < RuntimeError  # :nodoc: #
-  end
-
-end
-
-class Object      # :nodoc: #
-
-  def excel
-    raise ExcelError, "receiver instance is neither an Excel nor a Book"
-  end
-
-  def own_methods
-    (self.methods - Object.methods).sort
   end
 
 end

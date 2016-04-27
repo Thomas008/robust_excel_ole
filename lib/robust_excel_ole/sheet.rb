@@ -2,7 +2,7 @@
 
 module RobustExcelOle
 
-  class Sheet
+  class Sheet < REOCommon
     attr_reader :worksheet
 
     def initialize(win32_worksheet)

@@ -4,7 +4,7 @@ require 'weakref'
 
 module RobustExcelOle
 
-  class Book
+  class Book < REOCommon
 
     attr_accessor :excel
     attr_accessor :ole_workbook

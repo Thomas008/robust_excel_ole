@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 module RobustExcelOle
-  class Range
+  class Range < REOCommon
     include Enumerable
 
     def initialize(win32_range)

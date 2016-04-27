@@ -361,6 +361,16 @@ Turning on and off in a block.
     book = Book.open('workbook.xls')
   end
 
+=== Setting Calculation mode.
+
+Setting calculation mode to manual
+
+  excel = Excel.create
+  book = Book.open('workbook.xls')
+  excel.with_calculation(:manual) do 
+    # do something
+  end
+
 === Closing an Excel
 
   excel = Excel.current

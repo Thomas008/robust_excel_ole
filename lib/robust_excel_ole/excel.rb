@@ -507,15 +507,17 @@ module RobustExcelOle
 
     # sets calculation mode
     def with_calculate(calculation_mode = :automatic)
-      old_calculation_mode = @ole_excel.Calculation
-      old_calculation_before_save_mode = @ole_excel.CalculationBeforeSave
-      @ole_excel.Calculation = calculation_mode == :automatic ? XlCalculationAutomatic : XlCalculationManual
-      @ole_excel.CalculationBeforeSave = (calculation_mode == :automatic)
-      begin
-         yield self
-      ensure
-        @ole_excel.Calculation = old_calculation_mode if alive?
-        @ole_excel.CalculationBeforeSave = old_calculation_before_save_mode if alive?
+      if @ole_excel.Workbooks.Count > 0
+        old_calculation_mode = @ole_excel.Calculation
+        old_calculation_before_save_mode = @ole_excel.CalculateBeforeSave
+        @ole_excel.Calculation = calculation_mode == :automatic ? XlCalculationAutomatic : XlCalculationManual
+        @ole_excel.CalculateBeforeSave = (calculation_mode == :automatic)
+        begin
+          yield self
+        ensure
+          @ole_excel.Calculation = old_calculation_mode if alive?
+          @ole_excel.CalculateBeforeSave = old_calculation_before_save_mode if alive?
+        end
       end
     end
 

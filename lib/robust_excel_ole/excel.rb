@@ -319,10 +319,10 @@ module RobustExcelOle
       if weak_excel_ref.weakref_alive? then
         begin
           weak_excel_ref.ole_free
-          trace "successfully ole_freed #{weak_excel_ref}"
+          REOCommon::trace "successfully ole_freed #{weak_excel_ref}"
         rescue => msg
-          trace "#{msg.message}"
-          trace "could not do ole_free on #{weak_excel_ref}"
+          REOCommon::trace "#{msg.message}"
+          REOCommon::trace "could not do ole_free on #{weak_excel_ref}"
         end
       end
       @@hwnd2excel.delete(excel_hwnd)      

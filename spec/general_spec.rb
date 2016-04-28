@@ -173,21 +173,6 @@ module RobustExcelOle
           @sheet.excel
           }.to raise_error(ExcelError, "receiver instance is neither an Excel nor a Book")
       end
-
     end
-
-    describe "trace" do
-
-      it "should put some number" do
-        a = 4
-        trace "some text #{a}"
-      end
-
-      it "should put another text" do
-        a = 5
-        trace "another text #{a}"
-      end
-    end
-
   end
 end

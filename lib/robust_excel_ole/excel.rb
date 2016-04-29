@@ -12,9 +12,6 @@ module RobustExcelOle
 
     @@hwnd2excel = {}    
 
-    XlCalculationManual = -4135
-    XlCalculationAutomatic = -4105
-
     # creates a new Excel instance
     # @return [Excel] a new Excel instance
     def self.create

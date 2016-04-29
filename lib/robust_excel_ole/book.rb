@@ -121,7 +121,7 @@ module RobustExcelOle
     # @param [Hash]    opts              the options
     # @option opts [Symbol] see above
     # @return [Book] a workbook
-    def initialize(file_or_workbook, opts={ }, &block)
+    def initialize(file_or_workbook, opts={ }, &block)      
       options = DEFAULT_OPEN_OPTS.merge(opts)
       options[:excel] = options[:force_excel] ? options[:force_excel] : options[:default_excel]
       if file_or_workbook.is_a? WIN32OLE

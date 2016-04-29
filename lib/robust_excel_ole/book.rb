@@ -284,14 +284,14 @@ module RobustExcelOle
           begin
             workbooks = @excel.Workbooks
           rescue RuntimeError => msg
-            trace "RuntimeError: #{msg.message}" 
+            REOCommon::trace "RuntimeError: #{msg.message}" 
             if msg.message =~ /method missing: Excel not alive/
               raise ExcelErrorOpen, "Excel instance not alive or damaged" 
             else
               raise ExcelErrorOpen, "unknown RuntimeError"
             end
           rescue WeakRef::RefError => msg
-            trace "WeakRefError: #{msg.message}"
+            REOCommon::trace "WeakRefError: #{msg.message}"
             raise ExcelErrorOpen, "#{msg.message}"
           end
           # workaround for linked workbooks for Excel 2007: 
@@ -304,7 +304,7 @@ module RobustExcelOle
           workbooks.Item(1).CheckCompatibility = options[:check_compatibility]
           @can_be_closed = false if @can_be_closed.nil?
         rescue WIN32OLERuntimeError => msg
-          trace "WIN32OLERuntimeError: #{msg.message}" 
+          REOCommon::trace "WIN32OLERuntimeError: #{msg.message}" 
           if msg.message =~ /800A03EC/
             raise ExcelErrorOpen, "open: user canceled or open error"
           else 

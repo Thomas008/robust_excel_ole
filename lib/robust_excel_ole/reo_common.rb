@@ -14,6 +14,10 @@ class REOCommon
     (self.methods - Object.methods).sort
   end
 
+  def trace(text)
+    self.class.trace(text)
+  end
+
   def self.trace(text)
     if LOG_TO_STDOUT 
       puts text

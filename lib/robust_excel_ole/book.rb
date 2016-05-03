@@ -121,7 +121,7 @@ module RobustExcelOle
     # @param [Hash]    opts              the options
     # @option opts [Symbol] see above
     # @return [Book] a workbook
-    def initialize(file_or_workbook, opts={ }, &block)      
+    def initialize(file_or_workbook, opts={ }, &block)
       options = DEFAULT_OPEN_OPTS.merge(opts)
       options[:excel] = options[:force_excel] ? options[:force_excel] : options[:default_excel]
       if file_or_workbook.is_a? WIN32OLE
@@ -284,14 +284,14 @@ module RobustExcelOle
           begin
             workbooks = @excel.Workbooks
           rescue RuntimeError => msg
-            REOCommon::trace "RuntimeError: #{msg.message}" 
+            trace "RuntimeError: #{msg.message}" 
             if msg.message =~ /method missing: Excel not alive/
               raise ExcelErrorOpen, "Excel instance not alive or damaged" 
             else
               raise ExcelErrorOpen, "unknown RuntimeError"
             end
           rescue WeakRef::RefError => msg
-            REOCommon::trace "WeakRefError: #{msg.message}"
+            trace "WeakRefError: #{msg.message}"
             raise ExcelErrorOpen, "#{msg.message}"
           end
           # workaround for linked workbooks for Excel 2007: 
@@ -304,7 +304,7 @@ module RobustExcelOle
           workbooks.Item(1).CheckCompatibility = options[:check_compatibility]
           @can_be_closed = false if @can_be_closed.nil?
         rescue WIN32OLERuntimeError => msg
-          REOCommon::trace "WIN32OLERuntimeError: #{msg.message}" 
+          trace "WIN32OLERuntimeError: #{msg.message}" 
           if msg.message =~ /800A03EC/
             raise ExcelErrorOpen, "open: user canceled or open error"
           else 

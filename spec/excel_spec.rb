@@ -745,14 +745,14 @@ module RobustExcelOle
       end
 
       it "should not set calculation mode when no workbook is opened" do
-        @excel1.with_calculate(:automatic) do
+        @excel1.with_calculation(:automatic) do
           @excel1.Calculation.should_not == -4105
         end
       end
 
       it "should set calculation mode to manual" do
         b = Book.open(@simple_file)
-        @excel1.with_calculate(:manual) do
+        @excel1.with_calculation(:manual) do
           @excel1.Calculation.should == -4135
           @excel1.CalculateBeforeSave.should be_false
         end
@@ -760,7 +760,7 @@ module RobustExcelOle
 
       it "should set calculation mode automatic" do
         b = Book.open(@simple_file)
-        @excel1.with_calculate(:automatic) do
+        @excel1.with_calculation(:automatic) do
           @excel1.Calculation.should == -4105
           @excel1.CalculateBeforeSave.should be_true
         end
@@ -768,7 +768,7 @@ module RobustExcelOle
 
       it "should set calculation mode to automatic as default" do
         b = Book.open(@simple_file)
-        @excel1.with_calculate do
+        @excel1.with_calculation do
           @excel1.Calculation.should == -4105
           @excel1.CalculateBeforeSave.should be_true
         end

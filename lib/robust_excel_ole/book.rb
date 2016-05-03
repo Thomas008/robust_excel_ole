@@ -434,7 +434,7 @@ module RobustExcelOle
           false
         end
       was_saved = was_not_alive_or_nil ? true : book.saved
-      was_writable = book.writable unless was_not_alive_or_nil
+      was_writable = book.writable unless was_not_alive_or_nil      
       begin 
         book = 
           if was_not_alive_or_nil 
@@ -456,6 +456,7 @@ module RobustExcelOle
           end
         book.excel.displayalerts = options[:displayalerts] unless options[:displayalerts].nil?
         book.excel.visible = options[:visible] unless options[:visible].nil?
+        old_check_compatibility = book.CheckCompatibility
         book.CheckCompatibility = options[:check_compatibility]
         yield book
       ensure
@@ -466,6 +467,7 @@ module RobustExcelOle
         end
         @can_be_closed = true if options[:keep_open] && book
         book.close if (was_not_alive_or_nil && (not now_alive) && (not options[:keep_open]) && book)
+        book.CheckCompatibility = old_check_compatibility
       end
     end
 

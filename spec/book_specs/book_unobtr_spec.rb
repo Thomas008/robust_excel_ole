@@ -245,6 +245,31 @@ describe Book do
         sheet2 = @book[0]
         sheet2[1,1].value.should_not == old_cell_value
       end    
+
+      it "should set checkcompatibilty to true" do
+        Book.unobtrusively(@simple_file, :check_compatibility => true) do |book|
+          book.should be_a Book
+          book.CheckCompatibility.should be_true
+        end
+        @book.CheckCompatibility.should be_true
+      end
+
+      it "should set the checkcompatibilty to false" do
+        Book.unobtrusively(@simple_file, :check_compatibility => false) do |book|
+          book.should be_a Book
+          book.CheckCompatibility.should be_false
+        end
+        @book.CheckCompatibility.should be_true
+      end
+
+      it "should set the checkcompatibilty to false" do
+        @book.CheckCompatibility = false
+        Book.unobtrusively(@simple_file, :check_compatibility => true) do |book|
+          book.should be_a Book
+          book.CheckCompatibility.should be_true
+        end
+        @book.CheckCompatibility.should be_false
+      end
     end
     
     context "with a closed book" do

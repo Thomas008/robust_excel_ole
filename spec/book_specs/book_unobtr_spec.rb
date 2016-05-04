@@ -121,7 +121,7 @@ describe Book do
         expect{
           Book.unobtrusively(@simple_file, :invalid_option) do |book|
           end
-        }.to raise_error(ExcelError, "receiver instance is neither an Excel nor a Book")
+        }.to raise_error(ExcelErrorOpen, "given object is neither an Excel, a Book, nor a Win32ole")
       end
 
       it "should be visible and displayalerts" do
@@ -316,7 +316,7 @@ describe Book do
         sheet = new_book[0]
         sheet[1,1].value.should_not == old_cell_value
       end
-
+=begin
       it "should set can_be_closed" do
         Excel.close_all
         Book.unobtrusively(@simple_file, :keep_open => true) do |book|
@@ -329,6 +329,7 @@ describe Book do
         book = Book.open(@simple_file)
         book.can_be_closed.should be_true
       end
+=end      
 
       # book shall be reanimated even with :hidden
       it "should use the excel of the book and keep open the book" do

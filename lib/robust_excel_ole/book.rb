@@ -167,7 +167,11 @@ module RobustExcelOle
           object.excel
         end
       else
-        object.excel
+        begin
+          object.excel
+        rescue
+          raise ExcelErrorOpen, "given object is neither an Excel, a Book, nor a Win32ole"
+        end
       end
       #rescue
         # trace "no Excel, Book, or WIN32OLE object representing a Workbook or an Excel instance"
@@ -460,14 +464,15 @@ module RobustExcelOle
         book.CheckCompatibility = options[:check_compatibility]
         yield book
       ensure
-        book.save if (was_not_alive_or_nil || was_saved || ((not options[:read_only]) && (not was_writable))) && (not options[:read_only]) && book && (not book.saved)
+        was_saved_or_appeared = was_saved || was_not_alive_or_nil || (not was_writable)
+        book.save if book && (not book.saved) && (not options[:read_only]) && was_saved_or_appeared
         # book was open, readonly and shoud be modified
         if (not was_not_alive_or_nil) && (not options[:read_only]) && (not was_writable) && options[:readonly_excel]
           open(file, :force_excel => book.excel, :if_obstructed => :new_excel, :read_only => true)
         end
         @can_be_closed = true if options[:keep_open] && book
         book.close if (was_not_alive_or_nil && (not now_alive) && (not options[:keep_open]) && book)
-        book.CheckCompatibility = old_check_compatibility
+        book.CheckCompatibility = old_check_compatibility if book && book.alive?
       end
     end
 

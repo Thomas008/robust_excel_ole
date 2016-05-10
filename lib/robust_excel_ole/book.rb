@@ -425,7 +425,8 @@ module RobustExcelOle
         :read_only => false,
         :readonly_excel => false,
         :keep_open => false,
-        :check_compatibility => true
+        :check_compatibility => true,
+        :if_obstructed => :raise
       }.merge(opts)
       book = bookstore.fetch(file, :prefer_writable => (not options[:read_only]))
       was_not_alive_or_nil = book.nil? || (not book.alive?)
@@ -444,18 +445,18 @@ module RobustExcelOle
           if was_not_alive_or_nil 
             case if_closed
             when :reuse
-              open(file, :read_only => options[:read_only])
+              open(file, :read_only => options[:read_only], :if_obstructed => options[:if_obstructed])
             when :hidden 
-              open(file, :force_excel => bookstore.hidden_excel, :read_only => options[:read_only])
+              open(file, :force_excel => bookstore.hidden_excel, :read_only => options[:read_only], :if_obstructed => options[:if_obstructed])
             else 
-              open(file, :force_excel => if_closed, :read_only => options[:read_only])
+              open(file, :force_excel => if_closed, :read_only => options[:read_only], :if_obstructed => options[:if_obstructed])
             end
           else
             if was_writable || options[:read_only]
               book
             else
-              options[:readonly_excel] ? open(file, :force_excel => book.excel, :read_only => options[:read_only]) : 
-                                         open(file, :force_excel => :new, :read_only => options[:read_only])
+              options[:readonly_excel] ? open(file, :force_excel => book.excel, :read_only => options[:read_only], :if_obstructed => options[:if_obstructed]) : 
+                                         open(file, :force_excel => :new, :read_only => options[:read_only], :if_obstructed => options[:if_obstructed])
             end
           end
         book.excel.displayalerts = options[:displayalerts] unless options[:displayalerts].nil?

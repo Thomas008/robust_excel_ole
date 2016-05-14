@@ -221,7 +221,7 @@ module RobustExcelOle
         if obstructed_by_other_book then
           case options[:if_obstructed]
           when :raise
-            raise ExcelErrorOpen, "blocked by a book with the same name in a different path: #{File.basename(file).inspect}"
+            raise ExcelErrorOpen, "blocked by a book with the same name in a different path: #{@ole_workbook.Fullname.tr('\\','/')}"
           when :forget
             @ole_workbook.Close
             @ole_workbook = nil
@@ -233,7 +233,7 @@ module RobustExcelOle
             open_or_create_workbook(file, options)
           when :close_if_saved
             if (not @ole_workbook.Saved) then
-              raise ExcelErrorOpen, "workbook with the same name in a different path is unsaved: #{File.basename(file).inspect}"
+              raise ExcelErrorOpen, "workbook with the same name in a different path is unsaved: #{@ole_workbook.Fullname.tr('\\','/')}"
             else 
               @ole_workbook.Close
               @ole_workbook = nil
@@ -690,7 +690,7 @@ module RobustExcelOle
       if blocking_workbook then
         case options[:if_obstructed]
         when :raise
-          raise ExcelErrorSave, "blocked by another workbook: #{File.basename(file).inspect}"
+          raise ExcelErrorSave, "blocked by another workbook: #{blocking_workbook.Fullname.tr('\\','/')}"
         when :forget
           # nothing
         when :save

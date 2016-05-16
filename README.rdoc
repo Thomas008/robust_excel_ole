@@ -201,7 +201,9 @@ Enable DisplayAlerts.
 
 === Accessing a sheet.
 
-A sheet object can be accessed with a Book#[] method via an integer number.
+A sheet object can be accessed with a Book#[] method via an integer number or the sheet name.
+
+Accessing the first sheet.
 
   sheet = book[0]
 
@@ -240,8 +242,8 @@ Reading a cell from a sheet object.
 
 Reading a cell from a range object.
 
-  row_range[0]  => first cell in row_range
-  column_range[1] => second cell in column_range
+  row_range[1]  => first cell in row_range
+  column_range[2] => second cell in column_range
 
 Methods to a cell are just delegated. Example:
 

@@ -139,7 +139,8 @@ describe Book do
     end
 
     it 'with sheet name' do
-      @book['Sheet1'].should be_kind_of Sheet
+      @book["Sheet1"].should be_kind_of Sheet
+      @book["Sheet1"].name.should == "Sheet1"
     end
 
     it 'with integer' do
@@ -158,6 +159,18 @@ describe Book do
           book['Sheet1'].should be_a Sheet
         end
       }
+    end
+  end
+
+  describe 'last sheet' do
+    before do
+      @book = Book.open(@simple_file)
+    end
+
+    it "should access the last sheet" do
+      last_sheet = @book.last_sheet
+      last_sheet.name.should == Sheet.new(@book.Worksheets.Item(3)).Name
+      last_sheet.name.should == @book[2].Name
     end
   end
 

@@ -307,7 +307,7 @@ Reading a cell from a sheet object.
 
 Reading a cell from a range object.
 
-  row_range[0]  => first cell in row_range
+  row_range[1]  => first cell in row_range
   column_range[1] => second cell in column_range
 
 Methods to cell are just delegated as VBA methods. Example:

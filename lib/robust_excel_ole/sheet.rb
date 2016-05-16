@@ -18,7 +18,7 @@ module RobustExcelOle
       end
     end
 
-    # returns name of the workbook
+    # returns name of the sheet
     def name
       @worksheet.Name
     end

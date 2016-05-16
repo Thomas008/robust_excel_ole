@@ -207,6 +207,14 @@ Accessing the first sheet.
 
   sheet = book[0]
 
+or
+
+  sheet = book.first_sheet  
+
+Accessing the last sheet.
+
+  sheet = book.last_sheet  
+
 Accessing a sheet object with the sheet name.
 
   sheet = book['Sheet1']
@@ -309,6 +317,7 @@ Adding a new sheet with a name before another sheet.
 Adding a copy of a sheet with a name after another sheet.
 
   book.add_sheet(sheet, :as => 'sheet_copy', :after => another_sheet)
+
 
 === Value of a named cell or range
 

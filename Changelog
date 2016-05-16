@@ -4,7 +4,9 @@ All notable changes to this project will be documented in this file.
 ## [0.4.1] - 2016-05-05
 
 ### Added
-- option check_compatibility
+- Book: option check_compatibility
+- Book: unobtrusively: option if_obstructed
+- Sheet: last_sheet, first_sheet
 
 ## [0.4] - 2016-03-16
 

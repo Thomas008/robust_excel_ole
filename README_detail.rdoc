@@ -268,9 +268,19 @@ Options: +true+ -> enable DisplayAlerts , +false+ -> Disable DisplayAlerts
 
 === Accessing a sheet.
 
-A sheet object can be accessed with a Book#[] method via an integer number.
+A sheet object can be accessed with a Book#[] method via an integer number or a name.
+
+Accessing the first sheet.
 
   sheet = book[0]
+
+or
+
+  sheet = book.first_sheet  
+
+Accessing the last sheet.
+
+  sheet = book.last_sheet  
 
 Accessing a sheet object with the sheet name.
 

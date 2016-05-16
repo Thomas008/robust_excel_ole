@@ -797,10 +797,12 @@ module RobustExcelOle
       new_sheet
     end      
 
-    # returns the last sheet
-    # @return [Sheet] the last sheet
     def last_sheet
       sheet_class.new(@ole_workbook.Worksheets.Item(@ole_workbook.Worksheets.Count))
+    end
+
+    def first_sheet
+      sheet_class.new(@ole_workbook.Worksheets.Item(1))
     end
 
     def self.bookstore   # :nodoc: #

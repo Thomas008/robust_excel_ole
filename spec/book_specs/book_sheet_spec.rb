@@ -162,9 +162,15 @@ describe Book do
     end
   end
 
-  describe 'last sheet' do
+  describe 'access first and last sheet' do
     before do
       @book = Book.open(@simple_file)
+    end
+
+    it "should access the first sheet" do
+      first_sheet = @book.first_sheet
+      first_sheet.name.should == Sheet.new(@book.Worksheets.Item(1)).Name
+      first_sheet.name.should == @book[0].Name
     end
 
     it "should access the last sheet" do

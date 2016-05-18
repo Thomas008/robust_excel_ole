@@ -765,14 +765,14 @@ module RobustExcelOle
       end
     end
 
-    # adds a sheet to the workbook
-    # @param [Sheet] sheet a sheet
+    # copies a sheet to another position, or adds an empty sheet
+    # @param [Sheet] sheet a sheet that shall be copied (optional)
     # @param [Hash]  opts  the options
-    # @option opts [Symbol] :as     new name of the copyed sheet
+    # @option opts [Symbol] :as     new name of the copied or added sheet
     # @option opts [Symbol] :before a sheet before which the sheet shall be inserted
     # @option opts [Symbol] :after  a sheet after which the sheet shall be inserted
     # @raise  ExcelErrorSheet if the sheet name already exists
-    # @return [Sheet] the added sheet
+    # @return [Sheet] the copied or added sheet
     def add_sheet(sheet = nil, opts = { })
       if sheet.is_a? Hash
         opts = sheet
@@ -796,6 +796,31 @@ module RobustExcelOle
       end
       new_sheet
     end      
+
+    def copy_sheet(sheet = nil, opts = { })
+      if sheet.is_a? Hash
+        opts = sheet
+        sheet = nil
+      end
+      new_sheet_name = opts.delete(:as)
+      ws = @ole_workbook.Worksheets
+      after_or_before, base_sheet = opts.to_a.first || [:after, sheet_class.new(ws.Item(ws.Count))]
+      base_sheet = base_sheet.worksheet
+      sheet ? sheet.Copy({ after_or_before.to_s => base_sheet }) : @ole_workbook.WorkSheets.Add({ after_or_before.to_s => base_sheet })
+      new_sheet = sheet_class.new(@excel.Activesheet)
+      begin
+        new_sheet.name = new_sheet_name if new_sheet_name
+      rescue WIN32OLERuntimeError => msg
+        if msg.message =~ /800A03EC/ 
+          raise ExcelErrorSheet, "sheet name already exists"
+        else
+          trace "#{msg.message}"
+          raise ExcelErrorSheetUnknown
+        end
+      end
+      new_sheet
+    end      
+
 
     def last_sheet
       sheet_class.new(@ole_workbook.Worksheets.Item(@ole_workbook.Worksheets.Count))

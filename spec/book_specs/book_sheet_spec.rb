@@ -35,7 +35,10 @@ describe Book do
   end
 
   describe "#add_sheet" do
-    before do
+    
+    context "with no given sheet" do
+
+      before do
       @book = Book.open(@simple_file)
       @sheet = @book[0]
     end
@@ -44,11 +47,57 @@ describe Book do
       @book.close(:if_unsaved => :forget)
     end
 
-    context "only first argument" do
-      it "should add worksheet" do
-        @book.ole_workbook.Worksheets.Count == 3
+      it "should add empty sheet" do
+        @book.ole_workbook.Worksheets.Count.should == 3
+        @book.add_sheet
+        @book.ole_workbook.Worksheets.Count.should == 4
+      end
+
+      it "should add an empty sheet and return this added sheet" do
+        sheet = @book.add_sheet
+        copyed_sheet = @book.ole_workbook.Worksheets.Item(@book.ole_workbook.Worksheets.Count)
+        sheet.name.should eq copyed_sheet.name
+      end
+
+      it "should return new sheet" do
+        @book.add_sheet(:as => 'new sheet').name.should eq 'new sheet'
+      end
+
+      it "should add the first sheet" do
+        @book.add_sheet(:before => @sheet).name.should eq @book[0].name
+      end
+
+      it "should add the second sheet" do
+        @book.add_sheet(:after => @sheet).name.should eq @book[1].name
+      end
+
+    end
+
+    context "with a given sheet" do
+
+      before do
+        @book = Book.open(@simple_file)
+        @sheet = @book[0]
+        @another_book = Book.open(@another_simple_file)
+      end
+
+      after do
+        @book.close(:if_unsaved => :forget)
+        @another_book.close(:if_unsaved => :forget)
+      end
+
+      it "should copy and append a given sheet" do
+        @book.ole_workbook.Worksheets.Count.should == 3
         @book.add_sheet @sheet
-        @book.ole_workbook.Worksheets.Count == 4
+        @book.ole_workbook.Worksheets.Count.should == 4
+        @book.ole_workbook.Worksheets(4).Name.should == @sheet.Name + " (2)"
+      end
+
+      it "should copy sheet from another book " do
+        @book.ole_workbook.Worksheets.Count.should == 3
+        @another_book.add_sheet @sheet
+        @another_book.ole_workbook.Worksheets.Count.should == 4
+        @another_book.ole_workbook.Worksheets(4).Name.should == @sheet.Name + " (2)"
       end
 
       it "should return copyed sheet" do
@@ -56,70 +105,27 @@ describe Book do
         copyed_sheet = @book.ole_workbook.Worksheets.Item(@book.ole_workbook.Worksheets.Count)
         sheet.name.should eq copyed_sheet.name
       end
-    end
 
-    context "with first argument" do
-      context "with second argument is {:as => 'copyed_name'}" do
-        it "copyed sheet name should be 'copyed_name'" do
-          @book.add_sheet(@sheet, :as => 'copyed_name').name.should eq 'copyed_name'
-        end
+      it "should copy a given sheet and name the copyed sheet to 'copyed_name'" do
+        @book.add_sheet(@sheet, :as => 'copyed_name').name.should eq 'copyed_name'
+      end
+    
+      it "should copy the first sheet and insert it before the first sheet" do
+        @book.add_sheet(@sheet, :before => @sheet).name.should eq @book[0].name
+      end
+   
+      it "should copy the first sheet and insert it after the first sheet" do
+        @book.add_sheet(@sheet, :after => @sheet).name.should eq @book[1].name
+      end
+    
+      it "should copy the first sheet before the third sheet and give 'before' the highest priority" do
+        @book.add_sheet(@sheet, :after => @sheet, :before => @book[2]).name.should eq @book[2].name
       end
 
-      context "with second argument is {:before => @sheet}" do
-        it "should add the first sheet" do
-          @book.add_sheet(@sheet, :before => @sheet).name.should eq @book[0].name
-        end
+      it "should copy the first sheet before the third sheet and give 'before' the highest priority" do
+        @book.add_sheet(@sheet, :before => @book[2], :after => @sheet).name.should eq @book[2].name
       end
-
-      context "with second argument is {:after => @sheet}" do
-        it "should add the first sheet" do
-          @book.add_sheet(@sheet, :after => @sheet).name.should eq @book[1].name
-        end
-      end
-
-      context "with second argument is {:before => @book[2], :after => @sheet}" do
-        it "should arguments in the first is given priority" do
-          @book.add_sheet(@sheet, :before => @book[2], :after => @sheet).name.should eq @book[2].name
-        end
-      end
-
-    end
-
-    context "without first argument" do
-      context "second argument is {:as => 'new sheet'}" do
-        it "should return new sheet" do
-          @book.add_sheet(:as => 'new sheet').name.should eq 'new sheet'
-        end
-      end
-
-      context "second argument is {:before => @sheet}" do
-        it "should add the first sheet" do
-          @book.add_sheet(:before => @sheet).name.should eq @book[0].name
-        end
-      end
-
-      context "second argument is {:after => @sheet}" do
-        it "should add the second sheet" do
-          @book.add_sheet(:after => @sheet).name.should eq @book[1].name
-        end
-      end
-    end
-
-    context "without argument" do
-      it "should add empty sheet" do
-        @book.ole_workbook.Worksheets.Count.should == 3
-        @book.add_sheet
-        @book.ole_workbook.Worksheets.Count.should == 4
-      end
-
-      it "should return copyed sheet" do
-        sheet = @book.add_sheet
-        copyed_sheet = @book.ole_workbook.Worksheets.Item(@book.ole_workbook.Worksheets.Count)
-        sheet.name.should eq copyed_sheet.name
-      end
-    end
-
-    context "should raise error if the sheet name already exists" do
+        
       it "should raise error with giving a name that already exists" do
         @book.add_sheet(@sheet, :as => 'new_sheet')
         expect{

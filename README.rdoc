@@ -300,23 +300,27 @@ or
 
   book[name] = value
 
-=== Adding a sheet.
+=== Copying or Adding an sheet.
 
-Adding a new sheet.
+Adding and appending an empty sheet.
 
-  book.add_sheet
+  book.add_sheet 
 
-Adding a new sheet with a name.
+Adding an empty sheet and naming it.
 
-  book.add_sheet(:as => 'new_sheet')
+  book.add_sheet(:as => 'sheet_name')
 
-Adding a new sheet with a name before another sheet.
+Adding an empty sheet with a name before another sheet.
 
-  book.add_sheet(:as => 'new_sheet2', :before => another_sheet)
+  book.add_sheet(:as => 'new_name', :before => another_sheet)
 
-Adding a copy of a sheet with a name after another sheet.
+Copying a sheet and adding (appending) it.
 
-  book.add_sheet(sheet, :as => 'sheet_copy', :after => another_sheet)
+  book.add_sheet sheet
+
+Copying a sheet after a another sheet and naming it.
+
+  book.add_sheet(sheet, :as => 'new_name', :after => another_sheet)
 
 
 === Value of a named cell or range

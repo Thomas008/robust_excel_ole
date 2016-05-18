@@ -302,7 +302,7 @@ or
 
 === Copying or Adding an sheet.
 
-Adding and appending an empty sheet.
+Adding (appending) an empty sheet.
 
   book.add_sheet 
 

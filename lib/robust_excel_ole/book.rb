@@ -765,7 +765,8 @@ module RobustExcelOle
       end
     end
 
-    # copies a sheet to another position, or adds an empty sheet at the end
+    # copies a sheet to another position, or adds an empty sheet
+    # default: copied or empty sheet is added at th end, i.e. behind the last sheet
     # @param [Sheet] sheet a sheet that shall be copied (optional)
     # @param [Hash]  opts  the options
     # @option opts [Symbol] :as     new name of the copied or added sheet

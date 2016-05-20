@@ -148,6 +148,23 @@ module RobustExcelOle
       end
     end
 
+    # assigns a value to a range with given name
+    # @param [String]  name   the range name
+    # @param [Variant] value  the assigned value
+    # @raise SheetError if name is not in the sheet or the value cannot be assigned
+    def set_range(name,value)
+      begin
+        range = self.Range(name)
+      rescue WIN32OLERuntimeError
+        raise SheetError, "range #{name.inspect} not in sheet"
+      end
+      begin
+        range.Value = value
+      rescue  WIN32OLERuntimeError
+        raise SheetError, "value cannot assigned to range #{name.inspect}"
+      end
+    end
+
     # assigns a name to a range (a cell) given by an address
     # @param [String] name   the range name
     # @param [Fixnum] row    the row

@@ -237,14 +237,14 @@ describe Book do
 
     it "should copy and append a given sheet" do
       @book.ole_workbook.Worksheets.Count.should == 3
-      @book.add_sheet @sheet
+      @book.copy_sheet @sheet
       @book.ole_workbook.Worksheets.Count.should == 4
       @book.ole_workbook.Worksheets(4).Name.should == @sheet.Name + " (2)"
     end
 
     it "should copy sheet from another book " do
       @book.ole_workbook.Worksheets.Count.should == 3
-      @another_book.add_sheet @sheet
+      @another_book.copy_sheet @sheet
       @another_book.ole_workbook.Worksheets.Count.should == 4
       @another_book.ole_workbook.Worksheets(4).Name.should == @sheet.Name + " (2)"
     end
@@ -256,29 +256,29 @@ describe Book do
     end
 
     it "should copy a given sheet and name the copyed sheet to 'copyed_name'" do
-      @book.add_sheet(@sheet, :as => 'copyed_name').name.should eq 'copyed_name'
+      @book.copy_sheet(@sheet, :as => 'copyed_name').name.should eq 'copyed_name'
     end
   
     it "should copy the first sheet and insert it before the first sheet" do
-      @book.add_sheet(@sheet, :before => @sheet).name.should eq @book[0].name
+      @book.copy_sheet(@sheet, :before => @sheet).name.should eq @book[0].name
     end
  
     it "should copy the first sheet and insert it after the first sheet" do
-      @book.add_sheet(@sheet, :after => @sheet).name.should eq @book[1].name
+      @book.copy_sheet(@sheet, :after => @sheet).name.should eq @book[1].name
     end
   
     it "should copy the first sheet before the third sheet and give 'before' the highest priority" do
-      @book.add_sheet(@sheet, :after => @sheet, :before => @book[2]).name.should eq @book[2].name
+      @book.copy_sheet(@sheet, :after => @sheet, :before => @book[2]).name.should eq @book[2].name
     end
 
     it "should copy the first sheet before the third sheet and give 'before' the highest priority" do
-      @book.add_sheet(@sheet, :before => @book[2], :after => @sheet).name.should eq @book[2].name
+      @book.copy_sheet(@sheet, :before => @book[2], :after => @sheet).name.should eq @book[2].name
     end
       
     it "should raise error with giving a name that already exists" do
-      @book.add_sheet(@sheet, :as => 'new_sheet')
+      @book.copy_sheet(@sheet, :as => 'new_sheet')
       expect{
-        @book.add_sheet(@sheet, :as => 'new_sheet')
+        @book.copy_sheet(@sheet, :as => 'new_sheet')
         }.to raise_error(ExcelErrorSheet, /sheet name "new_sheet" already exists/)
     end
   end

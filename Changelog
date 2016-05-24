@@ -1,11 +1,18 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] - 2016-31-05
+
+### Added
+- Book: add_or_copy_sheet: replaces add_sheet
+		add_empty_sheet
+		copy_sheet
+### Changed
+
 ## [0.4.1] - 2016-05-05
 
 ### Added
 - Book: option check_compatibility
-- Book: unobtrusively: option if_obstructed
 - Sheet: last_sheet, first_sheet
 
 ## [0.4] - 2016-03-16

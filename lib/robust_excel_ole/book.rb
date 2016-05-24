@@ -425,8 +425,7 @@ module RobustExcelOle
         :read_only => false,
         :readonly_excel => false,
         :keep_open => false,
-        :check_compatibility => true,
-        :if_obstructed => :raise
+        :check_compatibility => true
       }.merge(opts)
       book = bookstore.fetch(file, :prefer_writable => (not options[:read_only]))
       was_not_alive_or_nil = book.nil? || (not book.alive?)
@@ -445,18 +444,18 @@ module RobustExcelOle
           if was_not_alive_or_nil 
             case if_closed
             when :reuse
-              open(file, :read_only => options[:read_only], :if_obstructed => options[:if_obstructed])
+              open(file, :read_only => options[:read_only])
             when :hidden 
-              open(file, :force_excel => bookstore.hidden_excel, :read_only => options[:read_only], :if_obstructed => options[:if_obstructed])
+              open(file, :force_excel => bookstore.hidden_excel, :read_only => options[:read_only])
             else 
-              open(file, :force_excel => if_closed, :read_only => options[:read_only], :if_obstructed => options[:if_obstructed])
+              open(file, :force_excel => if_closed, :read_only => options[:read_only])
             end
           else
             if was_writable || options[:read_only]
               book
             else
-              options[:readonly_excel] ? open(file, :force_excel => book.excel, :read_only => options[:read_only], :if_obstructed => options[:if_obstructed]) : 
-                                         open(file, :force_excel => :new, :read_only => options[:read_only], :if_obstructed => options[:if_obstructed])
+              options[:readonly_excel] ? open(file, :force_excel => book.excel, :read_only => options[:read_only]) : 
+                                         open(file, :force_excel => :new, :read_only => options[:read_only])
             end
           end
         book.excel.displayalerts = options[:displayalerts] unless options[:displayalerts].nil?
@@ -764,35 +763,16 @@ module RobustExcelOle
         yield sheet_class.new(sheet)
       end
     end
-
-    # copies a sheet to another position, or adds an empty sheet
-    # default: copied or empty sheet is added at th end, i.e. behind the last sheet
-    # @param [Sheet] sheet a sheet that shall be copied (optional)
+  
+    # copies a sheet to another position
+    # default: copied sheet is appended
+    # @param [Sheet] sheet a sheet that shall be copied
     # @param [Hash]  opts  the options
-    # @option opts [Symbol] :as     new name of the copied or added sheet
+    # @option opts [Symbol] :as     new name of the copied sheet
     # @option opts [Symbol] :before a sheet before which the sheet shall be inserted
     # @option opts [Symbol] :after  a sheet after which the sheet shall be inserted
     # @raise  ExcelErrorSheet if the sheet name already exists
-    # @return [Sheet] the copied or added sheet
-    def add_sheet(sheet = nil, opts = { })
-      if sheet.is_a? Hash
-        opts = sheet
-        sheet = nil
-      end
-      new_sheet_name = opts.delete(:as)
-      ws = @ole_workbook.Worksheets
-      after_or_before, base_sheet = opts.to_a.first || [:after, sheet_class.new(ws.Item(ws.Count))]
-      base_sheet = base_sheet.worksheet
-      sheet ? sheet.Copy({ after_or_before.to_s => base_sheet }) : ws.Add({ after_or_before.to_s => base_sheet })
-      new_sheet = sheet_class.new(@excel.Activesheet)
-      begin
-        new_sheet.name = new_sheet_name if new_sheet_name
-      rescue WIN32OLERuntimeError => msg
-        msg.message =~ /800A03EC/ ? raise(ExcelErrorSheet, "sheet name already exists") : raise(ExcelErrorSheetUnknown)
-      end
-      new_sheet
-    end      
-
+    # @return [Sheet] the copied sheet
     def copy_sheet(sheet, opts = { })
       new_sheet_name = opts.delete(:as)
       after_or_before, base_sheet = opts.to_a.first || [:after, last_sheet]
@@ -806,6 +786,14 @@ module RobustExcelOle
       new_sheet
     end      
 
+    # adds an empty sheet
+    # default: empty sheet is appended
+    # @param [Hash]  opts  the options
+    # @option opts [Symbol] :as     new name of the copied added sheet
+    # @option opts [Symbol] :before a sheet before which the sheet shall be inserted
+    # @option opts [Symbol] :after  a sheet after which the sheet shall be inserted
+    # @raise  ExcelErrorSheet if the sheet name already exists
+    # @return [Sheet] the added sheet
     def add_empty_sheet(opts = { })
       new_sheet_name = opts.delete(:as)
       after_or_before, base_sheet = opts.to_a.first || [:after, last_sheet]
@@ -819,13 +807,27 @@ module RobustExcelOle
       new_sheet
     end    
 
+    # copies a sheet to another position if a sheet is given, or adds an empty sheet
+    # default: copied or empty sheet is appended, i.e. added behind the last sheet
+    # @param [Sheet] sheet a sheet that shall be copied (optional)
+    # @param [Hash]  opts  the options
+    # @option opts [Symbol] :as     new name of the copied or added sheet
+    # @option opts [Symbol] :before a sheet before which the sheet shall be inserted
+    # @option opts [Symbol] :after  a sheet after which the sheet shall be inserted
+    # @raise  ExcelErrorSheet if the sheet name already exists
+    # @return [Sheet] the copied or added sheet
     def add_or_copy_sheet(sheet = nil, opts = { })
       if sheet.is_a? Hash
         opts = sheet
         sheet = nil
       end
-      sheet ? copy_sheet(sheet, opts) : add_sheet(opts)
+      sheet ? copy_sheet(sheet, opts) : add_empty_sheet(opts)
     end      
+
+    # for compatibility to older versions
+    def add_sheet(sheet = nil, opts = { })
+      add_or_copy_sheet(sheet, opts)
+    end 
 
     def last_sheet
       sheet_class.new(@ole_workbook.Worksheets.Item(@ole_workbook.Worksheets.Count))

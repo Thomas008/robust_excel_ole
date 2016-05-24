@@ -304,24 +304,29 @@ or
 
 Adding (appending) an empty sheet.
 
-  book.add_sheet 
+  book.add_empty_sheet
 
 Adding an empty sheet and naming it.
 
-  book.add_sheet(:as => 'sheet_name')
+  book.add_empty_sheet(:as => 'sheet_name')
 
 Adding an empty sheet with a name before another sheet.
 
-  book.add_sheet(:as => 'new_name', :before => another_sheet)
+  book.add_empty_sheet(:as => 'new_name', :before => another_sheet)
 
 Copying a sheet and adding (appending) it.
 
-  book.add_sheet sheet
+  book.copy_sheet sheet
 
 Copying a sheet after a another sheet and naming it.
 
-  book.add_sheet(sheet, :as => 'new_name', :after => another_sheet)
+  book.copy_sheet(sheet, :as => 'new_name', :after => another_sheet)
 
+Copying a sheet, if a sheet is given, adding an empty sheet, if no sheet is given.
+
+  book.add_or_copy_sheet
+
+  book.add_or_copy_sheet(sheet, :as => 'new_name', :after => another_sheet)  
 
 === Value of a named cell or range
 

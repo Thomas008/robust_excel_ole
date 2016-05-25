@@ -14,7 +14,7 @@ begin
   other_file_name = dir + 'more_data/workbook.xls'
   book = Book.open(file_name, :visible => true)  # open a book, make Excel visible
   sleep 1
-  sheet = book[0]
+  sheet = book.sheet(1)
   first_cell = sheet[1,1].Value                                   # access a sheet
   sheet[1,1] = first_cell == "simple" ? "complex" : "simple"      # change a cell
   sleep 1
@@ -26,7 +26,7 @@ begin
   book.save                                                           # save the unsaved book
   new_book = Book.open(file_name, :if_obstructed => :close_if_saved)  # open the new book, close the saved book    
   sleep 1
-  new_sheet = new_book[0]
+  new_sheet = new_book.sheet(1)
   new_first_cell = new_sheet[1,1].Value
   puts "the old book was saved" unless new_first_cell == first_cell 
   new_book.close                                 # close the books                  

@@ -71,7 +71,7 @@ describe Book do
         @book = Book.open(@simple_file)
         @sheet_count = @book.ole_workbook.Worksheets.Count
         @book.add_sheet(@sheet, :as => 'a_name')
-        @sheet = @book[0]
+        @sheet = @book.sheet(1)
       end
 
       after do

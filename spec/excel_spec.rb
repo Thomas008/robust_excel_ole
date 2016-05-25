@@ -472,7 +472,7 @@ module RobustExcelOle
         before do
           @excel = Excel.create
           @book = Book.open(@simple_file)
-          sheet = @book[0]
+          sheet = @book.sheet(1)
           @old_cell_value = sheet[1,1].value
           sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
           @book2 = Book.open(@another_simple_file)
@@ -497,7 +497,7 @@ module RobustExcelOle
           @excel.close(:if_unsaved => :forget)
           @excel.should_not be_alive
           new_book = Book.open(@simple_file)
-          new_sheet = new_book[0]
+          new_sheet = new_book.sheet(1)
           new_sheet[1,1].value.should == @old_cell_value
           new_book.close          
           new_book2 = Book.open(@another_simple_file)
@@ -511,7 +511,7 @@ module RobustExcelOle
           @excel.close(:if_unsaved => :save)
           @excel.should_not be_alive
           new_book = Book.open(@simple_file)
-          new_sheet = new_book[0]
+          new_sheet = new_book.sheet(1)
           new_sheet[1,1].value.should_not == @old_cell_value
           new_book.close          
           new_book2 = Book.open(@another_simple_file)
@@ -548,7 +548,7 @@ module RobustExcelOle
           @excel.should_not be_alive
           @book.should_not be_alive
           new_book = Book.open(@simple_file)
-          new_sheet = new_book[0]
+          new_sheet = new_book.sheet(1)
           new_sheet[1,1].value.should == @old_cell_value
           new_book.close    
           new_book.excel.close(:hard => true)
@@ -568,7 +568,7 @@ module RobustExcelOle
           @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
           @excel = Excel.create
           @book = Book.open(@simple_file)
-          sheet = @book[0]
+          sheet = @book.sheet(1)
           @old_cell_value = sheet[1,1].value
           sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
         end
@@ -584,7 +584,7 @@ module RobustExcelOle
           @excel.close(:if_unsaved => :alert)
           @excel.should_not be_alive
           new_book = Book.open(@simple_file)
-          new_sheet = new_book[0]
+          new_sheet = new_book.sheet(1)
           new_sheet[1,1].value.should_not == @old_cell_value
           new_book.close   
         end
@@ -598,7 +598,7 @@ module RobustExcelOle
           @excel.should_not be_alive
           @book.should_not be_alive
           new_book = Book.open(@simple_file)
-          new_sheet = new_book[0]
+          new_sheet = new_book.sheet(1)
           new_sheet[1,1].value.should == @old_cell_value
           new_book.close     
         end
@@ -825,7 +825,7 @@ module RobustExcelOle
         before do
           @book = Book.open(@simple_file)
           @book3 = Book.open(@different_file, :read_only => true)
-          sheet = @book[0]
+          sheet = @book.sheet(1)
           sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
           sheet3 = @book3[0]
           sheet3[1,1] = sheet3[1,1].value == "foo" ? "bar" : "foo"

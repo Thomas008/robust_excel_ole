@@ -12,7 +12,7 @@ begin
   dir = create_tmpdir
   file_name = dir + 'workbook.xls' 
   book = Book.open(file_name)                      # open a book 
-  sheet = book[0]                                                  # access a sheet
+  sheet = book.sheet(1)                                                  # access a sheet
   sheet[1,1] = sheet[1,1].value == "simple" ? "complex" : "simple" # change a cell
   begin
     new_book = Book.open(file_name)                # open another book with the same file name

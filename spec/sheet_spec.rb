@@ -23,7 +23,7 @@ describe Sheet do
     @blank_file = @dir + '/book_with_blank.xls'
     @merge_file = @dir + '/merge_cells.xls'
     @book = Book.open(@simple_file)
-    @sheet = @book[0]
+    @sheet = @book.sheet(1)
   end
 
   after do

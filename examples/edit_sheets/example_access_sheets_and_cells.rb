@@ -14,7 +14,7 @@ begin
   simple_save_file = dir + 'workbook_save.xls'
   File.delete simple_save_file rescue nil
   book = Book.open(simple_file)      # open a book
-  sheet = book[0]                    # access a sheet via integer 
+  sheet = book.sheet(1)                    # access a sheet via integer 
   cell = sheet[1,1]                  # access the first cell
   puts "1st cell: #{cell.Value}"     # put the value of the first cell
   sheet[1,1] = "complex"             # write a value into a cell

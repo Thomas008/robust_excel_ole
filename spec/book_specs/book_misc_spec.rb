@@ -304,7 +304,7 @@ describe Book do
       end
 
       it "should yield false for an unsaved book" do
-        sheet = @book[0]
+        sheet = @book.sheet(1)
         sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
         @book.saved.should be_false
       end
@@ -352,7 +352,7 @@ describe Book do
       end
 
       it "should activate a book" do
-        sheet = @book[1]
+        sheet = @book.sheet(2)
         sheet.Activate
         sheet[2,3].Activate
         sheet2 = @book2[2]

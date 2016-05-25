@@ -23,7 +23,7 @@ describe Cell do
   context "open simple.xls" do
     before do
       @book = Book.open(@dir + '/workbook.xls', :read_only => true)
-      @sheet = @book[1]
+      @sheet = @book.sheet(2)
       @cell = @sheet[1, 1]
     end
 
@@ -55,7 +55,7 @@ describe Cell do
   context "open merge_cells.xls" do
     before do
       @book = Book.open(@dir + '/merge_cells.xls', :read_only => true)
-      @sheet = @book[0]
+      @sheet = @book.sheet(1)
     end
 
     after do

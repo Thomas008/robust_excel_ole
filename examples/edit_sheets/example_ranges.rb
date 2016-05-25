@@ -14,7 +14,7 @@ begin
   simple_save_file = dir + 'workbook_save.xls'
   File.delete simple_save_file rescue nil
   book = Book.open(simple_file)      # open a book
-  sheet = book['Sheet1']             # access a sheet via the name
+  sheet = book.sheet('Sheet1')             # access a sheet via the name
   row_r = sheet.row_range(1)         # access the whole range of the first row
   col_r = sheet.col_range(1, 1..2)   # access the first two cells of the range of the first column
   cell = col_r[0]                    # access the first cell of these cells 

@@ -161,7 +161,7 @@ module RobustExcelOle
 
       before do
         @book = Book.open(@simple_file)
-        @sheet = @book[0]
+        @sheet = @book.sheet(1)
       end
 
       before do

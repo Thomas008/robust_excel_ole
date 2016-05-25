@@ -25,13 +25,13 @@ begin
       book = Book.open(file_sheet_name)
       book.add_sheet sheet_orig
       book.each do |sheet|
-        sheet.Delete() unless sheet.name == sheet_orig.name 
+        sheet.Delete unless sheet.name == sheet_orig.name 
       end
       book.close(:if_unsaved => :save)
       # alternative: delete all other sheets
       #book = Book.open(file_sheet_name, :force_excel => :new, :visible => true)
       #book.each do |sheet|
-      #  book[sheet.Name].Delete() unless sheet.Name == sheet_orig.Name
+      #  book.sheet(sheet.Name).Delete() unless sheet.Name == sheet_orig.Name
       #end
     end
   end

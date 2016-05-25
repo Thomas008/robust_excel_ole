@@ -261,7 +261,7 @@ describe Book do
 
       before do
         @book = Book.open(@simple_file)
-        @sheet = @book[0]
+        @sheet = @book.sheet(1)
         @book.add_sheet(@sheet, :as => 'a_name')
       end
 
@@ -354,7 +354,7 @@ describe Book do
             end
             @book = Book.open(@simple_file_other_path)
             @sheet_count = @book.ole_workbook.Worksheets.Count
-            @sheet = @book[0]
+            @sheet = @book.sheet(1)
             @book.add_sheet(@sheet, :as => 'a_name')
           end
 
@@ -415,7 +415,7 @@ describe Book do
         book = Book.open(@simple_file, :read_only => true)
         book.ReadOnly.should be_true
         book.should be_alive
-        sheet = book[0]
+        sheet = book.sheet(1)
         old_cell_value = sheet[1,1].value
         sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
         book.Saved.should be_false
@@ -424,7 +424,7 @@ describe Book do
         new_book.should be_alive
         book.should be_alive   
         new_book.should == book 
-        new_sheet = new_book[0]
+        new_sheet = new_book.sheet(1)
         new_cell_value = new_sheet[1,1].value
         new_cell_value.should == old_cell_value
       end
@@ -490,7 +490,7 @@ describe Book do
     def unobtrusively_ok? # :nodoc: #
       Book.unobtrusively(@simple_file) do |book|
         book.should be_a Book
-        sheet = book[0]
+        sheet = book.sheet(1)
         sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
         book.should be_alive
         book.Saved.should be_false
@@ -571,17 +571,17 @@ describe Book do
       it "should let a saved book saved" do
         @book.Saved.should be_true
         @book.should be_alive
-        sheet = @book[0]
+        sheet = @book.sheet(1)
         old_cell_value = sheet[1,1].value
         unobtrusively_ok?
         @book.Saved.should be_true
         @book.should be_alive
-        sheet = @book[0]
+        sheet = @book.sheet(1)
         sheet[1,1].value.should_not == old_cell_value
       end
 
      it "should let the unsaved book unsaved" do
-        sheet = @book[0]
+        sheet = @book.sheet(1)
         sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
         old_cell_value = sheet[1,1].value
         @book.Saved.should be_false
@@ -606,21 +606,21 @@ describe Book do
       end
 
       it "should let the closed book closed by default" do
-        sheet = @book[0]
+        sheet = @book.sheet(1)
         old_cell_value = sheet[1,1].value
         @book.close
         @book.should_not be_alive
         unobtrusively_ok?
         @book.should_not be_alive
         @book = Book.open(@simple_file)
-        sheet = @book[0]
+        sheet = @book.sheet(1)
         sheet[1,1].Value.should_not == old_cell_value
       end
 
       # The bold reanimation of the @book
       it "should use the excel of the book and keep open the book" do
         excel = Excel.new(:reuse => false)
-        sheet = @book[0]
+        sheet = @book.sheet(1)
         old_cell_value = sheet[1,1].value
         @book.close
         @book.should_not be_alive
@@ -628,7 +628,7 @@ describe Book do
           book.should be_a Book
           book.excel.should == @book.excel
           book.excel.should_not == excel
-          sheet = book[0]
+          sheet = book.sheet(1)
           cell = sheet[1,1]
           sheet[1,1] = cell.value == "foo" ? "bar" : "foo"
           book.Saved.should be_false
@@ -636,14 +636,14 @@ describe Book do
         @book.should be_alive
         @book.close
         new_book = Book.open(@simple_file)
-        sheet = new_book[0]
+        sheet = new_book.sheet(1)
         sheet[1,1].value.should_not == old_cell_value
       end
 
       # book shall be reanimated even with :hidden
       it "should use the excel of the book and keep open the book" do
         excel = Excel.new(:reuse => false)
-        sheet = @book[0]
+        sheet = @book.sheet(1)
         old_cell_value = sheet[1,1].value
         @book.close
         @book.should_not be_alive
@@ -652,14 +652,14 @@ describe Book do
           book.should be_alive
           book.excel.should_not == @book.excel
           book.excel.should_not == excel
-          sheet = book[0]
+          sheet = book.sheet(1)
           cell = sheet[1,1]
           sheet[1,1] = cell.value == "foo" ? "bar" : "foo"
           book.Saved.should be_false
         end
         @book.should_not be_alive
         new_book = Book.open(@simple_file)
-        sheet = new_book[0]
+        sheet = new_book.sheet(1)
         sheet[1,1].value.should_not == old_cell_value
       end
     end
@@ -702,13 +702,13 @@ describe Book do
         book2 = Book.open(@simple_file, :force_excel => :new, :read_only => true)
         @book.ReadOnly.should be_true
         book2.Readonly.should be_true
-        sheet = @book[0]
+        sheet = @book.sheet(1)
         cell_value = sheet[1,1].value
         Book.unobtrusively(@simple_file, :hidden) do |book|
           book.should be_a Book
           book.excel.should_not == book2.excel
           book.excel.should_not == @book.excel
-          sheet = book[0]
+          sheet = book.sheet(1)
           sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
           book.should be_alive
           book.Saved.should be_false          
@@ -785,13 +785,13 @@ describe Book do
           book.excel.should == @book2.excel
           book.excel.should_not == @book1.excel
           book.ReadOnly.should == false
-          sheet = book[0]
+          sheet = book.sheet(1)
           cell = sheet[1,1]
           sheet[1,1] = cell.value == "foo" ? "bar" : "foo"
           book.Saved.should be_false
         end
         new_book = Book.open(@simple_file)
-        sheet = new_book[0]
+        sheet = new_book.sheet(1)
         sheet[1,1].value.should_not == @old_cell_value
       end
 
@@ -800,13 +800,13 @@ describe Book do
           book.excel.should_not == @book2.excel
           book.excel.should_not == @book1.excel
           book.ReadOnly.should == false
-          sheet = book[0]
+          sheet = book.sheet(1)
           cell = sheet[1,1]
           sheet[1,1] = cell.value == "foo" ? "bar" : "foo"
           book.Saved.should be_false
         end
         new_book = Book.open(@simple_file)
-        sheet = new_book[0]
+        sheet = new_book.sheet(1)
         sheet[1,1].Value.should_not == @old_cell_value
       end
     end
@@ -844,7 +844,7 @@ describe Book do
 
       before do
         @book = Book.open(@simple_file)
-        sheet = @book[0]
+        sheet = @book.sheet(1)
         @old_cell_value = sheet[1,1].value
         @book.close
       end
@@ -854,21 +854,21 @@ describe Book do
           book.should be_a Book
           book.should be_alive
           book.Saved.should be_true  
-          sheet = book[0]
+          sheet = book.sheet(1)
           cell = sheet[1,1]
           sheet[1,1] = cell.value == "foo" ? "bar" : "foo"
           book.Saved.should be_false
           book.excel.should == @book.excel
         end
         new_book = Book.open(@simple_file, :visible => true)
-        sheet = new_book[0]
+        sheet = new_book.sheet(1)
         sheet[1,1].Value.should == @old_cell_value
       end
 
       it "should not change the value and use the hidden Excel instance" do
         new_excel = Excel.new(:reuse => false)
         Book.for_reading(@simple_file, :hidden) do |book|
-          sheet = book[0]
+          sheet = book.sheet(1)
           cell = sheet[1,1]
           sheet[1,1] = cell.value == "foo" ? "bar" : "foo"
           book.excel.should_not == @book.excel
@@ -877,19 +877,19 @@ describe Book do
           book.excel.displayalerts.should be_false
         end
         new_book = Book.open(@simple_file, :visible => true)
-        sheet = new_book[0]
+        sheet = new_book.sheet(1)
         sheet[1,1].Value.should == @old_cell_value
       end
 
       it "should change the value" do
         Book.for_modifying(@simple_file) do |book|
-          sheet = book[0]
+          sheet = book.sheet(1)
           cell = sheet[1,1]
           sheet[1,1] = cell.value == "foo" ? "bar" : "foo"
           book.excel.should == @book.excel
         end
         new_book = Book.open(@simple_file, :visible => true)
-        sheet = new_book[0]
+        sheet = new_book.sheet(1)
         sheet[1,1].Value.should_not == @old_cell_value
       end
     end
@@ -912,9 +912,9 @@ describe Book do
     end
   end
 
-  describe "nvalue, set_nvalue, rename_range" do
+  describe "nvalue, set_nvalue, book[], rename_range" do
     
-    context "nvalue, book[<name>]" do
+    context "nvalue" do
     
       before do
         @book1 = Book.open(@another_simple_file)
@@ -939,7 +939,7 @@ describe Book do
       end
     end
 
-    context "set_nvalue, book[<name>]=" do
+    context "set_nvalue, book[]=" do
     
       before do
         @book1 = Book.open(@another_simple_file)
@@ -981,7 +981,7 @@ describe Book do
         @book = Book.open(@simple_file)
         @sheet_count = @book.ole_workbook.Worksheets.Count
         @book.add_sheet(@sheet, :as => 'a_name')
-        @sheet = @book[0]
+        @sheet = @book.sheet(1)
       end
 
       after do
@@ -1114,7 +1114,7 @@ describe Book do
       end
 
       it "should activate a book" do
-        sheet = @book[1]
+        sheet = @book.sheet(2)
         sheet.Activate
         sheet[2,3].Activate
         sheet2 = @book2[2]
@@ -1138,7 +1138,7 @@ describe Book do
   describe "#add_sheet" do
     before do
       @book = Book.open(@simple_file)
-      @sheet = @book[0]
+      @sheet = @book.sheet(1)
     end
 
     after do
@@ -1162,9 +1162,9 @@ describe Book do
 
     context "with first argument" do
 
-      context "with second argument is {:before => @book[2], :after => @sheet}" do
+      context "with second argument is {:before => @book.sheet(3), :after => @sheet}" do
         it "should arguments in the first is given priority" do
-          @book.add_sheet(@sheet, :before => @book[2], :after => @sheet).name.should eq @book[2].name
+          @book.add_sheet(@sheet, :before => @book.sheet(3), :after => @sheet).name.should eq @book.sheet(3).name
         end
       end
     end
@@ -1178,13 +1178,13 @@ describe Book do
 
       context "second argument is {:before => @sheet}" do
         it "should add the first sheet" do
-          @book.add_sheet(:before => @sheet).name.should eq @book[0].name
+          @book.add_sheet(:before => @sheet).name.should eq @book.sheet(1).name
         end
       end
 
       context "second argument is {:after => @sheet}" do
         it "should add the second sheet" do
-          @book.add_sheet(:after => @sheet).name.should eq @book[1].name
+          @book.add_sheet(:after => @sheet).name.should eq @book.sheet(2).name
         end
       end
     end
@@ -1211,11 +1211,11 @@ describe Book do
     context "standard" do
 
       it 'with sheet name' do
-        @book['Sheet1'].should be_kind_of Sheet
+        @book.sheet('Sheet1').should be_kind_of Sheet
       end
 
       it 'with integer' do
-        @book[0].should be_kind_of Sheet
+        @book.sheet(1).should be_kind_of Sheet
       end
 
       it 'with block' do
@@ -1228,7 +1228,7 @@ describe Book do
     context 'open with block' do
       it {
         Book.open(@simple_file) do |book|
-          book['Sheet1'].should be_a Sheet
+          book.sheet('Sheet1').should be_a Sheet
         end
       }
     end

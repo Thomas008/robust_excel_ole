@@ -44,12 +44,13 @@ describe Book do
     end
 
     it 'with sheet name' do
-      @book["Sheet1"].should be_kind_of Sheet
-      @book["Sheet1"].name.should == "Sheet1"
+      @book.sheet("Sheet1").should be_kind_of Sheet
+      @book.sheet("Sheet1").should == "Sheet1"
     end
 
     it 'with integer' do
-      @book[0].should be_kind_of Sheet
+      @book.sheet(1).should be_kind_of Sheet
+      @book.sheet(1).should == "Sheet1"
     end
 
     it 'with block' do
@@ -61,7 +62,8 @@ describe Book do
     context 'open with block' do
       it {
         Book.open(@simple_file) do |book|
-          book['Sheet1'].should be_a Sheet
+          @book.sheet("Sheet1").should be_a Sheet
+          @book.sheet("Sheet1").should == "Sheet1"
         end
       }
     end
@@ -75,13 +77,13 @@ describe Book do
     it "should access the first sheet" do
       first_sheet = @book.first_sheet
       first_sheet.name.should == Sheet.new(@book.Worksheets.Item(1)).Name
-      first_sheet.name.should == @book[0].Name
+      first_sheet.name.should == @book.sheet(1).Name
     end
 
     it "should access the last sheet" do
       last_sheet = @book.last_sheet
       last_sheet.name.should == Sheet.new(@book.Worksheets.Item(3)).Name
-      last_sheet.name.should == @book[2].Name
+      last_sheet.name.should == @book.sheet(3).Name
     end
   end
 
@@ -91,7 +93,7 @@ describe Book do
 
       before do
         @book = Book.open(@simple_file)
-        @sheet = @book[0]
+        @sheet = @book.sheet(1)
       end
 
       after do
@@ -115,11 +117,11 @@ describe Book do
       end
 
       it "should add the first sheet" do
-        @book.add_sheet(:before => @sheet).name.should eq @book[0].name
+        @book.add_sheet(:before => @sheet).name.should eq @book.sheet(1).name
       end
 
       it "should add the second sheet" do
-        @book.add_sheet(:after => @sheet).name.should eq @book[1].name
+        @book.add_sheet(:after => @sheet).name.should eq @book.sheet(2).name
       end
 
     end
@@ -128,7 +130,7 @@ describe Book do
 
       before do
         @book = Book.open(@simple_file)
-        @sheet = @book[0]
+        @sheet = @book.sheet(1)
         @another_book = Book.open(@another_simple_file)
       end
 
@@ -162,19 +164,19 @@ describe Book do
       end
     
       it "should copy the first sheet and insert it before the first sheet" do
-        @book.add_sheet(@sheet, :before => @sheet).name.should eq @book[0].name
+        @book.add_sheet(@sheet, :before => @sheet).name.should eq @book.sheet(1).name
       end
    
       it "should copy the first sheet and insert it after the first sheet" do
-        @book.add_sheet(@sheet, :after => @sheet).name.should eq @book[1].name
+        @book.add_sheet(@sheet, :after => @sheet).name.should eq @book.sheet(2).name
       end
     
       it "should copy the first sheet before the third sheet and give 'before' the highest priority" do
-        @book.add_sheet(@sheet, :after => @sheet, :before => @book[2]).name.should eq @book[2].name
+        @book.add_sheet(@sheet, :after => @sheet, :before => @book.sheet(3).name.should eq @book.sheet(3).name
       end
 
       it "should copy the first sheet before the third sheet and give 'before' the highest priority" do
-        @book.add_sheet(@sheet, :before => @book[2], :after => @sheet).name.should eq @book[2].name
+        @book.add_sheet(@sheet, :before => @book.sheet(3), :after => @sheet).name.should eq @book.sheet(3).name
       end
         
       it "should raise error with giving a name that already exists" do
@@ -190,7 +192,7 @@ describe Book do
     
     before do
       @book = Book.open(@simple_file)
-      @sheet = @book[0]
+      @sheet = @book.sheet(1)
     end
 
     after do
@@ -214,11 +216,11 @@ describe Book do
     end
 
     it "should add the first sheet" do
-      @book.add_empty_sheet(:before => @sheet).name.should eq @book[0].name
+      @book.add_empty_sheet(:before => @sheet).name.should eq @book.sheet(1).name
     end
 
     it "should add the second sheet" do
-      @book.add_empty_sheet(:after => @sheet).name.should eq @book[1].name
+      @book.add_empty_sheet(:after => @sheet).name.should eq @book.sheet(2).name
     end
   end  
 
@@ -226,7 +228,7 @@ describe Book do
 
     before do
       @book = Book.open(@simple_file)
-      @sheet = @book[0]
+      @sheet = @book.sheet(1)
       @another_book = Book.open(@another_simple_file)
     end
 
@@ -260,19 +262,19 @@ describe Book do
     end
   
     it "should copy the first sheet and insert it before the first sheet" do
-      @book.copy_sheet(@sheet, :before => @sheet).name.should eq @book[0].name
+      @book.copy_sheet(@sheet, :before => @sheet).name.should eq @book.sheet(1).name
     end
  
     it "should copy the first sheet and insert it after the first sheet" do
-      @book.copy_sheet(@sheet, :after => @sheet).name.should eq @book[1].name
+      @book.copy_sheet(@sheet, :after => @sheet).name.should eq @book.sheet(2).name
     end
   
     it "should copy the first sheet before the third sheet and give 'before' the highest priority" do
-      @book.copy_sheet(@sheet, :after => @sheet, :before => @book[2]).name.should eq @book[2].name
+      @book.copy_sheet(@sheet, :after => @sheet, :before => @book.sheet(3)).name.should eq @book.sheet(3).name
     end
 
     it "should copy the first sheet before the third sheet and give 'before' the highest priority" do
-      @book.copy_sheet(@sheet, :before => @book[2], :after => @sheet).name.should eq @book[2].name
+      @book.copy_sheet(@sheet, :before => @book.sheet(3), :after => @sheet).name.should eq @book.sheet(3).name
     end
       
     it "should raise error with giving a name that already exists" do
@@ -289,7 +291,7 @@ describe Book do
 
       before do
         @book = Book.open(@simple_file)
-        @sheet = @book[0]
+        @sheet = @book.sheet(1)
       end
 
       after do
@@ -313,11 +315,11 @@ describe Book do
       end
 
       it "should add the first sheet" do
-        @book.add_or_copy_sheet(:before => @sheet).name.should eq @book[0].name
+        @book.add_or_copy_sheet(:before => @sheet).name.should eq @book.sheet(1).name
       end
 
       it "should add the second sheet" do
-        @book.add_or_copy_sheet(:after => @sheet).name.should eq @book[1].name
+        @book.add_or_copy_sheet(:after => @sheet).name.should eq @book.sheet(2).name
       end
 
     end
@@ -326,7 +328,7 @@ describe Book do
 
       before do
         @book = Book.open(@simple_file)
-        @sheet = @book[0]
+        @sheet = @book.sheet(1)
         @another_book = Book.open(@another_simple_file)
       end
 
@@ -360,19 +362,19 @@ describe Book do
       end
     
       it "should copy the first sheet and insert it before the first sheet" do
-        @book.add_or_copy_sheet(@sheet, :before => @sheet).name.should eq @book[0].name
+        @book.add_or_copy_sheet(@sheet, :before => @sheet).name.should eq @book.sheet(1).name
       end
    
       it "should copy the first sheet and insert it after the first sheet" do
-        @book.add_or_copy_sheet(@sheet, :after => @sheet).name.should eq @book[1].name
+        @book.add_or_copy_sheet(@sheet, :after => @sheet).name.should eq @book.sheet(2).name
       end
     
       it "should copy the first sheet before the third sheet and give 'before' the highest priority" do
-        @book.add_or_copy_sheet(@sheet, :after => @sheet, :before => @book[2]).name.should eq @book[2].name
+        @book.add_or_copy_sheet(@sheet, :after => @sheet, :before => @book.sheet(3)).name.should eq @book.sheet(3).name
       end
 
       it "should copy the first sheet before the third sheet and give 'before' the highest priority" do
-        @book.add_or_copy_sheet(@sheet, :before => @book[2], :after => @sheet).name.should eq @book[2].name
+        @book.add_or_copy_sheet(@sheet, :before => @book.sheet(3), :after => @sheet).name.should eq @book.sheet(3).name
       end
         
       it "should raise error with giving a name that already exists" do

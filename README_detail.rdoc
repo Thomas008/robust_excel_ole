@@ -268,11 +268,9 @@ Options: +true+ -> enable DisplayAlerts , +false+ -> Disable DisplayAlerts
 
 === Accessing a sheet.
 
-A sheet object can be accessed with a Book#[] method via an integer number or a name.
-
 Accessing the first sheet.
 
-  sheet = book[0]
+  sheet = book.sheet(1)
 
 or
 
@@ -282,15 +280,16 @@ Accessing the last sheet.
 
   sheet = book.last_sheet  
 
-Accessing a sheet object with the sheet name.
+Accessing a sheet with the sheet name.
 
-  sheet = book['Sheet1']
+  sheet = book.sheet('Sheet1')
 
 Accessing sheet objects using the methods Book#each.
 
   book.each do |sheet|               
     # do something with sheet
   end
+
 
 === Accessing a row or a column.
 

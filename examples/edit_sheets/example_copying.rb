@@ -41,7 +41,7 @@ begin
     end
     
     sheet_names.each do |sheet_name|
-      book[sheet_name].Delete()
+      book.sheet(sheet_name).Delete()
     end
   end
 end

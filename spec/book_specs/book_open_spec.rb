@@ -474,7 +474,7 @@ describe Book do
 
       before do
         @book = Book.open(@simple_file)
-        @sheet = @book[0]
+        @sheet = @book.sheet(1)
         @book.add_sheet(@sheet, :as => 'a_name')
       end
 
@@ -604,7 +604,7 @@ describe Book do
             end
             @book = Book.open(@simple_file_other_path)
             @sheet_count = @book.ole_workbook.Worksheets.Count
-            @sheet = @book[0]
+            @sheet = @book.sheet(1)
             @book.add_sheet(@sheet, :as => 'a_name')
           end
 
@@ -753,7 +753,7 @@ describe Book do
         book = Book.open(@simple_file, :read_only => true)
         book.ReadOnly.should be_true
         book.should be_alive
-        sheet = book[0]
+        sheet = book.sheet(1)
         old_cell_value = sheet[1,1].value
         sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
         book.Saved.should be_false
@@ -762,7 +762,7 @@ describe Book do
         new_book.should be_alive
         book.should be_alive   
         new_book.should == book 
-        new_sheet = new_book[0]
+        new_sheet = new_book.sheet(1)
         new_cell_value = new_sheet[1,1].value
         new_cell_value.should == old_cell_value
       end
@@ -771,7 +771,7 @@ describe Book do
         book = Book.open(@simple_file, :read_only => false)
         book.ReadOnly.should be_false
         book.should be_alive
-        sheet = book[0]
+        sheet = book.sheet(1)
         old_cell_value = sheet[1,1].value        
         sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
         book.Saved.should be_false
@@ -785,7 +785,7 @@ describe Book do
         book = Book.open(@simple_file, :read_only => true)
         book.ReadOnly.should be_true
         book.should be_alive
-        sheet = book[0]
+        sheet = book.sheet(1)
         old_cell_value = sheet[1,1].value
         sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
         book.Saved.should be_false
@@ -794,7 +794,7 @@ describe Book do
         new_book.should be_alive
         book.should be_alive   
         new_book.should == book 
-        new_sheet = new_book[0]
+        new_sheet = new_book.sheet(1)
         new_cell_value = new_sheet[1,1].value
         new_cell_value.should == old_cell_value
       end
@@ -803,7 +803,7 @@ describe Book do
         book = Book.open(@simple_file, :force_excel => :new, :read_only => false)
         book.ReadOnly.should be_false
         book.should be_alive
-        sheet = book[0]
+        sheet = book.sheet(1)
         old_cell_value = sheet[1,1].value        
         sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
         book.Saved.should be_false

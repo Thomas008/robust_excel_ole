@@ -11,14 +11,14 @@ begin
   dir = create_tmpdir
   simple_file = dir + 'workbook.xls'
   book = Book.open(simple_file, :visible => true)  # open a book, make Excel visible
-  old_sheet = book[0]
+  old_sheet = book.sheet(1)
   p "1st cell: #{old_sheet[1,1].value}"
   sleep 2
   Book.unobtrusively(simple_file) do |book|   # modify the book and keep its status unchanged
-    sheet = book[0]
+    sheet = book.sheet(1)
     sheet[1,1] = sheet[1,1].value == "simple" ? "complex" : "simple"
   end
-  new_sheet = book[0]
+  new_sheet = book.sheet(1)
   p "1st cell: #{new_sheet[1,1].value}"
   p "book saved" if book.Saved
   book.close                                 # close the book                      

@@ -735,6 +735,18 @@ module RobustExcelOle
   public
 
     # returns a sheet, if a sheet name or a number is given
+    # @param [String] or [Number]
+    # @returns [Sheet]
+    def sheet(name)
+      begin
+        sheet_class.new(@ole_workbook.Worksheets.Item(name))
+      rescue WIN32OLERuntimeError => msg
+        raise ExcelError, "could not return a sheet with name #{name.inspect}"
+        trace "#{msg.message}"
+      end
+    end
+
+    # returns a sheet, if a sheet name or a number is given
     # returns the value of the range, if a global name of a range in the book is given 
     # @param [String] or [Number]
     # @returns [Sheet] or [Variant]

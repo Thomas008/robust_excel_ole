@@ -33,7 +33,7 @@ begin
   show_sheets
 
   puts "adding a copy of the 2nd sheet"
-  sheet = @book[1]
+  sheet = @book.sheet(2)
   @book.add_sheet sheet
   show_sheets
 
@@ -50,7 +50,7 @@ begin
   show_sheets
 
   puts "adding a copy of the 4th sheet before the 7th sheet and name it 'sheet_copy'"
-  @book.add_sheet(@book[3], :as => 'sheet_copy', :after => @book[6])
+  @book.add_sheet(@book.sheet(4), :as => 'sheet_copy', :after => @book.sheet(7))
   show_sheets
 
   puts"adding a copy of the 2nd sheet and name it again 'second_sheet_copy'"

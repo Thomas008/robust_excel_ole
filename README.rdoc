@@ -383,7 +383,8 @@ Turning on and off in a block.
 
 === Setting Calculation mode.
 
-Setting calculation mode to manual
+Setting calculation mode to manual. Options are +:manual+ and +:automatic+
+The calculation mode is not reset after the block.
 
   excel = Excel.create
   book = Book.open('workbook.xls')

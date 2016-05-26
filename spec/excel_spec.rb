@@ -321,10 +321,10 @@ module RobustExcelOle
           @excel1 = book1.excel
           @excel2 = book2.excel
           @excel4 = book4.excel
-          sheet2 = book2[0]
+          sheet2 = book2.sheet(1)
           @old_cell_value2 = sheet2[1,1].value
           sheet2[1,1] = sheet2[1,1].value == "foo" ? "bar" : "foo"
-          sheet3 = book3[0]
+          sheet3 = book3.sheet(1)
           @old_cell_value3 = sheet3[1,1].value
           sheet3[1,1] = sheet3[1,1].value == "foo" ? "bar" : "foo"
         end
@@ -342,11 +342,11 @@ module RobustExcelOle
           @excel2.should_not be_alive
           @excel4.should_not be_alive
           new_book2 = Book.open(@simple_file)
-          new_sheet2 = new_book2[0]
+          new_sheet2 = new_book2.sheet(1)
           new_sheet2[1,1].value.should == @old_cell_value2
           new_book2.close   
           new_book3 = Book.open(@another_simple_file)
-          new_sheet3 = new_book3[0]
+          new_sheet3 = new_book3.sheet(1)
           new_sheet3[1,1].value.should == @old_cell_value3
           new_book3.close   
         end
@@ -357,11 +357,11 @@ module RobustExcelOle
           @excel2.should_not be_alive
           @excel4.should_not be_alive
           new_book2 = Book.open(@simple_file)
-          new_sheet2 = new_book2[0]
+          new_sheet2 = new_book2.sheet(1)
           new_sheet2[1,1].value.should_not == @old_cell_value2
           new_book2.close   
           new_book3 = Book.open(@another_simple_file)
-          new_sheet3 = new_book3[0]
+          new_sheet3 = new_book3.sheet(1)
           new_sheet3[1,1].value.should_not == @old_cell_value3
           new_book3.close
         end
@@ -390,7 +390,7 @@ module RobustExcelOle
           #@excel1 = book1.excel
           @excel2 = book2.excel
           #@excel4 = book4.excel
-          sheet2 = book2[0]
+          sheet2 = book2.sheet(1)
           @old_cell_value2 = sheet2[1,1].value
           sheet2[1,1] = sheet2[1,1].value == "foo" ? "bar" : "foo"
           #sheet3 = book3[0]
@@ -410,7 +410,7 @@ module RobustExcelOle
           #@excel4.should_not be_alive
           #@excel5.should_not be_alive
           new_book2 = Book.open(@simple_file)
-          new_sheet2 = new_book2[0]
+          new_sheet2 = new_book2.sheet(1)
           new_sheet2[1,1].value.should_not == @old_cell_value2
           new_book2.close   
           #new_book3 = Book.open(@another_simple_file)
@@ -428,7 +428,7 @@ module RobustExcelOle
           #@excel4.should_not be_alive
           #@excel5.should_not be_alive
           new_book2 = Book.open(@simple_file)
-          new_sheet2 = new_book2[0]
+          new_sheet2 = new_book2.sheet(1)
           new_sheet2[1,1].value.should == @old_cell_value2
           new_book2.close   
           #new_book4 = Book.open(@different_file)
@@ -476,7 +476,7 @@ module RobustExcelOle
           @old_cell_value = sheet[1,1].value
           sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
           @book2 = Book.open(@another_simple_file)
-          sheet2 = @book2[0]
+          sheet2 = @book2.sheet(1)
           @old_cell_value2 = sheet2[1,1].value
           sheet2[1,1] = sheet2[1,1].value == "foo" ? "bar" : "foo"
         end
@@ -501,7 +501,7 @@ module RobustExcelOle
           new_sheet[1,1].value.should == @old_cell_value
           new_book.close          
           new_book2 = Book.open(@another_simple_file)
-          new_sheet2 = new_book2[0]
+          new_sheet2 = new_book2.sheet(1)
           new_sheet2[1,1].value.should == @old_cell_value2
           new_book2.close 
         end
@@ -515,7 +515,7 @@ module RobustExcelOle
           new_sheet[1,1].value.should_not == @old_cell_value
           new_book.close          
           new_book2 = Book.open(@another_simple_file)
-          new_sheet2 = new_book2[0]
+          new_sheet2 = new_book2.sheet(1)
           new_sheet2[1,1].value.should_not == @old_cell_value2
           new_book2.close   
         end

@@ -590,7 +590,7 @@ describe Book do
         @book.Saved.should be_false
         @book.close(:if_unsaved => :forget)
         @book2 = Book.open(@simple_file)
-        sheet2 = @book2[0]
+        sheet2 = @book2.sheet(1)
         sheet2[1,1].value.should_not == old_cell_value
       end
     end
@@ -718,7 +718,7 @@ describe Book do
         @book.close
         book2.close
         book3 = Book.open(@simple_file)
-        new_sheet = book3[0]
+        new_sheet = book3.sheet(1)
         new_sheet[1,1].value.should_not == cell_value
         book3.close
       end
@@ -772,7 +772,7 @@ describe Book do
         @book2 = Book.open(@simple_file, :force_excel => :new)
         @book1.Readonly.should == false
         @book2.Readonly.should == true
-        old_sheet = @book1[0]
+        old_sheet = @book1.sheet(1)
         @old_cell_value = old_sheet[1,1].value
         @book1.close
         @book2.close
@@ -912,9 +912,9 @@ describe Book do
     end
   end
 
-  describe "nvalue, set_nvalue, book[], rename_range" do
+  describe "nameval, set_nameval, book[], rename_range" do
     
-    context "nvalue" do
+    context "nameval" do
     
       before do
         @book1 = Book.open(@another_simple_file)
@@ -925,12 +925,12 @@ describe Book do
       end   
 
       it "should return value of a range" do
-        @book1.nvalue("new").should == "foo"
-        @book1.nvalue("one").should == 1
-        @book1.nvalue("firstrow").should == [[1,2]]        
-        @book1.nvalue("four").should == [[1,2],[3,4]]
-        @book1.nvalue("firstrow").should_not == "12"
-        @book1.nvalue("firstcell").should == "foo"
+        @book1.nameval("new").should == "foo"
+        @book1.nameval("one").should == 1
+        @book1.nameval("firstrow").should == [[1,2]]        
+        @book1.nameval("four").should == [[1,2],[3,4]]
+        @book1.nameval("firstrow").should_not == "12"
+        @book1.nameval("firstcell").should == "foo"
         @book1["new"].should == "foo"
         @book1["one"].should == 1
         @book1["firstrow"].should == [[1,2]]        
@@ -939,7 +939,7 @@ describe Book do
       end
     end
 
-    context "set_nvalue, book[]=" do
+    context "set_nameval, book[]=" do
     
       before do
         @book1 = Book.open(@another_simple_file)
@@ -950,9 +950,9 @@ describe Book do
       end   
 
       it "should set value of a range" do
-        @book1.nvalue("new").should == "foo"
+        @book1.nameval("new").should == "foo"
         @book1["new"] = "bar"
-        @book1.nvalue("new").should == "bar"
+        @book1.nameval("new").should == "bar"
       end
     end
   end

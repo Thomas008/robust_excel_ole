@@ -225,7 +225,7 @@ describe Book do
         @book.Saved.should be_false
         @book.close(:if_unsaved => :forget)
         @book2 = Book.open(@simple_file)
-        sheet2 = @book2[0]
+        sheet2 = @book2.sheet(1)
         sheet2[1,1].value.should_not == old_cell_value
       end
 
@@ -233,7 +233,7 @@ describe Book do
         @book2 = Book.open(@simple_file, :force_excel => :new)
         @book.ReadOnly.should be_false
         @book2.ReadOnly.should be_true
-        sheet = @book2[0]
+        sheet = @book2.sheet(1)
         old_cell_value = sheet[1,1].value
         sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
         unobtrusively_ok?
@@ -520,7 +520,7 @@ describe Book do
         @book.ReadOnly.should be_true
         @book.close
         book2 = Book.open(@simple_file)
-        sheet2 = book2[0]
+        sheet2 = book2.sheet(1)
         sheet2[1,1].value.should_not == old_cell_value
       end
 
@@ -543,7 +543,7 @@ describe Book do
         @book.ReadOnly.should be_true
         @book.close
         book2 = Book.open(@simple_file)
-        sheet2 = book2[0]
+        sheet2 = book2.sheet(1)
         # modifies unobtrusively the saved version, not the unsaved version
         sheet2[1,1].value.should == @cell_value        
       end
@@ -568,7 +568,7 @@ describe Book do
         @book.close
         book2.close
         book3 = Book.open(@simple_file)
-        new_sheet = book3[0]
+        new_sheet = book3.sheet(1)
         new_sheet[1,1].value.should_not == cell_value
         book3.close
       end
@@ -593,7 +593,7 @@ describe Book do
         @book.close
         book2.close
         book3 = Book.open(@simple_file)
-        new_sheet = book3[0]
+        new_sheet = book3.sheet(1)
         new_sheet[1,1].value.should_not == cell_value
         book3.close
       end
@@ -618,7 +618,7 @@ describe Book do
         @book.close
         book2.close
         book3 = Book.open(@simple_file)
-        new_sheet = book3[0]
+        new_sheet = book3.sheet(1)
         new_sheet[1,1].value.should_not == cell_value
         book3.close
       end
@@ -648,7 +648,7 @@ describe Book do
         @book.close
         book2.close
         book3 = Book.open(@simple_file)
-        new_sheet = book3[0]
+        new_sheet = book3.sheet(1)
         new_sheet[1,1].value.should_not == cell_value
         book3.close
       end
@@ -675,7 +675,7 @@ describe Book do
         @book.close
         book2.close
         book3 = Book.open(@simple_file)
-        new_sheet = book3[0]
+        new_sheet = book3.sheet(1)
         new_sheet[1,1].value.should_not == cell_value
         book3.close
       end
@@ -788,7 +788,7 @@ describe Book do
       end
 
       it "should yield the block result with an unmodified book" do
-        sheet1 = @book1[0]
+        sheet1 = @book1.sheet(1)
         cell1 = sheet1[1,1].value
         result = 
           Book.unobtrusively(@simple_file) do |book| 
@@ -799,7 +799,7 @@ describe Book do
       end
 
       it "should yield the block result even if the book gets saved" do
-        sheet1 = @book1[0]
+        sheet1 = @book1.sheet(1)
         @book1.save
         result = 
           Book.unobtrusively(@simple_file) do |book| 
@@ -820,7 +820,7 @@ describe Book do
         @book2 = Book.open(@simple_file, :force_excel => :new)
         @book1.Readonly.should == false
         @book2.Readonly.should == true
-        old_sheet = @book1[0]
+        old_sheet = @book1.sheet(1)
         @old_cell_value = old_sheet[1,1].value
         @book1.close
         @book2.close

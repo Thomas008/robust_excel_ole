@@ -43,8 +43,8 @@ module RobustExcelOle
           ["Activate", "ActiveSheet", "Application", "Close", "FullName", "HasPassword", "Name", "Names", 
             "Password", "Protect", "ProtectSharing", "ProtectStructure", "Protect", "ReadOnly", "Save", 
             "SaveAs", "Saved", "Sheets", "Unprotect"]
-        @book_methods = ["activate", "add_sheet", "alive?", "close", "filename", "nvalue", "ole_object", 
-                         "ole_workbook", "reopen", "save", "save_as", "saved", "set_nvalue"]
+        @book_methods = ["activate", "add_sheet", "alive?", "close", "filename", "nameval", "ole_object", 
+                         "ole_workbook", "reopen", "save", "save_as", "saved", "set_nameval"]
         @ole_excel_methods = 
           ["ActiveCell", "ActiveSheet", "ActiveWorkbook", "Application",  "Calculate", "Cells", "Columns",
             "DisplayAlerts", "Evaluate", "Hwnd", "Name", "Names", "Quit", "Range", "Ready", "Save", 

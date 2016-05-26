@@ -101,9 +101,9 @@ describe Book do
     end
   end
 
-  describe "nvalue, set_nvalue, rename_range" do
+  describe "nameval, set_nameval, rename_range" do
     
-    context "nvalue, book[<name>]" do
+    context "nameval, book[<name>]" do
     
       before do
         @book1 = Book.open(@another_simple_file)
@@ -114,12 +114,12 @@ describe Book do
       end   
 
       it "should return value of a range" do
-        @book1.nvalue("new").should == "foo"
-        @book1.nvalue("one").should == 1
-        @book1.nvalue("firstrow").should == [[1,2]]        
-        @book1.nvalue("four").should == [[1,2],[3,4]]
-        @book1.nvalue("firstrow").should_not == "12"
-        @book1.nvalue("firstcell").should == "foo"
+        @book1.nameval("new").should == "foo"
+        @book1.nameval("one").should == 1
+        @book1.nameval("firstrow").should == [[1,2]]        
+        @book1.nameval("four").should == [[1,2],[3,4]]
+        @book1.nameval("firstrow").should_not == "12"
+        @book1.nameval("firstcell").should == "foo"
         @book1["new"].should == "foo"
         @book1["one"].should == 1
         @book1["firstrow"].should == [[1,2]]        
@@ -129,7 +129,7 @@ describe Book do
 
       it "should raise an error if name not defined" do
         expect {
-          @book1.nvalue("foo")
+          @book1.nameval("foo")
         }.to raise_error(ExcelError, /name "foo" not in "another_workbook.xls"/)
         expect {
           @book1["foo"]
@@ -137,16 +137,16 @@ describe Book do
       end
 
       it "should evaluate a formula" do
-        @book1.nvalue("named_formula").should == 4
+        @book1.nameval("named_formula").should == 4
         @book1["named_formula"].should == 4
       end
 
       it "should return default value if name not defined" do
-        @book1.nvalue("foo", :default => 2).should == 2
+        @book1.nameval("foo", :default => 2).should == 2
       end
     end
 
-    context "set_nvalue, book[<name>]=" do
+    context "set_nameval, book[<name>]=" do
     
       before do
         @book1 = Book.open(@another_simple_file)
@@ -157,14 +157,14 @@ describe Book do
       end   
 
       it "should set value of a range" do
-        @book1.nvalue("new").should == "foo"
-        @book1.set_nvalue("new","bar")
-        @book1.nvalue("new").should == "bar"
+        @book1.nameval("new").should == "foo"
+        @book1.set_nameval("new","bar")
+        @book1.nameval("new").should == "bar"
       end
 
       it "should raise an error if name not defined" do
         expect {
-          @book1.set_nvalue("foo","bar")
+          @book1.set_nameval("foo","bar")
         }.to raise_error(ExcelError, /name "foo" not in "another_workbook.xls"/)
         expect {
           @book1["foo"] = "bar"
@@ -173,7 +173,7 @@ describe Book do
 
       it "should raise an error if name was defined but contents is calcuated" do
         expect {
-          @book1.set_nvalue("named_formula","bar")
+          @book1.set_nameval("named_formula","bar")
         }.to raise_error(ExcelError, /RefersToRange error of name "named_formula" in "another_workbook.xls"/)
         expect {
           @book1["named_formula"] = "bar"
@@ -181,9 +181,9 @@ describe Book do
       end
 
       it "should set value of a range" do
-        @book1.nvalue("new").should == "foo"
+        @book1.nameval("new").should == "foo"
         @book1["new"] = "bar"
-        @book1.nvalue("new").should == "bar"
+        @book1.nameval("new").should == "bar"
       end
     end
 
@@ -199,7 +199,7 @@ describe Book do
 
       it "should rename a range" do
         @book1.rename_range("four","five")
-        @book1.nvalue("five").should == [[1,2],[3,4]]
+        @book1.nameval("five").should == [[1,2],[3,4]]
         expect {
           @book1.rename_range("four","five")
         }.to raise_error(ExcelError, /name "four" not in "another_workbook.xls"/)

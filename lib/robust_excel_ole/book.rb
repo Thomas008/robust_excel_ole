@@ -507,18 +507,18 @@ module RobustExcelOle
     # @return [Variant] the contents of a range with given name
     # if no contents could be returned, then return default value, if a default value was provided
     #                                   raise an error, otherwise
-    def nvalue(name, opts = {:default => nil})
+    def nameval(name, opts = {:default => nil})
       begin
-        item = self.Names.Item(name)
+        name_item = self.Names.Item(name)
       rescue WIN32OLERuntimeError
         return opts[:default] if opts[:default]
         raise ExcelError, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"
       end
       begin
-        value = item.RefersToRange.Value
+        value = name_item.RefersToRange.Value
       rescue  WIN32OLERuntimeError
         begin
-          sheet = self[0]
+          sheet = self.sheet(1)
           value = sheet.Evaluate(name)
         rescue WIN32OLERuntimeError
           return opts[:default] if opts[:default]
@@ -537,7 +537,7 @@ module RobustExcelOle
     # @param [String]  name  the range name
     # @param [Variant] value the contents of the range
     # @raise ExcelError if range name is not in the workbook or if a RefersToRange error occurs
-    def set_nvalue(name, value) 
+    def set_nameval(name, value) 
       begin
         item = self.Names.Item(name)
       rescue WIN32OLERuntimeError
@@ -756,7 +756,7 @@ module RobustExcelOle
         sheet_class.new(@ole_workbook.Worksheets.Item(name))
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /8002000B/
-          nvalue(name)
+          nameval(name)
         else
           raise ExcelError, "could neither return a sheet nor a value of a range when giving the name #{name.inspect}"
         end
@@ -767,7 +767,7 @@ module RobustExcelOle
     # @param [String]  name  the name of the range
     # @param [Variant] value the contents of the range
     def []= (name, value)
-      set_nvalue(name,value)
+      set_nameval(name,value)
     end
 
     def each

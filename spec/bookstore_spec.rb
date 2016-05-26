@@ -279,7 +279,7 @@ describe Bookstore do
         @book3 = Book.open(@simple_file, :force_excel => :new)
         @bookstore.store(@book2)
         @bookstore.store(@book3)
-        sheet = @book3[0]
+        sheet = @book3.sheet(1)
         sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
         @book.ReadOnly.should be_true
         @book2.ReadOnly.should be_false

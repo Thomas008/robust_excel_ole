@@ -47,7 +47,7 @@ module RobustExcelOle
         @cells[yx] = RobustExcelOle::Cell.new(@worksheet.Cells.Item(y, x))
       else
         name = p1
-        nvalue(name)
+        nameval(name)
       end
     end
 
@@ -58,7 +58,7 @@ module RobustExcelOle
         @worksheet.Cells.Item(y, x).Value = value
       else
         name, value = p1, p2
-        set_nvalue(name, value)
+        set_nameval(name, value)
       end
     end
 
@@ -115,7 +115,7 @@ module RobustExcelOle
     # if no contents could returned, then return default value, if a default value was provided
     #                                raise an error, otherwise
     # @raise SheetError if value of the range cannot be evaluated
-    def nvalue(name, opts = {:default => nil})
+    def nameval(name, opts = {:default => nil})
       begin
         value = self.Evaluate(name)
         value = value.Value if value.class == WIN32OLE
@@ -135,7 +135,7 @@ module RobustExcelOle
     # @param [String]  name   the range name
     # @param [Variant] value  the assigned value
     # @raise SheetError if name is not in the sheet or the value cannot be assigned
-    def set_nvalue(name,value)
+    def set_nameval(name,value)
       begin
         item = self.Names.Item(name)
       rescue WIN32OLERuntimeError

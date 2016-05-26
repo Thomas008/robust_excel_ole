@@ -45,12 +45,12 @@ describe Book do
 
     it 'with sheet name' do
       @book.sheet("Sheet1").should be_kind_of Sheet
-      @book.sheet("Sheet1").should == "Sheet1"
+      @book.sheet("Sheet1").name.should == "Sheet1"
     end
 
     it 'with integer' do
       @book.sheet(1).should be_kind_of Sheet
-      @book.sheet(1).should == "Sheet1"
+      @book.sheet(1).name.should == "Sheet1"
     end
 
     it 'with block' do
@@ -63,7 +63,7 @@ describe Book do
       it {
         Book.open(@simple_file) do |book|
           @book.sheet("Sheet1").should be_a Sheet
-          @book.sheet("Sheet1").should == "Sheet1"
+          @book.sheet("Sheet1").name.should == "Sheet1"
         end
       }
     end
@@ -172,7 +172,7 @@ describe Book do
       end
     
       it "should copy the first sheet before the third sheet and give 'before' the highest priority" do
-        @book.add_sheet(@sheet, :after => @sheet, :before => @book.sheet(3).name.should eq @book.sheet(3).name
+        @book.add_sheet(@sheet, :after => @sheet, :before => @book.sheet(3)).name.should eq @book.sheet(3).name
       end
 
       it "should copy the first sheet before the third sheet and give 'before' the highest priority" do

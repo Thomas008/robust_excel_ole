@@ -347,7 +347,7 @@ describe Book do
 
         context "with and without reopen" do
 
-          before do        
+          before do   
             if i == 1 then 
               book_before = Book.open(@simple_file)
               book_before.close
@@ -377,7 +377,7 @@ describe Book do
               if :if_obstructed is :close_if_saved" do
             expect{
               @new_book = Book.open(@simple_file, :if_obstructed => :close_if_saved)
-            }.to raise_error(ExcelErrorOpen, /workbook with the same name in a different path is unsaved: "workbook.xls"/)
+            }.to raise_error(ExcelErrorOpen, /workbook with the same name in a different path is unsaved/)
             @book.save
             @new_book = Book.open(@simple_file, :if_obstructed => :close_if_saved)
             @book.should_not be_alive

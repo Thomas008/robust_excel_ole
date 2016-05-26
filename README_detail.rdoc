@@ -213,15 +213,7 @@ The methods +for_reading+ and +for_modifying+ indicate unobtrusively reading or 
 
   book.alive?
 
-=== Setting and getting the contents of a range.
-
-Setting:
-
-  book["name"] = "value"
-
-or
-
-  book.set_nvalue("name") = "value"
+=== Getting and setting the contents of a range.
 
 Getting:
 
@@ -230,8 +222,27 @@ Getting:
 
 or
 
-  book.nvalue("name")
+  book.rangevalue("name")
   => "value"
+
+Setting:
+
+  book["name"] = "value"
+
+or
+
+  book.set_rangevalue("name") = "value"
+
+=== Getting and setting the contents of a range.
+
+Getting:
+
+  book.namevalue("name")
+  => "value"
+
+Setting:
+
+  book.set_namevalue("name") = "value"
 
 === Activating a workbook.
 

@@ -912,50 +912,72 @@ describe Book do
     end
   end
 
-  describe "nameval, set_nameval, book[], rename_range" do
-    
-    context "nameval" do
-    
-      before do
-        @book1 = Book.open(@another_simple_file)
-      end
-
-      after do
-        @book1.close(:if_unsaved => :forget)
-      end   
-
-      it "should return value of a range" do
-        @book1.nameval("new").should == "foo"
-        @book1.nameval("one").should == 1
-        @book1.nameval("firstrow").should == [[1,2]]        
-        @book1.nameval("four").should == [[1,2],[3,4]]
-        @book1.nameval("firstrow").should_not == "12"
-        @book1.nameval("firstcell").should == "foo"
-        @book1["new"].should == "foo"
-        @book1["one"].should == 1
-        @book1["firstrow"].should == [[1,2]]        
-        @book1["four"].should == [[1,2],[3,4]]        
-        @book1["firstcell"].should == "foo"
-      end
+  describe "nameval, set_nameval" do
+  
+    before do
+      @book1 = Book.open(@another_simple_file)
     end
 
-    context "set_nameval, book[]=" do
-    
-      before do
-        @book1 = Book.open(@another_simple_file)
-      end
+    after do
+      @book1.close(:if_unsaved => :forget)
+    end   
 
-      after do
-        @book1.close(:if_unsaved => :forget)
-      end   
-
-      it "should set value of a range" do
-        @book1.nameval("new").should == "foo"
-        @book1["new"] = "bar"
-        @book1.nameval("new").should == "bar"
-      end
+    it "should return value of a range" do
+      @book1.nameval("new").should == "foo"
+      @book1.nameval("one").should == 1
+      @book1.nameval("firstrow").should == [[1,2]]        
+      @book1.nameval("four").should == [[1,2],[3,4]]
+      @book1.nameval("firstrow").should_not == "12"
+      @book1.nameval("firstcell").should == "foo"        
     end
+
+    it "should set value of a range" do
+      @book1.set_nameval("new", "bar")
+      @book1.nameval("new").should == "bar"
+    end
+
   end
+
+  describe "rangeval, set_rangeval, [], []=" do
+  
+    before do
+      @book1 = Book.open(@another_simple_file)
+    end
+
+    after do
+      @book1.close(:if_unsaved => :forget)
+    end   
+
+    it "should return value of a range" do
+      @book1.rangeval("new").should == "foo"
+      @book1.rangeval("one").should == 1
+      @book1.rangeval("firstrow").should == [[1,2]]        
+      @book1.rangeval("four").should == [[1,2],[3,4]]
+      @book1.rangeval("firstrow").should_not == "12"
+      @book1.rangeval("firstcell").should == "foo"        
+    end
+
+    it "should set value of a range" do
+      @book1.set_rangeval("new", "bar")
+      @book1.rangeval("new").should == "bar"
+    end
+
+    it "should return value of a range via []" do
+      @book1["new"].should == "foo"
+      @book1["one"].should == 1
+      @book1["firstrow"].should == [[1,2]]        
+      @book1["four"].should == [[1,2],[3,4]]
+      @book1["firstrow"].should_not == "12"
+      @book1["firstcell"].should == "foo"        
+    end
+
+    it "should set value of a range vio []=" do
+      @book1["new"] = "bar"
+      @book1.rangeval("new").should == "bar"
+      @book1["new"].should == "bar"
+    end
+
+  end  
 
   describe "close" do
 

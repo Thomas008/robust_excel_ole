@@ -147,15 +147,7 @@ This method finds out whether the Excel workbook that is referenced by the Book 
 
   if book.alive? then sheet = book[0] end
 
-=== Setting and getting the contents of a range.
-
-Setting:
-
-  book["name"] = "value"
-
-or
-
-  book.set_nvalue("name") = "value"
+=== Getting and setting the contents of a range.
 
 Getting:
 
@@ -164,8 +156,27 @@ Getting:
 
 or
 
-  book.nvalue("name")
+  book.rangevalue("name")
   => "value"
+
+Setting:
+
+  book["name"] = "value"
+
+or
+
+  book.set_rangevalue("name") = "value"
+
+=== Getting and setting the contents of a range.
+
+Getting:
+
+  book.namevalue("name")
+  => "value"
+
+Setting:
+
+  book.set_namevalue("name") = "value"
 
 === Activating a workbook.
 

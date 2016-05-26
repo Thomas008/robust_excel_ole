@@ -481,136 +481,6 @@ module RobustExcelOle
       self.class.open(self.stored_filename)
     end
 
-    # renames a range
-    # @param [String] name     the previous range name
-    # @param [String] new_name the new range name
-    # @raise ExcelError if name is not in the file, or if new_name cannot be set
-    def rename_range(name, new_name)
-      begin
-        item = self.Names.Item(name)
-      rescue WIN32OLERuntimeError
-        raise ExcelError, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"  
-      end
-      begin
-        item.Name = new_name
-      rescue WIN32OLERuntimeError
-        raise ExcelError, "name error in #{File.basename(self.stored_filename).inspect}"      
-      end
-    end
-
-    # returns the contents of a range with given name
-    # @param  [String]      name      the range name
-    # @param  [Hash]        opts      the options
-    # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
-    # @raise  ExcelError if range name is not in the workbook
-    # @raise  SheetError if range value could not be evaluated
-    # @return [Variant] the contents of a range with given name
-    # if no contents could be returned, then return default value, if a default value was provided
-    #                                   raise an error, otherwise
-    def nameval(name, opts = {:default => nil})
-      begin
-        name_item = self.Names.Item(name)
-      rescue WIN32OLERuntimeError
-        return opts[:default] if opts[:default]
-        raise ExcelError, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"
-      end
-      begin
-        value = name_item.RefersToRange.Value
-      rescue  WIN32OLERuntimeError
-        begin
-          sheet = self.sheet(1)
-          value = sheet.Evaluate(name)
-        rescue WIN32OLERuntimeError
-          return opts[:default] if opts[:default]
-          raise SheetError, "cannot evaluate name #{name.inspect} in sheet"
-        end
-      end
-      if value == -2146826259
-        return opts[:default] if opts[:default]
-        raise SheetError, "cannot evaluate name #{name.inspect} in sheet"
-      end 
-      return opts[:default] if (value.nil? && opts[:default])
-      value      
-    end
-
-    # sets the contents of a range with given name
-    # @param [String]  name  the range name
-    # @param [Variant] value the contents of the range
-    # @raise ExcelError if range name is not in the workbook or if a RefersToRange error occurs
-    def set_nameval(name, value) 
-      begin
-        item = self.Names.Item(name)
-      rescue WIN32OLERuntimeError
-        raise ExcelError, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"  
-      end
-      begin
-        item.RefersToRange.Value = value
-      rescue WIN32OLERuntimeError
-        raise ExcelError, "RefersToRange error of name #{name.inspect} in #{File.basename(self.stored_filename).inspect}"    
-      end
-    end
-
-    # brings workbook to foreground, makes it available for heyboard inputs, makes the Excel instance visible
-    # @raise ExcelError if workbook cannot be activated    
-    def activate      
-      @excel.visible = true
-      begin
-        Win32API.new("user32","SetForegroundWindow","I","I").call(@excel.hwnd)     # Excel  2010
-        @ole_workbook.Activate   # Excel 2007
-      rescue WIN32OLERuntimeError
-        raise ExcelError, "cannot activate"
-      end
-    end
-
-    # returns true, if the workbook is visible, false otherwise 
-    def visible
-      @excel.Windows(@ole_workbook.Name).Visible
-    end
-
-    # makes a workbook visible or invisible
-    # @param [Boolean] visible_value value that determines whether the workbook shall be visible
-    def visible= visible_value
-      saved = @ole_workbook.Saved
-      @excel.Windows(@ole_workbook.Name).Visible = visible_value
-      save if saved 
-    end
-
-    # returns true, if the workbook reacts to methods, false otherwise
-    def alive?
-      begin 
-        @ole_workbook.Name
-        true
-      rescue 
-        @ole_workbook = nil  # dead object won't be alive again
-        #t $!.message
-        false
-      end
-    end
-
-    # returns the full file name of the workbook
-    def filename
-      @ole_workbook.Fullname.tr('\\','/') rescue nil
-    end
-
-    def writable   # :nodoc: #
-      (not @ole_workbook.ReadOnly) if @ole_workbook
-    end
-
-    def saved   # :nodoc: #
-      @ole_workbook.Saved if @ole_workbook
-    end
-
-    # @return [Boolean] true, if the full book names and excel Instances are identical, false otherwise  
-    def == other_book
-      other_book.is_a?(Book) &&
-      @excel == other_book.excel &&
-      self.filename == other_book.filename  
-    end
-
-    def self.books
-      bookstore.books
-    end
-
     # simple save of a workbook.
     # @raise ExcelErrorSave if workbook is not alive or opened for read-only, or another error occurs
     # @return [Boolean] true, if successfully saved, nil otherwise
@@ -744,31 +614,7 @@ module RobustExcelOle
         raise ExcelError, "could not return a sheet with name #{name.inspect}"
         trace "#{msg.message}"
       end
-    end
-
-    # returns a sheet, if a sheet name or a number is given
-    # returns the value of the range, if a global name of a range in the book is given 
-    # @param [String] or [Number]
-    # @returns [Sheet] or [Variant]
-    def [] name
-      name += 1 if name.is_a? Numeric
-      begin
-        sheet_class.new(@ole_workbook.Worksheets.Item(name))
-      rescue WIN32OLERuntimeError => msg
-        if msg.message =~ /8002000B/
-          nameval(name)
-        else
-          raise ExcelError, "could neither return a sheet nor a value of a range when giving the name #{name.inspect}"
-        end
-      end
-    end
-
-    # sets the value of a range given its name
-    # @param [String]  name  the name of the range
-    # @param [Variant] value the contents of the range
-    def []= (name, value)
-      set_nameval(name,value)
-    end
+    end    
 
     def each
       @ole_workbook.Worksheets.each do |sheet|
@@ -847,6 +693,187 @@ module RobustExcelOle
 
     def first_sheet
       sheet_class.new(@ole_workbook.Worksheets.Item(1))
+    end
+
+    # returns the contents of a range with given name
+    # if no contents could be returned, then return default value, if provided, raise error otherwise
+    # @param  [String]      name      the range name
+    # @param  [Hash]        opts      the options
+    # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
+    # @raise  ExcelError if range name is not in the workbook
+    # @raise  SheetError if range value could not be evaluated
+    # @return [Variant] the contents of a range with given name   
+    def rangeval(name, opts = {:default => nil})
+      begin
+        range = self.Range(name)
+      rescue WIN32OLERuntimeError
+        raise SheetError, "range #{name.inspect} not in sheet"
+      end
+      begin
+        range.Value
+      rescue  WIN32OLERuntimeError
+        raise SheetError, "value cannot assigned to range #{name.inspect}"
+      end
+    end
+
+    # sets the contents of a range with given name
+    # @param [String]  name  the range name
+    # @param [Variant] value the contents of the range
+    # @raise ExcelError if range name is not in the workbook or if a RefersToRange error occurs
+    def set_nameval(name, value) 
+      begin
+        range = self.Range(name)
+      rescue WIN32OLERuntimeError
+        raise SheetError, "range #{name.inspect} not in sheet"
+      end
+      begin
+        range.Value = value
+      rescue  WIN32OLERuntimeError
+        raise SheetError, "value cannot assigned to range #{name.inspect}"
+      end
+    end    
+
+    # returns the value of the range
+    # @param [String] the global name of a range
+    # @returns [Variant] the value of the range
+    def [] name
+      rangeval(name)
+    end
+
+    # sets the value of a range given its name
+    # @param [String]  name  the name of the range
+    # @param [Variant] value the contents of the range
+    def []= (name, value)
+      set_rangeval(name,value)
+    end
+
+    # returns the contents of a range with given name
+    # if no contents could be returned, then return default value, if provided, raise error otherwise
+    # @param  [String]      name      the range name
+    # @param  [Hash]        opts      the options
+    # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
+    # @raise  ExcelError if range name is not in the workbook
+    # @raise  SheetError if range value could not be evaluated
+    # @return [Variant] the contents of a range with given name
+    def nameval(name, opts = {:default => nil})
+      begin
+        name_item = self.Names.Item(name)
+      rescue WIN32OLERuntimeError
+        return opts[:default] if opts[:default]
+        raise ExcelError, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"
+      end
+      begin
+        value = name_item.RefersToRange.Value
+      rescue  WIN32OLERuntimeError
+        begin
+          sheet = self.sheet(1)
+          value = sheet.Evaluate(name)
+        rescue WIN32OLERuntimeError
+          return opts[:default] if opts[:default]
+          raise SheetError, "cannot evaluate name #{name.inspect} in sheet"
+        end
+      end
+      if value == -2146826259
+        return opts[:default] if opts[:default]
+        raise SheetError, "cannot evaluate name #{name.inspect} in sheet"
+      end 
+      return opts[:default] if (value.nil? && opts[:default])
+      value      
+    end
+
+    # sets the contents of a range with given name
+    # @param [String]  name  the range name
+    # @param [Variant] value the contents of the range
+    # @raise ExcelError if range name is not in the workbook or if a RefersToRange error occurs
+    def set_nameval(name, value) 
+      begin
+        item = self.Names.Item(name)
+      rescue WIN32OLERuntimeError
+        raise ExcelError, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"  
+      end
+      begin
+        item.RefersToRange.Value = value
+      rescue WIN32OLERuntimeError
+        raise ExcelError, "RefersToRange error of name #{name.inspect} in #{File.basename(self.stored_filename).inspect}"    
+      end
+    end    
+
+    # renames a range
+    # @param [String] name     the previous range name
+    # @param [String] new_name the new range name
+    # @raise ExcelError if name is not in the file, or if new_name cannot be set
+    def rename_range(name, new_name)
+      begin
+        item = self.Names.Item(name)
+      rescue WIN32OLERuntimeError
+        raise ExcelError, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"  
+      end
+      begin
+        item.Name = new_name
+      rescue WIN32OLERuntimeError
+        raise ExcelError, "name error in #{File.basename(self.stored_filename).inspect}"      
+      end
+    end
+
+    # brings workbook to foreground, makes it available for heyboard inputs, makes the Excel instance visible
+    # @raise ExcelError if workbook cannot be activated    
+    def activate      
+      @excel.visible = true
+      begin
+        Win32API.new("user32","SetForegroundWindow","I","I").call(@excel.hwnd)     # Excel  2010
+        @ole_workbook.Activate   # Excel 2007
+      rescue WIN32OLERuntimeError
+        raise ExcelError, "cannot activate"
+      end
+    end
+
+    # returns true, if the workbook is visible, false otherwise 
+    def visible
+      @excel.Windows(@ole_workbook.Name).Visible
+    end
+
+    # makes a workbook visible or invisible
+    # @param [Boolean] visible_value value that determines whether the workbook shall be visible
+    def visible= visible_value
+      saved = @ole_workbook.Saved
+      @excel.Windows(@ole_workbook.Name).Visible = visible_value
+      save if saved 
+    end
+
+    # returns true, if the workbook reacts to methods, false otherwise
+    def alive?
+      begin 
+        @ole_workbook.Name
+        true
+      rescue 
+        @ole_workbook = nil  # dead object won't be alive again
+        #t $!.message
+        false
+      end
+    end
+
+    # returns the full file name of the workbook
+    def filename
+      @ole_workbook.Fullname.tr('\\','/') rescue nil
+    end
+
+    def writable   # :nodoc: #
+      (not @ole_workbook.ReadOnly) if @ole_workbook
+    end
+
+    def saved   # :nodoc: #
+      @ole_workbook.Saved if @ole_workbook
+    end
+
+    # @return [Boolean] true, if the full book names and excel Instances are identical, false otherwise  
+    def == other_book
+      other_book.is_a?(Book) &&
+      @excel == other_book.excel &&
+      self.filename == other_book.filename  
+    end
+
+    def self.books
+      bookstore.books
     end
 
     def self.bookstore   # :nodoc: #

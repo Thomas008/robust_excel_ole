@@ -701,35 +701,35 @@ module RobustExcelOle
     # @param  [Hash]        opts      the options
     # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
     # @raise  ExcelError if range name is not in the workbook
-    # @raise  SheetError if range value could not be evaluated
+    # @raise  ExcelError if range value could not be evaluated
     # @return [Variant] the contents of a range with given name   
     def rangeval(name, opts = {:default => nil})
       begin
         range = self.Range(name)
       rescue WIN32OLERuntimeError
-        raise SheetError, "range #{name.inspect} not in sheet"
+        raise ExcelError, "range #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"
       end
       begin
         range.Value
       rescue  WIN32OLERuntimeError
-        raise SheetError, "value cannot assigned to range #{name.inspect}"
+        raise ExcelError, "value of range #{name.inspect} cannot be evaluated in #{File.basename(self.stored_filename).inspect}"
       end
     end
 
     # sets the contents of a range with given name
     # @param [String]  name  the range name
     # @param [Variant] value the contents of the range
-    # @raise ExcelError if range name is not in the workbook or if a RefersToRange error occurs
+    # @raise ExcelError if range name is not in the workbook or if value cannot assigned to range
     def set_rangeval(name, value) 
       begin
         range = self.Range(name)
       rescue WIN32OLERuntimeError
-        raise SheetError, "range #{name.inspect} not in sheet"
+        raise ExcelError, "range #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"
       end
       begin
         range.Value = value
       rescue  WIN32OLERuntimeError
-        raise SheetError, "value cannot assigned to range #{name.inspect}"
+        raise ExcelError, "value cannot be assigned to range #{name.inspect} in #{File.basename(self.stored_filename).inspect}"
       end
     end    
 
@@ -752,8 +752,7 @@ module RobustExcelOle
     # @param  [String]      name      the range name
     # @param  [Hash]        opts      the options
     # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
-    # @raise  ExcelError if range name is not in the workbook
-    # @raise  SheetError if range value could not be evaluated
+    # @raise  ExcelError if range name is not in the workbook or if range value could not be evaluated
     # @return [Variant] the contents of a range with given name
     def nameval(name, opts = {:default => nil})
       begin
@@ -770,12 +769,12 @@ module RobustExcelOle
           value = sheet.Evaluate(name)
         rescue WIN32OLERuntimeError
           return opts[:default] if opts[:default]
-          raise SheetError, "cannot evaluate name #{name.inspect} in sheet"
+          raise SheetError, "cannot evaluate name #{name.inspect} in #{File.basename(self.stored_filename).inspect}"
         end
       end
       if value == -2146826259
         return opts[:default] if opts[:default]
-        raise SheetError, "cannot evaluate name #{name.inspect} in sheet"
+        raise SheetError, "cannot evaluate name #{name.inspect} in #{File.basename(self.stored_filename).inspect}"
       end 
       return opts[:default] if (value.nil? && opts[:default])
       value      
@@ -784,7 +783,7 @@ module RobustExcelOle
     # sets the contents of a range with given name
     # @param [String]  name  the range name
     # @param [Variant] value the contents of the range
-    # @raise ExcelError if range name is not in the workbook or if a RefersToRange error occurs
+    # @raise ExcelError if range name is not in the workbook or if value could not be assigned to range
     def set_nameval(name, value) 
       begin
         name_item = self.Names.Item(name)
@@ -794,7 +793,7 @@ module RobustExcelOle
       begin
         name_item.RefersToRange.Value = value
       rescue WIN32OLERuntimeError
-        raise ExcelError, "RefersToRange error of name #{name.inspect} in #{File.basename(self.stored_filename).inspect}"    
+        raise ExcelError, "value cannot be assigned to range #{name.inspect} in #{File.basename(self.stored_filename).inspect}"    
       end
     end    
 

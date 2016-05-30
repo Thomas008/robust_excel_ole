@@ -720,7 +720,7 @@ module RobustExcelOle
     # @param [String]  name  the range name
     # @param [Variant] value the contents of the range
     # @raise ExcelError if range name is not in the workbook or if a RefersToRange error occurs
-    def set_nameval(name, value) 
+    def set_rangeval(name, value) 
       begin
         range = self.Range(name)
       rescue WIN32OLERuntimeError
@@ -787,12 +787,12 @@ module RobustExcelOle
     # @raise ExcelError if range name is not in the workbook or if a RefersToRange error occurs
     def set_nameval(name, value) 
       begin
-        item = self.Names.Item(name)
+        name_item = self.Names.Item(name)
       rescue WIN32OLERuntimeError
         raise ExcelError, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"  
       end
       begin
-        item.RefersToRange.Value = value
+        name_item.RefersToRange.Value = value
       rescue WIN32OLERuntimeError
         raise ExcelError, "RefersToRange error of name #{name.inspect} in #{File.basename(self.stored_filename).inspect}"    
       end

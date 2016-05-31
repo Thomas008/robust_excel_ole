@@ -145,7 +145,7 @@ describe Book do
     it "should raise an error if name was defined but contents is calcuated" do
       expect {
         @book1.set_nameval("named_formula","bar")
-      }.to raise_error(ExcelError, /RefersToRange error of name "named_formula" in "another_workbook.xls"/)
+      }.to raise_error(ExcelError, /cannot assign value to range named "named_formula" in "another_workbook.xls"/)
     end
   end
 
@@ -210,19 +210,15 @@ describe Book do
       expect {
         @book1["foo"]
       }.to raise_error(ExcelError, /name "foo" not in "another_workbook.xls"/)
-       "should raise an error if name is not defined" do
-      expect {
-        @book1["foo"] = "bar"
-      }.to raise_error(ExcelError, /name "foo" not in "another_workbook.xls"/)
     end    
 
     it "should raise an error if name was defined but contents is calcuated" do
       expect {
         @book1.set_rangeval("named_formula","bar")
-      }.to raise_error(ExcelError, /RefersToRange error of name "named_formula" in "another_workbook.xls"/)
+      }.to raise_error(ExcelError, /cannot assign value to range named "named_formula" in "another_workbook.xls"/)
       expect {
         @book1["named_formula"] = "bar"
-      }.to raise_error(ExcelError, /RefersToRange error of name "named_formula" in "another_workbook.xls"/)
+      }.to raise_error(ExcelError, /cannot assign value to range named "named_formula" in "another_workbook.xls"/)
     end
   end  
 

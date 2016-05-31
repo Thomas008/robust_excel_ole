@@ -707,12 +707,12 @@ module RobustExcelOle
       begin
         range = self.Range(name)
       rescue WIN32OLERuntimeError
-        raise ExcelError, "range #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"
+        raise ExcelError, "range named #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"
       end
       begin
         range.Value
       rescue  WIN32OLERuntimeError
-        raise ExcelError, "value of range #{name.inspect} cannot be evaluated in #{File.basename(self.stored_filename).inspect}"
+        raise ExcelError, "cannot evaluate value of range named #{name.inspect} in #{File.basename(self.stored_filename).inspect}"
       end
     end
 
@@ -724,12 +724,12 @@ module RobustExcelOle
       begin
         range = self.Range(name)
       rescue WIN32OLERuntimeError
-        raise ExcelError, "range #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"
+        raise ExcelError, "range named #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"
       end
       begin
         range.Value = value
       rescue  WIN32OLERuntimeError
-        raise ExcelError, "value cannot be assigned to range #{name.inspect} in #{File.basename(self.stored_filename).inspect}"
+        raise ExcelError, "cannot assign value to range named #{name.inspect} in #{File.basename(self.stored_filename).inspect}"
       end
     end    
 
@@ -793,7 +793,7 @@ module RobustExcelOle
       begin
         name_item.RefersToRange.Value = value
       rescue WIN32OLERuntimeError
-        raise ExcelError, "value cannot be assigned to range #{name.inspect} in #{File.basename(self.stored_filename).inspect}"    
+        raise ExcelError, "cannot assign value to range named #{name.inspect} in #{File.basename(self.stored_filename).inspect}"    
       end
     end    
 

@@ -47,7 +47,7 @@ module RobustExcelOle
         @cells[yx] = RobustExcelOle::Cell.new(@worksheet.Cells.Item(y, x))
       else
         name = p1
-        nameval(name)
+        rangeval(name)
       end
     end
 
@@ -58,7 +58,7 @@ module RobustExcelOle
         @worksheet.Cells.Item(y, x).Value = value
       else
         name, value = p1, p2
-        set_nameval(name, value)
+        set_rangeval(name, value)
       end
     end
 
@@ -119,12 +119,12 @@ module RobustExcelOle
       begin
         range = self.Range(name)
       rescue WIN32OLERuntimeError
-        raise SheetError, "range #{name.inspect} not in #{self.name}"
+        raise SheetError, "range named #{name.inspect} not in #{self.name}"
       end
       begin
         range.Value
       rescue  WIN32OLERuntimeError
-        raise SheetError, "value cannot be assigned to range #{name.inspect} in #{self.name}"
+        raise SheetError, "cannot evaluate value of range named #{name.inspect} in #{self.name}"
       end
     end
 
@@ -136,12 +136,12 @@ module RobustExcelOle
       begin
         range = self.Range(name)
       rescue WIN32OLERuntimeError
-        raise SheetError, "range #{name.inspect} not in #{self.name}"
+        raise SheetError, "range named #{name.inspect} not in #{self.name}"
       end
       begin
         range.Value = value
       rescue  WIN32OLERuntimeError
-        raise SheetError, "value cannot be assigned to range #{name.inspect} in #{self.name}"
+        raise SheetError, "cannot assign value to range named #{name.inspect} in #{self.name}"
       end
     end
 
@@ -181,7 +181,7 @@ module RobustExcelOle
       begin
         name_item.RefersToRange.Value = value
       rescue  WIN32OLERuntimeError
-        raise SheetError, "value cannot be assigned to range name #{name.inspect} in #{self.name}"
+        raise SheetError, "cannot assign value to range named #{name.inspect} in #{self.name}"
       end
     end
 

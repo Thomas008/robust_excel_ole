@@ -388,9 +388,9 @@ describe Sheet do
       end
     end
 
-    describe "nameval" do
+    describe "rangeval, []" do
 
-      context "returning the value of a range" do
+      context "getting the value of a range" do
       
         before do
           @book1 = Book.open(@dir + '/another_workbook.xls')
@@ -401,31 +401,33 @@ describe Sheet do
           @book1.close
         end   
 
-        it "should return value of a range with nameval and brackets operator" do
-          @sheet1.nameval("firstcell").should == "foo"
+        it "should return value of a defined name" do
+          @sheet1.rangeval("firstcell").should == "foo"
           @sheet1["firstcell"].should == "foo"
+        end        
+
+        it "should return default value if name not defined and default value is given" do
+          @sheet1.rangeval("foo", :default => 2).should == 2
+        end
+
+        it "should evaluate a formula" do
+          @sheet1.rangeval("named_formula").should == 4
+          @sheet1["named_formula"].should == 4
         end
 
         it "should raise an error if name not defined" do
           expect {
-            value = @sheet1.nameval("foo")
+            @sheet1.rangeval("foo")
           }.to raise_error(SheetError, /cannot evaluate name "foo" in sheet/)
-          expect {
+        end
+        expect {
             @sheet1["foo"]
           }.to raise_error(SheetError, /cannot evaluate name "foo" in sheet/)
-        end
-
-        it "should return default value if name not defined and default value is given" do
-          @sheet1.nameval("foo", :default => 2).should == 2
-        end
-
-        it "should evaluate a formula" do
-          @sheet1.nameval("named_formula").should == 4
         end
       end
     end
 
-    describe "set_nameval" do
+    describe "set_rangeval" do
 
       context "setting the value of a range" do
       
@@ -435,29 +437,100 @@ describe Sheet do
         end
 
         after do
-          @book1.close
+          @book1.close(:if_unsaved => :forget)
         end   
 
         it "should set a range to a value" do
-          @sheet1.nameval("firstcell").should == "foo"
+          @sheet1.rangeval("firstcell").should == "foo"
           @sheet1[1,1].Value.should == "foo"
-          @sheet1.set_nameval("firstcell","foo")
-          @sheet1.nameval("firstcell").should == "foo"
-          @sheet1[1,1].Value.should == "foo"
-          @sheet1["firstcell"] = "bar"
-          @sheet1.nameval("firstcell").should == "bar"
+          @sheet1.set_rangeval("firstcell","bar")
+          @sheet1.rangeval("firstcell").should == "bar"
           @sheet1[1,1].Value.should == "bar"
+          @sheet1["firstcell"] = "foo"
+          @sheet1.rangeval("firstcell").should == "foo"
+          @sheet1[1,1].Value.should == "foo"
         end
 
-        it "should raise an error" do
+        it "should raise an error if name cannot be evaluated" do
           expect{
+            @sheet1.set_nameval("foo", 1)
+          }.to raise_error(SheetError, /cannot evaluate name "foo" in sheet/)
+          expect{
+            @sheet1["foo"].should == 1
+          }.to raise_error(SheetError, /cannot evaluate name "foo" in sheet/)
+        end
+      end
+    end
+
+
+    describe "nameval" do
+
+      context "getting the value of a name" do
+      
+        before do
+          @book1 = Book.open(@dir + '/another_workbook.xls')
+          @sheet1 = @book1.sheet(1)
+        end
+
+        after do
+          @book1.close
+        end   
+
+        it "should return value of a defined name" do
+          @sheet1.nameval("firstcell").should == "foo"
+        end        
+
+        it "should return default value if name not defined and default value is given" do
+          @sheet1.nameval("foo", :default => 2).should == 2
+        end
+
+        it "should evaluate a formula" do
+          @sheet1.nameval("named_formula").should == 4
+        end
+
+        it "should raise an error if name not defined" do
+          expect {
             @sheet1.nameval("foo")
-            }.to raise_error(SheetError, /cannot evaluate name "foo" in sheet/)
+          }.to raise_error(SheetError, /cannot evaluate name "foo" in sheet/)
         end
       end
     end
 
     describe "set_nameval" do
+
+      context "setting the value of a name" do
+      
+        before do
+          @book1 = Book.open(@dir + '/another_workbook.xls', :read_only => true)
+          @sheet1 = @book1.sheet(1)
+        end
+
+        after do
+          @book1.close(:if_unsaved => :forget)
+        end   
+
+        it "should set a range to a value" do
+          @sheet1.nameval("firstcell").should == "foo"
+          @sheet1[1,1].Value.should == "foo"
+          @sheet1.set_nameval("firstcell","bar")
+          @sheet1.nameval("firstcell").should == "bar"
+          @sheet1[1,1].Value.should == "bar"
+        end
+
+        it "should raise an error if name cannot be evaluated" do
+          expect{
+            @sheet1.set_nameval("foo", 1)
+            }.to raise_error(SheetError, /cannot evaluate name "foo" in sheet/)
+        end
+      end
+    end
+
+
+          #@sheet1["firstcell"] = "bar"
+          #@sheet1.nameval("firstcell").should == "bar"
+          #@sheet1[1,1].Value.should == "bar"
+
+    describe "set_name" do
 
       context "setting the name of a range" do
 

@@ -695,56 +695,18 @@ module RobustExcelOle
       sheet_class.new(@ole_workbook.Worksheets.Item(1))
     end
 
-    # returns the contents of a range with given name
-    # if no contents could be returned, then return default value, if provided, raise error otherwise
-    # @param  [String]      name      the range name
-    # @param  [Hash]        opts      the options
-    # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
-    # @raise  ExcelError if range name is not in the workbook
-    # @raise  ExcelError if range value could not be evaluated
-    # @return [Variant] the contents of a range with given name   
-    def rangeval(name, opts = {:default => nil})
-      begin
-        range = self.Range(name)
-      rescue WIN32OLERuntimeError
-        raise ExcelError, "range named #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"
-      end
-      begin
-        range.Value
-      rescue  WIN32OLERuntimeError
-        raise ExcelError, "cannot evaluate value of range named #{name.inspect} in #{File.basename(self.stored_filename).inspect}"
-      end
-    end
-
-    # sets the contents of a range with given name
-    # @param [String]  name  the range name
-    # @param [Variant] value the contents of the range
-    # @raise ExcelError if range name is not in the workbook or if value cannot assigned to range
-    def set_rangeval(name, value) 
-      begin
-        range = self.Range(name)
-      rescue WIN32OLERuntimeError
-        raise ExcelError, "range named #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"
-      end
-      begin
-        range.Value = value
-      rescue  WIN32OLERuntimeError
-        raise ExcelError, "cannot assign value to range named #{name.inspect} in #{File.basename(self.stored_filename).inspect}"
-      end
-    end    
-
     # returns the value of the range
     # @param [String] the global name of a range
     # @returns [Variant] the value of the range
     def [] name
-      rangeval(name)
+      nameval(name)
     end
 
     # sets the value of a range given its name
     # @param [String]  name  the name of the range
     # @param [Variant] value the contents of the range
     def []= (name, value)
-      set_rangeval(name,value)
+      set_nameval(name,value)
     end
 
     # returns the contents of a range with given name

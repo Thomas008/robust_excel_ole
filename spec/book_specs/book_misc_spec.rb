@@ -101,7 +101,7 @@ describe Book do
     end
   end
 
-  describe "nameval, set_nameval" do
+  describe "nameval, set_nameval, [], []=" do
   
     before do
       @book1 = Book.open(@another_simple_file)
@@ -120,14 +120,33 @@ describe Book do
       @book1.nameval("firstcell").should == "foo"        
     end
 
+    it "should return value of a range via []" do
+      @book1["new"].should == "foo"
+      @book1["one"].should == 1
+      @book1["firstrow"] == [[1,2]]        
+      @book1["four"].should == [[1,2],[3,4]]
+      @book1["firstrow"].should_not == "12"
+      @book1["firstcell"].should == "foo"        
+    end
+
     it "should set value of a range" do
       @book1.set_nameval("new", "bar")
+      @book1.nameval("new").should == "bar"
+    end
+
+    it "should set value of a range via []=" do
+      @book1["new"] = "bar"
       @book1.nameval("new").should == "bar"
     end
 
     it "should evaluate a formula" do
       @book1.nameval("named_formula").should == 4      
     end
+
+    it "should evaluate a formula via []" do
+      @book1["named_formula"].should == 4      
+    end
+
 
     it "should return default value if name not defined" do
       @book1.nameval("foo", :default => 2).should == 2
@@ -140,87 +159,20 @@ describe Book do
       expect {
           @book1.set_nameval("foo","bar")
       }.to raise_error(ExcelError, /name "foo" not in "another_workbook.xls"/)
+      expect {
+          @book1["foo"] = "bar"
+      }.to raise_error(ExcelError, /name "foo" not in "another_workbook.xls"/)
     end    
 
     it "should raise an error if name was defined but contents is calcuated" do
       expect {
         @book1.set_nameval("named_formula","bar")
       }.to raise_error(ExcelError, /cannot assign value to range named "named_formula" in "another_workbook.xls"/)
-    end
-  end
-
-  describe "rangeval, set_rangeval, [], []=" do
-  
-    before do
-      @book1 = Book.open(@another_simple_file)
-    end
-
-    after do
-      @book1.close(:if_unsaved => :forget)
-    end   
-
-    it "should return value of a range" do
-      @book1.rangeval("new").should == "foo"
-      @book1.rangeval("one").should == 1
-      @book1.rangeval("firstrow").should == [[1,2]]        
-      @book1.rangeval("four").should == [[1,2],[3,4]]
-      @book1.rangeval("firstrow").should_not == "12"
-      @book1.rangeval("firstcell").should == "foo"        
-    end
-
-    it "should set value of a range" do
-      @book1.set_rangeval("new", "bar")
-      @book1.rangeval("new").should == "bar"
-    end
-
-    it "should evaluate a formula" do
-      @book1.rangeval("named_formula").should == 4      
-    end
-
-    it "should raise an error if name is not defined" do
-      expect {
-        @book1.range_val("foo")
-      }.to raise_error(ExcelError, /name "foo" not in "another_workbook.xls"/)
-    end
-
-    it "should return default value if name not defined" do
-      @book1.rangeval("foo", :default => 2).should == 2
-    end
-
-    it "should return value of a range via []" do
-      @book1["new"].should == "foo"
-      @book1["one"].should == 1
-      @book1["firstrow"].should == [[1,2]]        
-      @book1["four"].should == [[1,2],[3,4]]
-      @book1["firstrow"].should_not == "12"
-      @book1["firstcell"].should == "foo"        
-    end
-
-    it "should set value of a range via []=" do
-      @book1["new"] = "bar"
-      @book1.rangeval("new").should == "bar"
-      @book1["new"].should == "bar"
-    end
-
-    it "should evaluate a formula" do
-      @book1["named_formula"].should == 4      
-    end
-
-    it "should raise an error if name is not defined" do
-      expect {
-        @book1["foo"]
-      }.to raise_error(ExcelError, /name "foo" not in "another_workbook.xls"/)
-    end    
-
-    it "should raise an error if name was defined but contents is calcuated" do
-      expect {
-        @book1.set_rangeval("named_formula","bar")
-      }.to raise_error(ExcelError, /cannot assign value to range named "named_formula" in "another_workbook.xls"/)
       expect {
         @book1["named_formula"] = "bar"
       }.to raise_error(ExcelError, /cannot assign value to range named "named_formula" in "another_workbook.xls"/)
     end
-  end  
+  end
 
   describe "rename_range" do
     

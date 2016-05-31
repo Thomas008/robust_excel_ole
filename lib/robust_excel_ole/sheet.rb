@@ -38,7 +38,7 @@ module RobustExcelOle
       end
     end
 
-    # return the value of a cell, if row and column, or its name are given 
+    # return the value of a cell, if row and column are given, or the value of a range if its name is given 
     def [] p1, p2 = :__not_provided
       if p2 != :__not_provided  
         y, x = p1, p2
@@ -47,18 +47,18 @@ module RobustExcelOle
         @cells[yx] = RobustExcelOle::Cell.new(@worksheet.Cells.Item(y, x))
       else
         name = p1
-        rangeval(name)
+        nameval(name)
       end
     end
 
-    # set the value of a cell, if row and column, or its name are given
+    # set the value of a cell, if row and column are given, or the value of a range if its name is given
     def []= (p1, p2, p3 = :__not_provided)
       if p3 != :__not_provided
         y, x, value = p1, p2, p3
         @worksheet.Cells.Item(y, x).Value = value
       else
         name, value = p1, p2
-        set_rangeval(name, value)
+        set_nameval(name, value)
       end
     end
 

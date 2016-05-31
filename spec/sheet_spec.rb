@@ -402,8 +402,7 @@ describe Sheet do
         end   
 
         it "should return value of a defined name" do
-          @sheet1.rangeval("firstcell").should == "foo"
-          @sheet1["firstcell"].should == "foo"
+          @sheet1.rangeval("firstcell").should == "foo"          
         end        
 
         it "should return default value if name not defined and default value is given" do
@@ -411,18 +410,13 @@ describe Sheet do
         end
 
         it "should evaluate a formula" do
-          @sheet1.rangeval("named_formula").should == 4
-          @sheet1["named_formula"].should == 4
+          @sheet1.rangeval("named_formula").should == 4          
         end
 
         it "should raise an error if name not defined" do
           expect {
             @sheet1.rangeval("foo")
-          }.to raise_error(SheetError, /cannot evaluate name "foo" in sheet/)
-        end
-        expect {
-            @sheet1["foo"]
-          }.to raise_error(SheetError, /cannot evaluate name "foo" in sheet/)
+            }.to raise_error(SheetError, /cannot evaluate name "foo" in sheet/)
         end
       end
     end
@@ -445,23 +439,16 @@ describe Sheet do
           @sheet1[1,1].Value.should == "foo"
           @sheet1.set_rangeval("firstcell","bar")
           @sheet1.rangeval("firstcell").should == "bar"
-          @sheet1[1,1].Value.should == "bar"
-          @sheet1["firstcell"] = "foo"
-          @sheet1.rangeval("firstcell").should == "foo"
-          @sheet1[1,1].Value.should == "foo"
+          @sheet1[1,1].Value.should == "bar"          
         end
 
         it "should raise an error if name cannot be evaluated" do
           expect{
             @sheet1.set_nameval("foo", 1)
           }.to raise_error(SheetError, /cannot evaluate name "foo" in sheet/)
-          expect{
-            @sheet1["foo"].should == 1
-          }.to raise_error(SheetError, /cannot evaluate name "foo" in sheet/)
         end
       end
     end
-
 
     describe "nameval" do
 
@@ -478,6 +465,7 @@ describe Sheet do
 
         it "should return value of a defined name" do
           @sheet1.nameval("firstcell").should == "foo"
+          @sheet1["firstcell"].should == "foo"
         end        
 
         it "should return default value if name not defined and default value is given" do
@@ -486,11 +474,15 @@ describe Sheet do
 
         it "should evaluate a formula" do
           @sheet1.nameval("named_formula").should == 4
+          @sheet1["named_formula"].should == 4
         end
 
         it "should raise an error if name not defined" do
           expect {
             @sheet1.nameval("foo")
+          }.to raise_error(SheetError, /cannot evaluate name "foo" in sheet/)
+          expect {
+            @sheet1["foo"]
           }.to raise_error(SheetError, /cannot evaluate name "foo" in sheet/)
         end
       end
@@ -515,20 +507,21 @@ describe Sheet do
           @sheet1.set_nameval("firstcell","bar")
           @sheet1.nameval("firstcell").should == "bar"
           @sheet1[1,1].Value.should == "bar"
+          @sheet1["firstcell"] = "foo"
+          @sheet1.nameval("firstcell").should == "foo"
+          @sheet1[1,1].Value.should == "foo"
         end
 
         it "should raise an error if name cannot be evaluated" do
           expect{
             @sheet1.set_nameval("foo", 1)
             }.to raise_error(SheetError, /cannot evaluate name "foo" in sheet/)
+          expect{
+            @sheet1["foo"] = 1
+            }.to raise_error(SheetError, /cannot evaluate name "foo" in sheet/)
         end
       end
     end
-
-
-          #@sheet1["firstcell"] = "bar"
-          #@sheet1.nameval("firstcell").should == "bar"
-          #@sheet1[1,1].Value.should == "bar"
 
     describe "set_name" do
 

@@ -149,34 +149,23 @@ This method finds out whether the Excel workbook that is referenced by the Book 
 
 === Getting and setting the contents of a range.
 
-Getting:
+Getting the contents of a range.
 
   book["name"] 
   => "value"
 
 or
 
-  book.rangevalue("name")
+  book.nameval("name")
   => "value"
 
-Setting:
+Setting the contents of a range.
 
   book["name"] = "value"
 
 or
 
-  book.set_rangevalue("name") = "value"
-
-=== Getting and setting the contents of a range.
-
-Getting:
-
-  book.namevalue("name")
-  => "value"
-
-Setting:
-
-  book.set_namevalue("name") = "value"
+  book.set_nameval("name") = "value"
 
 === Activating a workbook.
 
@@ -289,25 +278,35 @@ Accessing a range of a column.
 
 Naming or renaming a cell range given its address.
 
-  book.add_name(1,1,"name")
+  book.set_name(1,1,"name")
 
-=== Reading and modifying a Value of a named range
+=== Getting and setting the contents of a named range in a sheet
 
-Returning the value of a range, e.g. a cell, that has a with a defined name.
+Getting the value of a range.
 
-  book.nvalue(name)
+  sheet[name]
+  
+or
 
-or 
+  sheet.nameval(name)
 
-  book[name]
-
-Setting the value of a range, e.g. a cell, that has a with a defined name.
-
-  book.set_nvalue(name,value)
-
-or 
+Setting the value of a range.
 
   book[name] = value
+
+or
+
+  book.set_nameval(name,value)
+
+=== Getting and setting the contents of a named range directly
+
+Getting the value of a range.
+
+  sheet.rangeval(name)
+
+Setting the value of a range.
+
+  book.set_rangeval(name,value)
 
 === Copying or Adding an sheet.
 
@@ -336,12 +335,6 @@ Copying a sheet, if a sheet is given, adding an empty sheet, if no sheet is give
   book.add_or_copy_sheet
 
   book.add_or_copy_sheet(sheet, :as => 'new_name', :after => another_sheet)  
-
-=== Value of a named cell or range
-
-Returning the value of a cell or range that has a with a defined name.
-
-  sheet.nvalue(name)
 
 === Creating and reusing an Excel instance.
 

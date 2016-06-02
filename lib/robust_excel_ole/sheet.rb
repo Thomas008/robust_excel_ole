@@ -38,7 +38,8 @@ module RobustExcelOle
       end
     end
 
-    # return the value of a cell, if row and column are given, or the value of a range if its name is given 
+    # returns the value of a cell, if row and column are given
+    # returns the value of a range if its name is given 
     def [] p1, p2 = :__not_provided
       if p2 != :__not_provided  
         y, x = p1, p2
@@ -51,7 +52,8 @@ module RobustExcelOle
       end
     end
 
-    # set the value of a cell, if row and column are given, or the value of a range if its name is given
+    # sets the value of a cell, if row and column are given
+    # sets the value of a range if its name is given
     def []= (p1, p2, p3 = :__not_provided)
       if p3 != :__not_provided
         y, x, value = p1, p2, p3
@@ -109,26 +111,81 @@ module RobustExcelOle
     end
 
     # returns the contents of a range with given name
+    # evaluates the formula if the contents is a formula
+    # if no contents could be returned, then return default value, if provided, raise error otherwise
+    # @param [String] name  the range name
+    # @param [Hash]   opts  the options
+    # @option opts [Variant] :default default value (default: nil)
+    # @raise SheetError if name is not defined or if value of the range cannot be evaluated
+    def nameval(name, opts = {:default => nil})
+      begin
+        name_obj = self.Names.Item(name)
+      rescue
+        begin
+          value = self.Evaluate(name_obj.Name)
+        rescue WIN32OLERuntimeError
+          return opts[:default] if opts[:default]
+          raise SheetError, "cannot find or evaluate name #{name.inspect} in #{self.Name}"
+        end
+      end
+      begin
+        value = name_obj.RefersToRange.Value unless value
+      rescue WIN32OLERuntimeError
+        return opts[:default] if opts[:default]
+        raise SheetError, "cannot evaluate name #{name.inspect} in #{self.Name}"
+      end
+      if value == -2146826259
+        return opts[:default] if opts[:default]
+        raise SheetError, "cannot evaluate name #{name.inspect} in #{self.name}"
+      end
+      return opts[:default] if (value.nil? && opts[:default])
+      value
+    end
+    
+    # assigns a value to a range with given name
+    # @param [String]  name   the range name
+    # @param [Variant] value  the assigned value
+    # @raise SheetError if name is not in the sheet or the value cannot be assigned
+    def set_nameval(name,value)
+      begin
+        name_obj = self.Names.Item(name)
+      rescue WIN32OLERuntimeError
+        raise SheetError, "name #{name.inspect} not in #{self.name}"
+      end
+      begin
+        name_obj.RefersToRange.Value = value
+      rescue  WIN32OLERuntimeError
+        raise SheetError, "cannot assign value to range named #{name.inspect} in #{self.name}"
+      end
+    end
+
+
+    # returns the contents of a range with a defined local name
+    # evaluates the formula if the contents is a formula
     # if no contents could be returned, then return default value, if provided, raise error otherwise
     # @param  [String]      name      the range name
     # @param  [Hash]        opts      the options
     # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
-    # @raise  SheetError if range name is not in the worksheet or if range value could not be evaluated
+    # @raise  SheetError if range name is not definied in the worksheet or if range value could not be evaluated
     # @return [Variant] the contents of a range with given name   
     def rangeval(name, opts = {:default => nil})
       begin
         range = self.Range(name)
       rescue WIN32OLERuntimeError
+        return opts[:default] if opts[:default]
         raise SheetError, "range named #{name.inspect} not in #{self.name}"
       end
       begin
-        range.Value
+        value = range.Value
       rescue  WIN32OLERuntimeError
-        raise SheetError, "cannot evaluate value of range named #{name.inspect} in #{self.name}"
+        return opts[:default] if opts[:default]
+        raise SheetError, "cannot determine value of range named #{name.inspect} in #{self.name}"
       end
+      return opts[:default] if (value.nil? && opts[:default])
+      value
     end
 
-    # assigns a value to a range with given name
+    # assigns a value to a range given a defined loval name
     # @param [String]  name   the range name
     # @param [Variant] value  the assigned value
     # @raise SheetError if name is not in the sheet or the value cannot be assigned
@@ -144,47 +201,7 @@ module RobustExcelOle
         raise SheetError, "cannot assign value to range named #{name.inspect} in #{self.name}"
       end
     end
-
-    # returns the contents of a range with given name
-    # @param [String] name  the range name
-    # @param [Hash]   opts  the options
-    # @option opts [Variant] :default default value (default: nil)
-    # if no contents could returned, then return default value, if a default value was provided
-    #                                raise an error, otherwise
-    # @raise SheetError if value of the range cannot be evaluated
-    def nameval(name, opts = {:default => nil})
-      begin
-        value = self.Evaluate(name)
-        value = value.Value if value.class == WIN32OLE
-      rescue WIN32OLERuntimeError
-        return opts[:default] if opts[:default]
-        raise SheetError, "cannot evaluate name #{name.inspect} in #{self.name}"
-      end
-      if value == -2146826259
-        return opts[:default] if opts[:default]
-        raise SheetError, "cannot evaluate name #{name.inspect} in #{self.name}"
-      end
-      return opts[:default] if (value.nil? && opts[:default])
-      value
-    end
-
-    # assigns a value to a range with given name
-    # @param [String]  name   the range name
-    # @param [Variant] value  the assigned value
-    # @raise SheetError if name is not in the sheet or the value cannot be assigned
-    def set_nameval(name,value)
-      begin
-        name_item = self.Names.Item(name)
-      rescue WIN32OLERuntimeError
-        raise SheetError, "name #{name.inspect} not in #{self.name}"
-      end
-      begin
-        name_item.RefersToRange.Value = value
-      rescue  WIN32OLERuntimeError
-        raise SheetError, "cannot assign value to range named #{name.inspect} in #{self.name}"
-      end
-    end
-
+    
     # assigns a name to a range (a cell) given by an address
     # @param [String] name   the range name
     # @param [Fixnum] row    the row

@@ -710,6 +710,7 @@ module RobustExcelOle
     end
 
     # returns the contents of a range with given name
+    # evaluates formula contents of the range is a formula
     # if no contents could be returned, then return default value, if provided, raise error otherwise
     # @param  [String]      name      the range name
     # @param  [Hash]        opts      the options
@@ -718,17 +719,16 @@ module RobustExcelOle
     # @return [Variant] the contents of a range with given name
     def nameval(name, opts = {:default => nil})
       begin
-        name_item = self.Names.Item(name)
+        name_obj = self.Names.Item(name)
       rescue WIN32OLERuntimeError
         return opts[:default] if opts[:default]
         raise ExcelError, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"
       end
       begin
-        value = name_item.RefersToRange.Value
+        value = name_obj.RefersToRange.Value
       rescue  WIN32OLERuntimeError
         begin
-          sheet = self.sheet(1)
-          value = sheet.Evaluate(name)
+          value = self.sheet(1).Evaluate(name_obj.Name)
         rescue WIN32OLERuntimeError
           return opts[:default] if opts[:default]
           raise SheetError, "cannot evaluate name #{name.inspect} in #{File.basename(self.stored_filename).inspect}"
@@ -748,12 +748,12 @@ module RobustExcelOle
     # @raise ExcelError if range name is not in the workbook or if value could not be assigned to range
     def set_nameval(name, value) 
       begin
-        name_item = self.Names.Item(name)
+        name_obj = self.Names.Item(name)
       rescue WIN32OLERuntimeError
         raise ExcelError, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"  
       end
       begin
-        name_item.RefersToRange.Value = value
+        name_obj.RefersToRange.Value = value
       rescue WIN32OLERuntimeError
         raise ExcelError, "cannot assign value to range named #{name.inspect} in #{File.basename(self.stored_filename).inspect}"    
       end

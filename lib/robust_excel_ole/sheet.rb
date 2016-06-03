@@ -120,13 +120,13 @@ module RobustExcelOle
     def nameval(name, opts = {:default => nil})
       begin
         name_obj = self.Names.Item(name)
-      rescue
+      rescue WIN32OLERuntimeError
         begin
-          value = self.Evaluate(name_obj.Name)
+          value = self.Evaluate(name)
         rescue WIN32OLERuntimeError
           return opts[:default] if opts[:default]
           raise SheetError, "cannot find or evaluate name #{name.inspect} in #{self.Name}"
-        end
+        end         
       end
       begin
         value = name_obj.RefersToRange.Value unless value
@@ -136,7 +136,7 @@ module RobustExcelOle
       end
       if value == -2146826259
         return opts[:default] if opts[:default]
-        raise SheetError, "cannot evaluate name #{name.inspect} in #{self.name}"
+        raise SheetError, "cannot find or evaluate name #{name.inspect} in #{self.name}"
       end
       return opts[:default] if (value.nil? && opts[:default])
       value

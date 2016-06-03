@@ -173,7 +173,7 @@ module RobustExcelOle
         range = self.Range(name)
       rescue WIN32OLERuntimeError
         return opts[:default] if opts[:default]
-        raise SheetError, "range named #{name.inspect} not in #{self.name}"
+        raise SheetError, "name #{name.inspect} not in #{self.name}"
       end
       begin
         value = range.Value

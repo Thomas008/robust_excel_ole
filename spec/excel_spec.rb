@@ -24,7 +24,7 @@ module RobustExcelOle
 
     after do
       Excel.kill_all
-      rm_tmp(@dir)
+      #rm_tmp(@dir)
     end
 
     context "excel creation" do
@@ -827,10 +827,10 @@ module RobustExcelOle
           @book3 = Book.open(@different_file, :read_only => true)
           sheet = @book.sheet(1)
           sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
-          sheet3 = @book3[0]
+          sheet3 = @book3.sheet(1)
           sheet3[1,1] = sheet3[1,1].value == "foo" ? "bar" : "foo"
           @book2 = Book.open(@another_simple_file, :force_excel => :new)
-          sheet2 = @book2[0]
+          sheet2 = @book2.sheet(1)
           sheet2[1,1] = sheet2[1,1].value == "foo" ? "bar" : "foo"
         end
 
@@ -952,6 +952,14 @@ module RobustExcelOle
         expect {
         @excel1["foo"]
         }.to raise_error(ExcelError, /cannot find name "foo"/)
+        expect {
+          excel2 = Excel.create
+          excel2.nameval("one")
+        }.to raise_error(ExcelError, /cannot find name "one"/)
+        expect {
+          excel3 = Excel.create
+          excel3["one"]
+        }.to raise_error(ExcelError, /cannot find name "one"/)
       end
 
       it "should set a range to a value" do
@@ -1005,6 +1013,10 @@ module RobustExcelOle
         expect {
           @excel1.rangeval("named_formula")
           }.to raise_error(ExcelError, /cannot find name "named_formula"/)
+        expect {
+          excel2 = Excel.create
+          excel2.rangeval("one")
+        }.to raise_error(ExcelError, /cannot find name "one"/)
       end
     
       it "should set a range to a value" do

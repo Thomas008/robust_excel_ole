@@ -539,33 +539,6 @@ module RobustExcelOle
     # @param [Hash]   opts  the options
     # @option opts [Variant] :default default value (default: nil)
     # @raise ExcelError if name is not defined or if value of the range cannot be evaluated
-=begin
-    def nameval(name, opts = {:default => nil})
-      begin
-        name_obj = self.Names.Item(name)
-      rescue WIN32OLERuntimeError
-        begin
-          value = self.Evaluate(name)
-        rescue WIN32OLERuntimeError
-          return opts[:default] if opts[:default]
-          raise ExcelError, "cannot find or evaluate name #{name.inspect}"
-        end         
-      end
-      begin
-        value = name_obj.RefersToRange.Value unless value
-      rescue WIN32OLERuntimeError
-        return opts[:default] if opts[:default]
-        raise ExcelError, "cannot evaluate name #{name.inspect}"
-      end
-      if value == -2146826259
-        return opts[:default] if opts[:default]
-        raise ExcelError, "cannot find or evaluate name #{name.inspect}"
-      end
-      return opts[:default] if (value.nil? && opts[:default])
-      value
-    end
-=end
-
     def nameval(name, opts = {:default => nil})
       begin
         name_obj = self.Names.Item(name)

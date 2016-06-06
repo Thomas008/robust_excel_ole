@@ -424,6 +424,46 @@ Promoting an Excel instance represented as WIN32OLE object to an Excel object
 
   excel = Excel.new(:reuse => win32ole_object)
 
+
+=== Closing an Excel
+
+  excel = Excel.current
+  excel.close
+
+Closing the Excel instance and terminating the Excel process
+
+  excel.close(:hard => true)
+
+=== Closing all Excel instances.
+
+  Excel.close_all
+
+ Closing the Excel instances and terminating the Excel processes
+
+  Excel.close_all(:hard => true) 
+
+=== Terminating all Excel processes
+
+  Excel.kill_all
+
+=== Recreating an Excel instance    
+
+Reopening the closed Excel instance. This includes reopening all workbooks that were open in that Excel instance.
+
+  excel.close
+  excel.recreate
+
+Options are :visible and :displayalerts
+
+  excel.recreate(:visible => true, :displayalerts => true)
+
+=== Providing Excel instances
+
+Providing all Excel instances (opened via RobustExcelOle) as objects of the class Excel
+
+  Excel.excel_objects
+
+
 === Making Excel visible or invisible
 
 Making Excel visible.
@@ -464,43 +504,36 @@ The calculation mode is not reset after the block.
     # do something
   end  
 
-=== Closing an Excel
+=== Getting and setting the contents of a named range in an Excel application
 
-  excel = Excel.current
-  excel.close
+  excel = Excel.create
+  book = Book.open('another_workbook.xls')
 
-Closing the Excel instance and terminating the Excel process
+Getting the value of a range.
 
-  excel.close(:hard => true)
+  excel[name]
+  
+or
 
-=== Closing all Excel instances.
+  excel.nameval(name)
 
-  Excel.close_all
+Setting the value of a range.
 
- Closing the Excel instances and terminating the Excel processes
+  excel[name] = value
 
-  Excel.close_all(:hard => true) 
+or
 
-=== Terminating all Excel processes
+  excel.set_nameval(name,value)
 
-  Excel.kill_all
+=== Getting and setting the contents of a named range in an Excel application directly
 
-=== Recreating an Excel instance    
+Getting the value of a range.
 
-Reopening the closed Excel instance. This includes reopening all workbooks that were open in that Excel instance.
+  excel.rangeval(name)
 
-  excel.close
-  excel.recreate
+Setting the value of a range.
 
-Options are :visible and :displayalerts
-
-  excel.recreate(:visible => true, :displayalerts => true)
-
-=== Providing Excel instances
-
-Providing all Excel instances (opened via RobustExcelOle) as objects of the class Excel
-
-  Excel.excel_objects
+  excel.set_rangeval(name,value)  
 
 
 === Examples

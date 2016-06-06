@@ -147,7 +147,7 @@ This method finds out whether the Excel workbook that is referenced by the Book 
 
   if book.alive? then sheet = book[0] end
 
-=== Getting and setting the contents of a range.
+=== Getting and setting the contents of a range in a workbook.
 
 Getting the contents of a range.
 
@@ -280,7 +280,7 @@ Naming or renaming a cell range given its address.
 
   book.set_name(1,1,"name")
 
-=== Getting and setting the contents of a named range in a sheet
+=== Getting and setting the contents of a named range in a worksheet
 
 Getting the value of a range.
 
@@ -298,7 +298,7 @@ or
 
   book.set_nameval(name,value)
 
-=== Getting and setting the contents of a named range directly
+=== Getting and setting the contents of a named range in a Worksheet directly
 
 Getting the value of a range.
 
@@ -354,46 +354,6 @@ Promoting an Excel instance represented as WIN32OLE object to an Excel object
 
   excel = Excel.new(:reuse => win32ole_object)
 
-=== Making Excel visible or invisible
-
-Making Excel visible.
-
-  excel = Excel.create
-  excel.visible = true
-
-Making Excel invisible
-
-  excel.visible = false
-
-=== Turning on or off Displayalerts.
-
-Turning DisplayAlerts on.
-
-  excel = Excel.create
-  excel.displayalerts = true
-
-Turning DisplayAlerts off.
-
-  excel.displayalerts = false
-
-Turning on and off in a block.
-
-  excel = Excel.create
-  excel.with_displayalerts true do
-    book = Book.open('workbook.xls')
-  end
-
-=== Setting Calculation mode.
-
-Setting calculation mode to manual. Options are +:manual+ and +:automatic+
-The calculation mode is not reset after the block.
-
-  excel = Excel.create
-  book = Book.open('workbook.xls')
-  excel.with_calculation(:manual) do 
-    # do something
-  end
-
 === Closing an Excel
 
   excel = Excel.current
@@ -434,7 +394,79 @@ The options are :reopen_workbooks, :visible and :displayalerts.
 
 Providing all Excel instances (opened via RobustExcelOle) as objects of the class Excel
 
-  Excel.excel_objects
+  Excel.excel_objects  
+
+=== Making Excel visible or invisible
+
+Making Excel visible.
+
+  excel = Excel.create
+  excel.visible = true
+
+Making Excel invisible
+
+  excel.visible = false
+
+=== Turning on or off Displayalerts.
+
+Turning DisplayAlerts on.
+
+  excel = Excel.create
+  excel.displayalerts = true
+
+Turning DisplayAlerts off.
+
+  excel.displayalerts = false
+
+Turning on and off in a block.
+
+  excel = Excel.create
+  excel.with_displayalerts true do
+    book = Book.open('workbook.xls')
+  end
+
+=== Setting Calculation mode.
+
+Setting calculation mode to manual. Options are +:manual+ and +:automatic+
+The calculation mode is not reset after the block.
+
+  excel = Excel.create
+  book = Book.open('workbook.xls')
+  excel.with_calculation(:manual) do 
+    # do something
+  end
+
+=== Getting and setting the contents of a named range in an Excel application
+
+  excel = Excel.create
+  book = Book.open('another_workbook.xls')
+
+Getting the value of a range.
+
+  excel[name]
+  
+or
+
+  excel.nameval(name)
+
+Setting the value of a range.
+
+  excel[name] = value
+
+or
+
+  excel.set_nameval(name,value)
+
+=== Getting and setting the contents of a named range in an Excel application directly
+
+Getting the value of a range.
+
+  excel.rangeval(name)
+
+Setting the value of a range.
+
+  excel.set_rangeval(name,value)
+
 
 === Examples
 

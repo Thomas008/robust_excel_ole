@@ -450,7 +450,6 @@ module RobustExcelOle
       self.Workbooks.each {|w| puts "#{w.Name} #{w}"}
     end
 
-
     # generates, saves, and closes empty workbook
     def generate_workbook file_name                  
       self.Workbooks.Add                           
@@ -516,6 +515,138 @@ module RobustExcelOle
           #@ole_excel.Calculation = old_calculation_mode if alive?
           #@ole_excel.CalculateBeforeSave = old_calculation_before_save_mode if alive?
         end
+      end
+    end
+
+    # returns the value of a range
+    # @param [String] name the name of a range
+    # @returns [Variant] the value of the range
+    def [] name
+      nameval(name)
+    end
+
+    # sets the value of a range
+    # @param [String]  name  the name of the range
+    # @param [Variant] value the contents of the range
+    def []= (name, value)
+      set_nameval(name,value)
+    end
+
+    # returns the contents of a range with given name
+    # evaluates the formula if the contents is a formula
+    # if no contents could be returned, then return default value, if provided, raise error otherwise
+    # @param [String] name  the range name
+    # @param [Hash]   opts  the options
+    # @option opts [Variant] :default default value (default: nil)
+    # @raise ExcelError if name is not defined or if value of the range cannot be evaluated
+=begin
+    def nameval(name, opts = {:default => nil})
+      begin
+        name_obj = self.Names.Item(name)
+      rescue WIN32OLERuntimeError
+        begin
+          value = self.Evaluate(name)
+        rescue WIN32OLERuntimeError
+          return opts[:default] if opts[:default]
+          raise ExcelError, "cannot find or evaluate name #{name.inspect}"
+        end         
+      end
+      begin
+        value = name_obj.RefersToRange.Value unless value
+      rescue WIN32OLERuntimeError
+        return opts[:default] if opts[:default]
+        raise ExcelError, "cannot evaluate name #{name.inspect}"
+      end
+      if value == -2146826259
+        return opts[:default] if opts[:default]
+        raise ExcelError, "cannot find or evaluate name #{name.inspect}"
+      end
+      return opts[:default] if (value.nil? && opts[:default])
+      value
+    end
+=end
+
+    def nameval(name, opts = {:default => nil})
+      begin
+        name_obj = self.Names.Item(name)
+      rescue WIN32OLERuntimeError
+        return opts[:default] if opts[:default]
+        raise ExcelError, "cannot find name #{name.inspect}"
+      end
+      begin
+        value = name_obj.RefersToRange.Value
+      rescue  WIN32OLERuntimeError
+        begin
+          value = self.Evaluate(name_obj.Name)
+        rescue WIN32OLERuntimeError
+          return opts[:default] if opts[:default]
+          raise ExcelError, "cannot evaluate name #{name.inspect}"
+        end
+      end
+      if value == -2146826259
+        return opts[:default] if opts[:default]
+        raise ExcelError, "cannot evaluate name #{name.inspect}"
+      end 
+      return opts[:default] if (value.nil? && opts[:default])
+      value      
+    end
+    
+    # assigns a value to a range with given name
+    # @param [String]  name   the range name
+    # @param [Variant] value  the assigned value
+    # @raise ExcelError if name is not in the sheet or the value cannot be assigned
+    def set_nameval(name,value)
+      begin
+        name_obj = self.Names.Item(name)
+      rescue WIN32OLERuntimeError
+        raise ExcelError, "cannot find name #{name.inspect}"
+      end
+      begin
+        name_obj.RefersToRange.Value = value
+      rescue  WIN32OLERuntimeError
+        raise ExcelError, "cannot assign value to range named #{name.inspect}"
+      end
+    end    
+
+    # returns the contents of a range with a defined local name
+    # evaluates the formula if the contents is a formula
+    # if no contents could be returned, then return default value, if provided, raise error otherwise
+    # @param  [String]      name      the range name
+    # @param  [Hash]        opts      the options
+    # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
+    # @raise  ExcelError if range name is not definied in the worksheet or if range value could not be evaluated
+    # @return [Variant] the contents of a range with given name   
+    def rangeval(name, opts = {:default => nil})
+      begin
+        range = self.Range(name)
+      rescue WIN32OLERuntimeError
+        return opts[:default] if opts[:default]
+        raise ExcelError, "cannot find name #{name.inspect}"
+      end
+      begin
+        value = range.Value
+      rescue  WIN32OLERuntimeError
+        return opts[:default] if opts[:default]
+        raise ExcelError, "cannot determine value of range named #{name.inspect}"
+      end
+      return opts[:default] if (value.nil? && opts[:default])
+      value
+    end
+
+    # assigns a value to a range given a defined loval name
+    # @param [String]  name   the range name
+    # @param [Variant] value  the assigned value
+    # @raise ExcelError if name is not in the sheet or the value cannot be assigned
+    def set_rangeval(name,value)
+      begin
+        range = self.Range(name)
+      rescue WIN32OLERuntimeError
+        raise ExcelError, "cannot find name #{name.inspect}"
+      end
+      begin
+        range.Value = value
+      rescue  WIN32OLERuntimeError
+        raise ExcelError, "cannot assign value to range named #{name.inspect} in #{self.name}"
       end
     end
 

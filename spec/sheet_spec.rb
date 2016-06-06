@@ -448,6 +448,7 @@ describe Sheet do
       before do
         @book1 = Book.open(@dir + '/another_workbook.xls')
         @sheet1 = @book1.sheet(1)
+        @sheet2 = @book1.sheet(2)
       end
 
       after do
@@ -476,6 +477,9 @@ describe Sheet do
         expect {
           @sheet1.rangeval("named_formula")
           }.to raise_error(SheetError, /name "named_formula" not in Sheet1/)
+        expect {
+          @sheet2.rangeval("firstcell")
+          }.to raise_error(SheetError, /name "firstcell" not in Sheet2/)
       end
     
       it "should set a range to a value" do
@@ -491,6 +495,7 @@ describe Sheet do
           @sheet1.set_nameval("foo", 1)
         }.to raise_error(SheetError, /name "foo" not in Sheet1/)
       end
+
     end
 
     describe "set_name" do

@@ -695,14 +695,14 @@ module RobustExcelOle
       sheet_class.new(@ole_workbook.Worksheets.Item(1))
     end
 
-    # returns the value of the range
-    # @param [String] the global name of a range
+    # returns the value of a range
+    # @param [String] name the name of a range
     # @returns [Variant] the value of the range
     def [] name
       nameval(name)
     end
 
-    # sets the value of a range given its name
+    # sets the value of a range
     # @param [String]  name  the name of the range
     # @param [Variant] value the contents of the range
     def []= (name, value)
@@ -712,7 +712,7 @@ module RobustExcelOle
     # returns the contents of a range with given name
     # evaluates formula contents of the range is a formula
     # if no contents could be returned, then return default value, if provided, raise error otherwise
-    # @param  [String]      name      the range name
+    # @param  [String]      name      the name of the range
     # @param  [Hash]        opts      the options
     # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
     # @raise  ExcelError if range name is not in the workbook or if range value could not be evaluated
@@ -742,8 +742,8 @@ module RobustExcelOle
       value      
     end
 
-    # sets the contents of a range with given name
-    # @param [String]  name  the range name
+    # sets the contents of a range
+    # @param [String]  name  the name of a range
     # @param [Variant] value the contents of the range
     # @raise ExcelError if range name is not in the workbook or if value could not be assigned to range
     def set_nameval(name, value) 

@@ -110,10 +110,10 @@ module RobustExcelOle
       RobustExcelOle::Range.new(@worksheet.Range(@worksheet.Cells(range.min , col ), @worksheet.Cells(range.max , col )))
     end
 
-    # returns the contents of a range with given name
+    # returns the contents of a range
     # evaluates the formula if the contents is a formula
     # if no contents could be returned, then return default value, if provided, raise error otherwise
-    # @param [String] name  the range name
+    # @param [String] name  the name of a range
     # @param [Hash]   opts  the options
     # @option opts [Variant] :default default value (default: nil)
     # @raise SheetError if name is not defined or if value of the range cannot be evaluated
@@ -142,8 +142,8 @@ module RobustExcelOle
       value
     end
     
-    # assigns a value to a range with given name
-    # @param [String]  name   the range name
+    # assigns a value to a range
+    # @param [String]  name   the name of a range
     # @param [Variant] value  the assigned value
     # @raise SheetError if name is not in the sheet or the value cannot be assigned
     def set_nameval(name,value)
@@ -159,11 +159,10 @@ module RobustExcelOle
       end
     end
 
-
     # returns the contents of a range with a defined local name
     # evaluates the formula if the contents is a formula
     # if no contents could be returned, then return default value, if provided, raise error otherwise
-    # @param  [String]      name      the range name
+    # @param  [String]      name      the name of a range
     # @param  [Hash]        opts      the options
     # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
     # @raise  SheetError if range name is not definied in the worksheet or if range value could not be evaluated
@@ -185,8 +184,8 @@ module RobustExcelOle
       value
     end
 
-    # assigns a value to a range given a defined loval name
-    # @param [String]  name   the range name
+    # assigns a value to a range given a defined local name
+    # @param [String]  name   the name of a range
     # @param [Variant] value  the assigned value
     # @raise SheetError if name is not in the sheet or the value cannot be assigned
     def set_rangeval(name,value)

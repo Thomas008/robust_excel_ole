@@ -919,6 +919,108 @@ module RobustExcelOle
 
       end
     end
+
+    describe "nameval, set_nameval" do
+
+      before do
+        @book1 = Book.open(@dir + '/another_workbook.xls')
+        @excel1 = @book1.excel
+      end
+
+      after do
+        @book1.close(:if_unsaved => :forget)
+      end   
+
+      it "should return value of a defined name" do
+        @excel1.nameval("firstcell").should == "foo"
+        @excel1["firstcell"].should == "foo"
+      end        
+
+      it "should return default value if name not defined and default value is given" do
+        @excel1.nameval("foo", :default => 2).should == 2
+      end
+
+      it "should evaluate a formula" do
+        @excel1.nameval("named_formula").should == 4
+        @excel1["named_formula"].should == 4
+      end
+
+      it "should raise an error if name not defined" do
+        expect {
+          @excel1.nameval("foo")
+        }.to raise_error(ExcelError, /cannot find name "foo"/)
+        expect {
+        @excel1["foo"]
+        }.to raise_error(ExcelError, /cannot find name "foo"/)
+      end
+
+      it "should set a range to a value" do
+        @excel1.nameval("firstcell").should == "foo"
+        @excel1.set_nameval("firstcell","bar")
+        @excel1.nameval("firstcell").should == "bar"
+        @excel1["firstcell"] = "foo"
+        @excel1.nameval("firstcell").should == "foo"
+      end
+
+      it "should raise an error if name cannot be evaluated" do
+        expect{
+          @excel1.set_nameval("foo", 1)
+          }.to raise_error(ExcelError, /cannot find name "foo"/)
+        expect{
+          @excel1["foo"] = 1
+          }.to raise_error(ExcelError, /cannot find name "foo"/)
+      end
+    end
+
+    describe "rangeval, set_rangeval" do
+      
+      before do
+        @book1 = Book.open(@dir + '/another_workbook.xls')
+        @excel1 = @book1.excel
+      end
+
+      after do
+        @book1.close(:if_unsaved => :forget)
+      end   
+
+      it "should return value of a locally defined name" do
+        @excel1.rangeval("firstcell").should == "foo"          
+      end        
+
+      it "should return value of a defined name" do
+        @excel1.rangeval("new").should == "foo"         
+        @excel1.rangeval("one").should == 1.0    
+        @excel1.rangeval("four").should == [[1,2],[3,4]]
+        @excel1.rangeval("firstrow").should == [[1,2]]
+      end    
+
+      it "should return default value if name not defined and default value is given" do
+        @excel1.rangeval("foo", :default => 2).should == 2
+      end
+
+      it "should raise an error if name not defined for the sheet" do
+        expect {
+          @excel1.rangeval("foo")
+          }.to raise_error(ExcelError, /cannot find name "foo"/)
+        expect {
+          @excel1.rangeval("named_formula")
+          }.to raise_error(ExcelError, /cannot find name "named_formula"/)
+      end
+    
+      it "should set a range to a value" do
+        @excel1.rangeval("firstcell").should == "foo"
+        @excel1.set_rangeval("firstcell","bar")
+        @excel1.rangeval("firstcell").should == "bar"
+      end
+
+      it "should raise an error if name cannot be evaluated" do
+        expect{
+          @excel1.set_nameval("foo", 1)
+        }.to raise_error(ExcelError, /cannot find name "foo"/)
+      end
+
+    end
+
   end
 end
 

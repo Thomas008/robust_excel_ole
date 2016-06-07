@@ -131,7 +131,7 @@ describe Book do
         File.exist?(@simple_file_other_path).should be_true
         expect{
           @book2.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :raise)
-        }.to raise_error(ExcelErrorSave, /blocked by another workbook: "workbook.xls"/)
+        }.to raise_error(ExcelErrorSave, /blocked by another workbook/)
       end
 
       it "should close the blocking workbook without saving, and save the current workbook with :if_obstructed => :forget" do
@@ -235,7 +235,7 @@ describe Book do
         File.exist?(@simple_file_other_path).should be_true
         expect{
           @book2.save_as(@simple_file_other_path, :if_exists => :overwrite)
-        }.to raise_error(ExcelErrorSave, /blocked by another workbook: "workbook.xls"/)
+        }.to raise_error(ExcelErrorSave, /blocked by another workbook/)
       end
 
       it "should raise an error if the file does not exist and an workbook with the same name and other path exists" do
@@ -243,7 +243,7 @@ describe Book do
         File.exist?(@simple_file_other_path).should be_false
         expect{
           @book2.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :raise)
-          }.to raise_error(ExcelErrorSave, /blocked by another workbook: "workbook.xls"/)
+          }.to raise_error(ExcelErrorSave, /blocked by another workbook/)
       end
 
       it "should raise an error if the file exists and an workbook with the same name and other path exists" do

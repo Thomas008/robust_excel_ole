@@ -121,7 +121,7 @@ describe Book do
         expect{
           Book.unobtrusively(@simple_file, :invalid_option) do |book|
           end
-        }.to raise_error(ExcelErrorOpen, "given object is neither an Excel, a Book, nor a Win32ole")
+        }.to raise_error(ExcelErrorOpen, "given object is neither an Excel, a Workbook, nor a Win32ole")
       end
 
       it "should be visible and displayalerts" do

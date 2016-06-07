@@ -170,7 +170,7 @@ module RobustExcelOle
         begin
           object.excel
         rescue
-          raise ExcelErrorOpen, "given object is neither an Excel, a Book, nor a Win32ole"
+          raise ExcelErrorOpen, "given object is neither an Excel, a Workbook, nor a Win32ole"
         end
       end
       #rescue

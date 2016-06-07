@@ -341,7 +341,7 @@ describe Book do
         sheet = @book.sheet(2)
         sheet.Activate
         sheet[2,3].Activate
-        sheet2 = @book2[2]
+        sheet2 = @book2.sheet(2)
         sheet2.Activate
         sheet2[3,2].Activate
         Excel.current.should == @book.excel

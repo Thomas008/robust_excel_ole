@@ -38,7 +38,7 @@ describe Sheet do
         @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"
         @book_protect = Book.open(@protected_file, :visible => true, :read_only => true, :force_excel => :new)
         @key_sender.puts "{p}{r}{o}{t}{e}{c}{t}{enter}"
-        @protected_sheet = @book_protect['protect']
+        @protected_sheet = @book_protect.sheet('protect')
       end
 
       after do

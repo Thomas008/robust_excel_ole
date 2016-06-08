@@ -39,7 +39,8 @@ module RobustExcelOle
       # @option opts [Boolean] :displayalerts  true, or false (default)
       # @option opts [Boolean] :visible        true, or false (default) 
       # options: 
-      # :default_excel   if the workbook was already open in an Excel instance, then open it there.
+      # :default_excel   if the workbook was already open in an Excel instance, then open it in the Excel instance.
+      #                  where it was opened most recently
       #                  Otherwise, i.e. if the workbook was not open before or the Excel instance is not alive
       #                   :reuse           -> connects to a (the first opened) running Excel instance,
       #                                        excluding the hidden Excel instance, if it exists,

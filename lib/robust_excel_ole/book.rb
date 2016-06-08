@@ -582,9 +582,9 @@ module RobustExcelOle
         dirname, basename = File.split(file)
         file_format =
           case File.extname(basename)
-            when '.xls' : RobustExcelOle::XlExcel8
-            when '.xlsx': RobustExcelOle::XlOpenXMLWorkbook
-            when '.xlsm': RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
+            when '.xls' ; RobustExcelOle::XlExcel8
+            when '.xlsx'; RobustExcelOle::XlOpenXMLWorkbook
+            when '.xlsm'; RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
           end
         @ole_workbook.SaveAs(General::absolute_path(file), file_format)
         bookstore.store(self)

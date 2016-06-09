@@ -24,7 +24,7 @@ module RobustExcelOle
 
     after do
       Excel.kill_all
-      rm_tmp(@dir)
+      #rm_tmp(@dir)
     end
 
     context "excel creation" do
@@ -741,21 +741,42 @@ module RobustExcelOle
     context "with calculation" do
 
       before do
-        @excel1 = Excel.new(:visible => true)
+        @excel1 = Excel.new
       end
 
       it "should not set calculation mode when no workbook is opened" do
+        old_calculation_mode = @excel1.Calculation
         @excel1.with_calculation(:automatic) do
-          @excel1.Calculation.should_not == -4105
+          @excel1.Calculation.should == old_calculation_mode
         end
+        @excel1.with_calculation(:manual) do
+          @excel1.Calculation.should == old_calculation_mode
+        end
+        @excel1.set_calculation(:automatic)
+        @excel1.Calculation.should == old_calculation_mode
+        @excel1.set_calculation(:manual)
+        @excel1.Calculation.should == old_calculation_mode
       end
 
-      it "should set calculation mode to manual" do
+      it "should set calculation mode to manual and reset to the previous value" do
         b = Book.open(@simple_file)
+        calculation_mode_old = @excel1.Calculation
+        calculation_before_save_old = @excel1.CalculateBeforeSave
         @excel1.with_calculation(:manual) do
           @excel1.Calculation.should == -4135
           @excel1.CalculateBeforeSave.should be_false
         end
+        @excel1.Calculation.should == calculation_mode_old
+        @excel1.CalculateBeforeSave.should == calculation_before_save_old
+      end
+
+      it "should set calculation mode to manual" do
+        b = Book.open(@simple_file)
+        calculation_mode_old = @excel1.Calculation
+        calculation_before_save_old = @excel1.CalculateBeforeSave
+        @excel1.set_calculation(:manual)
+        @excel1.Calculation.should == -4135
+        @excel1.CalculateBeforeSave.should be_false
       end
 
       it "should set calculation mode automatic" do

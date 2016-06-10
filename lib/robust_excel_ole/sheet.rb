@@ -48,7 +48,10 @@ module RobustExcelOle
         @cells[yx] = RobustExcelOle::Cell.new(@worksheet.Cells.Item(y, x))
       else
         name = p1
-        nameval(name)
+        value = nameval(name) rescue nil
+        value = book_class.new(self.Parent).nameval(name) rescue nil unless value
+        value = rangeval(name) unless value
+        value
       end
     end
 
@@ -60,7 +63,15 @@ module RobustExcelOle
         @worksheet.Cells.Item(y, x).Value = value
       else
         name, value = p1, p2
-        set_nameval(name, value)
+        begin
+          set_nameval(name, value) 
+        rescue SheetError
+          begin
+            book_class.new(self.Parent).set_nameval(name, value)
+          rescue ExcelError
+            set_rangeval(name, value)
+          end
+        end
       end
     end
 
@@ -141,7 +152,6 @@ module RobustExcelOle
       return opts[:default] if (value.nil? && opts[:default])
       value      
     end
-
     
     # assigns a value to a range
     # @param [String]  name   the name of a range
@@ -193,7 +203,7 @@ module RobustExcelOle
       begin
         range = self.Range(name)
       rescue WIN32OLERuntimeError
-        raise SheetError, "range named #{name.inspect} not in #{self.name}"
+        raise SheetError, "name #{name.inspect} not in #{self.name}"
       end
       begin
         range.Value = value
@@ -227,6 +237,19 @@ module RobustExcelOle
 
     def methods   # :nodoc: # 
       super
+    end
+
+    def self.book_class   # :nodoc: #
+      @book_class ||= begin
+        module_name = self.parent_name
+        "#{module_name}::Book".constantize
+      rescue NameError => e
+        book
+      end
+    end
+
+    def book_class        # :nodoc: #
+      self.class.book_class
     end
 
     private

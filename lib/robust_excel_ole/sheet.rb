@@ -116,31 +116,32 @@ module RobustExcelOle
     # @param [String] name  the name of a range
     # @param [Hash]   opts  the options
     # @option opts [Variant] :default default value (default: nil)
-    # @raise SheetError if name is not defined or if value of the range cannot be evaluated
+    # @raise SheetError if name is not defined or if value of the range cannot be evaluated  
     def nameval(name, opts = {:default => nil})
       begin
         name_obj = self.Names.Item(name)
       rescue WIN32OLERuntimeError
-        begin
-          value = self.Evaluate(name)
-        rescue WIN32OLERuntimeError
-          return opts[:default] if opts[:default]
-          raise SheetError, "cannot find or evaluate name #{name.inspect} in #{self.Name}"
-        end         
+        return opts[:default] if opts[:default]
+        raise SheetError, "name #{name.inspect} not in #{self.Name}"
       end
       begin
-        value = name_obj.RefersToRange.Value unless value
-      rescue WIN32OLERuntimeError
-        return opts[:default] if opts[:default]
-        raise SheetError, "cannot evaluate name #{name.inspect} in #{self.Name}"
+        value = name_obj.RefersToRange.Value
+      rescue  WIN32OLERuntimeError
+        begin
+          value = self.Evaluate(name_obj.Name)
+        rescue WIN32OLERuntimeError
+          return opts[:default] if opts[:default]
+          raise SheetError, "cannot evaluate name #{name.inspect} in #{self.Name}"
+        end
       end
       if value == -2146826259
         return opts[:default] if opts[:default]
-        raise SheetError, "cannot find or evaluate name #{name.inspect} in #{self.name}"
-      end
+        raise SheetError, "cannot evaluate name #{name.inspect} in #{self.Name}"
+      end 
       return opts[:default] if (value.nil? && opts[:default])
-      value
+      value      
     end
+
     
     # assigns a value to a range
     # @param [String]  name   the name of a range

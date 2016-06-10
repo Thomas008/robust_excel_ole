@@ -409,17 +409,23 @@ describe Sheet do
       end
 
       it "should evaluate a formula" do
-        @sheet1.nameval("named_formula").should == 4
-        @sheet1["named_formula"].should == 4
-      end
+        @sheet1.nameval("another_formula").should == 5
+        @sheet1["another_formula"].should == 5
+      end      
 
       it "should raise an error if name not defined" do
         expect {
           @sheet1.nameval("foo")
-        }.to raise_error(SheetError, /cannot find or evaluate name "foo" in Sheet1/)
+        }.to raise_error(SheetError, /name "foo" not in Sheet1/)
         expect {
           @sheet1["foo"]
-        }.to raise_error(SheetError, /cannot find or evaluate name "foo" in Sheet1/)
+        }.to raise_error(SheetError, /name "foo" not in Sheet1/)
+        expect {
+          @sheet1.nameval("named_formula")
+        }.to raise_error(SheetError, /name "named_formula" not in Sheet1/)
+        expect {
+          @sheet1["named_formula"]
+        }.to raise_error(SheetError, /name "named_formula" not in Sheet1/)
       end
 
       it "should set a range to a value" do

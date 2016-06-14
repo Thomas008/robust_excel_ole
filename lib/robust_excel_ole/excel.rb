@@ -109,9 +109,7 @@ module RobustExcelOle
     
     # returns an Excel instance to which one 'connect' was possible
     def self.current_excel   # :nodoc: #
-      #p "current_excel:"
       result = WIN32OLE.connect('Excel.Application') rescue nil
-      #p "result: #{result}"
       if result
         begin
           result.Visible    # send any method, just to see if it responds
@@ -120,7 +118,6 @@ module RobustExcelOle
           return nil
         end
       end
-      #p "result: #{result}"
       result
     end
 

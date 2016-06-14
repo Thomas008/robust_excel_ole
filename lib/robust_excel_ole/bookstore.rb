@@ -39,7 +39,6 @@ module RobustExcelOle
           book = wr_book.__getobj__
           next if book.excel == try_hidden_excel
           if options[:prefer_excel] && book.excel == options[:prefer_excel]
-            puts "prefered book"
             result = book
             break 
           end

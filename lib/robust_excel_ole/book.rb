@@ -30,7 +30,7 @@ module RobustExcelOle
       # @param [String] file the file name
       # @param [Hash] opts the options
       # @option opts [Variant] :default_excel  :reuse (default), :new, or <excel-instance>     
-      # @option opts [Variant] :force_excel    :new (default), or <excel-instance>
+      # @option opts [Variant] :force_excel    :reuse, :new (default), , or <excel-instance>
       # @option opts [Symbol]  :if_unsaved     :raise (default), :forget, :accept, :alert, :excel, or :new_excel
       # @option opts [Symbol]  :if_obstructed  :raise (default), :forget, :save, :close_if_saved, or _new_excel
       # @option opts [Symbol]  :if_absent      :raise (default), or :create
@@ -38,16 +38,17 @@ module RobustExcelOle
       # @option opts [Boolean] :displayalerts  true, or false (default)
       # @option opts [Boolean] :visible        true, or false (default) 
       # options: 
-      # :default_excel   if the workbook was already open in an Excel instance, then open it in that Excel instance,
-      #                  where it was opened most recently
-      #                  Otherwise, i.e. if the workbook was not open before or the Excel instance is not alive
+      # :default_excel   if the workbook was already open in an Excel instance and this Excel instance is alive, 
+      #                  then open it in that Excel instance, where it was opened most recently.
+      #                  Otherwise, i.e. if the workbook was not open before or the Excel instance is not alive,
       #                   :reuse           -> connects to a (the first opened) running Excel instance,
       #                                        excluding the hidden Excel instance, if it exists,
       #                                       otherwise opens in a new Excel instance.
       #                   :new             -> opens in a new Excel instance
       #                   <excel-instance> -> opens in the given Excel instance
       # :force_excel     no matter whether the workbook was already open
-      #                   :new             -> opens in a new Excel instance
+      #                   :reuse ->           connects to a (the first opened) running Excel instance
+      #                   :new             -> opens in a new Excel instance     
       #                   <excel-instance> -> opens in the given Excel instance
       # :if_unsaved     if an unsaved workbook with the same name is open, then
       #                  :raise               -> raises an exception
@@ -183,11 +184,12 @@ module RobustExcelOle
       options[:excel] = options[:force_excel] ? options[:force_excel] : options[:default_excel]
       excel_options = {:displayalerts => false, :visible => false}.merge(options)
       excel_options[:reuse] = (options[:excel] == :reuse) 
-      if excel_options[:excel] == :reuse || options[:excel] == :new
-        @excel = excel_class.new(excel_options)
-      else
-        @excel = self.class.excel_of(options[:excel])
-      end
+      #if options[:force_excel] == :reuse
+      #  win32ole_excel = WIN32OLE.connect('Excel.Application') rescue nil
+      #  @excel = excel_class.new(win32ole_excel)
+      #end
+      @excel = self.class.excel_of(options[:excel]) unless (options[:excel] == :reuse || options[:excel] == :new)
+      @excel = excel_class.new(excel_options) unless (@excel && @excel.alive?)
       apply_options unless excel_options
     end
 

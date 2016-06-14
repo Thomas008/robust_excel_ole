@@ -4,10 +4,12 @@ All notable changes to this project will be documented in this file.
 ## [0.5.1] - 2016-20-06
 
 ### Added
+- Book: :default_excel => :active_instance
 
 ### Changed
 - Excel: with_calculation: bug fix
 - Sheet: [], []= broader implementation
+- Book: open :default_excel: bug fix
 
 ## [0.5.0] - 2016-31-05
 

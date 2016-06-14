@@ -31,7 +31,7 @@ describe Book do
 
   after do
     Excel.kill_all
-    rm_tmp(@dir)
+    #rm_tmp(@dir)
   end
 
   describe "open" do
@@ -332,6 +332,20 @@ describe Book do
 
       it "should do default_excel if force_excel is nil" do
         book2 = Book.open(@another_simple_file, :force_excel => nil)
+        book2.should be_alive
+        book2.should be_a Book
+        book2.excel.should == @book.excel
+      end
+
+      it "should force_excel with :reuse" do
+        book2 = Book.open(@different_file, :force_excel => :reuse)
+        book2.should be_alive
+        book2.should be_a Book
+        book2.excel.should == @book.excel
+      end
+
+      it "should force_excel with :reuse even if :default_excel says sth. else" do
+        book2 = Book.open(@different_file, :force_excel => :reuse, :default_excel => :new)
         book2.should be_alive
         book2.should be_a Book
         book2.excel.should == @book.excel

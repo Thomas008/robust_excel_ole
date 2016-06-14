@@ -329,22 +329,20 @@ describe Book do
         book2.excel.should_not == @book.excel 
         book2.should_not == @book
       end
-    end
 
-    context "with another :force_excel" do
-      it "should do force_excel even if both force_ and default_excel is given" do
-        book2 = Book.open(@simple_file, :force_excel => nil)
+      it "should do default_excel if force_excel is nil" do
+        book2 = Book.open(@another_simple_file, :force_excel => nil)
         book2.should be_alive
         book2.should be_a Book
+        book2.excel.should == @book.excel
       end
+   
     end
 
     context "with :default_excel" do
 
       before do
-        excel = Excel.new(:reuse => false)
-        @book = Book.open(@simple_file)
-        puts "@book: #{@book.inspect}"
+        @book = Book.open(@simple_file, :visible => true)
       end
 
       after do
@@ -418,7 +416,7 @@ describe Book do
         book2.close
       end
 
-      it "should open the book in the most recently opened Excel" do
+      it "should reopen the book in the Excel where it was opened most recently" do
         excel1 = @book.excel
         excel2 = Excel.new(:reuse => false)
         @book.close
@@ -446,22 +444,19 @@ describe Book do
       end
 
       it "should open the book in a new excel if the book was not opened before" do
-        #book2 = Book.open(@different_file, :default_excel => :reuse)
-        #book2.excel.should == @book.excel
+        book2 = Book.open(@different_file, :default_excel => :reuse)
+        book2.excel.should == @book.excel
         book3 = Book.open(@another_simple_file, :default_excel => :new)
         book3.excel.should_not == @book.excel
-        puts "book3: #{book3.inspect}"
       end
 
       it "should open the book in a new excel if the book was opened before but the excel has been closed" do
         excel = @book.excel
         excel2 = Excel.new(:reuse => false)
-        @book.close
         excel.close
-        book4 = Book.open(@simple_file, :default_excel => :new)
-        book4.excel.should_not == excel2
-        book4.excel.should_not == excel
-        book4.close
+        book2 = Book.open(@simple_file, :default_excel => :new)
+        book2.excel.should_not == excel2
+        book2.close
       end
 
       it "should open the book in a given excel if the book was not opened before" do
@@ -473,13 +468,10 @@ describe Book do
       end
 
       it "should open the book in a given excel if the book was opened before but the excel has been closed" do
-        excel = @book.excel
-        excel2 = Excel.new(:reuse => false)
-        @book.close
-        excel3 = Excel.new(:reuse => false)
-        book4 = Book.open(@simple_file, :default_excel => excel3)
-        book4.excel.should == excel3
-        book4.close
+        excel2 = Excel.new(:reuse => false, :visible => true)
+        @book.excel.close        
+        book2 = Book.open(@simple_file, :visible => true, :default_excel => excel2)
+        book2.excel.should == excel2
       end
 
       it "should open a new excel, if the book cannot be reopened" do

@@ -1,19 +1,28 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.5.1] - 2016-20-06
+
+### Added
+
+### Changed
+- Excel: with_calculation: bug fix
+- Sheet: [], []= broader implementation
+
 ## [0.5.0] - 2016-31-05
 
 ### Added
 - Book: sheet, add_empty_sheet, copy_sheet
 		rangeval, set_rangeval, nameval, set_nameval
 		open: option check_compatibility
-- Sheet: last_sheet, first_sheet, rangeval, nameval
+- Sheet: last_sheet, first_sheet, rangeval, nameval, [], []=
 - Excel: with_calculaiton, rangeval, set_rangeval, nameval, set_nameval, [], []=
 
 ### Changed
 - Book: book.sheet(<sheet_name>) replaces book[<sheet-name>]
         add_or_copy_sheet replaces add_sheet
         name_val, set_name_val replaces n_value, set_n_value
+        [], []= via nameval, set_nameval
 
        
 ## [0.4] - 2016-03-16

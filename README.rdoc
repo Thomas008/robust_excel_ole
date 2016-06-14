@@ -47,9 +47,23 @@ Valid values for +:default_excel+ are +:reuse+, +:new+ or some Excel instance, f
 
 Here are a few examples:
 
-Opening a workbook in the Excel instance where it was opened before, or opening the workbook in a new Excel instance if it was not opened before.
+Opening a workbook in the Excel instance where it was opened before most recently, if it was opened before and this Excel instance is alive. Otherwise opening it in a running Excel, if it exists, or in a new Excel.
+
+Opening a workbook in the Excel instance where it was opened before most recently, if it was opened before and this Excel instance is alive. Otherwise opening it in a new Excel instance.
 
   book = Book.open('workbook.xls', :default_excel => :new)
+
+Opening a workbook in the Excel instance where it was opened before most recently, if it was opened before and this Excel instance is alive. Otherwise opening it in a given Excel instance.
+
+  book = Book.open('workbook.xls', :default_excel => excel1)
+
+Opening a workbook in a new Excel instance, no matter if the workbook was opened before and if the old Excel instance is alive.
+
+  book = Book.open('workbook.xls', :force_excel => :new)
+
+Opening a workbook in a given Excel instance, no matter if the workbook was opened before and if the old Excel instance is alive.
+
+  book = Book.open('workbook.xls', :force_excel => excel1)
 
 Opening a workbook in a new Excel instance and make it visible.
 

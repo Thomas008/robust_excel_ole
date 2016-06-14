@@ -16,8 +16,7 @@ module RobustExcelOle
 
       DEFAULT_OPEN_OPTS = { 
         :excel => :reuse,
-        :default_excel => :reuse,
-        :if_lockraiseed => :readonly,       
+        :default_excel => :reuse,      
         :if_unsaved    => :raise,
         :if_obstructed => :raise,
         :if_absent     => :raise,
@@ -39,7 +38,7 @@ module RobustExcelOle
       # @option opts [Boolean] :displayalerts  true, or false (default)
       # @option opts [Boolean] :visible        true, or false (default) 
       # options: 
-      # :default_excel   if the workbook was already open in an Excel instance, then open it in the Excel instance.
+      # :default_excel   if the workbook was already open in an Excel instance, then open it in that Excel instance,
       #                  where it was opened most recently
       #                  Otherwise, i.e. if the workbook was not open before or the Excel instance is not alive
       #                   :reuse           -> connects to a (the first opened) running Excel instance,
@@ -75,7 +74,7 @@ module RobustExcelOle
       def open(file, opts={ }, &block)
         options = DEFAULT_OPEN_OPTS.merge(opts)
         book = nil
-        if (not (options[:force_excel] == :new && (not options[:if_locked] == :take_writable)))
+        if (not (options[:force_excel] == :new))
           # if readonly is true, then prefer a book that is given in force_excel if this option is set
           book = bookstore.fetch(file, 
                   :prefer_writable => (not options[:read_only]), 
@@ -123,8 +122,7 @@ module RobustExcelOle
     # @option opts [Symbol] see above
     # @return [Book] a workbook
     def initialize(file_or_workbook, opts={ }, &block)
-      options = DEFAULT_OPEN_OPTS.merge(opts)
-      options[:excel] = options[:force_excel] ? options[:force_excel] : options[:default_excel]
+      options = DEFAULT_OPEN_OPTS.merge(opts)      
       if file_or_workbook.is_a? WIN32OLE
         workbook = file_or_workbook
         @ole_workbook = workbook        
@@ -182,27 +180,15 @@ module RobustExcelOle
 
     def ensure_excel(options)   # :nodoc: #
       return if @excel && @excel.alive?
-      if options[:excel] == :reuse
-        @excel = excel_class.new(:reuse => true)
+      options[:excel] = options[:force_excel] ? options[:force_excel] : options[:default_excel]
+      excel_options = {:displayalerts => false, :visible => false}.merge(options)
+      excel_options[:reuse] = (options[:excel] == :reuse) 
+      if excel_options[:excel] == :reuse || options[:excel] == :new
+        @excel = excel_class.new(excel_options)
+      else
+        @excel = self.class.excel_of(options[:excel])
       end
-      excel_options = nil
-      if @excel 
-        dead_or_recycled = begin
-          (not @excel.alive?)
-        rescue WeakRef::RefError => msg
-          true
-        end
-      end
-      if (not @excel) || dead_or_recycled
-        if options[:excel] == :new || dead_or_recycled
-          excel_options = {:displayalerts => false, :visible => false}.merge(options)
-          excel_options[:reuse] = false
-          @excel = excel_class.new(excel_options)
-        else 
-          @excel = self.class.excel_of(options[:excel])
-        end
-      end
-      apply_options(options) unless excel_options
+      apply_options unless excel_options
     end
 
     def ensure_workbook(file, options)     # :nodoc: #

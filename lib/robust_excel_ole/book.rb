@@ -30,7 +30,7 @@ module RobustExcelOle
       # @param [String] file the file name
       # @param [Hash] opts the options
       # @option opts [Variant] :default_excel  :reuse (default), :new, or <excel-instance>     
-      # @option opts [Variant] :force_excel    :reuse, :new (default), , or <excel-instance>
+      # @option opts [Variant] :force_excel    :reuse, :new, or <excel-instance>
       # @option opts [Symbol]  :if_unsaved     :raise (default), :forget, :accept, :alert, :excel, or :new_excel
       # @option opts [Symbol]  :if_obstructed  :raise (default), :forget, :save, :close_if_saved, or _new_excel
       # @option opts [Symbol]  :if_absent      :raise (default), or :create
@@ -38,17 +38,17 @@ module RobustExcelOle
       # @option opts [Boolean] :displayalerts  true, or false (default)
       # @option opts [Boolean] :visible        true, or false (default) 
       # options: 
-      # :default_excel   if the workbook was already open in an Excel instance and this Excel instance is alive, 
-      #                  then open it in that Excel instance, where it was opened most recently.
-      #                  Otherwise, i.e. if the workbook was not open before or the Excel instance is not alive,
-      #                   :reuse           -> connects to a (the first opened) running Excel instance,
+      # :default_excel   if the workbook was already open in an Excel instance, then open it in that Excel instance,
+      #                  where it was opened most recently
+      #                  Otherwise, i.e. if the workbook was not open before or the Excel instance is not alive
+      #                   :reuse           -> connects to a running (the first opened) Excel instance,
       #                                        excluding the hidden Excel instance, if it exists,
       #                                       otherwise opens in a new Excel instance.
       #                   :new             -> opens in a new Excel instance
       #                   <excel-instance> -> opens in the given Excel instance
       # :force_excel     no matter whether the workbook was already open
-      #                   :reuse ->           connects to a (the first opened) running Excel instance
-      #                   :new             -> opens in a new Excel instance     
+      #                   :new             -> connects to a running (the first opened) Excel instance
+      #                   :reuse           -> opens in the active Excel instance
       #                   <excel-instance> -> opens in the given Excel instance
       # :if_unsaved     if an unsaved workbook with the same name is open, then
       #                  :raise               -> raises an exception
@@ -77,11 +77,14 @@ module RobustExcelOle
         book = nil
         if (not (options[:force_excel] == :new))
           # if readonly is true, then prefer a book that is given in force_excel if this option is set
+          forced_excel = if options[:force_excel]
+            options[:force_excel] == :reuse ? excel_class.new(:reuse => true) : excel_of(options[:force_excel])
+          end
           book = bookstore.fetch(file, 
                   :prefer_writable => (not options[:read_only]), 
-                  :prefer_excel    => (options[:read_only] ? excel_of(options[:force_excel]) : nil)) rescue nil
+                  :prefer_excel    => (options[:read_only] ? forced_excel : nil)) rescue nil
           if book
-            if (((not options[:force_excel]) || (excel_of(options[:force_excel]) == book.excel)) &&
+            if (((not options[:force_excel]) || (forced_excel == book.excel)) &&
                  (not (book.alive? && (not book.saved) && (not options[:if_unsaved] == :accept))))
               book.options = DEFAULT_OPEN_OPTS.merge(opts)
               book.ensure_excel(options) unless book.excel.alive?
@@ -184,10 +187,6 @@ module RobustExcelOle
       options[:excel] = options[:force_excel] ? options[:force_excel] : options[:default_excel]
       excel_options = {:displayalerts => false, :visible => false}.merge(options)
       excel_options[:reuse] = (options[:excel] == :reuse) 
-      #if options[:force_excel] == :reuse
-      #  win32ole_excel = WIN32OLE.connect('Excel.Application') rescue nil
-      #  @excel = excel_class.new(win32ole_excel)
-      #end
       @excel = self.class.excel_of(options[:excel]) unless (options[:excel] == :reuse || options[:excel] == :new)
       @excel = excel_class.new(excel_options) unless (@excel && @excel.alive?)
       apply_options unless excel_options

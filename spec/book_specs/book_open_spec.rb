@@ -350,6 +350,15 @@ describe Book do
         book2.should be_a Book
         book2.excel.should == @book.excel
       end
+
+      it "should force_excel with :reuse when reopening and the Excel is not alive even if :default_excel says sth. else" do
+        excel2 = Excel.new(:reuse => false)
+        @book.excel.close
+        book2 = Book.open(@simple_file, :force_excel => :reuse, :default_excel => :new)
+        book2.should be_alive
+        book2.should be_a Book
+        book2.excel.should == excel2
+      end
    
     end
 

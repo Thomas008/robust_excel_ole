@@ -133,6 +133,27 @@ module RobustExcelOle
       end
     end
 
+    context "current" do
+      
+      it "should reuse the first opened Excel instance if not the first opened Excel instance was closed" do
+        excel1 = Excel.create
+        excel2 = Excel.create
+        excel2.close
+        excel3 = Excel.current
+        excel3.should === excel1
+      end
+
+      it "should create a new Excel with the same hwnd as the first opened Excel if the first opened Excel was closed" do
+        excel1 = Excel.create
+        excel1_hwnd = excel1.hwnd
+        excel2 = Excel.create
+        excel1.close
+        excel3 = Excel.current
+        excel3.should_not === excel2
+        excel3.hwnd.should == excel1_hwnd
+      end
+    end
+
     context "excel_processes" do
         
       before do

@@ -351,13 +351,24 @@ describe Book do
         book2.excel.should == @book.excel
       end
 
-      it "should force_excel with :reuse when reopening and the Excel is not alive even if :default_excel says sth. else" do
+      it "should open force_excel with :reuse when reopening and the Excel is not alive even if :default_excel says sth. else" do
         excel2 = Excel.new(:reuse => false)
+        excel1_hwnd = @book.excel.hwnd
         @book.excel.close
         book2 = Book.open(@simple_file, :force_excel => :reuse, :default_excel => :new)
         book2.should be_alive
         book2.should be_a Book
-        book2.excel.should == excel2
+        book2.excel.should_not == excel2
+        book2.excel.hwnd.should == excel1_hwnd
+      end
+
+      it "should force_excel with :reuse when reopening and the Excel is not alive even if :default_excel says sth. else" do
+        book2 = Book.open(@different_file, :force_excel => :new)
+        book2.excel.close
+        book3 = Book.open(@different_file, :force_excel => :reuse, :default_excel => :new)
+        book3.should be_alive
+        book3.should be_a Book
+        book3.excel.should == @book.excel
       end
    
     end

@@ -18,7 +18,9 @@ module RobustExcelOle
       new(:reuse => false)
     end
 
-    # uses the current Excel instance (connects), if such a running Excel instance exists
+    # returns (connects to) the current Excel instance, if such a running Excel instance exists    
+    #   more specific: connects to the first opened Excel instance
+    #   if this Excel instance is being closed, then Excel creates a new Excel instance that has the same Hwnd
     # creates a new one, otherwise 
     # @return [Excel] an Excel instance
     def self.current
@@ -26,7 +28,7 @@ module RobustExcelOle
     end
 
     # returns an Excel instance  
-    # given a WIN32OLE object representing an Excel instance, or a Hash representing options:
+    # given a WIN32OLE object representing an Excel instance, or a Hash representing options
     # @param [Hash] options the options
     # @option options [Boolean] :reuse  
     # @option options [Boolean] :displayalerts 
@@ -107,7 +109,9 @@ module RobustExcelOle
 
   private
     
-    # returns an Excel instance to which one 'connect' was possible
+    # returns (connects to) a running Excel instance
+    # connects to the first opened Excel instance
+    # if this Excel instance is being closed, then Excel creates a new Excel instance that has the same Hwnd
     def self.current_excel   # :nodoc: #
       result = WIN32OLE.connect('Excel.Application') rescue nil
       if result

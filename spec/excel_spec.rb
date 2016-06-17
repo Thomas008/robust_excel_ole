@@ -480,7 +480,6 @@ module RobustExcelOle
           excel2.should be_alive
         end
 
-        # Error!
         it "should close the Excel hard without destroying the others" do
           @excel.should be_alive
           excel2 = Excel.create

@@ -325,7 +325,7 @@ module RobustExcelOle
       end
       @@hwnd2excel.delete(excel_hwnd)      
       if options[:hard] then
-        Excel.free_all_ole_objects
+        #Excel.free_all_ole_objects
         process_id = Win32API.new("user32", "GetWindowThreadProcessId", ["I","P"], "I")
         pid_puffer = " " * 32
         process_id.call(excel_hwnd, pid_puffer)

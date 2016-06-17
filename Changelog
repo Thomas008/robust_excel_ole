@@ -1,15 +1,16 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [0.5.1] - 2016-20-06
+## [0.5.1] - 2016-18-06
 
 ### Added
-- Book: :default_excel => :active_instance
+- Book#open :force_excel => :active
 
 ### Changed
+- Book: open: :default_excel, :force_excel => :active, :reuse as alias for :active, bug fix in :default
 - Excel: with_calculation: bug fix
 - Sheet: [], []= broader implementation
-- Book: open :default_excel: bug fix
+
 
 ## [0.5.0] - 2016-31-05
 

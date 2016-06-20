@@ -31,10 +31,24 @@ describe Book do
 
   after do
     Excel.kill_all
-    rm_tmp(@dir)
+    #rm_tmp(@dir)
   end
 
   describe "open" do
+
+    context "with causing warning dead excel without window handle" do
+
+      it "should test1" do
+        book1 = Book.open(@simple_file, :visible => true)
+        book2 = Book.open(@different_file)
+      end
+
+      it "should test2" do
+        # sleep 1 # => no dead excel warning
+        book1 = Book.open(@simple_file)
+      end
+
+    end
 
     context "with class identifier 'Workbook'" do
 

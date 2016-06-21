@@ -2,6 +2,11 @@
 
 require 'timeout'
 
+def ka 
+  Excel.kill_all
+end
+
+
 module RobustExcelOle      
 
   class Excel < REOCommon    
@@ -307,11 +312,11 @@ module RobustExcelOle
       rescue WIN32OLERuntimeError => msg
         raise ExcelUserCanceled, "close: canceled by user" if msg.message =~ /80020009/ && 
               options[:if_unsaved] == :alert && (not self.unsaved_workbooks.empty?)
-      end
+      end     
       excel_hwnd = excel.HWnd
       excel.Quit
       weak_excel_ref = WeakRef.new(excel)
-      excel = nil
+      excel = @ole_excel = nil
       GC.start
       sleep 0.2
       if weak_excel_ref.weakref_alive? then

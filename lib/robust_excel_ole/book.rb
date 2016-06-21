@@ -187,7 +187,7 @@ module RobustExcelOle
     def ensure_excel(options)   # :nodoc: #
       return if @excel && @excel.alive?
       options[:excel] = options[:force_excel] ? options[:force_excel] : options[:default_excel]
-      options[:excel] = :active if options[:excel == :reuse]
+      options[:excel] = :active if options[:excel] == :reuse
       excel_options = {:displayalerts => false, :visible => false}.merge(options)
       excel_options[:reuse] = (options[:excel] == :active) 
       @excel = self.class.excel_of(options[:excel]) unless (options[:excel] == :active || options[:excel] == :new)

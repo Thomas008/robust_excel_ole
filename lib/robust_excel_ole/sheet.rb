@@ -48,6 +48,11 @@ module RobustExcelOle
         @cells[yx] = RobustExcelOle::Cell.new(@worksheet.Cells.Item(y, x))
       else
         name = p1
+        begin
+          value = nameval(name) 
+        rescue 
+          book_class.new(self.Parent).nameval(name)
+        end
         value = nameval(name) rescue nil
         value = book_class.new(self.Parent).nameval(name) rescue nil unless value
         value = rangeval(name) unless value

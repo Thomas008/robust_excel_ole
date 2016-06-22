@@ -723,12 +723,12 @@ module RobustExcelOle
           value = self.sheet(1).Evaluate(name_obj.Name)
         rescue WIN32OLERuntimeError
           return opts[:default] if opts[:default]
-          raise SheetError, "cannot evaluate name #{name.inspect} in #{File.basename(self.stored_filename).inspect}"
+          raise ExcelError, "cannot evaluate name #{name.inspect} in #{File.basename(self.stored_filename).inspect}"
         end
       end
       if value == -2146826259
         return opts[:default] if opts[:default]
-        raise SheetError, "cannot evaluate name #{name.inspect} in #{File.basename(self.stored_filename).inspect}"
+        raise ExcelError, "cannot evaluate name #{name.inspect} in #{File.basename(self.stored_filename).inspect}"
       end 
       return opts[:default] if (value.nil? && opts[:default])
       value      

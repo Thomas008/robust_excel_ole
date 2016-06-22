@@ -18,6 +18,10 @@ module RobustExcelOle
       end
     end
 
+    def workbook
+      book_class.new(self.Parent)
+    end
+
     # returns name of the sheet
     def name
       @worksheet.Name
@@ -49,14 +53,14 @@ module RobustExcelOle
       else
         name = p1
         begin
-          value = nameval(name) 
-        rescue 
-          book_class.new(self.Parent).nameval(name)
+          nameval(name) 
+        rescue SheetError
+          begin
+            book_class.new(self.Parent).nameval(name)
+          rescue
+            rangeval(name)
+          end
         end
-        value = nameval(name) rescue nil
-        value = book_class.new(self.Parent).nameval(name) rescue nil unless value
-        value = rangeval(name) unless value
-        value
       end
     end
 
@@ -72,7 +76,7 @@ module RobustExcelOle
           set_nameval(name, value) 
         rescue SheetError
           begin
-            book_class.new(self.Parent).set_nameval(name, value)
+            workbook.set_nameval(name, value)
           rescue ExcelError
             set_rangeval(name, value)
           end

@@ -68,6 +68,22 @@ describe Sheet do
     end
   end
 
+  describe "workbook" do
+    before do
+      @book = Book.open(@simple_file)
+      @sheet = @book.sheet(1)
+    end
+
+    after do
+      @book.close
+    end
+
+    it "should return workbook" do
+      @sheet.workbook.should === @book
+    end
+
+  end
+    
   describe "access sheet name" do
     describe "#name" do
       it 'get sheet1 name' do

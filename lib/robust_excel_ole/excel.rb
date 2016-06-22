@@ -306,17 +306,17 @@ module RobustExcelOle
   private
 
     def close_excel(options)
-      excel = @ole_excel
+      ole_xl = @ole_excel
       begin
-        excel.Workbooks.Close
+        ole_xl.Workbooks.Close
       rescue WIN32OLERuntimeError => msg
         raise ExcelUserCanceled, "close: canceled by user" if msg.message =~ /80020009/ && 
               options[:if_unsaved] == :alert && (not self.unsaved_workbooks.empty?)
       end     
-      excel_hwnd = excel.HWnd
-      excel.Quit
+      excel_hwnd = ole_xl.HWnd
+      ole_xl.Quit
       weak_excel_ref = WeakRef.new(excel)
-      excel = @ole_excel = nil
+      ole_xl = @ole_excel = nil
       GC.start
       sleep 0.2
       if weak_excel_ref.weakref_alive? then

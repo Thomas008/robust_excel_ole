@@ -17,7 +17,7 @@ begin
   workbook = book.ole_workbook
   fullname = workbook.Fullname
   puts "fullname: #{fullname}"  
-  sheet.add_name(1,1,"a_name")   # rename cell A1 to "a_name"
+  sheet.set_name("a_name",1,1)   # rename cell A1 to "a_name"
   number = workbook.Names.Count
   puts "number of name objects :#{number}"
   name_object = workbook.Names("a_name")

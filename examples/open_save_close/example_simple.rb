@@ -13,7 +13,6 @@ include RobustExcelOle
 
 Excel.kill_all
 begin
-  trace "hello"
   dir = create_tmpdir
   file_name = dir + 'workbook.xls'
   other_file_name = dir + 'different_workbook.xls'
@@ -34,6 +33,6 @@ begin
   book.close                                                 # close the book
 ensure
 	  Excel.close_all                                         # close workbooks, quit Excel application
-    rm_tmp(dir)
+    #rm_tmp(dir)
 end		
 

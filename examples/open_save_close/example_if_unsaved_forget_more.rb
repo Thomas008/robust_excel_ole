@@ -7,13 +7,12 @@ require "fileutils"
 
 include RobustExcelOle
 
-Excel.close_all
+Excel.kill_all
 begin
   dir = create_tmpdir
   file_name = dir + 'workbook.xls' 
   book = Book.open(file_name)                      # open a book
   book.excel.visible = true                        # make current Excel visible 
-  sleep
   sheet = book.sheet(1)                                            # access a sheet
   first_cell = sheet[1,1].value
   sheet[1,1] = first_cell == "simple" ? "complex" : "simple" # change a cell
@@ -33,6 +32,6 @@ begin
   another_book.close(:if_unsaved => :forget )           # close the last book without saving it.                      
   book.close(:if_unsaved => :save)                      # close the first book and save it before
 ensure
-	  Excel.close_all                                    # close all workbooks, quit Excel application
+	  Excel.kill_all                                    # close all workbooks, quit Excel application
     rm_tmp(dir)
 end

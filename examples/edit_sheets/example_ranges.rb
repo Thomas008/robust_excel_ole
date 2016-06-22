@@ -1,8 +1,8 @@
 # example_ranges.rb: 
 # access row and column ranges of a sheet. 
 
-require File.join(File.dirname(__FILE__), '../../lib/general')
-require File.join(File.dirname(__FILE__), '../../spec/helpers/create_temporary_dir')
+require File.expand_path('../../lib/robust_excel_ole', File.dirname(__FILE__))
+require File.join(File.dirname(File.expand_path(__FILE__)), '../../spec/helpers/create_temporary_dir')
 require "fileutils"
 
 include RobustExcelOle

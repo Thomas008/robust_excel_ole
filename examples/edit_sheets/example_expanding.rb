@@ -5,9 +5,8 @@
 # the sheet's name shall be the name of the Excel name
 # in addition to that, the cell B2 shall be named "name" and get the sheet name as its value 
 
-require 'rubygems'
-#require 'general'
-require File.join(File.dirname(__FILE__), '../../lib/general')
+require File.expand_path('../../lib/robust_excel_ole', File.dirname(__FILE__))
+require File.join(File.dirname(File.expand_path(__FILE__)), '../../spec/helpers/create_temporary_dir')
 require "fileutils"
 
 include RobustExcelOle

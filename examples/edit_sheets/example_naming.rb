@@ -3,9 +3,8 @@
 # the contents of each cell is copied
 # the new workbook's name is extended by the suffix "_named"
 
-require 'rubygems'
-#require 'general'
-require File.join(File.dirname(__FILE__), '../../lib/general')
+require File.expand_path('../../lib/robust_excel_ole', File.dirname(__FILE__))
+require File.join(File.dirname(File.expand_path(__FILE__)), '../../spec/helpers/create_temporary_dir')
 require "fileutils"
 
 include RobustExcelOle

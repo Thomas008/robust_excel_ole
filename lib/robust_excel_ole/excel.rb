@@ -47,34 +47,34 @@ module RobustExcelOle
     # @return [Excel] an Excel instance
     def self.new(options = {})
       if options.is_a? WIN32OLE
-        ole_excel = options
+        ole_xl = options
       else
         options = {:reuse => true}.merge(options)
         if options[:reuse] == true then
-          ole_excel = current_excel
+          ole_xl = current_excel
         end
       end
-      if not (ole_excel)
-        ole_excel = WIN32OLE.new('Excel.Application')
+      if not (ole_xl)
+        ole_xl = WIN32OLE.new('Excel.Application')
         options = {
           :displayalerts => false,
           :visible => false,
         }.merge(options)
       end
       unless options.is_a? WIN32OLE
-        ole_excel.DisplayAlerts = options[:displayalerts] unless options[:displayalerts].nil?
-        ole_excel.Visible = options[:visible] unless options[:visible].nil?
+        ole_xl.DisplayAlerts = options[:displayalerts] unless options[:displayalerts].nil?
+        ole_xl.Visible = options[:visible] unless options[:visible].nil?
       end
 
-      hwnd = ole_excel.HWnd
+      hwnd = ole_xl.HWnd
       stored = hwnd2excel(hwnd)
 
       if stored 
         result = stored
       else
         result = super(options)
-        result.instance_variable_set(:@ole_excel, ole_excel)
-        WIN32OLE.const_load(ole_excel, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
+        result.instance_variable_set(:@ole_excel, ole_xl)
+        WIN32OLE.const_load(ole_xl, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
         @@hwnd2excel[hwnd] = WeakRef.new(result)
       end
       result

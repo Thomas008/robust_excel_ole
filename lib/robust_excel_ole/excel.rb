@@ -301,8 +301,6 @@ module RobustExcelOle
       self.class.manage_unsaved_workbooks(@ole_excel, options) do 
         close_excel(options)
       end
-      GC.start
-      sleep 0.1
     end
 
   private
@@ -317,7 +315,7 @@ module RobustExcelOle
       end     
       excel_hwnd = ole_xl.HWnd
       ole_xl.Quit
-      weak_excel_ref = WeakRef.new(excel)
+      weak_excel_ref = WeakRef.new(ole_xl)
       ole_xl = @ole_excel = nil
       GC.start
       sleep 0.2

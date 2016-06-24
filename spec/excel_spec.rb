@@ -27,6 +27,21 @@ module RobustExcelOle
       rm_tmp(@dir)
     end
 
+    context "cause warning deleting dead excel reference failed" do
+
+      before do
+        book1 = Book.open(@simple_file)
+        book2 = Book.open(@simple_file, :force_excel => :new)
+        sheet = book2.sheet(1)
+        value = sheet[1,1].value
+      end
+
+      it "should cause warning 'deleting dead excel reference failed'" do
+        Excel.close_all
+        book = Book.open(@simple_file)
+      end
+    end
+
     context "excel creation" do
       
       def creation_ok? # :nodoc: #

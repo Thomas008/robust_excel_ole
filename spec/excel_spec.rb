@@ -27,16 +27,28 @@ module RobustExcelOle
       rm_tmp(@dir)
     end
 
-    context "cause warning deleting dead excel reference failed" do
+    context "warning 'cause failed to get Dispatch Interface'" do
+
+      it "should save if user answers 'yes'" do
+        @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
+        book1 = Book.open(@simple_file)
+        book1.sheet(1)[1,1] = "foo"
+        @key_sender.puts "{enter}"
+        Excel.close_all(:if_unsaved => :alert)
+        @key_sender.close
+      end
+
+    end
+
+    context "cause Illegal Refrence" do
 
       before do
         book1 = Book.open(@simple_file)
         book2 = Book.open(@simple_file, :force_excel => :new)
-        sheet = book2.sheet(1)
-        value = sheet[1,1].value
+        a = book1.saved # or s = book1.sheet(2) o.s.l
       end
 
-      it "should cause warning 'deleting dead excel reference failed'" do
+      it "should cause warning 'Illegal Reference probably recycled'" do
         Excel.close_all
         book = Book.open(@simple_file)
       end
@@ -436,7 +448,8 @@ module RobustExcelOle
           Excel.close_all(:if_unsaved => :alert)
           new_book2 = Book.open(@simple_file)
           new_sheet2 = new_book2.sheet(1)
-          new_sheet2[1,1].value.should_not == @old_cell_value2
+          new_sheet2[1,
+            1].value.should_not == @old_cell_value2
           new_book2.close   
         end
 

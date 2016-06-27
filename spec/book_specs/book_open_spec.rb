@@ -31,7 +31,7 @@ describe Book do
 
   after do
     Excel.kill_all
-    #rm_tmp(@dir)
+    rm_tmp(@dir)
   end
 
   describe "open" do
@@ -45,7 +45,7 @@ describe Book do
 
       it "should test2" do
         # sleep 1 # => no dead excel warning
-        book1 = Book.open(@simple_file)
+        book3 = Book.open(@simple_file)
       end
 
     end

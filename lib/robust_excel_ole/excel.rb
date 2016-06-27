@@ -157,7 +157,7 @@ module RobustExcelOle
       excels_number = excel_processes.size
       timeout = false
       begin
-        status = Timeout::timeout(5) {
+        status = Timeout::timeout(50) {
           while current_excel do
             close_one_excel(options)
             GC.start

@@ -32,7 +32,8 @@ module RobustExcelOle
         if (not wr_book.weakref_alive?)
           begin 
             @filename2books[filename_key].delete(wr_book)
-          rescue
+          rescue 
+            trace "#{$!.message}"
             trace "Warning: deleting dead reference failed: file: #{filename.inspect}"
           end
         else

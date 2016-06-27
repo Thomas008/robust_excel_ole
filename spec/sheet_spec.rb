@@ -425,6 +425,14 @@ describe Sheet do
         @sheet1["firstrow"].should == [[1,2]]
       end  
 
+      it "should return value of a name with coordinates" do
+        @sheet1["A1"].should == "foo"         
+      end  
+
+      it "should return nil for a range with empty contents" do
+        @sheet1["another"].should == nil
+      end 
+
       it "should evaluate named formula" do
         @sheet1["named_formula"].should == 4
       end                
@@ -486,6 +494,12 @@ describe Sheet do
         }.to raise_error(SheetError, /name "named_formula" not in Sheet1/)
       end
 
+      it "should raise an error of coordinates are given instead of a defined name" do
+        expect {
+          @sheet1.nameval("A1")
+        }.to raise_error(SheetError, /name "A1" not in Sheet1/)
+      end
+
       it "should set a range to a value" do
         @sheet1.nameval("firstcell").should == "foo"
         @sheet1[1,1].Value.should == "foo"
@@ -516,6 +530,14 @@ describe Sheet do
       it "should return value of a locally defined name" do
         @sheet1.rangeval("firstcell").should == "foo"          
       end        
+
+      it "should return value of a name with coordinates" do
+        @sheet1.rangeval("A1").should == "foo"         
+      end  
+
+      it "should return nil for a range with empty contents" do
+        @sheet1.rangeval("another").should == nil
+      end 
 
       it "should return value of a defined name" do
         @sheet1.rangeval("new").should == "foo"         

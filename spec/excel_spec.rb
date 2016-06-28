@@ -720,9 +720,15 @@ module RobustExcelOle
         excel.visible.should be_true
         excel.DisplayAlerts.should be_false
         excel.displayalerts.should be_false
+        excel6 = Excel.current
+        excel6.should === excel
+        excel6.Visible.should be_true
         excel.visible = false
         excel.Visible.should be_false
         excel.visible.should be_false
+        excel7 = Excel.current
+        excel7.should === excel
+        excel7.Visible.should be_false
         excel1 = Excel.create(:visible => true)
         excel1.should_not == excel
         excel1.Visible.should be_true
@@ -745,9 +751,15 @@ module RobustExcelOle
         excel.displayalerts.should be_true
         excel.Visible.should be_false
         excel.visible.should be_false
+        excel6 = Excel.current
+        excel6.should === excel
+        excel6.DisplayAlerts.should be_true
         excel.displayalerts = false
         excel.DisplayAlerts.should be_false
         excel.displayalerts.should be_false
+        excel7 = Excel.current
+        excel7.should === excel
+        excel7.DisplayAlerts.should be_false
         excel1 = Excel.create(:displayalerts => true)
         excel1.should_not == excel
         excel1.DisplayAlerts.should be_true

@@ -23,7 +23,6 @@ module RobustExcelOle
     # @option options [Boolean] :visible 
     # @return [Excel] a new Excel instance
     def self.create(options = {})
-      options = {:visible => false, :displayalerts => false}.merge(options)
       new(options.merge({:reuse => false}))
     end
 
@@ -33,7 +32,6 @@ module RobustExcelOle
     # @option options [Boolean] :visible 
     # @return [Excel] an Excel instance
     def self.current(options = {})
-      options = {:visible => false, :displayalerts => false}.merge(options)
       new(options.merge({:reuse => true}))
     end
 

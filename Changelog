@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [0.5.2] - 2016-17-07
+
+### Changed
+- Excel: create, current: with option :visibls, :displayalerts
+
 ## [0.5.1] - 2016-18-06
 
 ### Added

@@ -664,18 +664,16 @@ describe Book do
       end
     end
 
-    context "with a visible book" do
+    context "with visible and displayalerts" do
 
-      before do
-        @book = Book.open(@simple_file, :visible => true)
-      end
-
-      after do
-        @book.close(:if_unsaved => :forget)
-        @book2.close(:if_unsaved => :forget) rescue nil
+      it "should" do
+        excel1 = Excel.create(:visible => true, :displayalerts => true)
+        book1 = Book.open(@simple_file)
+        book1.excel.Visible.should be_true
       end
 
       it "should let an open Book open" do
+        @book = Book.open(@simple_file, :visible => true)
         Book.unobtrusively(@simple_file) do |book|
           book.should be_a Book
           book.should be_alive
@@ -685,6 +683,8 @@ describe Book do
         @book.should be_alive
         @book.should be_a Book
         @book.excel.Visible.should be_true
+        @book.close(:if_unsaved => :forget)
+        @book2.close(:if_unsaved => :forget) rescue nil
       end
     end
 
@@ -1050,7 +1050,7 @@ describe Book do
     end
   end
 
-  describe "alive?, filename, ==, visible, displayalerts, activate, saved" do
+  describe "alive?, filename, ==, activate, saved" do
 
     context "with alive?" do
 

@@ -362,7 +362,11 @@ Getting a running Excel instance and reusing it.
 
 Reusing a running Excel instance, making it visible and turning on displayalerts.
 
-  excel2 = Excel.new(:reuse => true, :visible => true, :displayalerts => true).
+  excel3 = Excel.new(:reuse => true, :visible => true, :displayalerts => true)
+
+or
+  
+  excel3 = Excel.current(:visible => true, :displayalerts => true)
 
 Promoting an Excel instance represented as WIN32OLE object to an Excel object
 

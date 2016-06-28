@@ -18,18 +18,23 @@ module RobustExcelOle
     @@hwnd2excel = {}    
 
     # creates a new Excel instance
+    # @param [Hash] options the options
+    # @option options [Boolean] :displayalerts 
+    # @option options [Boolean] :visible 
     # @return [Excel] a new Excel instance
-    def self.create
-      new(:reuse => false)
+    def self.create(options = {})
+      options = {:visible => false, :displayalerts => false}.merge(options)
+      new(options.merge({:reuse => false}))
     end
 
     # returns (connects to) the current Excel instance, if such a running Excel instance exists    
-    #   more specific: connects to the first opened Excel instance
-    #   if this Excel instance is being closed, then Excel creates a new Excel instance that has the same Hwnd
-    # creates a new one, otherwise 
+    # more specific: connects to the first opened Excel instance
+    # @option options [Boolean] :displayalerts 
+    # @option options [Boolean] :visible 
     # @return [Excel] an Excel instance
-    def self.current
-      new(:reuse => true)
+    def self.current(options = {})
+      options = {:visible => false, :displayalerts => false}.merge(options)
+      new(options.merge({:reuse => true}))
     end
 
     # returns an Excel instance  

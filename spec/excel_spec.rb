@@ -723,6 +723,20 @@ module RobustExcelOle
         excel.visible = false
         excel.Visible.should be_false
         excel.visible.should be_false
+        excel1 = Excel.create(:visible => true)
+        excel1.should_not == excel
+        excel1.Visible.should be_true
+        excel2 = Excel.create(:visible => false)
+        excel2.Visible.should be_false
+        excel3 = Excel.current
+        excel3.should === excel
+        excel3.Visible.should be_false
+        excel4 = Excel.current(:visible => true)
+        excel4.should === excel
+        excel4.Visible.should be_true
+        excel5 = Excel.current(:visible => false)
+        excel5.should === excel
+        excel5.Visible.should be_false
       end
 
       it "should create Excel with DispayAlerts enabled" do        
@@ -734,6 +748,20 @@ module RobustExcelOle
         excel.displayalerts = false
         excel.DisplayAlerts.should be_false
         excel.displayalerts.should be_false
+        excel1 = Excel.create(:displayalerts => true)
+        excel1.should_not == excel
+        excel1.DisplayAlerts.should be_true
+        excel2 = Excel.create(:displayalerts => false)
+        excel2.DisplayAlerts.should be_false
+        excel3 = Excel.current
+        excel3.should === excel
+        excel3.DisplayAlerts.should be_false
+        excel4 = Excel.current(:displayalerts => true)
+        excel4.should === excel
+        excel4.DisplayAlerts.should be_true
+        excel5 = Excel.current(:displayalerts => false)
+        excel5.should === excel
+        excel5.DisplayAlerts.should be_false
       end
 
       it "should keep visible and displayalerts values when reusing Excel" do

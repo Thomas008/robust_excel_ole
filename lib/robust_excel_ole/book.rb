@@ -188,12 +188,11 @@ module RobustExcelOle
       return if @excel && @excel.alive?
       options[:excel] = options[:force_excel] ? options[:force_excel] : options[:default_excel]
       options[:excel] = :active if options[:excel] == :reuse
-      excel_options = {:displayalerts => false, :visible => false}.merge(options)
-      excel_options[:reuse] = (options[:excel] == :active) 
+      options = {:displayalerts => false, :visible => false}.merge(options) if options[:excel] == :new      
       @excel = self.class.excel_of(options[:excel]) unless (options[:excel] == :active || options[:excel] == :new)
-      @excel = excel_class.new(excel_options) unless (@excel && @excel.alive?)
-      apply_options unless excel_options
-    end
+      @excel = excel_class.new(:reuse => (options[:excel] == :active)) unless (@excel && @excel.alive?)
+      apply_options(options)
+    end    
 
     def ensure_workbook(file, options)     # :nodoc: #
       file = @stored_filename ? @stored_filename : file

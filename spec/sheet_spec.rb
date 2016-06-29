@@ -500,6 +500,12 @@ describe Sheet do
         }.to raise_error(SheetError, /name "A1" not in Sheet1/)
       end
 
+      it "should raise an error for a range with empty contents" do
+        expect{
+          @sheet1.nameval("another")
+          }.to raise_error(SheetError, /name "another" not in Sheet1/)
+      end 
+
       it "should set a range to a value" do
         @sheet1.nameval("firstcell").should == "foo"
         @sheet1[1,1].Value.should == "foo"

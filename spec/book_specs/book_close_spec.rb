@@ -27,6 +27,7 @@ describe Book do
     @linked_file = @dir + '/workbook_linked.xlsm'
     @simple_file_xlsm = @dir + '/workbook.xls'
     @simple_file_xlsx = @dir + '/workbook.xlsx'
+    @simple_file1 = @simple_file
   end
 
   after do
@@ -51,7 +52,7 @@ describe Book do
 
     context "with unsaved read_only book" do
       before do
-        @book = Book.open(@simple_file, :read_only => true)
+        @book = Book.open(@simple_file1, :read_only => true)
         @sheet_count = @book.ole_workbook.Worksheets.Count
         @book.add_sheet(@sheet, :as => 'a_name')
       end
@@ -60,7 +61,7 @@ describe Book do
         expect{
           @book.close
           }.to_not raise_error
-        new_book = Book.open(@simple_file)
+        new_book = Book.open(@simple_file1)
         new_book.ole_workbook.Worksheets.Count.should ==  @sheet_count
         new_book.close
       end
@@ -68,7 +69,7 @@ describe Book do
 
     context "with unsaved book" do
       before do
-        @book = Book.open(@simple_file)
+        @book = Book.open(@simple_file1)
         @sheet_count = @book.ole_workbook.Worksheets.Count
         @book.add_sheet(@sheet, :as => 'a_name')
         @sheet = @book.sheet(1)
@@ -109,7 +110,7 @@ describe Book do
         @book.should_not be_alive
         expect{
           ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
-        new_book = Book.open(@simple_file)
+        new_book = Book.open(@simple_file1)
         begin
           new_book.ole_workbook.Worksheets.Count.should ==  @sheet_count
         ensure
@@ -134,7 +135,7 @@ describe Book do
         @book.should_not be_alive
         expect{
           ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
-        new_book = Book.open(@simple_file)
+        new_book = Book.open(@simple_file1)
         begin
           new_book.ole_workbook.Worksheets.Count.should == @sheet_count + 1
         ensure
@@ -174,7 +175,7 @@ describe Book do
               @book.should_not be_alive
               expect{ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
             end
-            new_book = Book.open(@simple_file, :if_unsaved => :forget)
+            new_book = Book.open(@simple_file1, :if_unsaved => :forget)
             begin
               new_book.ole_workbook.Worksheets.Count.should == @sheet_count + (answer==:yes ? 1 : 0)
               new_book.excel.DisplayAlerts.should == displayalert_value
@@ -217,7 +218,7 @@ describe Book do
               @book.should_not be_alive
               expect{ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
             end
-            new_book = Book.open(@simple_file, :if_unsaved => :forget)
+            new_book = Book.open(@simple_file1, :if_unsaved => :forget)
             begin
               new_book.ole_workbook.Worksheets.Count.should == @sheet_count + (answer==:yes ? 1 : 0)
               new_book.excel.DisplayAlerts.should == displayalert_value

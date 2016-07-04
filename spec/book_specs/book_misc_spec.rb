@@ -27,6 +27,7 @@ describe Book do
     @linked_file = @dir + '/workbook_linked.xlsm'
     @simple_file_xlsm = @dir + '/workbook.xls'
     @simple_file_xlsx = @dir + '/workbook.xlsx'
+    @simple_file1 = @simple_file
   end
 
   after do
@@ -150,8 +151,8 @@ describe Book do
     end
 
     it "should let an open Book open" do
-      @book = Book.open(@simple_file, :visible => true)
-      Book.unobtrusively(@simple_file) do |book|
+      @book = Book.open(@simple_file1, :visible => true)
+      Book.unobtrusively(@simple_file1) do |book|
         book.should be_a Book
         book.should be_alive
         book.excel.should == @book.excel
@@ -203,7 +204,7 @@ describe Book do
     context "with some open book" do
 
       before do
-        @book = Book.open(@simple_file)
+        @book = Book.open(@simple_file1)
       end
 
       after do
@@ -211,7 +212,7 @@ describe Book do
       end
 
       it "should create and use a hidden Excel instance" do
-        book2 = Book.open(@simple_file, :force_excel => @book.bookstore.hidden_excel)
+        book2 = Book.open(@simple_file1, :force_excel => @book.bookstore.hidden_excel)
         book2.excel.should_not == @book.excel
         book2.excel.visible.should be_false
         book2.excel.displayalerts.should be_false
@@ -359,7 +360,7 @@ describe Book do
     context "with ==" do
 
       before do
-        @book = Book.open(@simple_file)
+        @book = Book.open(@simple_file1)
       end
 
       after do
@@ -368,7 +369,7 @@ describe Book do
       end
 
       it "should be true with two identical books" do
-        @new_book = Book.open(@simple_file)
+        @new_book = Book.open(@simple_file1)
         @new_book.should == @book
       end
 

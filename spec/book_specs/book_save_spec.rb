@@ -27,6 +27,9 @@ describe Book do
     @linked_file = @dir + '/workbook_linked.xlsm'
     @simple_file_xlsm = @dir + '/workbook.xls'
     @simple_file_xlsx = @dir + '/workbook.xlsx'
+    @simple_file1 = @simple_file
+    @simple_file_other_path1 = @simple_file_other_path
+    @simple_save_file1 = @simple_save_file
   end
 
   after do
@@ -114,7 +117,7 @@ describe Book do
     context "with blocked by another file" do
 
       before do
-        @book = Book.open(@simple_file)
+        @book = Book.open(@simple_file1)
         @book2 = Book.open(@another_simple_file)
       end
 
@@ -124,84 +127,84 @@ describe Book do
       end
 
       it "should raise an error with :obstructed => :raise" do
-        File.delete @simple_file_other_path rescue nil
-        File.open(@simple_file_other_path,"w") do | file |
+        File.delete @simple_file_other_path1 rescue nil
+        File.open(@simple_file_other_path1,"w") do | file |
           file.puts "garbage"
         end
-        File.exist?(@simple_file_other_path).should be_true
+        File.exist?(@simple_file_other_path1).should be_true
         expect{
-          @book2.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :raise)
+          @book2.save_as(@simple_file_other_path1, :if_exists => :overwrite, :if_obstructed => :raise)
         }.to raise_error(ExcelErrorSave, /blocked by another workbook/)
       end
 
       it "should close the blocking workbook without saving, and save the current workbook with :if_obstructed => :forget" do
-        File.delete @simple_file_other_path rescue nil
-        File.open(@simple_file_other_path,"w") do | file |
+        File.delete @simple_file_other_path1 rescue nil
+        File.open(@simple_file_other_path1,"w") do | file |
           file.puts "garbage"
         end
-        @book2.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :forget)
+        @book2.save_as(@simple_file_other_path1, :if_exists => :overwrite, :if_obstructed => :forget)
         @book.should_not be_alive
-        File.exist?(@simple_file_other_path).should be_true
-        new_book = Book.open(@simple_file_other_path)
+        File.exist?(@simple_file_other_path1).should be_true
+        new_book = Book.open(@simple_file_other_path1)
         new_book.should be_a Book
         new_book.close
       end
 
       it "should close the blocking workbook without saving even if it is unsaved with :if_obstructed => :forget" do
-        File.delete @simple_file_other_path rescue nil
-        File.open(@simple_file_other_path,"w") do | file |
+        File.delete @simple_file_other_path1 rescue nil
+        File.open(@simple_file_other_path1,"w") do | file |
           file.puts "garbage"
         end
         sheet = @book.sheet(1)
         cell_value = sheet[1,1].value
         sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
         @book.Saved.should be_false
-        @book2.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :forget)
+        @book2.save_as(@simple_file_other_path1, :if_exists => :overwrite, :if_obstructed => :forget)
         @book.should_not be_alive
         @book2.should be_alive
-        File.exist?(@simple_file_other_path).should be_true
-        new_book = Book.open(@simple_file_other_path)
+        File.exist?(@simple_file_other_path1).should be_true
+        new_book = Book.open(@simple_file_other_path1)
         new_book.should be_a Book
         new_book.close
-        old_book = Book.open(@simple_file)
+        old_book = Book.open(@simple_file1)
         old_sheet = old_book.sheet(1)
         old_sheet[1,1].value.should == cell_value
         old_book.close
       end
 
       it "should save and close the blocking workbook, and save the current workbook with :if_obstructed => :save" do
-        File.delete @simple_file_other_path rescue nil
-        File.open(@simple_file_other_path,"w") do | file |
+        File.delete @simple_file_other_path1 rescue nil
+        File.open(@simple_file_other_path1,"w") do | file |
           file.puts "garbage"
         end
         sheet = @book.sheet(1)
         cell_value = sheet[1,1].value
         sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
         @book.Saved.should be_false
-        @book2.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :save)
+        @book2.save_as(@simple_file_other_path1, :if_exists => :overwrite, :if_obstructed => :save)
         @book.should_not be_alive
         @book2.should be_alive
-        File.exist?(@simple_file_other_path).should be_true
-        new_book = Book.open(@simple_file_other_path)
+        File.exist?(@simple_file_other_path1).should be_true
+        new_book = Book.open(@simple_file_other_path1)
         new_book.should be_a Book
         new_book.close
-        old_book = Book.open(@simple_file)
+        old_book = Book.open(@simple_file1)
         old_sheet = old_book.sheet(1)
         old_sheet[1,1].value.should_not == cell_value
         old_book.close
       end
 
       it "should close the blocking workbook if it was saved, and save the current workbook with :if_obstructed => :close_if_saved" do
-        File.delete @simple_file_other_path rescue nil
-        File.open(@simple_file_other_path,"w") do | file |
+        File.delete @simple_file_other_path1 rescue nil
+        File.open(@simple_file_other_path1,"w") do | file |
           file.puts "garbage"
         end
         @book.Saved.should be_true
-        @book2.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :close_if_saved)
+        @book2.save_as(@simple_file_other_path1, :if_exists => :overwrite, :if_obstructed => :close_if_saved)
         @book.should_not be_alive
         @book2.should be_alive
-        File.exist?(@simple_file_other_path).should be_true
-        new_book = Book.open(@simple_file_other_path)
+        File.exist?(@simple_file_other_path1).should be_true
+        new_book = Book.open(@simple_file_other_path1)
         new_book.should be_a Book
         new_book.close
       end
@@ -212,48 +215,48 @@ describe Book do
         sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
         @book.Saved.should be_false      
         expect{
-          @book2.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :close_if_saved)
+          @book2.save_as(@simple_file_other_path1, :if_exists => :overwrite, :if_obstructed => :close_if_saved)
         }.to raise_error(ExcelErrorSave, /blocking workbook is unsaved: "workbook.xls"/)
       end
 
       it "should raise an error with an invalid option" do
-        File.delete @simple_file_other_path rescue nil
-        File.open(@simple_file_other_path,"w") do | file |
+        File.delete @simple_file_other_path1 rescue nil
+        File.open(@simple_file_other_path1,"w") do | file |
           file.puts "garbage"
         end
-        File.exist?(@simple_file_other_path).should be_true
+        File.exist?(@simple_file_other_path1).should be_true
         expect{
-          @book2.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :invalid)
+          @book2.save_as(@simple_file_other_path1, :if_exists => :overwrite, :if_obstructed => :invalid)
         }.to raise_error(ExcelErrorSave, ":if_obstructed: invalid option: :invalid")
       end
 
       it "should raise an error by default" do
-        File.delete @simple_file_other_path rescue nil
-        File.open(@simple_file_other_path,"w") do | file |
+        File.delete @simple_file_other_path1 rescue nil
+        File.open(@simple_file_other_path1,"w") do | file |
           file.puts "garbage"
         end
-        File.exist?(@simple_file_other_path).should be_true
+        File.exist?(@simple_file_other_path1).should be_true
         expect{
-          @book2.save_as(@simple_file_other_path, :if_exists => :overwrite)
+          @book2.save_as(@simple_file_other_path1, :if_exists => :overwrite)
         }.to raise_error(ExcelErrorSave, /blocked by another workbook/)
       end
 
       it "should raise an error if the file does not exist and an workbook with the same name and other path exists" do
-        File.delete @simple_file_other_path rescue nil
-        File.exist?(@simple_file_other_path).should be_false
+        File.delete @simple_file_other_path1 rescue nil
+        File.exist?(@simple_file_other_path1).should be_false
         expect{
-          @book2.save_as(@simple_file_other_path, :if_exists => :overwrite, :if_obstructed => :raise)
+          @book2.save_as(@simple_file_other_path1, :if_exists => :overwrite, :if_obstructed => :raise)
           }.to raise_error(ExcelErrorSave, /blocked by another workbook/)
       end
 
       it "should raise an error if the file exists and an workbook with the same name and other path exists" do
-        File.delete @simple_file_other_path rescue nil
-        File.open(@simple_file_other_path,"w") do | file |
+        File.delete @simple_file_other_path1 rescue nil
+        File.open(@simple_file_other_path1,"w") do | file |
           file.puts "garbage"
         end
-        File.exist?(@simple_file_other_path).should be_true
+        File.exist?(@simple_file_other_path1).should be_true
         expect{
-          @book.save_as(@simple_file_other_path, :if_exists => :raise, :if_obstructed => :raise)
+          @book.save_as(@simple_file_other_path1, :if_exists => :raise, :if_obstructed => :raise)
         }.to raise_error(ExcelErrorSave, /file already exists: "workbook.xls"/)
       end
 
@@ -273,23 +276,23 @@ describe Book do
         end
 
         it "should raise an error if the book is open" do
-          File.delete @simple_save_file rescue nil
-          FileUtils.copy @simple_file, @simple_save_file
-          book_save = Book.open(@simple_save_file, :excel => :new)
+          File.delete @simple_save_file1 rescue nil
+          FileUtils.copy @simple_file, @simple_save_file1
+          book_save = Book.open(@simple_save_file1, :excel => :new)
           expect{
-            @book.save_as(@simple_save_file, :if_exists => :overwrite)
+            @book.save_as(@simple_save_file1, :if_exists => :overwrite)
             }.to raise_error(ExcelErrorSave, "workbook is open and used in Excel")
           book_save.close
         end        
 
         it "should save to simple_save_file.xls with :if_exists => :overwrite" do
-          File.delete @simple_save_file rescue nil
-          File.open(@simple_save_file,"w") do | file |
+          File.delete @simple_save_file1 rescue nil
+          File.open(@simple_save_file1,"w") do | file |
             file.puts "garbage"
           end
-          @book.save_as(@simple_save_file, :if_exists => :overwrite)
-          File.exist?(@simple_save_file).should be_true
-          new_book = Book.open(@simple_save_file)
+          @book.save_as(@simple_save_file1, :if_exists => :overwrite)
+          File.exist?(@simple_save_file1).should be_true
+          new_book = Book.open(@simple_save_file1)
           new_book.should be_a Book
           new_book.close
         end
@@ -298,8 +301,8 @@ describe Book do
           sheet = @book.sheet(1)
           sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
           new_value = sheet[1,1].value
-          @book.save_as(@simple_file, :if_exists => :overwrite)
-          new_book = Book.open(@simple_file)
+          @book.save_as(@simple_file1, :if_exists => :overwrite)
+          new_book = Book.open(@simple_file1)
           new_sheet = new_book.sheet(1)
           new_sheet[1,1].value.should == new_value
           new_book.close
@@ -307,26 +310,26 @@ describe Book do
 
         it "should save to 'simple_save_file.xls' with :if_exists => :raise" do
           dirname, basename = File.split(@simple_save_file)
-          File.delete @simple_save_file rescue nil
-          File.open(@simple_save_file,"w") do | file |
+          File.delete @simple_save_file1 rescue nil
+          File.open(@simple_save_file1,"w") do | file |
             file.puts "garbage"
           end
-          File.exist?(@simple_save_file).should be_true
-          booklength = File.size?(@simple_save_file)
+          File.exist?(@simple_save_file1).should be_true
+          booklength = File.size?(@simple_save_file1)
           expect {
-            @book.save_as(@simple_save_file, :if_exists => :raise)
+            @book.save_as(@simple_save_file1, :if_exists => :raise)
             }.to raise_error(ExcelErrorSave, /file already exists: "workbook_save.xls"/)
-          File.exist?(@simple_save_file).should be_true
-          File.size?(@simple_save_file).should == booklength
+          File.exist?(@simple_save_file1).should be_true
+          File.size?(@simple_save_file1).should == booklength
         end
 
         context "with :if_exists => :alert" do
           before do
-            File.delete @simple_save_file rescue nil
-            File.open(@simple_save_file,"w") do | file |
+            File.delete @simple_save_file1 rescue nil
+            File.open(@simple_save_file1,"w") do | file |
               file.puts "garbage"
             end
-            @garbage_length = File.size?(@simple_save_file)
+            @garbage_length = File.size?(@simple_save_file1)
             @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '../helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
           end
 
@@ -337,11 +340,11 @@ describe Book do
           it "should save if user answers 'yes'" do
             # "Yes" is to the left of "No", which is the  default. --> language independent
             @key_sender.puts "{left}{enter}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
-            @book.save_as(@simple_save_file, :if_exists => :alert)
-            File.exist?(@simple_save_file).should be_true
-            File.size?(@simple_save_file).should > @garbage_length
+            @book.save_as(@simple_save_file1, :if_exists => :alert)
+            File.exist?(@simple_save_file1).should be_true
+            File.size?(@simple_save_file1).should > @garbage_length
             @book.excel.DisplayAlerts.should == displayalert_value
-            new_book = Book.open(@simple_save_file, :excel => :new)
+            new_book = Book.open(@simple_save_file1, :excel => :new)
             new_book.should be_a Book
             new_book.close
             @book.excel.DisplayAlerts.should == displayalert_value
@@ -355,10 +358,10 @@ describe Book do
             @key_sender.puts "{enter}"
             #@key_sender.puts "%{n}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
             expect{
-              @book.save_as(@simple_save_file, :if_exists => :alert)
+              @book.save_as(@simple_save_file1, :if_exists => :alert)
               }.to raise_error(ExcelErrorSave, "not saved or canceled by user")
-            File.exist?(@simple_save_file).should be_true
-            File.size?(@simple_save_file).should == @garbage_length
+            File.exist?(@simple_save_file1).should be_true
+            File.size?(@simple_save_file1).should == @garbage_length
             @book.excel.DisplayAlerts.should == displayalert_value
           end
 
@@ -370,10 +373,10 @@ describe Book do
             @key_sender.puts "{right}{enter}"
             #@key_sender.puts "%{n}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
             expect{
-              @book.save_as(@simple_save_file, :if_exists => :alert)
+              @book.save_as(@simple_save_file1, :if_exists => :alert)
               }.to raise_error(ExcelErrorSave, "not saved or canceled by user")
-            File.exist?(@simple_save_file).should be_true
-            File.size?(@simple_save_file).should == @garbage_length
+            File.exist?(@simple_save_file1).should be_true
+            File.size?(@simple_save_file1).should == @garbage_length
             @book.excel.DisplayAlerts.should == displayalert_value
           end
 
@@ -381,10 +384,10 @@ describe Book do
             #@key_sender.puts "{left}{enter}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
             @book.ole_workbook.Close
             expect{
-              @book.save_as(@simple_save_file, :if_exists => :alert)
+              @book.save_as(@simple_save_file1, :if_exists => :alert)
               }.to raise_error(ExcelErrorSave, "Workbook is not alive")
-            File.exist?(@simple_save_file).should be_true
-            File.size?(@simple_save_file).should == @garbage_length
+            File.exist?(@simple_save_file1).should be_true
+            File.size?(@simple_save_file1).should == @garbage_length
             @book.excel.DisplayAlerts.should == displayalert_value
           end
 
@@ -392,8 +395,8 @@ describe Book do
 
         context "with :if_exists => :excel" do
           before do
-            File.delete @simple_save_file rescue nil
-            File.open(@simple_save_file,"w") do | file |
+            File.delete @simple_save_file1 rescue nil
+            File.open(@simple_save_file1,"w") do | file |
               file.puts "garbage"
             end
             @garbage_length = File.size?(@simple_save_file)
@@ -407,11 +410,11 @@ describe Book do
           it "should save if user answers 'yes'" do
             # "Yes" is to the left of "No", which is the  default. --> language independent
             @key_sender.puts "{left}{enter}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
-            @book.save_as(@simple_save_file, :if_exists => :excel)
-            File.exist?(@simple_save_file).should be_true
-            File.size?(@simple_save_file).should > @garbage_length
+            @book.save_as(@simple_save_file1, :if_exists => :excel)
+            File.exist?(@simple_save_file1).should be_true
+            File.size?(@simple_save_file1).should > @garbage_length
             @book.excel.DisplayAlerts.should == displayalert_value
-            new_book = Book.open(@simple_save_file, :excel => :new)
+            new_book = Book.open(@simple_save_file1, :excel => :new)
             new_book.should be_a Book
             new_book.close
             @book.excel.DisplayAlerts.should == displayalert_value
@@ -425,10 +428,10 @@ describe Book do
             @key_sender.puts "{enter}"
             #@key_sender.puts "%{n}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
             expect{
-              @book.save_as(@simple_save_file, :if_exists => :excel)
+              @book.save_as(@simple_save_file1, :if_exists => :excel)
               }.to raise_error(ExcelErrorSave, "not saved or canceled by user")
-            File.exist?(@simple_save_file).should be_true
-            File.size?(@simple_save_file).should == @garbage_length
+            File.exist?(@simple_save_file1).should be_true
+            File.size?(@simple_save_file1).should == @garbage_length
             @book.excel.DisplayAlerts.should == displayalert_value
           end
 
@@ -440,10 +443,10 @@ describe Book do
             @key_sender.puts "{right}{enter}"
             #@key_sender.puts "%{n}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
             expect{
-              @book.save_as(@simple_save_file, :if_exists => :excel)
+              @book.save_as(@simple_save_file1, :if_exists => :excel)
               }.to raise_error(ExcelErrorSave, "not saved or canceled by user")
-            File.exist?(@simple_save_file).should be_true
-            File.size?(@simple_save_file).should == @garbage_length
+            File.exist?(@simple_save_file1).should be_true
+            File.size?(@simple_save_file1).should == @garbage_length
             @book.excel.DisplayAlerts.should == displayalert_value
           end
 
@@ -451,35 +454,35 @@ describe Book do
             #@key_sender.puts "{left}{enter}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
             @book.ole_workbook.Close
             expect{
-              @book.save_as(@simple_save_file, :if_exists => :excel)
+              @book.save_as(@simple_save_file1, :if_exists => :excel)
               }.to raise_error(ExcelErrorSave, "Workbook is not alive")
-            File.exist?(@simple_save_file).should be_true
-            File.size?(@simple_save_file).should == @garbage_length
+            File.exist?(@simple_save_file1).should be_true
+            File.size?(@simple_save_file1).should == @garbage_length
             @book.excel.DisplayAlerts.should == displayalert_value
           end
 
         end
 
         it "should save to 'simple_save_file.xls' with :if_exists => nil" do
-          dirname, basename = File.split(@simple_save_file)
-          File.delete @simple_save_file rescue nil
-          File.open(@simple_save_file,"w") do | file |
+          dirname, basename = File.split(@simple_save_file1)
+          File.delete @simple_save_file1 rescue nil
+          File.open(@simple_save_file1,"w") do | file |
             file.puts "garbage"
           end
-          File.exist?(@simple_save_file).should be_true
-          booklength = File.size?(@simple_save_file)
+          File.exist?(@simple_save_file1).should be_true
+          booklength = File.size?(@simple_save_file1)
           expect {
-            @book.save_as(@simple_save_file)
+            @book.save_as(@simple_save_file1)
             }.to raise_error(ExcelErrorSave, /file already exists: "workbook_save.xls"/)
-          File.exist?(@simple_save_file).should be_true
-          File.size?(@simple_save_file).should == booklength
+          File.exist?(@simple_save_file1).should be_true
+          File.size?(@simple_save_file1).should == booklength
         end
 
         it "should save to 'simple_save_file.xls' with :if_exists => :invalid" do
-          File.delete @simple_save_file rescue nil
-          @book.save_as(@simple_save_file)
+          File.delete @simple_save_file1 rescue nil
+          @book.save_as(@simple_save_file1)
           expect {
-            @book.save_as(@simple_save_file, :if_exists => :invalid)
+            @book.save_as(@simple_save_file1, :if_exists => :invalid)
             }.to raise_error(ExcelErrorSave, ':if_exists: invalid option: :invalid')
         end
       end

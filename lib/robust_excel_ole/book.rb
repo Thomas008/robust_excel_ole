@@ -196,6 +196,7 @@ module RobustExcelOle
 
     def ensure_workbook(file, options)     # :nodoc: #
       file = @stored_filename ? @stored_filename : file
+      raise(ExcelErrorOpen, "filename not given") unless file
       unless File.exist?(file)
         if options[:if_absent] == :create
           @ole_workbook = excel_class.current.generate_workbook(file)

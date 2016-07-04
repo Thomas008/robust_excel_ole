@@ -31,7 +31,7 @@ describe Book do
 
   after do
     Excel.kill_all
-    #rm_tmp(@dir)
+    rm_tmp(@dir)
   end
 
   describe "open" do
@@ -921,7 +921,13 @@ describe Book do
     
     context "with non-existing file" do
 
-      it "should raise an exception" do
+      it "should raise error if filename is nil" do
+        expect{
+          Book.open(@nonexisting)
+          }.to raise_error(ExcelErrorOpen, "filename not given")
+      end
+
+      it "should raise error if file does not exist" do
         File.delete @simple_save_file rescue nil
         expect {
           Book.open(@simple_save_file, :if_absent => :raise)

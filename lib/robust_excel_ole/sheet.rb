@@ -154,7 +154,7 @@ module RobustExcelOle
           raise SheetError, "cannot evaluate name #{name.inspect} in #{self.Name}"
         end
       end
-      if value == -2146826259
+      if value == RobustExcelOle::XlErrName  # -2146826259
         return opts[:default] if opts[:default]
         raise SheetError, "cannot evaluate name #{name.inspect} in #{self.Name}"
       end 

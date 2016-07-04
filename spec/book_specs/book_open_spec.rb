@@ -31,22 +31,23 @@ describe Book do
 
   after do
     Excel.kill_all
-    rm_tmp(@dir)
+    #rm_tmp(@dir)
   end
 
   describe "open" do
 
     context "with causing warning dead excel without window handle" do
 
-      it "should test1" do
+      it "combined" do
+        Excel.kill_all
         book1 = Book.open(@simple_file, :visible => true)
         book2 = Book.open(@different_file)
+        Excel.kill_all
+        #sleep 1
+        book3 = Book.open(@another_simple_file)
       end
 
-      it "should test2" do
-        # sleep 1 # => no dead excel warning
-        book3 = Book.open(@simple_file)
-      end
+
 
     end
 

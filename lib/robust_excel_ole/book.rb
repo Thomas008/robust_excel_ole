@@ -709,6 +709,7 @@ module RobustExcelOle
     # @raise  ExcelError if range name is not in the workbook or if range value could not be evaluated
     # @return [Variant] the contents of a range with given name
     def nameval(name, opts = {:default => nil})
+      #return_if_default = proc{return opts[:default] if opts[:default]}
       begin
         name_obj = self.Names.Item(name)
       rescue WIN32OLERuntimeError
@@ -721,7 +722,7 @@ module RobustExcelOle
         begin
           value = self.sheet(1).Evaluate(name_obj.Name)
         rescue WIN32OLERuntimeError
-          return opts[:default] if opts[:default]
+          
           raise ExcelError, "cannot evaluate name #{name.inspect} in #{File.basename(self.stored_filename).inspect}"
         end
       end

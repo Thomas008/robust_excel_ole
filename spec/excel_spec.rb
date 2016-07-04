@@ -40,15 +40,16 @@ module RobustExcelOle
 
     end
 
-    context "cause Illegal Refrence" do
+    context "Illegal Refrence" do
 
       before do
+
         book1 = Book.open(@simple_file)
         book2 = Book.open(@simple_file, :force_excel => :new)
-        a = book1.saved # or s = book1.sheet(2) o.s.l
+        a = book1.saved 
       end
 
-      it "should cause warning 'Illegal Reference probably recycled'" do
+      it "should not cause warning 'Illegal Reference probably recycled'" do
         Excel.close_all
         book = Book.open(@simple_file)
       end

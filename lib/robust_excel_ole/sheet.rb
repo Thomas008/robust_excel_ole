@@ -57,7 +57,7 @@ module RobustExcelOle
         rescue SheetError
           begin
             book_class.new(self.Parent).nameval(name)
-          rescue
+          rescue ExcelError
             rangeval(name)
           end
         end

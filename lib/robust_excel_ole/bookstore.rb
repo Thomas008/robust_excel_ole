@@ -28,8 +28,11 @@ module RobustExcelOle
       weakref_books = @filename2books[filename_key]
       return nil unless weakref_books
       result = open_book = closed_book = nil      
+      weakref_books = weakref_books.map {|wr_book| wr_book if wr_book.weakref_alive? }.compact
+      @filename2books[filename_key] = weakref_books
       weakref_books.each do |wr_book|
         if (not wr_book.weakref_alive?)
+          trace "warn: this should never happen"
           begin 
             @filename2books[filename_key].delete(wr_book)
           rescue 

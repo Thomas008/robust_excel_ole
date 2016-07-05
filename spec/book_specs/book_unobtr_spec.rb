@@ -941,14 +941,14 @@ describe Book do
           book.excel.should_not == @book1.excel
           hidden_excel = book.excel
         end
-        book2 = Book.open(@simple_file1, :default_excel => :reuse)
+        book2 = Book.open(@simple_file1, :default_excel => :current)
         book2.excel.should_not == hidden_excel
       end
 
       it "should exclude hidden Excel when reuse in open" do
         book1 = Book.open(@simple_file1)
         book1.close
-        book2 = Book.open(@simple_file1, :default_excel => :reuse)
+        book2 = Book.open(@simple_file1, :default_excel => :current)
         book2.excel.should == book1.excel
         book1.should be_alive
         book2.close

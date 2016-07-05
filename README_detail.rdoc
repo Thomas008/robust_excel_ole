@@ -42,8 +42,8 @@ The semantics is similar to, e.g., +File.open+.
 Options are the following:
 
 +:default_excel+::   open the workbook in the Excel instance where it was opened before most recently,
-if the book was opened before and this Excel instance is alive. Otherwise open it in the active (+:active+ or +:reuse+), a new (+:new+) or a given Excel instance (default: +reuse+)
-+:force_excel+::     open the workbook in the active, a new or given Excel instance 
+if the book was opened before and this Excel instance is alive. Otherwise open it in the current (+:current+, or +:active+, or +:reuse+), a new (+:new+) or a given Excel instance (default: +:current+)
++:force_excel+::     open the workbook in the current (+:current+, or +:active+, or +:reuse+), a new (+:new+) or given Excel instance 
 +:if_absent+::       specify behaviour if the workbook with the given file name does not exist if the workbook does not exist (default: +create+)
 +:if_unsaved+::      specify behaviour if the workbook was unsaved (default: +new_excel+)
 +:if_obstructed+::   specidy behaviour if the workbook is blocked by another book (default: +new_excel+)
@@ -57,7 +57,7 @@ The option +:defaut_excel+  :
 If the workbook was open before, then open it in the Excel instance where it was open before most recently. If the workbook cannot be reopened, i.e., the book was not opened before, or the Excel is not alive anymore,
 then
 
-+:active+ (or :reuse+:): Connect to a running Excel, if it exists, otherwise open a new Excel.
++:current+ (or +:active+, or +:reuse+:): Connect to the current (the first opened) Excel instance, if it exists, otherwise open a new Excel.
 +:new+:: Open in a new Excel.
 [instance]:: Open in a given Excel instance.
 
@@ -65,6 +65,7 @@ The option +:force_excel  :
 
 No matter if the workbook was open before, or the Excel instance is alive
 
++:current+ (or +:active+, or +:reuse+): Open the current (the first opened) Excel instance
 +:new+:: Open in a new Excel instance.
 [instance]:: Open in a given Excel instance.
 
@@ -213,11 +214,11 @@ If a workbook is blocking the workbook that should be saved, then the former one
 
 The method +unobtrusively+ enables the user to read or modify a workbook, no matter if it is open in some Excel instance, if it is saved or unsaved, and if it is writable or not. When opening a workbook unobtrusively, its status remains unchanged. This status includes, whether the workbook is opened or closed, saved or unsaved, readonly or writable. 
 
-One option chooses the Excel instance in which a closed workbook is opened. The options +:active+ (or +:reuse) (default) indicates that the closed workbook is opened in the Excel instance of the workbook, if it exists, or that another Excel instance is reused. The option +:hidden+ provokes that the closed workbook is opened in a separate Excel instance that is not visible and has no DisplayAlerts. Any following closed workbook would be opened in this Excel instance as well when using this option. Moreover, an Excel instance can be given directly where to open the closed workbook.
+One option chooses the Excel instance in which a closed workbook is opened. The option +:current+ (or +:active+, or +:reuse) (default) indicates that the closed workbook is opened in the Excel instance of the workbook, if it exists, or that another Excel instance is reused. The option +:hidden+ provokes that the closed workbook is opened in a separate Excel instance that is not visible and has no DisplayAlerts. Any following closed workbook would be opened in this Excel instance as well when using this option. Moreover, an Excel instance can be given directly where to open the closed workbook.
 
 Options are the following:
 
-+:active (or +:reuse+:): (default) : open a closed workbook in the Excel instance of the workbook, if it exists, otherwise reuse another Excel
++:current+ (or +:active, or +:reuse+:): (default) : open a closed workbook in the Excel instance where it was opened most recently, if such an Excel instance exists, otherwise open it in the current (first opened) Excel instance
 +:hidden+::          : open a closed workbook in one separate Excel instance that is not visible and has no displayalerts
 <excel-instance> : open a closed workbooks in the given Excel instance
                

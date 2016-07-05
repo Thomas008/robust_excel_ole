@@ -16,7 +16,7 @@ module RobustExcelOle
 
       DEFAULT_OPEN_OPTS = { 
         :excel => :active,
-        :default_excel => :active,      
+        :default_excel => :current,      
         :if_unsaved    => :raise,
         :if_obstructed => :raise,
         :if_absent     => :raise,
@@ -29,8 +29,8 @@ module RobustExcelOle
       # opens a workbook.
       # @param [String] file the file name
       # @param [Hash] opts the options
-      # @option opts [Variant] :default_excel  :active (default), :new, or <excel-instance>     
-      # @option opts [Variant] :force_excel    :active, :new, or <excel-instance>
+      # @option opts [Variant] :default_excel  :current (or :active, or :reuse) (default), :new, or <excel-instance>     
+      # @option opts [Variant] :force_excel    :current, :new, or <excel-instance>
       # @option opts [Symbol]  :if_unsaved     :raise (default), :forget, :accept, :alert, :excel, or :new_excel
       # @option opts [Symbol]  :if_obstructed  :raise (default), :forget, :save, :close_if_saved, or _new_excel
       # @option opts [Symbol]  :if_absent      :raise (default), or :create
@@ -41,14 +41,14 @@ module RobustExcelOle
       # :default_excel   if the workbook was already open in an Excel instance, then open it in that Excel instance,
       #                  where it was opened most recently
       #                  Otherwise, i.e. if the workbook was not open before or the Excel instance is not alive
-      #                   :active or :reuse -> connects to a running (the first opened) Excel instance,
-      #                                        excluding the hidden Excel instance, if it exists,
-      #                                       otherwise opens in a new Excel instance.
-      #                   :new             -> opens in a new Excel instance
-      #                   <excel-instance> -> opens in the given Excel instance
+      #                   :current            -> connects to a running (the first opened) Excel instance,
+      #                    (or :active, :reuse)  excluding the hidden Excel instance, if it exists,
+      #                                          otherwise opens in a new Excel instance.
+      #                   :new                -> opens in a new Excel instance
+      #                   <excel-instance>    -> opens in the given Excel instance
       # :force_excel     no matter whether the workbook was already open
-      #                   :new             -> connects to a running (the first opened) Excel instance
-      #                   :active or :reuse   -> opens in the active Excel instance
+      #                   :new                          -> opens in a new Exceö instance 
+      #                   :current (or :active, :reuse) -> opens in the current Excel instance
       #                   <excel-instance> -> opens in the given Excel instance
       # :if_unsaved     if an unsaved workbook with the same name is open, then
       #                  :raise               -> raises an exception
@@ -74,13 +74,13 @@ module RobustExcelOle
       # @return [Book] a workbook
       def open(file, opts={ }, &block)
         options = DEFAULT_OPEN_OPTS.merge(opts)
-        options[:default_excel] = :active if options[:default_excel] == :reuse
-        options[:force_excel] = :active if options[:force_excel] == :reuse
+        options[:default_excel] = :current if (options[:default_excel] == :reuse || options[:default_excel] == :active)
+        options[:force_excel] = :current if (options[:force_excel] == :reuse || options[:force_excel] == :active)
         book = nil
         if (not (options[:force_excel] == :new))
           # if readonly is true, then prefer a book that is given in force_excel if this option is set
           forced_excel = if options[:force_excel]
-            options[:force_excel] == :active ? excel_class.new(:reuse => true) : excel_of(options[:force_excel])
+            options[:force_excel] == :current ? excel_class.new(:reuse => true) : excel_of(options[:force_excel])
           end
           book = bookstore.fetch(file, 
                   :prefer_writable => (not options[:read_only]), 
@@ -189,8 +189,8 @@ module RobustExcelOle
       options[:excel] = options[:force_excel] ? options[:force_excel] : options[:default_excel]
       options[:excel] = :active if options[:excel] == :reuse
       options = {:displayalerts => false, :visible => false}.merge(options) if options[:excel] == :new      
-      @excel = self.class.excel_of(options[:excel]) unless (options[:excel] == :active || options[:excel] == :new)
-      @excel = excel_class.new(:reuse => (options[:excel] == :active)) unless (@excel && @excel.alive?)
+      @excel = self.class.excel_of(options[:excel]) unless (options[:excel] == :current || options[:excel] == :new)
+      @excel = excel_class.new(:reuse => (options[:excel] == :current)) unless (@excel && @excel.alive?)
       apply_options(options)
     end    
 
@@ -385,7 +385,7 @@ module RobustExcelOle
     # @param [String] file        the file name
     # @param [Hash]   if_closed   an option
     # @param [Hash]   opts        the options
-    # @option opts [Variant] :if_closed  :active or :reuse (default), :hidden or a Excel instance
+    # @option opts [Variant] :if_closed  :current (or :reuse, :active) (default), :hidden or a Excel instance
     # @option opts [Boolean] :read_only whether the file is opened for read-only
     # @option opts [Boolean] :readonly_excel behaviour when workbook is opened read-only and shall be modified
     # @option opts [Boolean] :keep_open whether the workbook shall be kept open after unobtrusively opening
@@ -393,8 +393,8 @@ module RobustExcelOle
     # @option opts [Boolean] :visible        true, or false (default) 
     #  options: 
     #   :if_closed :   if the workbook is closed, then open it in
-    #                    :active or :reuse -> the Excel instance of the workbook, if it exists, 
-    #                                         reuse another Excel, otherwise          
+    #                    :current (or :active, :reuse) -> the Excel instance of the workbook, if it exists, 
+    #                                                     reuse another Excel, otherwise          
     #                    :hidden -> a separate Excel instance that is not visible and has no displayaslerts
     #                    <excel-instance> -> the given Excel instance
     #  :read_only        : opens the workbook unobtrusively for reading only  (default: false)
@@ -411,8 +411,8 @@ module RobustExcelOle
         opts = if_closed
         if_closed = nil
       end
-      if_closed = :active if if_closed == :reuse
-      if_closed = :active unless if_closed
+      if_closed = :current if (if_closed == :reuse || if_closed == :active)
+      if_closed = :current unless if_closed
       options = {
         :read_only => false,
         :readonly_excel => false,
@@ -435,8 +435,8 @@ module RobustExcelOle
         book = 
           if was_not_alive_or_nil 
             case if_closed
-            when :active
-              open(file, :read_only => options[:read_only])
+            when :current
+              open(file, :default_excel => :current, :read_only => options[:read_only])
             when :hidden 
               open(file, :force_excel => bookstore.hidden_excel, :read_only => options[:read_only])
             else 

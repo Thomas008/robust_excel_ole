@@ -128,25 +128,25 @@ describe Book do
 
     it "should preserve :visible and :displayalerts if they are not set" do
       excel1 = Excel.create(:visible => true)
-      book1 = Book.open(@different_file, :force_excel => :reuse)
+      book1 = Book.open(@different_file, :force_excel => :current)
       book1.excel.Visible.should be_true
     end
 
     it "should preserve :visible and :displayalerts if they are not set" do
       excel1 = Excel.create(:visible => true)
-      book1 = Book.open(@different_file, :force_excel => :reuse, :visible => false)
+      book1 = Book.open(@different_file, :force_excel => :current, :visible => false)
       book1.excel.Visible.should be_false
     end
 
     it "should preserve :visible and :displayalerts if they are not set" do
       excel1 = Excel.create(:visible => false)
-      book1 = Book.open(@simple_file, :force_excel => :reuse)
+      book1 = Book.open(@simple_file, :force_excel => :current)
       book1.excel.Visible.should be_false
     end
 
     it "should preserve :visible and :displayalerts if they are not set" do
       excel1 = Excel.create(:visible => false)
-      book1 = Book.open(@simple_file, :force_excel => :reuse, :visible => true)
+      book1 = Book.open(@simple_file, :force_excel => :current, :visible => true)
       book1.excel.Visible.should be_true
     end
 

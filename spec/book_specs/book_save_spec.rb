@@ -60,6 +60,14 @@ describe Book do
         @book.close
       end
 
+      it "should raise error if workbook is not alive" do
+        @book = Book.open(@simple_file)
+        @book.close
+        expect{
+          @book.save
+        }.to raise_error(ExcelErrorSave, "workbook is not alive")
+      end
+
     end
 
     context "with open with read only" do
@@ -79,15 +87,28 @@ describe Book do
       }
     end
 
-    context "with argument" do
-      before do
+    context "with save_as" do
+
+      it "should save to 'simple_save_file.xls'" do
         Book.open(@simple_file) do |book|
           book.save_as(@simple_save_file, :if_exists => :overwrite)
         end
+        File.exist?(@simple_save_file).should be_true
       end
 
-      it "should save to 'simple_save_file.xlsx'" do
-        File.exist?(@simple_save_file).should be_true
+      it "should raise error if filename is nil" do
+        book = Book.open(@simple_file)
+        expect{
+          book.save_as(@wrong_name)
+        }.to raise_error(ExcelErrorSave, "filename is nil")
+      end
+
+      it "should raise error if filename is nil" do
+        book = Book.open(@simple_file)
+        book.close
+        expect{
+          book.save_as(@simple_save_file)
+        }.to raise_error(ExcelErrorSave, "workbook is not alive")
       end
     end
 

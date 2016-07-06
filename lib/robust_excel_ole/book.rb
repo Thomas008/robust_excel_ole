@@ -477,7 +477,7 @@ module RobustExcelOle
     # @raise ExcelErrorSave if workbook is not alive or opened for read-only, or another error occurs
     # @return [Boolean] true, if successfully saved, nil otherwise
     def save      
-      raise ExcelErrorSave, "Workbook is not alive" if (not alive?)
+      raise ExcelErrorSave, "workbook is not alive" if (not alive?)
       raise ExcelErrorSave, "Not opened for writing (opened with :read_only option)" if @ole_workbook.ReadOnly
       begin
         @ole_workbook.Save 
@@ -512,7 +512,8 @@ module RobustExcelOle
     #                          the workbook is blocked by another one (with option :if_obstructed :raise)
     # @return [Book], the book itself, if successfully saved, raises an exception otherwise
     def save_as(file = nil, opts = { } )
-      raise ExcelErrorSave, "Workbook is not alive" if (not alive?)
+      raise(ExcelErrorSave, "filename is nil") if file.nil?
+      raise ExcelErrorSave, "workbook is not alive" if (not alive?)
       raise ExcelErrorSave, "Not opened for writing (opened with :read_only option)" if @ole_workbook.ReadOnly
       options = {
         :if_exists => :raise,

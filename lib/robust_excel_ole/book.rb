@@ -704,6 +704,8 @@ module RobustExcelOle
     # returns the contents of a range with given name
     # evaluates formula contents of the range is a formula
     # if no contents could be returned, then return default value, if provided, raise error otherwise
+    # Excel Bug: if a local name without a qualifier is given, then by default Excel takes the first worksheet,
+    #            even if a different worksheet is active
     # @param  [String]      name      the name of the range
     # @param  [Hash]        opts      the options
     # @option opts [Symbol] :default  the default value that is provided if no contents could be returned

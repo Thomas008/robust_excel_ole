@@ -267,7 +267,6 @@ describe Book do
       @book1["named_formula"].should == 4      
     end
 
-
     it "should return default value if name not defined" do
       @book1.nameval("foo", :default => 2).should == 2
     end
@@ -291,6 +290,17 @@ describe Book do
       expect {
         @book1["named_formula"] = "bar"
       }.to raise_error(ExcelError, /cannot assign value to range named "named_formula" in "another_workbook.xls"/)
+    end
+
+    # Excel Bug: for local names without uqifier: takes the first sheet as default even if another sheet is activated
+    it "should take the first sheet as default even if the second sheet is activated" do
+      @book1.nameval("Sheet1!localname").should == "bar"
+      @book1.nameval("Sheet2!localname").should == "simple"
+      @book1.nameval("localname").should == "bar"
+      @book1.Worksheets.Item(2).Activate
+      @book1.nameval("localname").should == "bar"
+      @book1.Worksheets.Item(1).Delete
+      @book1.nameval("localname").should == "simple"
     end
   end
 

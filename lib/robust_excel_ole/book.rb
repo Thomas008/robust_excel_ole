@@ -295,9 +295,7 @@ module RobustExcelOle
           count = workbooks.Count
           workbooks.Add if @excel.Version == "12.0" && count == 0
           workbooks.Open(filename,{ 'ReadOnly' => options[:read_only] })
-          workbooks.Item(1).Close if @excel.Version == "12.0" && count == 0
-          workbooks.Item(1).CheckCompatibility = options[:check_compatibility]
-          @can_be_closed = false if @can_be_closed.nil?
+          workbooks.Item(1).Close if @excel.Version == "12.0" && count == 0                   
         rescue WIN32OLERuntimeError => msg
           trace "WIN32OLERuntimeError: #{msg.message}" 
           if msg.message =~ /800A03EC/
@@ -313,6 +311,10 @@ module RobustExcelOle
         rescue WIN32OLERuntimeError
           raise ExcelErrorOpen, "cannot find the file #{File.basename(filename).inspect}"
         end
+        @ole_workbook.CheckCompatibility = options[:check_compatibility]
+        # option für visible muss vorhanden sein
+        #@ole_workbook.Windows(1).Visible = options[:visible]
+        @can_be_closed = false if @can_be_closed.nil?
       end
     end
 
@@ -785,14 +787,15 @@ module RobustExcelOle
 
     # returns true, if the workbook is visible, false otherwise 
     def visible
-      @excel.Windows(@ole_workbook.Name).Visible
+      @excel.visible && @ole_workbook.Windows(@ole_workbook.Name).Visible
     end
 
     # makes a workbook visible or invisible
     # @param [Boolean] visible_value value that determines whether the workbook shall be visible
     def visible= visible_value
       saved = @ole_workbook.Saved
-      @excel.Windows(@ole_workbook.Name).Visible = visible_value
+      @excel.Visible = true if visible_value
+      @ole_workbook.Windows(@ole_workbook.Name).Visible = visible_value if @excel.Visible
       save if saved 
     end
 

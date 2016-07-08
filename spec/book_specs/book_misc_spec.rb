@@ -429,26 +429,45 @@ describe Book do
     context "with visible" do
 
       before do
-        @book = Book.open(@simple_file)
+        @book1 = Book.open(@simple_file)
+        @book2 = Book.open(@different_file, :force_excel => :new, :visible => true)
       end
 
       after do
-        @book.close
+        @book1.close
+        @book2.close
       end
 
-      it "should make the workbook visible" do
-        @book.excel.visible = true
-        @book.excel.visible.should be_true
-        @book.visible.should be_true
-        @book.excel.Windows(@book.ole_workbook.Name).Visible.should be_true
-        @book.visible = false
-        @book.excel.visible.should be_true
-        @book.visible.should be_false
-        @book.excel.Windows(@book.ole_workbook.Name).Visible.should be_false
-        @book.visible = true
-        @book.excel.visible.should be_true
-        @book.visible.should be_true
-        @book.excel.Windows(@book.ole_workbook.Name).Visible.should be_true
+      it "should make the invisible workbook visible and invisible" do
+        @book1.excel.Visible.should be_false
+        @book1.Windows(@book1.Name).Visible.should be_true
+        @book1.visible.should be_false
+        @book1.visible = true
+        @book1.Saved.should be_true
+        @book1.excel.Visible.should be_true
+        @book1.Windows(@book1.Name).Visible.should be_true
+        @book1.visible.should be_true
+        @book1.visible = false
+        @book1.Saved.should be_true
+        @book1.excel.should be_true
+        @book1.Windows(@book1.Name).Visible.should be_false
+        @book1.visible.should be_false
+        @book2.excel.Visible.should be_true
+      end
+
+      it "should make the visible workbook and the invisible workbook visible" do
+        @book2.Windows(@book2.Name).Visible.should be_true
+        @book2.visible.should be_true
+        @book2.visible = true
+        @book2.Saved.should be_true
+        @book2.excel.Visible.should be_true
+        @book2.Windows(@book2.Name).Visible.should be_true
+        @book2.excel.Visible = false
+        @book2.visible = false
+        @book2.Saved.should be_true
+        @book2.excel.Visible.should be_false
+        @book2.Windows(@book2.Name).Visible.should be_true
+        @book2.visible.should be_false
       end
 
     end

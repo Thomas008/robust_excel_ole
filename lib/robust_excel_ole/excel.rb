@@ -227,13 +227,17 @@ module RobustExcelOle
 
     # closes one Excel instance to which one was connected
     def self.close_one_excel(options={})
+      puts "close_one_excel: begin"
       excel = current_excel
       return unless excel
       manage_unsaved_workbooks(excel, options) do
         weak_ole_excel = WeakRef.new(excel)
         excel = nil
         close_excel_ole_instance(weak_ole_excel.__getobj__)
+        puts "after calling close_excel_ole_instance:"
+        # here: RunetimeError: failed to get Dispatch Interface
       end
+      puts "close_one_excel: end"
     end
 
     def self.close_excel_ole_instance(ole_excel)  # :nodoc: #

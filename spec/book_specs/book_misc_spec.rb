@@ -32,7 +32,7 @@ describe Book do
 
   after do
     Excel.kill_all
-    rm_tmp(@dir)
+    #rm_tmp(@dir)
   end
 
   describe "create file" do
@@ -426,7 +426,101 @@ describe Book do
       end
     end
 
-    context "with visible" do
+
+    context "with :visible => " do
+
+      it "should leave the excel invisible when opening with default option" do
+        excel1 = Excel.new(:reuse => false, :visible => false)
+        book1 = Book.open(@simple_file)
+        excel1.Visible.should be_false
+        book1.Windows(book1.Name).Visible.should be_true
+        book1.visible.should be_false
+      end
+
+      it "should leave the excel invisible when opening with :visible => false" do
+        excel1 = Excel.new(:reuse => false, :visible => false)
+        book1 = Book.open(@simple_file, :visible => false)
+        excel1.Visible.should be_false
+        book1.Windows(book1.Name).Visible.should be_true
+        book1.visible.should be_false
+      end
+
+      it "should leave the excel visible" do
+        excel1 = Excel.new(:reuse => false, :visible => false)
+        book1 = Book.open(@simple_file, :visible => true)
+        excel1.Visible.should be_true
+        book1.Windows(book1.Name).Visible.should be_true
+        book1.visible.should be_true
+        book2 = Book.open(@another_simple_file)
+        excel1.Visible.should be_true
+        book2.Windows(book2.Name).Visible.should be_true
+        book2.visible.should be_true
+        book3 = Book.open(@different_file, :visible => false)
+        excel1.Visible.should be_true
+        book3.Windows(book3.Name).Visibe.should be_false
+        book3.visible.should be_false
+      end
+
+      it "should leave the excel visible when opening with default option" do
+        excel1 = Excel.new(:reuse => false, :visible => true)
+        book1 = Book.open(@simple_file)
+        excel1.Visible.should be_true
+        book1.Windows(book1.Name).Visible.should be_true
+        book1.visible.should be_true
+      end
+
+      it "should leave the excel visible when opening with :visible => false" do
+        excel1 = Excel.new(:reuse => false, :visible => true)
+        book1 = Book.open(@simple_file, :visible => false)
+        excel1.Visible.should be_true
+        book1.Windows(book1.Name).Visible.should be_false
+        book1.visible.should be_false
+        book2 = Book.open(@another_simple_file)
+        excel1.Visible.should be_true
+        book2.Windows(book2.Name).Visibe.should be_false
+        book2.visible.should be_false
+      end
+
+      it "should leave the excel visible" do
+        excel1 = Excel.new(:reuse => false, :visible => true)
+        book1 = Book.open(@simple_file, :visible => true)
+        excel1.Visible.should be_true
+        book1.Windows(book1.Name).Visible.should be_true
+        book1.visible.should be_true
+        book2 = Book.open(@different_file, :visible => false)
+        excel1.Visible.should be_true
+        book2.Windows(book2.Name).Visible.should be_false
+        book2.visible.should be_false
+      end
+
+      it "should leave the visibility of Excel" do
+        excel1 = Excel.new(:reuse => false, :visible => false)
+        book1 = Book.open(@simple_file, :visible => true)
+        excel1.Visible.should be_true
+        book1.Windows(book1.Name).Visible.should be_true
+        book1.visible.should be_true
+        excel1.Visible = false
+        book2 = Book.open(@different_file)
+        excel1.Visible.should be_false
+        book2.Windows(book2.Name).Visibe.should be_false
+        book2.visible.should be_false
+      end
+
+      it "should leave the visibility of Excel" do
+        excel1 = Excel.new(:reuse => false, :visible => false)
+        book1 = Book.open(@simple_file, :visible => false)
+        excel1.Visible.should be_false
+        book1.Windows(book1.Name).Visible.should be_false
+        book1.visible.should be_false
+        excel1.Visible = true
+        book2 = Book.open(@different_file)
+        excel1.Visible.should be_true
+        book2.Windows(book2.Name).Visibe.should be_true
+        book2.visible.should be_true
+      end
+    end
+
+    context "with visible, visible=" do
 
       before do
         @book1 = Book.open(@simple_file)
@@ -455,7 +549,7 @@ describe Book do
         @book2.excel.Visible.should be_true
       end
 
-      it "should make the visible workbook and the invisible workbook visible" do
+      it "should make the visible workbook and the invisible workbook invisible" do
         @book2.Windows(@book2.Name).Visible.should be_true
         @book2.visible.should be_true
         @book2.visible = true

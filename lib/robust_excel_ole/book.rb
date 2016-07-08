@@ -68,7 +68,7 @@ module RobustExcelOle
       #                  
       # :read_only     opens in read-only mode         
       # :displayalerts enables DisplayAlerts in Excel  
-      # :visible       makes visible in Excel        
+      # :visible       makes the window of the workbook visible
       # :check_compatibility  check compatibility when saving
       # if :default_excel is set, then DisplayAlerts and Visible are set only if these parameters are given
       # @return [Book] a workbook
@@ -142,6 +142,9 @@ module RobustExcelOle
         file = file_or_workbook
         ensure_excel(options)
         ensure_workbook(file, options)
+        self.visible = options[:visible]
+        @ole_workbook.CheckCompatibility = options[:check_compatibility]
+        @can_be_closed = false if @can_be_closed.nil?
       end
       bookstore.store(self)
       if block
@@ -310,11 +313,7 @@ module RobustExcelOle
           @ole_workbook = workbooks.Item(File.basename(filename))
         rescue WIN32OLERuntimeError
           raise ExcelErrorOpen, "cannot find the file #{File.basename(filename).inspect}"
-        end
-        @ole_workbook.CheckCompatibility = options[:check_compatibility]
-        # option für visible muss vorhanden sein
-        #@ole_workbook.Windows(1).Visible = options[:visible]
-        @can_be_closed = false if @can_be_closed.nil?
+        end       
       end
     end
 
@@ -790,7 +789,7 @@ module RobustExcelOle
       @excel.visible && @ole_workbook.Windows(@ole_workbook.Name).Visible
     end
 
-    # makes a workbook visible or invisible
+    # makes the window of the workbook visible or invisible
     # @param [Boolean] visible_value value that determines whether the workbook shall be visible
     def visible= visible_value
       saved = @ole_workbook.Saved

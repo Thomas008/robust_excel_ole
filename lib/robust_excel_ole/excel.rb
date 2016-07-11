@@ -160,7 +160,7 @@ module RobustExcelOle
       excels_number = excel_processes.size
       timeout = false
       begin
-        status = Timeout::timeout(50) {
+        status = Timeout::timeout(5) {
           while current_excel do
             close_one_excel(options)
             GC.start
@@ -211,10 +211,10 @@ module RobustExcelOle
             excel.DisplayAlerts = true
             yield
           ensure
-            begin
+            begin                           
               excel.DisplayAlerts = false 
             rescue RuntimeError => msg
-              trace "RuntimeError: #{msg.message}" if msg.message =~ /failed to get Dispatch Interface/
+              trace "manage: RuntimeError: #{msg.message}" if msg.message =~ /failed to get Dispatch Interface/
             end
           end
           return
@@ -227,17 +227,13 @@ module RobustExcelOle
 
     # closes one Excel instance to which one was connected
     def self.close_one_excel(options={})
-      puts "close_one_excel: begin"
       excel = current_excel
       return unless excel
       manage_unsaved_workbooks(excel, options) do
         weak_ole_excel = WeakRef.new(excel)
         excel = nil
         close_excel_ole_instance(weak_ole_excel.__getobj__)
-        puts "after calling close_excel_ole_instance:"
-        # here: RunetimeError: failed to get Dispatch Interface
       end
-      puts "close_one_excel: end"
     end
 
     def self.close_excel_ole_instance(ole_excel)  # :nodoc: #
@@ -431,7 +427,7 @@ module RobustExcelOle
       @ole_excel.Name
       true
     rescue
-      #t $!.message
+      trace $!.message
       false
     end
 

@@ -15,7 +15,7 @@ module RobustExcelOle
     alias ole_object ole_workbook
 
       DEFAULT_OPEN_OPTS = { 
-        :excel => :active,
+        :excel => :current,
         :default_excel => :current,      
         :if_unsaved    => :raise,
         :if_obstructed => :raise,
@@ -94,6 +94,7 @@ module RobustExcelOle
               book.close if (book.alive? && (not book.writable) && (not options[:read_only]))
               # reopens the book
               book.ensure_workbook(file,options) unless book.alive?
+              book.apply_options(options)
               return book
             end
           end
@@ -142,7 +143,7 @@ module RobustExcelOle
         file = file_or_workbook
         ensure_excel(options)
         ensure_workbook(file, options)
-        self.visible = options[:visible]
+        self.apply_options(options)
         @ole_workbook.CheckCompatibility = options[:check_compatibility]
         @can_be_closed = false if @can_be_closed.nil?
       end
@@ -157,7 +158,8 @@ module RobustExcelOle
     end
 
     def apply_options(options) # :nodoc: #
-      @excel.visible = options[:visible] unless options[:visible].nil?
+      #@excel.visible = options[:visible] unless options[:visible].nil?
+      #self.visible = options[:visible] unless options[:visible].nil?
       @excel.displayalerts = options[:displayalerts] unless options[:displayalerts].nil? 
     end
 
@@ -713,6 +715,7 @@ module RobustExcelOle
     # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
     # @raise  ExcelError if range name is not in the workbook or if range value could not be evaluated
     # @return [Variant] the contents of a range with given name
+  
     def nameval(name, opts = {:default => nil})
       begin
         name_obj = self.Names.Item(name)

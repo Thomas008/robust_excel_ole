@@ -103,7 +103,7 @@ describe Book do
         }.to raise_error(ExcelErrorSave, "filename is nil")
       end
 
-      it "should raise error if filename is nil" do
+      it "should raise error if workbook is not alive" do
         book = Book.open(@simple_file)
         book.close
         expect{
@@ -406,7 +406,7 @@ describe Book do
             @book.ole_workbook.Close
             expect{
               @book.save_as(@simple_save_file1, :if_exists => :alert)
-              }.to raise_error(ExcelErrorSave, "Workbook is not alive")
+              }.to raise_error(ExcelErrorSave, "workbook is not alive")
             File.exist?(@simple_save_file1).should be_true
             File.size?(@simple_save_file1).should == @garbage_length
             @book.excel.DisplayAlerts.should == displayalert_value
@@ -476,7 +476,7 @@ describe Book do
             @book.ole_workbook.Close
             expect{
               @book.save_as(@simple_save_file1, :if_exists => :excel)
-              }.to raise_error(ExcelErrorSave, "Workbook is not alive")
+              }.to raise_error(ExcelErrorSave, "workbook is not alive")
             File.exist?(@simple_save_file1).should be_true
             File.size?(@simple_save_file1).should == @garbage_length
             @book.excel.DisplayAlerts.should == displayalert_value

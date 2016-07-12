@@ -15,7 +15,6 @@ module RobustExcelOle
     alias ole_object ole_workbook
 
       DEFAULT_OPEN_OPTS = { 
-        :excel => :current,
         :default_excel => :current,      
         :if_unsaved    => :raise,
         :if_obstructed => :raise,
@@ -35,7 +34,7 @@ module RobustExcelOle
       # @option opts [Symbol]  :if_obstructed  :raise (default), :forget, :save, :close_if_saved, or _new_excel
       # @option opts [Symbol]  :if_absent      :raise (default), or :create
       # @option opts [Boolean] :read_only      true (default), or false
-      # @option opts [Boolean] :displayalerts  true, or false (default)
+      # @option opts [Boolean] :displayalerts  true, false, or if_visible (default)
       # @option opts [Boolean] :visible        true, or false (default) 
       # options: 
       # :default_excel   if the workbook was already open in an Excel instance, then open it in that Excel instance,

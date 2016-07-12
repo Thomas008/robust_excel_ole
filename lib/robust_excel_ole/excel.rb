@@ -160,7 +160,7 @@ module RobustExcelOle
       excels_number = excel_processes.size
       timeout = false
       begin
-        status = Timeout::timeout(5) {
+        status = Timeout::timeout(60) {
           while current_excel do
             close_one_excel(options)
             GC.start
@@ -207,16 +207,8 @@ module RobustExcelOle
         when :keep_open
           return
         when :alert
-          begin
-            ole_excel.DisplayAlerts = true
-            yield
-          ensure
-            begin                           
-              ole_excel.DisplayAlerts = false
-            rescue RuntimeError => msg
-              trace "manage: RuntimeError: #{msg.message}" if msg.message =~ /failed to get Dispatch Interface/
-            end
-          end
+          ole_excel.DisplayAlerts = true
+          yield
           return
         else
           raise ExcelErrorClose, ":if_unsaved: invalid option: #{options[:if_unsaved].inspect}"

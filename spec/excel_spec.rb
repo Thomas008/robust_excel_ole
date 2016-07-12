@@ -27,19 +27,6 @@ module RobustExcelOle
       rm_tmp(@dir)
     end
 
-    context "warning 'cause failed to get Dispatch Interface'" do
-
-      it "should save if user answers 'yes'" do
-        @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
-        book1 = Book.open(@simple_file)
-        book1.sheet(1)[1,1] = "foo"
-        @key_sender.puts "{enter}"
-        Excel.close_all(:if_unsaved => :alert)
-        @key_sender.close
-      end
-
-    end
-
     context "Illegal Refrence" do
 
       before do
@@ -428,6 +415,104 @@ module RobustExcelOle
           @excel1.should_not be_alive
         end
       end
+=begin
+        context "with :if_unsaved => :alert : several books" do
+          before do
+            @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
+          end
+
+          after do
+            @key_sender.close
+          end
+
+          it "should save if user answers 'yes'" do
+            @key_sender.puts "{enter}"
+            Excel.close_all(:if_unsaved => :alert)
+            @excel1.should_not be_alive
+            @excel2.should_not be_alive
+            @excel4.should_not be_alive
+            new_book2 = Book.open(@simple_file)
+            new_sheet2 = new_book2.sheet(1)
+            new_sheet2[1,1].value.should_not == @old_cell_value2
+            new_book2.close   
+            new_book3 = Book.open(@another_simple_file)
+            new_sheet3 = new_book3.sheet(1)
+            new_sheet3[1,1].value.should_not == @old_cell_value3
+            new_book3.close
+            new_book2.close   
+          end
+
+          it "should not save if user answers 'no'" do            
+            @key_sender.puts "{right}{enter}"
+            @key_sender.puts "{right}{enter}"
+            Excel.close_all(:if_unsaved => :alert)
+            @excel1.should_not be_alive
+            @excel2.should_not be_alive
+            @excel4.should_not be_alive
+            new_book2 = Book.open(@simple_file)
+            new_sheet2 = new_book2.sheet(1)
+            new_sheet2[1,1].value.should == @old_cell_value2
+            new_book2.close   
+            new_book3 = Book.open(@another_simple_file)
+            new_sheet3 = new_book3.sheet(1)
+            new_sheet3[1,1].value.should == @old_cell_value3
+            new_book3.close 
+          end
+        end
+      end
+=end
+=begin
+      context "with :if_unsaved => :alert : two books" do
+        before do
+          @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
+          book1 = Book.open(@simple_file)
+          book2 = Book.open(@different_file, :force_excel => :new)
+          @excel1 = book1.excel
+          @excel2 = book2.excel
+          sheet1 = book1.sheet(1)
+          @old_cell_value1 = sheet1[1,1].value
+          sheet1[1,1] = sheet1[1,1].value == "foo" ? "bar" : "foo"
+          sheet2 = book2.sheet(1)
+          @old_cell_value2 = sheet2[1,1].value
+          sheet2[1,1] = sheet2[1,1].value == "foo" ? "bar" : "foo"
+        end
+
+        after do
+          @key_sender.close
+        end
+
+        it "should save if user answers 'yes'" do
+          @key_sender.puts "{enter}"
+          Excel.close_all(:if_unsaved => :alert)
+          @excel1.should_not be_alive
+          @excel2.should_not be_alive
+          new_book1 = Book.open(@simple_file)
+          new_sheet1 = new_book1.sheet(1)
+          new_sheet1[1,1].value.should_not == @old_cell_value1
+          new_book1.close 
+          new_book2 = Book.open(@different_file)
+          new_sheet2 = new_book2.sheet(1)
+          new_sheet2[1,1].value.should_not == @old_cell_value2
+          new_book2.close   
+        end
+
+        it "should not save if user answers 'no'" do            
+          @key_sender.puts "{right}{enter}"
+          @key_sender.puts "{right}{enter}"
+          Excel.close_all(:if_unsaved => :alert)
+          @excel1.should_not be_alive
+          @excel2.should_not be_alive
+          new_book1 = Book.open(@simple_file)
+          new_sheet1 = new_book1.sheet(1)
+          new_sheet1[1,1].value.should == @old_cell_value1
+          new_book1.close 
+          new_book2 = Book.open(@different_file)
+          new_sheet2 = new_book2.sheet(1)
+          new_sheet2[1,1].value.should == @old_cell_value2
+          new_book2.close   
+        end
+      end
+=end
 
       context "with :if_unsaved => :alert" do
         before do
@@ -447,10 +532,10 @@ module RobustExcelOle
         it "should save if user answers 'yes'" do
           @key_sender.puts "{enter}"
           Excel.close_all(:if_unsaved => :alert)
+          @excel2.should_not be_alive
           new_book2 = Book.open(@simple_file)
           new_sheet2 = new_book2.sheet(1)
-          new_sheet2[1,
-            1].value.should_not == @old_cell_value2
+          new_sheet2[1,1].value.should_not == @old_cell_value2
           new_book2.close   
         end
 

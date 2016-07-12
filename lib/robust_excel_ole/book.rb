@@ -299,7 +299,7 @@ module RobustExcelOle
           # delay: with visible: 0.2 sec, without visible almost none
           count = workbooks.Count
           workbooks.Add if @excel.Version == "12.0" && count == 0
-          workbooks.Open(filename,{ 'ReadOnly' => options[:read_only] })
+          workbooks.Open(filename,{ 'ReadOnly' => options[:read_only] , 'UpdateLinks' => 2 } )
           workbooks.Item(1).Close if @excel.Version == "12.0" && count == 0                   
         rescue WIN32OLERuntimeError => msg
           trace "WIN32OLERuntimeError: #{msg.message}" 

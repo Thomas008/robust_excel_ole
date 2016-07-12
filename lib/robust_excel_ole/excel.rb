@@ -117,9 +117,9 @@ module RobustExcelOle
 
   private
     
-    # returns (connects to) a running Excel instance
+    # returns a Win32OLE object that represents a Excel instance to which Excel connects
     # connects to the first opened Excel instance
-    # if this Excel instance is being closed, then Excel creates a new Excel instance that has the same Hwnd
+    # if this Excel instance is being closed, then Excel creates a new Excel instance
     def self.current_excel   # :nodoc: #
       result = WIN32OLE.connect('Excel.Application') rescue nil
       if result
@@ -165,11 +165,11 @@ module RobustExcelOle
             close_one_excel(options)
             GC.start
             sleep 0.3
-            current_excels_number = excel_processes.size
-            if current_excels_number == excels_number && excels_number > 0
+            running_excels_number = excel_processes.size
+            if running_excels_number == excels_number && excels_number > 0
               raise ExcelError, "some Excel instance cannot be closed"
             end
-            excels_number = current_excels_number
+            excels_number = running_excels_number
           end   
         }
       rescue Timeout::Error
@@ -186,10 +186,10 @@ module RobustExcelOle
 
   private
 
-    def self.manage_unsaved_workbooks(excel, options)     # :nodoc: #
+    def self.manage_unsaved_workbooks(ole_excel, options)     # :nodoc: #
       unsaved_workbooks = []
       begin
-        excel.Workbooks.each {|w| unsaved_workbooks << w unless (w.Saved || w.ReadOnly)}
+        ole_excel.Workbooks.each {|w| unsaved_workbooks << w unless (w.Saved || w.ReadOnly)}
       rescue RuntimeError => msg
         trace "RuntimeError: #{msg.message}" 
         raise ExcelErrorOpen, "Excel instance not alive or damaged" if msg.message =~ /failed to get Dispatch Interface/
@@ -208,11 +208,11 @@ module RobustExcelOle
           return
         when :alert
           begin
-            excel.DisplayAlerts = true
+            ole_excel.DisplayAlerts = true
             yield
           ensure
             begin                           
-              excel.DisplayAlerts = false 
+              ole_excel.DisplayAlerts = false
             rescue RuntimeError => msg
               trace "manage: RuntimeError: #{msg.message}" if msg.message =~ /failed to get Dispatch Interface/
             end
@@ -227,25 +227,25 @@ module RobustExcelOle
 
     # closes one Excel instance to which one was connected
     def self.close_one_excel(options={})
-      excel = current_excel
-      return unless excel
-      manage_unsaved_workbooks(excel, options) do
-        weak_ole_excel = WeakRef.new(excel)
-        excel = nil
+      ole_excel = current_excel
+      return unless ole_excel
+      manage_unsaved_workbooks(ole_excel, options) do
+        weak_ole_excel = WeakRef.new(ole_excel)
+        ole_excel = nil
         close_excel_ole_instance(weak_ole_excel.__getobj__)
       end
     end
 
     def self.close_excel_ole_instance(ole_excel)  # :nodoc: #
       @@hwnd2excel.delete(ole_excel.Hwnd)
-      excel = ole_excel
+      ole_xl = ole_excel
       ole_excel = nil
       begin
-        excel.Workbooks.Close
-        excel_hwnd = excel.HWnd
-        excel.Quit
-        weak_excel_ref = WeakRef.new(excel)
-        excel = nil
+        ole_xl.Workbooks.Close
+        excel_hwnd = ole_xl.HWnd
+        ole_xl.Quit
+        weak_excel_ref = WeakRef.new(ole_xl)
+        ole_xl = nil
         GC.start
         sleep 0.2
         if weak_excel_ref.weakref_alive? then
@@ -427,7 +427,7 @@ module RobustExcelOle
       @ole_excel.Name
       true
     rescue
-      trace $!.message
+      #trace $!.message
       false
     end
 

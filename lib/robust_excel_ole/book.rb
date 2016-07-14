@@ -296,8 +296,7 @@ module RobustExcelOle
           # delay: with visible: 0.2 sec, without visible almost none
           count = workbooks.Count
           workbooks.Add if @excel.Version == "12.0" && count == 0
-          workbooks.Open(filename,
-            { 'ReadOnly' => options[:read_only] , 'UpdateLinks' => (options[:update_links] == true ? 1 : 2) } )
+          workbooks.Open(filename, { 'ReadOnly' => options[:read_only] } )
           workbooks.Item(1).Close if @excel.Version == "12.0" && count == 0                   
         rescue WIN32OLERuntimeError => msg
           trace "WIN32OLERuntimeError: #{msg.message}" 
@@ -308,9 +307,9 @@ module RobustExcelOle
           end
         end   
         begin
-          # workaround for bug in Excel 2010: workbook.Open does not always return 
-          # the workbook with given file name
+          # workaround for bug in Excel 2010: workbook.Open does not always return the workbook with given file name
           @ole_workbook = workbooks.Item(File.basename(filename))
+          @ole_workbook.UpdateLinks = (options[:update_links] == true ? 1 : 2)
         rescue WIN32OLERuntimeError
           raise ExcelErrorOpen, "cannot find the file #{File.basename(filename).inspect}"
         end       
@@ -397,13 +396,11 @@ module RobustExcelOle
     #                                                     reuse another Excel, otherwise          
     #                    :hidden -> a separate Excel instance that is not visible and has no displayaslerts
     #                    <excel-instance> -> the given Excel instance
-    #  :read_only        : opens the workbook unobtrusively for reading only  (default: false)
     #  :readonly_excel:  if the workbook is opened only as ReadOnly and shall be modified, then
     #                    true:  closes it and open it as writable in the Excel instance where it was open so far
     #                    false (default)   opens it as writable in another running excel instance, if it exists,
     #                                      otherwise open in a new Excel instance.
-    #  :visible       makes the window of the workbook visible (default: false)
-    #  :check_compatibility checks compatibility when saving
+    #  :visible, :readl_only, :update_links, :check_compatibility : see options in #open
     # @return [Book] a workbook
     def self.unobtrusively(file, if_closed = nil, opts = { }, &block) 
       if if_closed.is_a? Hash

@@ -1099,7 +1099,6 @@ describe Book do
         book.UpdateLinks.should == XlUpdateLinksNever
       end
 
-
     end
 
     context "with :read_only" do

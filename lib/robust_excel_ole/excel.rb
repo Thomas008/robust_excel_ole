@@ -12,6 +12,8 @@ module RobustExcelOle
   class Excel < REOCommon    
 
     attr_accessor :ole_excel
+    attr_accessor :visible
+    attr_accessor :displayalerts
 
     alias ole_object ole_excel
 
@@ -313,6 +315,7 @@ module RobustExcelOle
       ole_xl.Quit
       weak_excel_ref = WeakRef.new(ole_xl)
       ole_xl = @ole_excel = nil
+      @displayalerts = @visible = nil
       GC.start
       sleep 0.2
       if weak_excel_ref.weakref_alive? then
@@ -484,23 +487,15 @@ module RobustExcelOle
 
     # enables DisplayAlerts in the current Excel instance
     def displayalerts= displayalerts_value
-      @displayalerts = @ole_excel.DisplayAlerts = displayalerts_value
-    end
-
-    # return whether DisplayAlerts is enabled in the current Excel instance
-    def displayalerts 
-      @displayalerts = @ole_excel.DisplayAlerts
+      @displayalerts = displayalerts_value
+      @ole_excel.DisplayAlerts = @displayalerts == :if_visible ? @ole_excel.Visible : @displayalerts
     end
 
     # makes the current Excel instance visible or invisible
     def visible= visible_value
       @visible = @ole_excel.Visible = visible_value
-    end
-
-    # returns whether the current Excel instance is visible
-    def visible 
-      @visible = @ole_excel.Visible
-    end    
+      @ole_excel.DisplayAlerts = true if @visible & @displayalerts == :if_visible
+    end   
 
     # sets calculation mode in a block
     def with_calculation(calculation_mode = :automatic)

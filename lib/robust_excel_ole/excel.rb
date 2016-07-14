@@ -21,7 +21,7 @@ module RobustExcelOle
 
     # creates a new Excel instance
     # @param [Hash] options the options
-    # @option options [Boolean] :displayalerts 
+    # @option options [Variant] :displayalerts 
     # @option options [Boolean] :visible 
     # @return [Excel] a new Excel instance
     def self.create(options = {})
@@ -30,7 +30,7 @@ module RobustExcelOle
 
     # returns (connects to) the current Excel instance, if such a running Excel instance exists    
     # more specific: connects to the first opened Excel instance
-    # @option options [Boolean] :displayalerts 
+    # @option options [Variant] :displayalerts 
     # @option options [Boolean] :visible 
     # @return [Excel] an Excel instance
     def self.current(options = {})
@@ -46,9 +46,9 @@ module RobustExcelOle
     # options: 
     #  :reuse          connects to an already running Excel instance (true) or
     #                  creates a new Excel instance (false)  (default: true)
-    #  :displayalerts  enables or disables DisplayAlerts     (default: false) 
-    #                                                        (true, false, :if_visible (DisplayAlerts iff visible))
     #  :visible        makes the Excel visible               (default: false)
+    #  :displayalerts  enables or disables DisplayAlerts     (default: false) 
+    #                                                        (true, false, :if_visible (DisplayAlerts iff visible))    
     # @return [Excel] an Excel instance
     def self.new(options = {})
       if options.is_a? WIN32OLE
@@ -70,6 +70,8 @@ module RobustExcelOle
         ole_xl.Visible = options[:visible] unless options[:visible].nil?
         ole_xl.DisplayAlerts = ((options[:displayalerts] == :if_visible) ?  
           (options[:visible] == true) : options[:displayalerts]) unless options[:displayalerts].nil?
+        @visible = options[:visible]
+        @displayalerts = options[:displayalerts]
       end
 
       hwnd = ole_xl.HWnd
@@ -485,16 +487,29 @@ module RobustExcelOle
       end
     end    
 
+    # returns if DisplayAlerts is enabled
+    def displayalerts
+      @ole_excel.DisplayAlerts
+    end
+
     # enables DisplayAlerts in the current Excel instance
     def displayalerts= displayalerts_value
       @displayalerts = displayalerts_value
-      @ole_excel.DisplayAlerts = @displayalerts == :if_visible ? @ole_excel.Visible : @displayalerts
+      @ole_excel.DisplayAlerts = (@displayalerts == :if_visible) ? @ole_excel.Visible : displayalerts_value
+    end
+
+    # returns if the Excel instance is visible
+    def visible
+      @ole_excel.Visible
     end
 
     # makes the current Excel instance visible or invisible
     def visible= visible_value
-      @visible = @ole_excel.Visible = visible_value
-      @ole_excel.DisplayAlerts = true if @visible & @displayalerts == :if_visible
+      @ole_excel.Visible = @visible = visible_value
+      trace "@ole_excel.Visible: #{@ole_excel.Visible}"
+      trace "@displayalerts: #{@displayalerts}"
+      trace "condition: #{(@ole_excel.Visible && (@displayalerts == :if_visible))}"
+      @ole_excel.DisplayAlerts = true if @visible && @displayalerts == :if_visible
     end   
 
     # sets calculation mode in a block

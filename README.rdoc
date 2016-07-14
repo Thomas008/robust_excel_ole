@@ -6,7 +6,7 @@ Moreover, robust_excel_ole implements a management system of Excel files and Exc
 
 Goals:
 - support both fully automated operations as well as simultaneous user interactions during the automation
-- be able to cope with all cases of Excel (and user) behaviour, encapsulate errors
+- robust Excel AUtomation: be able to deal with all cases of Excel (and user) behaviour, encapsulate errors
 - provide convenient methods for frequent (common) tasks
 - support the use of simultaneously running Excel instances
 - allow the presence of referenced libraries and provide some support for that
@@ -41,9 +41,9 @@ The semantics is similar to, e.g.,  +File.open+.
 Options are 
   
   +:default_excel+, +:force_excel+, +:if_absent+, +:if_unsaved+, +:if_obstructed+, 
-  +:read_only+, +:check_compatibility, +:visible+. 
+  +:read_only+, +:visible+, +:check_compatibility, and +:update_links+. 
 
-Valid values for +:default_excel+ are +:current+ (or +:active+, or +:reuse+), +:new+ or some Excel instance, for +:force_excel+ : +:current+ (or +:active+, or +:reuse+), +:new+ or some Excel instance, for +:if_unsaved+ : +:raise+, +:accept+, +:forget+, +:alert+ and +:new_excel+, for +:if_obstructed+ : +:raise+, +:save+, +:close_if_saved+, +:forget+, +:alert+ and +:new_excel+ , for +:if_absent+ : +:raise+ and +:create+.
+Valid values for +:default_excel+ are +:current+ (or +:active+, or +:reuse+), +:new+ or some Excel instance, for +:force_excel+ : +:current+ (or +:active+, or +:reuse+), +:new+ or some Excel instance, for +:if_unsaved+ : +:raise+, +:accept+, +:forget+, +:alert+ and +:new_excel+, for +:if_obstructed+ : +:raise+, +:save+, +:close_if_saved+, +:forget+, +:alert+ and +:new_excel+ , for +:if_absent+ : +:raise+ and +:create+. The others are Boolean.
 
 Here are a few examples:
 
@@ -65,7 +65,7 @@ Opening a workbook in a given Excel instance, no matter if the workbook was open
 
   book = Book.open('workbook.xls', :force_excel => excel1)
 
-Opening a workbook in a new Excel instance and make it visible.
+Opening a workbook in a new Excel instance and make the window of the workbook visible.
 
   book = Book.open('workbook.xls', :force_excel => :new, :visible => true)
 
@@ -356,21 +356,56 @@ Creating a new Excel.
 
   excel1 = Excel.create
 
-Getting a running Excel instance and reusing it.
+or 
+
+  excel1 = Excel.new(:reuse => false)  
+
+Resusing a runnin Excel instance.
 
   excel2 = Excel.current
 
-Reusing a running Excel instance, making it visible and turning on displayalerts.
+or 
 
-  excel3 = Excel.new(:reuse => true, :visible => true, :displayalerts => true)
+  excel2 = Excel.new(:reuse => true)  
 
-or
-  
-  excel3 = Excel.current(:visible => true, :displayalerts => true)
+Options are +:reuse+ (+true+, +false+), +:visible+ (+true+, +false+) and +:displayalerts+ (+true+, +false+, +:if_visible+).  
 
 Promoting an Excel instance represented as WIN32OLE object to an Excel object
 
-  excel = Excel.new(:reuse => win32ole_object)
+  excel = Excel.new(win32ole_object)
+
+=== Making a Excel visible or invisible
+
+Creating a new Excel and making it visible.
+
+  excel1 = Excel.create(:visible => true)
+
+or
+
+  excel1 = Excel.new(:reuse => false, :visible => true)  
+
+Reusing a Excel and making it invisible.
+
+  excel2 = Excel.current(:reuse => false, :visible => false)  
+
+or 
+
+  excel2 = Excel.new(:reuse => false, :visible => false)
+
+=== Enabling or disabling DisplayAlerts
+
+Enabling DisplayAlerts.
+
+  excel3 = Excel.new(:reuse => true, :displayalerts => true)
+
+Disabling DisplayAlerts.
+  
+  excel3 = Excel.current(:reuse => true, :displayalerts => false)
+
+Enabling DisplayAlerts whenever the Excel instance is visible.
+
+  excel3 = Excel.current(:reuse => true, :displayalerts => :if_visible)
+
 
 === Closing an Excel
 

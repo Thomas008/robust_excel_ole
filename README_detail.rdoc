@@ -446,23 +446,55 @@ Creating a new Excel.
 
   excel1 = Excel.create
 
-Getting a running Excel instance and reusing it.
-Connecting to the first opened Excel instance. If this Excel instance is being closed, then Excel creates a new Excel instance that has the same Hwnd
+or 
+
+  excel1 = Excel.new(:reuse => false)  
+
+Resusing a runnin Excel instance.
 
   excel2 = Excel.current
 
-Reusing a running Excel instance, making it visible and turning on displayalerts.
+or 
 
-  excel2 = Excel.new(:reuse => true, :visible => true, :displayalerts => true)
+  excel2 = Excel.new(:reuse => true)  
 
-or
-  
-  excel3 = Excel.current(:visible => true, :displayalerts => true)
+Options are +:reuse+ (+true+, +false+), +:visible+ (+true+, +false+) and +:displayalerts+ (+true+, +false+, +:if_visible+).  
 
 Promoting an Excel instance represented as WIN32OLE object to an Excel object
 
-  excel = Excel.new(:reuse => win32ole_object)
+  excel = Excel.new(win32ole_object)
 
+=== Making a Excel visible or invisible
+
+Creating a new Excel and making it visible.
+
+  excel1 = Excel.create(:visible => true)
+
+or
+
+  excel1 = Excel.new(:reuse => false, :visible => true)  
+
+Reusing a Excel and making it invisible.
+
+  excel2 = Excel.current(:reuse => false, :visible => false)  
+
+or 
+
+  excel2 = Excel.new(:reuse => false, :visible => false)
+
+=== Enabling or disabling DisplayAlerts
+
+Enabling DisplayAlerts.
+
+  excel3 = Excel.new(:reuse => true, :displayalerts => true)
+
+Disabling DisplayAlerts.
+  
+  excel3 = Excel.current(:reuse => true, :displayalerts => false)
+
+Enabling DisplayAlerts whenever the Excel instance is visible.
+
+  excel3 = Excel.current(:reuse => true, :displayalerts => :if_visible)
 
 === Closing an Excel
 

@@ -40,15 +40,15 @@ module RobustExcelOle
     # returns an Excel instance  
     # given a WIN32OLE object representing an Excel instance, or a Hash representing options
     # @param [Hash] options the options
-    # @option options [Boolean] :reuse  
-    # @option options [Boolean] :displayalerts 
-    # @option options [Boolean] :visible 
+    # @option options [Boolean] :reuse      
+    # @option options [Boolean] :visible
+    # @option options [Variant] :displayalerts  
     # options: 
     #  :reuse          connects to an already running Excel instance (true) or
-    #                  creates a new Excel instance (false)   (default: true)
-    #  :displayalerts  sets DisplayAlerts in Excel            (default: :if_visible)
-    #  :visible        makes the Excel visible                (default: false)
-    #  if :reuse => true, then DisplayAlerts and Visible are set only if they are given
+    #                  creates a new Excel instance (false)  (default: true)
+    #  :displayalerts  enables or disables DisplayAlerts     (default: false) 
+    #                                                        (true, false, :if_visible (DisplayAlerts iff visible))
+    #  :visible        makes the Excel visible               (default: false)
     # @return [Excel] an Excel instance
     def self.new(options = {})
       if options.is_a? WIN32OLE
@@ -62,7 +62,7 @@ module RobustExcelOle
       if not (ole_xl)
         ole_xl = WIN32OLE.new('Excel.Application')
         options = {
-          :displayalerts => :if_visible,
+          :displayalerts => false,
           :visible => false,
         }.merge(options)
       end

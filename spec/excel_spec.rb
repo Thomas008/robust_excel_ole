@@ -287,15 +287,15 @@ module RobustExcelOle
           @excel1.recreate(:reopen_workbooks => true, :displayalerts => true)
           @excel1.should be_alive
           @excel1.should be_a Excel
-          @excel1.visible.should be_true
-          @excel1.displayalerts.should be_true
+          @excel1.Visible.should be_true
+          @excel1.DisplayAlerts.should be_true
           @book1.should be_alive
           @book2.should be_alive
           @excel3.recreate(:visible => true)
           @excel3.should be_alive
           @excel3.should be_a Excel
-          @excel3.visible.should be_true
-          @excel3.displayalerts.should be_true
+          @excel3.Visible.should be_true
+          @excel3.DisplayAlerts.should be_true
           @book3.reopen
           @book3.should be_alive
           @book3.excel.should == @excel3
@@ -812,26 +812,44 @@ module RobustExcelOle
         excel.visible = false
         excel.Visible.should be_false
         excel.visible.should be_false
+        excel.DisplayAlerts.should be_false
+        excel.displayalerts.should be_false
         excel7 = Excel.current
         excel7.should === excel
         excel7.Visible.should be_false
+        excel7.DisplayAlerts.should be_false
         excel1 = Excel.create(:visible => true)
         excel1.should_not == excel
         excel1.Visible.should be_true
+        excel1.visible.should be_true
+        excel1.DisplayAlerts.should be_false
+        excel1.displayalerts.should be_false
         excel2 = Excel.create(:visible => false)
         excel2.Visible.should be_false
+        excel2.visible.should be_false
+        excel2.DisplayAlerts.should be_false
+        excel2.displayalerts.should be_false
         excel3 = Excel.current
         excel3.should === excel
         excel3.Visible.should be_false
+        excel3.visible.should be_false
+        excel3.DisplayAlerts.should be_false
+        excel3.displayalerts.should be_false
         excel4 = Excel.current(:visible => true)
         excel4.should === excel
         excel4.Visible.should be_true
+        excel4.visible.should be_true
+        excel4.DisplayAlerts.should be_false
+        excel4.displayalerts.should be_false
         excel5 = Excel.current(:visible => false)
         excel5.should === excel
         excel5.Visible.should be_false
+        excel5.visible.should be_false
+        excel5.DisplayAlerts.should be_false
+        excel5.displayalerts.should be_false
       end
 
-      it "should create Excel with DispayAlerts enabled and disabled" do        
+      it "should enable or disable Excel DispayAlerts" do        
         excel = Excel.new(reuse => false, :displayalerts => true)
         excel.DisplayAlerts.should be_true
         excel.displayalerts.should be_true
@@ -840,29 +858,109 @@ module RobustExcelOle
         excel6 = Excel.current
         excel6.should === excel
         excel6.DisplayAlerts.should be_true
+        excel6.displayalerts.should be_true
+        excel6.Visible.should be_false
+        excel6.visible.should be_false
         excel.displayalerts = false
         excel.DisplayAlerts.should be_false
         excel.displayalerts.should be_false
+        excel.Visible.should be_false
+        excel.visible.should be_false
         excel7 = Excel.current
         excel7.should === excel
         excel7.DisplayAlerts.should be_false
+        excel7.displayalerts.should be_false
+        excel7.Visible.should be_false
+        excel7.visible.should be_false
         excel1 = Excel.create(:displayalerts => true)
         excel1.should_not == excel
         excel1.DisplayAlerts.should be_true
+        excel1.displayalerts.should be_true
+        excel1.Visible.should be_false
+        excel1.visible.should be_false
         excel2 = Excel.create(:displayalerts => false)
         excel2.DisplayAlerts.should be_false
+        excel2.displayalerts.should be_false
+        excel2.Visible.should be_false
+        excel2.visible.should be_false
         excel3 = Excel.current
         excel3.should === excel
         excel3.DisplayAlerts.should be_false
+        excel3.displayalerts.should be_false
+        excel3.Visible.should be_false
+        excel3.visible.should be_false
         excel4 = Excel.current(:displayalerts => true)
         excel4.should === excel
         excel4.DisplayAlerts.should be_true
+        excel4.displayalerts.should be_true
+        excel4.Visible.should be_false
+        excel4.visible.should be_false
         excel5 = Excel.current(:displayalerts => false)
         excel5.should === excel
         excel5.DisplayAlerts.should be_false
+        excel5.displayalerts.should be_false
+        excel5.Visible.should be_false
+        excel5.visible.should be_false
       end
 
-      it "should displayalerts to if_visible" do
+      it "should set Excel visible and displayalerts" do        
+        excel = Excel.new(reuse => false, :visible => true, :displayalerts => true)
+        excel.DisplayAlerts.should be_true
+        excel.displayalerts.should be_true
+        excel.Visible.should be_true
+        excel.visible.should be_true
+        excel6 = Excel.current
+        excel6.should === excel
+        excel6.DisplayAlerts.should be_true
+        excel6.displayalerts.should be_true
+        excel6.Visible.should be_true
+        excel6.visible.should be_true
+        excel.displayalerts = false
+        excel.DisplayAlerts.should be_false
+        excel.displayalerts.should be_false
+        excel.Visible.should be_true
+        excel.visible.should be_true
+        excel7 = Excel.current
+        excel7.should === excel
+        excel7.DisplayAlerts.should be_false
+        excel7.displayalerts.should be_false
+        excel7.Visible.should be_true
+        excel7.visible.should be_true        
+        excel2 = Excel.new(reuse => false, :visible => true, :displayalerts => true)
+        excel2.visible = false
+        excel2.DisplayAlerts.should be_true
+        excel2.displayalerts.should be_true
+        excel2.Visible.should be_false
+        excel2.visible.should be_false
+        excel3 = Excel.new(reuse => false, :visible => true, :displayalerts => false)
+        excel3.Visible.should be_true
+        excel3.DisplayAlerts.should be_false
+        excel3 = Excel.new(reuse => false, :visible => false, :displayalerts => true)
+        excel3.Visible.should be_false
+        excel3.DisplayAlerts.should be_true
+        excel3 = Excel.new(reuse => false, :visible => false, :displayalerts => false)
+        excel3.Visible.should be_false
+        excel3.DisplayAlerts.should be_false
+        excel4 = Excel.create(:visible => true, :displayalerts => true)
+        excel4.DisplayAlerts.should be_true
+        excel4.displayalerts.should be_true
+        excel4.Visible.should be_true
+        excel4.visible.should be_true
+        excel5 = Excel.current(:visible => true, :displayalerts => false)
+        excel5.should === excel
+        excel5.DisplayAlerts.should be_true
+        excel5.displayalerts.should be_true
+        excel5.Visible.should be_false
+        excel5.visible.should be_false
+        excel6 = Excel.current(:visible => false, :displayalerts => true)
+        excel6.should === excel
+        excel6.DisplayAlerts.should be_false
+        excel6.displayalerts.should be_false
+        excel6.Visible.should be_true
+        excel6.visible.should be_true
+      end
+
+      it "should work with displayalerts == if_visible" do
         excel = Excel.new(:reuse => false, :visible => true, :displayalerts => :if_visible)
         excel.Visible.should be_true
         excel.DisplayAlerts.should be_true
@@ -870,6 +968,12 @@ module RobustExcelOle
         excel2.Visible.should be_false
         excel2.DisplayAlerts.should be_false
         excel3 = Excel.new(:reuse => false, :displayalerts => :if_visible)
+        excel3.Visible.should be_false
+        excel3.DisplayAlerts.should be_false
+        excel3.visible = true
+        excel3.Visible.should be_true
+        excel3.DisplayAlerts.should be_true
+        excel3.visible = false
         excel3.Visible.should be_false
         excel3.DisplayAlerts.should be_false
       end

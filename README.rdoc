@@ -406,7 +406,6 @@ Enabling DisplayAlerts whenever the Excel instance is visible.
 
   excel3 = Excel.current(:reuse => true, :displayalerts => :if_visible)
 
-
 === Closing an Excel
 
   excel = Excel.current

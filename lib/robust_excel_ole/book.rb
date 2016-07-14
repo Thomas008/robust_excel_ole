@@ -790,7 +790,7 @@ module RobustExcelOle
     # @param [Boolean] visible_value value that determines whether the workbook shall be visible
     def visible= visible_value
       saved = @ole_workbook.Saved
-      @excel.Visible = true if visible_value
+      @excel.visible = true if visible_value
       @ole_workbook.Windows(@ole_workbook.Name).Visible = visible_value if @excel.Visible
       save if saved 
     end

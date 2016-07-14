@@ -1004,6 +1004,7 @@ module RobustExcelOle
       before do
         @excel1 = Excel.new(:displayalerts => true)
         @excel2 = Excel.new(:displayalerts => false, :reuse => false)
+        @excel3 = Excel.new(:displayalerts => false, :visible => true, :reuse => false)
       end
 
       it "should turn off displayalerts" do
@@ -1030,7 +1031,30 @@ module RobustExcelOle
         end
       end
 
-      it "should" do
+      it "should set displayalerts to :if_visible" do
+        @excel1.DisplayAlerts.should be_true
+        begin
+          @excel1.with_displayalerts :if_visible do
+            @excel1.DisplayAlerts.should be_false
+            @excel1.Visible.should be_false
+            raise TestError, "any_error"
+          end
+        rescue TestError
+          @excel1.DisplayAlerts.should be_true
+        end
+      end
+
+      it "should set displayalerts to :if_visible" do
+        @excel3.DisplayAlerts.should be_false
+        begin
+          @excel3.with_displayalerts :if_visible do
+            @excel3.DisplayAlerts.should be_true
+            @excel3.Visible.should be_true
+            raise TestError, "any_error"
+          end
+        rescue TestError
+          @excel3.DisplayAlerts.should be_false
+        end
       end
 
     end

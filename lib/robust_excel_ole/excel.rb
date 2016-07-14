@@ -28,8 +28,8 @@ module RobustExcelOle
       new(options.merge({:reuse => false}))
     end
 
-    # returns (connects to) the current Excel instance, if such a running Excel instance exists    
-    # more specific: connects to the first opened Excel instance
+    # returns (connects to) the current (first opened) Excel instance, if such a running Excel instance exists    
+    # returns a new Excel instance, otherwise
     # @option options [Variant] :displayalerts 
     # @option options [Boolean] :visible 
     # @return [Excel] an Excel instance
@@ -66,13 +66,6 @@ module RobustExcelOle
           :visible => false,
         }.merge(options)
       end
-      unless options.is_a? WIN32OLE
-        ole_xl.Visible = options[:visible] unless options[:visible].nil?
-        ole_xl.DisplayAlerts = ((options[:displayalerts] == :if_visible) ?  
-          (options[:visible] == true) : options[:displayalerts]) unless options[:displayalerts].nil?
-        @visible = options[:visible]
-        @displayalerts = options[:displayalerts]
-      end
 
       hwnd = ole_xl.HWnd
       stored = hwnd2excel(hwnd)
@@ -81,15 +74,25 @@ module RobustExcelOle
         result = stored
       else
         result = super(options)
-        result.instance_variable_set(:@ole_excel, ole_xl)
+        result.instance_variable_set(:@ole_excel, ole_xl)        
         WIN32OLE.const_load(ole_xl, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
         @@hwnd2excel[hwnd] = WeakRef.new(result)
+      end
+      unless options.is_a? WIN32OLE
+        ole_xl.Visible = options[:visible] unless options[:visible].nil?
+        ole_xl.DisplayAlerts = ((options[:displayalerts] == :if_visible) ?  
+          (options[:visible] == true) : options[:displayalerts]) unless options[:displayalerts].nil?
+        reused = options[:reuse] && (not stored.nil?)
+        visible_value = (reused && options[:visible].nil?) ? result.visible : options[:visible]
+        displayalerts_value = (reused && options[:displayalerts].nil?) ? result.displayalerts : options[:displayalerts]
+        result.instance_variable_set(:@visible, visible_value)
+        result.instance_variable_set(:@displayalerts, displayalerts_value)
       end
       result
     end
 
     def initialize(options= {}) # :nodoc: #
-      @ole_excel = self
+      @excel = self
     end
 
     # reopens a closed Excel instance
@@ -317,7 +320,7 @@ module RobustExcelOle
       ole_xl.Quit
       weak_excel_ref = WeakRef.new(ole_xl)
       ole_xl = @ole_excel = nil
-      @displayalerts = @visible = nil
+      #@displayalerts = @visible = nil
       GC.start
       sleep 0.2
       if weak_excel_ref.weakref_alive? then
@@ -478,29 +481,19 @@ module RobustExcelOle
 
     # sets DisplayAlerts in a block
     def with_displayalerts displayalerts_value
-      old_displayalerts = @ole_excel.DisplayAlerts
-      @ole_excel.DisplayAlerts = displayalerts_value
+      old_displayalerts = self.displayalerts
+      self.displayalerts = displayalerts_value
       begin
          yield self
       ensure
-        @ole_excel.DisplayAlerts = old_displayalerts if alive?
+        self.displayalerts = old_displayalerts if alive?
       end
     end    
-
-    # returns if DisplayAlerts is enabled
-    def displayalerts
-      @ole_excel.DisplayAlerts
-    end
 
     # enables DisplayAlerts in the current Excel instance
     def displayalerts= displayalerts_value
       @displayalerts = displayalerts_value
       @ole_excel.DisplayAlerts = (@displayalerts == :if_visible) ? @ole_excel.Visible : displayalerts_value
-    end
-
-    # returns if the Excel instance is visible
-    def visible
-      @ole_excel.Visible
     end
 
     # makes the current Excel instance visible or invisible
@@ -509,7 +502,8 @@ module RobustExcelOle
       trace "@ole_excel.Visible: #{@ole_excel.Visible}"
       trace "@displayalerts: #{@displayalerts}"
       trace "condition: #{(@ole_excel.Visible && (@displayalerts == :if_visible))}"
-      @ole_excel.DisplayAlerts = true if @visible && @displayalerts == :if_visible
+      @ole_excel.DisplayAlerts = @visible if @displayalerts == :if_visible
+
     end   
 
     # sets calculation mode in a block

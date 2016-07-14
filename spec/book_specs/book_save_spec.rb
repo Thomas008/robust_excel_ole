@@ -289,7 +289,8 @@ describe Book do
     possible_displayalerts.each do |displayalert_value|
       context "with displayalerts=#{displayalert_value}" do
         before do
-          @book = Book.open(@simple_file, :displayalerts => displayalert_value)
+          @book = Book.open(@simple_file)
+          @book.excel.displayalerts = displayalert_value
         end
 
         after do

@@ -113,17 +113,18 @@ describe Book do
         new_book.close
       end
 
-      it "should yield an identical Book and set visible and displayalerts values" do
+      it "should yield an identical Book and set visible value" do
         workbook = @book.ole_workbook
-        new_book = Book.new(workbook, :visible => true, :displayalerts => true)
+        new_book = Book.new(workbook, :visible => true)
+        new_book.excel.displayalerts = true
         new_book.should be_a Book
         new_book.should be_alive
         new_book.should == @book
         new_book.filename.should == @book.filename
         new_book.excel.should == @book.excel
         new_book.should === @book
-        new_book.excel.visible.should be_true
-        new_book.excel.displayalerts.should be_true
+        new_book.excel.Visible.should be_true
+        new_book.excel.DisplayAlerts.should be_true
         new_book.close
       end
 
@@ -1079,6 +1080,26 @@ describe Book do
         excel.class.should == Excel
         excel.should be_a Excel
       end
+    end
+
+    context "with :update_links" do
+      
+      it "should set update_links" do
+        book = Book.open(@simple_file, :update_links => true)
+        book.UpdateLinks.should == XlUpdateLinksUserSetting
+      end
+
+      it "should set update_links" do
+        book = Book.open(@simple_file, :update_links => false)
+        book.UpdateLinks.should == XlUpdateLinksNever
+      end
+
+      it "should not set update_links per default" do
+        book = Book.open(@simple_file)
+        book.UpdateLinks.should == XlUpdateLinksNever
+      end
+
+
     end
 
     context "with :read_only" do

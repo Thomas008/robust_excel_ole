@@ -44,7 +44,7 @@ module RobustExcelOle
     # options: 
     #  :reuse          connects to an already running Excel instance (true) or
     #                  creates a new Excel instance (false)   (default: true)
-    #  :displayalerts  allows display alerts in Excel         (default: false)
+    #  :displayalerts  sets DisplayAlerts in Excel            (default: :if_visible)
     #  :visible        makes the Excel visible                (default: false)
     #  if :reuse => true, then DisplayAlerts and Visible are set only if they are given
     # @return [Excel] an Excel instance
@@ -60,13 +60,14 @@ module RobustExcelOle
       if not (ole_xl)
         ole_xl = WIN32OLE.new('Excel.Application')
         options = {
-          :displayalerts => false,
+          :displayalerts => :if_visible,
           :visible => false,
         }.merge(options)
       end
       unless options.is_a? WIN32OLE
-        ole_xl.DisplayAlerts = options[:displayalerts] unless options[:displayalerts].nil?
         ole_xl.Visible = options[:visible] unless options[:visible].nil?
+        ole_xl.DisplayAlerts = ((options[:displayalerts] == :if_visible) ?  
+          (options[:visible] == true) : options[:displayalerts]) unless options[:displayalerts].nil?
       end
 
       hwnd = ole_xl.HWnd

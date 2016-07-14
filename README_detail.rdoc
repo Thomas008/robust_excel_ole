@@ -49,8 +49,7 @@ if the book was opened before and this Excel instance is alive. Otherwise open i
 +:if_obstructed+::   specidy behaviour if the workbook is blocked by another book (default: +new_excel+)
 +:read_only+::       open in read-only mode (default: +false+) 
 +:check_compatibility:: check compatibility when saving
-+:displayalerts+::   allow display alerts in Excel (default: +false+)
-+:visible+::         make visibe in Excel (default: +false+)
++:visible+::         makes the window of the workbook visible or invisible (default: +true+)
 
 The option +:defaut_excel+  :
 
@@ -95,8 +94,6 @@ If a workbook is open and a new workbook with same name and a different path is 
 +:save+::           Save the old workbook, close it, open the new workbook
 +:close_if_saved+:: Close the old workbook and open the new workbook, if the old workbook is saved, otherwise raise an exception.
 +:new_excel+::      Open the new workbook in a new Excel instance.
-
-The values :displayalerts and :visible are reached to the class Excel that controls opening and closing Excel instances.
 
 Here are a few examples:
 
@@ -228,8 +225,7 @@ Options are the following:
                      false (default) open it as writable in another running excel instance, if it exists, 
                                      otherwise open in a new excel instance
 +:keep_open+::          let the workbook open after unobtrusively opening (default: false)
-+:visible+::            change the Excel into visible or invisible
-+:displayalerts+::      change the Excel into enable or disable displayalerts
++:visible+::            make the window of the workbook visible (default: false)
 +:check_compatibility+:: checks compatibility when saving
 
   Book.unobtrusively('workbook.xls') do |book|
@@ -278,23 +274,23 @@ Bring the focus to a workbook. Make it available for keyboard inputs and make th
 
   book.activate
 
-=== Making a workbook visible or invisible
+===  Make the window of the workbook visible.
 
 Open a workbook and make the Excel instance visible.
 
   book = Book.open('workbook.xls', :visivble => true)
 
-Make the workbook invisible.
+ Make the window of the workbook visible.
 
   book.visible = false
 
-Make the workbook visible
+ Makes the window of the workbook visible.
 
   book.visible = true
 
 === Making an Excel visible or invisible, and enable and disable DisplayAlerts.
 
-Make an Excel visible
+Make an Excel visible.
 
   book.excel.visible = true
 

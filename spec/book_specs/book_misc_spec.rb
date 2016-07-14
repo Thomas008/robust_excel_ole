@@ -47,104 +47,104 @@ describe Book do
     end
   end
 
-  describe "with visible and displayalerts" do
+  describe "with visible" do
 
-    it "should preserve :visible and :displayalerts if they are not set" do
+    it "should preserve :visible if they are not set" do
       excel1 = Excel.create(:visible => true)
       book1 = Book.open(@simple_file)
       book1.excel.Visible.should be_true
     end
 
-    it "should preserve :visible and :displayalerts if they are not set" do
+    it "should preserve :visible if they are not set" do
       excel1 = Excel.create
       book1 = Book.open(@simple_file, :visible => true)
       book1.excel.Visible.should be_true
     end
 
-    it "should preserve :visible and :displayalerts if they are not set" do
+    it "should preserve :visible if they are not set" do
       excel1 = Excel.create(:visible => true)
       book1 = Book.open(@different_file, :default_excel => :new)
       book1.excel.Visible.should be_false
     end
 
-    it "should preserve :visible and :displayalerts if they are not set" do
+    it "should preserve :visible if they are not set" do
       excel1 = Excel.create(:visible => true)
       book1 = Book.open(@different_file, :default_excel => :new, :visible => true)
       book1.excel.Visible.should be_true
     end
 
-    it "should preserve :visible and :displayalerts if they are not set" do
+    it "should preserve :visible if they are not set" do
       excel1 = Excel.create(:visible => true)
       book1 = Book.open(@different_file, :default_excel => :new, :visible => false)
       book1.excel.Visible.should be_false
     end
 
-    it "should preserve :visible and :displayalerts if they are not set" do
+    it "should preserve :visible if they are not set" do
       excel1 = Excel.create(:visible => true)
       excel2 = Excel.create(:visible => true)
       book1 = Book.open(@different_file, :default_excel => excel2)
       book1.excel.Visible.should be_true
     end
 
-    it "should preserve :visible and :displayalerts if they are not set" do
+    it "should preserve :visible if they are not set" do
       excel1 = Excel.create(:visible => true)
       excel2 = Excel.create(:visible => true)
       book1 = Book.open(@different_file, :default_excel => excel2, :visible => false)
       book1.excel.Visible.should be_false
     end
 
-    it "should preserve :visible and :displayalerts if they are not set" do
+    it "should preserve :visible if they are not set" do
       excel1 = Excel.create(:visible => true)
       book1 = Book.open(@different_file, :force_excel => :new)
       book1.excel.Visible.should be_false
     end
 
-    it "should preserve :visible and :displayalerts if they are not set" do
+    it "should preserve :visible if they are not set" do
       excel1 = Excel.create(:visible => true)
       book1 = Book.open(@different_file, :force_excel => :new, :visible => true)
       book1.excel.Visible.should be_true
     end
 
-    it "should preserve :visible and :displayalerts if they are not set" do
+    it "should preserve :visible if they are not set" do
       excel1 = Excel.create(:visible => true)
       excel2 = Excel.create(:visible => true)
       book1 = Book.open(@different_file, :force_excel => excel2)
       book1.excel.Visible.should be_true
     end
 
-    it "should preserve :visible and :displayalerts if they are not set" do
+    it "should preserve :visible if they are not set" do
       excel1 = Excel.create(:visible => true)
       excel2 = Excel.create(:visible => true)
       book1 = Book.open(@different_file, :force_excel => excel2, :visible => false)
       book1.excel.Visible.should be_false
     end
 
-    it "should preserve :visible and :displayalerts if they are not set" do
+    it "should preserve :visible if they are not set" do
       excel1 = Excel.create(:visible => true)
       excel2 = Excel.create(:visible => true)
       book1 = Book.open(@different_file, :force_excel => excel2, :visible => true)
       book1.excel.Visible.should be_true
     end
 
-    it "should preserve :visible and :displayalerts if they are not set" do
+    it "should preserve :visible if they are not set" do
       excel1 = Excel.create(:visible => true)
       book1 = Book.open(@different_file, :force_excel => :current)
       book1.excel.Visible.should be_true
     end
 
-    it "should preserve :visible and :displayalerts if they are not set" do
+    it "should preserve :visible if they are not set" do
       excel1 = Excel.create(:visible => true)
       book1 = Book.open(@different_file, :force_excel => :current, :visible => false)
       book1.excel.Visible.should be_false
     end
 
-    it "should preserve :visible and :displayalerts if they are not set" do
+    it "should preserve :visible if they are not set" do
       excel1 = Excel.create(:visible => false)
       book1 = Book.open(@simple_file, :force_excel => :current)
       book1.excel.Visible.should be_false
     end
 
-    it "should preserve :visible and :displayalerts if they are not set" do
+    it "should preserve :visible if they are not set" do
       excel1 = Excel.create(:visible => false)
       book1 = Book.open(@simple_file, :force_excel => :current, :visible => true)
       book1.excel.Visible.should be_true
@@ -323,7 +323,7 @@ describe Book do
     end
   end
 
-  describe "alive?, filename, ==, visible, displayalerts, activate, saved, check_compatibility" do
+  describe "alive?, filename, ==, visible, activate, saved, check_compatibility" do
 
     context "with alive?" do
 

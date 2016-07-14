@@ -20,7 +20,8 @@ module RobustExcelOle
         :if_obstructed => :raise,
         :if_absent     => :raise,
         :read_only => false,
-        :check_compatibility => true
+        :check_compatibility => true,
+        :update_links => false
       }
 
     class << self
@@ -32,10 +33,10 @@ module RobustExcelOle
       # @option opts [Variant] :force_excel    :current, :new, or <excel-instance>
       # @option opts [Symbol]  :if_unsaved     :raise (default), :forget, :accept, :alert, :excel, or :new_excel
       # @option opts [Symbol]  :if_obstructed  :raise (default), :forget, :save, :close_if_saved, or _new_excel
-      # @option opts [Symbol]  :if_absent      :raise (default), or :create
-      # @option opts [Boolean] :read_only      true (default), or false
-      # @option opts [Boolean] :displayalerts  true, false, or if_visible (default)
-      # @option opts [Boolean] :visible        true, or false (default) 
+      # @option opts [Symbol]  :if_absent      :raise (default) or :create
+      # @option opts [Boolean] :read_only      true (default) or false
+      # @option opts [Boolean] :update_links   true or false (default)
+      # @option opts [Boolean] :visible        true or false (default) 
       # options: 
       # :default_excel   if the workbook was already open in an Excel instance, then open it in that Excel instance,
       #                  where it was opened most recently
@@ -64,12 +65,10 @@ module RobustExcelOle
       #                  :new_excel           -> opens the new workbook in a new Excel instance   
       # :if_absent       :raise               -> raises an exception     , if the file does not exists
       #                  :create              -> creates a new Excel file, if it does not exists  
-      #                  
-      # :read_only     opens in read-only mode         
-      # :displayalerts enables DisplayAlerts in Excel  
-      # :visible       makes the window of the workbook visible
-      # :check_compatibility  check compatibility when saving
-      # if :default_excel is set, then DisplayAlerts and Visible are set only if these parameters are given
+      # :read_only            true -> opens in read-only mode         
+      # :update_links         true -> user is being asked how to update links, false -> links are never updated
+      # :visible              true -> makes the window of the workbook visible
+      # :check_compatibility  true -> check compatibility when saving
       # @return [Book] a workbook
       def open(file, opts={ }, &block)
         options = DEFAULT_OPEN_OPTS.merge(opts)
@@ -159,7 +158,6 @@ module RobustExcelOle
     def apply_options(options) # :nodoc: #
       #@excel.visible = options[:visible] unless options[:visible].nil?
       #self.visible = options[:visible] unless options[:visible].nil?
-      @excel.displayalerts = options[:displayalerts] unless options[:displayalerts].nil? 
     end
 
   private
@@ -192,7 +190,7 @@ module RobustExcelOle
       return if @excel && @excel.alive?
       options[:excel] = options[:force_excel] ? options[:force_excel] : options[:default_excel]
       options[:excel] = :active if options[:excel] == :reuse
-      options = {:displayalerts => false, :visible => false}.merge(options) if options[:excel] == :new      
+      options = {:visible => false}.merge(options) if options[:excel] == :new      
       @excel = self.class.excel_of(options[:excel]) unless (options[:excel] == :current || options[:excel] == :new)
       @excel = excel_class.new(:reuse => (options[:excel] == :current)) unless (@excel && @excel.alive?)
       apply_options(options)
@@ -235,7 +233,7 @@ module RobustExcelOle
               open_or_create_workbook(file, options)
             end
           when :new_excel 
-            excel_options = {:displayalerts => false, :visible => false}.merge(options)   
+            excel_options = {:visible => false}.merge(options)   
             excel_options[:reuse] = false
             @excel = excel_class.new(excel_options)
             open_or_create_workbook(file, options)
@@ -298,8 +296,8 @@ module RobustExcelOle
           # delay: with visible: 0.2 sec, without visible almost none
           count = workbooks.Count
           workbooks.Add if @excel.Version == "12.0" && count == 0
-          # option UpdateLinks: set on "never" (2)
-          workbooks.Open(filename,{ 'ReadOnly' => options[:read_only] , 'UpdateLinks' => 2 } )
+          workbooks.Open(filename,
+            { 'ReadOnly' => options[:read_only] , 'UpdateLinks' => (options[:update_links] == true ? 1 : 2) } )
           workbooks.Item(1).Close if @excel.Version == "12.0" && count == 0                   
         rescue WIN32OLERuntimeError => msg
           trace "WIN32OLERuntimeError: #{msg.message}" 
@@ -392,7 +390,6 @@ module RobustExcelOle
     # @option opts [Boolean] :read_only whether the file is opened for read-only
     # @option opts [Boolean] :readonly_excel behaviour when workbook is opened read-only and shall be modified
     # @option opts [Boolean] :keep_open whether the workbook shall be kept open after unobtrusively opening
-    # @option opts [Boolean] :displayalerts  true, or false (default)
     # @option opts [Boolean] :visible        true, or false (default) 
     #  options: 
     #   :if_closed :   if the workbook is closed, then open it in
@@ -405,9 +402,8 @@ module RobustExcelOle
     #                    true:  closes it and open it as writable in the Excel instance where it was open so far
     #                    false (default)   opens it as writable in another running excel instance, if it exists,
     #                                      otherwise open in a new Excel instance.
-    # :displayalerts      enables DisplayAlerts in Excel  
-    # :visible            makes visible in Excel 
-    # :check_compatibility checks compatibility when saving
+    #  :visible       makes the window of the workbook visible (default: false)
+    #  :check_compatibility checks compatibility when saving
     # @return [Book] a workbook
     def self.unobtrusively(file, if_closed = nil, opts = { }, &block) 
       if if_closed.is_a? Hash

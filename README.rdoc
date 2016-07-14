@@ -41,7 +41,7 @@ The semantics is similar to, e.g.,  +File.open+.
 Options are 
   
   +:default_excel+, +:force_excel+, +:if_absent+, +:if_unsaved+, +:if_obstructed+, 
-  +:read_only+, +:check_compatibility, +:visible+, +:displayalerts+. 
+  +:read_only+, +:check_compatibility, +:visible+. 
 
 Valid values for +:default_excel+ are +:current+ (or +:active+, or +:reuse+), +:new+ or some Excel instance, for +:force_excel+ : +:current+ (or +:active+, or +:reuse+), +:new+ or some Excel instance, for +:if_unsaved+ : +:raise+, +:accept+, +:forget+, +:alert+ and +:new_excel+, for +:if_obstructed+ : +:raise+, +:save+, +:close_if_saved+, +:forget+, +:alert+ and +:new_excel+ , for +:if_absent+ : +:raise+ and +:create+.
 
@@ -139,7 +139,7 @@ The method +unobtrusively+ enables the user to read or modify a workbook, no mat
 
 Some options determine the Excel instance in which a closed workbook is opened. The option +:current+ (or +:active+, or +:reuse+) (default) indicates that the closed workbook is opened in the Excel instance where the workbooks is opened, if such an Excel instance exists, otherwise that another Excel instance is reused. The option +:hidden+ provokes that the closed workbook is opened in a separate Excel instance that is not visible and has no DisplayAlerts. Any following closed workbook would be opened in this Excel instance as well when using this option. Moreover, an Excel instance can be given directly where to open the closed workbook.
 
-Further options are +:read_only+, +:readonly_excel+, and +:keep_open. The option +:readonly_excel+ chooses whether a book that is opened in read only mode. If the workbook is opened as read only, then the option +:readonly_excel+ determines whether to close the workbook and open it as writable in the Excel instance where it was open so far, or to open it as writable in another running Excel instance, if such an instance exists, or to open it in a new Excel instance. Moreover, there are the options +:visible+, +:displayalerts+ and +:check_compatiblity.
+Further options are +:read_only+, +:readonly_excel+, and +:keep_open. The option +:readonly_excel+ chooses whether a book that is opened in read only mode. If the workbook is opened as read only, then the option +:readonly_excel+ determines whether to close the workbook and open it as writable in the Excel instance where it was open so far, or to open it as writable in another running Excel instance, if such an instance exists, or to open it in a new Excel instance. Moreover, there are the options +:visible+, and +:check_compatiblity.
 
   Book.unobtrusively('workbook.xls', :current, :read_only => false, :keep_open => false) do |book|
     # some modification
@@ -188,17 +188,17 @@ Bring the window of a workbook to the foreground, make it available for keyboard
   book.activate
 
 
-=== Making a workbook visible or invisible
+=== Making the window of the workbook visible
 
-Open a workbook and make the Excel instance visible.
+Open a workbook and make the Excel instance and the window of the workbook visible.
 
   book = Book.open('workbook.xls', :visivble => true)
 
-Make the workbook invisible.
+Make the window of the workbook invisible.
 
   book.visible = false
 
-Make the workbook visible
+Make the window of the workbook visible.
 
   book.visible = true
 

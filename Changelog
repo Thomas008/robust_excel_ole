@@ -6,8 +6,12 @@ All notable changes to this project will be documented in this file.
 ## [0.5.2] - 2016-17-07
 
 ### Changed
-- Book: open: option :default_excel, :force_excel => :current (:active, :reuse as alias)
-- Excel: create, current: with option :visibls, :displayalerts
+- Book: open: option :update_links
+- Book: open: options :default_excel, :force_excel => :current instead of :reuse
+  (:active, :reuse as alias)
+- Book: open: options: deleted :displayalerts
+- Excel: create, current: with option :visible
+- Excel: create, current, new: :displayalerts => :if_visible
 
 ## [0.5.1] - 2016-18-06
 

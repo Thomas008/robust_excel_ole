@@ -800,8 +800,8 @@ module RobustExcelOle
 
     context "with Visible and DisplayAlerts" do
 
-      it "should create Excel visible" do
-        excel = Excel.new(:visible => true)
+      it "should set Excel visible and invisible" do
+        excel = Excel.new(:reuse => false, :visible => true)
         excel.Visible.should be_true
         excel.visible.should be_true
         excel.DisplayAlerts.should be_false
@@ -831,8 +831,8 @@ module RobustExcelOle
         excel5.Visible.should be_false
       end
 
-      it "should create Excel with DispayAlerts enabled" do        
-        excel = Excel.new(:displayalerts => true)
+      it "should create Excel with DispayAlerts enabled and disabled" do        
+        excel = Excel.new(reuse => false, :displayalerts => true)
         excel.DisplayAlerts.should be_true
         excel.displayalerts.should be_true
         excel.Visible.should be_false
@@ -862,29 +862,41 @@ module RobustExcelOle
         excel5.DisplayAlerts.should be_false
       end
 
+      it "should displayalerts to if_visible" do
+        excel = Excel.new(:reuse => false, :visible => true, :displayalerts => :if_visible)
+        excel.Visible.should be_true
+        excel.DisplayAlerts.should be_true
+        excel2 = Excel.new(:reuse => false, :visible => false, :displayalerts => :if_visible)
+        excel2.Visible.should be_false
+        excel2.DisplayAlerts.should be_false
+        excel3 = Excel.new(:reuse => false, :displayalerts => :if_visible)
+        excel3.Visible.should be_false
+        excel3.DisplayAlerts.should be_false
+      end
+
       it "should keep visible and displayalerts values when reusing Excel" do
         excel = Excel.new(:visible => true)
-        excel.visible.should be_true
-        excel.displayalerts.should be_false
+        excel.Visible.should be_true
+        excel.DisplayAlerts.should be_false
         excel2 = Excel.new(:displayalerts => true)
         excel2.should == excel
-        excel.visible.should be_true
-        excel.displayalerts.should be_true        
+        excel.Visible.should be_true
+        excel.DisplayAlerts.should be_true        
       end
 
       it "should keep displayalerts and visible values when reusing Excel" do
         excel = Excel.new(:displayalerts => true)
-        excel.visible.should be_false
-        excel.displayalerts.should be_true
+        excel.Visible.should be_false
+        excel.DisplayAlerts.should be_true
         excel2 = Excel.new(:visible => true)
         excel2.should == excel
-        excel.visible.should be_true
-        excel.displayalerts.should be_true        
+        excel.Visible.should be_true
+        excel.DisplayAlerts.should be_true        
       end
 
     end
 
-    context "with displayalerts" do
+    context "with resetting displayalerts values" do
       before do
         @excel1 = Excel.new(:displayalerts => true)
         @excel2 = Excel.new(:displayalerts => false, :reuse => false)
@@ -913,6 +925,10 @@ module RobustExcelOle
           @excel2.DisplayAlerts.should be_false
         end
       end
+
+      it "should" do
+      end
+
     end
 
     context "with calculation" do

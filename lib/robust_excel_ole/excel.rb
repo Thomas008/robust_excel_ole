@@ -66,10 +66,8 @@ module RobustExcelOle
           :visible => false,
         }.merge(options)
       end
-
       hwnd = ole_xl.HWnd
       stored = hwnd2excel(hwnd)
-
       if stored 
         result = stored
       else
@@ -499,9 +497,6 @@ module RobustExcelOle
     # makes the current Excel instance visible or invisible
     def visible= visible_value
       @ole_excel.Visible = @visible = visible_value
-      trace "@ole_excel.Visible: #{@ole_excel.Visible}"
-      trace "@displayalerts: #{@displayalerts}"
-      trace "condition: #{(@ole_excel.Visible && (@displayalerts == :if_visible))}"
       @ole_excel.DisplayAlerts = @visible if @displayalerts == :if_visible
 
     end   

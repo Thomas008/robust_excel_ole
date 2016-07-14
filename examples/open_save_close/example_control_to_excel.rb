@@ -23,7 +23,7 @@ begin
   	puts "#{msg.message}"                                  #   an exeptions is raised
   end
   puts "new book has opened" if new_book
-  Excel.current.Visible = true
+  Excel.current.visible = true
   begin
   	book.close(:if_unsaved => :alert)                      # close the unsaved book. 
   rescue ExcelUserCanceled => msg                          # user is asked whether the unsaved book shall be saved

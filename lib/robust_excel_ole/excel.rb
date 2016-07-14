@@ -89,7 +89,7 @@ module RobustExcelOle
     end
 
     def initialize(options= {}) # :nodoc: #
-      @excel = self
+      @ole_excel = self
     end
 
     # reopens a closed Excel instance

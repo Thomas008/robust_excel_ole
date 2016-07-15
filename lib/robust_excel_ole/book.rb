@@ -101,7 +101,8 @@ module RobustExcelOle
       end
     end    
 
-    # creates a Book object for a given workbook or file name
+    # creates a Book object by opening an Excel file given its filename workbook or 
+    # by lifting a Win32OLE object representing an Excel file
     # @param [WIN32OLE] workbook a workbook
     # @param [Hash] opts the options
     # @option opts [Symbol] see above
@@ -839,7 +840,7 @@ module RobustExcelOle
       self.class.bookstore
     end   
 
-    def self.show_books   # :nodoc: #
+    def self.all_books   # :nodoc: #
       bookstore.books
     end
 

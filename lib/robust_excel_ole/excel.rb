@@ -498,8 +498,20 @@ module RobustExcelOle
     def visible= visible_value
       @ole_excel.Visible = @visible = visible_value
       @ole_excel.DisplayAlerts = @visible if @displayalerts == :if_visible
-
     end   
+
+    # make all workbooks visible or invisible
+    def workbooks_visible visible_value
+      begin
+        @ole_excel.Workbooks.each do |ole_wb| 
+          workbook = Book.new(ole_wb)
+          workbook.visible = visible_value
+        end
+      rescue RuntimeError => msg
+        trace "RuntimeError: #{msg.message}" 
+        raise ExcelErrorOpen, "Excel instance not alive or damaged" if msg.message =~ /failed to get Dispatch Interface/
+      end
+    end
 
     # sets calculation mode in a block
     def with_calculation(calculation_mode = :automatic)

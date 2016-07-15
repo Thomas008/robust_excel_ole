@@ -9,6 +9,7 @@ module My # :nodoc: #
 
   class Book < RobustExcelOle::Book   # :nodoc: #
   end
+
 end
 
 describe "subclassed Book" do

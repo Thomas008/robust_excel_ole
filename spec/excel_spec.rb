@@ -24,7 +24,7 @@ module RobustExcelOle
 
     after do
       Excel.kill_all
-      rm_tmp(@dir)
+      #rm_tmp(@dir)
     end
 
     context "Illegal Refrence" do
@@ -794,6 +794,55 @@ module RobustExcelOle
         excel2 = Excel.current
         Excel.close_all
         excel2.should_not == @excel1
+      end
+
+    end
+
+    context "workbooks_visible" do
+
+      it "should not raise an error for an empty Excel instance" do
+        excel = Excel.create
+        expect{
+          excel.workbooks_visible true
+        }.to_not raise_error
+      end
+
+      it "should make visible a workbook" do
+        book1 = Book.open(@simple_file)
+        book1.excel.workbooks_visible true
+        book1.excel.Visible.should be_true
+        book1.Windows(book1.Name).Visible.should be_true
+        book1.visible.should be_true
+      end
+
+      it "should make visible and invisible two workbooks" do
+        book1 = Book.open(@simple_file)
+        book2 = Book.open(@different_file)
+        excel = book1.excel
+        excel.workbooks_visible true
+        excel.Visible.should be_true
+        book1.Windows(book1.Name).Visible.should be_true
+        book1.visible.should be_true
+        book2.Windows(book2.Name).Visible.should be_true
+        book2.visible.should be_true
+        excel.workbooks_visible false
+        excel.Visible.should be_true
+        book1.Windows(book1.Name).Visible.should be_false
+        book1.visible.should be_false
+        book2.Windows(book2.Name).Visible.should be_false
+        book2.visible.should be_false
+      end
+
+      it "should make visible all workbooks" do
+        book1 = Book.open(@simple_file, :visible => true)
+        book2 = Book.open(@different_file)
+        excel = book1.excel
+        excel.workbooks_visible true
+        excel.Visible.should be_true
+        book1.Windows(book1.Name).Visible.should be_true
+        book1.visible.should be_true
+        book2.Windows(book2.Name).Visible.should be_true
+        book2.visible.should be_true
       end
 
     end

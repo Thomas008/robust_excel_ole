@@ -406,6 +406,16 @@ Enabling DisplayAlerts whenever the Excel instance is visible.
 
   excel3 = Excel.current(:reuse => true, :displayalerts => :if_visible)
 
+=== Making all workbooks visible or invisible
+
+Making all workbooks visible.
+
+  excel1.workbooks_visible true  
+
+Making all workbooks invisible.
+
+  excel1.workbooks_visible false   
+
 === Closing an Excel
 
   excel = Excel.current

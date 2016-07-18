@@ -92,7 +92,7 @@ module RobustExcelOle
               book.close if (book.alive? && (not book.writable) && (not options[:read_only]))
               # reopens the book
               book.ensure_workbook(file,options) unless book.alive?
-              book.apply_options(options)
+              book.visible = options[:visible] unless options[:visible].nil?
               return book
             end
           end
@@ -113,7 +113,7 @@ module RobustExcelOle
         if filename
           book = bookstore.fetch(filename)
           if book && book.alive?
-            book.apply_options(opts)
+            book.visible = options[:visible] unless options[:visible].nil?
             return book 
           end
         end
@@ -135,14 +135,13 @@ module RobustExcelOle
         # use the Excel instance where the workbook is opened
         win32ole_excel = WIN32OLE.connect(workbook.Fullname).Application rescue nil   
         @excel = excel_class.new(win32ole_excel)     
-        self.apply_options(options)       
+        @excel.visible = options[:visible] unless options[:visible].nil?     
         # if the Excel could not be promoted, then create it         
         ensure_excel(options)
       else
         file = file_or_workbook
         ensure_excel(options)
         ensure_workbook(file, options)
-        self.apply_options(options)
         @ole_workbook.CheckCompatibility = options[:check_compatibility]
         @can_be_closed = false if @can_be_closed.nil?
       end
@@ -154,11 +153,6 @@ module RobustExcelOle
           close
         end
       end
-    end
-
-    def apply_options(options) # :nodoc: #
-      #@excel.visible = options[:visible] unless options[:visible].nil?
-      #self.visible = options[:visible] unless options[:visible].nil?
     end
 
   private
@@ -190,11 +184,10 @@ module RobustExcelOle
     def ensure_excel(options)   # :nodoc: #
       return if @excel && @excel.alive?
       options[:excel] = options[:force_excel] ? options[:force_excel] : options[:default_excel]
-      options[:excel] = :active if options[:excel] == :reuse
+      options[:excel] = :current if (options[:excel] == :reuse || options[:excel] == :active)
       options = {:visible => false}.merge(options) if options[:excel] == :new      
       @excel = self.class.excel_of(options[:excel]) unless (options[:excel] == :current || options[:excel] == :new)
-      @excel = excel_class.new(:reuse => (options[:excel] == :current)) unless (@excel && @excel.alive?)
-      apply_options(options)
+      @excel = excel_class.new(:reuse => (options[:excel] == :current)) unless (@excel && @excel.alive?)     
     end    
 
     def ensure_workbook(file, options)     # :nodoc: #
@@ -258,7 +251,7 @@ module RobustExcelOle
                 open_or_create_workbook(file,options)
               end 
             when :new_excel
-              excel_options = {:displayalerts => false, :visible => false}.merge(options)
+              excel_options = {:visible => false}.merge(options)
               excel_options[:reuse] = false
               @excel = excel_class.new(excel_options)
               open_or_create_workbook(file, options)
@@ -311,6 +304,7 @@ module RobustExcelOle
           # workaround for bug in Excel 2010: workbook.Open does not always return the workbook with given file name
           @ole_workbook = workbooks.Item(File.basename(filename))
           @ole_workbook.UpdateLinks = (options[:update_links] == true ? 1 : 2)
+          self.visible = options[:visible] unless options[:visible].nil?
         rescue WIN32OLERuntimeError
           raise ExcelErrorOpen, "cannot find the file #{File.basename(filename).inspect}"
         end       
@@ -447,7 +441,6 @@ module RobustExcelOle
                                          open(file, :force_excel => :new, :read_only => options[:read_only])
             end
           end
-        book.excel.displayalerts = options[:displayalerts] unless options[:displayalerts].nil?
         book.excel.visible = options[:visible] unless options[:visible].nil?
         old_check_compatibility = book.CheckCompatibility
         book.CheckCompatibility = options[:check_compatibility]

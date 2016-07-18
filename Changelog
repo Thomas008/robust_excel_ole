@@ -17,6 +17,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - Book#open :force_excel => :active
+- Excel#workbooks_visible
 
 ### Changed
 - Book: open: :default_excel, :force_excel => :active, (:reuse as alias), bug fix in :default

@@ -298,6 +298,8 @@ module RobustExcelOle
       @@hwnd2excel = {}
     end    
 
+  public
+
     # kill all Excel instances
     # @return [Fixnum] number of killed Excel processes
     def self.kill_all

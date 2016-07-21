@@ -2,13 +2,14 @@
 
 robust_excel_ole helps to automate modifying and reading Excel files.
 This is done by sending VBA methods via Win32OLE.
-Moreover, robust_excel_ole implements a management system of Excel files and Excel instances and keeps track of all workbooks.
+Moreover, robust_excel_ole implements a management system and keeps track of Excel files and Excel instances
 
 Goals:
 - support both fully automated operations as well as simultaneous user interactions during the automation
 - robust Excel AUtomation: be able to deal with all cases of Excel (and user) behaviour, encapsulate errors
 - provide convenient methods for frequent (common) tasks
 - support the use of simultaneously running Excel instances
+- comprehensive wrapping of Excel using Win32OLE
 - allow the presence of referenced libraries and provide some support for that
 - support EXCEL 2010, EXCEL 2007
 

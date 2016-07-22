@@ -113,7 +113,7 @@ module RobustExcelOle
         if filename
           book = bookstore.fetch(filename)
           if book && book.alive?
-            book.visible = options[:visible] unless options[:visible].nil?
+            book.visible = opts[:visible] unless opts[:visible].nil?
             return book 
           end
         end

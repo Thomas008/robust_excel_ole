@@ -18,6 +18,10 @@ class REOCommon
     self.class.trace(text)
   end
 
+  def self.tr1(text)
+    puts :text
+  end
+
   def self.trace(text)
     if LOG_TO_STDOUT 
       puts text

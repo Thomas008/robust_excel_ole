@@ -184,13 +184,14 @@ module RobustExcelOle
       excels_number = excel_processes.size
       timeout = false
       begin
+        arr = []
         status = Timeout::timeout(10) {
           while current_excel do
             ole_excel = current_excel
             excel = Excel.new(ole_excel)
-            # ??? trace necessary!
-            puts ""
-            #trace ""
+            # ??? creating a string and print needed???
+            arr << ""
+            print arr
             excel.close_excel(options)
             running_excels_number = excel_processes.size
             #raise ExcelError, "some Excel instance cannot be closed" if running_excels_number == excels_number && excels_number > 0

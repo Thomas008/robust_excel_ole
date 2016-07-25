@@ -47,8 +47,7 @@ module RobustExcelOle
     #  :reuse          connects to an already running Excel instance (true) or
     #                  creates a new Excel instance (false)  (default: true)
     #  :visible        makes the Excel visible               (default: false)
-    #  :displayalerts  enables or disables DisplayAlerts     (default: false) 
-    #                                                        (true, false, :if_visible (DisplayAlerts iff visible))    
+    #  :displayalerts  enables or disables DisplayAlerts     (true, false, :if_visible (default))   
     # @return [Excel] an Excel instance
     def self.new(options = {})
       if options.is_a? WIN32OLE
@@ -62,7 +61,7 @@ module RobustExcelOle
       if not (ole_xl)
         ole_xl = WIN32OLE.new('Excel.Application')
         options = {
-          :displayalerts => false,
+          :displayalerts => :if_visible,
           :visible => false,
         }.merge(options)
       end
@@ -99,12 +98,12 @@ module RobustExcelOle
     # @option opts [Boolean] :displayalerts
     # @option opts [Boolean] :visible
     # options: reopen_workbooks (default: false): reopen the workbooks in the Excel instances
-    #          :visible (default: false), :displayalerts (default: false)
+    #          :visible (default: false), :displayalerts (default: :if_visible)
     # @return [Excel] an Excel instance
     def recreate(opts = {})      
       unless self.alive?
         opts = {
-          :displayalerts => @displayalerts ? @displayalerts : false,
+          :displayalerts => @displayalerts ? @displayalerts : :if_visible,
           :visible => @visible ? @visible : false
         }.merge(opts)
         new_excel = WIN32OLE.new('Excel.Application')

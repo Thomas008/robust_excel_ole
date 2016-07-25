@@ -21,7 +21,7 @@ module RobustExcelOle
         :if_absent     => :raise,
         :read_only => false,
         :check_compatibility => true,
-        :update_links => false
+        :update_links => :never
       }
 
     class << self
@@ -35,7 +35,7 @@ module RobustExcelOle
       # @option opts [Symbol]  :if_obstructed  :raise (default), :forget, :save, :close_if_saved, or _new_excel
       # @option opts [Symbol]  :if_absent      :raise (default) or :create
       # @option opts [Boolean] :read_only      true (default) or false
-      # @option opts [Boolean] :update_links   true or false (default)
+      # @option opts [Boolean] :update_links   :never (default), :always, :alert
       # @option opts [Boolean] :visible        true or false (default) 
       # options: 
       # :default_excel   if the workbook was already open in an Excel instance, then open it in that Excel instance,
@@ -290,6 +290,17 @@ module RobustExcelOle
           # delay: with visible: 0.2 sec, without visible almost none
           count = workbooks.Count
           workbooks.Add if @excel.Version == "12.0" && count == 0
+          update_links_opt =
+            case options[:update_links]
+            when :alert then 1
+            when :never then 2
+            when :always then 3
+            else 2
+          end
+          @excel.with_displayalerts(update_links_opt == :alert ? true : @excel.displayalerts) do
+            # ??? determining update_links_opt here does not work, only afterwords
+            workbooks.Open(filename, { 'ReadOnly' => options[:read_only] , 'UpdateLinks' => update_links_opt } )
+          end
           workbooks.Open(filename, { 'ReadOnly' => options[:read_only] } )
           workbooks.Item(1).Close if @excel.Version == "12.0" && count == 0                   
         rescue WIN32OLERuntimeError => msg
@@ -302,9 +313,10 @@ module RobustExcelOle
         end   
         begin
           # workaround for bug in Excel 2010: workbook.Open does not always return the workbook with given file name
-          @ole_workbook = workbooks.Item(File.basename(filename))
-          @ole_workbook.UpdateLinks = (options[:update_links] == true ? 1 : 2)
+          @ole_workbook = workbooks.Item(File.basename(filename))         
           self.visible = options[:visible] unless options[:visible].nil?
+          @ole_workbook.UpdateLinks = update_links_opt
+          #perhaps: but changes workbooks to unsaved: @ole_workbook.UpdateRemoteReferences = (options[:update_links] != :never)
         rescue WIN32OLERuntimeError
           raise ExcelErrorOpen, "cannot find the file #{File.basename(filename).inspect}"
         end       

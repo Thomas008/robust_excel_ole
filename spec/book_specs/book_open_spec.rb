@@ -1082,19 +1082,32 @@ describe Book do
 
     context "with :update_links" do
       
-      it "should set update_links" do
-        book = Book.open(@simple_file, :update_links => true)
+      it "should set update_links to :alert" do
+        book = Book.open(@simple_file, :update_links => :alert)
         book.UpdateLinks.should == XlUpdateLinksUserSetting
+        #book.UpdateRemoteReferences.should be_true
+        book.Saved.should be_true
       end
 
-      it "should set update_links" do
-        book = Book.open(@simple_file, :update_links => false)
+      it "should set update_links to :never" do
+        book = Book.open(@simple_file, :update_links => :never)
         book.UpdateLinks.should == XlUpdateLinksNever
+        #book.UpdateRemoteReferences.should be_false
+        book = Book.open(@simple_file, :update_links => :foo)
+        book.UpdateLinks.should == XlUpdateLinksNever
+        #book.UpdateRemoteReferences.should be_false
       end
 
-      it "should not set update_links per default" do
+      it "should set update_links to :always" do
+        book = Book.open(@simple_file, :update_links => :always)
+        book.UpdateLinks.should == XlUpdateLinksAlways
+        #book.UpdateRemoteReferences.should be_true
+      end
+
+      it "should set update_links to :never per default" do
         book = Book.open(@simple_file)
         book.UpdateLinks.should == XlUpdateLinksNever
+        #book.UpdateRemoteReferences.should be_false
       end
 
     end

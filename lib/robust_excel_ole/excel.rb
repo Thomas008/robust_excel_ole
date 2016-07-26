@@ -463,7 +463,7 @@ module RobustExcelOle
     end   
 
     # make all workbooks visible or invisible
-    def workbooks_visible visible_value
+    def workbooks_visible= visible_value
       begin
         @ole_excel.Workbooks.each do |ole_wb| 
           workbook = Book.new(ole_wb)

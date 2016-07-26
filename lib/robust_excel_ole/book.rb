@@ -292,13 +292,13 @@ module RobustExcelOle
           workbooks.Add if @excel.Version == "12.0" && count == 0
           update_links_opt =
             case options[:update_links]
-            when :alert then 1
-            when :never then 2
-            when :always then 3
+            when :alert then RobustExcelOle::XlUpdateLinksUserSetting
+            when :never then RobustExcelOle::XlUpdateLinksNever
+            when :always then RobustExcelOle::XlUpdateLinksAlways
             else 2
           end
           @excel.with_displayalerts(update_links_opt == :alert ? true : @excel.displayalerts) do
-            # ??? determining update_links_opt here does not work, only afterwords
+            # ??? determining update_links_opt here does not work, it is always on 2 only afterwords
             workbooks.Open(filename, { 'ReadOnly' => options[:read_only] , 'UpdateLinks' => update_links_opt } )
           end
           workbooks.Open(filename, { 'ReadOnly' => options[:read_only] } )
@@ -316,7 +316,7 @@ module RobustExcelOle
           @ole_workbook = workbooks.Item(File.basename(filename))         
           self.visible = options[:visible] unless options[:visible].nil?
           @ole_workbook.UpdateLinks = update_links_opt
-          #perhaps: but changes workbooks to unsaved: @ole_workbook.UpdateRemoteReferences = (options[:update_links] != :never)
+          # would changes workbooks to unsaved: @ole_workbook.UpdateRemoteReferences = (options[:update_links] != :never)
         rescue WIN32OLERuntimeError
           raise ExcelErrorOpen, "cannot find the file #{File.basename(filename).inspect}"
         end       

@@ -331,19 +331,26 @@ module RobustExcelOle
 
       context "with saved workbooks" do
 
-        before do
-          book = Book.open(@simple_file)
-          book2 = Book.open(@simple_file, :force_excel => :new)
-          @excel = book.excel
-          @excel2 = book2.excel
+        it "should do with no Excel instances" do
+          expect{
+            Excel.close_all
+          }.to_not raise_error
         end
 
-        it "should close the Excel instances" do
-          @excel.should be_alive
-          @excel2.should be_alive
+        it "should close one Excel instance" do
+          excel1 = Excel.create
           Excel.close_all
-          @excel.should_not be_alive
-          @excel2.should_not be_alive
+          excel1.should_not be_alive
+          Excel.excels_number.should == 0
+        end
+
+        it "should close two Excel instances" do
+          excel1 = Excel.create
+          excel2 = Excel.create
+          Excel.close_all
+          excel1.should_not be_alive
+          excel2.should_not be_alive
+          Excel.excels_number.should == 0
         end
       end
 
@@ -367,26 +374,26 @@ module RobustExcelOle
 
         it "should close the first Excel without unsaved workbooks and then raise an error" do
           expect{
-            Excel.close_all
+            Excel.close_all(:if_unsaved => :raise)
           }.to raise_error(ExcelErrorClose, "Excel contains unsaved workbooks")
           @excel1.should_not be_alive
+          @excel2.should be_alive
+          @excel4.should be_alive
         end
 
-        it "should close the Excel instances without saving the unsaved workbooks" do
-          Excel.close_all(:if_unsaved => :forget)
+        it "should close the first Excel without unsaved workbooks and then raise an error per default" do
+          expect{
+            Excel.close_all(:if_unsaved => :raise)
+          }.to raise_error(ExcelErrorClose, "Excel contains unsaved workbooks")
           @excel1.should_not be_alive
-          @excel2.should_not be_alive
-          @excel4.should_not be_alive
-          new_book2 = Book.open(@simple_file)
-          new_sheet2 = new_book2.sheet(1)
-          new_sheet2[1,1].value.should == @old_cell_value2
-          new_book2.close   
-          new_book3 = Book.open(@another_simple_file)
-          new_sheet3 = new_book3.sheet(1)
-          new_sheet3[1,1].value.should == @old_cell_value3
-          new_book3.close   
+          @excel2.should be_alive
+          @excel4.should be_alive
         end
 
+        it "should save the unsaved workbooks" do
+        end
+
+        # Error: timeout
         it "should close the Excel instances with saving the unsaved workbooks" do
           Excel.close_all(:if_unsaved => :save)
           @excel1.should_not be_alive
@@ -402,117 +409,30 @@ module RobustExcelOle
           new_book3.close
         end
 
+        # Error: timeout
+        it "should close the Excel instances without saving the unsaved workbooks" do          
+          @excel1.displayalerts = @excel2.displayalerts = @excel4.displayalerts = false
+          Excel.close_all(:if_unsaved => :forget)
+          @excel1.should_not be_alive
+          @excel2.should_not be_alive
+          @excel4.should_not be_alive
+          new_book2 = Book.open(@simple_file)
+          new_sheet2 = new_book2.sheet(1)
+          new_sheet2[1,1].value.should == @old_cell_value2
+          new_book2.close   
+          new_book3 = Book.open(@another_simple_file)
+          new_sheet3 = new_book3.sheet(1)
+          new_sheet3[1,1].value.should == @old_cell_value3
+          new_book3.close   
+        end
+
         it "should raise an error for invalid option" do
           expect {
             Excel.close_all(:if_unsaved => :invalid_option)
           }.to raise_error(ExcelErrorClose, ":if_unsaved: invalid option: :invalid_option") 
         end
-
-        it "should raise an error by default" do
-          expect{
-            Excel.close_all
-          }.to raise_error(ExcelErrorClose, "Excel contains unsaved workbooks")
-          @excel1.should_not be_alive
-        end
       end
-=begin
-        context "with :if_unsaved => :alert : several books" do
-          before do
-            @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
-          end
 
-          after do
-            @key_sender.close
-          end
-
-          it "should save if user answers 'yes'" do
-            @key_sender.puts "{enter}"
-            Excel.close_all(:if_unsaved => :alert)
-            @excel1.should_not be_alive
-            @excel2.should_not be_alive
-            @excel4.should_not be_alive
-            new_book2 = Book.open(@simple_file)
-            new_sheet2 = new_book2.sheet(1)
-            new_sheet2[1,1].value.should_not == @old_cell_value2
-            new_book2.close   
-            new_book3 = Book.open(@another_simple_file)
-            new_sheet3 = new_book3.sheet(1)
-            new_sheet3[1,1].value.should_not == @old_cell_value3
-            new_book3.close
-            new_book2.close   
-          end
-
-          it "should not save if user answers 'no'" do            
-            @key_sender.puts "{right}{enter}"
-            @key_sender.puts "{right}{enter}"
-            Excel.close_all(:if_unsaved => :alert)
-            @excel1.should_not be_alive
-            @excel2.should_not be_alive
-            @excel4.should_not be_alive
-            new_book2 = Book.open(@simple_file)
-            new_sheet2 = new_book2.sheet(1)
-            new_sheet2[1,1].value.should == @old_cell_value2
-            new_book2.close   
-            new_book3 = Book.open(@another_simple_file)
-            new_sheet3 = new_book3.sheet(1)
-            new_sheet3[1,1].value.should == @old_cell_value3
-            new_book3.close 
-          end
-        end
-      end
-=end
-=begin
-      context "with :if_unsaved => :alert : two books" do
-        before do
-          @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
-          book1 = Book.open(@simple_file)
-          book2 = Book.open(@different_file, :force_excel => :new)
-          @excel1 = book1.excel
-          @excel2 = book2.excel
-          sheet1 = book1.sheet(1)
-          @old_cell_value1 = sheet1[1,1].value
-          sheet1[1,1] = sheet1[1,1].value == "foo" ? "bar" : "foo"
-          sheet2 = book2.sheet(1)
-          @old_cell_value2 = sheet2[1,1].value
-          sheet2[1,1] = sheet2[1,1].value == "foo" ? "bar" : "foo"
-        end
-
-        after do
-          @key_sender.close
-        end
-
-        it "should save if user answers 'yes'" do
-          @key_sender.puts "{enter}"
-          Excel.close_all(:if_unsaved => :alert)
-          @excel1.should_not be_alive
-          @excel2.should_not be_alive
-          new_book1 = Book.open(@simple_file)
-          new_sheet1 = new_book1.sheet(1)
-          new_sheet1[1,1].value.should_not == @old_cell_value1
-          new_book1.close 
-          new_book2 = Book.open(@different_file)
-          new_sheet2 = new_book2.sheet(1)
-          new_sheet2[1,1].value.should_not == @old_cell_value2
-          new_book2.close   
-        end
-
-        it "should not save if user answers 'no'" do            
-          @key_sender.puts "{right}{enter}"
-          @key_sender.puts "{right}{enter}"
-          Excel.close_all(:if_unsaved => :alert)
-          @excel1.should_not be_alive
-          @excel2.should_not be_alive
-          new_book1 = Book.open(@simple_file)
-          new_sheet1 = new_book1.sheet(1)
-          new_sheet1[1,1].value.should == @old_cell_value1
-          new_book1.close 
-          new_book2 = Book.open(@different_file)
-          new_sheet2 = new_book2.sheet(1)
-          new_sheet2[1,1].value.should == @old_cell_value2
-          new_book2.close   
-        end
-      end
-=end
 
       context "with :if_unsaved => :alert" do
         before do
@@ -558,10 +478,34 @@ module RobustExcelOle
         #    Excel.close_all(:if_unsaved => :alert)
         #  }.to raise_error(ExcelUserCanceled, "close: canceled by user")
         # end
+
+        it "should save if user answers 'yes'" do
+          @excel1.displayalerts = @excel2.displayalerts = @excel4.displayalerts = true
+          @key_sender.puts "{enter}"          
+          Excel.close_all(:if_unsaved => :forget)
+          @excel2.should_not be_alive
+          new_book2 = Book.open(@simple_file)
+          new_sheet2 = new_book2.sheet(1)
+          new_sheet2[1,1].value.should_not == @old_cell_value2
+          new_book2.close   
+        end
+
+        it "should not save if user answers 'no'" do  
+          @excel1.displayalerts = @excel2.displayalerts = @excel4.displayalerts = true        
+          @key_sender.puts "{right}{enter}"
+          @key_sender.puts "{right}{enter}"
+          Excel.close_all(:if_unsaved => :forget)
+          @excel2.should_not be_alive
+          new_book2 = Book.open(@simple_file)
+          new_sheet2 = new_book2.sheet(1)
+          new_sheet2[1,1].value.should == @old_cell_value2
+          new_book2.close   
+        end
       end
     end
-
-    describe "close" do
+    
+    describe "c
+    lose" do
 
       context "with a saved workbook" do
 
@@ -629,7 +573,9 @@ module RobustExcelOle
         end        
 
         it "should close the Excel without saving the workbook" do
+          @excel.displayalerts = false
           @excel.should be_alive
+          @excel.displayalerts = false
           @excel.close(:if_unsaved => :forget)
           @excel.should_not be_alive
           new_book = Book.open(@simple_file)
@@ -751,7 +697,51 @@ module RobustExcelOle
             @excel.close(:if_unsaved => :alert)
             }.to raise_error(ExcelUserCanceled, "close: canceled by user")
         end
+
+        it "should save if user answers 'yes'" do
+          # "Yes" is to the left of "No", which is the  default. --> language independent
+          @excel.should be_alive
+          @excel.displayalerts = true
+          @key_sender.puts "{enter}" 
+          @excel.close(:if_unsaved => :forget)
+          @excel.should_not be_alive
+          new_book = Book.open(@simple_file)
+          new_sheet = new_book.sheet(1)
+          new_sheet[1,1].value.should_not == @old_cell_value
+          new_book.close   
+        end
+
+        it "should not save if user answers 'no'" do            
+          @excel.should be_alive
+          @excel.displayalerts = true
+          @book.should be_alive
+          @book.saved.should be_false
+          @key_sender.puts "{right}{enter}"
+          @excel.close(:if_unsaved => :forget)
+          @excel.should_not be_alive
+          @book.should_not be_alive
+          new_book = Book.open(@simple_file)
+          new_sheet = new_book.sheet(1)
+          new_sheet[1,1].value.should == @old_cell_value
+          new_book.close     
+        end
+
+        # error
+        it "should not save if user answers 'cancel'" do
+          # strangely, in the "cancel" case, the question will sometimes be repeated twice            
+          @excel.should be_alive
+          @excel.displayalerts = true
+          @book.should be_alive
+          @book.saved.should be_false
+          @key_sender.puts "{left}{enter}"
+          @key_sender.puts "{left}{enter}"
+          expect{
+            @excel.close(:if_unsaved => :forget)
+            }.to raise_error(ExcelUserCanceled, "close: canceled by user")
+        end
+
       end
+    
     end
 
     describe "alive" do

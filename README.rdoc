@@ -422,9 +422,9 @@ Making all workbooks invisible.
   excel = Excel.current
   excel.close
 
-The options are +:if_unsaved+ and +:hard+ . Example:
+The options are +:if_unsaved+ and +:hard+ . Values for :if_unsaved+ are +:raise+, +:save+, +:forget+ and +:keep_open+.
 
-Closing the Excel instance, saving unsaved wrkbooks and terminating the Excel process
+Closing the Excel instance, saving unsaved workbooks and terminating the Excel process hard.
 
   excel.close(:if_unsaved => :save, :hard => true)
 
@@ -432,11 +432,11 @@ Closing the Excel instance, saving unsaved wrkbooks and terminating the Excel pr
 
   Excel.close_all
 
-The options are +:if_unsaved+ and +:hard+ . Values for :if_unsaved+ are +raise+, +save+, and +forget+. Example:
+The options are +:if_unsaved+ and +:hard+ . Values for :if_unsaved+ are +:raise+, +:save+, and +:forget+. Example:
 
-Closing all Excel instances, not saving unsaved workbooks and terminating the Excel processes
+Closing all Excel instances, saving unsaved workbooks and terminating the Excel processes softly.
 
-  Excel.close_all(:if_unsaved => :forget, :hard => :true) 
+  Excel.close_all(:if_unsaved => :save, :hard => false) 
 
 === Terminating all Excel processes
 

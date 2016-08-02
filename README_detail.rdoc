@@ -501,21 +501,21 @@ Enabling DisplayAlerts whenever the Excel instance is visible.
   excel = Excel.current
   excel.close
 
-Closing the Excel instance and terminating the Excel process
+The options are +:if_unsaved+ and +:hard+ . Values for :if_unsaved+ are +:raise+, +:save+, +:forget+ and +:keep_open+.
 
-  excel.close(:hard => true)
+Closing the Excel instance, saving unsaved workbooks and terminating the Excel process hard.
+
+  excel.close(:if_unsaved => :save, :hard => true)
 
 === Closing all Excel instances.
 
   Excel.close_all
 
- Closing the Excel instances and terminating the Excel processes
+The options are +:if_unsaved+ and +:hard+ . Values for :if_unsaved+ are +:raise+, +:save+, and +:forget+. Example:
 
-  Excel.close_all(:hard => true) 
+Closing all Excel instances, saving unsaved workbooks and terminating the Excel processes softly.
 
-=== Terminating all Excel processes
-
-  Excel.kill_all
+  Excel.close_all(:if_unsaved => :save, :hard => false) 
 
 === Recreating an Excel instance    
 

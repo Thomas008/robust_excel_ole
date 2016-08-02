@@ -292,10 +292,10 @@ module RobustExcelOle
           workbooks.Add if @excel.Version == "12.0" && count == 0
           update_links_opt =
             case options[:update_links]
-            when :alert then RobustExcelOle::XlUpdateLinksUserSetting
-            when :never then RobustExcelOle::XlUpdateLinksNever
-            when :always then RobustExcelOle::XlUpdateLinksAlways
-            else 2
+            when :alert; RobustExcelOle::XlUpdateLinksUserSetting
+            when :never; RobustExcelOle::XlUpdateLinksNever
+            when :always; RobustExcelOle::XlUpdateLinksAlways
+            else RobustExcelOle::XlUpdateLinksNever
           end
           @excel.with_displayalerts(update_links_opt == :alert ? true : @excel.displayalerts) do
             # ??? determining update_links_opt here does not work, it is always on 2 only afterwords

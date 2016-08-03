@@ -106,7 +106,7 @@ describe Book do
         new_book.filename.should == @book.filename
         new_book.excel.should == @book.excel
         new_book.excel.Visible.should be_true
-        new_book.excel.DisplayAlerts.should be_false
+        new_book.excel.DisplayAlerts.should be_true
         new_book.should === @book
         new_book.close
       end
@@ -367,15 +367,13 @@ describe Book do
         book2.excel.should == @book.excel
       end
 
-      it "should open force_excel with :reuse when reopening and the Excel is not alive even if :default_excel says sth. else" do
+      it "should force_excel with :reuse when reopening and the Excel is not alive even if :default_excel says sth. else" do
         excel2 = Excel.new(:reuse => false)
-        excel1_hwnd = @book.excel.hwnd
         @book.excel.close
         book2 = Book.open(@simple_file1, :force_excel => :current, :default_excel => :new)
         book2.should be_alive
         book2.should be_a Book
-        book2.excel.should_not == excel2
-        book2.excel.hwnd.should == excel1_hwnd
+        book2.excel.should === excel2
       end
 
       it "should force_excel with :reuse when reopening and the Excel is not alive even if :default_excel says sth. else" do
@@ -597,13 +595,11 @@ describe Book do
 
       it "should open force_excel with :reuse when reopening and the Excel is not alive even if :default_excel says sth. else" do
         excel2 = Excel.new(:reuse => false)
-        excel1_hwnd = @book.excel.hwnd
         @book.excel.close
         book2 = Book.open(@simple_file1, :force_excel => :active, :default_excel => :new)
         book2.should be_alive
         book2.should be_a Book
-        book2.excel.should_not == excel2
-        book2.excel.hwnd.should == excel1_hwnd
+        book2.excel.should === excel2
       end
 
       it "should force_excel with :reuse when reopening and the Excel is not alive even if :default_excel says sth. else" do
@@ -710,13 +706,11 @@ describe Book do
 
       it "should open force_excel with :reuse when reopening and the Excel is not alive even if :default_excel says sth. else" do
         excel2 = Excel.new(:reuse => false)
-        excel1_hwnd = @book.excel.hwnd
         @book.excel.close
         book2 = Book.open(@simple_file1, :force_excel => :reuse, :default_excel => :new)
         book2.should be_alive
         book2.should be_a Book
-        book2.excel.should_not == excel2
-        book2.excel.hwnd.should == excel1_hwnd
+        book2.excel.should === excel2
       end
 
       it "should force_excel with :reuse when reopening and the Excel is not alive even if :default_excel says sth. else" do

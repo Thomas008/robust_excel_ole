@@ -14,7 +14,7 @@ describe Book do
     excel = Excel.new(:reuse => true)
     open_books = excel == nil ? 0 : excel.Workbooks.Count
     puts "*** open books *** : #{open_books}" if open_books > 0
-    Excel.close_all
+    Excel.kill_all
   end
 
   before do
@@ -460,14 +460,14 @@ describe Book do
           book.excel.should_not == @book.excel
           book.excel.should_not == new_excel
           book.excel.visible.should be_false
-          book.excel.displayalerts.should be_false
+          book.excel.displayalerts.should == :if_visible
           @hidden_excel = book.excel
         end
         Book.unobtrusively(@simple_file1, :hidden) do |book|
           book.excel.should_not == @book.excel
           book.excel.should_not == new_excel
           book.excel.visible.should be_false
-          book.excel.displayalerts.should be_false
+          book.excel.displayalerts.should == :if_visible
           book.excel.should == @hidden_excel 
         end
       end
@@ -850,7 +850,7 @@ describe Book do
       end
 
       it "should open unobtrusively the closed book in a new Excel if the Excel is not alive anymore" do
-        Excel.close_all
+        Excel.kill_all
         Book.unobtrusively(@simple_file1, :hidden) do |book| 
           book.ReadOnly.should == false
           book.excel.should_not == @book1.excel
@@ -1005,7 +1005,7 @@ describe Book do
           book.excel.should_not == @book.excel
           book.excel.should_not == new_excel
           book.excel.visible.should be_false
-          book.excel.displayalerts.should be_false
+          book.excel.displayalerts.should == :if_visible
         end
         new_book = Book.open(@simple_file1, :visible => true)
         sheet = new_book.sheet(1)
@@ -1047,7 +1047,7 @@ describe Book do
           book.excel.should_not == @book.excel
           book.excel.should_not == new_excel
           book.excel.visible.should be_false
-          book.excel.displayalerts.should be_false
+          book.excel.displayalerts.should == :if_visible
         end
         new_book = Book.open(@simple_file1, :visible => true)
         sheet = new_book.sheet(1)

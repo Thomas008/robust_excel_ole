@@ -495,6 +495,7 @@ describe Book do
       excel1 = Excel.create(:visible => true)
       book1 = Book.open(@simple_file)
       book1.excel.Visible.should be_true
+      book1.close
     end
 
     it "should preserve :visible if they are not set" do
@@ -514,6 +515,7 @@ describe Book do
       excel2 = Excel.create(:visible => true)
       book1 = Book.open(@different_file, :force_excel => excel2)
       book1.excel.Visible.should be_true
+      book1.close
     end
 
     it "should let an open Book open" do

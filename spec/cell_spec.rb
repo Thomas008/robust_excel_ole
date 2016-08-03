@@ -9,7 +9,7 @@ describe Cell do
     excel = Excel.new(:reuse => true)
     open_books = excel == nil ? 0 : excel.Workbooks.Count
     puts "*** open books *** : #{open_books}" if open_books > 0
-    Excel.close_all
+    Excel.kill_all
   end
 
   before do

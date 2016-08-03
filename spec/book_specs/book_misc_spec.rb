@@ -14,7 +14,7 @@ describe Book do
     excel = Excel.new(:reuse => true)
     open_books = excel == nil ? 0 : excel.Workbooks.Count
     puts "*** open books *** : #{open_books}" if open_books > 0
-    Excel.close_all
+    Excel.kill_all
   end
 
   before do
@@ -311,7 +311,7 @@ describe Book do
         book2 = Book.open(@simple_file1, :force_excel => @book.bookstore.hidden_excel)
         book2.excel.should_not == @book.excel
         book2.excel.visible.should be_false
-        book2.excel.displayalerts.should be_false
+        book2.excel.displayalerts.should == :if_visible
         book2.close 
       end
     end
@@ -553,7 +553,7 @@ describe Book do
         book2.visible.should be_true
         book3 = Book.open(@different_file, :visible => false)
         excel1.Visible.should be_true
-        book3.Windows(book3.Name).Visibe.should be_false
+        book3.Windows(book3.Name).Visible.should be_false
         book3.visible.should be_false
       end
 
@@ -573,7 +573,7 @@ describe Book do
         book1.visible.should be_false
         book2 = Book.open(@another_simple_file)
         excel1.Visible.should be_true
-        book2.Windows(book2.Name).Visibe.should be_false
+        book2.Windows(book2.Name).Visible.should be_false
         book2.visible.should be_false
       end
 
@@ -598,7 +598,7 @@ describe Book do
         excel1.visible = false
         book2 = Book.open(@different_file)
         excel1.Visible.should be_false
-        book2.Windows(book2.Name).Visibe.should be_false
+        book2.Windows(book2.Name).Visible.should be_false
         book2.visible.should be_false
       end
 
@@ -611,7 +611,7 @@ describe Book do
         excel1.visible = true
         book2 = Book.open(@different_file)
         excel1.Visible.should be_true
-        book2.Windows(book2.Name).Visibe.should be_true
+        book2.Windows(book2.Name).Visible.should be_true
         book2.visible.should be_true
       end
     end

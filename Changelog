@@ -10,8 +10,8 @@ All notable changes to this project will be documented in this file.
 - Book: open: options :default_excel, :force_excel => :current instead of :reuse
   (:active, :reuse as alias)
 - Book: open: options: deleted :displayalerts
-- Excel: create, current: with option :visible
-- Excel: create, current, new: :displayalerts => :if_visible
+- Excel: create, current: with options :visible, :displayalerts
+- Excel: create, current, new: new options-value :displayalerts => :if_visible
 
 ## [0.5.1] - 2016-18-06
 

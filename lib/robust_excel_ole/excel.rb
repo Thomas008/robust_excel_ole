@@ -58,6 +58,7 @@ module RobustExcelOle
           ole_xl = current_excel
         end
       end
+      #puts "options: #{options}"
       if not (ole_xl)
         ole_xl = WIN32OLE.new('Excel.Application')
         options = {

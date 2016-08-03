@@ -798,7 +798,7 @@ module RobustExcelOle
       saved = @ole_workbook.Saved
       @excel.visible = true if visible_value
       @ole_workbook.Windows(@ole_workbook.Name).Visible = visible_value if @excel.Visible
-      save if saved 
+      save if saved && (not self.ReadOnly)
     end
 
     # returns true, if the workbook reacts to methods, false otherwise

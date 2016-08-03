@@ -14,7 +14,7 @@ describe Book do
     excel = Excel.new(:reuse => true)
     open_books = excel == nil ? 0 : excel.Workbooks.Count
     puts "*** open books *** : #{open_books}" if open_books > 0
-    Excel.close_all
+    Excel.kill_all
   end
 
   before do
@@ -91,9 +91,9 @@ describe Book do
 
       it "should save to 'simple_save_file.xls'" do
         Book.open(@simple_file) do |book|
-          book.save_as(@simple_save_file, :if_exists => :overwrite)
+          book.save_as(@simple_save_file1, :if_exists => :overwrite)
         end
-        File.exist?(@simple_save_file).should be_true
+        File.exist?(@simple_save_file1).should be_true
       end
 
       it "should raise error if filename is nil" do

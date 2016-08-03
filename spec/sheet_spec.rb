@@ -13,7 +13,7 @@ describe Sheet do
     excel = Excel.new(:reuse => true)
     open_books = excel == nil ? 0 : excel.Workbooks.Count
     puts "*** open books *** : #{open_books}" if open_books > 0
-    Excel.close_all
+    Excel.kill_all
   end 
 
   before do
@@ -37,6 +37,7 @@ describe Sheet do
       before do
         @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"
         @book_protect = Book.open(@protected_file, :visible => true, :read_only => true, :force_excel => :new)
+        @book_protect.excel.displayalerts = false
         @key_sender.puts "{p}{r}{o}{t}{e}{c}{t}{enter}"
         @protected_sheet = @book_protect.sheet('protect')
       end
@@ -590,6 +591,7 @@ describe Sheet do
 
          before do
           @book1 = Book.open(@dir + '/another_workbook.xls', :read_only => true, :visible => true)
+          @book1.excel.displayalerts = false
           @sheet1 = @book1.sheet(1)
         end
 

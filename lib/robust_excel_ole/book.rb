@@ -185,7 +185,6 @@ module RobustExcelOle
       return if @excel && @excel.alive?
       options[:excel] = options[:force_excel] ? options[:force_excel] : options[:default_excel]
       options[:excel] = :current if (options[:excel] == :reuse || options[:excel] == :active)
-      options = {:visible => false}.merge(options) if options[:excel] == :new      
       @excel = self.class.excel_of(options[:excel]) unless (options[:excel] == :current || options[:excel] == :new)
       @excel = excel_class.new(:reuse => (options[:excel] == :current)) unless (@excel && @excel.alive?)     
     end    
@@ -298,7 +297,7 @@ module RobustExcelOle
             else RobustExcelOle::XlUpdateLinksNever
           end
           @excel.with_displayalerts(update_links_opt == :alert ? true : @excel.displayalerts) do
-            # ??? determining update_links_opt here does not work, it is always on 2 only afterwords
+            # ??? determining update_links_opt here does not work, it is always XlUpdateLinksNever afterwords
             workbooks.Open(filename, { 'ReadOnly' => options[:read_only] , 'UpdateLinks' => update_links_opt } )
           end
           workbooks.Open(filename, { 'ReadOnly' => options[:read_only] } )
@@ -313,10 +312,9 @@ module RobustExcelOle
         end   
         begin
           # workaround for bug in Excel 2010: workbook.Open does not always return the workbook with given file name
-          @ole_workbook = workbooks.Item(File.basename(filename))         
+          @ole_workbook = workbooks.Item(File.basename(filename))       
           self.visible = options[:visible] unless options[:visible].nil?
           @ole_workbook.UpdateLinks = update_links_opt
-          # would changes workbooks to unsaved: @ole_workbook.UpdateRemoteReferences = (options[:update_links] != :never)
         rescue WIN32OLERuntimeError
           raise ExcelErrorOpen, "cannot find the file #{File.basename(filename).inspect}"
         end       

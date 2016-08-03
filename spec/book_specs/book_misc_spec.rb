@@ -573,8 +573,8 @@ describe Book do
         book1.visible.should be_false
         book2 = Book.open(@another_simple_file)
         excel1.Visible.should be_true
-        book2.Windows(book2.Name).Visible.should be_false
-        book2.visible.should be_false
+        book2.Windows(book2.Name).Visible.should be_true
+        book2.visible.should be_true
       end
 
       it "should leave the excel visible" do
@@ -598,7 +598,7 @@ describe Book do
         excel1.visible = false
         book2 = Book.open(@different_file)
         excel1.Visible.should be_false
-        book2.Windows(book2.Name).Visible.should be_false
+        book2.Windows(book2.Name).Visible.should be_true
         book2.visible.should be_false
       end
 
@@ -606,7 +606,7 @@ describe Book do
         excel1 = Excel.new(:reuse => false, :visible => false)
         book1 = Book.open(@simple_file, :visible => false)
         excel1.Visible.should be_false
-        book1.Windows(book1.Name).Visible.should be_false
+        book1.Windows(book1.Name).Visible.should be_true
         book1.visible.should be_false
         excel1.visible = true
         book2 = Book.open(@different_file)
@@ -667,7 +667,9 @@ describe Book do
       before do
         @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '../helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"        
         @book = Book.open(@simple_file, :visible => true)
+        @book.excel.displayalerts = false
         @book2 = Book.open(@another_simple_file, :force_excel => :new, :visible => true)
+        @book2.excel.displayalerts = false
       end
 
       after do

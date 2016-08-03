@@ -103,13 +103,12 @@ module RobustExcelOle
     def recreate(opts = {})      
       unless self.alive?
         opts = {
-          :displayalerts => @displayalerts ? @displayalerts : :if_visible,
-          :visible => @visible ? @visible : false
+          :visible => @visible ? @visible : false,
+          :displayalerts => @displayalerts ? @displayalerts : :if_visible          
         }.merge(opts)
-        new_excel = WIN32OLE.new('Excel.Application')
-        new_excel.DisplayAlerts = opts[:displayalerts]
-        new_excel.Visible = opts[:visible]
-        @ole_excel = new_excel 
+        @ole_excel = WIN32OLE.new('Excel.Application')
+        self.visible = opts[:visible]
+        self.displayalerts = opts[:displayalerts]        
         if opts[:reopen_workbooks]
           books = book_class.books
           books.each do |book|
@@ -182,9 +181,9 @@ module RobustExcelOle
       timeout = false
       number = excels_number
       begin
-        status = Timeout::timeout(10) {
+        status = Timeout::timeout(15) {
           while (excels_number > 0) do
-            ole_xl = current_excel          
+            ole_xl = current_excel    
             begin
               (Excel.new(ole_xl).close(options); Excel.new(ole_xl).close(options)) if ole_xl  # two times necessary ?!
             rescue RuntimeError => msg

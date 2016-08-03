@@ -76,12 +76,11 @@ module RobustExcelOle
         @@hwnd2excel[hwnd] = WeakRef.new(result)
       end
       unless options.is_a? WIN32OLE
-        ole_xl.Visible = options[:visible] unless options[:visible].nil?
-        ole_xl.DisplayAlerts = ((options[:displayalerts] == :if_visible) ?  
-          (options[:visible] == true) : options[:displayalerts]) unless options[:displayalerts].nil?
         reused = options[:reuse] && (not stored.nil?)
         visible_value = (reused && options[:visible].nil?) ? result.visible : options[:visible]
         displayalerts_value = (reused && options[:displayalerts].nil?) ? result.displayalerts : options[:displayalerts]
+        ole_xl.Visible = visible_value
+        ole_xl.DisplayAlerts = (displayalerts_value == :if_visible) ? visible_value : displayalerts_value
         result.instance_variable_set(:@visible, visible_value)
         result.instance_variable_set(:@displayalerts, displayalerts_value)
       end

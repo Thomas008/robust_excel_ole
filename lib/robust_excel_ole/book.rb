@@ -141,8 +141,7 @@ module RobustExcelOle
       else
         file = file_or_workbook
         ensure_excel(options)
-        ensure_workbook(file, options)
-        @ole_workbook.CheckCompatibility = options[:check_compatibility]
+        ensure_workbook(file, options)        
         @can_be_closed = false if @can_be_closed.nil?
       end
       bookstore.store(self)
@@ -180,6 +179,23 @@ module RobustExcelOle
     end
 
   public
+
+    def open_in_current_excel(file, options)
+      ole_workbook = WIN32OLE.connect(file)
+      workbook = Book.new(ole_workbook)
+      workbook.ReadOnly = options[:read_only]
+      workbook.visible = options[:visible] unless options[:visible].nil?
+      update_links_opt =
+            case options[:update_links]
+            when :alert; RobustExcelOle::XlUpdateLinksUserSetting
+            when :never; RobustExcelOle::XlUpdateLinksNever
+            when :always; RobustExcelOle::XlUpdateLinksAlways
+            else RobustExcelOle::XlUpdateLinksNever
+          end
+      workbook.UpdateLinks = update_links_opt
+      workbook.CheckCompatibility = options[:check_compatibility]
+    end
+
 
     def ensure_excel(options)   # :nodoc: #
       return if @excel && @excel.alive?
@@ -288,7 +304,10 @@ module RobustExcelOle
           # opening and closing a dummy workbook if Excel has no workbooks.
           # delay: with visible: 0.2 sec, without visible almost none
           count = workbooks.Count
-          workbooks.Add if @excel.Version == "12.0" && count == 0
+          if @excel.Version == "12.0" && count == 0
+            workbooks.Add 
+            #@excel.set_calculation(:automatic)
+          end
           update_links_opt =
             case options[:update_links]
             when :alert; RobustExcelOle::XlUpdateLinksUserSetting
@@ -296,11 +315,12 @@ module RobustExcelOle
             when :always; RobustExcelOle::XlUpdateLinksAlways
             else RobustExcelOle::XlUpdateLinksNever
           end
+          # probably bug in Excel: setting UpadateLinks seems to be dependent on calculation mode:
+          # update happens, if calcultion mode is automatic, does not, if calculation mode is manual
+          # parameter 'UpdateLinks' has no effect
           @excel.with_displayalerts(update_links_opt == :alert ? true : @excel.displayalerts) do
-            # ??? determining update_links_opt here does not work, it is always XlUpdateLinksNever afterwords
             workbooks.Open(filename, { 'ReadOnly' => options[:read_only] , 'UpdateLinks' => update_links_opt } )
           end
-          workbooks.Open(filename, { 'ReadOnly' => options[:read_only] } )
           workbooks.Item(1).Close if @excel.Version == "12.0" && count == 0                   
         rescue WIN32OLERuntimeError => msg
           trace "WIN32OLERuntimeError: #{msg.message}" 
@@ -314,7 +334,8 @@ module RobustExcelOle
           # workaround for bug in Excel 2010: workbook.Open does not always return the workbook with given file name
           @ole_workbook = workbooks.Item(File.basename(filename))       
           self.visible = options[:visible] unless options[:visible].nil?
-          @ole_workbook.UpdateLinks = update_links_opt
+          #@ole_workbook.UpdateLinks = update_links_opt
+          @ole_workbook.CheckCompatibility = options[:check_compatibility]
         rescue WIN32OLERuntimeError
           raise ExcelErrorOpen, "cannot find the file #{File.basename(filename).inspect}"
         end       

@@ -181,11 +181,12 @@ module RobustExcelOle
       timeout = false
       number = excels_number
       begin
-        status = Timeout::timeout(15) {
-          while (excels_number > 0) do
+        status = Timeout::timeout(10) {
+          while (n = excels_number) > 0 do
             ole_xl = current_excel    
             begin
-              (Excel.new(ole_xl).close(options); Excel.new(ole_xl).close(options)) if ole_xl  # two times necessary ?!
+              Excel.new(ole_xl).close(options) if ole_xl 
+              sleep 0.5
             rescue RuntimeError => msg
               raise msg unless msg.message =~ /failed to get Dispatch Interface/
             end

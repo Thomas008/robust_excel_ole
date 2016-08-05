@@ -44,11 +44,13 @@ Options are
   +:default_excel+, +:force_excel+, +:if_absent+, +:if_unsaved+, +:if_obstructed+, 
   +:read_only+, +:visible+, +:check_compatibility, and +:update_links+. 
 
-Valid values for +:default_excel+ are +:current+ (or +:active+, or +:reuse+), +:new+ or some Excel instance, for +:force_excel+ : +:current+ (or +:active+, or +:reuse+), +:new+ or some Excel instance, for +:if_unsaved+ : +:raise+, +:accept+, +:forget+, +:alert+ and +:new_excel+, for +:if_obstructed+ : +:raise+, +:save+, +:close_if_saved+, +:forget+, +:alert+ and +:new_excel+ , for +:if_absent+ : +:raise+ and +:create+. The others are Boolean.
+Valid values for +:default_excel+ are +:current+ (or +:active+, or +:reuse+), +:new+ or some Excel instance, for +:force_excel+ : +:current+ (or +:active+, or +:reuse+), +:new+ or some Excel instance, for +:if_unsaved+ : +:raise+, +:accept+, +:forget+, +:alert+ and +:new_excel+, for +:if_obstructed+ : +:raise+, +:save+, +:close_if_saved+, +:forget+, +:alert+ and +:new_excel+ , for +:if_absent+ : +:raise+ and +:create+, for +:update_links+ : +:never+, +:always+, +:alert+. The others are Boolean.
+
+Remark: Doing updating links seems to be dependent on calculation mode: updates happen, if the calcultion mode is automatic, does not happen, if calculation mode is manual.
 
 Here are a few examples:
 
-Opening a workbook in the Excel instance where it was opened before most recently, if it was opened before and this Excel instance is alive. Otherwise opening it in a running Excel, if it exists, or in a new Excel.
+Opening a workbook in the Excel instance where it was opened before most recently, if it was opened beefore and this Excel instance is alive. Otherwise opening it in a running Excel, if it exists, or in a new Excel.
 
 Opening a workbook in the Excel instance where it was opened before most recently, if it was opened before and this Excel instance is alive. Otherwise opening it in a new Excel instance.
 

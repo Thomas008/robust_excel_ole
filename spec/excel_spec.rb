@@ -524,27 +524,6 @@ module RobustExcelOle
         #  }.to raise_error(ExcelUserCanceled, "close: canceled by user")
         # end
 
-        it "should save if user answers 'yes'" do
-          @excel1.displayalerts = @excel2.displayalerts = @excel4.displayalerts = true
-          @key_sender.puts "{enter}"          
-          Excel.close_all(:if_unsaved => :forget)
-          @excel2.should_not be_alive
-          new_book2 = Book.open(@simple_file)
-          new_sheet2 = new_book2.sheet(1)
-          new_sheet2[1,1].value.should_not == @old_cell_value2
-          new_book2.close   
-        end
-
-        it "should not save if user answers 'no'" do  
-          @excel1.displayalerts = @excel2.displayalerts = @excel4.displayalerts = true        
-          @key_sender.puts "{right}{enter}"
-          @key_sender.puts "{right}{enter}"
-          Excel.close_all(:if_unsaved => :forget)
-          @excel2.should_not be_alive
-          new_book2 = Book.open(@simple_file)
-          new_sheet2 = new_book2.sheet(1)
-          new_sheet2[1,1].value.should == @old_cell_value2
-          new_book2.close   
         end
       end
     end
@@ -616,6 +595,22 @@ module RobustExcelOle
             @excel.close(:if_unsaved => :raise)
           }.to raise_error(ExcelErrorClose, "Excel contains unsaved workbooks")
         end        
+
+        it "should close the Excel without saving the workbook even with displayalerts true" do
+          @excel.displayalerts = false
+          @excel.should be_alive
+          @excel.displayalerts = true
+          @excel.close(:if_unsaved => :forget)
+          @excel.should_not be_alive
+          new_book = Book.open(@simple_file)
+          new_sheet = new_book.sheet(1)
+          new_sheet[1,1].value.should == @old_cell_value
+          new_book.close          
+          new_book2 = Book.open(@another_simple_file)
+          new_sheet2 = new_book2.sheet(1)
+          new_sheet2[1,1].value.should == @old_cell_value2
+          new_book2.close 
+        end
 
         it "should close the Excel without saving the workbook" do
           @excel.displayalerts = false
@@ -741,45 +736,6 @@ module RobustExcelOle
           expect{
             @excel.close(:if_unsaved => :alert)
             }.to raise_error(ExcelUserCanceled, "close: canceled by user")
-        end
-
-        it "should save if user answers 'yes'" do
-          # "Yes" is to the left of "No", which is the  default. --> language independent
-          @excel.should be_alive
-          @excel.displayalerts = true
-          @key_sender.puts "{enter}" 
-          @excel.close(:if_unsaved => :forget)
-          @excel.should_not be_alive
-          new_book = Book.open(@simple_file)
-          new_sheet = new_book.sheet(1)
-          new_sheet[1,1].value.should_not == @old_cell_value
-          new_book.close   
-        end
-
-        it "should not save if user answers 'no'" do            
-          @excel.should be_alive
-          @excel.displayalerts = true
-          @book.should be_alive
-          @book.saved.should be_false
-          @key_sender.puts "{right}{enter}"
-          @excel.close(:if_unsaved => :forget)
-          @excel.should_not be_alive
-          @book.should_not be_alive
-          new_book = Book.open(@simple_file)
-          new_sheet = new_book.sheet(1)
-          new_sheet[1,1].value.should == @old_cell_value
-          new_book.close     
-        end
-
-        it "should not save if user answers 'cancel'" do
-          # strangely, in the "cancel" case, the question will sometimes be repeated twice            
-          @excel.should be_alive
-          @excel.displayalerts = true
-          @book.should be_alive
-          @book.saved.should be_false
-          @key_sender.puts "{left}{enter}"
-          @key_sender.puts "{left}{enter}"
-          @excel.close(:if_unsaved => :forget)
         end
 
       end

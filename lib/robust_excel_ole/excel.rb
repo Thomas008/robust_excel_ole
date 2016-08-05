@@ -200,11 +200,7 @@ module RobustExcelOle
     def close_excel(options) # :nodoc:
       ole_xl = @ole_excel
       begin
-        if options[:if_unsaved] == :alert
-          with_displayalerts(true) {ole_xl.Workbooks.Close}
-        else
-          ole_xl.Workbooks.Close
-        end
+        with_displayalerts(options[:if_unsaved] == :alert) { ole_xl.Workbooks.Close }
       rescue WIN32OLERuntimeError => msg
         raise ExcelUserCanceled, "close: canceled by user" if msg.message =~ /80020009/ && 
               options[:if_unsaved] == :alert && (not unsaved_workbooks.empty?)

@@ -262,9 +262,7 @@ module RobustExcelOle
             when :accept
               # do nothing
             when :alert, :excel
-              @excel.with_displayalerts true do
-                open_or_create_workbook(file,options)
-              end 
+              @excel.with_displayalerts(true) { open_or_create_workbook(file,options) }
             when :new_excel
               excel_options = {:visible => false}.merge(options)
               excel_options[:reuse] = false
@@ -365,15 +363,11 @@ module RobustExcelOle
           save
           close_workbook
         when :forget
-          @excel.with_displayalerts false do
-            close_workbook
-          end
+          @excel.with_displayalerts(false) { close_workbook }
         when :keep_open
           # nothing
         when :alert, :excel
-          @excel.with_displayalerts true do
-            close_workbook
-          end
+          @excel.with_displayalerts(true) { close_workbook }
         else
           raise ExcelErrorClose, ":if_unsaved: invalid option: #{opts[:if_unsaved].inspect}"
         end

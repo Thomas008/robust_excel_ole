@@ -118,6 +118,25 @@ describe Book do
         end
       end
 
+      it "should close the book and leave its file untouched with option :forget even with displayalerts true" do
+        ole_workbook = @book.ole_workbook
+        excel = @book.excel
+        excel.displayalerts = true
+        excel.Workbooks.Count.should == 1
+        @book.close(:if_unsaved => :forget)
+        excel.Workbooks.Count.should == 0
+        @book.ole_workbook.should == nil
+        @book.should_not be_alive
+        expect{
+          ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
+        new_book = Book.open(@simple_file1)
+        begin
+          new_book.ole_workbook.Worksheets.Count.should ==  @sheet_count
+        ensure
+          new_book.close
+        end
+      end
+
       it "should raise an error for invalid option" do
         expect {
           @book.close(:if_unsaved => :invalid_option)

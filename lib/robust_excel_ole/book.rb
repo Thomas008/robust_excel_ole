@@ -365,7 +365,9 @@ module RobustExcelOle
           save
           close_workbook
         when :forget
-          close_workbook
+          @excel.with_displayalerts false do
+            close_workbook
+          end
         when :keep_open
           # nothing
         when :alert, :excel

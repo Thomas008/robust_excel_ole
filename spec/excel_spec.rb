@@ -343,7 +343,6 @@ module RobustExcelOle
         Excel.close_all
         direct_excel_creation_helper
         sleep 3
-        puts "excels_number: #{Excel.excels_number}"
         sleep 1
         Excel.close_all
         sleep 0.1
@@ -951,8 +950,7 @@ module RobustExcelOle
         excel4.should === excel
         excel4.Visible.should be_true
         excel4.visible.should be_true
-        #Error: 
-        #excel4.DisplayAlerts.should be_true
+        excel4.DisplayAlerts.should be_true
         excel4.displayalerts.should == :if_visible
         excel5 = Excel.current(:visible => false)
         excel5.should === excel

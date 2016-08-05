@@ -58,14 +58,8 @@ module RobustExcelOle
           ole_xl = current_excel
         end
       end
-      #puts "options: #{options}"
-      if not (ole_xl)
-        ole_xl = WIN32OLE.new('Excel.Application')
-        options = {
-          :displayalerts => :if_visible,
-          :visible => false,
-        }.merge(options)
-      end
+      ole_xl = WIN32OLE.new('Excel.Application') unless ole_xl
+
       hwnd = ole_xl.HWnd
       stored = hwnd2excel(hwnd)
       if stored 
@@ -76,8 +70,10 @@ module RobustExcelOle
         WIN32OLE.const_load(ole_xl, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
         @@hwnd2excel[hwnd] = WeakRef.new(result)
       end
+      
       unless options.is_a? WIN32OLE
         reused = options[:reuse] && (not stored.nil?)
+        options = { :displayalerts => :if_visible, :visible => false}.merge(options) unless reused
         visible_value = (reused && options[:visible].nil?) ? result.visible : options[:visible]
         displayalerts_value = (reused && options[:displayalerts].nil?) ? result.displayalerts : options[:displayalerts]
         ole_xl.Visible = visible_value

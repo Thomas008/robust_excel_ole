@@ -180,10 +180,11 @@ module RobustExcelOle
 
   public
 
-    def open_in_current_excel(file, options)
-      ole_workbook = WIN32OLE.connect(file)
+    def self.open_in_current_excel(file, opts = { })
+      options = DEFAULT_OPEN_OPTS.merge(opts)
+      filename = General::absolute_path(file)
+      ole_workbook = WIN32OLE.connect(filename)
       workbook = Book.new(ole_workbook)
-      workbook.ReadOnly = options[:read_only]
       workbook.visible = options[:visible] unless options[:visible].nil?
       update_links_opt =
             case options[:update_links]
@@ -194,6 +195,7 @@ module RobustExcelOle
           end
       workbook.UpdateLinks = update_links_opt
       workbook.CheckCompatibility = options[:check_compatibility]
+      workbook
     end
 
 

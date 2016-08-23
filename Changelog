@@ -1,6 +1,13 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+
+## [0.6.1]
+
+### Changed
+
+### Added
+
 ## [0.6] - 2016-03-08
 
 ## [0.5.2] - 2016-17-07
@@ -11,6 +18,8 @@ All notable changes to this project will be documented in this file.
   (:active, :reuse as alias)
 - Book: open: options: deleted :displayalerts
 - Excel: create, current: with options :visible, :displayalerts
+
+### Added
 - Excel: create, current, new: new options-value :displayalerts => :if_visible
 
 ## [0.5.1] - 2016-18-06

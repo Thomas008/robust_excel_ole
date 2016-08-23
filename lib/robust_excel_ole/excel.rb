@@ -177,16 +177,25 @@ module RobustExcelOle
       timeout = false
       number = excels_number
       begin
-        status = Timeout::timeout(10) {
-          while (n = excels_number) > 0 do
-            ole_xl = current_excel    
-            begin
-              Excel.new(ole_xl).close(options) if ole_xl 
-              sleep 0.5
-            rescue RuntimeError => msg
-              raise msg unless msg.message =~ /failed to get Dispatch Interface/
-            end
+        status = Timeout::timeout(60) {
+          @@hwnd2excel.each do |hwnd, wr_excel|
+            excel = wr_excel.__getobj__
+            excel.close(options)
           end
+          sleep 0.2
+          free_all_ole_objects if excels_number > 0
+          # attempt: via current_excel: advantage: can close also interactively opened Excel instances, 
+          # but does not work: hangs in a loop, i.e. does not close appropriately
+          #while (n = excels_number) > 0 do
+          #  ole_xl = current_excel    
+          #  puts "ole_xl: #{ole_xl}"
+          #  puts "n: #{n}"
+          #  begin
+          #    Excel.new(ole_xl).close(options) if ole_xl 
+          #  rescue RuntimeError => msg
+          #    raise msg unless msg.message =~ /failed to get Dispatch Interface/
+          #  end
+          #end
         }
       rescue Timeout::Error
         raise ExcelError, "close_all: timeout" unless options[:kill_if_timeout]
@@ -209,6 +218,7 @@ module RobustExcelOle
       ole_xl.Quit
       weak_excel_ref = WeakRef.new(ole_xl)
       ole_xl = @ole_excel = nil
+      @visible = @displayalerts = nil
       GC.start
       sleep 0.2
       if weak_excel_ref.weakref_alive? then

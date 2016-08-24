@@ -20,6 +20,8 @@ module RobustExcelOle
       @another_simple_file = @dir + '/another_workbook.xls'
       @different_file = @dir + '/different_workbook.xls'
       @invalid_name_file = 'b/workbook.xls'
+      @simple_file1 = @simple_file
+      @different_file1 = @different_file
     end
 
     after do
@@ -31,8 +33,8 @@ module RobustExcelOle
 
       before do
 
-        book1 = Book.open(@simple_file)
-        book2 = Book.open(@simple_file, :force_excel => :new)
+        book1 = Book.open(@simple_file1)
+        book2 = Book.open(@simple_file1, :force_excel => :new)
         a = book1.saved 
       end
 
@@ -379,71 +381,61 @@ module RobustExcelOle
 
       context "with unsaved_workbooks" do
         
-        before do
-          book1 = Book.open(@simple_file, :read_only => true)
-          book2 = Book.open(@simple_file, :force_excel => :new)
-          book3 = Book.open(@another_simple_file, :force_excel => book2.excel)
-          book4 = Book.open(@different_file, :force_excel => :new)
+        before do          
+          book1 = Book.open(@simple_file1, :force_excel => :new)
+          book2 = Book.open(@different_file, :force_excel => :new)          
           @excel1 = book1.excel
+          sheet1 = book1.sheet(1)
+          @old_cell_value1 = sheet1[1,1].value
+          sheet1[1,1] = sheet1[1,1].value == "foo" ? "bar" : "foo"
           @excel2 = book2.excel
-          @excel4 = book4.excel
           sheet2 = book2.sheet(1)
           @old_cell_value2 = sheet2[1,1].value
           sheet2[1,1] = sheet2[1,1].value == "foo" ? "bar" : "foo"
-          sheet3 = book3.sheet(1)
-          @old_cell_value3 = sheet3[1,1].value
-          sheet3[1,1] = sheet3[1,1].value == "foo" ? "bar" : "foo"
         end
 
         it "should close the first Excel without unsaved workbooks and then raise an error" do
           expect{
             Excel.close_all(:if_unsaved => :raise)
           }.to raise_error(ExcelErrorClose, "Excel contains unsaved workbooks")
-          @excel1.should_not be_alive
+          @excel1.should be_alive
           @excel2.should be_alive
-          @excel4.should be_alive
         end
 
         it "should close the first Excel without unsaved workbooks and then raise an error per default" do
           expect{
             Excel.close_all
           }.to raise_error(ExcelErrorClose, "Excel contains unsaved workbooks")
-          @excel1.should_not be_alive
+          @excel1.should be_alive
           @excel2.should be_alive
-          @excel4.should be_alive
         end
 
-        # Error
         it "should close the Excel instances with saving the unsaved workbooks" do
           Excel.close_all(:if_unsaved => :save)
           @excel1.should_not be_alive
           @excel2.should_not be_alive
-          @excel4.should_not be_alive
-          new_book2 = Book.open(@simple_file)
+          new_book1 = Book.open(@simple_file1)
+          new_sheet1 = new_book1.sheet(1)
+          new_sheet1[1,1].value.should_not == @old_cell_value1
+          new_book1.close   
+          new_book2 = Book.open(@different_file1)
           new_sheet2 = new_book2.sheet(1)
           new_sheet2[1,1].value.should_not == @old_cell_value2
-          new_book2.close   
-          new_book3 = Book.open(@another_simple_file)
-          new_sheet3 = new_book3.sheet(1)
-          new_sheet3[1,1].value.should_not == @old_cell_value3
-          new_book3.close
+          new_book2.close
         end
 
-        # Error
         it "should close the Excel instances without saving the unsaved workbooks" do          
-          @excel1.displayalerts = @excel2.displayalerts = @excel4.displayalerts = false
           Excel.close_all(:if_unsaved => :forget)
           @excel1.should_not be_alive
           @excel2.should_not be_alive
-          @excel4.should_not be_alive
-          new_book2 = Book.open(@simple_file)
+          new_book1 = Book.open(@simple_file1)
+          new_sheet1 = new_book1.sheet(1)
+          new_sheet1[1,1].value.should == @old_cell_value1
+          new_book1.close   
+          new_book2 = Book.open(@different_file1)
           new_sheet2 = new_book2.sheet(1)
           new_sheet2[1,1].value.should == @old_cell_value2
           new_book2.close   
-          new_book3 = Book.open(@another_simple_file)
-          new_sheet3 = new_book3.sheet(1)
-          new_sheet3[1,1].value.should == @old_cell_value3
-          new_book3.close   
         end       
 
         it "should raise an error for invalid option" do
@@ -454,17 +446,15 @@ module RobustExcelOle
 
       end
 
-      context "unsaved_workbooks" do
+      context "with unsaved workbooks simple" do
 
-        # Error
         it "should save the unsaved workbook" do
           book1 = Book.open(@simple_file, :visible => true)
           book1.sheet(1)[1,1] = "bar"
-          #book1.Saved.should be_false
+          book1.Saved.should be_false
           Excel.close_all(:if_unsaved => :save)
         end
 
-        # Error
         it "should forget the unsaved workbook" do
           book1 = Book.open(@simple_file, :visible => true)
           excel1 = book1.excel

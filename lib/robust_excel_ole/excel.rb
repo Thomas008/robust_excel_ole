@@ -64,7 +64,7 @@ module RobustExcelOle
       stored = hwnd2excel(hwnd)
       if stored 
         result = stored
-      else
+      else 
         result = super(options)
         result.instance_variable_set(:@ole_excel, ole_xl)        
         WIN32OLE.const_load(ole_xl, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
@@ -182,14 +182,11 @@ module RobustExcelOle
             excel = wr_excel.__getobj__
             excel.close(options)
           end
-          sleep 0.2
+          sleep 0.2          
           free_all_ole_objects if excels_number > 0
-          # attempt: via current_excel: advantage: can close also interactively opened Excel instances, 
-          # but does not work: hangs in a loop, i.e. does not close appropriately
+          # close also interactively opened Excels, but for unsaved workbooks: hangs as soon sending a VBA method
           #while (n = excels_number) > 0 do
           #  ole_xl = current_excel    
-          #  puts "ole_xl: #{ole_xl}"
-          #  puts "n: #{n}"
           #  begin
           #    Excel.new(ole_xl).close(options) if ole_xl 
           #  rescue RuntimeError => msg

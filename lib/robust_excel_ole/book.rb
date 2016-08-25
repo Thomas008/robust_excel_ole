@@ -171,11 +171,9 @@ module RobustExcelOle
         begin
           object.excel
         rescue
-          raise ExcelErrorOpen, "given object is neither an Excel, a Workbook, nor a Win32ole"
+          raise TypeError, "given object is neither an Excel, a Workbook, nor a Win32ole"
         end
       end
-      #rescue
-        # trace "no Excel, Book, or WIN32OLE object representing a Workbook or an Excel instance"
     end
 
   public
@@ -209,23 +207,23 @@ module RobustExcelOle
 
     def ensure_workbook(file, options)     # :nodoc: #
       file = @stored_filename ? @stored_filename : file
-      raise(ExcelErrorOpen, "filename is nil") if file.nil?
+      raise(FileNameNil, "filename is nil") if file.nil?
       unless File.exist?(file)
         if options[:if_absent] == :create
           @ole_workbook = excel_class.current.generate_workbook(file)
         else 
-          raise ExcelErrorOpen, "file #{file.inspect} not found"
+          raise FileNotFound, "file #{file.inspect} not found"
         end
       end
       @ole_workbook = @excel.Workbooks.Item(File.basename(file)) rescue nil
       if @ole_workbook then
         obstructed_by_other_book = (File.basename(file) == File.basename(@ole_workbook.Fullname)) && 
                                    (not (General::absolute_path(file) == @ole_workbook.Fullname))
-        # if book is obstructed by a book with same name and different path
+        # if workbook is obstructed by a workbook with same name and different path
         if obstructed_by_other_book then
           case options[:if_obstructed]
           when :raise
-            raise ExcelErrorOpen, "blocked by a book with the same name in a different path: #{@ole_workbook.Fullname.tr('\\','/')}"
+            raise WorkbookBlocked, "blocked by a workbook with the same name in a different path: #{@ole_workbook.Fullname.tr('\\','/')}"
           when :forget
             @ole_workbook.Close
             @ole_workbook = nil
@@ -237,7 +235,7 @@ module RobustExcelOle
             open_or_create_workbook(file, options)
           when :close_if_saved
             if (not @ole_workbook.Saved) then
-              raise ExcelErrorOpen, "workbook with the same name in a different path is unsaved: #{@ole_workbook.Fullname.tr('\\','/')}"
+              raise WorkbookBlocked, "workbook with the same name in a different path is unsaved: #{@ole_workbook.Fullname.tr('\\','/')}"
             else 
               @ole_workbook.Close
               @ole_workbook = nil
@@ -249,14 +247,14 @@ module RobustExcelOle
             @excel = excel_class.new(excel_options)
             open_or_create_workbook(file, options)
           else
-            raise ExcelErrorOpen, ":if_obstructed: invalid option: #{options[:if_obstructed].inspect}"
+            raise OptionInvalid, ":if_obstructed: invalid option: #{options[:if_obstructed].inspect}"
           end
         else
           # book open, not obstructed by an other book, but not saved and writable
           if (not @ole_workbook.Saved) then
             case options[:if_unsaved]
             when :raise
-              raise ExcelErrorOpen, "workbook is already open but not saved: #{File.basename(file).inspect}"
+              raise WorkbookNotSaved, "workbook is already open but not saved: #{File.basename(file).inspect}"
             when :forget
               @ole_workbook.Close
               @ole_workbook = nil
@@ -271,7 +269,7 @@ module RobustExcelOle
               @excel = excel_class.new(excel_options)
               open_or_create_workbook(file, options)
             else
-              raise ExcelErrorOpen, ":if_unsaved: invalid option: #{options[:if_unsaved].inspect}"
+              raise OptionInvalid, ":if_unsaved: invalid option: #{options[:if_unsaved].inspect}"
             end
           end
         end
@@ -292,13 +290,12 @@ module RobustExcelOle
           rescue RuntimeError => msg
             trace "RuntimeError: #{msg.message}" 
             if msg.message =~ /method missing: Excel not alive/
-              raise ExcelErrorOpen, "Excel instance not alive or damaged" 
+              raise ExcelDamaged, "Excel instance not alive or damaged" 
             else
-              raise ExcelErrorOpen, "unknown RuntimeError"
+              raise UnknownError, "unknown RuntimeError"
             end
           rescue WeakRef::RefError => msg
-            trace "WeakRefError: #{msg.message}"
-            raise ExcelErrorOpen, "#{msg.message}"
+            raise ExcelWeakRef, "#{msg.message}"
           end
           # workaround for linked workbooks for Excel 2007: 
           # opening and closing a dummy workbook if Excel has no workbooks.
@@ -323,11 +320,11 @@ module RobustExcelOle
           end
           workbooks.Item(1).Close if @excel.Version == "12.0" && count == 0                   
         rescue WIN32OLERuntimeError => msg
-          trace "WIN32OLERuntimeError: #{msg.message}" 
+          # trace "WIN32OLERuntimeError: #{msg.message}" 
           if msg.message =~ /800A03EC/
-            raise ExcelErrorOpen, "open: user canceled or open error"
+            raise WorkbookError, "open: user canceled or open error"
           else 
-            raise ExcelErrorOpen, "unknown WIN32OLERuntimeError"
+            raise UnknownError, "unknown WIN32OLERuntimeError"
           end
         end   
         begin
@@ -337,7 +334,7 @@ module RobustExcelOle
           #@ole_workbook.UpdateLinks = update_links_opt
           @ole_workbook.CheckCompatibility = options[:check_compatibility]
         rescue WIN32OLERuntimeError
-          raise ExcelErrorOpen, "cannot find the file #{File.basename(filename).inspect}"
+          raise FileNotFound, "cannot find the file #{File.basename(filename).inspect}"
         end       
       end
     end
@@ -354,13 +351,13 @@ module RobustExcelOle
     #                      :forget          -> closes the workbook 
     #                      :keep_open       -> keep the workbook open
     #                      :alert or :excel -> gives control to excel
-    # @raise ExcelErrorClose if the option :if_unsaved is :raise and the workbook is unsaved, or option is invalid
-    # @raise ExcelErrorCanceled if the user has canceled 
+    # @raise WorkbookNotSaved if the option :if_unsaved is :raise and the workbook is unsaved
+    # @raise OptionInvalid if the options is invalid
     def close(opts = {:if_unsaved => :raise})
       if (alive? && (not @ole_workbook.Saved) && writable) then
         case opts[:if_unsaved]
         when :raise
-          raise ExcelErrorClose, "workbook is unsaved: #{File.basename(self.stored_filename).inspect}"
+          raise WorkbookNotSaved, "workbook is unsaved: #{File.basename(self.stored_filename).inspect}"
         when :save
           save
           close_workbook
@@ -371,13 +368,13 @@ module RobustExcelOle
         when :alert, :excel
           @excel.with_displayalerts(true) { close_workbook }
         else
-          raise ExcelErrorClose, ":if_unsaved: invalid option: #{opts[:if_unsaved].inspect}"
+          raise OptionInvalid, ":if_unsaved: invalid option: #{opts[:if_unsaved].inspect}"
         end
       else
         close_workbook
       end
-      raise ExcelUserCanceled, "close: canceled by user" if alive? && 
-      (opts[:if_unsaved] == :alert || opts[:if_unsaved] == :excel) && (not @ole_workbook.Saved)
+      trace "close: canceled by user" if alive? &&  
+        (opts[:if_unsaved] == :alert || opts[:if_unsaved] == :excel) && (not @ole_workbook.Saved)
     end
 
   private
@@ -496,15 +493,15 @@ module RobustExcelOle
     # @raise ExcelErrorSave if workbook is not alive or opened for read-only, or another error occurs
     # @return [Boolean] true, if successfully saved, nil otherwise
     def save      
-      raise ExcelErrorSave, "workbook is not alive" if (not alive?)
-      raise ExcelErrorSave, "Not opened for writing (opened with :read_only option)" if @ole_workbook.ReadOnly
+      raise WorkbookNotAlive, "workbook is not alive" if (not alive?)
+      raise WorkbookReadOnly, "Not opened for writing (opened with :read_only option)" if @ole_workbook.ReadOnly
       begin
         @ole_workbook.Save 
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
-          raise ExcelErrorSave, "workbook not saved"
+          raise WorkbookUnsaved, "workbook not saved"
         else
-          raise ExcelErrorSaveUnknown, "unknown WIN32OELERuntimeError:\n#{msg.message}"
+          raise UnknownError, "unknown WIN32OELERuntimeError:\n#{msg.message}"
         end       
       end
       true
@@ -526,14 +523,11 @@ module RobustExcelOle
     #                  :save                -> saves the blocking workbook and closes it
     #                  :close_if_saved      -> closes the blocking workbook, if it is saved, 
     #                                          otherwise raises an exception
-    # @raise ExcelErrorSave if workbook is not alive, opened in read-only mode, invalid options,
-    #                          the file already exists (with option :if_exists :raise),
-    #                          the workbook is blocked by another one (with option :if_obstructed :raise)
     # @return [Book], the book itself, if successfully saved, raises an exception otherwise
     def save_as(file, opts = { } )
-      raise(ExcelErrorSave, "filename is nil") if file.nil?
-      raise ExcelErrorSave, "workbook is not alive" if (not alive?)
-      raise ExcelErrorSave, "Not opened for writing (opened with :read_only option)" if @ole_workbook.ReadOnly
+      raise FileNameNil, "filename is nil" if file.nil?
+      raise WorkbookNotAlive, "workbook is not alive" if (not alive?)
+      raise WorkbookReadOnly, "Not opened for writing (opened with :read_only option)" if @ole_workbook.ReadOnly
       options = {
         :if_exists => :raise,
         :if_obstructed => :raise,
@@ -548,7 +542,7 @@ module RobustExcelOle
             begin
               File.delete(file)
             rescue Errno::EACCES
-              raise ExcelErrorSave, "workbook is open and used in Excel"
+              raise WorkbookBeingUsed, "workbook is open and used in Excel"
             end
           end
         when :alert, :excel 
@@ -557,9 +551,9 @@ module RobustExcelOle
           end
           return self
         when :raise
-          raise ExcelErrorSave, "file already exists: #{File.basename(file).inspect}"
+          raise FileAlreadyExists, "file already exists: #{File.basename(file).inspect}"
         else
-          raise ExcelErrorSave, ":if_exists: invalid option: #{options[:if_exists].inspect}"
+          raise OptionInvalid, ":if_exists: invalid option: #{options[:if_exists].inspect}"
         end
       end
       blocking_workbook = 
@@ -571,15 +565,15 @@ module RobustExcelOle
       if blocking_workbook then
         case options[:if_obstructed]
         when :raise
-          raise ExcelErrorSave, "blocked by another workbook: #{blocking_workbook.Fullname.tr('\\','/')}"
+          raise WorkbookBlocked, "blocked by another workbook: #{blocking_workbook.Fullname.tr('\\','/')}"
         when :forget
           # nothing
         when :save
           blocking_workbook.Save
         when :close_if_saved
-          raise ExcelErrorSave, "blocking workbook is unsaved: #{File.basename(file).inspect}" unless blocking_workbook.Saved
+          raise WorkbookUnsaved, "blocking workbook is unsaved: #{File.basename(file).inspect}" unless blocking_workbook.Saved
         else
-          raise ExcelErrorSave, ":if_obstructed: invalid option: #{options[:if_obstructed].inspect}"
+          raise OptionInvalid, ":if_obstructed: invalid option: #{options[:if_obstructed].inspect}"
         end
         blocking_workbook.Close
       end
@@ -609,7 +603,7 @@ module RobustExcelOle
           end
           # another possible semantics. raise ExcelErrorSaveFailed, "could not save Workbook"
         else
-          raise ExcelErrorSaveUnknown, "unknown WIN32OELERuntimeError:\n#{msg.message}"
+          raise UnknownError, "unknown WIN32OELERuntimeError:\n#{msg.message}"
         end       
       end
     end
@@ -623,8 +617,8 @@ module RobustExcelOle
       begin
         sheet_class.new(@ole_workbook.Worksheets.Item(name))
       rescue WIN32OLERuntimeError => msg
-        raise ExcelError, "could not return a sheet with name #{name.inspect}"
-        trace "#{msg.message}"
+        raise NameNotFound, "could not return a sheet with name #{name.inspect}"
+        # trace "#{msg.message}"
       end
     end    
 
@@ -641,7 +635,7 @@ module RobustExcelOle
     # @option opts [Symbol] :as     new name of the copied sheet
     # @option opts [Symbol] :before a sheet before which the sheet shall be inserted
     # @option opts [Symbol] :after  a sheet after which the sheet shall be inserted
-    # @raise  ExcelErrorSheet if the sheet name already exists
+    # @raise  NameAlreadyExists if the sheet name already exists
     # @return [Sheet] the copied sheet
     def copy_sheet(sheet, opts = { })
       new_sheet_name = opts.delete(:as)
@@ -651,7 +645,7 @@ module RobustExcelOle
       begin
         new_sheet.name = new_sheet_name if new_sheet_name
       rescue WIN32OLERuntimeError => msg
-        msg.message =~ /800A03EC/ ? raise(ExcelErrorSheet, "sheet name already exists") : raise(ExcelErrorSheetUnknown)
+        msg.message =~ /800A03EC/ ? raise(NameAlreadyExists, "sheet name already exists") : raise(UnknownError)
       end
       new_sheet
     end      
@@ -662,7 +656,7 @@ module RobustExcelOle
     # @option opts [Symbol] :as     new name of the copied added sheet
     # @option opts [Symbol] :before a sheet before which the sheet shall be inserted
     # @option opts [Symbol] :after  a sheet after which the sheet shall be inserted
-    # @raise  ExcelErrorSheet if the sheet name already exists
+    # @raise  NameAlreadyExists if the sheet name already exists
     # @return [Sheet] the added sheet
     def add_empty_sheet(opts = { })
       new_sheet_name = opts.delete(:as)
@@ -672,7 +666,7 @@ module RobustExcelOle
       begin
         new_sheet.name = new_sheet_name if new_sheet_name
       rescue WIN32OLERuntimeError => msg
-        msg.message =~ /800A03EC/ ? raise(ExcelErrorSheet, "sheet name already exists") : raise(ExcelErrorSheetUnknown)
+        msg.message =~ /800A03EC/ ? raise(NameAlreadyExists, "sheet name already exists") : raise(UnknownError)
       end
       new_sheet
     end    
@@ -684,7 +678,6 @@ module RobustExcelOle
     # @option opts [Symbol] :as     new name of the copied or added sheet
     # @option opts [Symbol] :before a sheet before which the sheet shall be inserted
     # @option opts [Symbol] :after  a sheet after which the sheet shall be inserted
-    # @raise  ExcelErrorSheet if the sheet name already exists
     # @return [Sheet] the copied or added sheet
     def add_or_copy_sheet(sheet = nil, opts = { })
       if sheet.is_a? Hash
@@ -729,16 +722,14 @@ module RobustExcelOle
     # @param  [String]      name      the name of the range
     # @param  [Hash]        opts      the options
     # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
-    # @raise  ExcelError if range name is not in the workbook or if range value could not be evaluated
     # @return [Variant] the contents of a range with given name
-  
     def nameval(name, opts = {:default => nil})
       default_val = opts[:default]
       begin
         name_obj = self.Names.Item(name)
       rescue WIN32OLERuntimeError
         return default_val if default_val
-        raise ExcelError, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"
+        raise NameNotFound, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"
       end
       begin
         value = name_obj.RefersToRange.Value
@@ -747,12 +738,12 @@ module RobustExcelOle
           value = self.sheet(1).Evaluate(name_obj.Name)
         rescue WIN32OLERuntimeError
           return default_val if default_val
-          raise ExcelError, "cannot evaluate name #{name.inspect} in #{File.basename(self.stored_filename).inspect}"
+          raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{File.basename(self.stored_filename).inspect}"
         end
       end
       if value == RobustExcelOle::XlErrName  # -2146826259
         return default_val if default_val
-        raise ExcelError, "cannot evaluate name #{name.inspect} in #{File.basename(self.stored_filename).inspect}"
+        raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{File.basename(self.stored_filename).inspect}"
       end 
       return default_val if default_val && value.nil?
       value      
@@ -766,41 +757,39 @@ module RobustExcelOle
       begin
         name_obj = self.Names.Item(name)
       rescue WIN32OLERuntimeError
-        raise ExcelError, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"  
+        raise NameNotFound, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"  
       end
       begin
         name_obj.RefersToRange.Value = value
       rescue WIN32OLERuntimeError
-        raise ExcelError, "cannot assign value to range named #{name.inspect} in #{File.basename(self.stored_filename).inspect}"    
+        raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{File.basename(self.stored_filename).inspect}"    
       end
     end    
 
     # renames a range
     # @param [String] name     the previous range name
     # @param [String] new_name the new range name
-    # @raise ExcelError if name is not in the file, or if new_name cannot be set
     def rename_range(name, new_name)
       begin
         item = self.Names.Item(name)
       rescue WIN32OLERuntimeError
-        raise ExcelError, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"  
+        raise NameNotFound, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"  
       end
       begin
         item.Name = new_name
       rescue WIN32OLERuntimeError
-        raise ExcelError, "name error in #{File.basename(self.stored_filename).inspect}"      
+        raise UnknownError, "name error in #{File.basename(self.stored_filename).inspect}"      
       end
     end
 
     # brings workbook to foreground, makes it available for heyboard inputs, makes the Excel instance visible
-    # @raise ExcelError if workbook cannot be activated    
     def activate      
       @excel.visible = true
       begin
         Win32API.new("user32","SetForegroundWindow","I","I").call(@excel.hwnd)     # Excel  2010
         @ole_workbook.Activate   # Excel 2007
       rescue WIN32OLERuntimeError
-        raise ExcelError, "cannot activate"
+        raise UnknownError, "cannot activate"
       end
     end
 
@@ -912,7 +901,7 @@ module RobustExcelOle
     def method_missing(name, *args)   # :nodoc: #
       if name.to_s[0,1] =~ /[A-Z]/ 
         begin
-          raise ExcelError, "method missing: workbook not alive" unless alive?
+          raise ObjectNotAlive, "method missing: workbook not alive" unless alive?
           @ole_workbook.send(name, *args)
         rescue WIN32OLERuntimeError => msg
           if msg.message =~ /unknown property or method/
@@ -931,31 +920,6 @@ public
 
   Workbook = Book
 
-  class ExcelError < RuntimeError    # :nodoc: #
-  end
 
-  class ExcelErrorOpen < ExcelError   # :nodoc: #
-  end
-
-  class ExcelErrorClose < ExcelError    # :nodoc: #
-  end
-
-  class ExcelErrorSave < ExcelError   # :nodoc: #
-  end
-
-  class ExcelErrorSaveFailed < ExcelErrorSave  # :nodoc: #
-  end
-
-  class ExcelErrorSaveUnknown < ExcelErrorSave  # :nodoc: #
-  end
-
-  class ExcelUserCanceled < RuntimeError # :nodoc: #
-  end
-  
-  class ExcelErrorSheet < ExcelError    # :nodoc: #
-  end
-
-  class ExcelErrorSheetUnknown < ExcelErrorSheet    # :nodoc: #
-  end
 
 end

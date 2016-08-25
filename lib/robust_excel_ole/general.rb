@@ -9,7 +9,7 @@ module General
   end
 
   def canonize(filename)    # :nodoc: #
-    raise ExcelError, "No string given to canonize, but #{filename.inspect}" unless filename.is_a?(String)  
+    raise TypeError, "No string given to canonize, but #{filename.inspect}" unless filename.is_a?(String)  
     normalize(filename).downcase
   end
 
@@ -42,7 +42,7 @@ class ::String    # :nodoc: #
         begin 
           File.join self, path_part
         rescue TypeError
-          raise "Only strings can be parts of paths (given: #{path_part.inspect} of class #{path_part.class})"
+          raise TypeError, "Only strings can be parts of paths (given: #{path_part.inspect} of class #{path_part.class})"
         end
       end
     end
@@ -108,7 +108,7 @@ end
 module MethodHelpers
 
   def respond_to?(meth_name, include_private = false)  # :nodoc: #    
-    raise ExcelError, "respond_to?: #{self.class.name} not alive" unless alive?
+    raise ObjectNotAlive, "respond_to?: #{self.class.name} not alive" unless alive?
     super
   end
 

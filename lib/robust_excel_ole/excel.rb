@@ -166,8 +166,6 @@ module RobustExcelOle
     #                      :alert           -> give control to Excel
     #  :hard          closes Excel instances soft (default: false), or, additionally kills the Excel processes hard (true)
     #  :kill_if_timeout:  kills Excel instances hard if the closing process exceeds a certain time limit (default: false)
-    # @raise ExcelError if time limit has exceeded, some Excel instance cannot be closed, or
-    #                   unsaved workbooks exist and option :if_unsaved is :raise
     def self.close_all(options={})
       options = {
         :if_unsaved => :raise,
@@ -195,7 +193,7 @@ module RobustExcelOle
           #end
         }
       rescue Timeout::Error
-        raise ExcelError, "close_all: timeout" unless options[:kill_if_timeout]
+        raise Timeout::Error, "close_all: timeout" unless options[:kill_if_timeout]
         timeout = true
       end
       kill_all if options[:hard] || (timeout && options[:kill_if_timeout])
@@ -208,7 +206,7 @@ module RobustExcelOle
       begin
         with_displayalerts(options[:if_unsaved] == :alert) { ole_xl.Workbooks.Close }
       rescue WIN32OLERuntimeError => msg
-        raise ExcelUserCanceled, "close: canceled by user" if msg.message =~ /80020009/ && 
+        trace "close: canceled by user" if msg.message =~ /80020009/ && 
               options[:if_unsaved] == :alert && (not unsaved_workbooks.empty?)
       end     
       excel_hwnd = ole_xl.HWnd
@@ -245,12 +243,12 @@ module RobustExcelOle
         @ole_excel.Workbooks.each {|w| unsaved_workbooks << w unless (w.Saved || w.ReadOnly)}
       rescue RuntimeError => msg
         trace "RuntimeError: #{msg.message}" 
-        raise ExcelErrorOpen, "Excel instance not alive or damaged" if msg.message =~ /failed to get Dispatch Interface/
+        raise ExcelDamaged, "Excel instance not alive or damaged" if msg.message =~ /failed to get Dispatch Interface/
       end
       unless unsaved_workbooks.empty? 
         case options[:if_unsaved]
         when :raise
-          raise ExcelErrorClose, "Excel contains unsaved workbooks"
+          raise UnsavedWorkbooks, "Excel contains unsaved workbooks"
         when :save
           unsaved_workbooks.each do |workbook|
             workbook.Save
@@ -263,7 +261,7 @@ module RobustExcelOle
         when :keep_open
           return false
         else
-          raise ExcelErrorClose, ":if_unsaved: invalid option: #{options[:if_unsaved].inspect}"
+          raise OptionInvalid, ":if_unsaved: invalid option: #{options[:if_unsaved].inspect}"
         end
       end
       return true
@@ -413,7 +411,7 @@ module RobustExcelOle
         self.Workbooks.each {|w| result << w unless (w.Saved || w.ReadOnly)}
       rescue RuntimeError => msg
         trace "RuntimeError: #{msg.message}" 
-        raise ExcelErrorOpen, "Excel instance not alive or damaged" if msg.message =~ /failed to get Dispatch Interface/
+        raise ExcelDamaged, "Excel instance not alive or damaged" if msg.message =~ /failed to get Dispatch Interface/
       end
       result      
     end
@@ -432,10 +430,10 @@ module RobustExcelOle
           empty_workbook.SaveAs(filename) 
         rescue WIN32OLERuntimeError => msg
           if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
-            raise ExcelErrorSave, "could not save workbook with filename #{file_name.inspect}"
+            raise WIN32OLERuntimeError, "could not save workbook with filename #{file_name.inspect}"
           else
             # todo some time: find out when this occurs : 
-            raise ExcelErrorSaveUnknown, "unknown WIN32OELERuntimeError with filename #{file_name.inspect}: \n#{msg.message}"
+            raise UnknownError, "unknown WIN32OELERuntimeError with filename #{file_name.inspect}: \n#{msg.message}"
           end
         end      
       end
@@ -474,7 +472,7 @@ module RobustExcelOle
         end
       rescue RuntimeError => msg
         trace "RuntimeError: #{msg.message}" 
-        raise ExcelErrorOpen, "Excel instance not alive or damaged" if msg.message =~ /failed to get Dispatch Interface/
+        raise ExcelDamaged, "Excel instance not alive or damaged" if msg.message =~ /failed to get Dispatch Interface/
       end
     end
 
@@ -522,13 +520,12 @@ module RobustExcelOle
     # @param [String] name  the range name
     # @param [Hash]   opts  the options
     # @option opts [Variant] :default default value (default: nil)
-    # @raise ExcelError if name is not defined or if value of the range cannot be evaluated
     def nameval(name, opts = {:default => nil})
       begin
         name_obj = self.Names.Item(name)
       rescue WIN32OLERuntimeError
         return opts[:default] if opts[:default]
-        raise ExcelError, "cannot find name #{name.inspect}"
+        raise NameNotFound, "cannot find name #{name.inspect}"
       end
       begin
         value = name_obj.RefersToRange.Value
@@ -537,12 +534,12 @@ module RobustExcelOle
           value = self.Evaluate(name_obj.Name)
         rescue WIN32OLERuntimeError
           return opts[:default] if opts[:default]
-          raise ExcelError, "cannot evaluate name #{name.inspect}"
+          raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect}"
         end
       end
       if value == -2146826259
         return opts[:default] if opts[:default]
-        raise ExcelError, "cannot evaluate name #{name.inspect}"
+        raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect}"
       end 
       return opts[:default] if (value.nil? && opts[:default])
       value      
@@ -551,17 +548,16 @@ module RobustExcelOle
     # assigns a value to a range with given name
     # @param [String]  name   the range name
     # @param [Variant] value  the assigned value
-    # @raise ExcelError if name is not in the sheet or the value cannot be assigned
     def set_nameval(name,value)
       begin
         name_obj = self.Names.Item(name)
       rescue WIN32OLERuntimeError
-        raise ExcelError, "cannot find name #{name.inspect}"
+        raise NameNotFound, "cannot find name #{name.inspect}"
       end
       begin
         name_obj.RefersToRange.Value = value
       rescue  WIN32OLERuntimeError
-        raise ExcelError, "cannot assign value to range named #{name.inspect}"
+        raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect}"
       end
     end    
 
@@ -571,20 +567,19 @@ module RobustExcelOle
     # @param  [String]      name      the range name
     # @param  [Hash]        opts      the options
     # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
-    # @raise  ExcelError if range name is not definied in the worksheet or if range value could not be evaluated
     # @return [Variant] the contents of a range with given name   
     def rangeval(name, opts = {:default => nil})
       begin
         range = self.Range(name)
       rescue WIN32OLERuntimeError
         return opts[:default] if opts[:default]
-        raise ExcelError, "cannot find name #{name.inspect}"
+        raise NameNotFound, "cannot find name #{name.inspect}"
       end
       begin
         value = range.Value
       rescue  WIN32OLERuntimeError
         return opts[:default] if opts[:default]
-        raise ExcelError, "cannot determine value of range named #{name.inspect}"
+        raise RangeNotEvaluatable, "cannot determine value of range named #{name.inspect}"
       end
       return opts[:default] if (value.nil? && opts[:default])
       value
@@ -593,17 +588,16 @@ module RobustExcelOle
     # assigns a value to a range given a defined loval name
     # @param [String]  name   the range name
     # @param [Variant] value  the assigned value
-    # @raise ExcelError if name is not in the sheet or the value cannot be assigned
     def set_rangeval(name,value)
       begin
         range = self.Range(name)
       rescue WIN32OLERuntimeError
-        raise ExcelError, "cannot find name #{name.inspect}"
+        raise NameNotFound, "cannot find name #{name.inspect}"
       end
       begin
         range.Value = value
       rescue  WIN32OLERuntimeError
-        raise ExcelError, "cannot assign value to range named #{name.inspect} in #{self.name}"
+        raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.name}"
       end
     end
 
@@ -635,7 +629,7 @@ module RobustExcelOle
     def method_missing(name, *args)    # :nodoc: #
       if name.to_s[0,1] =~ /[A-Z]/ 
         begin          
-          raise ExcelError, "method missing: Excel not alive" unless alive?
+          raise ObjectNotAlive, "method missing: Excel not alive" unless alive?
           @ole_excel.send(name, *args)
         rescue WIN32OLERuntimeError => msg
           if msg.message =~ /unknown property or method/

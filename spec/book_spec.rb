@@ -277,7 +277,7 @@ describe Book do
       it "should raise an error, if :if_unsaved is :raise" do
         expect {
           @new_book = Book.open(@simple_file, :if_unsaved => :raise)
-        }.to raise_error(ExcelErrorOpen, /workbook is already open but not saved: "workbook.xls"/)
+        }.to raise_error(WorkbookNotSaved, /workbook is already open but not saved: "workbook.xls"/)
       end
 
       it "should let the book open, if :if_unsaved is :accept" do

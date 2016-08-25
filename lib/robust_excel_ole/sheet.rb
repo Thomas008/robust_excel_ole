@@ -34,10 +34,10 @@ module RobustExcelOle
         @worksheet.Name = new_name
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /800A03EC/ 
-          raise ExcelErrorSheet, "sheet name #{new_name.inspect} already exists"
+          raise NameAlreadyExists, "sheet name #{new_name.inspect} already exists"
         else
           trace "#{msg.message}"
-          raise ExcelErrorSheetUnknown
+          raise UnknownError
         end
       end
     end
@@ -54,10 +54,10 @@ module RobustExcelOle
         name = p1
         begin
           nameval(name) 
-        rescue SheetError
+        rescue REOError
           begin
             book_class.new(self.Parent).nameval(name)
-          rescue ExcelError
+          rescue REOError
             rangeval(name)
           end
         end
@@ -74,10 +74,10 @@ module RobustExcelOle
         name, value = p1, p2
         begin
           set_nameval(name, value) 
-        rescue SheetError
+        rescue REOError
           begin
             workbook.set_nameval(name, value)
-          rescue ExcelError
+          rescue REOError
             set_rangeval(name, value)
           end
         end
@@ -136,13 +136,12 @@ module RobustExcelOle
     # @param [String] name  the name of a range
     # @param [Hash]   opts  the options
     # @option opts [Variant] :default default value (default: nil)
-    # @raise SheetError if name is not defined or if value of the range cannot be evaluated  
     def nameval(name, opts = {:default => nil})
       begin
         name_obj = self.Names.Item(name)
       rescue WIN32OLERuntimeError
         return opts[:default] if opts[:default]
-        raise SheetError, "name #{name.inspect} not in #{self.Name}"
+        raise NameNotFound, "name #{name.inspect} not in #{self.Name}"
       end
       begin
         value = name_obj.RefersToRange.Value
@@ -151,12 +150,12 @@ module RobustExcelOle
           value = self.Evaluate(name_obj.Name)
         rescue WIN32OLERuntimeError
           return opts[:default] if opts[:default]
-          raise SheetError, "cannot evaluate name #{name.inspect} in #{self.Name}"
+          raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{self.Name}"
         end
       end
       if value == RobustExcelOle::XlErrName  # -2146826259
         return opts[:default] if opts[:default]
-        raise SheetError, "cannot evaluate name #{name.inspect} in #{self.Name}"
+        raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{self.Name}"
       end 
       return opts[:default] if (value.nil? && opts[:default])
       value      
@@ -165,17 +164,16 @@ module RobustExcelOle
     # assigns a value to a range
     # @param [String]  name   the name of a range
     # @param [Variant] value  the assigned value
-    # @raise SheetError if name is not in the sheet or the value cannot be assigned
     def set_nameval(name,value)
       begin
         name_obj = self.Names.Item(name)
       rescue WIN32OLERuntimeError
-        raise SheetError, "name #{name.inspect} not in #{self.name}"
+        raise NameNotFound, "name #{name.inspect} not in #{self.name}"
       end
       begin
         name_obj.RefersToRange.Value = value
       rescue  WIN32OLERuntimeError
-        raise SheetError, "cannot assign value to range named #{name.inspect} in #{self.name}"
+        raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.name}"
       end
     end
 
@@ -185,20 +183,19 @@ module RobustExcelOle
     # @param  [String]      name      the name of a range
     # @param  [Hash]        opts      the options
     # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
-    # @raise  SheetError if range name is not definied in the worksheet or if range value could not be evaluated
     # @return [Variant] the contents of a range with given name   
     def rangeval(name, opts = {:default => nil})
       begin
         range = self.Range(name)
       rescue WIN32OLERuntimeError
         return opts[:default] if opts[:default]
-        raise SheetError, "name #{name.inspect} not in #{self.name}"
+        raise NameNotFound, "name #{name.inspect} not in #{self.name}"
       end
       begin
         value = range.Value
       rescue  WIN32OLERuntimeError
         return opts[:default] if opts[:default]
-        raise SheetError, "cannot determine value of range named #{name.inspect} in #{self.name}"
+        raise RangeNotEvaluatable, "cannot determine value of range named #{name.inspect} in #{self.name}"
       end
       return opts[:default] if (value.nil? && opts[:default])
       value
@@ -207,17 +204,16 @@ module RobustExcelOle
     # assigns a value to a range given a defined local name
     # @param [String]  name   the name of a range
     # @param [Variant] value  the assigned value
-    # @raise SheetError if name is not in the sheet or the value cannot be assigned
     def set_rangeval(name,value)
       begin
         range = self.Range(name)
       rescue WIN32OLERuntimeError
-        raise SheetError, "name #{name.inspect} not in #{self.name}"
+        raise NameNotFound, "name #{name.inspect} not in #{self.name}"
       end
       begin
         range.Value = value
       rescue  WIN32OLERuntimeError
-        raise SheetError, "cannot assign value to range named #{name.inspect} in #{self.name}"
+        raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.name}"
       end
     end
     
@@ -236,7 +232,7 @@ module RobustExcelOle
         end
       rescue WIN32OLERuntimeError => msg
         trace "WIN32OLERuntimeError: #{msg.message}"
-        raise SheetError, "cannot add name #{name.inspect} to cell with row #{row.inspect} and column #{column.inspect}"
+        raise RangeNotEvaluatable, "cannot add name #{name.inspect} to cell with row #{row.inspect} and column #{column.inspect}"
       end
     end
 
@@ -297,7 +293,4 @@ module RobustExcelOle
 
   public
   
-  class SheetError < RuntimeError    # :nodoc: #
-  end
-
 end

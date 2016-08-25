@@ -507,7 +507,7 @@ Closing the Excel instance, saving unsaved workbooks and terminating the Excel p
 
   excel.close(:if_unsaved => :save, :hard => true)
 
-=== Closing all Excel instances.
+=== Closing Excel instances opened via RobustExcelOle
 
   Excel.close_all
 

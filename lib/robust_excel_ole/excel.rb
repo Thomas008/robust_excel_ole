@@ -153,7 +153,7 @@ module RobustExcelOle
       close_excel(options) if managed_unsaved_workbooks(options)
     end
 
-    # closes all Excel instances
+    # closes Excel instances opened via RobustExcelOle
     # @param [Hash] options the options
     # @option options [Symbol]  :if_unsaved :raise, :save, :forget, or :alert
     # @option options [Boolean] :hard

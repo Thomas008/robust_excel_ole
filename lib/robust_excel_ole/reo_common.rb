@@ -7,7 +7,7 @@ File.delete REO_LOG_FILE rescue nil
 class REOCommon
 
   def excel
-    raise TypeError, "receiver instance is neither an Excel nor a Book"
+    raise TypeErrorREO, "receiver instance is neither an Excel nor a Book"
   end
 
   def own_methods
@@ -105,7 +105,7 @@ module RobustExcelOle
   class ObjectNotAlive < MiscError              # :nodoc: #
   end
 
-  class TypeError < REOError                    # :nodoc: #
+  class TypeErrorREO < REOError                 # :nodoc: #
   end   
 
   class TimeOut < REOError                      # :nodoc: #

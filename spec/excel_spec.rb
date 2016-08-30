@@ -245,6 +245,7 @@ module RobustExcelOle
           @excel1.should_not be_alive        
         end
 
+        # Error
         it "should recreate an Excel instance with old visible and displayalerts values" do
           @excel1.visible = true
           @excel1.displayalerts = true
@@ -301,6 +302,7 @@ module RobustExcelOle
           @excel3.displayalerts = true
         end
 
+        # Error
         it "should recreate several Excel instances" do  
           @excel1.close
           @excel3.close
@@ -329,7 +331,6 @@ module RobustExcelOle
       end    
     end
 
-    # Error
     context "close excel instances" do
       def direct_excel_creation_helper  # :nodoc: #
         expect { WIN32OLE.connect("Excel.Application") }.to raise_error
@@ -342,12 +343,11 @@ module RobustExcelOle
       end
 
       it "simple file with default" do
-        Excel.close_all
+        Excel.kill_all
         direct_excel_creation_helper
-        sleep 3
-        sleep 1
-        Excel.close_all
-        sleep 0.1
+        sleep 4
+        Excel.kill_all
+        sleep 4
         expect { WIN32OLE.connect("Excel.Application") }.to raise_error
       end
     end
@@ -725,7 +725,7 @@ module RobustExcelOle
           @key_sender.puts "{left}{enter}"
           expect{
             @excel.close(:if_unsaved => :alert)
-            }.to raise_error(WorkbookError, "close: canceled by user")
+            }.to_not raise_error
         end
 
       end

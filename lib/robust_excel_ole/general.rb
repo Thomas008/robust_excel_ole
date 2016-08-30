@@ -9,7 +9,7 @@ module General
   end
 
   def canonize(filename)    # :nodoc: #
-    raise TypeError, "No string given to canonize, but #{filename.inspect}" unless filename.is_a?(String)  
+    raise TypeErrorREO, "No string given to canonize, but #{filename.inspect}" unless filename.is_a?(String)  
     normalize(filename).downcase
   end
 

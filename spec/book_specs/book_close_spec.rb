@@ -182,7 +182,7 @@ describe Book do
             if answer == :cancel then
               expect {
               @book.close(:if_unsaved => :alert)
-              }.to raise_error(WorkbookError, "close: canceled by user")
+              }.to_not raise_error
               @book.ole_workbook.Saved.should be_false
               @book.ole_workbook.should_not == nil
               @book.should be_alive
@@ -225,7 +225,7 @@ describe Book do
             if answer == :cancel then
               expect {
               @book.close(:if_unsaved => :excel)
-              }.to raise_error(WorkbookError, "close: canceled by user")
+              }.to_not raise_error
               @book.ole_workbook.Saved.should be_false
               @book.ole_workbook.should_not == nil
               @book.should be_alive

@@ -171,7 +171,7 @@ module RobustExcelOle
         begin
           object.excel
         rescue
-          raise TypeError, "given object is neither an Excel, a Workbook, nor a Win32ole"
+          raise TypeErrorREO, "given object is neither an Excel, a Workbook, nor a Win32ole"
         end
       end
     end
@@ -493,7 +493,7 @@ module RobustExcelOle
     # @raise ExcelErrorSave if workbook is not alive or opened for read-only, or another error occurs
     # @return [Boolean] true, if successfully saved, nil otherwise
     def save      
-      raise WorkbookNotAlive, "workbook is not alive" if (not alive?)
+      raise ObjectNotAlive, "workbook is not alive" if (not alive?)
       raise WorkbookReadOnly, "Not opened for writing (opened with :read_only option)" if @ole_workbook.ReadOnly
       begin
         @ole_workbook.Save 

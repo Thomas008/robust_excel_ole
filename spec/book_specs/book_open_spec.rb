@@ -335,7 +335,7 @@ describe Book do
       it "should raise an error if no Excel or Book is given" do
         expect{
           Book.open(@simple_file1, :force_excel => :b)
-          }.to raise_error(TypeError, "given object is neither an Excel, a Workbook, nor a Win32ole")
+          }.to raise_error(TypeErrorREO, "given object is neither an Excel, a Workbook, nor a Win32ole")
       end
 
       it "should do force_excel even if both force_ and default_excel is given" do
@@ -564,7 +564,7 @@ describe Book do
       it "should raise an error if no Excel or Book is given" do
         expect{
           Book.open(@different_file, :default_excel => :a)
-          }.to raise_error(TypeError, "given object is neither an Excel, a Workbook, nor a Win32ole")
+          }.to raise_error(TypeErrorREO, "given object is neither an Excel, a Workbook, nor a Win32ole")
       end
       
     end
@@ -937,7 +937,7 @@ describe Book do
           it "should raise an error, if :if_obstructed is :raise" do
             expect {
               @new_book = Book.open(@simple_file1, :if_obstructed => :raise)
-            }.to raise_error(WorkbookBlocked, /blocked by a book with the same name in a different path/)
+            }.to raise_error(WorkbookBlocked, /blocked by a workbook with the same name in a different path/)
           end
 
           it "should close the other book and open the new book, if :if_obstructed is :forget" do
@@ -961,7 +961,7 @@ describe Book do
               if :if_obstructed is :close_if_saved" do
             expect{
               @new_book = Book.open(@simple_file1, :if_obstructed => :close_if_saved)
-            }.to raise_error(WorkbookNotSaved, /workbook with the same name in a different path is unsaved/)
+            }.to raise_error(WorkbookBlocked, /workbook with the same name in a different path is unsaved/)
             @book.save
             @new_book = Book.open(@simple_file1, :if_obstructed => :close_if_saved)
             @book.should_not be_alive
@@ -983,7 +983,7 @@ describe Book do
           it "should raise an error, if :if_obstructed is default" do
             expect {
               @new_book = Book.open(@simple_file1)              
-            }.to raise_error(WorkbookBlocked, /blocked by a book with the same name in a different path/)
+            }.to raise_error(WorkbookBlocked, /blocked by a workbook with the same name in a different path/)
           end         
 
           it "should raise an error, if :if_obstructed is invalid option" do
@@ -1079,29 +1079,24 @@ describe Book do
       it "should set update_links to :alert" do
         book = Book.open(@simple_file, :update_links => :alert)
         book.UpdateLinks.should == XlUpdateLinksUserSetting
-        #book.UpdateRemoteReferences.should be_true
         book.Saved.should be_true
       end
 
       it "should set update_links to :never" do
         book = Book.open(@simple_file, :update_links => :never)
         book.UpdateLinks.should == XlUpdateLinksNever
-        #book.UpdateRemoteReferences.should be_false
         book = Book.open(@simple_file, :update_links => :foo)
         book.UpdateLinks.should == XlUpdateLinksNever
-        #book.UpdateRemoteReferences.should be_false
       end
 
       it "should set update_links to :always" do
         book = Book.open(@simple_file, :update_links => :always)
         book.UpdateLinks.should == XlUpdateLinksAlways
-        #book.UpdateRemoteReferences.should be_true
       end
 
       it "should set update_links to :never per default" do
         book = Book.open(@simple_file)
         book.UpdateLinks.should == XlUpdateLinksNever
-        #book.UpdateRemoteReferences.should be_false
       end
 
     end

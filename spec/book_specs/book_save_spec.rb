@@ -237,7 +237,7 @@ describe Book do
         @book.Saved.should be_false      
         expect{
           @book2.save_as(@simple_file_other_path1, :if_exists => :overwrite, :if_obstructed => :close_if_saved)
-        }.to raise_error(WorkbookUnsaved, /blocking workbook is unsaved: "workbook.xls"/)
+        }.to raise_error(WorkbookNotSaved, /blocking workbook is unsaved: "workbook.xls"/)
       end
 
       it "should raise an error with an invalid option" do
@@ -259,7 +259,7 @@ describe Book do
         File.exist?(@simple_file_other_path1).should be_true
         expect{
           @book2.save_as(@simple_file_other_path1, :if_exists => :overwrite)
-        }.to raise_error(ExcelErrorSave, /blocked by another workbook/)
+        }.to raise_error(WorkbookBlocked, /blocked by another workbook/)
       end
 
       it "should raise an error if the file does not exist and an workbook with the same name and other path exists" do
@@ -407,7 +407,7 @@ describe Book do
             @book.ole_workbook.Close
             expect{
               @book.save_as(@simple_save_file1, :if_exists => :alert)
-              }.to raise_error(ExcelErrorSave, "workbook is not alive")
+              }.to raise_error(ObjectNotAlive, "workbook is not alive")
             File.exist?(@simple_save_file1).should be_true
             File.size?(@simple_save_file1).should == @garbage_length
             @book.excel.DisplayAlerts.should == displayalert_value
@@ -466,7 +466,7 @@ describe Book do
             #@key_sender.puts "%{n}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
             expect{
               @book.save_as(@simple_save_file1, :if_exists => :excel)
-              }.to raise_error(ExcelErrorSave, "not saved or canceled by user")
+              }.to_not raise_error
             File.exist?(@simple_save_file1).should be_true
             File.size?(@simple_save_file1).should == @garbage_length
             @book.excel.DisplayAlerts.should == displayalert_value

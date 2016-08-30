@@ -37,7 +37,7 @@ module RobustExcelOle
           raise NameAlreadyExists, "sheet name #{new_name.inspect} already exists"
         else
           trace "#{msg.message}"
-          raise UnknownError
+          raise UnexpectedError
         end
       end
     end

@@ -7,7 +7,7 @@ File.delete REO_LOG_FILE rescue nil
 class REOCommon
 
   def excel
-    raise ExcelError, "receiver instance is neither an Excel nor a Book"
+    raise TypeError, "receiver instance is neither an Excel nor a Book"
   end
 
   def own_methods
@@ -40,68 +40,79 @@ class REOCommon
   end
 end
 
-class REOError < RuntimeError                 # :nodoc: #
-end                 
+module RobustExcelOle
 
-class ExcelError < REOError                   # :nodoc: #
+  class REOError < RuntimeError                 # :nodoc: #
+  end                 
+
+  class ExcelError < REOError                   # :nodoc: #
+  end
+
+  class WorkbookError < REOError                # :nodoc: #
+  end
+
+  class FileError < REOError                    # :nodoc: #
+  end
+
+  class NamesError < REOError                   # :nodoc: #
+  end
+
+  class MiscError < REOError                    # :nodoc: #
+  end
+
+  class ExcelDamaged < ExcelError               # :nodoc: #
+  end
+
+  class ExcelWeakRef < ExcelError                # :nodoc: #
+  end
+
+  class UnsavedWorkbooks < ExcelError           # :nodoc: #
+  end
+
+  class WorkbookBlocked < WorkbookError         # :nodoc: #
+  end
+
+  class WorkbookNotSaved < WorkbookError        # :nodoc: #
+  end
+
+  class WorkbookReadOnly < WorkbookError        # :nodoc: #
+  end
+
+  class WorkbookBeingUsed < WorkbookError       # :nodoc: #
+  end
+
+  class FileNotFound < FileError                # :nodoc: #
+  end
+
+  class FileNameNotGiven < FileError            # :nodoc: #
+  end
+
+  class FileAlreadyExists < FileError           # :nodoc: #
+  end
+
+  class NameNotFound < NamesError               # :nodoc: #
+  end
+
+  class NameAlreadyExists < NamesError          # :nodoc: #
+  end
+
+  class RangeNotEvaluatable < MiscError         # :nodoc: #
+  end
+
+  class OptionInvalid < MiscError               # :nodoc: #
+  end
+
+  class ObjectNotAlive < MiscError              # :nodoc: #
+  end
+
+  class TypeError < REOError                    # :nodoc: #
+  end   
+
+  class TimeOut < REOError                      # :nodoc: #
+  end  
+
+  class UnexpectedError < REOError              # :nodoc: #
+  end
+
 end
 
-class WorkbookError < REOError                # :nodoc: #
-end
-
-class FileError < REOError                    # :nodoc: #
-end
-
-class NamesError < REOError                   # :nodoc: #
-end
-
-class MiscError < REOError                    # :nodoc: #
-end
-
-class ExcelDamaged < ExcelError               # :nodoc: #
-end
-
-class ExcelWeakRef < ExcelError                # :nodoc: #
-end
-
-class UnsavedWorkbooks < ExcelError           # :nodoc: #
-end
-
-class WorkbookBlocked < WorkbookError         # :nodoc: #
-end
-
-class WorkbookNotSaved < WorkbookError        # :nodoc: #
-end
-
-class WorkbookReadOnly < WorkbookError        # :nodoc: #
-end
-
-class WorkbookBeingUsed < WorkbookError       # :nodoc: #
-end
-
-class FileNotFound < FileError                # :nodoc: #
-end
-
-class FileNameNil < FileError                 # :nodoc: #
-end
-
-class FileAlreadyExists < FileError           # :nodoc: #
-end
-
-class NameNotFound < NamesError               # :nodoc: #
-end
-
-class NameAlreadyExists < NamesError          # :nodoc: #
-end
-
-class RangeNotEvaluatable < MiscError         # :nodoc: #
-end
-
-class OptionInvalid < MiscError               # :nodoc: #
-end
-
-class ObjectNotAlive < MiscError              # :nodoc: #
-end
-
-class UnknownError < MiscError                # :nodoc: #
-end

@@ -193,7 +193,7 @@ module RobustExcelOle
           #end
         }
       rescue Timeout::Error
-        raise Timeout::Error, "close_all: timeout" unless options[:kill_if_timeout]
+        raise TimeOut, "close_all: timeout" unless options[:kill_if_timeout]
         timeout = true
       end
       kill_all if options[:hard] || (timeout && options[:kill_if_timeout])
@@ -316,7 +316,6 @@ module RobustExcelOle
       WIN32OLE.connect("winmgmts:\\\\.").InstancesOf("win32_process").select{|p| (p.name == "EXCEL.EXE")}.size
     end
 
-=begin
     # provide Excel objects 
     # (so far restricted to all Excel instances opened with RobustExcelOle,
     #  not for Excel instances opened by the user)
@@ -345,7 +344,6 @@ module RobustExcelOle
       end
       result
     end
-=end    
 
     def excel   # :nodoc: #
       self
@@ -433,7 +431,7 @@ module RobustExcelOle
             raise WIN32OLERuntimeError, "could not save workbook with filename #{file_name.inspect}"
           else
             # todo some time: find out when this occurs : 
-            raise UnknownError, "unknown WIN32OELERuntimeError with filename #{file_name.inspect}: \n#{msg.message}"
+            raise UnexpectedError, "unknown WIN32OELERuntimeError with filename #{file_name.inspect}: \n#{msg.message}"
           end
         end      
       end

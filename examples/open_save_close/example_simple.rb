@@ -25,7 +25,7 @@ begin
   book.save                                                  # simple save
   begin
   	book.save_as(other_file_name)                            # save_as :  default :if_exists => :raise 
-  rescue ExcelErrorSave => msg
+  rescue FileAlreadyExists => msg
   	puts "error: save_as: #{msg.message}"
   end
   book.save_as(other_file_name, :if_exists => :overwrite)    # save_as with :if_exists => :overwrite

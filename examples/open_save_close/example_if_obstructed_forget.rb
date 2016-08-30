@@ -16,7 +16,7 @@ begin
   sleep 3 
   begin
     new_book = Book.open(other_file_name)        # open a book with the same file name in a different path
-  rescue ExcelErrorOpen => msg                   # by default: raises an exception 
+  rescue WorkbookBlocked => msg                   # by default: raises an exception 
   	puts "error: open: #{msg.message}"
   end
   # open a new book with the same file name in a different path. close the old book before.

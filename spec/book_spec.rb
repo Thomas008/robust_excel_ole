@@ -569,7 +569,7 @@ describe Book do
         begin
           @excel1.close
           @excel2.close 
-        rescue ExcelErrorOpen => msg
+        rescue ExcelError => msg
           puts "ExcelError: #{msg.message}" if msg.message =~ /Excel instance not alive or damaged/
         end
       end

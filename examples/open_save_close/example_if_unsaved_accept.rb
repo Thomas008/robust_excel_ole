@@ -16,7 +16,7 @@ begin
   sheet[1,1] = sheet[1,1].value == "simple" ? "complex" : "simple" # change a cell
   begin
     new_book = Book.open(file_name)                # open another book with the same file name
-  rescue ExcelErrorOpen => msg                     # by default: raises an exception:
+  rescue WorkbookBeingUsed => msg                     # by default: raises an exception:
     puts "error: open: #{msg.message}"              # a book with the same name is already open and unsaved 
   end
   new_book = Book.open(file_name, :if_unsaved => :accept) # open another book with the same file name 
@@ -29,7 +29,7 @@ begin
   end
   begin                                                                   
   	book.close                                          # close the book. by default: raises an exception:
-  rescue ExcelErrorClose => msg                         #   book is unsaved
+  rescue WorkbookNotSaved => msg                         #   book is unsaved
   	puts "close error: #{msg.message}"
   end
   book.close(:if_unsaved => :save)                      # save the book before closing it 

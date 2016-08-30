@@ -26,13 +26,13 @@ begin
   Excel.current.visible = true
   begin
   	book.close(:if_unsaved => :alert)                      # close the unsaved book. 
-  rescue ExcelUserCanceled => msg                          # user is asked whether the unsaved book shall be saved
+  rescue WorkbookError => msg                          # user is asked whether the unsaved book shall be saved
   	puts "#{msg.message}"                                  # if the user chooses to cancel, then an expeption is raised
   end
   if new_book then
   	begin
   	  new_book.save_as(file_name, :if_exists => :alert)    # save the new book, if it was opened
-  	rescue ExcelErrorSave => msg                           # user is asked, whether the existing file shall be overwritten
+  	rescue WorkbookError => msg                           # user is asked, whether the existing file shall be overwritten
   	  puts "save_as: #{msg.message}"                       # if the user chooses "no" or "cancel", an exception is raised
   	end 
 

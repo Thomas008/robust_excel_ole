@@ -33,7 +33,7 @@ begin
       sheet_new = book.add_sheet sheet
       begin
         sheet_new.name = sheet_name
-      rescue ExcelErrorSheet => msg
+      rescue REOError => msg
         sheet_new.name = sheet_name + sheet.name if msg.message == "sheet name already exists" 
       end
       sheet_new.set_name("name", 2, 2)

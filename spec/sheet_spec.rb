@@ -633,10 +633,6 @@ describe Sheet do
         }.to raise_error(VBAMethodMissingError, /unknown VBA property or method :Foo/)
       end
 
-  #    it "should report that worksheet is not alive" do
-  #      @book.close
-  #      expect{ @sheet.Nonexisting_method }.to raise_error(ExcelError, "method missing: worksheet nil")
-  #    end
     end
 
     describe "#method_missing" do

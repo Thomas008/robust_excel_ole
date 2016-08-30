@@ -237,7 +237,7 @@ describe Book do
         @book.Saved.should be_false      
         expect{
           @book2.save_as(@simple_file_other_path1, :if_exists => :overwrite, :if_obstructed => :close_if_saved)
-        }.to raise_error(WorkbookNotSaved, /blocking workbook is unsaved: "workbook.xls"/)
+        }.to raise_error(WorkbookBlocked, /blocking workbook is unsaved: "workbook.xls"/)
       end
 
       it "should raise an error with an invalid option" do

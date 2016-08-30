@@ -56,7 +56,7 @@ begin
   puts"adding a copy of the 2nd sheet and name it again 'second_sheet_copy'"
   begin
     @book.add_sheet(sheet, :as => 'second_sheet_copy')
-  rescue ExcelErrorSheet => msg
+  rescue NameAlreadyExists => msg
     puts "error: add_sheet: #{msg.message}"
   end    
 

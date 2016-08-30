@@ -490,7 +490,6 @@ module RobustExcelOle
     end
 
     # simple save of a workbook.
-    # @raise ExcelErrorSave if workbook is not alive or opened for read-only, or another error occurs
     # @return [Boolean] true, if successfully saved, nil otherwise
     def save      
       raise ObjectNotAlive, "workbook is not alive" if (not alive?)
@@ -499,7 +498,7 @@ module RobustExcelOle
         @ole_workbook.Save 
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
-          raise WorkbookUnsaved, "workbook not saved"
+          raise WorkbookNotSaved, "workbook not saved"
         else
           raise UnexpectedError, "unknown WIN32OELERuntimeError:\n#{msg.message}"
         end       
@@ -526,7 +525,7 @@ module RobustExcelOle
     # @return [Book], the book itself, if successfully saved, raises an exception otherwise
     def save_as(file, opts = { } )
       raise FileNameNotGiven, "filename is nil" if file.nil?
-      raise WorkbookNotAlive, "workbook is not alive" if (not alive?)
+      raise ObjectNotAlive, "workbook is not alive" if (not alive?)
       raise WorkbookReadOnly, "Not opened for writing (opened with :read_only option)" if @ole_workbook.ReadOnly
       options = {
         :if_exists => :raise,
@@ -571,7 +570,7 @@ module RobustExcelOle
         when :save
           blocking_workbook.Save
         when :close_if_saved
-          raise WorkbookUnsaved, "blocking workbook is unsaved: #{File.basename(file).inspect}" unless blocking_workbook.Saved
+          raise WorkbookBlocked, "blocking workbook is unsaved: #{File.basename(file).inspect}" unless blocking_workbook.Saved
         else
           raise OptionInvalid, ":if_obstructed: invalid option: #{options[:if_obstructed].inspect}"
         end
@@ -596,12 +595,8 @@ module RobustExcelOle
         bookstore.store(self)
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
-          if options[:if_exists] == :alert || options[:if_exists] == :excel then 
-            raise ExcelErrorSave, "not saved or canceled by user"
-          else
-            return nil
-          end
-          # another possible semantics. raise ExcelErrorSaveFailed, "could not save Workbook"
+          trace "save: canceled by user" if options[:if_exists] == :alert || options[:if_exists] == :excel
+          # another possible semantics. raise WorkbookError, "could not save Workbook"
         else
           raise UnexpectedError, "unknown WIN32OELERuntimeError:\n#{msg.message}"
         end       
@@ -752,7 +747,6 @@ module RobustExcelOle
     # sets the contents of a range
     # @param [String]  name  the name of a range
     # @param [Variant] value the contents of the range
-    # @raise ExcelError if range name is not in the workbook or if value could not be assigned to range
     def set_nameval(name, value) 
       begin
         name_obj = self.Names.Item(name)

@@ -183,7 +183,7 @@ describe Book do
         @book.add_sheet(@sheet, :as => 'new_sheet')
         expect{
           @book.add_sheet(@sheet, :as => 'new_sheet')
-          }.to raise_error(ExcelErrorSheet, /sheet name "new_sheet" already exists/)
+          }.to raise_error(NameAlreadyExists, /sheet name "new_sheet" already exists/)
       end
     end
   end
@@ -281,7 +281,7 @@ describe Book do
       @book.copy_sheet(@sheet, :as => 'new_sheet')
       expect{
         @book.copy_sheet(@sheet, :as => 'new_sheet')
-        }.to raise_error(ExcelErrorSheet, /sheet name "new_sheet" already exists/)
+        }.to raise_error(NameAlreadyExists, /sheet name "new_sheet" already exists/)
     end
   end
 
@@ -381,7 +381,7 @@ describe Book do
         @book.add_or_copy_sheet(@sheet, :as => 'new_sheet')
         expect{
           @book.add_or_copy_sheet(@sheet, :as => 'new_sheet')
-          }.to raise_error(ExcelErrorSheet, /sheet name "new_sheet" already exists/)
+          }.to raise_error(NameAlreadyExists, /sheet name "new_sheet" already exists/)
       end
     end
   end

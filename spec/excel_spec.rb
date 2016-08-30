@@ -397,7 +397,7 @@ module RobustExcelOle
         it "should close the first Excel without unsaved workbooks and then raise an error" do
           expect{
             Excel.close_all(:if_unsaved => :raise)
-          }.to raise_error(ExcelErrorClose, "Excel contains unsaved workbooks")
+          }.to raise_error(UnsavedWorkbooks, "Excel contains unsaved workbooks")
           @excel1.should be_alive
           @excel2.should be_alive
         end
@@ -405,7 +405,7 @@ module RobustExcelOle
         it "should close the first Excel without unsaved workbooks and then raise an error per default" do
           expect{
             Excel.close_all
-          }.to raise_error(ExcelErrorClose, "Excel contains unsaved workbooks")
+          }.to raise_error(UnsavedWorkbooks, "Excel contains unsaved workbooks")
           @excel1.should be_alive
           @excel2.should be_alive
         end
@@ -441,7 +441,7 @@ module RobustExcelOle
         it "should raise an error for invalid option" do
           expect {
             Excel.close_all(:if_unsaved => :invalid_option)
-          }.to raise_error(ExcelErrorClose, ":if_unsaved: invalid option: :invalid_option") 
+          }.to raise_error(OptionInvalid, ":if_unsaved: invalid option: :invalid_option") 
         end
 
       end
@@ -583,7 +583,7 @@ module RobustExcelOle
           @book2.saved.should be_false
           expect{
             @excel.close(:if_unsaved => :raise)
-          }.to raise_error(ExcelErrorClose, "Excel contains unsaved workbooks")
+          }.to raise_error(UnsavedWorkbooks, "Excel contains unsaved workbooks")
         end        
 
         it "should close the Excel without saving the workbook even with displayalerts true" do
@@ -642,14 +642,14 @@ module RobustExcelOle
         it "should raise an error for invalid option" do
           expect {
             @excel.close(:if_unsaved => :invalid_option)
-          }.to raise_error(ExcelErrorClose, ":if_unsaved: invalid option: :invalid_option") 
+          }.to raise_error(OptionInvalid, ":if_unsaved: invalid option: :invalid_option") 
         end
 
         it "should raise an error by default" do
           @excel.should be_alive
           expect{
             @excel.close
-          }.to raise_error(ExcelErrorClose, "Excel contains unsaved workbooks")
+          }.to raise_error(UnsavedWorkbooks, "Excel contains unsaved workbooks")
         end
   
         it "should close the Excel without saving the workbook hard" do
@@ -725,7 +725,7 @@ module RobustExcelOle
           @key_sender.puts "{left}{enter}"
           expect{
             @excel.close(:if_unsaved => :alert)
-            }.to raise_error(ExcelUserCanceled, "close: canceled by user")
+            }.to raise_error(WorkbookError, "close: canceled by user")
         end
 
       end
@@ -1190,7 +1190,7 @@ module RobustExcelOle
 
       it "should report that Excel is not alive" do
         @excel1.close
-        expect{ @excel1.Nonexisting_method }.to raise_error(ExcelError, "method missing: Excel not alive")
+        expect{ @excel1.Nonexisting_method }.to raise_error(ObjectNotAlive, "method missing: Excel not alive")
       end
 
     end
@@ -1313,7 +1313,7 @@ module RobustExcelOle
             workbook = @excel1.generate_workbook(@invalid_name_file)
           # not always Unknown ???? ToDo #*#
           #}.to raise_error(ExcelErrorSaveUnknown)
-          }.to raise_error(ExcelErrorSave)
+          }.to raise_error(UnexpectedError)
         end
 
       end
@@ -1347,18 +1347,18 @@ module RobustExcelOle
       it "should raise an error if name not defined" do
         expect {
           @excel1.nameval("foo")
-        }.to raise_error(ExcelError, /cannot find name "foo"/)
+        }.to raise_error(NameNotFound, /cannot find name "foo"/)
         expect {
         @excel1["foo"]
-        }.to raise_error(ExcelError, /cannot find name "foo"/)
+        }.to raise_error(NameNotFound, /cannot find name "foo"/)
         expect {
           excel2 = Excel.create
           excel2.nameval("one")
-        }.to raise_error(ExcelError, /cannot find name "one"/)
+        }.to raise_error(NameNotFound, /cannot find name "one"/)
         expect {
           excel3 = Excel.create
           excel3["one"]
-        }.to raise_error(ExcelError, /cannot find name "one"/)
+        }.to raise_error(NameNotFound, /cannot find name "one"/)
       end
 
       it "should set a range to a value" do
@@ -1372,10 +1372,10 @@ module RobustExcelOle
       it "should raise an error if name cannot be evaluated" do
         expect{
           @excel1.set_nameval("foo", 1)
-          }.to raise_error(ExcelError, /cannot find name "foo"/)
+          }.to raise_error(NameNotFound, /cannot find name "foo"/)
         expect{
           @excel1["foo"] = 1
-          }.to raise_error(ExcelError, /cannot find name "foo"/)
+          }.to raise_error(NameNotFound, /cannot find name "foo"/)
       end
     end
 
@@ -1408,14 +1408,14 @@ module RobustExcelOle
       it "should raise an error if name not defined for the sheet" do
         expect {
           @excel1.rangeval("foo")
-          }.to raise_error(ExcelError, /cannot find name "foo"/)
+          }.to raise_error(NameNotFound, /cannot find name "foo"/)
         expect {
           @excel1.rangeval("named_formula")
-          }.to raise_error(ExcelError, /cannot find name "named_formula"/)
+          }.to raise_error(NameNotFound, /cannot find name "named_formula"/)
         expect {
           excel2 = Excel.create
           excel2.rangeval("one")
-        }.to raise_error(ExcelError, /cannot find name "one"/)
+        }.to raise_error(NameNotFound, /cannot find name "one"/)
       end
     
       it "should set a range to a value" do
@@ -1427,7 +1427,7 @@ module RobustExcelOle
       it "should raise an error if name cannot be evaluated" do
         expect{
           @excel1.set_nameval("foo", 1)
-        }.to raise_error(ExcelError, /cannot find name "foo"/)
+        }.to raise_error(NameNotFound, /cannot find name "foo"/)
       end
 
     end

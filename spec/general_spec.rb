@@ -151,7 +151,7 @@ module RobustExcelOle
         it "should raise an error for no strings" do
           expect{
             canonize(1)
-          }.to raise_error(ExcelError, "No string given to canonize, but 1")
+          }.to raise_error(TypeError, "No string given to canonize, but 1")
         end
 
       end
@@ -171,7 +171,7 @@ module RobustExcelOle
       it "should raise an error when asking excel of a sheet" do
         expect{
           @sheet.excel
-          }.to raise_error(ExcelError, "receiver instance is neither an Excel nor a Book")
+          }.to raise_error(TypeError, "receiver instance is neither an Excel nor a Book")
       end
     end
   end

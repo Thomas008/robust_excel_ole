@@ -316,7 +316,7 @@ describe Book do
           @key_sender.puts "{right}{enter}"
           expect{
             Book.open(@simple_file, :if_unsaved => :alert)
-            }.to raise_error(ExcelErrorOpen, "open: user canceled or open error")
+            }.to raise_error(WorkbookError, "open: user canceled or open error")
           @book.should be_alive
         end
 
@@ -338,7 +338,7 @@ describe Book do
           @key_sender.puts "{right}{enter}"
           expect{
             Book.open(@simple_file, :if_unsaved => :excel)
-            }.to raise_error(ExcelErrorOpen, "open: user canceled or open error")
+            }.to raise_error(WorkbookError, "open: user canceled or open error")
           @book.should be_alive
         end
 
@@ -381,7 +381,7 @@ describe Book do
               if :if_obstructed is :close_if_saved" do
             expect{
               @new_book = Book.open(@simple_file1, :if_obstructed => :close_if_saved)
-            }.to raise_error(ExcelErrorOpen, /workbook with the same name in a different path is unsaved/)
+            }.to raise_error(WorkbookNotSaved, /workbook with the same name in a different path is unsaved/)
             @book.save
             @new_book = Book.open(@simple_file1, :if_obstructed => :close_if_saved)
             @book.should_not be_alive
@@ -409,7 +409,7 @@ describe Book do
         File.delete @simple_save_file rescue nil
         expect {
           Book.open(@simple_save_file)
-        }.to raise_error(ExcelErrorOpen, /file "#{@simple_save_file}" not found/)
+        }.to raise_error(NameNotFound, /file "#{@simple_save_file}" not found/)
       end
     end
 
@@ -1025,7 +1025,7 @@ describe Book do
       it "should raise error by default" do
         expect{
           @book.close(:if_unsaved => :raise)
-        }.to raise_error(ExcelErrorClose, /workbook is unsaved: "workbook.xls"/)
+        }.to raise_error(WorkbookNotSaved, /workbook is unsaved: "workbook.xls"/)
       end
 
       it "should save the book before close with option :save" do

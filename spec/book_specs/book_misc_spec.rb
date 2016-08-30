@@ -289,7 +289,7 @@ describe Book do
 
       it "should report that workbook is not alive" do
         @book.close
-        expect{ @book.Nonexisting_method }.to raise_error(ExcelError, "method missing: workbook not alive")
+        expect{ @book.Nonexisting_method }.to raise_error(ObjectNotAlive, "method missing: workbook not alive")
       end
     end
 
@@ -370,22 +370,22 @@ describe Book do
     it "should raise an error if name not defined" do
       expect {
         @book1.nameval("foo")
-      }.to raise_error(ExcelError, /name "foo" not in "another_workbook.xls"/)
+      }.to raise_error(NameNotFound, /name "foo" not in "another_workbook.xls"/)
       expect {
           @book1.set_nameval("foo","bar")
-      }.to raise_error(ExcelError, /name "foo" not in "another_workbook.xls"/)
+      }.to raise_error(NameNotFound, /name "foo" not in "another_workbook.xls"/)
       expect {
           @book1["foo"] = "bar"
-      }.to raise_error(ExcelError, /name "foo" not in "another_workbook.xls"/)
+      }.to raise_error(NameNotFound, /name "foo" not in "another_workbook.xls"/)
     end    
 
     it "should raise an error if name was defined but contents is calcuated" do
       expect {
         @book1.set_nameval("named_formula","bar")
-      }.to raise_error(ExcelError, /cannot assign value to range named "named_formula" in "another_workbook.xls"/)
+      }.to raise_error(RangeNotEvaluatable, /cannot assign value to range named "named_formula" in "another_workbook.xls"/)
       expect {
         @book1["named_formula"] = "bar"
-      }.to raise_error(ExcelError, /cannot assign value to range named "named_formula" in "another_workbook.xls"/)
+      }.to raise_error(RangeNotEvaluatable, /cannot assign value to range named "named_formula" in "another_workbook.xls"/)
     end
 
     # Excel Bug: for local names without uqifier: takes the first sheet as default even if another sheet is activated
@@ -415,7 +415,7 @@ describe Book do
       @book1.nameval("five").should == [[1,2],[3,4]]
       expect {
         @book1.rename_range("four","five")
-      }.to raise_error(ExcelError, /name "four" not in "another_workbook.xls"/)
+      }.to raise_error(NameNotFound, /name "four" not in "another_workbook.xls"/)
     end
   end
 

@@ -105,7 +105,7 @@ describe Sheet do
         new_sheet = @book.add_sheet @sheet
         expect{
           new_sheet.name = 'foo'
-        }.to raise_error(ExcelErrorSheet, /sheet name "foo" already exists/)
+        }.to raise_error(NameAlreadyExists, /sheet name "foo" already exists/)
       end
     end
   end
@@ -445,7 +445,7 @@ describe Sheet do
       it "should raise an error if name not defined" do
         expect {
           @sheet1["foo"]
-        }.to raise_error(SheetError, /name "foo" not in Sheet1/)        
+        }.to raise_error(NameNotFound, /name "foo" not in Sheet1/)        
       end
 
       it "should set a range to a value" do
@@ -459,7 +459,7 @@ describe Sheet do
       it "should raise an error if name cannot be evaluated" do
         expect{
           @sheet1["foo"] = 1
-          }.to raise_error(SheetError, /name "foo" not in Sheet1/)
+          }.to raise_error(NameNotFound, /name "foo" not in Sheet1/)
       end
     end
 
@@ -489,22 +489,22 @@ describe Sheet do
       it "should raise an error if name not defined" do
         expect {
           @sheet1.nameval("foo")
-        }.to raise_error(SheetError, /name "foo" not in Sheet1/)
+        }.to raise_error(NameNotFound, /name "foo" not in Sheet1/)
         expect {
           @sheet1.nameval("named_formula")
-        }.to raise_error(SheetError, /name "named_formula" not in Sheet1/)
+        }.to raise_error(NameNotFound, /name "named_formula" not in Sheet1/)
       end
 
       it "should raise an error of coordinates are given instead of a defined name" do
         expect {
           @sheet1.nameval("A1")
-        }.to raise_error(SheetError, /name "A1" not in Sheet1/)
+        }.to raise_error(NameNotFound, /name "A1" not in Sheet1/)
       end
 
       it "should raise an error for a range with empty contents" do
         expect{
           @sheet1.nameval("another")
-          }.to raise_error(SheetError, /name "another" not in Sheet1/)
+          }.to raise_error(NameNotFound, /name "another" not in Sheet1/)
       end 
 
       it "should set a range to a value" do
@@ -518,7 +518,7 @@ describe Sheet do
       it "should raise an error if name cannot be evaluated" do
         expect{
           @sheet1.set_nameval("foo", 1)
-        }.to raise_error(SheetError, /name "foo" not in Sheet1/)
+        }.to raise_error(NameNotFound, /name "foo" not in Sheet1/)
       end
     end
 
@@ -560,13 +560,13 @@ describe Sheet do
       it "should raise an error if name not defined for the sheet" do
         expect {
           @sheet1.rangeval("foo")
-          }.to raise_error(SheetError, /name "foo" not in Sheet1/)
+          }.to raise_error(NameNotFound, /name "foo" not in Sheet1/)
         expect {
           @sheet1.rangeval("named_formula")
-          }.to raise_error(SheetError, /name "named_formula" not in Sheet1/)
+          }.to raise_error(NameNotFound, /name "named_formula" not in Sheet1/)
         expect {
           @sheet2.rangeval("firstcell")
-          }.to raise_error(SheetError, /name "firstcell" not in Sheet2/)
+          }.to raise_error(NameNotFound, /name "firstcell" not in Sheet2/)
       end
     
       it "should set a range to a value" do
@@ -580,7 +580,7 @@ describe Sheet do
       it "should raise an error if name cannot be evaluated" do
         expect{
           @sheet1.set_nameval("foo", 1)
-        }.to raise_error(SheetError, /name "foo" not in Sheet1/)
+        }.to raise_error(NameNotFound, /name "foo" not in Sheet1/)
       end
 
     end
@@ -616,7 +616,7 @@ describe Sheet do
         it "should raise an error" do
           expect{
             @sheet1.set_name("foo",-2,1)
-          }.to raise_error(SheetError, /cannot add name "foo" to cell with row -2 and column 1/)
+          }.to raise_error(RangeNotEvaluatable, /cannot add name "foo" to cell with row -2 and column 1/)
         end
       end
     end

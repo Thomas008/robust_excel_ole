@@ -82,13 +82,13 @@ describe Book do
       it "should raise error with option :raise" do
         expect{
           @book.close(:if_unsaved => :raise)
-        }.to raise_error(ExcelErrorClose, /workbook is unsaved: "workbook.xls"/)
+        }.to raise_error(WorkbookNotSaved, /workbook is unsaved: "workbook.xls"/)
       end
 
       it "should raise error by default" do
         expect{
           @book.close(:if_unsaved => :raise)
-        }.to raise_error(ExcelErrorClose, /workbook is unsaved: "workbook.xls"/)
+        }.to raise_error(WorkbookNotSaved, /workbook is unsaved: "workbook.xls"/)
       end
 
       it "should keep the book open" do
@@ -140,7 +140,7 @@ describe Book do
       it "should raise an error for invalid option" do
         expect {
           @book.close(:if_unsaved => :invalid_option)
-        }.to raise_error(ExcelErrorClose, ":if_unsaved: invalid option: :invalid_option") 
+        }.to raise_error(OptionInvalid, ":if_unsaved: invalid option: :invalid_option") 
       end
 
 
@@ -182,7 +182,7 @@ describe Book do
             if answer == :cancel then
               expect {
               @book.close(:if_unsaved => :alert)
-              }.to raise_error(ExcelUserCanceled, "close: canceled by user")
+              }.to raise_error(WorkbookError, "close: canceled by user")
               @book.ole_workbook.Saved.should be_false
               @book.ole_workbook.should_not == nil
               @book.should be_alive
@@ -225,7 +225,7 @@ describe Book do
             if answer == :cancel then
               expect {
               @book.close(:if_unsaved => :excel)
-              }.to raise_error(ExcelUserCanceled, "close: canceled by user")
+              }.to raise_error(WorkbookError, "close: canceled by user")
               @book.ole_workbook.Saved.should be_false
               @book.ole_workbook.should_not == nil
               @book.should be_alive

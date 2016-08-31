@@ -213,7 +213,6 @@ module RobustExcelOle
       ole_xl.Quit
       weak_excel_ref = WeakRef.new(ole_xl)
       ole_xl = @ole_excel = nil
-      @visible = @displayalerts = nil
       GC.start
       sleep 0.2
       if weak_excel_ref.weakref_alive? then

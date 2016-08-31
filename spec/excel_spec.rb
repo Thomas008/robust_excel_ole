@@ -245,7 +245,6 @@ module RobustExcelOle
           @excel1.should_not be_alive        
         end
 
-        # Error
         it "should recreate an Excel instance with old visible and displayalerts values" do
           @excel1.visible = true
           @excel1.displayalerts = true
@@ -302,7 +301,6 @@ module RobustExcelOle
           @excel3.displayalerts = true
         end
 
-        # Error
         it "should recreate several Excel instances" do  
           @excel1.close
           @excel3.close

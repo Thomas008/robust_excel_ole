@@ -49,6 +49,15 @@ describe Book do
 
   describe "with visible" do
 
+    it "should adapt its default value at the visible value of the Excel" do
+      excel1 = Excel.create
+      excel1.Visible = true
+      book1 = Book.open(@simple_file)
+      excel1.Visible.should be_true
+      excel1.visible.should be_true
+      book1.visible.should be_true
+    end
+
     it "should preserve :visible if it is not set" do
       book1 = Book.open(@simple_file)
       book1.excel.Visible.should be_false

@@ -828,6 +828,19 @@ module RobustExcelOle
 
     context "with Visible and DisplayAlerts" do
 
+      it "should use values of the current Excel when reusing" do
+        excel1 = Excel.create
+        excel1.Visible.should be_false
+        excel1.DisplayAlerts.should be_false
+        excel1.Visible = true
+        excel1.DisplayAlerts = true
+        excel1.Visible.should be_true
+        excel1.DisplayAlerts.should be_true
+        excel2 = Excel.new(:reuse => true)
+        excel2.Visible.should be_true
+        excel2.DisplayAlerts.should be_true
+      end
+
       it "should set Excel visible and invisible with current" do
         excel1 = Excel.create
         excel2 = Excel.current(:visible => true)

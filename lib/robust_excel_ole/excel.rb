@@ -475,6 +475,12 @@ module RobustExcelOle
       end
     end
 
+
+    def foremost_window
+      self.visible = true
+      #Win32API.new("user32","SetForegroundWindow","I","I").call(@ole_excel.Hwnd)
+    end
+
     # sets calculation mode in a block
     def with_calculation(calculation_mode = :automatic)
       if @ole_excel.Workbooks.Count > 0

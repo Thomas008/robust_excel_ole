@@ -780,10 +780,11 @@ module RobustExcelOle
     def activate      
       @excel.visible = true
       begin
-        Win32API.new("user32","SetForegroundWindow","I","I").call(@excel.hwnd)     # Excel  2010
+        Win32API.new("user32","SetForegroundWindow","I","I").call    # Excel  2010
+        SetForegroundWindow.call(@excel.Hwnd)
         @ole_workbook.Activate   # Excel 2007
-      rescue WIN32OLERuntimeError
-        raise UnexpectedError, "cannot activate"
+      rescue WIN32OLERuntimeError => msg
+        raise UnexpectedError, "cannot activate: #{message.msg}"
       end
     end
 

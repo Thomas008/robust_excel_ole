@@ -826,7 +826,16 @@ module RobustExcelOle
 
     end
 
-    context "with Visible and DisplayAlerts" do
+    context "with Visible and DisplayAlerts, foremost_window" do
+
+      it "should set Excel in foremost window" do
+        excel1 = Excel.create
+        excel2 = Excel.create
+        excel1.foremost_window
+        excel1.Visible.should be_true
+        excel1.visible.should be_true
+      end
+
 
       it "should use values of the current Excel when reusing" do
         excel1 = Excel.create

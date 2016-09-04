@@ -2,11 +2,14 @@
 All notable changes to this project will be documented in this file.
 
 
-## [0.6.1]
+## [0.6.1] - 2016-04-09
 
 ### Changed
+- error classes
 
 ### Added
+
+- Excel#foremost_window
 
 ## [0.6] - 2016-03-08
 

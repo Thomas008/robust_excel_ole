@@ -587,10 +587,11 @@ module RobustExcelOle
         raise RangeNotEvaluatable, "cannot determine value of range named #{name.inspect}"
       end
       return opts[:default] if (value.nil? && opts[:default])
+      raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect}" if value == -2146826259
       value
     end
 
-    # assigns a value to a range given a defined loval name
+    # assigns a value to a range given a defined local name
     # @param [String]  name   the range name
     # @param [Variant] value  the assigned value
     def set_rangeval(name,value)

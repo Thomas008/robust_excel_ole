@@ -20,7 +20,7 @@ module RobustExcelOle
         :if_obstructed => :raise,
         :if_absent     => :raise,
         :read_only => false,
-        :check_compatibility => true,
+        :check_compatibility => false,
         :update_links => :never
       }
 

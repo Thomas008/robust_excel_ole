@@ -525,7 +525,7 @@ module RobustExcelOle
     # @return [Book], the book itself, if successfully saved, raises an exception otherwise
     def save_as(file, opts = { } )
       raise FileNameNotGiven, "filename is nil" if file.nil?
-      raise ObjectNotAlive, "workbook is not alive" if (not alive?)
+      raise ObjectNotAlive, "workbook is not alive" unless alive?
       raise WorkbookReadOnly, "Not opened for writing (opened with :read_only option)" if @ole_workbook.ReadOnly
       options = {
         :if_exists => :raise,

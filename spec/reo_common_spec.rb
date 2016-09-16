@@ -12,6 +12,10 @@ module RobustExcelOle
 
   describe REOCommon do
 
+    it "should simple test" do
+      puts "a"
+    end
+
     before(:all) do
       excel = Excel.new(:reuse => true)
       open_books = excel == nil ? 0 : excel.Workbooks.Count

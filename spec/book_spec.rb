@@ -33,7 +33,7 @@ describe Book do
 
   after do
     Excel.kill_all
-    rm_tmp(@dir)
+    #rm_tmp(@dir)
   end
 
   describe "create file" do
@@ -381,7 +381,7 @@ describe Book do
               if :if_obstructed is :close_if_saved" do
             expect{
               @new_book = Book.open(@simple_file1, :if_obstructed => :close_if_saved)
-            }.to raise_error(WorkbookNotSaved, /workbook with the same name in a different path is unsaved/)
+            }.to raise_error(WorkbookBlocked, /workbook with the same name in a different path is unsaved/)
             @book.save
             @new_book = Book.open(@simple_file1, :if_obstructed => :close_if_saved)
             @book.should_not be_alive
@@ -409,7 +409,7 @@ describe Book do
         File.delete @simple_save_file rescue nil
         expect {
           Book.open(@simple_save_file)
-        }.to raise_error(NameNotFound, /file "#{@simple_save_file}" not found/)
+        }.to raise_error(FileNotFound, /file "#{@simple_save_file}" not found/)
       end
     end
 
@@ -1198,7 +1198,7 @@ describe Book do
 
       context "with second argument is {:before => @book.sheet(3), :after => @sheet}" do
         it "should arguments in the first is given priority" do
-          @book.add_sheet(@sheet, :before => @book.sheet(3), :after => @sheet).name.should eq @book.sheet(3).name
+          @book.add_sheet(@sheet, :before => @book.sheet(3), :after => @sheet).name.should == "Sheet1 (2)" # @book.sheet(3).name Excel 2007
         end
       end
     end

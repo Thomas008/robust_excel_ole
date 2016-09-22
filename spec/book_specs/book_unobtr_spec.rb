@@ -32,7 +32,7 @@ describe Book do
 
   after do
     Excel.kill_all
-    rm_tmp(@dir)
+    #rm_tmp(@dir)
   end
 
   
@@ -238,29 +238,23 @@ describe Book do
       end    
 
       it "should set checkcompatibilty to true" do
-        Book.unobtrusively(@simple_file, :check_compatibility => true) do |book|
-          book.should be_a Book
-          book.CheckCompatibility.should be_true
-        end
-        @book.CheckCompatibility.should be_true
-      end
-
-      it "should set the checkcompatibilty to false" do
-        Book.unobtrusively(@simple_file, :check_compatibility => false) do |book|
-          book.should be_a Book
-          book.CheckCompatibility.should be_false
-        end
-        @book.CheckCompatibility.should be_true
-      end
-
-      it "should set the checkcompatibilty to false" do
-        @book.CheckCompatibility = false
+        @book.CheckCompatibility.should be_false
         Book.unobtrusively(@simple_file, :check_compatibility => true) do |book|
           book.should be_a Book
           book.CheckCompatibility.should be_true
         end
         @book.CheckCompatibility.should be_false
       end
+
+      it "should set the checkcompatibilty to false" do
+        @book.CheckCompatibility.should be_false
+        Book.unobtrusively(@simple_file, :check_compatibility => false) do |book|
+          book.should be_a Book
+          book.CheckCompatibility.should be_false
+        end
+        @book.CheckCompatibility.should be_false
+      end
+
     end
     
     context "with a closed book" do

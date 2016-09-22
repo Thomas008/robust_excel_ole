@@ -901,7 +901,7 @@ describe Book do
           book.excel.should_not == @book.excel
           book.excel.should_not == new_excel
           book.excel.visible.should be_false
-          book.excel.displayalerts.should be_false
+          book.excel.displayalerts.should == :if_visible
         end
         new_book = Book.open(@simple_file1, :visible => true)
         sheet = new_book.sheet(1)
@@ -1198,7 +1198,8 @@ describe Book do
 
       context "with second argument is {:before => @book.sheet(3), :after => @sheet}" do
         it "should arguments in the first is given priority" do
-          @book.add_sheet(@sheet, :before => @book.sheet(3), :after => @sheet).name.should == "Sheet1 (2)" # @book.sheet(3).name Excel 2007
+          @book.add_sheet(@sheet, :before => @book.sheet(3), :after => @sheet).name.should == 
+          (@book.excel.Version != "12.0" ? "Sheet1 (2)" : @book.sheet(3).name)
         end
       end
     end

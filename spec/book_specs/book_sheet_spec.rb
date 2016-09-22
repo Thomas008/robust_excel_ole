@@ -172,11 +172,13 @@ describe Book do
       end
     
       it "should copy the first sheet before the third sheet and give 'before' the highest priority" do
-        @book.add_sheet(@sheet, :after => @sheet, :before => @book.sheet(3)).name.should eq @book.sheet(3).name
+        @book.add_sheet(@sheet, :after => @sheet, :before => @book.sheet(3)).name.should == 
+        (@book.excel.Version != "12.0" ? "Sheet1 (2)" : @book.sheet(3).name)
       end
 
       it "should copy the first sheet before the third sheet and give 'before' the highest priority" do
-        @book.add_sheet(@sheet, :before => @book.sheet(3), :after => @sheet).name.should eq @book.sheet(3).name
+        @book.add_sheet(@sheet, :before => @book.sheet(3), :after => @sheet).name.should == 
+        (@book.excel.Version != "12.0" ? "Sheet1 (2)" : @book.sheet(3).name)
       end
         
       it "should raise error with giving a name that already exists" do
@@ -270,11 +272,13 @@ describe Book do
     end
   
     it "should copy the first sheet before the third sheet and give 'before' the highest priority" do
-      @book.copy_sheet(@sheet, :after => @sheet, :before => @book.sheet(3)).name.should eq @book.sheet(3).name
+      @book.copy_sheet(@sheet, :after => @sheet, :before => @book.sheet(3)).name.should == 
+      (@book.excel.Version != "12.0" ? "Sheet1 (2)" : @book.sheet(3).name)
     end
 
     it "should copy the first sheet before the third sheet and give 'before' the highest priority" do
-      @book.copy_sheet(@sheet, :before => @book.sheet(3), :after => @sheet).name.should eq @book.sheet(3).name
+      @book.copy_sheet(@sheet, :before => @book.sheet(3), :after => @sheet).name.should == 
+      (@book.excel.Version != "12.0" ? "Sheet1 (2)" : @book.sheet(3).name)
     end
       
     it "should raise error with giving a name that already exists" do
@@ -370,11 +374,13 @@ describe Book do
       end
     
       it "should copy the first sheet before the third sheet and give 'before' the highest priority" do
-        @book.add_or_copy_sheet(@sheet, :after => @sheet, :before => @book.sheet(3)).name.should eq @book.sheet(3).name
+        @book.add_or_copy_sheet(@sheet, :after => @sheet, :before => @book.sheet(3)).name.should == 
+        ((@book.excel.Version != "12.0") ? "Sheet1 (2)" : @book.sheet(3).name)
       end
 
       it "should copy the first sheet before the third sheet and give 'before' the highest priority" do
-        @book.add_or_copy_sheet(@sheet, :before => @book.sheet(3), :after => @sheet).name.should eq @book.sheet(3).name
+        @book.add_or_copy_sheet(@sheet, :before => @book.sheet(3), :after => @sheet).name.should == 
+        ((@book.excel.Version != "12.0") ? "Sheet1 (2)" : @book.sheet(3).name)
       end
         
       it "should raise error with giving a name that already exists" do

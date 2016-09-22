@@ -597,7 +597,7 @@ module RobustExcelOle
           new_book2 = Book.open(@another_simple_file)
           new_sheet2 = new_book2.sheet(1)
           new_sheet2[1,1].value.should == @old_cell_value2
-          new_book2.close 
+          new_book2.close(:if_unsaved => :forget)
         end
 
         it "should close the Excel without saving the workbook" do
@@ -613,7 +613,7 @@ module RobustExcelOle
           new_book2 = Book.open(@another_simple_file)
           new_sheet2 = new_book2.sheet(1)
           new_sheet2[1,1].value.should == @old_cell_value2
-          new_book2.close 
+          new_book2.close(:if_unsaved => :forget)
         end
 
         it "should close the Excel with saving the workbook" do

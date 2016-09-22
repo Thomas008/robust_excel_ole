@@ -144,7 +144,7 @@ describe Book do
 
       after do
         @book.close(:if_unsaved => :forget)
-        @book2.close
+        @book2.close(:if_unsaved => :forget)
       end
 
       it "should raise an error with :obstructed => :raise" do

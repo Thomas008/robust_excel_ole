@@ -302,7 +302,7 @@ module RobustExcelOle
         end
 
         it "should recreate several Excel instances" do  
-          @excel1.close
+          @excel1.close(:if_unsaved => :forget)
           @excel3.close
           @excel1.should_not be_alive
           @excel3.should_not be_alive
@@ -321,7 +321,7 @@ module RobustExcelOle
           @book3.reopen
           @book3.should be_alive
           @book3.excel.should == @excel3
-          @excel1.close
+          @excel1.close(:if_unsaved => :forget)
           @excel1.should_not be_alive
           @excel3.close
           @excel3.should_not be_alive

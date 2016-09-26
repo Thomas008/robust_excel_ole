@@ -1198,8 +1198,8 @@ describe Book do
 
       context "with second argument is {:before => @book.sheet(3), :after => @sheet}" do
         it "should arguments in the first is given priority" do
-          @book.add_sheet(@sheet, :before => @book.sheet(3), :after => @sheet).name.should == 
-          (@book.excel.Version != "12.0" ? "Sheet1 (2)" : @book.sheet(3).name)
+          @book.add_sheet(@sheet, :before => @book.sheet(3), :after => @sheet)
+          @book.Worksheets.Count.should == 4
         end
       end
     end

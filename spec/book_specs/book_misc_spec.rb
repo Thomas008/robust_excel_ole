@@ -428,7 +428,7 @@ describe Book do
     end
   end
 
-  describe "alive?, filename, ==, visible, activate, saved, check_compatibility" do
+  describe "alive?, filename, ==, visible, focus, saved, check_compatibility" do
 
     context "with alive?" do
 
@@ -671,7 +671,7 @@ describe Book do
 
     end
 
-    context "with activate" do
+    context "with focus" do
 
       before do
         @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '../helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"        
@@ -687,7 +687,7 @@ describe Book do
         @key_sender.close
       end
 
-      it "should activate a book" do
+      it "should bring a book to focus" do
         sheet = @book.sheet(2)
         sheet.Activate
         sheet[2,3].Activate
@@ -695,12 +695,12 @@ describe Book do
         sheet2.Activate
         sheet2[3,2].Activate
         Excel.current.should == @book.excel
-        @book2.activate
+        @book2.focus
         @key_sender.puts "{a}{enter}"
         sleep 1
         sheet2[3,2].Value.should == "a"
         #Excel.current.should == @book2.excel
-        @book.activate
+        @book.focus
         @key_sender.puts "{a}{enter}"
         sleep 1
         sheet[2,3].Value.should == "a"

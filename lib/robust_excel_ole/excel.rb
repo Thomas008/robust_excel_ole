@@ -476,9 +476,13 @@ module RobustExcelOle
     end
 
 
-    def foremost_window
+    def focus
       self.visible = true
+      #if not Windows10 then 
       #Win32API.new("user32","SetForegroundWindow","I","I").call(@ole_excel.Hwnd)
+      #else
+      Win32API.new("user32","SetForegroundWindow","","I").call
+      #end
     end
 
     # sets calculation mode in a block

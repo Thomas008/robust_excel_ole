@@ -777,6 +777,16 @@ module RobustExcelOle
 
     end
 
+    describe "focus" do
+
+      it "should focus" do
+        excel = Excel.create
+        excel.focus
+        excel.Visible.should be_true
+      end
+
+    end
+
     context "workbooks_visible" do
 
       it "should not raise an error for an empty Excel instance" do

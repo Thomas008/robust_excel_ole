@@ -777,7 +777,8 @@ module RobustExcelOle
     end
 
     # brings workbook to foreground, makes it available for heyboard inputs, makes the Excel instance visible
-    def focus     
+    def focus
+      self.visible = true     
       @excel.focus
       @ole_workbook.Activate
       @ole_workbook.Windows(1).Activate

@@ -778,17 +778,9 @@ module RobustExcelOle
 
     # brings workbook to foreground, makes it available for heyboard inputs, makes the Excel instance visible
     def focus     
-      @excel.visible = true
+      @excel.focus
       @ole_workbook.Activate
-      begin
-        #if windows_version != "10" 
-        # Win32API.new("user32","SetForegroundWindow", "I","I").call(@excel.Hwnd)
-       # else 
-          Win32API.new("user32","SetForegroundWindow", "","I").call
-       # end
-      rescue
-        raise UnexpectedError, "cannot activate"
-      end
+      @ole_workbook.Windows(1).Activate
     end
 
     # returns true, if the workbook is visible, false otherwise 

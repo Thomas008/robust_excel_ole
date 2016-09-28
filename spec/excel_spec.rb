@@ -836,12 +836,12 @@ module RobustExcelOle
 
     end
 
-    context "with Visible and DisplayAlerts, foremost_window" do
+    context "with Visible and DisplayAlerts, focus" do
 
-      it "should set Excel in foremost window" do
+      it "should bring Excel in focus" do
         excel1 = Excel.create
         excel2 = Excel.create
-        excel1.foremost_window
+        excel1.focus
         excel1.Visible.should be_true
         excel1.visible.should be_true
       end

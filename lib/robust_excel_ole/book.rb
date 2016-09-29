@@ -295,7 +295,7 @@ module RobustExcelOle
               raise UnexpectedError, "unknown RuntimeError"
             end
           rescue WeakRef::RefError => msg
-            raise ExcelWeakRef, "#{msg.message}"
+            raise WeakRef::RefError, "#{msg.message}"
           end
           # workaround for linked workbooks for Excel 2007: 
           # opening and closing a dummy workbook if Excel has no workbooks.

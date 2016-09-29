@@ -63,9 +63,6 @@ module RobustExcelOle
   class ExcelDamaged < ExcelError               # :nodoc: #
   end
 
-  class ExcelWeakRef < ExcelError                # :nodoc: #
-  end
-
   class UnsavedWorkbooks < ExcelError           # :nodoc: #
   end
 

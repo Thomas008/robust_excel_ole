@@ -184,12 +184,11 @@ or
 
   book.set_nameval("name") = "value"
 
-=== Activating a workbook.
+=== Bringing a workbook to the focus.
 
-Bring the window of a workbook to the foreground, make it available for keyboard inputs, and make the Excel instance visible.
+Make the Excel instance and the workbook visible and make it available for keyboard inputs.
 
-  book.activate
-
+  book.focus
 
 === Making the window of the workbook visible
 
@@ -418,6 +417,10 @@ Making all workbooks visible.
 Making all workbooks invisible.
 
   excel1.workbooks_visible false   
+
+=== Bringing an Excel instance to the focus
+
+Set the window of an Excel instance to the foreground.
 
 === Closing an Excel
 

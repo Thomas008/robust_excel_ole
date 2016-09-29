@@ -476,13 +476,12 @@ module RobustExcelOle
       end
     end
 
-
     def focus
       self.visible = true
       #if not Windows10 then 
-      #Win32API.new("user32","SetForegroundWindow","I","I").call(@ole_excel.Hwnd)
+      Win32API.new("user32","SetForegroundWindow","I","I").call(@ole_excel.Hwnd)
       #else
-      Win32API.new("user32","SetForegroundWindow","","I").call
+      #Win32API.new("user32","SetForegroundWindow","","I").call
       #end
     end
 

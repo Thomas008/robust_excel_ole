@@ -1138,7 +1138,7 @@ describe Book do
       before do
         @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"        
         @book = Book.open(@simple_file, :visible => true)
-        @book2 = Book.open(@another_simple_file, :force_excel => :new, :visible => true)
+        @book2 = Book.open(@another_simple_file, :visible => true)
       end
 
       after do
@@ -1154,15 +1154,15 @@ describe Book do
         sheet2 = @book2.sheet(2)
         sheet2.Activate
         sheet2[3,2].Activate
-        Excel.current.should == @book.excel
         @book2.focus
         @key_sender.puts "{a}{enter}"
-        sleep 1
+        sleep 0.2
         sheet2[3,2].Value.should == "a"
-        #Excel.current.should == @book2.excel
         @book.focus
+        @book.Windows(1).Visible.should be_true
+        @book.Windows(@book.Name).Visible.should be_true
         @key_sender.puts "{a}{enter}"
-        sleep 1
+        sleep 0.2
         sheet[2,3].Value.should == "a"
         Excel.current.should == @book.excel
       end

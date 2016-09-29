@@ -677,7 +677,7 @@ describe Book do
         @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '../helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"        
         @book = Book.open(@simple_file, :visible => true)
         @book.excel.displayalerts = false
-        @book2 = Book.open(@another_simple_file, :force_excel => :new, :visible => true)
+        @book2 = Book.open(@another_simple_file, :visible => true)
         @book2.excel.displayalerts = false
       end
 

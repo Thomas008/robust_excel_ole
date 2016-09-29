@@ -12,6 +12,7 @@ module RobustExcelOle
 
     before(:all) do
       Excel.kill_all
+      sleep 0.2
     end
 
     before do
@@ -161,6 +162,7 @@ module RobustExcelOle
       it "should create a new Excel if there is no Excel to connect with" do
         excel1 = Excel.create
         excel1.close
+        sleep 0.2
         excel2 = Excel.current
         excel1.should_not be_alive
         excel2.should be_alive
@@ -171,6 +173,7 @@ module RobustExcelOle
         excel1 = Excel.create
         excel2 = Excel.current
         excel1.close
+        sleep 0.2
         excel1.should_not be_alive
         excel2.should_not be_alive
         sleep 0.2
@@ -181,6 +184,7 @@ module RobustExcelOle
         excel1 = Excel.create
         excel2 = Excel.create
         excel2.close
+        sleep 0.2
         excel3 = Excel.current
         excel3.should === excel1
       end
@@ -198,12 +202,14 @@ module RobustExcelOle
 
     context "excels_number" do
         
-      it "should return right number of excel instances" do        
-        Excel.excels_number.should == 0
+      it "should return right number of excel instances" do
+        Excel.kill_all
+        sleep 0.2
+        n1 = Excel.excels_number
         e1 = Excel.create
-        Excel.excels_number.should == 1
+        Excel.excels_number.should == n1 + 1
         e2 = Excel.create
-        Excel.excels_number.should == 2
+        Excel.excels_number.should == n1 + 2
       end
     end
 
@@ -304,6 +310,7 @@ module RobustExcelOle
         it "should recreate several Excel instances" do  
           @excel1.close(:if_unsaved => :forget)
           @excel3.close
+          sleep 0.2
           @excel1.should_not be_alive
           @excel3.should_not be_alive
           @excel1.recreate(:reopen_workbooks => true, :displayalerts => true)
@@ -322,8 +329,10 @@ module RobustExcelOle
           @book3.should be_alive
           @book3.excel.should == @excel3
           @excel1.close(:if_unsaved => :forget)
+          sleep 0.2
           @excel1.should_not be_alive
           @excel3.close
+          sleep 0.2
           @excel3.should_not be_alive
         end
       end    
@@ -363,6 +372,7 @@ module RobustExcelOle
         it "should close one Excel instance" do
           excel1 = Excel.create
           Excel.close_all
+          sleep 0.2
           excel1.should_not be_alive
           Excel.excels_number.should == 0
         end
@@ -371,6 +381,7 @@ module RobustExcelOle
           excel1 = Excel.create
           excel2 = Excel.create
           Excel.close_all
+          sleep 0.2
           excel1.should_not be_alive
           excel2.should_not be_alive
           Excel.excels_number.should == 0
@@ -396,6 +407,7 @@ module RobustExcelOle
           expect{
             Excel.close_all(:if_unsaved => :raise)
           }.to raise_error(UnsavedWorkbooks, "Excel contains unsaved workbooks")
+          sleep 0.2
           @excel1.should be_alive
           @excel2.should be_alive
         end
@@ -404,12 +416,14 @@ module RobustExcelOle
           expect{
             Excel.close_all
           }.to raise_error(UnsavedWorkbooks, "Excel contains unsaved workbooks")
+          sleep 0.2
           @excel1.should be_alive
           @excel2.should be_alive
         end
 
         it "should close the Excel instances with saving the unsaved workbooks" do
           Excel.close_all(:if_unsaved => :save)
+          sleep 0.2
           @excel1.should_not be_alive
           @excel2.should_not be_alive
           new_book1 = Book.open(@simple_file1)
@@ -424,6 +438,7 @@ module RobustExcelOle
 
         it "should close the Excel instances without saving the unsaved workbooks" do          
           Excel.close_all(:if_unsaved => :forget)
+          sleep 0.2
           @excel1.should_not be_alive
           @excel2.should_not be_alive
           new_book1 = Book.open(@simple_file1)
@@ -530,6 +545,7 @@ module RobustExcelOle
           @excel.should be_alive
           @book.should be_alive
           @excel.close
+          sleep 0.2
           @excel.should_not be_alive
           @book.should_not be_alive
         end
@@ -538,6 +554,7 @@ module RobustExcelOle
           @excel.should be_alive
           @book.should be_alive
           @excel.close(:hard => true)
+          sleep 0.2
           @excel.should_not be_alive
           @book.should_not be_alive
         end
@@ -546,6 +563,7 @@ module RobustExcelOle
           @excel.should be_alive
           excel2 = Excel.create
           @excel.close
+          sleep 0.2
           @excel.should_not be_alive
           excel2.should be_alive
         end
@@ -554,6 +572,7 @@ module RobustExcelOle
           @excel.should be_alive
           excel2 = Excel.create
           @excel.close(:hard => true)
+          sleep 0.2
           @excel.should_not be_alive
           excel2.should be_alive
         end
@@ -589,6 +608,7 @@ module RobustExcelOle
           @excel.should be_alive
           @excel.displayalerts = true
           @excel.close(:if_unsaved => :forget)
+          sleep 0.2
           @excel.should_not be_alive
           new_book = Book.open(@simple_file)
           new_sheet = new_book.sheet(1)
@@ -605,6 +625,7 @@ module RobustExcelOle
           @excel.should be_alive
           @excel.displayalerts = false
           @excel.close(:if_unsaved => :forget)
+          sleep 0.2
           @excel.should_not be_alive
           new_book = Book.open(@simple_file)
           new_sheet = new_book.sheet(1)
@@ -619,6 +640,7 @@ module RobustExcelOle
         it "should close the Excel with saving the workbook" do
           @excel.should be_alive
           @excel.close(:if_unsaved => :save)
+          sleep 0.2
           @excel.should_not be_alive
           new_book = Book.open(@simple_file)
           new_sheet = new_book.sheet(1)
@@ -633,6 +655,7 @@ module RobustExcelOle
         it "should close the Excel with saving the workbook" do
           @excel.should be_alive
           @excel.close(:if_unsaved => :keep_open)
+          sleep 0.2
           @excel.should be_alive
           @excel.close(:if_unsaved => :forget)
         end
@@ -655,6 +678,7 @@ module RobustExcelOle
           @book.should be_alive
           @book.saved.should be_false
           @excel.close(:if_unsaved => :forget, :hard => true)
+          sleep 0.2
           @excel.should_not be_alive
           @book.should_not be_alive
           new_book = Book.open(@simple_file)
@@ -662,6 +686,7 @@ module RobustExcelOle
           new_sheet[1,1].value.should == @old_cell_value
           new_book.close    
           new_book.excel.close(:hard => true)
+          sleep 0.2
           procs = WIN32OLE.connect("winmgmts:\\\\.")
           processes = procs.InstancesOf("win32_process")     
           result = []
@@ -1338,11 +1363,16 @@ module RobustExcelOle
           workbooks.Count.should == 2
         end
 
-        it "should raise error when book cannot be saved" do
+        it "should raise error if filename is with wrong path" do
           expect{
             workbook = @excel1.generate_workbook(@invalid_name_file)
-          # not always Unknown ???? ToDo #*#
-          }.to raise_error(UnexpectedError)
+          }.to raise_error(FileNotFound, /could not save workbook with filename/)
+        end
+
+        it "should raise error if filename is nil" do
+          expect{
+            workbook = @excel1.generate_workbook(@nil)
+          }.to raise_error(FileNameNotGiven, "filename is nil")
         end
 
       end

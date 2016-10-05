@@ -212,7 +212,7 @@ module RobustExcelOle
         if options[:if_absent] == :create
           @ole_workbook = excel_class.current.generate_workbook(file)
         else 
-          raise FileNotFound, "file #{file.inspect} not found"
+          raise FileNotFound, "file #{General::absolute_path(file).inspect} not found"
         end
       end
       @ole_workbook = @excel.Workbooks.Item(File.basename(file)) rescue nil

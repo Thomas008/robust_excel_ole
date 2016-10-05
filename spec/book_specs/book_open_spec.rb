@@ -1039,7 +1039,7 @@ describe Book do
         File.delete @simple_save_file rescue nil
         expect {
           Book.open(@simple_save_file, :if_absent => :raise)
-        }.to raise_error(FileNotFound, "file \"#{@simple_save_file}\" not found")
+        }.to raise_error(FileNotFound, "file #{General::absolute_path(@simple_save_file).gsub("/","\\").inspect} not found")
       end
 
       it "should create a workbook" do
@@ -1054,7 +1054,7 @@ describe Book do
         File.delete @simple_save_file rescue nil
         expect {
           Book.open(@simple_save_file)
-        }.to raise_error(FileNotFound, "file \"#{@simple_save_file}\" not found")
+        }.to raise_error(FileNotFound, "file #{General::absolute_path(@simple_save_file).gsub("/","\\").inspect} not found")
       end
 
     end
@@ -1237,7 +1237,7 @@ describe Book do
         expected_path = Regexp.new(File.expand_path(path).gsub(/\//, "."))
         expect {
           Book.open(path)
-        }.to raise_error(FileNotFound, "file \"#{path}\" not found")
+        }.to raise_error(FileNotFound, "file #{General::absolute_path(path).gsub("/","\\").inspect} not found")
       end
     end
   end

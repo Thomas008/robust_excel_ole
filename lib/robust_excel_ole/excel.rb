@@ -65,6 +65,8 @@ module RobustExcelOle
       if stored 
         result = stored
       else 
+        options[:visible] = options[:visible].nil? ? ole_xl.Visible : options[:visible]
+        options[:displayalerts] = options[:displayalerts].nil? ? :if_visible : options[:displayalerts]
         result = super(options)
         result.instance_variable_set(:@ole_excel, ole_xl)        
         WIN32OLE.const_load(ole_xl, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
@@ -75,7 +77,7 @@ module RobustExcelOle
         reused = options[:reuse] && (not stored.nil?)
         options = { :displayalerts => :if_visible, :visible => false}.merge(options) unless reused
         result.visible = result.Visible
-        result.DisplayAlerts = result.DisplayAlerts
+        result.displayalerts = result.DisplayAlerts
         visible_value = (reused && options[:visible].nil?) ? result.visible : options[:visible]
         displayalerts_value = (reused && options[:displayalerts].nil?) ? result.displayalerts : options[:displayalerts]
         ole_xl.Visible = visible_value
@@ -416,7 +418,7 @@ module RobustExcelOle
     end
 
     def print_workbooks
-      self.Workbooks.each {|w| puts "#{w.Name} #{w}"}
+      self.Workbooks.each {|w| trace "#{w.Name} #{w}"}
     end
 
     # generates, saves, and closes empty workbook

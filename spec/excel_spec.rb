@@ -871,11 +871,52 @@ module RobustExcelOle
         excel1.visible.should be_true
       end
 
+      it "should set default values" do
+        excel1 = Excel.new
+        excel1.Visible.should be_false
+        excel1.DisplayAlerts.should be_false
+        excel1.visible.should be_false
+        excel1.displayalerts.should == :if_visible
+      end
+
+      it "should set visible true" do
+        excel1 = Excel.new(:visible => true)
+        excel1.Visible.should be_true
+        excel1.DisplayAlerts.should be_true
+        excel1.visible.should be_true
+        excel1.displayalerts.should == :if_visible
+      end
+
+      it "should set visible false" do
+        excel1 = Excel.new(:visible => false)
+        excel1.Visible.should be_false
+        excel1.DisplayAlerts.should be_false
+        excel1.visible.should be_false
+        excel1.displayalerts.should == :if_visible
+      end
+
+      it "should set displayalerts true" do
+        excel1 = Excel.new(:displayalerts => true)
+        excel1.Visible.should be_false
+        excel1.DisplayAlerts.should be_true
+        excel1.visible.should be_false
+        excel1.displayalerts.should be_true
+      end
+
+      it "should set displayalerts false" do
+        excel1 = Excel.new(:displayalerts => false)
+        excel1.Visible.should be_false
+        excel1.DisplayAlerts.should be_false
+        excel1.visible.should be_false
+        excel1.displayalerts.should be_false
+      end
 
       it "should use values of the current Excel when reusing" do
         excel1 = Excel.create
         excel1.Visible.should be_false
         excel1.DisplayAlerts.should be_false
+        excel1.visible.should be_false
+        excel1.displayalerts.should == :if_visible
         excel1.Visible = true
         excel1.DisplayAlerts = true
         excel1.Visible.should be_true

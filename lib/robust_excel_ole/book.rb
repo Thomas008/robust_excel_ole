@@ -92,7 +92,8 @@ module RobustExcelOle
               book.close if (book.alive? && (not book.writable) && (not options[:read_only]))
               # reopens the book
               book.ensure_workbook(file,options) unless book.alive?
-              book.visible = options[:visible] unless options[:visible].nil?
+              book.visible = options[:visible].nil? ? book.excel.visible : options[:visible]
+              #book.visible = options[:visible] unless options[:visible].nil?
               return book
             end
           end
@@ -113,7 +114,8 @@ module RobustExcelOle
         if filename
           book = bookstore.fetch(filename)
           if book && book.alive?
-            book.visible = opts[:visible] unless opts[:visible].nil?
+            #book.visible = opts[:visible] unless opts[:visible].nil?
+            book.visible = opts[:visible].nil? ? book.excel.visible : opts[:visible]
             return book 
           end
         end
@@ -183,7 +185,8 @@ module RobustExcelOle
       filename = General::absolute_path(file)
       ole_workbook = WIN32OLE.connect(filename)
       workbook = Book.new(ole_workbook)
-      workbook.visible = options[:visible] unless options[:visible].nil?
+      #workbook.visible = options[:visible] unless options[:visible].nil?
+      workbook.visible = options[:visible].nil? ? workbook.excel.visible : options[:visible]
       update_links_opt =
             case options[:update_links]
             when :alert; RobustExcelOle::XlUpdateLinksUserSetting
@@ -330,7 +333,8 @@ module RobustExcelOle
         begin
           # workaround for bug in Excel 2010: workbook.Open does not always return the workbook with given file name
           @ole_workbook = workbooks.Item(File.basename(filename))       
-          self.visible = options[:visible] unless options[:visible].nil?
+          self.visible = options[:visible].nil? ? @excel.visible : options[:visible]
+          #self.visible = options[:visible] unless options[:visible].nil?
           #@ole_workbook.UpdateLinks = update_links_opt
           @ole_workbook.CheckCompatibility = options[:check_compatibility]
         rescue WIN32OLERuntimeError
@@ -467,7 +471,8 @@ module RobustExcelOle
                                          open(file, :force_excel => :new, :read_only => options[:read_only])
             end
           end
-        book.excel.visible = options[:visible] unless options[:visible].nil?
+        #book.excel.visible = options[:visible] unless options[:visible].nil?
+        book.visible = options[:visible].nil? ? book.excel.visible : options[:visible]
         old_check_compatibility = book.CheckCompatibility
         book.CheckCompatibility = options[:check_compatibility]
         yield book

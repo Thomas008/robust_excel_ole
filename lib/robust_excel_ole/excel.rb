@@ -76,10 +76,8 @@ module RobustExcelOle
       unless options.is_a? WIN32OLE
         reused = options[:reuse] && (not stored.nil?)
         options = { :displayalerts => :if_visible, :visible => false}.merge(options) unless reused
-        result.visible = result.Visible
-        result.displayalerts = result.DisplayAlerts
-        visible_value = (reused && options[:visible].nil?) ? result.visible : options[:visible]
-        displayalerts_value = (reused && options[:displayalerts].nil?) ? result.displayalerts : options[:displayalerts]
+        visible_value = (reused && options[:visible].nil?) ? result.Visible : options[:visible]
+        displayalerts_value = (reused && options[:displayalerts].nil?) ? result.DisplayAlerts : options[:displayalerts]
         ole_xl.Visible = visible_value
         ole_xl.DisplayAlerts = (displayalerts_value == :if_visible) ? visible_value : displayalerts_value
         result.instance_variable_set(:@visible, visible_value)

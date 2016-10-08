@@ -926,13 +926,22 @@ module RobustExcelOle
         excel2.DisplayAlerts.should be_true
       end
 
-      it "should set Excel visible and invisible with current" do
+      it "should take visible and displayalerts from Visible and DisplayAlerts of the connected Excel" do
+        excel1 = Excel.create
+        excel2 = Excel.current
+        excel2.Visible.should be_false
+        excel2.visible.should be_false
+        excel2.DisplayAlerts.should be_false
+        excel2.displayalerts.should == false
+      end
+
+      it "should take Visible and DisplayAlerts from the connected Excel" do
         excel1 = Excel.create
         excel2 = Excel.current(:visible => true)
         excel2.Visible.should be_true
         excel2.visible.should be_true
-        excel2.DisplayAlerts.should be_true
-        excel2.displayalerts.should == :if_visible
+        excel2.DisplayAlerts.should be_false
+        excel2.displayalerts.should be_false
       end
 
       it "should set Excel visible and invisible with current" do
@@ -949,8 +958,8 @@ module RobustExcelOle
         excel2 = Excel.current(:visible => true)
         excel2.Visible.should be_true
         excel2.visible.should be_true
-        excel2.displayalerts.should == :if_visible
-        excel2.DisplayAlerts.should be_true
+        excel2.displayalerts.should be_false
+        excel2.DisplayAlerts.should be_false
       end
 
       it "should set Excel visible and invisible" do
@@ -959,9 +968,6 @@ module RobustExcelOle
         excel.visible.should be_true
         excel.DisplayAlerts.should be_true
         excel.displayalerts.should == :if_visible
-        excel6 = Excel.current
-        excel6.should === excel
-        excel6.Visible.should be_true
         excel.visible = false
         excel.Visible.should be_false
         excel.visible.should be_false
@@ -987,19 +993,19 @@ module RobustExcelOle
         excel3.Visible.should be_false
         excel3.visible.should be_false
         excel3.DisplayAlerts.should be_false
-        excel3.displayalerts.should == :if_visible
+        excel3.displayalerts.should be_false
         excel4 = Excel.current(:visible => true)
         excel4.should === excel
         excel4.Visible.should be_true
         excel4.visible.should be_true
-        excel4.DisplayAlerts.should be_true
-        excel4.displayalerts.should == :if_visible
+        excel4.DisplayAlerts.should be_false
+        excel4.displayalerts.should be_false
         excel5 = Excel.current(:visible => false)
         excel5.should === excel
         excel5.Visible.should be_false
         excel5.visible.should be_false
         excel5.DisplayAlerts.should be_false
-        excel5.displayalerts.should == :if_visible
+        excel5.displayalerts.should be_false
       end
 
       it "should enable or disable Excel DispayAlerts" do        

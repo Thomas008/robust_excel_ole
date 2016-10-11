@@ -798,11 +798,10 @@ module RobustExcelOle
     def visible= visible_value
       saved = @ole_workbook.Saved
       @excel.visible = true if visible_value
-      begin
-        @ole_workbook.Windows(@ole_workbook.Name).Visible = visible_value if @excel.Visible
-      rescue WIN32OLERuntimeError => msg
-        #trace "Win32OleRuntimeError: window-visible"
-        nil
+      if @excel.Visible
+        if @ole_workbook.Windows.Count > 0
+          @ole_workbook.Windows(@ole_workbook.Name).Visible = visible_value
+        end
       end
       @ole_workbook.Saved = saved
     end

@@ -1,6 +1,6 @@
 #require 'lib/robust_excel_ole'
 include REO
-include RobustExcelOle
+#include RobustExcelOle
 include General
 
 require 'irb/completion'

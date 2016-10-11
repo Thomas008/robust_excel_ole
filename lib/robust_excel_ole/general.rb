@@ -118,4 +118,5 @@ module MethodHelpers
 
 end
 
-REO = General
+#REO = General
+REO = RobustExcelOle

@@ -257,7 +257,21 @@ describe Book do
     it "should set visible and displayalerts if displayalerts => :if_visible" do
       book1 = Book.open(@simple_file)
       book1.excel.Visible.should be_false
-      book1.excel.displayalerts = :if_visible
+      book1.excel.displayalerts.should == :if_visible
+      book1.Windows(book1.Name).Visible.should be_true
+      book1.visible.should be_false
+      book2 = Book.open(@different_file)
+      book2.excel.Visible.should be_false
+      book2.Windows(book2.Name).Visible.should be_true
+      book2.visible.should be_false
+      book2.excel.visible.should be_false
+      book2.excel.displayalerts.should == :if_visible
+      book2.excel.DisplayAlerts.should be_false
+    end
+
+    it "should set visible and displayalerts if displayalerts => :if_visible" do
+      book1 = Book.open(@simple_file)
+      book1.excel.Visible.should be_false
       book1.excel.displayalerts.should == :if_visible
       book1.Windows(book1.Name).Visible.should be_true
       book1.visible.should be_false
@@ -266,7 +280,7 @@ describe Book do
       book2.Windows(book2.Name).Visible.should be_true
       book2.visible.should be_true
       book2.excel.visible.should be_true
-      book2.excel.displayalerts.should be_true
+      book2.excel.displayalerts.should == :if_visible
       book2.excel.DisplayAlerts.should be_true
     end
   end

@@ -177,14 +177,20 @@ module RobustExcelOle
       }.merge(options)           
       timeout = false
       number = excels_number
+      unsaved_workbooks = false
       begin
         status = Timeout::timeout(60) {
           @@hwnd2excel.each do |hwnd, wr_excel|
             excel = wr_excel.__getobj__
-            excel.close(options)
+            begin
+              excel.close(options)
+            rescue UnsavedWorkbooks
+              unsaved_workbooks = true
+            end
+            sleep 0.2
           end
-          sleep 0.2          
-          free_all_ole_objects if excels_number > 0
+          raise UnsavedWorkbooks, "Excel contains unsaved workbooks" if unsaved_workbooks
+          free_all_ole_objects if excels_number > 0 #&& (not unsaved_workbooks)
           # close also interactively opened Excels, but for unsaved workbooks: hangs as soon sending a VBA method
           #while (n = excels_number) > 0 do
           #  ole_xl = current_excel    

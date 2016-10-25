@@ -157,6 +157,7 @@ module RobustExcelOle
     end
 
     # closes Excel instances opened via RobustExcelOle
+    # @return [Fixnum] number of closed Excel instances
     # @param [Hash] options the options
     # @option options [Symbol]  :if_unsaved :raise, :save, :forget, or :alert
     # @option options [Boolean] :hard
@@ -176,7 +177,7 @@ module RobustExcelOle
         :kill_if_timeout => false
       }.merge(options)           
       timeout = false
-      number = excels_number
+      number = @@hwnd2excel.size
       unsaved_workbooks = false
       begin
         status = Timeout::timeout(60) {

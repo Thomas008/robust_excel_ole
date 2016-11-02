@@ -304,7 +304,7 @@ module RobustExcelOle
           # opening and closing a dummy workbook if Excel has no workbooks.
           # delay: with visible: 0.2 sec, without visible almost none
           count = workbooks.Count
-          if @excel.Version == "12.0" && count == 0
+          if @excel.Version.split(".").first.to_i >= 12 && count == 0
             workbooks.Add 
             #@excel.set_calculation(:automatic)
           end
@@ -321,7 +321,7 @@ module RobustExcelOle
           @excel.with_displayalerts(update_links_opt == :alert ? true : @excel.displayalerts) do
             workbooks.Open(filename, { 'ReadOnly' => options[:read_only] , 'UpdateLinks' => update_links_opt } )
           end
-          workbooks.Item(1).Close if @excel.Version == "12.0" && count == 0                   
+          workbooks.Item(1).Close if @excel.Version.split(".").first.to_i >= 12 && count == 0                
         rescue WIN32OLERuntimeError => msg
           # trace "WIN32OLERuntimeError: #{msg.message}" 
           if msg.message =~ /800A03EC/

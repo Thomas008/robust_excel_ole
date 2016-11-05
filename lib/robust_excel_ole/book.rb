@@ -438,7 +438,7 @@ module RobustExcelOle
         :read_only => false,
         :readonly_excel => false,
         :keep_open => false,
-        :check_compatibility => true
+        :check_compatibility => false
       }.merge(opts)
       book = bookstore.fetch(file, :prefer_writable => (not options[:read_only]))
       was_not_alive_or_nil = book.nil? || (not book.alive?)

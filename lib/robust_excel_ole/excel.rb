@@ -175,6 +175,7 @@ module RobustExcelOle
     #  :hard          closes Excel instances soft (default: false), or, additionally kills the Excel processes hard (true)
     #  :kill_if_timeout:  kills Excel instances hard if the closing process exceeds a certain time limit (default: false)
     def self.close_all(options={})
+      trace "close_all:"
       options = {
         :if_unsaved => :raise,
         :hard => false,
@@ -186,13 +187,15 @@ module RobustExcelOle
       begin
         status = Timeout::timeout(60) {
           @@hwnd2excel.each do |hwnd, wr_excel|
-            excel = wr_excel.__getobj__
-            begin
-              excel.close(options)
-            rescue UnsavedWorkbooks
-              unsaved_workbooks = true
+            if wr_excel.weakref_alive?
+              excel = wr_excel.__getobj__
+              begin
+                excel.close(options)
+              rescue UnsavedWorkbooks
+                unsaved_workbooks = true
+              end
+              sleep 0.2
             end
-            sleep 0.2
           end
           raise UnsavedWorkbooks, "Excel contains unsaved workbooks" if unsaved_workbooks
           free_all_ole_objects if excels_number > 0 #&& (not unsaved_workbooks)
@@ -250,7 +253,7 @@ module RobustExcelOle
 
   private
 
-    def managed_unsaved_workbooks(options)   
+    def managed_unsaved_workbooks(options)
       unsaved_workbooks = []      
       begin
         @ole_excel.Workbooks.each {|w| unsaved_workbooks << w unless (w.Saved || w.ReadOnly)}

@@ -40,7 +40,7 @@ module RobustExcelOle
       end
 
       it "should not cause warning 'Illegal Reference probably recycled'" do
-        Excel.close_all
+        Excel.close_all_known
         book = Book.open(@simple_file)
       end
     end
@@ -359,19 +359,19 @@ module RobustExcelOle
       end
     end
 
-    describe "close_all" do
+    describe "close_all_known" do
 
       context "with saved workbooks" do
 
         it "should do with no Excel instances" do
           expect{
-            Excel.close_all
+            Excel.close_all_known
           }.to_not raise_error
         end
 
         it "should close one Excel instance" do
           excel1 = Excel.create
-          Excel.close_all
+          Excel.close_all_known
           sleep 0.2
           excel1.should_not be_alive
           Excel.excels_number.should == 0
@@ -380,7 +380,7 @@ module RobustExcelOle
         it "should close two Excel instances" do
           excel1 = Excel.create
           excel2 = Excel.create
-          Excel.close_all
+          Excel.close_all_known
           sleep 0.2
           excel1.should_not be_alive
           excel2.should_not be_alive
@@ -402,7 +402,7 @@ module RobustExcelOle
             old_cell_value1 = @book1.sheet(1)[1,1].value
             @book1.sheet(1)[1,1] = old_cell_value1 == "foo" ? "bar" : "foo"
             expect{
-              Excel.close_all(:if_unsaved => :raise)
+              Excel.close_all_known(:if_unsaved => :raise)
             }.to raise_error(UnsavedWorkbooks, "Excel contains unsaved workbooks")
             sleep 0.2
             @book1.excel.should be_alive
@@ -417,7 +417,7 @@ module RobustExcelOle
             old_cell_value2 = @book2.sheet(1)[1,1].value
             @book2.sheet(1)[1,1] = old_cell_value2 == "foo" ? "bar" : "foo"
             expect{
-              Excel.close_all(:if_unsaved => :raise)
+              Excel.close_all_known(:if_unsaved => :raise)
             }.to raise_error(UnsavedWorkbooks, "Excel contains unsaved workbooks")
             sleep 0.2
             @book2.excel.should be_alive
@@ -432,7 +432,7 @@ module RobustExcelOle
             old_cell_value3 = @book3.sheet(1)[1,1].value
             @book3.sheet(1)[1,1] = old_cell_value3 == "foo" ? "bar" : "foo"
             expect{
-              Excel.close_all(:if_unsaved => :raise)
+              Excel.close_all_known(:if_unsaved => :raise)
             }.to raise_error(UnsavedWorkbooks, "Excel contains unsaved workbooks")
             sleep 0.2
             @book3.excel.should be_alive
@@ -462,7 +462,7 @@ module RobustExcelOle
 
           it "should close the first Excel without unsaved workbooks and then raise an error" do
             expect{
-              Excel.close_all(:if_unsaved => :raise)
+              Excel.close_all_known(:if_unsaved => :raise)
             }.to raise_error(UnsavedWorkbooks, "Excel contains unsaved workbooks")
             sleep 0.2
             @excel1.should be_alive
@@ -471,7 +471,7 @@ module RobustExcelOle
 
           it "should close the first Excel without unsaved workbooks and then raise an error per default" do
             expect{
-              Excel.close_all
+              Excel.close_all_known
             }.to raise_error(UnsavedWorkbooks, "Excel contains unsaved workbooks")
             sleep 0.2
             @excel1.should be_alive
@@ -479,7 +479,7 @@ module RobustExcelOle
           end
 
           it "should close the Excel instances with saving the unsaved workbooks" do
-            Excel.close_all(:if_unsaved => :save)
+            Excel.close_all_known(:if_unsaved => :save)
             sleep 0.2
             @excel1.should_not be_alive
             @excel2.should_not be_alive
@@ -494,7 +494,7 @@ module RobustExcelOle
           end
 
           it "should close the Excel instances without saving the unsaved workbooks" do          
-            Excel.close_all(:if_unsaved => :forget)
+            Excel.close_all_known(:if_unsaved => :forget)
             sleep 0.2
             @excel1.should_not be_alive
             @excel2.should_not be_alive
@@ -510,7 +510,7 @@ module RobustExcelOle
 
           it "should raise an error for invalid option" do
             expect {
-              Excel.close_all(:if_unsaved => :invalid_option)
+              Excel.close_all_known(:if_unsaved => :invalid_option)
             }.to raise_error(OptionInvalid, ":if_unsaved: invalid option: :invalid_option") 
           end
 
@@ -522,7 +522,7 @@ module RobustExcelOle
             book1 = Book.open(@simple_file, :visible => true)
             book1.sheet(1)[1,1] = "bar"
             book1.Saved.should be_false
-            Excel.close_all(:if_unsaved => :save)
+            Excel.close_all_known(:if_unsaved => :save)
           end
 
           it "should forget the unsaved workbook" do
@@ -533,7 +533,7 @@ module RobustExcelOle
             old_cell_value1 = sheet1[1,1].value
             sheet1[1,1] = sheet1[1,1].value == "foo" ? "bar" : "foo"
             book1.Saved.should be_false
-            Excel.close_all(:if_unsaved => :forget)
+            Excel.close_all_known(:if_unsaved => :forget)
           end
         end        
       end
@@ -557,7 +557,7 @@ module RobustExcelOle
 
         it "should save if user answers 'yes'" do
           @key_sender.puts "{enter}"
-          Excel.close_all(:if_unsaved => :alert)
+          Excel.close_all_known(:if_unsaved => :alert)
           @excel2.should_not be_alive
           new_book2 = Book.open(@simple_file)
           new_sheet2 = new_book2.sheet(1)
@@ -568,7 +568,7 @@ module RobustExcelOle
         it "should not save if user answers 'no'" do            
           @key_sender.puts "{right}{enter}"
           @key_sender.puts "{right}{enter}"
-          Excel.close_all(:if_unsaved => :alert)
+          Excel.close_all_known(:if_unsaved => :alert)
           @excel2.should_not be_alive
           new_book2 = Book.open(@simple_file)
           new_sheet2 = new_book2.sheet(1)
@@ -581,7 +581,7 @@ module RobustExcelOle
         #  @key_sender.puts "{left}{enter}"
         #  @key_sender.puts "{left}{enter}"
         #  expect{
-        #    Excel.close_all(:if_unsaved => :alert)
+        #    Excel.close_all_known(:if_unsaved => :alert)
         #  }.to raise_error(ExcelUserCanceled, "close: canceled by user")
         # end
 
@@ -853,7 +853,7 @@ module RobustExcelOle
       it "should be false with dead Excel objects" do
         excel2 = Excel.current
         sleep 3
-        Excel.close_all
+        Excel.close_all_known
         sleep 2
         excel2.should_not == @excel1
       end

@@ -8,8 +8,15 @@ Gem::Specification.new do |s|
   s.authors     = ["traths"]
   s.email       = ["Thomas.Raths@gmx.net"]
   s.homepage    = "https://github.com/Thomas008/robust_excel_ole"
-  s.summary     = "RobustExcelOle processes Excel files and wraps the win32ole library."
-  s.description = "RobustExcelOle processes Excel files, provides all win32ole operations, convenient methods for opening, saving and closing, and implements an Excel file management system."
+  #s.summary     = "RobustExcelOle processes Excel files and wraps the win32ole library."
+  s.summary     = "RobustExcelOle automates processing Excel files in simultanously running Excel instances."
+  #s.description = "RobustExcelOle processes Excel files, provides all win32ole operations,
+  #                 convenient methods for opening, saving and closing, and implements an 
+  #                 Excel file management system."
+  s.description = "RobustExcelOle automates modifying, reading and writing Excel files.
+                   It supports simultaneously running Excel instances and user interactions.
+                   RobustExcelOle deals with various cases of Excel (and user) behaviour,
+                   and encapsulates some Excel bugs."
 
   s.rubyforge_project = "robust_excel_ole"
 

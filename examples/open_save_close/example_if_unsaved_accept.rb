@@ -7,7 +7,7 @@ require "fileutils"
 
 include RobustExcelOle
 
-Excel.close_all
+Excel.close_all_known
 begin
   dir = create_tmpdir
   file_name = dir + 'workbook.xls' 
@@ -36,6 +36,6 @@ begin
   puts "closed the book successfully with option :if_unsaved => :save"
   new_book.close                                        # close the other book. It is already saved.
 ensure
-	  Excel.close_all                                    # close workbooks, quit Excel application
+	  Excel.close_all_known                                    # close workbooks, quit Excel application
     rm_tmp(dir)
 end

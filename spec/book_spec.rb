@@ -556,7 +556,7 @@ describe Book do
 
     context "with two running excel instances" do
       before :all do
-        Excel.close_all_known
+        Excel.close_all
       end
 
       before do
@@ -565,7 +565,7 @@ describe Book do
       end
 
       after do
-        #Excel.close_all_known
+        #Excel.close_all
         begin
           @excel1.close
           @excel2.close 

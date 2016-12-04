@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-require 'timeout'
+require 'weakref'
 
 def ka 
   Excel.kill_all
@@ -52,7 +52,6 @@ module RobustExcelOle
     def self.new(options = {})
       if options.is_a? WIN32OLE
         ole_xl = options
-        trace "ole_xl: #{ole_xl}"
       else
         options = {:reuse => true}.merge(options)
         if options[:reuse] == true then
@@ -63,7 +62,7 @@ module RobustExcelOle
 
       hwnd = ole_xl.HWnd
       stored = hwnd2excel(hwnd)
-      if stored 
+      if stored and stored.alive?
         result = stored
       else 
         unless options.is_a? WIN32OLE
@@ -91,7 +90,6 @@ module RobustExcelOle
           raise ExcelError, "cannot access Excel"
         end
       end
-      trace "result: #{result}"
       result
     end
 
@@ -146,7 +144,7 @@ module RobustExcelOle
 
   public
 
-    def self.ungespeicherte_mappen_vorhanden?
+    def self.contains_unsaved_workbooks?
       excel = begin
         Excel.current
       rescue
@@ -161,77 +159,78 @@ module RobustExcelOle
       begin   
         @ole_excel.Workbooks.each {|w| unsaved_workbooks << w unless (w.Saved || w.ReadOnly)}
       rescue RuntimeError => msg
-        trace "RuntimeError: #{msg.message}" 
         raise ExcelDamaged, "Excel instance not alive or damaged" if msg.message =~ /failed to get Dispatch Interface/
       end
       unsaved_workbooks
     end
 
-    # aktion_falls_ungespeicherte_mappe kann sein :raise, :excel, :forget oder :accept
-    def schlieszen(aktion_falls_ungespeicherte_mappe=:raise)
-      trace "schlieszen:"
+    # closes workbooks
+    # @option options [Symbol] :if_unsaved :raise, :save, :forget, :alert, Proc
+    #  :if_unsaved    if unsaved workbooks are open in an Excel instance
+    #                      :raise (default) -> raises an exception       
+    #                      :save            -> saves the workbooks before closing
+    #                      :forget          -> closes the Excel instance without saving the workbooks 
+    #                      :alert           -> let Excel do it
+    def close_workbooks(options = {:if_unsaved => :raise})
       return if not self.alive?
-      trace "hwnd: #{hwnd}"
       weak_wkbks = @ole_excel.Workbooks
-      trace "weak_wkbks: #{weak_wkbks}"
-
       if not unsaved_workbooks.empty? then
-        case aktion_falls_ungespeicherte_mappe
+        case options[:if_unsaved]
         when Proc then
-          aktion_falls_ungespeicherte_mappe.call(self, unsaved_workbooks)
+          options[:if_unsaved].call(self, unsaved_workbooks)
         when :raise then
-          raise "Excel wird nicht beendet, da noch ungespeichtere Mappen offen sind."
-        when :excel then
-          #nix, Excel wird Fragen stellen
+          raise "Excel contains unsaved workbooks"
+        when :alert then
+          #nothing
         when :forget then
           unsaved_workbooks.each {|m| m.Saved = true}
-        when :accept then
+        when :save then
           unsaved_workbooks.each {|m| m.Save}
         else
-          raise "Unbekannte option für 'aktion_falls_ungespeicherte_mappe' (#{aktion_falls_ungespeicherte_mappe})"
+          raise OptionInvalid, ":if_unsaved: invalid option: #{options[:if_unsaved].inspect}"
         end
       end
-
-      @ole_excel.Workbooks.Close rescue nil  #trc_hinweis :WorkbooksClose, $!
+      @ole_excel.Workbooks.Close 
       weak_wkbks = nil
       weak_wkbks = @ole_excel.Workbooks
-      trace ":weak_wkbks: #{weak_wkbks}"
       weak_wkbks = nil
      end
 
-    def self.schlieszen(aktion_falls_ungespeicherte_mappe=:raise)
-      excel = Excel.current
-      excel.schlieszen(aktion_falls_ungespeicherte_mappe) if excel
-    end
-
-    def self.alle_beenden(aktion_falls_ungespeicherte_mappe=:raise, &blk)
-      trace ":alle_beenden_start"
-      aktion_falls_ungespeicherte_mappe = blk if blk
-
-      beendet_anzahl = error_anzahl = gesamt_anzahl = 0
-      erster_error = nil
-      beende_aktion = proc do |ez|
-        if ez
+    # closes all Excel instances
+    # @return [Fixnum,Fixnum] number of closed Excel instances, number of errors
+    # @param [Hash] options the options
+    # @option options [Symbol]  :if_unsaved :raise, :save, :forget, or :alert
+    # options:
+    #  :if_unsaved    if unsaved workbooks are open in an Excel instance
+    #                      :raise (default) -> raises an exception       
+    #                      :save            -> saves the workbooks before closing
+    #                      :forget          -> closes the excel instance without saving the workbooks 
+    #                      :alert           -> give control to Excel
+    # @option options [Proc] block
+    def self.close_all(options = {:if_unsaved => :raise}, &blk)
+      options[:if_unsaved] = blk if blk
+      finished_number = error_number = overall_number = 0
+      first_error = nil
+      finishing_action = proc do |excel|
+        if excel
           begin
-            gesamt_anzahl += 1
-            beendet_anzahl += ez.beenden(aktion_falls_ungespeicherte_mappe)
+            overall_number += 1
+            finished_number += excel.close(:if_unsaved => options[:if_unsaved])
           rescue
-            erster_error = $!
-            trace "fehler_beim_beenden"
-            error_anzahl += 1
+            first_error = $!
+            #trace "error when finishing #{$!}"
+            error_number += 1
           end
         end
       end
 
       # known Excel-instances
-      trace "known instances:"
       @@hwnd2excel.each do |hwnd, wr_excel|
         if wr_excel.weakref_alive?
           excel = wr_excel.__getobj__
           if excel.alive?
-            trace "excel: #{excel}"
             excel.displayalerts = false
-            beende_aktion.call(excel)
+            finishing_action.call(excel)
           end
         else
           @@hwnd2excel.delete(hwnd) 
@@ -239,62 +238,48 @@ module RobustExcelOle
       end
 
       # unknown Excel-instances
-      trace "unknown instances"
-      alte_error_anzahl = error_anzahl
-      9.times do |lauf_nr|
-        trace "lauf_nr: #{lauf_nr}"
+      old_error_number = error_number
+      9.times do |index|
         sleep 0.1
-        ez = new(WIN32OLE.connect('Excel.Application')) rescue nil
-        trace "ez: #{ez}"
-        beende_aktion.call(ez) if ez
-        free_all_ole_objects unless error_anzahl > 0 and aktion_falls_ungespeicherte_mappe == :raise 
-        break if not ez
-        break if error_anzahl > alte_error_anzahl # + 3        
+        excel = new(WIN32OLE.connect('Excel.Application')) rescue nil
+        finishing_action.call(excel) if excel
+        free_all_ole_objects unless error_number > 0 and options[:if_unsaved] == :raise 
+        break if not excel
+        break if error_number > old_error_number # + 3        
       end
-      trace "error_anzahl: #{error_anzahl}"
-      trace "alle_beenden_ende"
 
-      raise erster_error if aktion_falls_ungespeicherte_mappe == :raise and erster_error
+      raise first_error if options[:if_unsaved] == :raise and first_error
 
-      [beendet_anzahl, error_anzahl]
+      [finished_number, error_number]
     end
 
-    # aktion_falls_ungespeicherte_mappe kann sein :raise, :excel, :forget oder :accept
-    def beenden(aktion_falls_ungespeicherte_mappe=:raise)
-      trace "beenden:"
-      require 'weakref'
-       #zeige_ole_objekte
-       #GC.start
-       #zeige_ole_objekte
-      beenden_lebender_instanz = self.alive?
-      if beenden_lebender_instanz then
-        trace "beenden_lebender_instanz:"
-        #trc_info :exlquit_app, @ole_excel
+    # closes the Excel
+    # @param [Hash] options the options
+    # @option options [Symbol] :if_unsaved :raise, :save, :forget, :alert
+    # @option options [Boolean] :hard      
+    #  :if_unsaved    if unsaved workbooks are open in an Excel instance
+    #                      :raise (default) -> raises an exception       
+    #                      :save            -> saves the workbooks before closing
+    #                      :forget          -> closes the Excel instance without saving the workbooks 
+    #                      :alert           -> Excel takes over 
+    def close(options = {:if_unsaved => :raise})
+      finishing_living_excel = self.alive?
+      if finishing_living_excel then
         hwnd = (@ole_excel.HWnd rescue nil)
-        trace "hwnd: #{hwnd}"
-        schlieszen(aktion_falls_ungespeicherte_mappe)
+        close_workbooks(:if_unsaved => options[:if_unsaved])
         @ole_excel.Quit
-         #trc_temp :weak_wkbks_alive, (defined?(weak_wkbks) and weak_wkbks.weakref_alive?)
         if false and defined?(weak_wkbks)  and weak_wkbks.weakref_alive? then
-          #trc_temp :weak_wkbks, weak_wkbks
           weak_wkbks.ole_free
         end
-         #weak_wkbks = nil
-        weak_xlapp = WeakRef.new(@ole_excel)
+        weak_xl = WeakRef.new(@ole_excel)
       else
-        weak_xlapp = nil
-      end # lebt?
-
-      #trc_info :delete_erg, @@verbundene_instanzen.delete(self)
+        weak_xl = nil
+      end 
       @ole_excel = nil
-      #trc_speicher :_vor_gc
       GC.start
-      #trc_speicher :nach_gc
-
-      if beenden_lebender_instanz then
-        if hwnd then
-          @@hwnd2excel.delete(hwnd)
-
+      sleep 0.1
+      if finishing_living_excel then
+        if hwnd then          
           process_id = Win32API.new("user32", "GetWindowThreadProcessId", ["I","P"], "I")
           pid_puffer = " " * 32
           process_id.call(hwnd, pid_puffer)
@@ -302,178 +287,21 @@ module RobustExcelOle
           begin
             Process.kill("KILL", pid) 
           rescue 
-            trace "kill_error: #{$!}"
+            #trace "kill_error: #{$!}"
           end
-
-          #pid = get_window_pid(hwnd)
-          #trace "pid: #{pid}"
-          #begin
-          #  Process.kill("KILL", pid)
-          #  trace "kill_ok"
-          #rescue
-          #  trace "kill_error: #{$!}"
-          #end
         end
-        if weak_xlapp.weakref_alive? then
+        @@hwnd2excel.delete(hwnd)
+        if weak_xl.weakref_alive? then
            #if WIN32OLE.ole_reference_count(weak_xlapp) > 0
           begin
-            weak_xlapp.ole_free
+            weak_xl.ole_free
           rescue
-            trace "weakref_probl_olefree"
+            #trace "weakref_probl_olefree"
           end
         end
       end
 
-      trace "Excel beendet."
-      weak_xlapp ? 1 : 0
-    end
-
-    # Beeandet die aktuelle Excel-Applikation
-    # aktion_falls_ungespeicherte_mappe:: :raise, :excel, :forget oder :accept
-    def self.beenden(aktion_falls_ungespeicherte_mappe=:raise)
-      excel = Excel.current
-      excel.beenden(aktion_falls_ungespeicherte_mappe) if excel
-    end
-
-    # closes the Excel
-    # @param [Hash] options the options
-    # @option options [Symbol] :if_unsaved :raise, :save, :forget, or :keep_open
-    # @option options [Boolean] :hard      
-    #  :if_unsaved    if unsaved workbooks are open in an Excel instance
-    #                      :raise (default) -> raises an exception       
-    #                      :save            -> saves the workbooks before closing
-    #                      :forget          -> closes the Excel instance without saving the workbooks 
-    #                      :keep_open       -> keeps the Excel instance open 
-    #  :hard          kill the Excel instance hard (default: false) 
-    def close(options = {})
-      options = {
-        :if_unsaved => :raise,
-        :hard => false
-      }.merge(options)      
-      close_excel(options) if managed_unsaved_workbooks(options)
-    end
-
-    # closes Excel instances opened via RobustExcelOle
-    # @return [Fixnum] number of closed Excel instances
-    # @param [Hash] options the options
-    # @option options [Symbol]  :if_unsaved :raise, :save, :forget, or :alert
-    # @option options [Boolean] :hard
-    # @option options [Boolean] :kill_if_timeout
-    # options:
-    #  :if_unsaved    if unsaved workbooks are open in an Excel instance
-    #                      :raise (default) -> raises an exception       
-    #                      :save            -> saves the workbooks before closing
-    #                      :forget          -> closes the excel instance without saving the workbooks 
-    #                      :alert           -> give control to Excel
-    #  :hard          closes Excel instances soft (default: false), or, additionally kills the Excel processes hard (true)
-    #  :kill_if_timeout:  kills Excel instances hard if the closing process exceeds a certain time limit (default: false)
-    def self.close_all_known(options={})
-      trace "close_all_known:"
-      options = {
-        :if_unsaved => :raise,
-        :hard => false,
-        :kill_if_timeout => false
-      }.merge(options)           
-      timeout = false
-      number = @@hwnd2excel.size
-      unsaved_workbooks = false
-      begin
-        status = Timeout::timeout(60) {
-          @@hwnd2excel.each do |hwnd, wr_excel|
-            if wr_excel.weakref_alive?
-              excel = wr_excel.__getobj__
-              begin
-                excel.close(options)
-              rescue UnsavedWorkbooks
-                unsaved_workbooks = true
-              end
-              sleep 0.2
-            end
-          end
-          raise UnsavedWorkbooks, "Excel contains unsaved workbooks" if unsaved_workbooks
-          free_all_ole_objects if excels_number > 0 #&& (not unsaved_workbooks)
-          # close also interactively opened Excels, but for unsaved workbooks: hangs as soon sending a VBA method
-          #while (n = excels_number) > 0 do
-          #  ole_xl = current_excel    
-          #  begin
-          #    Excel.new(ole_xl).close(options) if ole_xl 
-          #  rescue RuntimeError => msg
-          #    raise msg unless msg.message =~ /failed to get Dispatch Interface/
-          #  end
-          #end
-        }
-      rescue Timeout::Error
-        raise TimeOut, "close_all_known: timeout" unless options[:kill_if_timeout]
-        timeout = true
-      end
-      kill_all if options[:hard] || (timeout && options[:kill_if_timeout])
-      init
-      number
-    end
-
-    def close_excel(options) # :nodoc:
-      ole_xl = @ole_excel
-      begin
-        with_displayalerts(options[:if_unsaved] == :alert) { ole_xl.Workbooks.Close }
-      rescue WIN32OLERuntimeError => msg
-        trace "close: canceled by user" if msg.message =~ /80020009/ && 
-              options[:if_unsaved] == :alert && (not unsaved_workbooks.empty?)
-      end     
-      excel_hwnd = ole_xl.HWnd
-      ole_xl.Quit
-      weak_excel_ref = WeakRef.new(ole_xl)
-      ole_xl = @ole_excel = nil
-      GC.start
-      sleep 0.2
-      if weak_excel_ref.weakref_alive? then
-        begin
-          weak_excel_ref.ole_free
-          #trace "successfully ole_freed #{weak_excel_ref}"
-        rescue => msg
-          trace "#{msg.message}"
-          trace "could not do ole_free on #{weak_excel_ref}"
-        end
-      end
-      @@hwnd2excel.delete(excel_hwnd)      
-      if options[:hard] then
-        process_id = Win32API.new("user32", "GetWindowThreadProcessId", ["I","P"], "I")
-        pid_puffer = " " * 32
-        process_id.call(excel_hwnd, pid_puffer)
-        pid = pid_puffer.unpack("L")[0]
-        Process.kill("KILL", pid) rescue nil   
-      end
-    end
-
-  private
-
-    def managed_unsaved_workbooks(options)
-      unsaved_workbooks = []      
-      begin
-        @ole_excel.Workbooks.each {|w| unsaved_workbooks << w unless (w.Saved || w.ReadOnly)}
-      rescue RuntimeError => msg
-        trace "RuntimeError: #{msg.message}" 
-        raise ExcelDamaged, "Excel instance not alive or damaged" if msg.message =~ /failed to get Dispatch Interface/
-      end
-      unless unsaved_workbooks.empty? 
-        case options[:if_unsaved]
-        when :raise
-          raise UnsavedWorkbooks, "Excel contains unsaved workbooks"
-        when :save
-          unsaved_workbooks.each do |workbook|
-            workbook.Save
-          end
-          return true
-        when :forget
-          # nothing
-        when :alert
-          # nothing
-        when :keep_open
-          return false
-        else
-          raise OptionInvalid, ":if_unsaved: invalid option: #{options[:if_unsaved].inspect}"
-        end
-      end
-      return true
+      weak_xl ? 1 : 0
     end
 
     # frees all OLE objects in the object space
@@ -502,8 +330,6 @@ module RobustExcelOle
       @@hwnd2excel = {}
     end    
 
-  public
-
     # kill all Excel instances
     # @return [Fixnum] number of killed Excel processes
     def self.kill_all
@@ -514,7 +340,7 @@ module RobustExcelOle
         begin
           Process.kill('KILL', p.processid) if p.name == "EXCEL.EXE"        
         rescue 
-           trace "kill error: #{$!}"
+           #trace "kill error: #{$!}"
         end
       end
       init

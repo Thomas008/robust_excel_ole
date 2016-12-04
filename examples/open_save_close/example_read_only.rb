@@ -6,7 +6,7 @@ require "fileutils"
 
 include RobustExcelOle
 
-Excel.close_all_known
+Excel.close_all
 begin
   dir = create_tmpdir
   file_name = dir + 'workbook.xls'
@@ -23,7 +23,7 @@ begin
   end
   book.close                                          # close the book without saving it 
 ensure
-  Excel.close_all_known                                     # close workbooks, quit Excel application
+  Excel.close_all                                     # close workbooks, quit Excel application
   rm_tmp(dir)
 end
 

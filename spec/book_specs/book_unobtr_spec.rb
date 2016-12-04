@@ -51,7 +51,7 @@ describe Book do
     context "with no open book" do
 
       it "should open unobtrusively if no Excel is open" do
-        Excel.close_all_known
+        Excel.close_all
         Book.unobtrusively(@simple_file) do |book|
           book.should be_a Book
         end
@@ -63,7 +63,7 @@ describe Book do
           
       context "with two running excel instances" do
         before :all do
-          Excel.close_all_known
+          Excel.close_all
         end
 
         before do
@@ -101,7 +101,7 @@ describe Book do
       end
   
       it "should raise an error if the excel instance is not alive" do
-        Excel.close_all_known
+        Excel.close_all
         expect{
           Book.unobtrusively(@simple_file, @excel2) do |book|
           end
@@ -303,7 +303,7 @@ describe Book do
       end
 =begin
       it "should set can_be_closed" do
-        Excel.close_all_known
+        Excel.close_all
         Book.unobtrusively(@simple_file, :keep_open => true) do |book|
           book.should be_a Book
           book.should be_alive
@@ -895,7 +895,7 @@ describe Book do
       end
 
       it "should create a new hidden Excel instance if the Excel is closed" do
-        Excel.close_all_known
+        Excel.close_all
         Book.unobtrusively(@simple_file1, :hidden) do |book| 
           book.should be_a Book
           book.should be_alive

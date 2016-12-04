@@ -428,7 +428,7 @@ describe Bookstore do
         book1 = Book.open(@simple_file, :force_excel => @bookstore.hidden_excel)
         book1.excel.should === h_excel1
         book1.excel.should_not === @book.excel
-        Excel.close_all_known    
+        Excel.close_all    
         h_excel2 = @bookstore.hidden_excel
         h_excel2.should_not == @book.excel
         h_excel2.should_not == book1.excel

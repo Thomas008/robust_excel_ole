@@ -32,7 +32,7 @@ begin
   puts "save_as: saved successfully with option :if_exists => :overwrite"
   book.close                                                 # close the book
 ensure
-	  Excel.close_all_known                                         # close workbooks, quit Excel application
+	  Excel.close_all                                         # close workbooks, quit Excel application
     #rm_tmp(dir)
 end		
 

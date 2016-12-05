@@ -853,7 +853,7 @@ describe Book do
           @key_sender.puts "{right}{enter}"
           expect{
             Book.open(@simple_file1, :if_unsaved => :alert)
-            }.to raise_error(WorkbookError, "open: user canceled or open error")
+            }.to raise_error(ExcelError, "user canceled or runtime error")
           @book.should be_alive
         end
       end
@@ -885,7 +885,7 @@ describe Book do
           @key_sender.puts "{right}{enter}"
           expect{
             Book.open(@simple_file1, :if_unsaved => :excel)
-            }.to raise_error(WorkbookError, "open: user canceled or open error")
+            }.to raise_error(ExcelError, "user canceled or runtime error")
           @book.should be_alive
         end
       end

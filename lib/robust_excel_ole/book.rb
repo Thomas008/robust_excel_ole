@@ -325,7 +325,7 @@ module RobustExcelOle
         rescue WIN32OLERuntimeError => msg
           # trace "WIN32OLERuntimeError: #{msg.message}" 
           if msg.message =~ /800A03EC/
-            raise WorkbookError, "open: user canceled or open error"
+            raise ExcelError, "open: user canceled or runtime error"
           else 
             raise UnexpectedError, "unknown WIN32OLERuntimeError"
           end

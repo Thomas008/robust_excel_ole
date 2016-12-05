@@ -179,7 +179,7 @@ module RobustExcelOle
         when Proc then
           options[:if_unsaved].call(self, unsaved_workbooks)
         when :raise then
-          raise "Excel contains unsaved workbooks"
+          raise UnsavedWorkbooks, "Excel contains unsaved workbooks"
         when :alert then
           #nothing
         when :forget then
@@ -190,7 +190,16 @@ module RobustExcelOle
           raise OptionInvalid, ":if_unsaved: invalid option: #{options[:if_unsaved].inspect}"
         end
       end
-      @ole_excel.Workbooks.Close 
+      begin
+        @ole_excel.Workbooks.Close
+      rescue WIN32OLERuntimeError => msg
+        # trace "WIN32OLERuntimeError: #{msg.message}" 
+        if msg.message =~ /800A03EC/
+          raise ExcelError, "user canceled or runtime error"
+        else 
+          raise UnexpectedError, "unknown WIN32OLERuntimeError"
+        end
+      end   
       weak_wkbks = nil
       weak_wkbks = @ole_excel.Workbooks
       weak_wkbks = nil
@@ -248,7 +257,7 @@ module RobustExcelOle
         break if error_number > old_error_number # + 3        
       end
 
-      raise first_error if options[:if_unsaved] == :raise and first_error
+      raise first_error if (options[:if_unsaved] == :raise and first_error) or first_error.class == OptionInvalid
 
       [finished_number, error_number]
     end
@@ -300,7 +309,6 @@ module RobustExcelOle
           end
         end
       end
-
       weak_xl ? 1 : 0
     end
 

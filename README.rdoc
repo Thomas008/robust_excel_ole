@@ -660,10 +660,6 @@ Then we unobtrusively modify the workbook.
 
 The workbook is modified, but its status is unchanged.
 
-=== More Details
-
-For more details about usage: see link:/Thomas008/robust_excel_ole/blob/master/README_detail.rdoc
-
 === Development
 
 RobustExcelOle started as a simple fork from tomiacannondale's wrap_excel adapted to Ruby 1.8.6.

@@ -78,11 +78,11 @@ If you want to open the workbook and make its window visible, then use
   book = Book.open('workbook.xls', :visible => true)
 
 If a workbook contains unsaved changes and a workbook with the same filename shall be opened, then Excel stops with an alert message.
-Here the option +:if_unsaved+ manages this case. The default value +:raise+ causes an error message. The value +:forget+ would cause the changes are forgotten. The value +:accept+ indicates that the workbook remains open, but no error is raised, i.e. the program can continue.
+Here the option +:if_unsaved+ manages this case. The default value +:raise+ causes an error message. The value +:forget+ would cause to discard the unsaved workbook. The value +:accept+ indicates that the workbook remains open, but no error is raised, i.e. the program can continue.
 
   book = Book.open('workbook.xls', :if_unsaved => :accept)
 
-If a workbook is open and a workbook with the same name but in different path shall be opened, then the first workbook blocks opening the other workbook, and Excel would stop with an alert message. The option +:if_obstructed+ handles this situation. Similar as described above, the values +:raise+, +:forget+ and +:accept+ would cause an error message, and forgetting or accepting the old workbook.
+If a workbook is open and a workbook with the same name but in different path shall be opened, then the first workbook blocks opening the other workbook, and Excel would stop with an alert message. The option +:if_obstructed+ handles this situation. Similar as described above, the values +:raise+, +:forget+ and +:accept+ would cause an error message, and discarding or accepting the old workbook.
 
   book = Book.open('path/workbook.xls', :if_obstructed => :forget)
 
@@ -517,51 +517,51 @@ Setting the value of a range.
 
 === Example 1 
 
-Opening a book.
+We open a workbook.
 
   book = Book.open('workbook.xls')
 
-Accessing a sheet via its name.
+Then we access a sheet via its name.
 
   sheet = book['Sheet1']
   
-Changing the first cell.
+Now we can modify the first cell.
 
   sheet[0,0] = "new"
   
-Saving the book.
+Then we save the workbook.
 
   book.save
 
-Saving the book with a different name, and overwrite if a file with this name exists.
+We can also save the workbook with a different name, and overwrite if a file with this name already exists.
 
   book.save_as('different_workbook.xls', :if_exists => :overwrite)
 
-Closing the book.
+Finally we close the workbook.
 
   book.close  
 
 === Example 2
 
-Opening a workbook.
+We open a workbook.
 
   book = Book.open('workbook.xls')
 
-Opening the book in a new Excel instance and make it visible.
+open it also in a new Excel instance and make it visible.
 
   new_book = Book.open('workbook.xls', :force_excel => :new, :visible => true)
 
-Opening the book in a given Excel instance.
+and open another workbook in a the first Excel instance.
 
-  another_book = Book.open('workbook.xls', :force_excel => book.excel)
+  another_book = Book.open('another_workbook.xls', :force_excel => book.excel)
 
-Closing the books.
+Then we close the workbooks.
 
   book.close
   new_book.close
   another_book.close
 
-Reopening the workbook.
+We reopen the first workbook.
 
   reopened_book = book.reopen
 
@@ -570,88 +570,88 @@ The writable workbook is being prefered.
   reopened_book === book
   => true
 
-Opening another workbook.
-Since the workbook was not open before, reopening the workbook fails and the :default_excel option applies.
-According to :default_excel => :new a new Excel is created, and the workbook is opened there.
+We want to open yet another workbook. Since the workbook was not open before, reopening the workbook fails and the :default_excel option applies. According to :default_excel => :new a new Excel is created, and the workbook is opened there.
 
   different_book = Book.open('different.xls', :default_excel => :new)
   
 
 === Example 3
 
-Opening a workbook.
+Open a workbook.
 
   book = Book.open('workbook.xls')
 
-Adding a copy of the first sheet after the second sheet.
+We want to add a copy of the first sheet and insert it after the second sheet.
 
   book.add_sheet(book[0], :as => 'Sheet1_copy', :after => book[1])
 
-Opening a new workbook with the same name in a new Excel. Leave the workbook that contains unsaved changes in the old Excel.
+Then we open a new workbook with the same name in a new Excel, and leave the workbook that contains unsaved changes in the old Excel.
 
   new_book = Book.open('workbook.xls', :if_unsaved => :new_excel)
 
-Accessing a sheet and change a cell.
+We acccess the first sheet and change the first cell.
 
   sheet = new_book[0]
   sheet[1,1] = "another"
 
-Opening another workbook with the same name in the running Excel. The book that contains unsaved changes will be closed before. 
+Then we open a workbook with the same name in the running Excel while discarding the workbook that contained unsaved changes.
 
   third_book = Book.open('workbook.xls', :if_unsaved => :forget)
 
-Adding a sheet.
+Now we add a sheet.
 
   third_book.add_sheet
 
-Closing the workbook without saving it.
+and close the workbook without saving it.
 
   third_book.close(:if_unsaved => :forget)
 
-Closing the first workbook and saving it before.
+We close the first workbook and save it before.
 
   book.close(:if_unsaved => :save)
 
 === Example 4
 
-Opening a workbook.
+We open a workbook.
 
   book1 = Book.open('workbook.xls')
 
-Opening a book with the same name in a different path. Close the old workbook.
+Then we open a workbook with the same name in a different path, while closing the workbook opened before.
 
   book2 = Book.open('more/workbook.xls', :if_obstructed => :forget)
 
-Changing its cell.
+We change its first cell.
 
   sheet = book2[0]
   sheet[1,1] = "new"
 
-Opening a workbook with the same name in a different path. The old workbook that was modified will be saved and closed before.
+Now we open a workbook with the same name again in a different path. while saving and closing the other workbook.
 
   book3 = Book.open('workbook.xls', :if_obstructed => :save)
 
-Opening a workbook with the same name in a different path. The other workbook will be closed, because it does not contain unsaved changes.
+Then we open a workbook with the same name in a different path. 
+The other workbook will be closed, because it does not contain unsaved changes.
 
   book4 = Book.open('more/workbook.xls', :if_obstructed => :close_if_unsaved)
 
-Closing the workbook.
+
+Finally we close this workbook.
 
   book4.close
 
 
 === Example 5
 
-Opening a workbook.
+We open a workbook
 
   book = Book.open('workbook.xls')
 
-Printing its first cell.
+and print its first cell.
 
   sheet = book[0]
   p "1st cell: #{sheet[1,1].Value}"
 
-Unobtrusively modify the workbook.
+Then we unobtrusively modify the workbook.
 
   Book.unobtrusively('workbook.xls') do |book|
     sheet = book[0]
@@ -659,14 +659,6 @@ Unobtrusively modify the workbook.
   end
 
 The workbook is modified, but its status is unchanged.
-
-  new_sheet = book[0]
-  not (new_sheet[1,1].Value == sheet[1,1].Value) 
-  => true
-
-  book.saved 
-  => true
-
 
 === More Details
 

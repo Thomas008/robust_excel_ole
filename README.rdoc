@@ -1,16 +1,14 @@
 = RobustExcelOle
 
-This ruby gem helps to automate modifying, reading and writing Excel files.
+This ruby gem automates modifying, reading and writing Excel files.
 It supports simultaneously running Excel instances and user interactions.
-robust_excel_ole deals with various cases of Excel and user behaviour,
+RobustExcelOle deals with various cases of Excel and user behaviour,
 and implements workarounds for some Excel bugs.
-The gem provides convenient methods for common tasks, and supports referenced libraries.
+The gem provides convenient methods for common tasks, and facilitates referenced libraries.
 It supports Excel 2010 and Excel 2007.
 
-robust_excel_ole works by sending VBA methods via Win32OLE.
-Moreover, it implements a management system and keeps track of Excel files and Excel instances
-
-This is work in progress.
+RobustExcelOle works by sending VBA methods via Win32OLE.
+Moreover, it implements a management system and keeps track of Excel files and Excel instances.
 
 == Requirements
 
@@ -22,77 +20,89 @@ This is work in progress.
 
 == Usage
 
+  require 'robust_excel_ole'
+  include RobustExcelOle
+
 === Opening a workbook.
 
 Example:
-
-  include RobustExcelOle
+  
   book = Book.open('workbook.xls')
 
-Opening a workbook with a block. 
+You can also open a workbook with a block. 
 The semantics is similar to, e.g.,  +File.open+.
 
   Book.open('workbook.xls') do |book|
     # do something
   end
 
-Options are 
+The options of +open+ are:
+
++:default_excel+::   open the workbook in the Excel instance where it was opened before most recently,
+if the book was opened before and this Excel instance is alive. Otherwise open it in the current (+:current+, or +:active+, or +:reuse+), a new (+:new+) or a given Excel instance (default: +:current+)
++:force_excel+::     open the workbook in the current (+:current+, +:active+, or +:reuse+), a new (+:new+) or given Excel instance 
++:if_absent+::       if the workbook with the given file name does not exist, then raise an error or create a file
++:if_unsaved+::      specify behaviour it the workbook was unsaved (+:raise+, +:forget+, +:save+, +:alert+, +:new_excel+)
++:if_obstructed+::   specidy behaviour if the workbook is blocked by another book (default: +new_excel+)
++:read_only+::       open in read-only mode (default: +false+) 
++:check_compatibility:: check compatibility when saving (default: +false+)
++:update_links+ :     user is never (default) or always being asked how to update links
++:visible+::         make the window of the workbook visible (default: +true) or invisible 
   
-  +:default_excel+, +:force_excel+, +:if_absent+, +:if_unsaved+, +:if_obstructed+, 
-  +:read_only+, +:visible+, +:check_compatibility, and +:update_links+. 
+Here are a few examples: 
 
-Valid values for +:default_excel+ are +:current+ (or +:active+, or +:reuse+), +:new+ or some Excel instance, for +:force_excel+ : +:current+ (or +:active+, or +:reuse+), +:new+ or some Excel instance, for +:if_unsaved+ : +:raise+, +:accept+, +:forget+, +:alert+ and +:new_excel+, for +:if_obstructed+ : +:raise+, +:save+, +:close_if_saved+, +:forget+, +:alert+ and +:new_excel+ , for +:if_absent+ : +:raise+ and +:create+, for +:update_links+ : +:never+, +:always+, +:alert+. The others are Boolean.
+When you want to open a workbook that was not opened before, or reopen a workbook that was open in an Excel instance that is now closed, in the current (active) Excel instance, then use
 
-Remark: Doing updating links seems to be dependent on calculation mode: updates happen, if the calcultion mode is automatic, does not happen, if calculation mode is manual.
+  Book.open('workbook.xls')
 
-Here are a few examples:
+or
+  
+  Book.open('workbook.xls', :default_excel => :current)
 
-Opening a workbook in the Excel instance where it was opened before most recently, if it was opened beefore and this Excel instance is alive. Otherwise opening it in a running Excel, if it exists, or in a new Excel.
+In case you want to open such a workbook in a new Excel instance, then use
 
-Opening a workbook in the Excel instance where it was opened before most recently, if it was opened before and this Excel instance is alive. Otherwise opening it in a new Excel instance.
+  Book.open('workbook.xls', :default_excel => :new)
 
-  book = Book.open('workbook.xls', :default_excel => :new)
+When you want to open a workbook in a new Excel instance, no matter if it was opened before, you can write
 
-Opening a workbook in the Excel instance where it was opened before most recently, if it was opened before and this Excel instance is alive. Otherwise opening it in a given Excel instance.
+  Bool.open('workbook.xls', :force_excel => :new)
 
-  book = Book.open('workbook.xls', :default_excel => excel1)
+You can also specify an Excel instance
 
-Opening a workbook in a new Excel instance, no matter if the workbook was opened before and if the old Excel instance is alive.
+  excel1 = Excel.create
+  # something
+  Book.open('workbook.xls', :force_excek => excel1)
 
-  book = Book.open('workbook.xls', :force_excel => :new)
+If you want to open the workbook and make its window visible, then use
 
-Opening a workbook in a given Excel instance, no matter if the workbook was opened before and if the old Excel instance is alive.
+  book = Book.open('workbook.xls', :visible => true)
 
-  book = Book.open('workbook.xls', :force_excel => excel1)
-
-Opening a workbook in a new Excel instance and make the window of the workbook visible.
-
-  book = Book.open('workbook.xls', :force_excel => :new, :visible => true)
-
-If a workbook contains unsaved changes and a workbook with the same filename shall be opened, then Excel gives an alert message.
-The option +:if_unsaved+ manages this case. For example, +:if_unsaved+ => +:accept+  indicates that the workbook remains open, but no error is raised, i.e. the program can continue.
+If a workbook contains unsaved changes and a workbook with the same filename shall be opened, then Excel stops with an alert message.
+Here the option +:if_unsaved+ manages this case. The default value +:raise+ causes an error message. The value +:forget+ would cause the changes are forgotten. The value +:accept+ indicates that the workbook remains open, but no error is raised, i.e. the program can continue.
 
   book = Book.open('workbook.xls', :if_unsaved => :accept)
 
-If a workbook is open and a workbook with the same name but in different path shall be opened, then the first workbook blocks opening the other workbook. The option +:if_obstructed+ handles this situation. For example, +:if_obstructed+ => +:forget+ causes the old workbook to close and to open the new workbook.
+If a workbook is open and a workbook with the same name but in different path shall be opened, then the first workbook blocks opening the other workbook, and Excel would stop with an alert message. The option +:if_obstructed+ handles this situation. Similar as described above, the values +:raise+, +:forget+ and +:accept+ would cause an error message, and forgetting or accepting the old workbook.
 
   book = Book.open('path/workbook.xls', :if_obstructed => :forget)
 
-Opening linked workbooks for EXCEL 2007 is supported
+Remarks:
+
+Opening linked workbooks is supported.
+
+Doing updating links seems to be dependent on calculation mode: updates happen, if the calcultion mode is automatic, and does not happen, if calculation mode is manual.
 
 === Closing a workbook.
 
   book.close
 
-There is one option: : +:if_unsaved+. Valid values for this option are +:raise+, +:save+, +:forget+, +:alert+ and +:keep_open+. Example:
-
-Closing the workbook and saving it before if it has unsaved changes.
+This method has the option +:if_unsaved+. Valid values for this option are +:raise+, +:save+, +:forget+, +:alert+ and +:keep_open+. For example, if you want to close the workbook and save it before if it has unsaved changes:
 
   book.close(:if_unsaved => :save)
 
 === Reopening a workbook.
 
-A special feature of robust_excel_ole is that it allows to reopen workbooks after closing them.
+A special feature of RobustExcelOle is that it allows to reopen workbooks after closing them.
 
   book = Book.open('workbook.xls')
   book.close
@@ -117,21 +127,23 @@ A Book object can be created when giving an Excel workbook.
 
   book.save
 
-Saving a workbook with a file name.
+When you want to save a workbook with a file name, then use
 
   book.save_as('another_workbook.xls')
 
 The options are +:if_exists+ and +if_obstructed+. 
 
-Saving a workbook and overwriting the file if it exists before.
+For example, if you want to overwrite a workbook, then use
 
   book.save_as('another_workbook.xls', :if_exists => :overwrite)
 
-If a workbook is blocking the workbook that should be saved, then the former one can be saved and closed before.
+If a workbook is blocks the workbook that should be saved, then the former one can be saved and closed before.
 
   book = Book.open('workbook.xls')
   book2 = Book.open('another_workbook.xls')
   book2.save_as('dir/workbook.xls', :if_exists => :overwrite, :if_obstructed => :save)
+
+Values of +:if:obstructed+ are +:raise+, +:forget+, +:save+ and +:close_if_saved+. 
 
 === Unobtrusively opening a workbook
 
@@ -139,9 +151,9 @@ The method +unobtrusively+ enables the user to read or modify a workbook, no mat
 
 Some options determine the Excel instance in which a closed workbook is opened. The option +:current+ (or +:active+, or +:reuse+) (default) indicates that the closed workbook is opened in the Excel instance where the workbooks is opened, if such an Excel instance exists, otherwise that another Excel instance is reused. The option +:hidden+ provokes that the closed workbook is opened in a separate Excel instance that is not visible and has no DisplayAlerts. Any following closed workbook would be opened in this Excel instance as well when using this option. Moreover, an Excel instance can be given directly where to open the closed workbook.
 
-Further options are +:read_only+, +:readonly_excel+, and +:keep_open. The option +:readonly_excel+ chooses whether a book that is opened in read only mode. If the workbook is opened as read only, then the option +:readonly_excel+ determines whether to close the workbook and open it as writable in the Excel instance where it was open so far, or to open it as writable in another running Excel instance, if such an instance exists, or to open it in a new Excel instance. Moreover, there are the options +:visible+, and +:check_compatiblity.
+Further options are +:read_only+, +:readonly_excel+, and +:keep_open. The option +:readonly_excel+ chooses whether a book that is opened in read only mode. If the workbook is opened as read only, then the option +:readonly_excel+ determines whether to close the workbook and open it as writable in the Excel instance where it was open so far, or to open it as writable in another running Excel instance, if such an instance exists, or to open it in a new Excel instance. Moreover, there are the options +:visible+, and +:check_compatiblity as for the method +open+.
 
-  Book.unobtrusively('workbook.xls', :current, :read_only => false, :keep_open => false) do |book|
+  Book.unobtrusively('workbook.xls', :if_closed => :current, :read_only => false, :keep_open => false) do |book|
     # some modification
     sheet = book[0]
     sheet[1,1] = "c" 
@@ -183,22 +195,15 @@ or
 
 === Bringing a workbook to the focus.
 
-Make the Excel instance and the workbook visible and make it available for keyboard inputs.
+When you want to make the workbook visible and available for keyboard inputs, use
 
   book.focus
 
 === Making the window of the workbook visible
 
-Open a workbook and make the Excel instance and the window of the workbook visible.
-
-  book = Book.open('workbook.xls', :visivble => true)
-
-Make the window of the workbook invisible.
+You can make the window of the workbook invisible or visible
 
   book.visible = false
-
-Make the window of the workbook visible.
-
   book.visible = true
 
 === Making an Excel visible or invisible, and enable and disable DisplayAlerts.
@@ -214,23 +219,23 @@ Enable DisplayAlerts.
 
 === Accessing a sheet.
 
-Accessing the first sheet.
+You can access a sheet by giving the number
 
   sheet = book.sheet(1)
 
-or
-
-  sheet = book.first_sheet  
-
-Accessing the last sheet.
-
-  sheet = book.last_sheet  
-
-Accessing a sheet with the sheet name.
+or its name
 
   sheet = book.sheet('Sheet1')
 
-Accessing sheet objects using the methods Book#each.
+You can get the first and last sheet with
+
+  sheet = book.first_sheet  
+
+and
+
+  sheet = book.last_sheet  
+
+You can access all sheet objects by using the methods Book#each.
 
   book.each do |sheet|               
     # do something with sheet
@@ -255,11 +260,11 @@ A sheet object is enumerable. Use the methods Sheet#each_column, Sheet#each_row 
 
 === Accessing a cell.
 
-Reading a cell from a sheet object.
+Reading a cell from a sheet object
 
   sheet[1, 1]  => first cell (first row, first column).
 
-Reading a cell from a range object.
+Reading a cell from a range object
 
   row_range[1]  => first cell in row_range
   column_range[2] => second cell in column_range
@@ -277,7 +282,7 @@ Writing a cell
 
 === Accessing a range of a row or column. 
 
-Accessing a range of a row.
+You access a range of a row by giving the number of the row, and optionally, the range of the cell numbers.
 
   sheet.row_range(1)  => first row
   sheet.row_range(1, 1..3 )  => first three cells of the first row  
@@ -289,13 +294,13 @@ Accessing a range of a column.
 
 === Naming a cell
 
-Naming or renaming a cell range given its address.
+You can (re-) name a cell range.
 
   book.set_name(1,1,"name")
 
 === Getting and setting the contents of a named range in a worksheet
 
-Getting the value of a range.
+You get the value of a range by 
 
   sheet[name]
   
@@ -351,7 +356,7 @@ Copying a sheet, if a sheet is given, adding an empty sheet, if no sheet is give
 
 === Creating and reusing an Excel instance.
 
-Creating a new Excel.
+When you want to start a new Excel, use
 
   excel1 = Excel.create
 
@@ -359,7 +364,7 @@ or
 
   excel1 = Excel.new(:reuse => false)  
 
-Resusing a runnin Excel instance.
+When you want to reuse an already running Excel instance, write
 
   excel2 = Excel.current
 
@@ -369,7 +374,7 @@ or
 
 Options are +:reuse+ (+true+, +false+), +:visible+ (+true+, +false+) and +:displayalerts+ (+true+, +false+, +:if_visible+).  
 
-Promoting an Excel instance represented as WIN32OLE object to an Excel object
+You can also promote an Excel instance represented as WIN32OLE object to an Excel object.
 
   excel = Excel.new(win32ole_object)
 
@@ -383,35 +388,37 @@ or
 
   excel1 = Excel.new(:reuse => false, :visible => true)  
 
-Reusing a Excel and making it invisible.
-
-  excel2 = Excel.current(:reuse => false, :visible => false)  
-
 or 
 
-  excel2 = Excel.new(:reuse => false, :visible => false)
+  excel1 = Excel.create
+  excel1.visible = true  
+
 
 === Enabling or disabling DisplayAlerts
 
-Enabling DisplayAlerts.
+You can enable DisplayAlerts with, e.g. 
 
-  excel3 = Excel.new(:reuse => true, :displayalerts => true)
+  excel1 = Excel.new(:reuse => true, :displayalerts => true)
 
-Disabling DisplayAlerts.
-  
-  excel3 = Excel.current(:reuse => true, :displayalerts => false)
+or 
 
-Enabling DisplayAlerts whenever the Excel instance is visible.
+  excel1 = Excel.current
+  excel1.displayalerts = true
 
-  excel3 = Excel.current(:reuse => true, :displayalerts => :if_visible)
+and turn DisplayAlerts off with
+
+  excel1.displayalerts = false
+
+You can turn off and off DisplayAlerts in a block.
+
+  excel = Excel.create
+  excel.with_displayalerts false do
+    # do something
+  end
 
 === Making all workbooks visible or invisible
 
-Making all workbooks visible.
-
   excel1.workbooks_visible true  
-
-Making all workbooks invisible.
 
   excel1.workbooks_visible false   
 
@@ -419,34 +426,36 @@ Making all workbooks invisible.
 
 Set the window of an Excel instance to the foreground.
 
+  excel1.focus
+
 === Closing an Excel
 
   excel = Excel.current
   excel.close
 
-The options are +:if_unsaved+ and +:hard+ . Values for :if_unsaved+ are +:raise+, +:save+, +:forget+ and +:keep_open+.
+The method +close has the option +:if_unsaved+ with the values +:raise+, +:save+, +:forget+ and +:alert+.
 
-Closing the Excel instance, saving unsaved workbooks and terminating the Excel process hard.
+For example, if you want to close an Excel instance and save unsaved workbooks, use
 
-  excel.close(:if_unsaved => :save, :hard => true)
+  excel.close(:if_unsaved => :save)
 
-=== Closing Excel instances opened via RobustExcelOle.
+=== Closing all Excel instances
 
   Excel.close_all
 
-The options are +:if_unsaved+ and +:hard+ . Values for :if_unsaved+ are +:raise+, +:save+, and +:forget+. Example:
+This method has the option +:if_unsaved+ as described above. For example, if you want to close all Excel instances containing saved workbooks and raise an error for Excel instances with unsaved workbooks, use
 
-Closing all Excel instances, saving unsaved workbooks and terminating the Excel processes softly.
-
-  Excel.close_all(:if_unsaved => :save, :hard => false) 
+  Excel.close_all(:if_unsaved => :raise)   
 
 === Terminating all Excel processes
 
   Excel.kill_all
 
+This method kills all Excel instances no matter whether they contain unsaved workbooks.  
+
 === Recreating an Excel instance    
 
-Reopening the closed Excel instance. This includes reopening all workbooks that were open in that Excel instance.
+Closed Excel instances can also be reopened. This includes reopening all workbooks that were open in that Excel instance.
 
   excel.close
   excel.recreate
@@ -459,36 +468,7 @@ The options are :reopen_workbooks, :visible and :displayalerts.
 
 Providing all Excel instances (opened via RobustExcelOle) as objects of the class Excel
 
-  Excel.excel_objects  
-
-=== Making Excel visible or invisible
-
-Making Excel visible.
-
-  excel = Excel.create
-  excel.visible = true
-
-Making Excel invisible
-
-  excel.visible = false
-
-=== Turning on or off Displayalerts.
-
-Turning DisplayAlerts on.
-
-  excel = Excel.create
-  excel.displayalerts = true
-
-Turning DisplayAlerts off.
-
-  excel.displayalerts = false
-
-Turning on and off in a block.
-
-  excel = Excel.create
-  excel.with_displayalerts true do
-    book = Book.open('workbook.xls')
-  end
+  Excel.excel_processes 
 
 === Setting Calculation mode.
 
@@ -694,13 +674,13 @@ For more details about usage: see link:/Thomas008/robust_excel_ole/blob/master/R
 
 === Development
 
-robust_excel_ole started as a simple fork from tomiacannondale's wrap_excel adapted to Ruby 1.8.6.
+RobustExcelOle started as a simple fork from tomiacannondale's wrap_excel adapted to Ruby 1.8.6.
 The functionality of wrap_excel is optimised and extended by new features.
 Most notable extensions include:
 * workbooks can be opened in already running Excel instances (instead of opening a new Excel whenever a book is opened)
 * a workbook management system stores all workbooks that have been open. This workbook store is being used, e.g., for reopening a workbook that has been closed before. It provides transparency identity, i.e., equal Excel workbooks correspond to equal Book objects of RobustExcelOle.
 
-Some features in robust_excel_ole that are not compatible with wrap_excel:
+Some features in RobustExcelOle that are not compatible with wrap_excel:
 * +open+ uses by default a running Excel instance instead of creating a new one,
   and opens a workbook by default in writable mode instead of read_only 
 * +close+ closes the workbook instead of closing all workbooks and the Excel instance.

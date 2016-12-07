@@ -37,7 +37,7 @@ module RobustExcelOle
 
     after do
       Excel.kill_all
-      rm_tmp(@dir)
+      #rm_tmp(@dir)
     end
 
     describe "trace" do

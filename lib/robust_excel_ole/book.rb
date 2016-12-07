@@ -180,7 +180,8 @@ module RobustExcelOle
 
   public
 
-    def self.open_in_current_excel(file, opts = { })
+    # work in progress#
+    def self.open_in_current_excel(file, opts = { }) # :nodoc: # 
       options = DEFAULT_OPEN_OPTS.merge(opts)
       filename = General::absolute_path(file)
       ole_workbook = WIN32OLE.connect(filename)
@@ -325,7 +326,7 @@ module RobustExcelOle
         rescue WIN32OLERuntimeError => msg
           # trace "WIN32OLERuntimeError: #{msg.message}" 
           if msg.message =~ /800A03EC/
-            raise ExcelError, "open: user canceled or runtime error"
+            raise ExcelError, "user canceled or runtime error"
           else 
             raise UnexpectedError, "unknown WIN32OLERuntimeError"
           end

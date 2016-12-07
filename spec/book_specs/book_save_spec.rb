@@ -34,7 +34,7 @@ describe Book do
 
   after do
     Excel.kill_all
-    rm_tmp(@dir)
+   # rm_tmp(@dir)
   end
 
   describe "save" do
@@ -379,9 +379,7 @@ describe Book do
             @key_sender.puts "{enter}"
             @key_sender.puts "{enter}"
             #@key_sender.puts "%{n}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
-            expect{
-              @book.save_as(@simple_save_file1, :if_exists => :alert)
-              }.to raise_error(WorkbookError, "not saved or canceled by user")
+            @book.save_as(@simple_save_file1, :if_exists => :alert)
             File.exist?(@simple_save_file1).should be_true
             File.size?(@simple_save_file1).should == @garbage_length
             @book.excel.DisplayAlerts.should == displayalert_value
@@ -394,20 +392,7 @@ describe Book do
             @key_sender.puts "{right}{enter}"
             @key_sender.puts "{right}{enter}"
             #@key_sender.puts "%{n}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
-            expect{
-              @book.save_as(@simple_save_file1, :if_exists => :alert)
-              }.to raise_error(WorkbookError, "not saved or canceled by user")
-            File.exist?(@simple_save_file1).should be_true
-            File.size?(@simple_save_file1).should == @garbage_length
-            @book.excel.DisplayAlerts.should == displayalert_value
-          end
-
-          it "should report save errors and leave DisplayAlerts unchanged" do
-            #@key_sender.puts "{left}{enter}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
-            @book.ole_workbook.Close
-            expect{
-              @book.save_as(@simple_save_file1, :if_exists => :alert)
-              }.to raise_error(ObjectNotAlive, "workbook is not alive")
+            @book.save_as(@simple_save_file1, :if_exists => :alert)
             File.exist?(@simple_save_file1).should be_true
             File.size?(@simple_save_file1).should == @garbage_length
             @book.excel.DisplayAlerts.should == displayalert_value
@@ -449,9 +434,7 @@ describe Book do
             @key_sender.puts "{enter}"
             @key_sender.puts "{enter}"
             #@key_sender.puts "%{n}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
-            expect{
-              @book.save_as(@simple_save_file1, :if_exists => :excel)
-              }.to raise_error(WorkbookError, "not saved or canceled by user")
+            @book.save_as(@simple_save_file1, :if_exists => :excel)
             File.exist?(@simple_save_file1).should be_true
             File.size?(@simple_save_file1).should == @garbage_length
             @book.excel.DisplayAlerts.should == displayalert_value
@@ -464,9 +447,7 @@ describe Book do
             @key_sender.puts "{right}{enter}"
             @key_sender.puts "{right}{enter}"
             #@key_sender.puts "%{n}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
-            expect{
-              @book.save_as(@simple_save_file1, :if_exists => :excel)
-              }.to_not raise_error
+            @book.save_as(@simple_save_file1, :if_exists => :excel)
             File.exist?(@simple_save_file1).should be_true
             File.size?(@simple_save_file1).should == @garbage_length
             @book.excel.DisplayAlerts.should == displayalert_value

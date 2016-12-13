@@ -45,7 +45,7 @@ if the book was opened before and this Excel instance is alive. Otherwise open i
 +:if_unsaved+::      specify behaviour it the workbook was unsaved (+:raise+, +:forget+, +:save+, +:alert+, +:new_excel+)
 +:if_obstructed+::   specidy behaviour if the workbook is blocked by another book (default: +new_excel+)
 +:read_only+::       open in read-only mode (default: +false+) 
-+:check_compatibility:: check compatibility when saving (default: +false+)
++:check_compatibility+:: check compatibility when saving (default: +false+)
 +:update_links+ :     user is never (default) or always being asked how to update links
 +:visible+::         make the window of the workbook visible (default: +true) or invisible 
   

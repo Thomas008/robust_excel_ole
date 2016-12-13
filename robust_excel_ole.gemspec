@@ -10,10 +10,10 @@ Gem::Specification.new do |s|
   s.homepage    = "https://github.com/Thomas008/robust_excel_ole"
   
   s.summary     = "RobustExcelOle automates processing Excel files in Windows by using the win32ole library."
-  s.description = "RobustExcelOle automates modifying, reading and writing Excel files.
+  s.description = "RobustExcelOle automates modifying, reading and writing Excel files in Windows by using the win32ole library.
                    It supports simultaneously running Excel instances and user interactions.
                    RobustExcelOle deals with various cases of Excel (and user) behaviour,
-                   supplies workarounds for some Excel bugs, and supports referenced libraries"                 
+                   supplies workarounds for some Excel bugs, and supports referenced libraries."                 
 
   s. licenses = ['MIT']
   s.rubyforge_project = "robust_excel_ole"

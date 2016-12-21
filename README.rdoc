@@ -10,6 +10,34 @@ It supports Excel 2010 and Excel 2007.
 RobustExcelOle works by sending VBA methods via Win32OLE.
 Moreover, it implements a management system and keeps track of Excel files and Excel instances.
 
+RobustExcelOle allows a "script mode" and an "interactive mode": Commands enable to open Excel files in various Excel instances, enable to close, reopen, process and save the Excel files, without the need of the user's interaction, and even without the user noticing. While running this script, the user can open and process any Excel files at any time. RobustExcelOle manages the complex cases of conflicts that might occur such that the user does not need to interfere and the script can continue.
+
+For example, suppose you want to process a list of Excel files. With help of RobustExcelOle, those Excel files can be rapidly opened, manipulated, closed and saved (script mode). Now assume, the Excel file "workbook.xls" is being processed, while the user has opened this Excel file, has manipulated but not saved it yet. Normally Excel would prompt a message and ask the user what to do. RobustExcelOle solves this conflict by using several options that control whether the changes of the user should be saved (accepted) or discarded (forgotten) before opening the workbook. 
+
+  book1 = Book.open('workbook.xls')  # user
+    ...
+  book2 = Book.open('workbook.xls', :if_unsaved => accept) # script
+
+Similarly, if the user has opened an Excel file that has the same name but a different path, the conflict is solved via options.
+
+  book1 = Book.open('path1/workbook.xls')
+    ...
+  book2 = Book.open('workbook.xls', :if_obstructed => :forget)
+
+RobustExcelOle provides the feature to reopen an Excel file after closing it. The Excel file is normally re-opened in the Excel instance where it was open before most recently. If this Excel instance is damaged or closed, then options manage whether the Excel file is opened in the current (active) Excel instance, a new or a given Excel instance.
+
+  book1 = Book.open('workbook.xls')
+  book1.close
+  book1.excel.close
+  Book.open('workbook.xls', :default_excel => :new)
+
+Moreover, RobustExcelOle allows unobtrusively reading and modifying Excel files, i.e. accessing Excel files without changing their "status". The status comprises whether the Excel file is open or not, saved or not, and writable or not. 
+
+  Book.for_modifying('workbook.xls') do |book|
+    ...
+  end
+
+
 == Requirements
 
 * Ruby 1.8.6 or higher
@@ -42,7 +70,7 @@ The options of +open+ are:
 if the book was opened before and this Excel instance is alive. Otherwise open it in the current (+:current+, or +:active+, or +:reuse+), a new (+:new+) or a given Excel instance (default: +:current+)
 +:force_excel+::     open the workbook in the current (+:current+, +:active+, or +:reuse+), a new (+:new+) or given Excel instance 
 +:if_absent+::       if the workbook with the given file name does not exist, then raise an error or create a file
-+:if_unsaved+::      specify behaviour it the workbook was unsaved (+:raise+, +:forget+, +:save+, +:alert+, +:new_excel+)
++:if_unsaved+::      specify behaviour it the workbook was unsaved (+:raise+, +:forget+, +:accept+, +:alert+, +:new_excel+)
 +:if_obstructed+::   specidy behaviour if the workbook is blocked by another book (default: +new_excel+)
 +:read_only+::       open in read-only mode (default: +false+) 
 +:check_compatibility+:: check compatibility when saving (default: +false+)
@@ -147,7 +175,7 @@ Values of +:if:obstructed+ are +:raise+, +:forget+, +:save+ and +:close_if_saved
 
 === Unobtrusively opening a workbook
 
-The method +unobtrusively+ enables the user to read or modify a workbook, no matter if it is open in some Excel instance, if it is saved or unsaved, and if it is writable or not. When opening a workbook unobtrusively, its status remains unchanged. This status includes, whether the workbook is opened or closed, saved or unsaved, readonly or writable. 
+The method +unobtrusively+ enables reading and modifying a workbook, without changing its "status". This status comprises whether the workbook is open in some Excel instance or closed, whether it is saved or unsaved, and whether it is writable or not.
 
 Some options determine the Excel instance in which a closed workbook is opened. The option +:current+ (or +:active+, or +:reuse+) (default) indicates that the closed workbook is opened in the Excel instance where the workbooks is opened, if such an Excel instance exists, otherwise that another Excel instance is reused. The option +:hidden+ provokes that the closed workbook is opened in a separate Excel instance that is not visible and has no DisplayAlerts. Any following closed workbook would be opened in this Excel instance as well when using this option. Moreover, an Excel instance can be given directly where to open the closed workbook.
 

@@ -10,9 +10,11 @@ It supports Excel 2010 and Excel 2007.
 RobustExcelOle works by sending VBA methods via Win32OLE.
 Moreover, it implements a management system and keeps track of Excel files and Excel instances.
 
-RobustExcelOle allows a "script mode" and an "interactive mode": Commands enable to open Excel files in various Excel instances, enable to close, reopen, process and save the Excel files, without the need of the user's interaction, and even without the user noticing. While running this script, the user can open and process any Excel files at any time. RobustExcelOle manages the complex cases of conflicts that might occur such that the user does not need to interfere and the script can continue.
+In the following, some features of RobustExcelOle are depicted.
 
-For example, suppose you want to process a list of Excel files. With help of RobustExcelOle, those Excel files can be rapidly opened, manipulated, closed and saved (script mode). Now assume, the Excel file "workbook.xls" is being processed, while the user has opened this Excel file, has manipulated but not saved it yet. Normally Excel would prompt a message and ask the user what to do. RobustExcelOle solves this conflict by using several options that control whether the changes of the user should be saved (accepted) or discarded (forgotten) before opening the workbook. 
+RobustExcelOle allows a "script mode" and an "interactive mode": Commands enable to open Excel files (or workbooks) in various Excel instances, enable to close, reopen, process and save the Excel files, without the need of the user's interaction, and even without the user noticing. While running this script, the user can open and process any Excel files at any time. RobustExcelOle manages the complex cases of conflicts that might occur such that the user does not need to interfere and the script can continue.
+
+For example, suppose you want to process a list of Excel files. RobustExcelOle allows to rapidly open, manipulate, close and save these Excel files (script mode). Now assume, the Excel file "workbook.xls" is being processed, while the user has opened this Excel file, has manipulated it but not saved it yet. Excel would prompt a message and ask the user what to do. RobustExcelOle solves this conflict by using several options that state whether the changes of the user should be saved (accepted) or discarded before opening the workbook. 
 
   book1 = Book.open('workbook.xls')  # user
     ...
@@ -24,14 +26,14 @@ Similarly, if the user has opened an Excel file that has the same name but a dif
     ...
   book2 = Book.open('workbook.xls', :if_obstructed => :forget)
 
-RobustExcelOle provides the feature to reopen an Excel file after closing it. The Excel file is normally re-opened in the Excel instance where it was open before most recently. If this Excel instance is damaged or closed, then options manage whether the Excel file is opened in the current (active) Excel instance, a new or a given Excel instance.
+Another feature that RobustExcelOle povides is reopening Excel files after closing them. An Excel file is opened by default in the Excel instance where it was open before most recently. If this Excel instance is damaged or closed, then RobustExcelIle controls via options whether the Excel file is opened in the current (active) Excel instance, a new or a given Excel instance.
 
   book1 = Book.open('workbook.xls')
   book1.close
   book1.excel.close
   Book.open('workbook.xls', :default_excel => :new)
 
-Moreover, RobustExcelOle allows unobtrusively reading and modifying Excel files, i.e. accessing Excel files without changing their "status". The status comprises whether the Excel file is open or not, saved or not, and writable or not. 
+Moreover, RobustExcelOle allows unobtrusively reading and modifying Excel files, i.e. accessing Excel files without changing their "status". The status comprises whether the Excel file is open in some Excel instance , saved and writable. 
 
   Book.for_modifying('workbook.xls') do |book|
     ...
@@ -64,28 +66,15 @@ The semantics is similar to, e.g.,  +File.open+.
     # do something
   end
 
-The options of +open+ are:
-
-+:default_excel+::   open the workbook in the Excel instance where it was opened before most recently,
-if the book was opened before and this Excel instance is alive. Otherwise open it in the current (+:current+, or +:active+, or +:reuse+), a new (+:new+) or a given Excel instance (default: +:current+)
-+:force_excel+::     open the workbook in the current (+:current+, +:active+, or +:reuse+), a new (+:new+) or given Excel instance 
-+:if_absent+::       if the workbook with the given file name does not exist, then raise an error or create a file
-+:if_unsaved+::      specify behaviour it the workbook was unsaved (+:raise+, +:forget+, +:accept+, +:alert+, +:new_excel+)
-+:if_obstructed+::   specidy behaviour if the workbook is blocked by another book (default: +new_excel+)
-+:read_only+::       open in read-only mode (default: +false+) 
-+:check_compatibility+:: check compatibility when saving (default: +false+)
-+:update_links+ :     user is never (default) or always being asked how to update links
-+:visible+::         make the window of the workbook visible (default: +true) or invisible 
-  
-Here are a few examples: 
+The options of +open+ are +:default_excel+, +:force_excel+, +:if_unsaved+, +:if_obstructed+, +:if_absent+, +:check_compatibility+, +:update_links+, +:read_only+ and +:visible+. Here are a few examples: 
 
 When you want to open a workbook that was not opened before, or reopen a workbook that was open in an Excel instance that is now closed, in the current (active) Excel instance, then use
 
-  Book.open('workbook.xls')
+  Book.open('workbook.xls', :default_excel => :current)
 
 or
   
-  Book.open('workbook.xls', :default_excel => :current)
+  Book.open('workbook.xls')
 
 In case you want to open such a workbook in a new Excel instance, then use
 
@@ -105,26 +94,19 @@ If you want to open the workbook and make its window visible, then use
 
   book = Book.open('workbook.xls', :visible => true)
 
-If a workbook contains unsaved changes and a workbook with the same filename shall be opened, then Excel stops with an alert message.
-Here the option +:if_unsaved+ manages this case. The default value +:raise+ causes an error message. The value +:forget+ would cause to discard the unsaved workbook. The value +:accept+ indicates that the workbook remains open, but no error is raised, i.e. the program can continue.
+If a workbook contains unsaved changes and a workbook with the same filename shall be opened, then the option +:if_unsaved+ manages this conflict. For example, if the workbook with the unsaved changes shall remain open, you can use
 
   book = Book.open('workbook.xls', :if_unsaved => :accept)
 
-If a workbook is open and a workbook with the same name but in different path shall be opened, then the first workbook blocks opening the other workbook, and Excel would stop with an alert message. The option +:if_obstructed+ handles this situation. Similar as described above, the values +:raise+, +:forget+ and +:accept+ would cause an error message, and discarding or accepting the old workbook.
+If a workbook is open and a workbook with the same name but in different path shall be opened, i.e. the first workbook blocks opening the other workbook, then the option +:if_obstructed+ handles this situation, e.g.
 
   book = Book.open('path/workbook.xls', :if_obstructed => :forget)
-
-Remarks:
-
-Opening linked workbooks is supported.
-
-Doing updating links seems to be dependent on calculation mode: updates happen, if the calcultion mode is automatic, and does not happen, if calculation mode is manual.
 
 === Closing a workbook.
 
   book.close
 
-This method has the option +:if_unsaved+. Valid values for this option are +:raise+, +:save+, +:forget+, +:alert+ and +:keep_open+. For example, if you want to close the workbook and save it before if it has unsaved changes:
+This method has the option +:if_unsaved+. For example, if you want to close the workbook and save its changes before, you can use
 
   book.close(:if_unsaved => :save)
 
@@ -165,13 +147,11 @@ For example, if you want to overwrite a workbook, then use
 
   book.save_as('another_workbook.xls', :if_exists => :overwrite)
 
-If a workbook is blocks the workbook that should be saved, then the former one can be saved and closed before.
+If a workbook blocks the workbook that should be saved, then the former one can be saved and closed before.
 
   book = Book.open('workbook.xls')
   book2 = Book.open('another_workbook.xls')
   book2.save_as('dir/workbook.xls', :if_exists => :overwrite, :if_obstructed => :save)
-
-Values of +:if:obstructed+ are +:raise+, +:forget+, +:save+ and +:close_if_saved+. 
 
 === Unobtrusively opening a workbook
 
@@ -203,7 +183,7 @@ This method finds out whether the Excel workbook that is referenced by the Book 
 
 === Getting and setting the contents of a range in a workbook.
 
-Getting the contents of a range.
+You can get the contents of a range with
 
   book["name"] 
   => "value"
@@ -213,7 +193,7 @@ or
   book.nameval("name")
   => "value"
 
-Setting the contents of a range.
+You can set the contents of a range with
 
   book["name"] = "value"
 
@@ -551,11 +531,11 @@ We open a workbook.
 
 Then we access a sheet via its name.
 
-  sheet = book['Sheet1']
+  sheet = book.sheet('Sheet1')
   
 Now we can modify the first cell.
 
-  sheet[0,0] = "new"
+  sheet[1,1] = "new"
   
 Then we save the workbook.
 
@@ -605,13 +585,13 @@ We want to open yet another workbook. Since the workbook was not open before, re
 
 === Example 3
 
-Open a workbook.
+We open a workbook.
 
   book = Book.open('workbook.xls')
 
 We want to add a copy of the first sheet and insert it after the second sheet.
 
-  book.add_sheet(book[0], :as => 'Sheet1_copy', :after => book[1])
+  book.add_sheet(book.sheet(1), :as => 'Sheet1_copy', :after => book.sheet(2))
 
 Then we open a new workbook with the same name in a new Excel, and leave the workbook that contains unsaved changes in the old Excel.
 
@@ -619,7 +599,7 @@ Then we open a new workbook with the same name in a new Excel, and leave the wor
 
 We acccess the first sheet and change the first cell.
 
-  sheet = new_book[0]
+  sheet = new_book.sheet(1)
   sheet[1,1] = "another"
 
 Then we open a workbook with the same name in the running Excel while discarding the workbook that contained unsaved changes.
@@ -650,7 +630,7 @@ Then we open a workbook with the same name in a different path, while closing th
 
 We change its first cell.
 
-  sheet = book2[0]
+  sheet = book2.sheet(1)
   sheet[1,1] = "new"
 
 Now we open a workbook with the same name again in a different path. while saving and closing the other workbook.
@@ -676,22 +656,26 @@ We open a workbook
 
 and print its first cell.
 
-  sheet = book[0]
+  sheet = book.sheet(1)
   p "1st cell: #{sheet[1,1].Value}"
 
 Then we unobtrusively modify the workbook.
 
   Book.unobtrusively('workbook.xls') do |book|
-    sheet = book[0]
+    sheet = book.sheet(1)
     sheet[1,1] = 'simple'
   end
 
 The workbook is modified, but its status is unchanged.
 
+=== More details
+
+{Readme_detail.rdoc}[file:../Readme_detail.rdoc]
+
 === Development
 
 RobustExcelOle started as a simple fork from tomiacannondale's wrap_excel adapted to Ruby 1.8.6.
-The functionality of wrap_excel is optimised and extended by new features.
+The functionality of wrap_excel is optimised and extended by a lot of new features.
 Most notable extensions include:
 * workbooks can be opened in already running Excel instances (instead of opening a new Excel whenever a book is opened)
 * a workbook management system stores all workbooks that have been open. This workbook store is being used, e.g., for reopening a workbook that has been closed before. It provides transparency identity, i.e., equal Excel workbooks correspond to equal Book objects of RobustExcelOle.
@@ -701,6 +685,7 @@ Some features in RobustExcelOle that are not compatible with wrap_excel:
   and opens a workbook by default in writable mode instead of read_only 
 * +close+ closes the workbook instead of closing all workbooks and the Excel instance.
 * +save_as+ instead of +save+.
+* position of cells and number of sheets are based on 1 instead of 0
 
 
 === Want to do more things

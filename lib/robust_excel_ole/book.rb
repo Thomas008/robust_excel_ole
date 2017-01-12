@@ -561,26 +561,21 @@ module RobustExcelOle
           raise OptionInvalid, ":if_exists: invalid option: #{options[:if_exists].inspect}"
         end
       end
-      blocking_workbook = 
-        begin
-          @excel.Workbooks.Item(File.basename(file))
-        rescue WIN32OLERuntimeError => msg
-          nil
-        end
-      if blocking_workbook then
+      other_workbook = @excel.Workbooks.Item(File.basename(file)) rescue nil
+      if other_workbook && (not(self.filename == other_workbook.Fullname.tr('\\','/'))) then
         case options[:if_obstructed]
         when :raise
-          raise WorkbookBlocked, "blocked by another workbook: #{blocking_workbook.Fullname.tr('\\','/')}"
+          raise WorkbookBlocked, "blocked by another workbook: #{other_workbook.Fullname.tr('\\','/')}"
         when :forget
           # nothing
         when :save
-          blocking_workbook.Save
+          other_workbook.Save
         when :close_if_saved
-          raise WorkbookBlocked, "blocking workbook is unsaved: #{File.basename(file).inspect}" unless blocking_workbook.Saved
+          raise WorkbookBlocked, "blocking workbook is unsaved: #{File.basename(file).inspect}" unless other_workbook.Saved
         else
           raise OptionInvalid, ":if_obstructed: invalid option: #{options[:if_obstructed].inspect}"
         end
-        blocking_workbook.Close
+        other_workbook.Close
       end
       save_as_workbook(file, options)
       self
@@ -590,6 +585,8 @@ module RobustExcelOle
 
     def save_as_workbook(file, options)   # :nodoc: #
       begin
+        #trc_temp :alive, alive?
+        #trc_temp :excel_alive?, @excel.alive?
         dirname, basename = File.split(file)
         file_format =
           case File.extname(basename)

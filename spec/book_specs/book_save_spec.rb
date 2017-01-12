@@ -23,12 +23,14 @@ describe Book do
     @simple_save_file = @dir + '/workbook_save.xls'
     @different_file = @dir + '/different_workbook.xls'
     @simple_file_other_path = @dir + '/more_data/workbook.xls'
+    @another_simple_file_other_path = @dir + '/more_data/another_workbook.xls'
     @another_simple_file = @dir + '/another_workbook.xls'
     @linked_file = @dir + '/workbook_linked.xlsm'
     @simple_file_xlsm = @dir + '/workbook.xls'
     @simple_file_xlsx = @dir + '/workbook.xlsx'
     @simple_file1 = @simple_file
     @simple_file_other_path1 = @simple_file_other_path
+    @another_simple_file_other_path1 = @another_simple_file_other_path
     @simple_save_file1 = @simple_save_file
   end
 
@@ -133,6 +135,23 @@ describe Book do
           new_book.close
         end
       end
+    end
+
+    context "with saving with the same name in another directory" do
+
+      before do
+        @book = Book.open(@simple_file1)
+      end
+
+      it "should save with the same name in another directory" do
+        File.delete @simple_file_other_path1 rescue nil
+        File.open(@simple_file_other_path1,"w") do | file |
+          file.puts "garbage"
+        end
+        File.exist?(@simple_file_other_path1).should be_true
+        @book.save_as(@simple_file_other_path1, :if_exists => :overwrite, :if_obstructed => :forget)
+      end
+
     end
 
     context "with blocked by another file" do

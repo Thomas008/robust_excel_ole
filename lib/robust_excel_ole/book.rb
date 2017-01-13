@@ -585,8 +585,6 @@ module RobustExcelOle
 
     def save_as_workbook(file, options)   # :nodoc: #
       begin
-        #trc_temp :alive, alive?
-        #trc_temp :excel_alive?, @excel.alive?
         dirname, basename = File.split(file)
         file_format =
           case File.extname(basename)

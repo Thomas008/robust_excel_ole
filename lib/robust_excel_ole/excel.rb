@@ -536,7 +536,16 @@ module RobustExcelOle
     # sets calculation mode
     def set_calculation(calculation_mode = :automatic)
       if @ole_excel.Workbooks.Count > 0
-        @ole_excel.Calculation = calculation_mode == :automatic ? XlCalculationAutomatic : XlCalculationManual
+        if calculation_mode == :automatic and @ole_excel.Calculation == XlCalculationManual
+          @ole_excel.Calculation = XlCalculationAutomatic 
+        end
+        if calculation_mode == :manual and @ole_excel.Calculation == XlCalculationAutomatic
+          @ole_excel.Calculation = XlCalculationManual
+        end
+        unless calculation_mode == :automatic or calculation_mode == :manual 
+          raise OptionInvalid, "unknown calculation mode #{calculation_mode}"
+        end  
+        #@ole_excel.Calculation = calculation_mode == :automatic ? XlCalculationAutomatic : XlCalculationManual
         @ole_excel.CalculateBeforeSave = (calculation_mode == :automatic)
       end
     end

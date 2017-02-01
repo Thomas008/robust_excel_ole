@@ -286,9 +286,11 @@ module RobustExcelOle
   private
 
     def open_or_create_workbook(file, options)   # :nodoc: #
+      trc_temp "open_or_create_workbook!!!!"
       if ((not @ole_workbook) || (options[:if_unsaved] == :alert) || options[:if_obstructed]) then
         begin
           filename = General::absolute_path(file)
+          trc_temp :filename, filename
           begin
             workbooks = @excel.Workbooks
           rescue RuntimeError => msg
@@ -307,7 +309,7 @@ module RobustExcelOle
           count = workbooks.Count
           if @excel.Version.split(".").first.to_i >= 12 && count == 0
             workbooks.Add 
-            #@excel.set_calculation(:automatic)
+            #workbooks.Item(1).Saved = true unless workbooks.Item(1).Saved
           end
           update_links_opt =
             case options[:update_links]
@@ -333,11 +335,13 @@ module RobustExcelOle
         end   
         begin
           # workaround for bug in Excel 2010: workbook.Open does not always return the workbook with given file name
-          @ole_workbook = workbooks.Item(File.basename(filename))       
+          @ole_workbook = workbooks.Item(File.basename(filename)) 
           self.visible = options[:visible].nil? ? @excel.visible : options[:visible]
           #self.visible = options[:visible] unless options[:visible].nil?
           #@ole_workbook.UpdateLinks = update_links_opt
           @ole_workbook.CheckCompatibility = options[:check_compatibility]
+          @excel.set_calculation(:manual)
+          @ole_workbook.Saved = true unless @ole_workbook.Saved
         rescue WIN32OLERuntimeError
           raise FileNotFound, "cannot find the file #{File.basename(filename).inspect}"
         end       

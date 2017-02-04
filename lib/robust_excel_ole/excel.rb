@@ -403,6 +403,7 @@ module RobustExcelOle
           trace "dead reference to an Excel"
           begin 
             @@hwnd2excel.delete(hwnd)
+            nil
           rescue
             trace "Warning: deleting dead reference failed! (hwnd: #{hwnd.inspect})"
           end

@@ -286,11 +286,9 @@ module RobustExcelOle
   private
 
     def open_or_create_workbook(file, options)   # :nodoc: #
-      trc_temp "open_or_create_workbook!!!!"
       if ((not @ole_workbook) || (options[:if_unsaved] == :alert) || options[:if_obstructed]) then
         begin
           filename = General::absolute_path(file)
-          trc_temp :filename, filename
           begin
             workbooks = @excel.Workbooks
           rescue RuntimeError => msg

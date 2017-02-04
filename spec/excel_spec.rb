@@ -1359,8 +1359,9 @@ module RobustExcelOle
     context "with hwnd and hwnd2excel" do
       
       before do
-        @excel1 = Excel.new
-        @excel2 = Excel.new(:reuse => false)
+        Excel.kill_all
+        @excel1 = Excel.new(:visible => true)
+        @excel2 = Excel.new(:reuse => false, :visible => false)
       end
 
       it "should yield the correct hwnd" do
@@ -1374,8 +1375,41 @@ module RobustExcelOle
         excel4 = Excel.hwnd2excel(@excel2.hwnd)
         @excel1.should == excel3
         @excel2.should == excel4
-        excel3.should_not == excel4 
+        excel3.should_not == excel4
       end
+
+      # does not work yet
+      it "should not say 'probably recycled'" do
+        e1_hwnd = @excel1.hwnd
+        @excel1.close_workbooks
+        weak_xl = WeakRef.new(@excel1.ole_excel)
+        @excel1.Quit
+        @excel1 = nil
+        GC.start
+        sleep 2
+        process_id = Win32API.new("user32", "GetWindowThreadProcessId", ["I","P"], "I")
+        pid_puffer = " " * 32
+        process_id.call(e1_hwnd, pid_puffer)
+        pid = pid_puffer.unpack("L")[0]
+        begin
+          Process.kill("KILL", pid) 
+        rescue 
+          trace "kill_error: #{$!}"
+        end
+        if weak_xl.weakref_alive? then
+           #if WIN32OLE.ole_reference_count(weak_xlapp) > 0
+          begin
+            #weak_xl.ole_free
+          rescue
+            trace "weakref_probl_olefree"
+          end
+        end
+        excel5 = Excel.new(:reuse => false)
+        e1_again = Excel.hwnd2excel(e1_hwnd)
+        e1_again.Hwnd.should == e1_hwnd
+        e1_again.should == nil 
+      end
+
     end
     
     describe "generate workbook" do

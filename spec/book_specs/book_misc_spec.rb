@@ -47,7 +47,7 @@ describe Book do
     end
   end
 
-  describe "with retain_savestatus" do
+  describe "with retain_saved" do
 
     before do
       @book = Book.open(@simple_file)
@@ -59,14 +59,14 @@ describe Book do
 
     it "should keep the save state 'saved' with empty assignments" do
       @book.Saved.should be_true
-      @book.retain_savestatus do
+      @book.retain_saved do
       end
       @book.Saved.should be_true
     end
 
     it "should keep the save state 'saved' with non-affecting assignments" do
       @book.Saved.should be_true
-      @book.retain_savestatus do
+      @book.retain_saved do
         sheet = @book.sheet(1)
         a = sheet[1,1]
         b = @book.visible
@@ -78,7 +78,7 @@ describe Book do
       sheet = @book.sheet(1)
       sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
       @book.Saved.should be_false
-      @book.retain_savestatus do
+      @book.retain_saved do
         sheet = @book.sheet(1)
         a = sheet[1,1]
         b = @book.visible
@@ -88,7 +88,7 @@ describe Book do
 
     it "should keep the save state 'saved'" do
       @book.Saved.should be_true
-      @book.retain_savestatus do
+      @book.retain_saved do
         sheet = @book.sheet(1)
         sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
         @book.Saved.should be_false
@@ -100,7 +100,7 @@ describe Book do
       sheet = @book.sheet(1)
       sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
       @book.Saved.should be_false
-      @book.retain_savestatus do
+      @book.retain_saved do
         @book.save
         @book.Saved.should be_true
       end

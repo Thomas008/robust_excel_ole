@@ -393,7 +393,8 @@ module RobustExcelOle
 
   public
 
-    def retain_savestatus
+    # keeps the saved-status unchanged
+    def retain_saved
       saved = self.Saved
       begin
          yield self

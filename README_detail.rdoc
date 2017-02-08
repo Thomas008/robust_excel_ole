@@ -245,12 +245,12 @@ The methods +for_reading+ and +for_modifying+ indicate unobtrusively reading or 
     sheet[1,1] = "c" 
   end
 
-=== Retaining the save status
+=== Retaining the saved-status
 
 This method ensures keeping the save status of the workbook
 
   book = Book.open('workbook.xls')
-  book.retain_savestatus do
+  book.retain_saved do
     # some reading or modifying
   end
 

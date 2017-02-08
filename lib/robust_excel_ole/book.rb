@@ -393,6 +393,15 @@ module RobustExcelOle
 
   public
 
+    def retain_savestatus
+      saved = self.Saved
+      begin
+         yield self
+      ensure
+        self.Saved = saved
+      end
+    end
+
     def self.for_reading(*args, &block)
       args = args.dup
       opts = args.last.is_a?(Hash) ? args.pop : {}

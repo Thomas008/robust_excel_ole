@@ -47,6 +47,68 @@ describe Book do
     end
   end
 
+  describe "with retain_savestatus" do
+
+    before do
+      @book = Book.open(@simple_file)
+    end
+
+    after do
+      @book.close(:if_unsaved => :forget)
+    end
+
+    it "should keep the save state 'saved' with empty assignments" do
+      @book.Saved.should be_true
+      @book.retain_savestatus do
+      end
+      @book.Saved.should be_true
+    end
+
+    it "should keep the save state 'saved' with non-affecting assignments" do
+      @book.Saved.should be_true
+      @book.retain_savestatus do
+        sheet = @book.sheet(1)
+        a = sheet[1,1]
+        b = @book.visible
+      end
+      @book.Saved.should be_true
+    end
+
+    it "should keep the save state 'unsaved'" do
+      sheet = @book.sheet(1)
+      sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
+      @book.Saved.should be_false
+      @book.retain_savestatus do
+        sheet = @book.sheet(1)
+        a = sheet[1,1]
+        b = @book.visible
+      end
+      @book.Saved.should be_false
+    end
+
+    it "should keep the save state 'saved'" do
+      @book.Saved.should be_true
+      @book.retain_savestatus do
+        sheet = @book.sheet(1)
+        sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
+        @book.Saved.should be_false
+      end
+      @book.Saved.should be_true
+    end
+
+    it "should keep the save state 'unsaved' even when the workbook was saved before" do
+      sheet = @book.sheet(1)
+      sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
+      @book.Saved.should be_false
+      @book.retain_savestatus do
+        @book.save
+        @book.Saved.should be_true
+      end
+      @book.Saved.should be_false
+    end
+  end
+
+
   describe "with visible" do
 
     it "should adapt its default value at the visible value of the Excel" do

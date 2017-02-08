@@ -245,6 +245,15 @@ The methods +for_reading+ and +for_modifying+ indicate unobtrusively reading or 
     sheet[1,1] = "c" 
   end
 
+=== Retaining the save status
+
+This method ensures keeping the save status of the workbook
+
+  book = Book.open('workbook.xls')
+  book.retain_savestatus do
+    # some reading or modifying
+  end
+
 === Checking whether the workbook is alive.
 
 This method finds out whether the Excel workbook that is referenced by the Book object responds to methods.

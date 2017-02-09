@@ -38,6 +38,26 @@ describe Book do
 
   describe "open" do
 
+    context "with test what happens with save-status when setting calculation status" do
+
+      it "should keep the save status" do
+        book1 = Book.open(@simple_file, :visible => true)
+        book1.Saved.should be_true
+        book2 = Book.open(@another_simple_file, :visible => true)
+        book1.Saved.should be_true
+        book2.Saved.should be_true
+        sheet2 = book2.sheet(1)
+        sheet2[1,1] = sheet2[1,1].value == "foo" ? "bar" : "foo"
+        book1.Saved.should be_true
+        book2.Saved.should be_false
+        book3 = Book.open(@different_file, :visible => true)
+        book1.Saved.should be_true
+        book2.Saved.should be_false
+        book3.Saved.should be_true
+      end
+
+    end
+
     context "with causing warning dead excel without window handle" do
 
       it "combined" do

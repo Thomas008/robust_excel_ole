@@ -338,8 +338,9 @@ module RobustExcelOle
           #self.visible = options[:visible] unless options[:visible].nil?
           #@ole_workbook.UpdateLinks = update_links_opt
           @ole_workbook.CheckCompatibility = options[:check_compatibility]
-          @excel.set_calculation(:manual)
-          @ole_workbook.Saved = true unless @ole_workbook.Saved
+          retain_saved do
+            @excel.set_calculation(:manual)
+          end
         rescue WIN32OLERuntimeError
           raise FileNotFound, "cannot find the file #{File.basename(filename).inspect}"
         end       

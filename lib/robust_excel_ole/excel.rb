@@ -537,10 +537,10 @@ module RobustExcelOle
     # sets calculation mode
     def set_calculation(calculation_mode = :automatic)
       if @ole_excel.Workbooks.Count > 0
-        if calculation_mode == :automatic and @ole_excel.Calculation == XlCalculationManual
+        if calculation_mode == :automatic #and @ole_excel.Calculation == XlCalculationManual
           @ole_excel.Calculation = XlCalculationAutomatic 
         end
-        if calculation_mode == :manual and @ole_excel.Calculation == XlCalculationAutomatic
+        if calculation_mode == :manual #and @ole_excel.Calculation == XlCalculationAutomatic
           @ole_excel.Calculation = XlCalculationManual
         end
         unless calculation_mode == :automatic or calculation_mode == :manual 

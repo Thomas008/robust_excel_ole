@@ -287,7 +287,6 @@ module RobustExcelOle
   private
 
     def open_or_create_workbook(file, options)   # :nodoc: #
-      trc_temp "open_or_create_workbook!!!!!!!!!"
       if ((not @ole_workbook) || (options[:if_unsaved] == :alert) || options[:if_obstructed]) then
         begin
           filename = General::absolute_path(file)
@@ -340,14 +339,10 @@ module RobustExcelOle
           #self.visible = options[:visible] unless options[:visible].nil?
           #@ole_workbook.UpdateLinks = update_links_opt
           @ole_workbook.CheckCompatibility = options[:check_compatibility]
-          trc_temp "saved: #{self.Saved}"
           #retain_saved do
-            trc_temp "saved: #{self.Saved}"
             @excel.set_calculation(options[:calculation_mode])
             self.Saved = true unless self.Saved
-            trc_temp "saved: #{self.Saved}"
           #end
-          trc_temp "saved: #{self.Saved}"
         rescue WIN32OLERuntimeError
           raise FileNotFound, "cannot find the file #{File.basename(filename).inspect}"
         end       

@@ -42,9 +42,10 @@ if the book was opened before and this Excel instance is alive. Otherwise open i
 +:force_excel+::     open the workbook in the current (+:current+, or +:active+, or +:reuse+), a new (+:new+) or given Excel instance 
 +:if_absent+::       specify behaviour if the workbook with the given file name does not exist if the workbook does not exist (default: +create+)
 +:if_unsaved+::      specify behaviour if the workbook was unsaved (default: +new_excel+)
-+:if_obstructed+::   specidy behaviour if the workbook is blocked by another book (default: +new_excel+)
++:if_obstructed+::   specify behaviour if the workbook is blocked by another book (default: +new_excel+)
 +:read_only+::       open in read-only mode (default: +false+) 
 +:check_compatibility:: check compatibility when saving
++:calculation_mode   specify calculation mode of the Excel instance (+:manual+ (default) or +:automatic+)
 +:visible+::         makes the window of the workbook visible or invisible (default: +true+)
 
 The option +:defaut_excel+  :
@@ -90,6 +91,8 @@ If a workbook is open and a new workbook with same name and a different path is 
 +:save+::           Save the old workbook, close it, open the new workbook
 +:close_if_saved+:: Close the old workbook and open the new workbook, if the old workbook is saved, otherwise raise an exception.
 +:new_excel+::      Open the new workbook in a new Excel instance.
+
+The option +:calculation_mode+ can be +:automatic+ or +:manual+ (default). It specifies the calculation mode of the Excel instance. Since it cannot be set in an Excel instance without any workbooks, it is set here in the class +Workbook+. Note that if the calculation mode of the Excel instance is changed, also all other workbooks in this Excel instance get this calculation mode.  
 
 Here are a few examples:
 

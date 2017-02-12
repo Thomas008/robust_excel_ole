@@ -1260,6 +1260,61 @@ describe Book do
       end
     end
 
+    describe "with retain_saved" do
+
+      before do
+        @book = Book.open(@simple_file)
+      end
+
+      after do
+        @book.close(:if_unsaved => :forget)
+      end
+
+      it "should keep the save state 'unsaved'" do
+        sheet = @book.sheet(1)
+        sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
+        @book.Saved.should be_false
+        @book.retain_saved do
+          sheet = @book.sheet(1)
+          a = sheet[1,1]
+          b = @book.visible
+        end
+        @book.Saved.should be_false
+      end
+
+      it "should keep the save state 'unsaved' even when the workbook was saved before" do
+        sheet = @book.sheet(1)
+        sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
+        @book.Saved.should be_false
+        @book.retain_saved do
+          @book.save
+          @book.Saved.should be_true
+        end
+        @book.Saved.should be_false
+      end
+    end
+
+    
+    context "with test what happens with save-status when setting calculation status" do
+
+      it "should keep the save status" do
+        book1 = Book.open(@simple_file, :visible => true)
+        book1.Saved.should be_true
+        book2 = Book.open(@another_simple_file, :visible => true)
+        book1.Saved.should be_true
+        book2.Saved.should be_true
+        sheet2 = book2.sheet(1)
+        sheet2[1,1] = sheet2[1,1].value == "foo" ? "bar" : "foo"
+        book1.Saved.should be_true
+        book2.Saved.should be_false
+        book3 = Book.open(@different_file, :visible => true)
+        book1.Saved.should be_true
+        book2.Saved.should be_false
+        book3.Saved.should be_true
+      end
+    end
+
+
     context 'open with block' do
       it {
         Book.open(@simple_file) do |book|

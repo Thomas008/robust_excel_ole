@@ -21,6 +21,7 @@ module RobustExcelOle
         :if_absent     => :raise,
         :read_only => false,
         :check_compatibility => false,
+        :calculation_mode => :automatic,
         :update_links => :never
       }
 
@@ -286,6 +287,7 @@ module RobustExcelOle
   private
 
     def open_or_create_workbook(file, options)   # :nodoc: #
+      trc_temp "open_or_create_workbook!!!!!!!!!"
       if ((not @ole_workbook) || (options[:if_unsaved] == :alert) || options[:if_obstructed]) then
         begin
           filename = General::absolute_path(file)
@@ -331,16 +333,21 @@ module RobustExcelOle
             raise UnexpectedError, "unknown WIN32OLERuntimeError"
           end
         end   
-        begin
+        begin          
           # workaround for bug in Excel 2010: workbook.Open does not always return the workbook with given file name
           @ole_workbook = workbooks.Item(File.basename(filename)) 
           self.visible = options[:visible].nil? ? @excel.visible : options[:visible]
           #self.visible = options[:visible] unless options[:visible].nil?
           #@ole_workbook.UpdateLinks = update_links_opt
           @ole_workbook.CheckCompatibility = options[:check_compatibility]
-          retain_saved do
-            @excel.set_calculation(:manual)
-          end
+          trc_temp "saved: #{self.Saved}"
+          #retain_saved do
+            trc_temp "saved: #{self.Saved}"
+            @excel.set_calculation(options[:calculation_mode])
+            self.Saved = true unless self.Saved
+            trc_temp "saved: #{self.Saved}"
+          #end
+          trc_temp "saved: #{self.Saved}"
         rescue WIN32OLERuntimeError
           raise FileNotFound, "cannot find the file #{File.basename(filename).inspect}"
         end       

@@ -38,6 +38,44 @@ describe Book do
 
   describe "open" do
 
+    context "with setting calculation mode" do
+      
+      it "should set calculation mode to manual" do
+        book1 = Book.open(@simple_file, :calculation_mode => :manual, :visible => true)
+        book1.excel.Calculation.should == -4135
+        book1.close
+      end
+
+      it "should set calculation mode to automatic" do
+        book1 = Book.open(@simple_file, :calculation_mode => :automatic, :visible => true)
+        book1.excel.Calculation.should == -4105
+        book1.close
+      end
+
+      it "should set calculation mode to manual per default" do
+        book1 = Book.open(@simple_file, :visible => true)
+        book1.excel.Calculation.should == -4105
+        book1.close
+      end
+
+      it "should not set calculation mode first to manual, then to automatic" do
+        book1 = Book.open(@simple_file1, :calculation_mode => :manual, :visible => true)
+        book1.excel.Calculation.should == -4135
+        book2 = Book.open(@simple_file1, :calculation_mode => :automatic, :visible => true)
+        book2.excel.Calculation.should == -4135
+        book1.excel.Calculation.should == -4135
+      end
+
+      it "should set the first book to automatic, then the two books to manual" do
+        book1 = Book.open(@simple_file, :calculation_mode => :manual, :visible => true)
+        book1.excel.Calculation.should == -4135
+        book2 = Book.open(@another_simple_file, :calculation_mode => :automatic, :visible => true)
+        book2.excel.Calculation.should == -4105
+        book1.excel.Calculation.should == -4105
+      end
+    
+    end
+
     context "with test what happens with save-status when setting calculation status" do
 
       it "should keep the save status" do

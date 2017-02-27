@@ -14,6 +14,7 @@ module RobustExcelOle
     attr_accessor :ole_excel
     attr_accessor :visible
     attr_accessor :displayalerts
+    attr_accessor :calculation
 
     alias ole_object ole_excel
 
@@ -22,16 +23,18 @@ module RobustExcelOle
     # creates a new Excel instance
     # @param [Hash] options the options
     # @option options [Variant] :displayalerts 
-    # @option options [Boolean] :visible 
+    # @option options [Boolean] :visible
+    # @option options [Boolean] :calculation 
     # @return [Excel] a new Excel instance
     def self.create(options = {})
       new(options.merge({:reuse => false}))
     end
 
-    # returns (connects to) the current (first opened) Excel instance, if such a running Excel instance exists    
+    # connects to the current (first opened) Excel instance, if such a running Excel instance exists    
     # returns a new Excel instance, otherwise
     # @option options [Variant] :displayalerts 
     # @option options [Boolean] :visible 
+    # @option options [Boolean] :calculation 
     # @return [Excel] an Excel instance
     def self.current(options = {})
       new(options.merge({:reuse => true}))
@@ -43,10 +46,12 @@ module RobustExcelOle
     # @option options [Boolean] :reuse      
     # @option options [Boolean] :visible
     # @option options [Variant] :displayalerts  
+    # @option options [Boolean] :calculation 
     # options: 
     #  :reuse          connects to an already running Excel instance (true) or
     #                  creates a new Excel instance (false)  (default: true)
     #  :visible        makes the Excel visible               (default: false)
+    #  :calculation    manual (default) or :automatic
     #  :displayalerts  enables or disables DisplayAlerts     (true, false, :if_visible (default))   
     # @return [Excel] an Excel instance
     def self.new(options = {})
@@ -68,6 +73,7 @@ module RobustExcelOle
         unless options.is_a? WIN32OLE
           options[:visible] = options[:visible].nil? ? ole_xl.Visible : options[:visible]
           options[:displayalerts] = options[:displayalerts].nil? ? :if_visible : options[:displayalerts]
+          options[:calculation] = options[:calculation].nil? ? :manual : options[:calculation]
         end
         result = super(options)
         result.instance_variable_set(:@ole_excel, ole_xl)        
@@ -77,15 +83,19 @@ module RobustExcelOle
       
       unless options.is_a? WIN32OLE
         begin
-          reused = options[:reuse] && (not stored.nil?)
-          options = { :displayalerts => :if_visible, :visible => false}.merge(options) unless reused
+          reused = options[:reuse] && stored && stored.alive?
+          unless reused
+            options = { :displayalerts => :if_visible, :visible => false, :calculation => :manual}.merge(options)
+          end
           visible_value = (reused && options[:visible].nil?) ? result.Visible : options[:visible]
           displayalerts_value = (reused && options[:displayalerts].nil?) ? 
             ((result.displayalerts == :if_visible) ? :if_visible : result.DisplayAlerts) : options[:displayalerts]
+          calculation_value = (reused && options[:calculation].nil?) ? result.calculation : options[:calculation] 
           ole_xl.Visible = visible_value
           ole_xl.DisplayAlerts = (displayalerts_value == :if_visible) ? visible_value : displayalerts_value
           result.instance_variable_set(:@visible, visible_value)
-          result.instance_variable_set(:@displayalerts, displayalerts_value)
+          result.instance_variable_set(:@displayalerts, displayalerts_value)          
+          result.instance_variable_set(:@calculation, calculation_value)
         rescue WIN32OLERuntimeError
           raise ExcelError, "cannot access Excel"
         end

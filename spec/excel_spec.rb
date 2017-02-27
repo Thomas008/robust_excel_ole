@@ -920,6 +920,26 @@ module RobustExcelOle
 
     end
 
+    context "with calculation mode" do
+
+      it "should create and reuse Excel with calculation mode" do
+        excel1 = Excel.create
+        excel1.calculation.should == :manual
+        excel2 = Excel.create(:calculation => :manual)
+        excel2.calculation.should == :manual
+        excel3 = Excel.create(:calculation => :automatic)
+        excel3.calculation.should == :automatic
+        excel4 = Excel.current
+        excel4.calculation.should == :manual
+        excel5 = Excel.current(:calculation => :automatic)
+        excel5.calculation.should == :automatic
+        excel6 = Excel.new(:reuse => false)
+        excel6.calculation.should == :manual
+        excel7 = Excel.new(:reuse => false, :calculation => :automatic)
+        excel7.calculation.should == :automatic
+      end
+    end
+
     context "with Visible and DisplayAlerts, focus" do
 
       it "should bring Excel in focus" do

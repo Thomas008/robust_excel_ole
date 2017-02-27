@@ -20,9 +20,9 @@ module RobustExcelOle
         :if_obstructed => :raise,
         :if_absent     => :raise,
         :read_only => false,
-        :check_compatibility => false,
-        :calculation_mode => :automatic,
-        :update_links => :never
+        :check_compatibility => false,       
+        :update_links => :never,
+        #:calculation_mode => :automatic,
       }
 
     class << self
@@ -203,7 +203,7 @@ module RobustExcelOle
 
 
     def ensure_excel(options)   # :nodoc: #
-      return if @excel && @excel.alive?
+      return if @excel && @excel.alive?      
       options[:excel] = options[:force_excel] ? options[:force_excel] : options[:default_excel]
       options[:excel] = :current if (options[:excel] == :reuse || options[:excel] == :active)
       @excel = self.class.excel_of(options[:excel]) unless (options[:excel] == :current || options[:excel] == :new)
@@ -339,10 +339,8 @@ module RobustExcelOle
           #self.visible = options[:visible] unless options[:visible].nil?
           #@ole_workbook.UpdateLinks = update_links_opt
           @ole_workbook.CheckCompatibility = options[:check_compatibility]
-          #retain_saved do
-            @excel.set_calculation(options[:calculation_mode])
-            self.Saved = true unless self.Saved
-          #end
+          @excel.set_calculation(@excel.calculation)
+          self.Saved = true unless self.Saved
         rescue WIN32OLERuntimeError
           raise FileNotFound, "cannot find the file #{File.basename(filename).inspect}"
         end       

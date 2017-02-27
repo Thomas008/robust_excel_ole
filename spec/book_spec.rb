@@ -1294,7 +1294,7 @@ describe Book do
       end
     end
 
-    
+=begin    
     context "with test what happens with save-status when setting calculation status" do
 
       it "should keep the save status" do
@@ -1313,7 +1313,7 @@ describe Book do
         book3.Saved.should be_true
       end
     end
-
+=end
 
     context 'open with block' do
       it {

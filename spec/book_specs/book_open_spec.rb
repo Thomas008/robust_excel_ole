@@ -38,6 +38,48 @@ describe Book do
 
   describe "open" do
 
+    context "with calculation mode" do
+
+      it "should set the default value" do
+        book1 = Book.open(@simple_file)
+        book1.excel.Calculation.should == -4135
+      end
+
+      it "should set the calculation mode to manual" do
+        excel = Excel.create(:calculation => :manual)
+        book1 = Book.open(@simple_file)
+        book1.excel.Calculation.should == -4135
+      end
+
+      it "should set the calculation mode to automatic" do
+        excel = Excel.create(:calculation => :automatic)
+        excel.calculation.should == :automatic
+        book1 = Book.open(@simple_file)
+        book1.excel.Calculation.should == -4105
+      end
+
+      it "should change the calculation mode from manual to automatic" do
+        book1 = Book.open(@simple_file)
+        book1.excel.Calculation.should == -4135
+        excel1 = Excel.current(:calculation => :automatic)        
+        book2 = Book.open(@different_file)
+        book2.excel.Calculation.should == -4105
+        book1.excel.Calculation.should == -4105
+      end
+
+      it "should change the calculation mode from automatic to manual" do
+        excel = Excel.create(:calculation => :automatic)
+        book1 = Book.open(@simple_file)
+        book1.excel.Calculation.should == -4105
+        excel2 = Excel.new(:reuse => false, :calculation_mode => :manual)
+        book2 = Book.open(@different_file, :force_excel => excel2)
+        book2.excel.Calculation.should == -4135
+        book1.excel.Calculation.should == -4105
+      end
+ 
+    end
+
+=begin
     context "with setting calculation mode" do
       
       it "should set calculation mode to manual" do
@@ -95,6 +137,7 @@ describe Book do
       end
 
     end
+=end    
 
     context "with causing warning dead excel without window handle" do
 

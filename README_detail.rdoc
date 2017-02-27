@@ -45,7 +45,6 @@ if the book was opened before and this Excel instance is alive. Otherwise open i
 +:if_obstructed+::   specify behaviour if the workbook is blocked by another book (default: +new_excel+)
 +:read_only+::       open in read-only mode (default: +false+) 
 +:check_compatibility:: check compatibility when saving
-+:calculation_mode   specify calculation mode of the Excel instance (+:manual+ (default) or +:automatic+)
 +:visible+::         makes the window of the workbook visible or invisible (default: +true+)
 
 The option +:defaut_excel+  :
@@ -91,9 +90,7 @@ If a workbook is open and a new workbook with same name and a different path is 
 +:save+::           Save the old workbook, close it, open the new workbook
 +:close_if_saved+:: Close the old workbook and open the new workbook, if the old workbook is saved, otherwise raise an exception.
 +:new_excel+::      Open the new workbook in a new Excel instance.
-
-The option +:calculation_mode+ can be +:automatic+ or +:manual+ (default). It specifies the calculation mode of the Excel instance. Since it cannot be set in an Excel instance without any workbooks, it is set here in the class +Workbook+. Note that if the calculation mode of the Excel instance is changed, also all other workbooks in this Excel instance get this calculation mode.  
-
+  
 Here are a few examples:
 
 If you want to open a workbook that was not opened before, or reopen a workbook that was open in an Excel instance that is now closed, in the current (active) Excel instance, then use
@@ -457,7 +454,9 @@ or
 
   excel2 = Excel.new(:reuse => true)  
 
-Options are +:reuse+ (+true+, +false+), +:visible+ (+true+, +false+) and +:displayalerts+ (+true+, +false+, +:if_visible+).  
+Options are +:reuse+ (+true+, +false+), +:visible+ (+true+, +false+), +:displayalerts+ (+true+, +false+, +:if_visible+) and +:calculation+.
+
+The option +:calculation+ specifies the calculation mode of the Excel instance (+:manual+ (default) or +:automatic+). All workbooks opened in this Excel instance get this calculation mode.
 
 You can also promote an Excel instance represented as WIN32OLE object to an Excel object.
 
@@ -556,7 +555,10 @@ Providing all Excel instances (opened via RobustExcelOle) as objects of the clas
 === Setting Calculation mode.
 
 You can set the calculation mode of an Excel instance to manual or automatic.
-to manual. 
+
+  excel.set_calculation :manual
+
+You can do it in a block:
 
   excel = Excel.create
   book = Book.open('workbook.xls')

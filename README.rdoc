@@ -482,8 +482,11 @@ Providing all Excel instances (opened via RobustExcelOle) as objects of the clas
 
 === Setting Calculation mode.
 
-You can set the calculation mode of an Excel instance to manual or automatic.
-to manual. 
+You can set the calculation mode of an Excel instance to manual or automatic. 
+
+  excel.set_calculation(:manual)
+
+You can do it in a block:
 
   excel = Excel.create
   book = Book.open('workbook.xls')

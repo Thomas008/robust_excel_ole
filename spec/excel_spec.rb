@@ -920,26 +920,6 @@ module RobustExcelOle
 
     end
 
-    context "with calculation mode" do
-
-      it "should create and reuse Excel with calculation mode" do
-        excel1 = Excel.create
-        excel1.calculation.should == :manual
-        excel2 = Excel.create(:calculation => :manual)
-        excel2.calculation.should == :manual
-        excel3 = Excel.create(:calculation => :automatic)
-        excel3.calculation.should == :automatic
-        excel4 = Excel.current
-        excel4.calculation.should == :manual
-        excel5 = Excel.current(:calculation => :automatic)
-        excel5.calculation.should == :automatic
-        excel6 = Excel.new(:reuse => false)
-        excel6.calculation.should == :manual
-        excel7 = Excel.new(:reuse => false, :calculation => :automatic)
-        excel7.calculation.should == :automatic
-      end
-    end
-
     context "with Visible and DisplayAlerts, focus" do
 
       it "should bring Excel in focus" do
@@ -1299,11 +1279,25 @@ module RobustExcelOle
 
     context "with calculation" do
 
-      before do
-        @excel1 = Excel.new
+      it "should create and reuse Excel with calculation mode" do
+        excel1 = Excel.create
+        excel1.calculation.should == :manual
+        excel2 = Excel.create(:calculation => :manual)
+        excel2.calculation.should == :manual
+        excel3 = Excel.create(:calculation => :automatic)
+        excel3.calculation.should == :automatic
+        excel4 = Excel.current
+        excel4.calculation.should == :manual
+        excel5 = Excel.current(:calculation => :automatic)
+        excel5.calculation.should == :automatic
+        excel6 = Excel.new(:reuse => false)
+        excel6.calculation.should == :manual
+        excel7 = Excel.new(:reuse => false, :calculation => :automatic)
+        excel7.calculation.should == :automatic
       end
 
-      it "should not set calculation mode when no workbook is opened" do
+      it "should do with_calculation mode without workbooks" do
+        @excel1 = Excel.new
         old_calculation_mode = @excel1.Calculation
         @excel1.with_calculation(:automatic) do
           @excel1.Calculation.should == old_calculation_mode
@@ -1311,48 +1305,96 @@ module RobustExcelOle
         @excel1.with_calculation(:manual) do
           @excel1.Calculation.should == old_calculation_mode
         end
+      end
+
+      it "should do set_calculation without workbooks" do
+        @excel1 = Excel.new
+        old_calculation_mode = @excel1.Calculation
         @excel1.set_calculation(:automatic)
-        @excel1.Calculation.should == old_calculation_mode
+        @excel1.calculation.should == :automatic
+        @excel1.Calculation.should == old_calculation_mode 
         @excel1.set_calculation(:manual)
+        @excel1.calculation.should == :manual
         @excel1.Calculation.should == old_calculation_mode
       end
 
-      it "should set calculation mode to manual and reset to the previous value" do
+      it "should do with_calculation with workbook" do
+        @excel1 = Excel.new
         b = Book.open(@simple_file)
-        calculation_mode_old = @excel1.Calculation
-        calculation_before_save_old = @excel1.CalculateBeforeSave
+        old_calculation_mode = @excel1.Calculation
+        old_calculation_before_save = @excel1.CalculateBeforeSave
         @excel1.with_calculation(:manual) do
           @excel1.Calculation.should == -4135
           @excel1.CalculateBeforeSave.should be_false
         end
-        @excel1.Calculation.should == calculation_mode_old
-        @excel1.CalculateBeforeSave.should == calculation_before_save_old
-      end
-
-      it "should set calculation mode to manual" do
-        b = Book.open(@simple_file)
-        calculation_mode_old = @excel1.Calculation
-        calculation_before_save_old = @excel1.CalculateBeforeSave
-        @excel1.set_calculation(:manual)
-        @excel1.Calculation.should == -4135
-        @excel1.CalculateBeforeSave.should be_false
-      end
-
-      it "should set calculation mode automatic" do
-        b = Book.open(@simple_file)
+        @excel1.Calculation.should == old_calculation_mode
+        @excel1.CalculateBeforeSave.should == old_calculation_before_save
         @excel1.with_calculation(:automatic) do
           @excel1.Calculation.should == -4105
           @excel1.CalculateBeforeSave.should be_true
         end
+        @excel1.Calculation.should == old_calculation_mode
+        @excel1.CalculateBeforeSave.should == old_calculation_before_save
       end
 
-      it "should set calculation mode to automatic as default" do
+      it "should do set_calculation to manual with workbook" do
+        @excel1 = Excel.new
         b = Book.open(@simple_file)
-        @excel1.with_calculation do
-          @excel1.Calculation.should == -4105
-          @excel1.CalculateBeforeSave.should be_true
-        end
+        @excel1.set_calculation(:manual)
+        @excel1.calculation.should == :manual
+        @excel1.Calculation.should == -4135
       end
+
+      it "should do set_calculation to automatic with workbook" do
+        @excel1 = Excel.new
+        b = Book.open(@simple_file)
+        @excel1.set_calculation(:automatic)
+        @excel1.calculation.should == :automatic
+        @excel1.Calculation.should == -4105
+      end
+
+      it "should raise error if calculation mode is invalid" do
+        @excel1 = Excel.new
+        expect{
+          @excel1.set_calculation(:invalid)
+        }.to raise_error(OptionInvalid, "invalid calculation mode: :invalid")
+      end
+
+      it "should do Calculation without workbooks" do
+        @excel1 = Excel.new
+        old_calculation_mode = @excel1.Calculation
+        @excel1.Calculation = :automatic
+        @excel1.calculation.should == :automatic
+        @excel1.Calculation.should == old_calculation_mode 
+        @excel1.Calculation = :manual
+        @excel1.calculation.should == :manual
+        @excel1.Calculation.should == old_calculation_mode
+      end
+
+      it "should do Calculation to manual with workbook" do
+        @excel1 = Excel.new
+        b = Book.open(@simple_file)
+        @excel1.Calculation = :manual
+        @excel1.calculation.should == :manual
+        @excel1.Calculation.should == -4135
+      end
+
+      it "should do Calculation to automatic with workbook" do
+        @excel1 = Excel.new
+        b = Book.open(@simple_file)
+        @excel1.Calculation = :automatic
+        @excel1.calculation.should == :automatic
+        @excel1.Calculation.should == -4105
+      end
+
+      it "should raise error if Calculation mode is invalid" do
+        @excel1 = Excel.new
+        expect{
+          @excel1.Calculation = :invalid
+        }.to raise_error(OptionInvalid, "invalid calculation mode: :invalid")
+      end
+
+
 
     end
 

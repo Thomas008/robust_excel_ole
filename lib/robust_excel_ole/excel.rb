@@ -546,19 +546,22 @@ module RobustExcelOle
 
     # sets calculation mode
     def set_calculation(calculation_mode = :automatic)
-      if @ole_excel.Workbooks.Count > 0
-        if calculation_mode == :automatic #and @ole_excel.Calculation == XlCalculationManual
-          @ole_excel.Calculation = XlCalculationAutomatic 
-        end
-        if calculation_mode == :manual #and @ole_excel.Calculation == XlCalculationAutomatic
-          @ole_excel.Calculation = XlCalculationManual
-        end
-        unless calculation_mode == :automatic or calculation_mode == :manual 
-          raise OptionInvalid, "unknown calculation mode #{calculation_mode}"
-        end  
-        #@ole_excel.Calculation = calculation_mode == :automatic ? XlCalculationAutomatic : XlCalculationManual
-        @ole_excel.CalculateBeforeSave = (calculation_mode == :automatic)
-      end
+      case calculation_mode
+      when :manual
+        @calculation = :manual
+        @ole_excel.Calculation = XlCalculationManual if @ole_excel.Workbooks.Count > 0
+      when :automatic
+        @calculation = :automatic
+        @ole_excel.Calculation = XlCalculationAutomatic if @ole_excel.Workbooks.Count > 0
+      else
+        raise OptionInvalid, "invalid calculation mode: #{calculation_mode.inspect}"
+      end  
+      #@ole_excel.CalculateBeforeSave = (calculation_mode == :automatic)
+    end
+
+    # VBA method overwritten
+    def Calculation= calculation_mode
+      set_calculation(calculation_mode)
     end
 
     # returns the value of a range

@@ -454,9 +454,9 @@ or
 
   excel2 = Excel.new(:reuse => true)  
 
-Options are +:reuse+ (+true+, +false+), +:visible+ (+true+, +false+), +:displayalerts+ (+true+, +false+, +:if_visible+) and +:calculation+.
+Options are +:reuse+ (+true+, +false+), +:visible+ (+true+, +false+), +:displayalerts+ (+true+, +false+, +:if_visible+) and +:calculation+ (+:manual+, +:automatic+).
 
-The option +:calculation+ specifies the calculation mode of the Excel instance (+:manual+ (default) or +:automatic+). All workbooks opened in this Excel instance get this calculation mode.
+The option +:calculation+ specifies the calculation mode of the Excel instance. All workbooks opened in this Excel instance get this calculation mode.
 
 You can also promote an Excel instance represented as WIN32OLE object to an Excel object.
 

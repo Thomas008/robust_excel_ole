@@ -329,7 +329,7 @@ module RobustExcelOle
           if msg.message =~ /800A03EC/
             raise ExcelError, "user canceled or runtime error"
           else 
-            raise UnexpectedError, "unknown WIN32OLERuntimeError"
+            raise UnexpectedError, "unexpected WIN32OLERuntimeError: #{msg.message}"
           end
         end   
         begin          
@@ -339,10 +339,12 @@ module RobustExcelOle
           #self.visible = options[:visible] unless options[:visible].nil?
           #@ole_workbook.UpdateLinks = update_links_opt
           @ole_workbook.CheckCompatibility = options[:check_compatibility]
-          @excel.set_calculation(@excel.calculation)
+          if @ole_workbook.Windows(@ole_workbook.Name).Visible
+            @excel.set_calculation(@excel.calculation) 
+          end
           self.Saved = true unless self.Saved
-        rescue WIN32OLERuntimeError
-          raise FileNotFound, "cannot find the file #{File.basename(filename).inspect}"
+        rescue WIN32OLERuntimeError => msg
+          raise UnexpectedError, "unexpected WIN32OLERuntimeError: #{msg.message}"
         end       
       end
     end
@@ -750,7 +752,7 @@ module RobustExcelOle
           raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{File.basename(self.stored_filename).inspect}"
         end
       end
-      if value == RobustExcelOle::XlErrName  # -2146826259
+      if value == -2146826259 #RobustExcelOle::XlErrName  
         return default_val if default_val
         raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{File.basename(self.stored_filename).inspect}"
       end 
@@ -807,10 +809,8 @@ module RobustExcelOle
     def visible= visible_value
       saved = @ole_workbook.Saved
       @excel.visible = true if visible_value
-      if @excel.Visible
-        if @ole_workbook.Windows.Count > 0
-          @ole_workbook.Windows(@ole_workbook.Name).Visible = visible_value
-        end
+      if @ole_workbook.Windows.Count > 0
+        @ole_workbook.Windows(@ole_workbook.Name).Visible = visible_value
       end
       @ole_workbook.Saved = saved
     end

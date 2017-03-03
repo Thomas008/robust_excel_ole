@@ -153,7 +153,7 @@ module RobustExcelOle
           raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{self.Name}"
         end
       end
-      if value == RobustExcelOle::XlErrName  # -2146826259
+      if value == -2146826259 # RobustExcelOle::XlErrName 
         return opts[:default] if opts[:default]
         raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{self.Name}"
       end 

@@ -551,26 +551,17 @@ module RobustExcelOle
 
     # sets calculation mode
     def set_calculation(calculation_mode = :manual)
-      puts "set_calculation:"
       calc_mode_changable = @ole_excel.Workbooks.Count > 0 &&  @ole_excel.Calculation.is_a?(Fixnum)
-      puts "calc_mode_changable: #{calc_mode_changable}"
-      puts "calculation_mode: #{calculation_mode}"
-      puts "@calculation: #{@calculation}"
       case calculation_mode
       when :manual
-        puts ":manual"
         @calculation = :manual
         @ole_excel.Calculation = XlCalculationManual if calc_mode_changable
       when :automatic
-        puts ":automatic"
         @calculation = :automatic
         @ole_excel.Calculation = XlCalculationAutomatic if calc_mode_changable
       else
         raise OptionInvalid, "invalid calculation mode: #{calculation_mode.inspect}"
       end
-      puts "@calculation: #{@calculation}"
-      puts "@ole_excel.Calculation: #{@ole_excel.Calculation}"
-      puts "set_calculation_ende"
       #@ole_excel.CalculateBeforeSave = (calculation_mode == :automatic)
     end
 

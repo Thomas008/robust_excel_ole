@@ -339,9 +339,7 @@ module RobustExcelOle
           #self.visible = options[:visible] unless options[:visible].nil?
           #@ole_workbook.UpdateLinks = update_links_opt
           @ole_workbook.CheckCompatibility = options[:check_compatibility]
-          if @ole_workbook.Windows(@ole_workbook.Name).Visible
-            @excel.set_calculation(@excel.calculation) 
-          end
+          @excel.set_calculation(@excel.calculation) 
           self.Saved = true unless self.Saved
         rescue WIN32OLERuntimeError => msg
           raise UnexpectedError, "unexpected WIN32OLERuntimeError: #{msg.message}"

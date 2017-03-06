@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
  
- - Excel#new : option :calculation_mode
+ - Excel#new : option :calc_auto
 
 ## [0.6.2] - 2016-04-11
 

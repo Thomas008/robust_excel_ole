@@ -24,7 +24,7 @@ module RobustExcelOle
     # @param [Hash] options the options
     # @option options [Variant] :displayalerts 
     # @option options [Boolean] :visible
-    # @option options [Boolean] :calc_auto 
+    # @option options [Symbol]  :calculation
     # @return [Excel] a new Excel instance
     def self.create(options = {})
       new(options.merge({:reuse => false}))
@@ -34,7 +34,7 @@ module RobustExcelOle
     # returns a new Excel instance, otherwise
     # @option options [Variant] :displayalerts 
     # @option options [Boolean] :visible 
-    # @option options [Boolean] :calc_auto
+    # @option options [Symbol] :calculation
     # @return [Excel] an Excel instance
     def self.current(options = {})
       new(options.merge({:reuse => true}))
@@ -46,12 +46,13 @@ module RobustExcelOle
     # @option options [Boolean] :reuse      
     # @option options [Boolean] :visible
     # @option options [Variant] :displayalerts  
-    # @option options [Boolean] :calc_auto 
+    # @option options [Symbol] :calcultation
     # options: 
     #  :reuse          connects to an already running Excel instance (true) or
     #                  creates a new Excel instance (false)  (default: true)
     #  :visible        makes the Excel visible               (default: false)
-    #  :calc_auto      calculation is manual (false (default)) or automatic (true)
+    #  :calculation    calculation mode is being forced to be manual or automatic, or
+    #                  is not being forced (default: nil)
     #  :displayalerts  enables or disables DisplayAlerts     (true, false, :if_visible (default))   
     # @return [Excel] an Excel instance
     def self.new(options = {})
@@ -73,7 +74,6 @@ module RobustExcelOle
         unless options.is_a? WIN32OLE
           options[:visible] = options[:visible].nil? ? ole_xl.Visible : options[:visible]
           options[:displayalerts] = options[:displayalerts].nil? ? :if_visible : options[:displayalerts]
-          options[:calc_auto] = options[:calc_auto].nil? ? false : options[:calc_auto]
         end
         result = super(options)
         result.instance_variable_set(:@ole_excel, ole_xl)        
@@ -85,13 +85,12 @@ module RobustExcelOle
         begin
           reused = options[:reuse] && stored && stored.alive?
           unless reused
-            options = { :displayalerts => :if_visible, :visible => false, :calc_auto => false}.merge(options)
+            options = { :displayalerts => :if_visible, :visible => false}.merge(options)
           end
-          calculation_value = options[:calc_auto] ? :automatic : :manual
           visible_value = (reused && options[:visible].nil?) ? result.Visible : options[:visible]
           displayalerts_value = (reused && options[:displayalerts].nil?) ? 
             ((result.displayalerts == :if_visible) ? :if_visible : result.DisplayAlerts) : options[:displayalerts]
-          calculation_value = (reused && options[:calc_auto].nil?) ? result.calculation : calculation_value 
+          calculation_value = (reused && options[:calculation].nil?) ? result.calculation : options[:calculation]
           ole_xl.Visible = visible_value
           ole_xl.DisplayAlerts = (displayalerts_value == :if_visible) ? visible_value : displayalerts_value
           result.instance_variable_set(:@visible, visible_value)
@@ -113,9 +112,9 @@ module RobustExcelOle
     # @option opts [Boolean] :reopen_workbooks
     # @option opts [Boolean] :displayalerts
     # @option opts [Boolean] :visible
-    # @option opts [Boolean] :calc_auto
+    # @option opts [Boolean] :calculation
     # options: reopen_workbooks (default: false): reopen the workbooks in the Excel instances
-    # :visible (default: false), :displayalerts (default: :if_visible), :calc_auto (default: false)
+    # :visible (default: false), :displayalerts (default: :if_visible), :calculation (default: false)
     # @return [Excel] an Excel instance
     def recreate(opts = {})      
       unless self.alive?
@@ -126,7 +125,7 @@ module RobustExcelOle
         @ole_excel = WIN32OLE.new('Excel.Application')
         self.visible = opts[:visible]
         self.displayalerts = opts[:displayalerts]        
-        self.calc_auto = opts[:calc_auto]
+        self.calculation = opts[:calculation]
         if opts[:reopen_workbooks]
           books = book_class.books
           books.each do |book|
@@ -532,37 +531,37 @@ module RobustExcelOle
     end
 
     # sets calculation mode in a block
-    def with_calculation(calculation_mode = :manual)
-      if @ole_excel.Workbooks.Count > 0
-        unless @ole_excel.Calculation.is_a?(Bignum)
-          old_calculation_mode = @ole_excel.Calculation
-          old_calculation_before_save_mode = @ole_excel.CalculateBeforeSave
-          @ole_excel.Calculation = calculation_mode == :automatic ? XlCalculationAutomatic : XlCalculationManual
-          @ole_excel.CalculateBeforeSave = (calculation_mode == :automatic)
-          begin
-            yield self
-          ensure
-            @ole_excel.Calculation = old_calculation_mode if alive?
-            @ole_excel.CalculateBeforeSave = old_calculation_before_save_mode if alive?
-          end
-        end
+    def with_calculation(calculation_mode)
+      return unless calculation_mode
+      old_calculation_mode = @ole_excel.Calculation
+      begin
+        set_calculation(calculation_mode)
+        yield self
+      ensure
+        @ole_excel.Calculation = old_calculation_mode if @ole_excel.Calculation.is_a?(Fixnum)
       end
     end
 
     # sets calculation mode
-    def set_calculation(calculation_mode = :manual)
+    def set_calculation(calculation_mode)
+      return unless calculation_mode
       calc_mode_changable = @ole_excel.Workbooks.Count > 0 &&  @ole_excel.Calculation.is_a?(Fixnum)
       case calculation_mode
       when :manual
         @calculation = :manual
-        @ole_excel.Calculation = XlCalculationManual if calc_mode_changable
+        if calc_mode_changable
+          @ole_excel.CalculateBeforeSave = false
+          @ole_excel.Calculation = XlCalculationManual 
+        end
       when :automatic
         @calculation = :automatic
-        @ole_excel.Calculation = XlCalculationAutomatic if calc_mode_changable
+        if calc_mode_changable
+          @ole_excel.CalculateBeforeSave = false
+          @ole_excel.Calculation = XlCalculationAutomatic 
+        end
       else
         raise OptionInvalid, "invalid calculation mode: #{calculation_mode.inspect}"
-      end
-      #@ole_excel.CalculateBeforeSave = (calculation_mode == :automatic)
+      end      
     end
 
 =begin

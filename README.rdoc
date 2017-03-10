@@ -384,7 +384,7 @@ or
 
   excel2 = Excel.new(:reuse => true)  
 
-Options are +:reuse+ (+true+, +false+), +:visible+ (+true+, +false+) and +:displayalerts+ (+true+, +false+, +:if_visible+).  
+Options are +:reuse+ (+true+, +false+), +:visible+ (+true+, +false+), +:displayalerts+ (+true+, +false+, +:if_visible+), and +:calculation+.
 
 You can also promote an Excel instance represented as WIN32OLE object to an Excel object.
 

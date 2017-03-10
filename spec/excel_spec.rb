@@ -1280,61 +1280,66 @@ module RobustExcelOle
     context "with calculation" do
 
       it "should create and reuse Excel with calculation mode" do
-        excel1 = Excel.create
+        excel1 = Excel.create(:calculation => :manual)
         excel1.calculation.should == :manual
-        excel2 = Excel.create(:calc_auto => false)
-        excel2.calculation.should == :manual
-        excel3 = Excel.create(:calc_auto => true)
-        excel3.calculation.should == :automatic
-        excel4 = Excel.current
+        excel2 = Excel.create(:calculation => :automatic)
+        excel2.calculation.should == :automatic
+        excel3 = Excel.current
+        excel3.calculation.should == :manual
+        excel4 = Excel.current(:calculation => :automatic)
         excel4.calculation.should == :automatic
-        excel5 = Excel.current(:calc_auto => false)
-        excel5.calculation.should == :manual
-        excel6 = Excel.new(:reuse => false)
+        excel5 = Excel.new(:reuse => false)
+        excel5.calculation.should == nil
+        excel6 = Excel.new(:reuse => false, :calculation => :manual)
         excel6.calculation.should == :manual
-        excel7 = Excel.new(:reuse => false, :calc_auto => true)
-        excel7.calculation.should == :automatic
       end
 
       it "should do with_calculation mode without workbooks" do
         @excel1 = Excel.new
         old_calculation_mode = @excel1.Calculation
+        old_calculatebeforesave = @excel1.CalculateBeforeSave
         @excel1.with_calculation(:automatic) do
           @excel1.Calculation.should == old_calculation_mode
+          @excel1.CalculateBeforeSave.should == old_calculatebeforesave
         end
         @excel1.with_calculation(:manual) do
           @excel1.Calculation.should == old_calculation_mode
+          @excel1.CalculateBeforeSave.should == old_calculatebeforesave
         end
       end
 
       it "should do set_calculation without workbooks" do
         @excel1 = Excel.new
         old_calculation_mode = @excel1.Calculation
+        old_calculatebeforesave = @excel1.CalculateBeforeSave
         @excel1.set_calculation(:automatic)
         @excel1.calculation.should == :automatic
         @excel1.Calculation.should == old_calculation_mode 
+        @excel1.CalculateBeforeSave.should == old_calculatebeforesave
         @excel1.set_calculation(:manual)
         @excel1.calculation.should == :manual
         @excel1.Calculation.should == old_calculation_mode
+        @excel1.CalculateBeforeSave.should == old_calculatebeforesave
       end
 
       it "should do with_calculation with workbook" do
         @excel1 = Excel.new
         b = Book.open(@simple_file, :visible => true)
         old_calculation_mode = @excel1.Calculation
-        old_calculation_before_save = @excel1.CalculateBeforeSave
         @excel1.with_calculation(:manual) do
+          @excel1.calculation.should == :manual
           @excel1.Calculation.should == -4135
           @excel1.CalculateBeforeSave.should be_false
         end
         @excel1.Calculation.should == old_calculation_mode
-        @excel1.CalculateBeforeSave.should == old_calculation_before_save
+        @excel1.CalculateBeforeSave.should be_false
         @excel1.with_calculation(:automatic) do
+          @excel1.calculation.should == :automatic
           @excel1.Calculation.should == -4105
-          @excel1.CalculateBeforeSave.should be_true
+          @excel1.CalculateBeforeSave.should be_false
         end
         @excel1.Calculation.should == old_calculation_mode
-        @excel1.CalculateBeforeSave.should == old_calculation_before_save
+        @excel1.CalculateBeforeSave.should be_false
       end
 
       it "should do set_calculation to manual with workbook" do
@@ -1343,6 +1348,7 @@ module RobustExcelOle
         @excel1.set_calculation(:manual)
         @excel1.calculation.should == :manual
         @excel1.Calculation.should == -4135
+        @excel1.CalculateBeforeSave.should be_false
       end
 
       it "should do set_calculation to automatic with workbook" do
@@ -1351,6 +1357,7 @@ module RobustExcelOle
         @excel1.set_calculation(:automatic)
         @excel1.calculation.should == :automatic
         @excel1.Calculation.should == -4105
+        @excel1.CalculateBeforeSave.should be_false
       end
 
       it "should raise error if calculation mode is invalid" do

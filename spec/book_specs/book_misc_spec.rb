@@ -715,7 +715,7 @@ describe Book do
 
       it "should make the invisible workbook visible and invisible" do
         @book1.excel.Visible.should be_false
-        @book1.Windows(@book1.Name).Visible.should be_true
+        @book1.Windows(@book1.Name).Visible.should be_false
         @book1.visible.should be_false
         @book1.visible = true
         @book1.Saved.should be_true
@@ -741,7 +741,7 @@ describe Book do
         @book2.visible = false
         @book2.Saved.should be_true
         @book2.excel.Visible.should be_false
-        @book2.Windows(@book2.Name).Visible.should be_true
+        @book2.Windows(@book2.Name).Visible.should be_false
         @book2.visible.should be_false
       end
 

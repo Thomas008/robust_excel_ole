@@ -340,7 +340,7 @@ module RobustExcelOle
           #@ole_workbook.UpdateLinks = update_links_opt
           @ole_workbook.CheckCompatibility = options[:check_compatibility]
           @excel.set_calculation(@excel.calculation) 
-          self.Saved = true unless self.Saved
+          self.Saved = true # unless self.Saved
         rescue WIN32OLERuntimeError => msg
           raise UnexpectedError, "unexpected WIN32OLERuntimeError: #{msg.message}"
         end       
@@ -805,12 +805,12 @@ module RobustExcelOle
     # makes the window of the workbook visible or invisible
     # @param [Boolean] visible_value value that determines whether the workbook shall be visible
     def visible= visible_value
-      saved = @ole_workbook.Saved
-      @excel.visible = true if visible_value
-      if @ole_workbook.Windows.Count > 0
-        @ole_workbook.Windows(@ole_workbook.Name).Visible = visible_value
+      retain_saved do
+        @excel.visible = true if visible_value
+        if @ole_workbook.Windows.Count > 0
+          @ole_workbook.Windows(@ole_workbook.Name).Visible = visible_value 
+        end
       end
-      @ole_workbook.Saved = saved
     end
 
     # returns true, if the workbook reacts to methods, false otherwise

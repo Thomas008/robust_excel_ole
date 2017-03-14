@@ -43,24 +43,22 @@ describe Book do
       it "should not set the default value" do
         book1 = Book.open(@simple_file)
         book1.excel.calculation.should == nil
-        book1.excel.Calculation.should_not == -4135
-        book1.excel.Calculation.should_not == -4105
       end
 
       it "should set the default value" do
-        book1 = Book.open(@simple_file, :visible => true)
+        book1 = Book.open(@simple_file)
         book1.excel.calculation.should == nil
       end
 
       it "should set the calculation mode to automatic" do
-        excel = Excel.create(:calculation => :automatic, :visible => true)
+        excel = Excel.create(:calculation => :automatic)
         excel.calculation.should == :automatic
         book1 = Book.open(@simple_file)
         book1.excel.Calculation.should == -4105
       end
 
       it "should set the calculation mode to manual" do
-        excel = Excel.create(:calculation => :manual, :visible => true)
+        excel = Excel.create(:calculation => :manual)
         excel.calculation.should == :manual
         book1 = Book.open(@simple_file)
         excel.calculation.should == :manual
@@ -68,14 +66,14 @@ describe Book do
       end
 
       it "should set the calculation mode to automatic" do
-        excel = Excel.create(:calculation => :automatic, :visible => true)
+        excel = Excel.create(:calculation => :automatic)
         excel.calculation.should == :automatic
         book1 = Book.open(@simple_file)
         book1.excel.Calculation.should == -4105
       end
 
       it "should change the calculation mode from manual to automatic" do
-        book1 = Book.open(@simple_file, :visible => true)
+        book1 = Book.open(@simple_file)
         excel1 = Excel.current(:calculation => :automatic)        
         book2 = Book.open(@different_file)
         book2.excel.Calculation.should == -4105
@@ -83,77 +81,18 @@ describe Book do
       end
 
       it "should change the calculation mode from automatic to manual" do
-        excel = Excel.create(:calculation => :automatic, :visible => true)
+        excel = Excel.create(:calculation => :automatic)
         book1 = Book.open(@simple_file)
         book1.excel.Calculation.should == -4105
         excel2 = Excel.new(:reuse => false, :calculation => :manual)
-        book2 = Book.open(@different_file, :force_excel => excel2, :visible => true)
+        book2 = Book.open(@different_file, :force_excel => excel2)
         book2.excel.Calculation.should == -4135
         book1.excel.Calculation.should == -4105
       end
  
     end
 
-=begin
-    context "with setting calculation mode" do
-      
-      it "should set calculation mode to manual" do
-        book1 = Book.open(@simple_file, :calculation_mode => :manual, :visible => true)
-        book1.excel.Calculation.should == -4135
-        book1.close
-      end
-
-      it "should set calculation mode to automatic" do
-        book1 = Book.open(@simple_file, :calculation_mode => :automatic, :visible => true)
-        book1.excel.Calculation.should == -4105
-        book1.close
-      end
-
-      it "should set calculation mode to manual per default" do
-        book1 = Book.open(@simple_file, :visible => true)
-        book1.excel.Calculation.should == -4105
-        book1.close
-      end
-
-      it "should not set calculation mode first to manual, then to automatic" do
-        book1 = Book.open(@simple_file1, :calculation_mode => :manual, :visible => true)
-        book1.excel.Calculation.should == -4135
-        book2 = Book.open(@simple_file1, :calculation_mode => :automatic, :visible => true)
-        book2.excel.Calculation.should == -4135
-        book1.excel.Calculation.should == -4135
-      end
-
-      it "should set the first book to automatic, then the two books to manual" do
-        book1 = Book.open(@simple_file, :calculation_mode => :manual, :visible => true)
-        book1.excel.Calculation.should == -4135
-        book2 = Book.open(@another_simple_file, :calculation_mode => :automatic, :visible => true)
-        book2.excel.Calculation.should == -4105
-        book1.excel.Calculation.should == -4105
-      end
-    
-    end
-
-    context "with test what happens with save-status when setting calculation status" do
-
-      it "should keep the save status" do
-        book1 = Book.open(@simple_file, :visible => true)
-        book1.Saved.should be_true
-        book2 = Book.open(@another_simple_file, :visible => true)
-        book1.Saved.should be_true
-        book2.Saved.should be_true
-        sheet2 = book2.sheet(1)
-        sheet2[1,1] = sheet2[1,1].value == "foo" ? "bar" : "foo"
-        book1.Saved.should be_true
-        book2.Saved.should be_false
-        book3 = Book.open(@different_file, :visible => true)
-        book1.Saved.should be_true
-        book2.Saved.should be_false
-        book3.Saved.should be_true
-      end
-
-    end
-=end    
-
+   
     context "with causing warning dead excel without window handle" do
 
       it "combined" do
@@ -911,6 +850,7 @@ describe Book do
 
       before do
         @book = Book.open(@simple_file1)
+        #@book.Windows(@book.Name).Visible = true
         @sheet = @book.sheet(1)
         @book.add_sheet(@sheet, :as => 'a_name')
       end
@@ -1040,6 +980,7 @@ describe Book do
               book_before.close
             end
             @book = Book.open(@simple_file_other_path)
+            #@book.Windows(@book.Name).Visible = true
             @sheet_count = @book.ole_workbook.Worksheets.Count
             @sheet = @book.sheet(1)
             @book.add_sheet(@sheet, :as => 'a_name')

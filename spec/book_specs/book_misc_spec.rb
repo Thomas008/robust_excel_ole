@@ -130,7 +130,7 @@ describe Book do
     it "should set :visible to false" do
       book1 = Book.open(@simple_file, :visible => false)
       book1.excel.Visible.should be_false
-      book1.Windows(book1.Name).Visible.should be_true
+      book1.Windows(book1.Name).Visible.should be_false
       book1.visible.should be_false
     end
 
@@ -149,11 +149,20 @@ describe Book do
       book1.visible.should be_true
     end
 
+    it "should preserve :visible" do
+      excel1 = Excel.create
+      book1 = Book.open(@simple_file)
+      book1.excel.Visible.should be_false
+      book1.Windows(book1.Name).Visible.should be_true
+      book1.visible.should be_false
+    end
+
+
     it "should preserve :visible if it is set to false" do
       excel1 = Excel.create
       book1 = Book.open(@simple_file, :visible => false)
       book1.excel.Visible.should be_false
-      book1.Windows(book1.Name).Visible.should be_true
+      book1.Windows(book1.Name).Visible.should be_false
       book1.visible.should be_false
     end
 
@@ -204,7 +213,7 @@ describe Book do
       book1 = Book.open(@simple_file)
       book2 = Book.open(@different_file, :default_excel => :new, :visible => false)
       book2.excel.Visible.should be_false
-      book2.Windows(book2.Name).Visible.should be_true
+      book2.Windows(book2.Name).Visible.should be_false
       book2.visible.should be_false
     end
 
@@ -622,7 +631,7 @@ describe Book do
         excel1 = Excel.new(:reuse => false, :visible => false)
         book1 = Book.open(@simple_file, :visible => false)
         excel1.Visible.should be_false
-        book1.Windows(book1.Name).Visible.should be_true
+        book1.Windows(book1.Name).Visible.should be_false
         book1.visible.should be_false
       end
 
@@ -691,7 +700,7 @@ describe Book do
         excel1 = Excel.new(:reuse => false, :visible => false)
         book1 = Book.open(@simple_file, :visible => false)
         excel1.Visible.should be_false
-        book1.Windows(book1.Name).Visible.should be_true
+        book1.Windows(book1.Name).Visible.should be_false
         book1.visible.should be_false
         excel1.visible = true
         book2 = Book.open(@different_file)
@@ -715,7 +724,7 @@ describe Book do
 
       it "should make the invisible workbook visible and invisible" do
         @book1.excel.Visible.should be_false
-        @book1.Windows(@book1.Name).Visible.should be_false
+        @book1.Windows(@book1.Name).Visible.should be_true
         @book1.visible.should be_false
         @book1.visible = true
         @book1.Saved.should be_true

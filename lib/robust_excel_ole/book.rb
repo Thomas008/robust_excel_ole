@@ -115,8 +115,8 @@ module RobustExcelOle
         if filename
           book = bookstore.fetch(filename)
           if book && book.alive?
-            #book.visible = opts[:visible] unless opts[:visible].nil?
-            book.visible = opts[:visible].nil? ? book.excel.visible : opts[:visible]
+            book.visible = opts[:visible] unless opts[:visible].nil?
+            #book.visible = opts[:visible].nil? ? book.excel.visible : opts[:visible]
             return book 
           end
         end
@@ -187,8 +187,8 @@ module RobustExcelOle
       filename = General::absolute_path(file)
       ole_workbook = WIN32OLE.connect(filename)
       workbook = Book.new(ole_workbook)
-      #workbook.visible = options[:visible] unless options[:visible].nil?
-      workbook.visible = options[:visible].nil? ? workbook.excel.visible : options[:visible]
+      workbook.visible = options[:visible] unless options[:visible].nil?
+      #workbook.visible = options[:visible].nil? ? workbook.excel.visible : options[:visible]
       update_links_opt =
             case options[:update_links]
             when :alert; RobustExcelOle::XlUpdateLinksUserSetting
@@ -335,8 +335,8 @@ module RobustExcelOle
         begin          
           # workaround for bug in Excel 2010: workbook.Open does not always return the workbook with given file name
           @ole_workbook = workbooks.Item(File.basename(filename)) 
-          self.visible = options[:visible].nil? ? @excel.visible : options[:visible]
-          #self.visible = options[:visible] unless options[:visible].nil?
+          #self.visible = options[:visible].nil? ? @excel.visible : options[:visible]
+          self.visible = options[:visible] unless options[:visible].nil?
           #@ole_workbook.UpdateLinks = update_links_opt
           @ole_workbook.CheckCompatibility = options[:check_compatibility]
           @excel.set_calculation(@excel.calculation) 
@@ -485,8 +485,8 @@ module RobustExcelOle
                                          open(file, :force_excel => :new, :read_only => options[:read_only])
             end
           end
-        #book.excel.visible = options[:visible] unless options[:visible].nil?
-        book.visible = options[:visible].nil? ? book.excel.visible : options[:visible]
+        book.excel.visible = options[:visible] unless options[:visible].nil?
+        #book.visible = options[:visible].nil? ? book.excel.visible : options[:visible]
         old_check_compatibility = book.CheckCompatibility
         book.CheckCompatibility = options[:check_compatibility]
         yield book
@@ -750,7 +750,7 @@ module RobustExcelOle
           raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{File.basename(self.stored_filename).inspect}"
         end
       end
-      if value == -2146826259 #RobustExcelOle::XlErrName  
+      if value.is_a?(Bignum)  #RobustExcelOle::XlErrName  
         return default_val if default_val
         raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{File.basename(self.stored_filename).inspect}"
       end 

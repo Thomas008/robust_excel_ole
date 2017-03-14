@@ -614,7 +614,7 @@ module RobustExcelOle
           raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect}"
         end
       end
-      if value == -2146826259
+      if value.is_a?(Bignum)
         return opts[:default] if opts[:default]
         raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect}"
       end 
@@ -659,7 +659,7 @@ module RobustExcelOle
         raise RangeNotEvaluatable, "cannot determine value of range named #{name.inspect}"
       end
       return opts[:default] if (value.nil? && opts[:default])
-      raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect}" if value == -2146826259
+      raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect}" if value.is_a?(Bignum)
       value
     end
 

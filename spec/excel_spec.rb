@@ -1370,22 +1370,17 @@ module RobustExcelOle
         }.to raise_error(OptionInvalid, "invalid calculation mode: :invalid")
       end
 
-=begin
-      it "should do Calculation without workbooks" do
+      it "should set Calculation without workbooks" do
         @excel1 = Excel.new
-        old_calculation_mode = @excel1.Calculation
-        @excel1.Calculation = :automatic
-        @excel1.calculation.should == :automatic
-        @excel1.Calculation.should == old_calculation_mode 
-        @excel1.Calculation = :manual
-        @excel1.calculation.should == :manual
-        @excel1.Calculation.should == old_calculation_mode
+        expect{
+          @excel1.Calculation = -4135
+        }.to raise_error(WIN32OLERuntimeError)
       end
 
       it "should do Calculation to manual with workbook" do
         @excel1 = Excel.new
         b = Book.open(@simple_file)
-        @excel1.Calculation = :manual
+        @excel1.Calculation = -4135
         @excel1.calculation.should == :manual
         @excel1.Calculation.should == -4135
       end
@@ -1393,19 +1388,10 @@ module RobustExcelOle
       it "should do Calculation to automatic with workbook" do
         @excel1 = Excel.new
         b = Book.open(@simple_file)
-        @excel1.Calculation = :automatic
+        @excel1.Calculation = -4105
         @excel1.calculation.should == :automatic
         @excel1.Calculation.should == -4105
       end
-
-      it "should raise error if Calculation mode is invalid" do
-        @excel1 = Excel.new
-        expect{
-          @excel1.Calculation = :invalid
-        }.to raise_error(OptionInvalid, "invalid calculation mode: :invalid")
-      end
-=end
-
 
     end
 

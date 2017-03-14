@@ -549,22 +549,21 @@ module RobustExcelOle
       case calculation_mode
       when :manual
         @calculation = :manual
-        if calc_mode_changable
-          @ole_excel.CalculateBeforeSave = false
+        if calc_mode_changable  
           @ole_excel.Calculation = XlCalculationManual 
+          @ole_excel.CalculateBeforeSave = false
         end
       when :automatic
         @calculation = :automatic
-        if calc_mode_changable
-          @ole_excel.CalculateBeforeSave = false
+        if calc_mode_changable          
           @ole_excel.Calculation = XlCalculationAutomatic 
+          @ole_excel.CalculateBeforeSave = false
         end
       else
         raise OptionInvalid, "invalid calculation mode: #{calculation_mode.inspect}"
-      end      
+      end    
     end
 
-=begin
     # VBA method overwritten
     def Calculation= calculation_vba_mode
       case calculation_vba_mode
@@ -575,7 +574,6 @@ module RobustExcelOle
       end
       @ole_excel.Calculation = calculation_vba_mode
     end
-=end
 
     # returns the value of a range
     # @param [String] name the name of a range

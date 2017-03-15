@@ -293,15 +293,66 @@ module RobustExcelOle
           begin
             workbooks = @excel.Workbooks
           rescue RuntimeError => msg
-            trace "RuntimeError: #{msg.message}" 
             if msg.message =~ /method missing: Excel not alive/
               raise ExcelDamaged, "Excel instance not alive or damaged" 
             else
               raise UnexpectedError, "unknown RuntimeError"
             end
-          rescue WeakRef::RefError => msg
-            raise WeakRef::RefError, "#{msg.message}"
           end
+          with_workaround do            
+            workbooks.Open(filename, { 'ReadOnly' => options[:read_only] ,
+                                       'UpdateLinks' => updatelinks_vba(options[:update_links]) })
+          end 
+        rescue WIN32OLERuntimeError => msg
+          if msg.message =~ /800A03EC/
+            raise ExcelError, "user canceled or runtime error"
+          else 
+            raise UnexpectedError, "unexpected WIN32OLERuntimeError: #{msg.message}"
+          end
+        end   
+        begin          
+          # workaround for bug in Excel 2010: workbook.Open does not always return the workbook with given file name
+          @ole_workbook = workbooks.Item(File.basename(filename)) 
+          self.visible = options[:visible] unless options[:visible].nil?
+          @ole_workbook.CheckCompatibility = options[:check_compatibility]
+          @excel.set_calculation(@excel.calculation) 
+          self.Saved = true # unless self.Saved
+        rescue WIN32OLERuntimeError => msg
+          raise UnexpectedError, "unexpected WIN32OLERuntimeError: #{msg.message}"
+        end       
+      end
+    end
+
+    # translating the option UpdateLinks from REO to VBA 
+    # setting UpdateLinks works only if calculation mode is automatic,
+    # parameter 'UpdateLinks' has no effect
+    def updatelinks_vba(updatelinks_reo)
+      case updatelinks_reo
+      when :alert; RobustExcelOle::XlUpdateLinksUserSetting
+      when :never; RobustExcelOle::XlUpdateLinksNever
+      when :always; RobustExcelOle::XlUpdateLinksAlways
+      else RobustExcelOle::XlUpdateLinksNever
+      end
+    end
+
+    # workaround for linked workbooks for Excel 2007: 
+    # opening and closing a dummy workbook if Excel has no workbooks.
+    # delay: with visible: 0.2 sec, without visible almost none
+    def with_workaround
+      workbooks = @excel.Workbooks
+      workaround_condition = @excel.Version.split(".").first.to_i >= 12 && workbooks.Count == 0
+      workbooks.Add if workaround_condition
+      begin
+        #@excel.with_displayalerts(update_links_opt == :alert ? true : @excel.displayalerts) do
+        yield self
+      ensure
+        workbooks.Item(1).Close if workaround_condition
+      end
+    end
+       
+
+
+=begin
           # workaround for linked workbooks for Excel 2007: 
           # opening and closing a dummy workbook if Excel has no workbooks.
           # delay: with visible: 0.2 sec, without visible almost none
@@ -346,6 +397,7 @@ module RobustExcelOle
         end       
       end
     end
+=end
 
   public
 
@@ -925,7 +977,5 @@ module RobustExcelOle
 public
 
   Workbook = Book
-
-
 
 end

@@ -2,11 +2,11 @@
 All notable changes to this project will be documented in this file.
 
 
-## [0.6.3] - 2017-01-03
+## [0.6.3] - 2017-20-03
 
 ### Added
  
- - Excel#new : option :calculation
+ - Excel#new : options :calculation, :screen_updating
 
 ## [0.6.2] - 2016-04-11
 

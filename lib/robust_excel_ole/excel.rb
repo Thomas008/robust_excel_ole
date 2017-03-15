@@ -15,6 +15,7 @@ module RobustExcelOle
     attr_accessor :visible
     attr_accessor :displayalerts
     attr_accessor :calculation
+    attr_accessor :screen_updating
 
     alias ole_object ole_excel
 
@@ -25,6 +26,7 @@ module RobustExcelOle
     # @option options [Variant] :displayalerts 
     # @option options [Boolean] :visible
     # @option options [Symbol]  :calculation
+    # @option options [Boolean] :screen_updating
     # @return [Excel] a new Excel instance
     def self.create(options = {})
       new(options.merge({:reuse => false}))
@@ -48,12 +50,13 @@ module RobustExcelOle
     # @option options [Variant] :displayalerts  
     # @option options [Symbol] :calcultation
     # options: 
-    #  :reuse          connects to an already running Excel instance (true) or
-    #                  creates a new Excel instance (false)  (default: true)
-    #  :visible        makes the Excel visible               (default: false)
-    #  :calculation    calculation mode is being forced to be manual or automatic, or
-    #                  is not being forced (default: nil)
-    #  :displayalerts  enables or disables DisplayAlerts     (true, false, :if_visible (default))   
+    #  :reuse            connects to an already running Excel instance (true) or
+    #                    creates a new Excel instance (false)  (default: true)
+    #  :visible          makes the Excel visible               (default: false)
+    #  :displayalerts    enables or disables DisplayAlerts     (true, false, :if_visible (default))   
+    #  :calculation      calculation mode is being forced to be manual or automatic, or
+    #                    is not being forced (default: nil)
+    #  :screen_updating  turns on or off screen updating (default: true)
     # @return [Excel] an Excel instance
     def self.new(options = {})
       if options.is_a? WIN32OLE
@@ -74,6 +77,7 @@ module RobustExcelOle
         unless options.is_a? WIN32OLE
           options[:visible] = options[:visible].nil? ? ole_xl.Visible : options[:visible]
           options[:displayalerts] = options[:displayalerts].nil? ? :if_visible : options[:displayalerts]
+          options[:screen_updating] = options[:screen_updating].nil? ? ole_xl.ScreenUpdating : options[:screen_updating]
         end
         result = super(options)
         result.instance_variable_set(:@ole_excel, ole_xl)        
@@ -85,17 +89,20 @@ module RobustExcelOle
         begin
           reused = options[:reuse] && stored && stored.alive?
           unless reused
-            options = { :displayalerts => :if_visible, :visible => false}.merge(options)
+            options = {:displayalerts => :if_visible, :visible => false, :screen_updating => true}.merge(options)
           end
           visible_value = (reused && options[:visible].nil?) ? result.Visible : options[:visible]
           displayalerts_value = (reused && options[:displayalerts].nil?) ? 
             ((result.displayalerts == :if_visible) ? :if_visible : result.DisplayAlerts) : options[:displayalerts]
           calculation_value = (reused && options[:calculation].nil?) ? result.calculation : options[:calculation]
+          screen_updating_value = (reused && options[:screen_updating].nil?) ? result.screen_updating : options[:screen_updating]
           ole_xl.Visible = visible_value
           ole_xl.DisplayAlerts = (displayalerts_value == :if_visible) ? visible_value : displayalerts_value
+          ole_xl.ScreenUpdating = screen_updating_value
           result.instance_variable_set(:@visible, visible_value)
           result.instance_variable_set(:@displayalerts, displayalerts_value)          
           result.instance_variable_set(:@calculation, calculation_value)
+          result.instance_variable_set(:@screen_updating, screen_updating_value)
         rescue WIN32OLERuntimeError
           raise ExcelError, "cannot access Excel"
         end
@@ -188,15 +195,15 @@ module RobustExcelOle
       weak_wkbks = @ole_excel.Workbooks
       if not unsaved_workbooks.empty? then
         case options[:if_unsaved]
-        when Proc then
+        when Proc
           options[:if_unsaved].call(self, unsaved_workbooks)
-        when :raise then
+        when :raise
           raise UnsavedWorkbooks, "Excel contains unsaved workbooks"
-        when :alert then
+        when :alert
           #nothing
-        when :forget then
+        when :forget
           unsaved_workbooks.each {|m| m.Saved = true}
-        when :save then
+        when :save
           unsaved_workbooks.each {|m| m.Save}
         else
           raise OptionInvalid, ":if_unsaved: invalid option: #{options[:if_unsaved].inspect}"

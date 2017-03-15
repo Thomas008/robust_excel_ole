@@ -454,7 +454,7 @@ or
 
   excel2 = Excel.new(:reuse => true)  
 
-Options are +:reuse+ (+true+, +false+), +:visible+ (+true+, +false+), +:displayalerts+ (+true+, +false+, +:if_visible+) and +:calculation+ (+:manual+, +:automatic+, +nil+).
+Options are +:reuse+ (+true+, +false+), +:visible+ (+true+, +false+), +:displayalerts+ (+true+, +false+, +:if_visible+), +:calculation+ (+:manual+, +:automatic+, +nil+) and +:screen_updating+ (+true+, +false+).
 
 The option +:calculation+ specifies, whether the calculation mode is being forced to be manual (:manual), automatic (+:automatic+) or is not being forced (+nil+).
 

@@ -39,7 +39,8 @@ module RobustExcelOle
       # @option opts [Boolean] :update_links   :never (default), :always, :alert
       # @option opts [Boolean] :visible        true or false (default) 
       # options: 
-      # :default_excel   if the workbook was already open in an Excel instance, then open it in that Excel instance,
+      # :default_excel   
+      # if the workbook was already open in an Excel instance, then open it in that Excel instance,
       #                  where it was opened most recently
       #                  Otherwise, i.e. if the workbook was not open before or the Excel instance is not alive
       #                   :current            -> connects to a running (the first opened) Excel instance,

@@ -75,7 +75,8 @@ module RobustExcelOle
         result = stored
       else 
         unless options.is_a? WIN32OLE
-          options[:visible] = options[:visible].nil? ? ole_xl.Visible : options[:visible]
+          options[:visible] ||= ole_xl.Visible
+          #options[:visible] = options[:visible].nil? ? ole_xl.Visible : options[:visible]
           options[:displayalerts] = options[:displayalerts].nil? ? :if_visible : options[:displayalerts]
           options[:screen_updating] = options[:screen_updating].nil? ? ole_xl.ScreenUpdating : options[:screen_updating]
         end
@@ -103,6 +104,9 @@ module RobustExcelOle
           result.instance_variable_set(:@displayalerts, displayalerts_value)          
           result.instance_variable_set(:@calculation, calculation_value)
           result.instance_variable_set(:@screen_updating, screen_updating_value)
+          #unless reused
+          #  result.screen_updating = options[:calculation] unless options[:calculation].nil?
+          #end
         rescue WIN32OLERuntimeError
           raise ExcelError, "cannot access Excel"
         end

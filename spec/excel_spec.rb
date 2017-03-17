@@ -1323,15 +1323,15 @@ module RobustExcelOle
         end
       end
 
-      it "should do set_calculation without workbooks" do
+      it "should set calculation mode without workbooks" do
         @excel1 = Excel.new
         old_calculation_mode = @excel1.Calculation
         old_calculatebeforesave = @excel1.CalculateBeforeSave
-        @excel1.set_calculation(:automatic)
+        @excel1.calculation = :automatic
         @excel1.calculation.should == :automatic
         @excel1.Calculation.should == old_calculation_mode 
         @excel1.CalculateBeforeSave.should == old_calculatebeforesave
-        @excel1.set_calculation(:manual)
+        @excel1.calculation = :manual
         @excel1.calculation.should == :manual
         @excel1.Calculation.should == old_calculation_mode
         @excel1.CalculateBeforeSave.should == old_calculatebeforesave
@@ -1358,31 +1358,24 @@ module RobustExcelOle
         @excel1.CalculateBeforeSave.should be_false
       end
 
-      it "should do set_calculation to manual with workbook" do
+      it "should set calculation mode to manual with workbook" do
         @excel1 = Excel.new
         book = Book.open(@simple_file)
         book.Windows(book.Name).Visible = true
-        @excel1.set_calculation(:manual)
+        @excel1.calculation = :manual
         @excel1.calculation.should == :manual
         @excel1.Calculation.should == -4135
         @excel1.CalculateBeforeSave.should be_false
       end
 
-      it "should do set_calculation to automatic with workbook" do
+      it "should set calculation mode to automatic with workbook" do
         @excel1 = Excel.new
         book = Book.open(@simple_file)
         book.Windows(book.Name).Visible = true
-        @excel1.set_calculation(:automatic)
+        @excel1.calculation = :automatic
         @excel1.calculation.should == :automatic
         @excel1.Calculation.should == -4105
         @excel1.CalculateBeforeSave.should be_false
-      end
-
-      it "should raise error if calculation mode is invalid" do
-        @excel1 = Excel.new
-        expect{
-          @excel1.set_calculation(:invalid)
-        }.to raise_error(OptionInvalid, "invalid calculation mode: :invalid")
       end
 
       it "should set Calculation without workbooks" do

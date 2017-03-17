@@ -316,7 +316,7 @@ module RobustExcelOle
           @ole_workbook = workbooks.Item(File.basename(filename)) 
           self.visible = options[:visible] unless options[:visible].nil?
           @ole_workbook.CheckCompatibility = options[:check_compatibility]
-          @excel.set_calculation(@excel.calculation) 
+          @excel.calculation = @excel.calculation 
           self.Saved = true # unless self.Saved
         rescue WIN32OLERuntimeError => msg
           raise UnexpectedError, "unexpected WIN32OLERuntimeError: #{msg.message}"
@@ -351,55 +351,6 @@ module RobustExcelOle
       end
     end
        
-
-
-=begin
-          # workaround for linked workbooks for Excel 2007: 
-          # opening and closing a dummy workbook if Excel has no workbooks.
-          # delay: with visible: 0.2 sec, without visible almost none
-          count = workbooks.Count
-          if @excel.Version.split(".").first.to_i >= 12 && count == 0
-            workbooks.Add 
-            #workbooks.Item(1).Saved = true unless workbooks.Item(1).Saved
-          end
-          update_links_opt =
-            case options[:update_links]
-            when :alert; RobustExcelOle::XlUpdateLinksUserSetting
-            when :never; RobustExcelOle::XlUpdateLinksNever
-            when :always; RobustExcelOle::XlUpdateLinksAlways
-            else RobustExcelOle::XlUpdateLinksNever
-          end
-          # probably bug in Excel: setting UpadateLinks seems to be dependent on calculation mode:
-          # update happens, if calcultion mode is automatic, does not, if calculation mode is manual
-          # parameter 'UpdateLinks' has no effect
-          @excel.with_displayalerts(update_links_opt == :alert ? true : @excel.displayalerts) do
-            workbooks.Open(filename, { 'ReadOnly' => options[:read_only] , 'UpdateLinks' => update_links_opt } )
-          end
-          workbooks.Item(1).Close if @excel.Version.split(".").first.to_i >= 12 && count == 0                
-        rescue WIN32OLERuntimeError => msg
-          # trace "WIN32OLERuntimeError: #{msg.message}" 
-          if msg.message =~ /800A03EC/
-            raise ExcelError, "user canceled or runtime error"
-          else 
-            raise UnexpectedError, "unexpected WIN32OLERuntimeError: #{msg.message}"
-          end
-        end   
-        begin          
-          # workaround for bug in Excel 2010: workbook.Open does not always return the workbook with given file name
-          @ole_workbook = workbooks.Item(File.basename(filename)) 
-          #self.visible = options[:visible].nil? ? @excel.visible : options[:visible]
-          self.visible = options[:visible] unless options[:visible].nil?
-          #@ole_workbook.UpdateLinks = update_links_opt
-          @ole_workbook.CheckCompatibility = options[:check_compatibility]
-          @excel.set_calculation(@excel.calculation) 
-          self.Saved = true # unless self.Saved
-        rescue WIN32OLERuntimeError => msg
-          raise UnexpectedError, "unexpected WIN32OLERuntimeError: #{msg.message}"
-        end       
-      end
-    end
-=end
-
   public
 
     # closes the workbook, if it is alive

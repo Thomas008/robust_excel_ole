@@ -12,10 +12,12 @@ module RobustExcelOle
   class Excel < REOCommon    
 
     attr_accessor :ole_excel
-    attr_accessor :visible
-    attr_accessor :displayalerts
-    attr_accessor :calculation
-    attr_accessor :screen_updating
+    
+    # setter methods are implemented below
+    attr_reader :visible
+    attr_reader :displayalerts
+    attr_reader :calculation
+    attr_reader :screen_updating
 
     alias ole_object ole_excel
 
@@ -48,14 +50,14 @@ module RobustExcelOle
     # @option options [Boolean] :reuse      
     # @option options [Boolean] :visible
     # @option options [Variant] :displayalerts  
-    # @option options [Symbol] :calcultation
+    # @option options [Symbol]  :calculation
     # options: 
     #  :reuse            connects to an already running Excel instance (true) or
     #                    creates a new Excel instance (false)  (default: true)
     #  :visible          makes the Excel visible               (default: false)
     #  :displayalerts    enables or disables DisplayAlerts     (true, false, :if_visible (default))   
-    #  :calculation      calculation mode is being forced to be manual or automatic, or
-    #                    is not being forced (default: nil)
+    #  :calculation      calculation mode is being forced to be manual (:manual) or automatic (:automtic)
+    #                    or is not being forced (default: nil)
     #  :screen_updating  turns on or off screen updating (default: true)
     # @return [Excel] an Excel instance
     def self.new(options = {})
@@ -546,7 +548,7 @@ module RobustExcelOle
       return unless calculation_mode
       old_calculation_mode = @ole_excel.Calculation
       begin
-        set_calculation(calculation_mode)
+        self.calculation = calculation_mode
         yield self
       ensure
         @ole_excel.Calculation = old_calculation_mode if @ole_excel.Calculation.is_a?(Fixnum)
@@ -554,24 +556,15 @@ module RobustExcelOle
     end
 
     # sets calculation mode
-    def set_calculation(calculation_mode)
+    # @param [Symbol] calculation mode
+    def calculation= calculation_mode
       return unless calculation_mode
       calc_mode_changable = @ole_excel.Workbooks.Count > 0 &&  @ole_excel.Calculation.is_a?(Fixnum)
-      case calculation_mode
-      when :manual
-        @calculation = :manual
-        if calc_mode_changable  
-          @ole_excel.Calculation = XlCalculationManual 
-          @ole_excel.CalculateBeforeSave = false
-        end
-      when :automatic
-        @calculation = :automatic
-        if calc_mode_changable          
-          @ole_excel.Calculation = XlCalculationAutomatic 
-          @ole_excel.CalculateBeforeSave = false
-        end
-      else
-        raise OptionInvalid, "invalid calculation mode: #{calculation_mode.inspect}"
+      @calculation = calculation_mode
+      if calc_mode_changable
+        @ole_excel.CalculateBeforeSave = false
+        @ole_excel.Calculation = 
+          (calculation_mode == :automatic) ? XlCalculationAutomatic : XlCalculationManual 
       end    
     end
 
@@ -605,7 +598,7 @@ module RobustExcelOle
     # if no contents could be returned, then return default value, if provided, raise error otherwise
     # @param [String] name  the range name
     # @param [Hash]   opts  the options
-    # @option opts [Variant] :default default value (default: nil)
+    # @option opts [Variant] :default value (default: nil)
     def nameval(name, opts = {:default => nil})
       begin
         name_obj = self.Names.Item(name)

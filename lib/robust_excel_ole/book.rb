@@ -300,7 +300,7 @@ module RobustExcelOle
               raise UnexpectedError, "unknown RuntimeError"
             end
           end
-          with_workaround do            
+          with_workaround_linked_workbooks_excel2007 do            
             workbooks.Open(filename, { 'ReadOnly' => options[:read_only] ,
                                        'UpdateLinks' => updatelinks_vba(options[:update_links]) })
           end 
@@ -339,7 +339,7 @@ module RobustExcelOle
     # workaround for linked workbooks for Excel 2007: 
     # opening and closing a dummy workbook if Excel has no workbooks.
     # delay: with visible: 0.2 sec, without visible almost none
-    def with_workaround
+    def with_workaround_linked_workbooks_excel2007
       workbooks = @excel.Workbooks
       workaround_condition = @excel.Version.split(".").first.to_i >= 12 && workbooks.Count == 0
       workbooks.Add if workaround_condition

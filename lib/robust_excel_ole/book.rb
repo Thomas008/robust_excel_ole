@@ -22,7 +22,6 @@ module RobustExcelOle
         :read_only => false,
         :check_compatibility => false,       
         :update_links => :never,
-        #:calculation_mode => :automatic,
       }
 
     class << self
@@ -37,7 +36,8 @@ module RobustExcelOle
       # @option opts [Symbol]  :if_absent      :raise (default) or :create
       # @option opts [Boolean] :read_only      true (default) or false
       # @option opts [Boolean] :update_links   :never (default), :always, :alert
-      # @option opts [Boolean] :visible        true or false (default) 
+      # @option opts [Boolean] :visible        true, false, or nil (default)
+      # @option opts [Boolean] :calculation    :manual, :automatic, or nil (default) 
       # options: 
       # :default_excel   
       # if the workbook was already open in an Excel instance, then open it in that Excel instance,
@@ -67,10 +67,10 @@ module RobustExcelOle
       #                  :new_excel           -> opens the new workbook in a new Excel instance   
       # :if_absent       :raise               -> raises an exception     , if the file does not exists
       #                  :create              -> creates a new Excel file, if it does not exists  
-      # :read_only            true -> opens in read-only mode         
-      # :update_links         true -> user is being asked how to update links, false -> links are never updated
-      # :visible              true -> makes the window of the workbook visible
+      # :read_only            true -> opens in read-only mode               
+      # :visible              true -> makes the workbook visible
       # :check_compatibility  true -> check compatibility when saving
+      # :update_links         true -> user is being asked how to update links, false -> links are never updated
       # @return [Book] a workbook
       def open(file, opts={ }, &block)
         options = DEFAULT_OPEN_OPTS.merge(opts)
@@ -117,7 +117,6 @@ module RobustExcelOle
           book = bookstore.fetch(filename)
           if book && book.alive?
             book.visible = opts[:visible] unless opts[:visible].nil?
-            #book.visible = opts[:visible].nil? ? book.excel.visible : opts[:visible]
             return book 
           end
         end
@@ -140,7 +139,6 @@ module RobustExcelOle
         win32ole_excel = WIN32OLE.connect(workbook.Fullname).Application rescue nil   
         @excel = excel_class.new(win32ole_excel)     
         @excel.visible = options[:visible] unless options[:visible].nil?     
-        # if the Excel could not be promoted, then create it         
         ensure_excel(options)
       else
         file = file_or_workbook
@@ -189,7 +187,6 @@ module RobustExcelOle
       ole_workbook = WIN32OLE.connect(filename)
       workbook = Book.new(ole_workbook)
       workbook.visible = options[:visible] unless options[:visible].nil?
-      #workbook.visible = options[:visible].nil? ? workbook.excel.visible : options[:visible]
       update_links_opt =
             case options[:update_links]
             when :alert; RobustExcelOle::XlUpdateLinksUserSetting
@@ -300,10 +297,10 @@ module RobustExcelOle
               raise UnexpectedError, "unknown RuntimeError"
             end
           end
-          with_workaround_linked_workbooks_excel2007 do            
+          #with_workaround_linked_workbooks_excel2007 do            
             workbooks.Open(filename, { 'ReadOnly' => options[:read_only] ,
                                        'UpdateLinks' => updatelinks_vba(options[:update_links]) })
-          end 
+          #end 
         rescue WIN32OLERuntimeError => msg
           if msg.message =~ /800A03EC/
             raise ExcelError, "user canceled or runtime error"
@@ -316,7 +313,8 @@ module RobustExcelOle
           @ole_workbook = workbooks.Item(File.basename(filename)) 
           self.visible = options[:visible] unless options[:visible].nil?
           @ole_workbook.CheckCompatibility = options[:check_compatibility]
-          @excel.calculation = @excel.calculation 
+          @excel.calculation = options[:calculation].nil? ? @excel.calculation : options[:calculation] 
+          # ToDo: this is too hard
           self.Saved = true # unless self.Saved
         rescue WIN32OLERuntimeError => msg
           raise UnexpectedError, "unexpected WIN32OLERuntimeError: #{msg.message}"
@@ -337,11 +335,13 @@ module RobustExcelOle
     end
 
     # workaround for linked workbooks for Excel 2007: 
+    # ToDo: calculation mode of the empty workbook is taken (automatic)
+    #        so calculation mode cannot be set for the actual workbook 
     # opening and closing a dummy workbook if Excel has no workbooks.
     # delay: with visible: 0.2 sec, without visible almost none
     def with_workaround_linked_workbooks_excel2007
       workbooks = @excel.Workbooks
-      workaround_condition = @excel.Version.split(".").first.to_i >= 12 && workbooks.Count == 0
+      workaround_condition = @excel.Version.split(".").first.to_i == 12 && workbooks.Count == 0
       workbooks.Add if workaround_condition
       begin
         #@excel.with_displayalerts(update_links_opt == :alert ? true : @excel.displayalerts) do
@@ -806,8 +806,8 @@ module RobustExcelOle
       @excel.visible && @ole_workbook.Windows(@ole_workbook.Name).Visible
     end
 
-    # makes the window of the workbook visible or invisible
-    # @param [Boolean] visible_value value that determines whether the workbook shall be visible
+    # makes the workbook visible or invisible
+    # @param [Boolean] visible_value determines whether the workbook shall be visible
     def visible= visible_value
       retain_saved do
         @excel.visible = true if visible_value

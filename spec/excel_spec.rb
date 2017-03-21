@@ -1282,11 +1282,11 @@ module RobustExcelOle
       it "should set screen updating" do
         excel1 = Excel.new
         excel1.ScreenUpdating.should be_true
-        excel2 = Excel.create(:screen_updating => false)
+        excel2 = Excel.create(:screenupdating => false)
         excel2.ScreenUpdating.should be_false
         excel3 = Excel.new
         excel3.ScreenUpdating.should be_true
-        excel4 = Excel.new(:screen_updating => false)
+        excel4 = Excel.new(:screenupdating => false)
         excel4.ScreenUpdating.should be_false
       end
 

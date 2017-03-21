@@ -2,13 +2,13 @@
 All notable changes to this project will be documented in this file.
 
 
-## [0.6.3] - 2017-20-03
+## [0.6.3] - 2017-23-03
 
 ### Added
  
+ - Book#open : options :calculation
  - Excel#new : options :calculation, :screen_updating
- - Excel#calculation
- - Excel#screen_updating
+ - Excel#calculation, calculation=, screen_updating, screenupdating=
 
 ## [0.6.2] - 2016-04-11
 

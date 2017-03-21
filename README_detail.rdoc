@@ -45,7 +45,8 @@ if the book was opened before and this Excel instance is alive. Otherwise open i
 +:if_obstructed+::   specify behaviour if the workbook is blocked by another book (default: +new_excel+)
 +:read_only+::       open in read-only mode (default: +false+) 
 +:check_compatibility:: check compatibility when saving
-+:visible+::         makes the window of the workbook visible or invisible (default: +true+)
++:visible+::         makes the workbook visible or invisible
++:calculation+::     forces the calculation mode to be manual (:manual) or automatic (:automatic)
 
 The option +:defaut_excel+  :
 
@@ -454,7 +455,7 @@ or
 
   excel2 = Excel.new(:reuse => true)  
 
-Options are +:reuse+ (+true+, +false+), +:visible+ (+true+, +false+), +:displayalerts+ (+true+, +false+, +:if_visible+), +:calculation+ (+:manual+, +:automatic+, +nil+) and +:screen_updating+ (+true+, +false+).
+Options are +:reuse+ (+true+, +false+), +:visible+ (+true+, +false+), +:displayalerts+ (+true+, +false+, +:if_visible+), +:calculation+ (+:manual+, +:automatic+, +nil+) and +:screenupdating+ (+true+, +false+).
 
 The option +:calculation+ specifies, whether the calculation mode is being forced to be manual (:manual), automatic (+:automatic+) or is not being forced (+nil+).
 

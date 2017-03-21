@@ -17,7 +17,7 @@ module RobustExcelOle
     attr_reader :visible
     attr_reader :displayalerts
     attr_reader :calculation
-    attr_reader :screen_updating
+    attr_reader :screenupdating
 
     alias ole_object ole_excel
 
@@ -28,7 +28,7 @@ module RobustExcelOle
     # @option options [Variant] :displayalerts 
     # @option options [Boolean] :visible
     # @option options [Symbol]  :calculation
-    # @option options [Boolean] :screen_updating
+    # @option options [Boolean] :screenupdating
     # @return [Excel] a new Excel instance
     def self.create(options = {})
       new(options.merge({:reuse => false}))
@@ -39,6 +39,7 @@ module RobustExcelOle
     # @option options [Variant] :displayalerts 
     # @option options [Boolean] :visible 
     # @option options [Symbol] :calculation
+    # @option options [Boolean] :screenupdating
     # @return [Excel] an Excel instance
     def self.current(options = {})
       new(options.merge({:reuse => true}))
@@ -49,7 +50,8 @@ module RobustExcelOle
     # @param [Hash] options the options
     # @option options [Boolean] :reuse      
     # @option options [Boolean] :visible
-    # @option options [Variant] :displayalerts  
+    # @option options [Variant] :displayalerts 
+    # @option options [Boolean] :screenupdating 
     # @option options [Symbol]  :calculation
     # options: 
     #  :reuse            connects to an already running Excel instance (true) or
@@ -58,30 +60,21 @@ module RobustExcelOle
     #  :displayalerts    enables or disables DisplayAlerts     (true, false, :if_visible (default))   
     #  :calculation      calculation mode is being forced to be manual (:manual) or automatic (:automtic)
     #                    or is not being forced (default: nil)
-    #  :screen_updating  turns on or off screen updating (default: true)
+    #  :screenupdating  turns on or off screen updating (default: true)
     # @return [Excel] an Excel instance
     def self.new(options = {})
       if options.is_a? WIN32OLE
         ole_xl = options
       else
         options = {:reuse => true}.merge(options)
-        if options[:reuse] == true then
-          ole_xl = current_excel
-        end
+        ole_xl = current_excel if options[:reuse] == true
       end
-      ole_xl = WIN32OLE.new('Excel.Application') unless ole_xl
-
+      ole_xl ||= WIN32OLE.new('Excel.Application')
       hwnd = ole_xl.HWnd
       stored = hwnd2excel(hwnd)
       if stored and stored.alive?
         result = stored
       else 
-        unless options.is_a? WIN32OLE
-          options[:visible] ||= ole_xl.Visible
-          #options[:visible] = options[:visible].nil? ? ole_xl.Visible : options[:visible]
-          options[:displayalerts] = options[:displayalerts].nil? ? :if_visible : options[:displayalerts]
-          options[:screen_updating] = options[:screen_updating].nil? ? ole_xl.ScreenUpdating : options[:screen_updating]
-        end
         result = super(options)
         result.instance_variable_set(:@ole_excel, ole_xl)        
         WIN32OLE.const_load(ole_xl, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
@@ -92,23 +85,12 @@ module RobustExcelOle
         begin
           reused = options[:reuse] && stored && stored.alive?
           unless reused
-            options = {:displayalerts => :if_visible, :visible => false, :screen_updating => true}.merge(options)
+            options = {:displayalerts => :if_visible, :visible => false, :screenupdating => true}.merge(options)
           end
-          visible_value = (reused && options[:visible].nil?) ? result.Visible : options[:visible]
-          displayalerts_value = (reused && options[:displayalerts].nil?) ? 
-            ((result.displayalerts == :if_visible) ? :if_visible : result.DisplayAlerts) : options[:displayalerts]
-          calculation_value = (reused && options[:calculation].nil?) ? result.calculation : options[:calculation]
-          screen_updating_value = (reused && options[:screen_updating].nil?) ? result.screen_updating : options[:screen_updating]
-          ole_xl.Visible = visible_value
-          ole_xl.DisplayAlerts = (displayalerts_value == :if_visible) ? visible_value : displayalerts_value
-          ole_xl.ScreenUpdating = screen_updating_value
-          result.instance_variable_set(:@visible, visible_value)
-          result.instance_variable_set(:@displayalerts, displayalerts_value)          
-          result.instance_variable_set(:@calculation, calculation_value)
-          result.instance_variable_set(:@screen_updating, screen_updating_value)
-          #unless reused
-          #  result.screen_updating = options[:calculation] unless options[:calculation].nil?
-          #end
+          result.visible = options[:visible] unless options[:visible].nil?
+          result.displayalerts = options[:displayalerts] unless options[:displayalerts].nil?
+          result.calculation = options[:calculation] unless options[:calculation].nil?
+          result.screenupdating = options[:screenupdating] unless options[:screenupdating].nil?
         rescue WIN32OLERuntimeError
           raise ExcelError, "cannot access Excel"
         end
@@ -117,7 +99,10 @@ module RobustExcelOle
     end
 
     def initialize(options= {}) # :nodoc: #
-      @excel = self
+    end
+
+    def excel
+      self
     end
 
     # reopens a closed Excel instance
@@ -509,17 +494,57 @@ module RobustExcelOle
       end
     end    
 
+    # makes the current Excel instance visible or invisible
+    def visible= visible_value
+      @ole_excel.Visible = @visible = visible_value
+      @ole_excel.DisplayAlerts = @visible if @displayalerts == :if_visible
+    end   
+
     # enables DisplayAlerts in the current Excel instance
     def displayalerts= displayalerts_value
       @displayalerts = displayalerts_value
       @ole_excel.DisplayAlerts = (@displayalerts == :if_visible) ? @ole_excel.Visible : displayalerts_value
     end
 
-    # makes the current Excel instance visible or invisible
-    def visible= visible_value
-      @ole_excel.Visible = @visible = visible_value
-      @ole_excel.DisplayAlerts = @visible if @displayalerts == :if_visible
-    end   
+    # sets ScreenUpdating
+    def screenupdating= screenupdating_value
+      @ole_excel.ScreenUpdating = @screenupdating = screenupdating_value
+    end
+
+    # sets calculation mode
+    def calculation= calculation_mode
+      return if calculation_mode.nil?
+      calc_mode_changable = @ole_excel.Workbooks.Count > 0 &&  @ole_excel.Calculation.is_a?(Fixnum)
+      @calculation = calculation_mode
+      if calc_mode_changable
+        @ole_excel.CalculateBeforeSave = false
+        @ole_excel.Calculation = 
+          (calculation_mode == :automatic) ? XlCalculationAutomatic : XlCalculationManual 
+      end    
+    end
+
+    # VBA method overwritten
+    def Calculation= calculation_vba_mode
+      case calculation_vba_mode
+      when XlCalculationManual
+        @calculation = :manual
+      when XlCalculationAutomatic
+        @calculation = :automatic
+      end
+      @ole_excel.Calculation = calculation_vba_mode
+    end
+
+    # sets calculation mode in a block
+    def with_calculation(calculation_mode)
+      return unless calculation_mode
+      old_calculation_mode = @ole_excel.Calculation
+      begin
+        self.calculation = calculation_mode
+        yield self
+      ensure
+        @ole_excel.Calculation = old_calculation_mode if @ole_excel.Calculation.is_a?(Fixnum)
+      end
+    end
 
     # make all workbooks visible or invisible
     def workbooks_visible= visible_value
@@ -541,42 +566,6 @@ module RobustExcelOle
       #else
       #Win32API.new("user32","SetForegroundWindow","","I").call
       #end
-    end
-
-    # sets calculation mode in a block
-    def with_calculation(calculation_mode)
-      return unless calculation_mode
-      old_calculation_mode = @ole_excel.Calculation
-      begin
-        self.calculation = calculation_mode
-        yield self
-      ensure
-        @ole_excel.Calculation = old_calculation_mode if @ole_excel.Calculation.is_a?(Fixnum)
-      end
-    end
-
-    # sets calculation mode
-    # @param [Symbol] calculation mode
-    def calculation= calculation_mode
-      return unless calculation_mode
-      calc_mode_changable = @ole_excel.Workbooks.Count > 0 &&  @ole_excel.Calculation.is_a?(Fixnum)
-      @calculation = calculation_mode
-      if calc_mode_changable
-        @ole_excel.CalculateBeforeSave = false
-        @ole_excel.Calculation = 
-          (calculation_mode == :automatic) ? XlCalculationAutomatic : XlCalculationManual 
-      end    
-    end
-
-    # VBA method overwritten
-    def Calculation= calculation_vba_mode
-      case calculation_vba_mode
-      when XlCalculationManual
-        @calculation = :manual
-      when XlCalculationAutomatic
-        @calculation = :automatic
-      end
-      @ole_excel.Calculation = calculation_vba_mode
     end
 
     # returns the value of a range

@@ -294,7 +294,7 @@ module RobustExcelOle
             if msg.message =~ /method missing: Excel not alive/
               raise ExcelDamaged, "Excel instance not alive or damaged" 
             else
-              raise UnexpectedError, "unknown RuntimeError"
+              raise UnexpectedError, "unknown RuntimeError: #{msg.message}"
             end
           end
           #with_workaround_linked_workbooks_excel2007 do            
@@ -317,7 +317,7 @@ module RobustExcelOle
           # ToDo: this is too hard
           self.Saved = true # unless self.Saved
         rescue WIN32OLERuntimeError => msg
-          raise UnexpectedError, "unexpected WIN32OLERuntimeError: #{msg.message}"
+          raise UnexpectedError, "unexpected WIN32OLERuntimeError: #{msg.message} #{msg.backtrace}"
         end       
       end
     end
@@ -631,7 +631,6 @@ module RobustExcelOle
         sheet_class.new(@ole_workbook.Worksheets.Item(name))
       rescue WIN32OLERuntimeError => msg
         raise NameNotFound, "could not return a sheet with name #{name.inspect}"
-        # trace "#{msg.message}"
       end
     end    
 

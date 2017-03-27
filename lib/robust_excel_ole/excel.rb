@@ -12,6 +12,7 @@ module RobustExcelOle
   class Excel < REOCommon    
 
     attr_accessor :ole_excel
+    attr_accessor :created
     
     # setter methods are implemented below
     attr_reader :visible
@@ -91,6 +92,7 @@ module RobustExcelOle
           result.displayalerts = options[:displayalerts] unless options[:displayalerts].nil?
           result.calculation = options[:calculation] unless options[:calculation].nil?
           result.screenupdating = options[:screenupdating] unless options[:screenupdating].nil?
+          result.created = !reused
         rescue WIN32OLERuntimeError
           raise ExcelError, "cannot access Excel"
         end

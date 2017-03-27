@@ -9,8 +9,7 @@ module RobustExcelOle
     attr_accessor :excel
     attr_accessor :ole_workbook
     attr_accessor :stored_filename
-    attr_accessor :options
-    attr_accessor :can_be_closed
+    attr_accessor :options    
 
     alias ole_object ole_workbook
 
@@ -89,13 +88,12 @@ module RobustExcelOle
             if (((not options[:force_excel]) || (forced_excel == book.excel)) &&
                  (not (book.alive? && (not book.saved) && (not options[:if_unsaved] == :accept))))
               book.options = DEFAULT_OPEN_OPTS.merge(opts)
-              book.ensure_excel(options) unless book.excel.alive?
+              book.ensure_excel(options) # unless book.excel.alive?
               # if the book is opened as readonly and should be opened as writable, then close it and open the book with the new readonly mode
               book.close if (book.alive? && (not book.writable) && (not options[:read_only]))
               # reopens the book
               book.ensure_workbook(file,options) unless book.alive?
-              book.visible = options[:visible].nil? ? book.excel.visible : options[:visible]
-              #book.visible = options[:visible] unless options[:visible].nil?
+              book.visible = options[:visible] unless options[:visible].nil?
               return book
             end
           end
@@ -144,7 +142,6 @@ module RobustExcelOle
         file = file_or_workbook
         ensure_excel(options)
         ensure_workbook(file, options)        
-        @can_be_closed = false if @can_be_closed.nil?
       end
       bookstore.store(self)
       if block
@@ -201,11 +198,14 @@ module RobustExcelOle
 
 
     def ensure_excel(options)   # :nodoc: #
-      return if @excel && @excel.alive?      
+      if @excel && @excel.alive?
+        @excel.created = false
+        return
+      end
       options[:excel] = options[:force_excel] ? options[:force_excel] : options[:default_excel]
       options[:excel] = :current if (options[:excel] == :reuse || options[:excel] == :active)
       @excel = self.class.excel_of(options[:excel]) unless (options[:excel] == :current || options[:excel] == :new)
-      @excel = excel_class.new(:reuse => (options[:excel] == :current)) unless (@excel && @excel.alive?)     
+      @excel = excel_class.new(:reuse => (options[:excel] == :current)) unless (@excel && @excel.alive?)
     end    
 
     def ensure_workbook(file, options)     # :nodoc: #
@@ -277,7 +277,7 @@ module RobustExcelOle
           end
         end
       else
-        # book is not open
+        # open a new workbook
         open_or_create_workbook(file, options)
       end
     end
@@ -297,28 +297,37 @@ module RobustExcelOle
               raise UnexpectedError, "unknown RuntimeError: #{msg.message}"
             end
           end
-          #with_workaround_linked_workbooks_excel2007 do            
-            workbooks.Open(filename, { 'ReadOnly' => options[:read_only] ,
+          begin
+            with_workaround_linked_workbooks_excel2007 do            
+              workbooks.Open(filename, { 'ReadOnly' => options[:read_only] ,
                                        'UpdateLinks' => updatelinks_vba(options[:update_links]) })
-          #end 
-        rescue WIN32OLERuntimeError => msg
-          if msg.message =~ /800A03EC/
-            raise ExcelError, "user canceled or runtime error"
-          else 
-            raise UnexpectedError, "unexpected WIN32OLERuntimeError: #{msg.message}"
+            end
+          rescue WIN32OLERuntimeError => msg
+            if msg.message =~ /800A03EC/
+              raise ExcelError, "user canceled or runtime error"
+            else 
+              raise UnexpectedError, "unexpected WIN32OLERuntimeError: #{msg.message}"
+            end 
           end
-        end   
-        begin          
-          # workaround for bug in Excel 2010: workbook.Open does not always return the workbook with given file name
-          @ole_workbook = workbooks.Item(File.basename(filename)) 
-          self.visible = options[:visible] unless options[:visible].nil?
-          @ole_workbook.CheckCompatibility = options[:check_compatibility]
-          @excel.calculation = options[:calculation].nil? ? @excel.calculation : options[:calculation] 
-          # ToDo: this is too hard
-          self.Saved = true # unless self.Saved
-        rescue WIN32OLERuntimeError => msg
-          raise UnexpectedError, "unexpected WIN32OLERuntimeError: #{msg.message} #{msg.backtrace}"
-        end       
+          begin
+            # workaround for bug in Excel 2010: workbook.Open does not always return the workbook with given file name
+            @ole_workbook = workbooks.Item(File.basename(filename))
+            if options[:visible].nil? && (not options[:default_visible].nil?)
+              if @excel.created               
+                self.visible = options[:default_visible] 
+              else
+                self.window_visible = options[:default_visible]
+              end
+            else
+              self.visible = options[:visible] unless options[:visible].nil?
+            end
+            @ole_workbook.CheckCompatibility = options[:check_compatibility]
+            @excel.calculation = options[:calculation].nil? ? @excel.calculation : options[:calculation]             
+            self.Saved = true # unless self.Saved # ToDo: this is too hard
+          rescue WIN32OLERuntimeError => msg
+            raise UnexpectedError, "unexpected WIN32OLERuntimeError: #{msg.message} #{msg.backtrace}"
+          end       
+        end
       end
     end
 
@@ -501,7 +510,6 @@ module RobustExcelOle
         if (not was_not_alive_or_nil) && (not options[:read_only]) && (not was_writable) && options[:readonly_excel]
           open(file, :force_excel => book.excel, :if_obstructed => :new_excel, :read_only => true)
         end
-        @can_be_closed = true if options[:keep_open] && book
         book.close if (was_not_alive_or_nil && (not now_alive) && (not options[:keep_open]) && book)
         book.CheckCompatibility = old_check_compatibility if book && book.alive?
       end
@@ -805,16 +813,34 @@ module RobustExcelOle
       @excel.visible && @ole_workbook.Windows(@ole_workbook.Name).Visible
     end
 
-    # makes the workbook visible or invisible
+    # makes both the Excel instance and the window of the workbook visible, or the window invisible
     # @param [Boolean] visible_value determines whether the workbook shall be visible
     def visible= visible_value
+      @excel.visible = true if visible_value
+      self.window_visible = visible_value
+    end
+
+    # returns true, if the window of the workbook is set to visible, false otherwise
+    def window_visible
+      return @ole_workbook.Windows(@ole_workbook.Name).Visible
+    end
+
+    # makes the window of the workbook visible or invisible
+    # @param [Boolean] visible_value determines whether the window of the workbook shall be visible
+    def window_visible= visible_value
       retain_saved do
-        @excel.visible = true if visible_value
-        if @ole_workbook.Windows.Count > 0
-          @ole_workbook.Windows(@ole_workbook.Name).Visible = visible_value 
-        end
+        @ole_workbook.Windows(@ole_workbook.Name).Visible = visible_value if @ole_workbook.Windows.Count > 0
       end
     end
+
+#    def visible= visible_value
+#      retain_saved do
+#        @excel.visible = true if visible_value
+#        if @ole_workbook.Windows.Count > 0
+#          @ole_workbook.Windows(@ole_workbook.Name).Visible = visible_value 
+#        end
+#      end
+#    end
 
     # returns true, if the workbook reacts to methods, false otherwise
     def alive?

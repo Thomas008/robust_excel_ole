@@ -37,40 +37,28 @@ The semantics is similar to, e.g.,  +File.open+.
 
 Options are the following:
 
-+:default_excel+::   open the workbook in the Excel instance where it was opened before most recently,
-if the book was opened before and this Excel instance is alive. Otherwise open it in the current (+:current+, or +:active+, or +:reuse+), a new (+:new+) or a given Excel instance (default: +:current+)
-+:force_excel+::     open the workbook in the current (+:current+, or +:active+, or +:reuse+), a new (+:new+) or given Excel instance 
-+:if_absent+::       specify behaviour if the workbook with the given file name does not exist if the workbook does not exist (default: +create+)
++:default+:: if the workbook was already open, then use the properties of this workbook.
+ otherwise use the properties stated in +:default+
+
+ +:force+:: no matter whether the workbook was open before, use the properties stated in +:force+
+
+ +:excel+ and +:visible+ are options stated in +:default+ and +:force+
+
+ +:excel+::          specifies the Excel instance. 
+ +:visible+::        makes the workbook visible or invisible
+
 +:if_unsaved+::      specify behaviour if the workbook was unsaved (default: +new_excel+)
 +:if_obstructed+::   specify behaviour if the workbook is blocked by another book (default: +new_excel+)
 +:read_only+::       open in read-only mode (default: +false+) 
 +:check_compatibility:: check compatibility when saving
-+:visible+::         makes the workbook visible or invisible
 +:calculation+::     forces the calculation mode to be manual (:manual) or automatic (:automatic)
++:if_absent+::       specify behaviour if the workbook with the given file name does not exist if the workbook does not exist (default: +create+)
 
-The option +:defaut_excel+  :
+Here are some details:
 
-If the workbook was open before, then open it in the Excel instance where it was open before most recently. If the workbook cannot be reopened, i.e., the book was not opened before, or the Excel is not alive anymore,
-then
+The option +:excel+ :
 
-+:current+ (or +:active+, or +:reuse+:): Connect to the current (the first opened) Excel instance, if it exists, otherwise open a new Excel.
-+:new+:: Open in a new Excel.
-[instance]:: Open in a given Excel instance.
-
-The option +:force_excel  :
-
-No matter if the workbook was open before, or the Excel instance is alive
-
-+:current+ (or +:active+, or +:reuse+): Open the current (the first opened) Excel instance
-+:new+:: Open in a new Excel instance.
-[instance]:: Open in a given Excel instance.
-
-The option +:if_absent  :
-
-If the Excel file does not exists, then
-
-+:create+::   Create a new Excel file
-+:raise+::    Raise an exception.
+Valid values are : +:current+ (or +:active+ or +:reuse+), +:new+, or a given Excel instance (default: +:current).
 
 The option +:if_unsaved+  : 
 
@@ -91,12 +79,19 @@ If a workbook is open and a new workbook with same name and a different path is 
 +:save+::           Save the old workbook, close it, open the new workbook
 +:close_if_saved+:: Close the old workbook and open the new workbook, if the old workbook is saved, otherwise raise an exception.
 +:new_excel+::      Open the new workbook in a new Excel instance.
+
+The option +:if_absent  :
+
+If the Excel file does not exists, then
+
++:create+::   Create a new Excel file
++:raise+::    Raise an exception.
   
 Here are a few examples:
 
 If you want to open a workbook that was not opened before, or reopen a workbook that was open in an Excel instance that is now closed, in the current (active) Excel instance, then use
 
-  Book.open('workbook.xls', :default_excel => :current)
+  Book.open('workbook.xls', :default => {:excel => :current})
 
 or
   
@@ -104,21 +99,29 @@ or
 
 In case you want to open such a workbook in a new Excel instance, then use
 
-  Book.open('workbook.xls', :default_excel => :new)
+  Book.open('workbook.xls', :default => {:excel => :new})
 
 If you want to open a workbook in a new Excel instance, no matter if it was opened before, you can write
 
-  Bool.open('workbook.xls', :force_excel => :new)
+  Book.open('workbook.xls', :force => {:excel => :new})
 
 You can also specify an Excel instance
 
   excel1 = Excel.create
   # something
-  Book.open('workbook.xls', :force_excek => excel1)
+  Book.open('workbook.xls', :force => {:excel => excel1})
 
 If you want to open the workbook and make its window visible, then use
 
-  book = Book.open('workbook.xls', :visible => true)
+  book = Book.open('workbook.xls', :force => {:visible => true})
+
+You can combine options, e.g. 
+
+  Book.open('workbook.xls', :force => {:excel => :new, :visible => true})
+
+You can use some abbreviations, e.g. in this case
+
+  Book.open('workbook.xls', :f => {:e => :new, :v => true})  
 
 If a workbook contains unsaved changes and a workbook with the same filename shall be opened, then the option +:if_unsaved+ manages this conflict. For example, if the workbook with the unsaved changes shall remain open, you can use
 
@@ -635,11 +638,11 @@ We open a workbook.
 
 open it also in a new Excel instance and make it visible.
 
-  new_book = Book.open('workbook.xls', :force_excel => :new, :visible => true)
+  new_book = Book.open('workbook.xls', :force => {:excel => :new}, :visible => true)
 
 and open another workbook in a the first Excel instance.
 
-  another_book = Book.open('another_workbook.xls', :force_excel => book.excel)
+  another_book = Book.open('another_workbook.xls', :force => {:excel => book.excel})
 
 Then we close the workbooks.
 
@@ -656,9 +659,9 @@ The writable workbook is being prefered.
   reopened_book === book
   => true
 
-We want to open yet another workbook. Since the workbook was not open before, reopening the workbook fails and the :default_excel option applies. According to :default_excel => :new a new Excel is created, and the workbook is opened there.
+We want to open yet another workbook. Since the workbook was not open before, reopening the workbook fails and the :default-excel option applies. According to :default => {:excel => :new} a new Excel is created, and the workbook is opened there.
 
-  different_book = Book.open('different.xls', :default_excel => :new)
+  different_book = Book.open('different.xls', :default => {:excel => :new})
   
 
 === Example 3

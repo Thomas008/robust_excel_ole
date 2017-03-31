@@ -28,7 +28,7 @@ begin
       end
       book.close(:if_unsaved => :save)
       # alternative: delete all other sheets
-      #book = Book.open(file_sheet_name, :force_excel => :new, :visible => true)
+      #book = Book.open(file_sheet_name, :force => {:excel => :new}, :visible => true)
       #book.each do |sheet|
       #  book.sheet(sheet.Name).Delete() unless sheet.Name == sheet_orig.Name
       #end

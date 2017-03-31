@@ -2,13 +2,19 @@
 All notable changes to this project will be documented in this file.
 
 
-## [1.0.1] - 2017-23-03
+## [1.0.1] - 2017-01-04
 
 ### Added
  
  - Book#open : options :calculation
  - Excel#new : options :calculation, :screen_updating
  - Excel#calculation, calculation=, screen_updating, screenupdating=
+
+### Changed
+
+ - Book#open : options: two levels: :default and :force
+   example:  
+   Book.open(:default =>  {:excel => :current, :visible => true}, {:force => {:excel => :new})
 
 ## [0.6.2] - 2016-04-11
 

@@ -17,11 +17,11 @@ begin
   book2 = Book.open(simple_file)             # open a new book in the same Excel instance                            
   p "book1 == book2" if book2 == book1      # the books are identical
   sleep 2       
-  book3 = Book.open(simple_file, :force_excel => :new, :visible => true) # open another book in a new Excel instance,   
+  book3 = Book.open(simple_file, :force => {:excel => :new, :visible => true}) # open another book in a new Excel instance,   
   p "book3 != book1" if (not (book3 == book1))   # the books are not identical 
   sleep 2   
   new_excel = Excel.new(:reuse => false)        # create a third Excel instance
-  book4 = Book.open(simple_file, :force_excel => new_excel, :visible => true)  # open another book in the new Excel instance
+  book4 = Book.open(simple_file, :force => {:excel => new_excel, :visible => true})  # open another book in the new Excel instance
   p "book4 != book3 && book4 != book1" if (not (book4 == book3) && (not (book4 == book1)))
   sleep 2                                     # (Excel chooses the first Excel application)        
   book4.close                                 # close the books

@@ -70,7 +70,7 @@ describe Book do
       end
 
       it "should open in a new Excel" do
-        book2 = Workbook.open(@simple_file, :force_excel => :new)
+        book2 = Workbook.open(@simple_file, :force => {:excel => :new})
         book2.should be_alive
         book2.should be_a Book
         book2.excel.should_not == @book.excel 
@@ -148,7 +148,7 @@ describe Book do
         old_excel = @book.excel
         @book.close
         @book.should_not be_alive
-        book2 = Book.open(@simple_file, :force_excel => :new)
+        book2 = Book.open(@simple_file, :force => {:excel => :new})
         book2.should_not === @book
         book2.should be_alive
         book2.excel.should_not == old_excel
@@ -167,7 +167,7 @@ describe Book do
       end
 
       it "should open in a new Excel" do
-        book2 = Book.open(@simple_file, :force_excel => :new)
+        book2 = Book.open(@simple_file, :force => {:excel => :new})
         book2.should be_alive
         book2.should be_a Book
         book2.excel.should_not == @book.excel 
@@ -178,22 +178,22 @@ describe Book do
       end
 
       it "should open in a given Excel, provide identity transparency, because book can be readonly, such that the old and the new book are readonly" do
-        book2 = Book.open(@simple_file1, :force_excel => :new)
+        book2 = Book.open(@simple_file1, :force => {:excel => :new})
         book2.excel.should_not == @book.excel
-        book3 = Book.open(@simple_file1, :force_excel => :new)
+        book3 = Book.open(@simple_file1, :force => {:excel => :new})
         book3.excel.should_not == book2.excel
         book3.excel.should_not == @book.excel
         book2.close
         book3.close
         @book.close
-        book4 = Book.open(@simple_file1, :force_excel => book2.excel, :read_only => true)
+        book4 = Book.open(@simple_file1, :force => {:excel => book2.excel}, :read_only => true)
         book4.should be_alive
         book4.should be_a Book
         book4.excel.should == book2.excel
         book4.ReadOnly.should be_true
         book4.should == book2
         book4.close
-        book5 = Book.open(@simple_file1, :force_excel => book2, :read_only => true)
+        book5 = Book.open(@simple_file1, :force => {:excel => book2}, :read_only => true)
         book5.should be_alive
         book5.should be_a Book
         book5.excel.should == book2.excel
@@ -232,7 +232,7 @@ describe Book do
       it "should open a new excel, if the book cannot be reopened" do
         @book.close
         new_excel = Excel.new(:reuse => false)
-        book2 = Book.open(@different_file, :default_excel => :new)
+        book2 = Book.open(@different_file, :default => {:excel => :new})
         book2.should be_alive
         book2.should be_a Book
         book2.excel.should_not == new_excel
@@ -243,17 +243,17 @@ describe Book do
       it "should open in a given Excel provided as Excel, Book, or WIN32OLE representing an Excel or Workbook" do
         book2 = Book.open(@another_simple_file)
         different_file1 = @different_file
-        book3 = Book.open(different_file1, :default_excel => book2.excel)
+        book3 = Book.open(different_file1, :default => {:excel => book2.excel})
         book3.excel.should === book2.excel
         book3.close
-        book4 = Book.open(different_file1, :default_excel => book2) 
+        book4 = Book.open(different_file1, :default => {:excel => book2}) 
         book4.excel.should === book2.excel
         book4.close
         book5 = Book.open(different_file1, :default_excel => book2.ole_workbook)
         book5.excel.should ===  book2.excel
         book5.close
         win32ole_excel1 = WIN32OLE.connect(book2.ole_workbook.Fullname).Application
-        book6 = Book.open(different_file1, :default_excel => win32ole_excel1)
+        book6 = Book.open(different_file1, :default => {:excel => win32ole_excel1})
         book6.excel.should === book2.excel
         book6.close
       end
@@ -506,14 +506,14 @@ describe Book do
 
     it "should preserve :visible if they are not set" do
       excel1 = Excel.create(:visible => true)
-      book1 = Book.open(@different_file, :default_excel => :new)
+      book1 = Book.open(@different_file, :default => {:excel => :new})
       book1.excel.Visible.should be_false
     end
 
     it "should preserve :visible if they are not set" do
       excel1 = Excel.create(:visible => true)
       excel2 = Excel.create(:visible => true)
-      book1 = Book.open(@different_file, :force_excel => excel2)
+      book1 = Book.open(@different_file, :force => {:excel => excel2})
       book1.excel.Visible.should be_true
       book1.close
     end
@@ -605,7 +605,7 @@ describe Book do
       end
 
       it "should let an open Book open if two books have been opened and one has been closed and opened again" do
-        book2 = Book.open(@different_file, :force_excel => :new)
+        book2 = Book.open(@different_file, :force => {:excel => :new})
         @book.close
         book2.close
         @book.reopen
@@ -726,7 +726,7 @@ describe Book do
       end
 
       it "should open unobtrusively the book in a new Excel such that the book is writable" do
-        book2 = Book.open(@simple_file1, :force_excel => :new, :read_only => true)
+        book2 = Book.open(@simple_file1, :force => {:excel => :new}, :read_only => true)
         @book.ReadOnly.should be_true
         book2.Readonly.should be_true
         sheet = @book.sheet(1)
@@ -796,7 +796,7 @@ describe Book do
 
       before do
         @book1 = Book.open(@simple_file1)
-        @book2 = Book.open(@simple_file1, :force_excel => :new)
+        @book2 = Book.open(@simple_file1, :force => {:excel => :new})
         @book1.Readonly.should == false
         @book2.Readonly.should == true
         old_sheet = @book1.sheet(1)

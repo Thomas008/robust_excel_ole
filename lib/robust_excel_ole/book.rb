@@ -48,7 +48,7 @@ module RobustExcelOle
       #           :new     -> opens in a new Excel instance 
       #           <excel-instance> -> opens in the given Excel instance
       #  :visible true, false, or nil (default)
-      #  alternatives: :default_excel, :force_excel, :default_visible, :visible, :d, :f, :e, :v
+      #  alternatives: :default_excel, :force_excel, :visible, :d, :f, :e, :v
       # :if_unsaved     if an unsaved workbook with the same name is open, then
       #                  :raise               -> raises an exception
       #                  :forget              -> close the unsaved workbook, open the new workbook             
@@ -70,12 +70,7 @@ module RobustExcelOle
       # :update_links         true -> user is being asked how to update links, false -> links are never updated
       # @return [Book] a workbook
       def open(file, opts={ }, &block)
-        puts "open:"
-        puts_hash(opts)
         options = process_options(opts)
-        #options = DEFAULT_OPEN_OPTS.merge(opts)
-        #options[:default_excel] = :current if (options[:default_excel] == :reuse || options[:default_excel] == :active)
-        #options[:force_excel] = :current if (options[:force_excel] == :reuse || options[:force_excel] == :active)
         book = nil
         if (not (options[:force][:excel] == :new))
           # if readonly is true, then prefer a book that is given in force_excel if this option is set
@@ -111,6 +106,7 @@ module RobustExcelOle
     # @return [Book] a workbook
     def self.new(workbook, opts={ }, &block)      
       if workbook && (workbook.is_a? WIN32OLE)
+        opts = process_options(opts)
         filename = workbook.Fullname.tr('\\','/') rescue nil
         if filename
           book = bookstore.fetch(filename)
@@ -130,9 +126,6 @@ module RobustExcelOle
     # @option opts [Symbol] see above
     # @return [Book] a workbook
     def initialize(file_or_workbook, opts={ }, &block)
-      #options = opts
-      #options = process_options(opts)
-      #options = DEFAULT_OPEN_OPTS.merge(opts)      
       if file_or_workbook.is_a? WIN32OLE
         options = process_options(opts)
         workbook = file_or_workbook
@@ -159,27 +152,12 @@ module RobustExcelOle
 
   private
 
-    def self.puts_hash(hash)
-      hash.each do |e|
-        puts "#{e[0]} => #{e[1]}"
-      end
-    end
-
-    # translates options from shortings and synonyms
+    # translates options from abbreviations and synonyms
     def self.process_options(options) # :nodoc: #
-      puts "process_options:"
-      puts "parameter:"
-      puts_hash(options)
       opts = {:default => {}, :force => {}}.merge(DEFAULT_OPEN_OPTS)
-      puts "after merge of empty default and force with default_open_opts:"
-      puts_hash(opts)      
       opts = opts.merge(options)
-      puts "after merge with options:"
-      puts_hash(opts)
       opts[:default] = options[:d] unless options[:d].nil?
       opts[:force] = options[:f] unless options[:f].nil?
-      puts "opts[:default]: #{opts[:default]}"
-      puts "opts[:default][:excel]: #{opts[:default][:excel]}"
       opts[:default][:excel] = opts[:default][:e] unless opts[:default][:e].nil?
       opts[:default][:visible] = opts[:default][:v] unless opts[:default][:v].nil?
       opts[:force][:excel] = opts[:force][:e] unless opts[:force][:e].nil?
@@ -189,8 +167,6 @@ module RobustExcelOle
       opts[:force][:visible] = opts[:visible] unless opts[:visible].nil?     
       opts[:default][:excel] = :current if (opts[:default][:excel] == :reuse || opts[:default][:excel] == :active)
       opts[:force][:excel] = :current if (opts[:force][:excel] == :reuse || opts[:force][:excel] == :active)
-      puts "result:"
-      puts_hash(opts)
       opts
     end
 

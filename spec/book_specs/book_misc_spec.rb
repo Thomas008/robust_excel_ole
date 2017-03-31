@@ -108,19 +108,19 @@ describe Book do
     end
   end
 
-  describe "default_visible" do
+  describe "default-visible" do
 
     it "should keep the visibility of the open workbook" do
       book1 = Book.open(@simple_file1)
       book1.excel.Visible.should be_false
       book1.Windows(book1.Name).Visible.should be_true
       book1.visible.should be_false
-      book2 = Book.open(@simple_file1, :default_visible => true)
+      book2 = Book.open(@simple_file1, :default => {:visible => true})
       book2.visible.should be_false      
       book2.excel.Visible.should be_false
       book2.Windows(book2.Name).Visible.should be_true
       book1.visible.should be_false
-      book2 = Book.open(@simple_file1, :default_visible => false)
+      book2 = Book.open(@simple_file1, :default => {:visible => false})
       book2.visible.should be_false      
       book2.excel.Visible.should be_false
       book2.Windows(book2.Name).Visible.should be_true
@@ -144,7 +144,7 @@ describe Book do
       excel1 = book1.excel
       excel1.Visible.should be_false
       book1.close
-      book2 = Book.open(@simple_file1, :default_visible => true)
+      book2 = Book.open(@simple_file1, :default => {:visible => true})
       excel2 = book2.excel
       excel2.should == excel1
       excel2.Visible.should be_false
@@ -156,7 +156,7 @@ describe Book do
       excel1 = book1.excel
       excel1.Visible.should be_false
       book1.close
-      book2 = Book.open(@simple_file1, :default_visible => false)
+      book2 = Book.open(@simple_file1, :default => {:visible => false})
       excel2 = book1.excel
       excel2.should == excel1
       excel2.Visible.should be_false
@@ -169,7 +169,7 @@ describe Book do
       book1.Windows(book1.Name).Visible.should be_true
       excel1.Visible.should be_true
       book1.close
-      book2 = Book.open(@simple_file1, :default_visible => false)
+      book2 = Book.open(@simple_file1, :default => {:visible => false})
       excel2 = book1.excel
       excel2.should == excel1
       excel2.Visible.should be_true
@@ -182,7 +182,7 @@ describe Book do
       book1.Windows(book1.Name).Visible.should be_true
       excel1.Visible.should be_true
       book1.close
-      book2 = Book.open(@simple_file1, :default_visible => true)
+      book2 = Book.open(@simple_file1, :default => {:visible => true})
       excel2 = book1.excel
       excel2.should == excel1
       excel2.Visible.should be_true
@@ -202,14 +202,14 @@ describe Book do
     end
 
     it "should open the workbook visible if the workbook is new" do
-      book1 = Book.open(@simple_file1, :default_visible => true)
+      book1 = Book.open(@simple_file1, :default => {:visible => true})
       book1.visible.should be_true
       book1.excel.Visible.should be_true
       book1.Windows(book1.Name).Visible.should be_true
     end
 
     it "should open the workbook invisible if the workbook is new" do
-      book1 = Book.open(@simple_file1, :default_visible => false)
+      book1 = Book.open(@simple_file1, :default => {:visible => false)
       book1.visible.should be_false
       book1.excel.Visible.should be_false
       book1.Windows(book1.Name).Visible.should be_false
@@ -230,7 +230,7 @@ describe Book do
       book1.Windows(book1.Name).Visible.should be_true
       book1.close
       excel1.close
-      book2 = Book.open(@simple_file1, :default_visible => true)
+      book2 = Book.open(@simple_file1, :default => {:visible => true})
       excel2 = book2.excel
       book2.visible.should be_true
       excel2.Visible.should be_true
@@ -238,14 +238,14 @@ describe Book do
     end
 
     it "should open the workbook invisible if the old Excel is closed" do
-      book1 = Book.open(@simple_file1, :default_visible => true)
+      book1 = Book.open(@simple_file1, :default => {:visible => true})
       book1.visible.should be_true
       excel1 = book1.excel
       excel1.Visible.should be_true
       book1.Windows(book1.Name).Visible.should be_true
       book1.close
       excel1.close
-      book2 = Book.open(@simple_file1, :default_visible => false)
+      book2 = Book.open(@simple_file1, :default => {:visible => false})
       excel2 = book2.excel
       book2.visible.should be_false
       excel2.Visible.should be_false
@@ -254,7 +254,7 @@ describe Book do
 
   end
 
-  describe "force_visible" do
+  describe "force-visible" do
 
     it "should change the visibility of the workbooks" do
       book1 = Book.open(@simple_file)

@@ -23,9 +23,9 @@ begin
   p "book1 == book2" if book2 == book1      # the books are identical
   sleep 2   
   new_excel = Excel.new(:reuse => false)    # create a new Excel    
-  book3 = Book.open(file_name2, :default_excel => :current, :visible => true) # open another book
-  if book3.excel == book2.excel then     # since this book cannot be reopened, the option :default_excel applies:
-    p "book3 opened in the first Excel"  # according to :default_excel => :current the book is opened
+  book3 = Book.open(file_name2, :default => {:excel => :current}, :visible => true) # open another book
+  if book3.excel == book2.excel then     # since this book cannot be reopened, the option :default => {:excel} applies:
+    p "book3 opened in the first Excel"  # according to :default => {:excel => :current} the book is opened
   end                                    # in the Excel instance the was created first
   sleep 2                                          
   new_excel = Excel.new(:reuse => false)         

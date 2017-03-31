@@ -38,6 +38,20 @@ class REOCommon
       end
     end
   end
+
+  def self.puts_hash(hash)
+    hash.each do |e|
+      if e[1].is_a?(Hash)
+        puts "#{e[0]} =>"
+        e[1].each do |f|
+          puts "  #{f[0]} => #{f[1]}"
+        end
+      else
+        puts "#{e[0]} => #{e[1]}"
+      end
+    end
+  end
+
 end
 
 module RobustExcelOle

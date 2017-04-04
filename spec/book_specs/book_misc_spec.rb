@@ -209,7 +209,7 @@ describe Book do
     end
 
     it "should open the workbook invisible if the workbook is new" do
-      book1 = Book.open(@simple_file1, :default => {:visible => false)
+      book1 = Book.open(@simple_file1, :default => {:visible => false})
       book1.visible.should be_false
       book1.excel.Visible.should be_false
       book1.Windows(book1.Name).Visible.should be_false

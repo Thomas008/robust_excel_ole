@@ -39,6 +39,10 @@ class REOCommon
     end
   end
 
+  def puts_hash(hash)
+    self.class.puts_hash(hash)
+  end
+
   def self.puts_hash(hash)
     hash.each do |e|
       if e[1].is_a?(Hash)

@@ -13,24 +13,31 @@ module RobustExcelOle
 
     alias ole_object ole_workbook
 
-      DEFAULT_OPEN_OPTS = { 
-        #:default_excel => :current,
-        :default => {:excel => :current},      
-        :if_unsaved    => :raise,
-        :if_obstructed => :raise,
-        :if_absent     => :raise,
-        :read_only => false,
-        :check_compatibility => false,       
-        :update_links => :never
-      }
+    DEFAULT_OPEN_OPTS = { 
+      :default => {:excel => :current},
+      :force => {},      
+      :if_unsaved    => :raise,
+      :if_obstructed => :raise,
+      :if_absent     => :raise,
+      :read_only => false,
+      :check_compatibility => false,       
+      :update_links => :never
+    }
+
+    SYNONYMS_OPTS = [[[:default],[:d]], [[:force], [:f]], 
+                     [[:default,:excel],[:default_excel]],[[:force,:excel],[:force_excel]],                    
+                     [[:default,:excel],[:default,:e]], [[:force,:excel],[:force,:e]],
+                     [[:default,:visible],[:default,:v]], [[:force,:visible],[:force,:v]],
+                     [[:force,:visible],[:visible]]
+    ]
 
     class << self
       
       # opens a workbook.
       # @param [String] file the file name
       # @param [Hash] opts the options
-      # @option opts [Hash] :default
-      # @option opts [Hash] :force
+      # @option opts [Hash] :default or :d
+      # @option opts [Hash] :force or :f
       # @option opts [Symbol]  :if_unsaved     :raise (default), :forget, :accept, :alert, :excel, or :new_excel
       # @option opts [Symbol]  :if_obstructed  :raise (default), :forget, :save, :close_if_saved, or _new_excel
       # @option opts [Symbol]  :if_absent      :raise (default) or :create
@@ -42,7 +49,8 @@ module RobustExcelOle
       #            otherwise, i.e. if the workbook cannot be reopened, use the properties stated in :default
       # :force   : no matter whether the workbook was already open before, use the properties stated in :force 
       # :default and :force contain: :excel, :visible
-      #  :excel   :current -> connects to a running (the first opened) Excel instance,
+      #  :excel   :current (or :active or :reuse) 
+      #                    -> connects to a running (the first opened) Excel instance,
       #                       excluding the hidden Excel instance, if it exists,
       #                       otherwise opens in a new Excel instance.
       #           :new     -> opens in a new Excel instance 
@@ -83,7 +91,7 @@ module RobustExcelOle
           if book
             if (((not options[:force][:excel]) || (forced_excel == book.excel)) &&
                  (not (book.alive? && (not book.saved) && (not options[:if_unsaved] == :accept))))
-              book.options = DEFAULT_OPEN_OPTS.merge(opts)
+              book.options = options
               book.ensure_excel(options) # unless book.excel.alive?
               # if the book is opened as readonly and should be opened as writable, then close it and open the book with the new readonly mode
               book.close if (book.alive? && (not book.writable) && (not options[:read_only]))
@@ -152,21 +160,29 @@ module RobustExcelOle
 
   private
 
-    # translates options from abbreviations and synonyms
+    # merges options with defaults and translates abbreviations and synonyms
     def self.process_options(options) # :nodoc: #
-      opts = {:default => {}, :force => {}}.merge(DEFAULT_OPEN_OPTS)
-      opts = opts.merge(options)
-      opts[:default] = options[:d] unless options[:d].nil?
-      opts[:force] = options[:f] unless options[:f].nil?
-      opts[:default][:excel] = opts[:default][:e] unless opts[:default][:e].nil?
-      opts[:default][:visible] = opts[:default][:v] unless opts[:default][:v].nil?
-      opts[:force][:excel] = opts[:force][:e] unless opts[:force][:e].nil?
-      opts[:force][:visible] = opts[:force][:v] unless opts[:force][:v].nil?
-      opts[:default][:excel] = opts[:default_excel] unless opts[:default_excel].nil?
-      opts[:force][:excel] = opts[:force_excel] unless opts[:force_excel].nil?
-      opts[:force][:visible] = opts[:visible] unless opts[:visible].nil?     
-      opts[:default][:excel] = :current if (opts[:default][:excel] == :reuse || opts[:default][:excel] == :active)
-      opts[:force][:excel] = :current if (opts[:force][:excel] == :reuse || opts[:force][:excel] == :active)
+      translator = proc do |opts|
+        SYNONYMS_OPTS.each do |a|
+          synonym = a[1][1].nil? ? opts[a[1][0]] : opts[a[1][0]][a[1][1]] unless opts[a[1][0]].nil?
+          unless synonym.nil?
+            if a[0][1].nil?
+              opts[a[0][0]] = synonym if opts[a[0][0]].nil?
+            else
+              opts[a[0][0]] = {} if opts[a[0][0]].nil?
+              opts[a[0][0]][a[0][1]] = synonym if opts[a[0][0]][a[0][1]].nil?
+            end
+          end          
+        end
+        opts[:default][:excel] = :current if (not opts[:default].nil?) && (opts[:default][:excel] == :reuse || opts[:default][:excel] == :active)
+        opts[:force][:excel] = :current if (not opts[:force].nil?) && (opts[:force][:excel] == :reuse || opts[:force][:excel] == :active)        
+        opts
+      end
+      default_opts = translator.call(DEFAULT_OPEN_OPTS)
+      given_opts = translator.call(options)
+      opts = default_opts.merge(given_opts)
+      opts[:default] = default_opts[:default].merge(opts[:default]) unless opts[:default].nil?
+      opts[:force] = default_opts[:force].merge(opts[:force]) unless opts[:force].nil?
       opts
     end
 
@@ -211,13 +227,13 @@ module RobustExcelOle
       workbook
     end
 
-
     def ensure_excel(options)   # :nodoc: #
       if @excel && @excel.alive?
         @excel.created = false
         return
       end
       excel_option = options[:force][:excel].nil? ? options[:default][:excel] : options[:force][:excel]
+      
       @excel = self.class.excel_of(excel_option) unless (excel_option == :current || excel_option == :new)
       @excel = excel_class.new(:reuse => (excel_option == :current)) unless (@excel && @excel.alive?)
 
@@ -329,7 +345,7 @@ module RobustExcelOle
             # workaround for bug in Excel 2010: workbook.Open does not always return the workbook with given file name
             @ole_workbook = workbooks.Item(File.basename(filename))
             if options[:force][:visible].nil? && (not options[:default][:visible].nil?)
-              if @excel.created               
+              if @excel.created   
                 self.visible = options[:default][:visible] 
               else
                 self.window_visible = options[:default][:visible]

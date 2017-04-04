@@ -29,12 +29,12 @@ begin
   end                                    # in the Excel instance the was created first
   sleep 2                                          
   new_excel = Excel.new(:reuse => false)         
-  book4 = Book.open(file_name3, :default_excel => new_excel, :visible => true)  # open another book
+  book4 = Book.open(file_name3, :default => {:excel => new_excel}, :visible => true)  # open another book
   if book4.excel == new_excel then       # since this book cannot be reopened, the option :default_excel applies: 
     p "book4 opened in the second Excel" # according to :default_excel => new_excel the book is opened
   end                                    # in the given Excel, namely the second Excel instance new_excel 
   sleep 2   
-  book5 = Book.open(file_name4, :default_excel => :new, :visible => true)  # open another book
+  book5 = Book.open(file_name4, :default => {:excel => :new}, :visible => true)  # open another book
   if ((not book5.excel == book1.excel) && (not book5.excel == new_excel)) then  # since this book cannot be reopened, 
     p "book5 opened in a third Excel" # the option :default_excel applies. according to :default_excel => :new 
   end                                 # the book is opened in a new Excel

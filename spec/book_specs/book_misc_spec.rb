@@ -279,7 +279,7 @@ describe Book do
 
     it "should adapt its default value at the visible value of the Excel" do
       excel1 = Excel.create
-      excel1.Visible = true
+      excel1.visible = true
       book1 = Book.open(@simple_file)
       excel1.Visible.should be_true
       excel1.visible.should be_true

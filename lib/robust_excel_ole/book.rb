@@ -28,7 +28,7 @@ module RobustExcelOle
                      [[:default,:excel],[:default_excel]],[[:force,:excel],[:force_excel]],                    
                      [[:default,:excel],[:default,:e]], [[:force,:excel],[:force,:e]],
                      [[:default,:visible],[:default,:v]], [[:force,:visible],[:force,:v]],
-                     [[:force,:visible],[:visible]]
+                     [[:force,:visible],[:visible]], [[:force,:visible],[:v]]
     ]
 
     class << self
@@ -134,8 +134,8 @@ module RobustExcelOle
     # @option opts [Symbol] see above
     # @return [Book] a workbook
     def initialize(file_or_workbook, opts={ }, &block)
-      if file_or_workbook.is_a? WIN32OLE
-        options = process_options(opts)
+      options = self.class.process_options(opts)
+      if file_or_workbook.is_a? WIN32OLE        
         workbook = file_or_workbook
         @ole_workbook = workbook        
         # use the Excel instance where the workbook is opened
@@ -145,8 +145,8 @@ module RobustExcelOle
         ensure_excel(options)
       else
         file = file_or_workbook
-        ensure_excel(opts)
-        ensure_workbook(file, opts)        
+        ensure_excel(options)
+        ensure_workbook(file, options)        
       end
       bookstore.store(self)
       if block
@@ -232,7 +232,7 @@ module RobustExcelOle
         @excel.created = false
         return
       end
-      excel_option = options[:force][:excel].nil? ? options[:default][:excel] : options[:force][:excel]
+      excel_option = (options[:force].nil? or options[:force][:excel].nil?) ? options[:default][:excel] : options[:force][:excel]
       
       @excel = self.class.excel_of(excel_option) unless (excel_option == :current || excel_option == :new)
       @excel = excel_class.new(:reuse => (excel_option == :current)) unless (@excel && @excel.alive?)
@@ -493,12 +493,8 @@ module RobustExcelOle
       end
       if_closed = :current if (if_closed == :reuse || if_closed == :active)
       if_closed = :current unless if_closed
-      options = {
-        :read_only => false,
-        :readonly_excel => false,
-        :keep_open => false,
-        :check_compatibility => false
-      }.merge(opts)
+      options = process_options(opts)
+      opts = {:readonly_excel => false,:keep_open => false}.merge(opts)
       book = bookstore.fetch(file, :prefer_writable => (not options[:read_only]))
       was_not_alive_or_nil = book.nil? || (not book.alive?)
       workbook = book.excel.Workbooks.Item(File.basename(file)) rescue nil
@@ -530,8 +526,7 @@ module RobustExcelOle
                                          open(file, :force => {:excel => :new}, :read_only => options[:read_only])
             end
           end
-        book.excel.visible = options[:force][:visible] unless options[:force][:visible].nil?
-        #book.visible = options[:visible].nil? ? book.excel.visible : options[:visible]
+        book.excel.visible = options[:force][:visible] unless options[:force].nil? or options[:force][:visible].nil?
         old_check_compatibility = book.CheckCompatibility
         book.CheckCompatibility = options[:check_compatibility]
         yield book

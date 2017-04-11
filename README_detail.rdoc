@@ -332,7 +332,7 @@ You can access all sheet objects by using the methods Book#each.
     # do something with sheet
   end
 
-=== Accessing a row or a column.
+=== Accessing cells, rows and columns.
 
 A sheet object is enumerable. Use the methods Sheet#each_column, Sheet#each_row or Sheet#each.
 
@@ -394,7 +394,7 @@ or
 
   sheet.nameval(name)
 
-You set the valur if a range using
+You set the value if a range using
 
   book[name] = value
 
@@ -426,7 +426,7 @@ You can specify the position of the added empty worksheet.
 
   book.add_empty_sheet(:as => 'new_name', :before => another_sheet)
 
-You can yopy a worksheet and add it.
+You can copy a worksheet and add it.
 
   book.copy_sheet sheet
 

@@ -112,7 +112,7 @@ module RobustExcelOle
     # @param [Hash] opts the options
     # @option opts [Symbol] see above
     # @return [Book] a workbook
-    def self.new(workbook, opts={ }, &block)      
+    def self.new(workbook, opts={ }, &block)
       if workbook && (workbook.is_a? WIN32OLE)
         opts = process_options(opts)
         filename = workbook.Fullname.tr('\\','/') rescue nil
@@ -342,7 +342,7 @@ module RobustExcelOle
             end 
           end
           begin
-            # workaround for bug in Excel 2010: workbook.Open does not always return the workbook with given file name
+            # workaround for bug in Excel 2010: workbook.Open does not always return the workbook when given file name
             @ole_workbook = workbooks.Item(File.basename(filename))
             if options[:force][:visible].nil? && (not options[:default][:visible].nil?)
               if @excel.created   
@@ -383,6 +383,7 @@ module RobustExcelOle
     def with_workaround_linked_workbooks_excel2007
       workbooks = @excel.Workbooks
       workaround_condition = @excel.Version.split(".").first.to_i == 12 && workbooks.Count == 0
+      workaround_condition = true
       workbooks.Add if workaround_condition
       begin
         #@excel.with_displayalerts(update_links_opt == :alert ? true : @excel.displayalerts) do

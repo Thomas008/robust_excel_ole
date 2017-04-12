@@ -515,8 +515,8 @@ module RobustExcelOle
     # sets calculation mode
     def calculation= calculation_mode
       return if calculation_mode.nil?
-      calc_mode_changable = @ole_excel.Workbooks.Count > 0 &&  @ole_excel.Calculation.is_a?(Fixnum)
       @calculation = calculation_mode
+      calc_mode_changable = @ole_excel.Workbooks.Count > 0 &&  @ole_excel.Calculation.is_a?(Fixnum)
       if calc_mode_changable
         @ole_excel.CalculateBeforeSave = false
         @ole_excel.Calculation = 

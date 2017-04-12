@@ -98,6 +98,7 @@ module RobustExcelOle
               # reopens the book
               book.ensure_workbook(file,options) unless book.alive?
               book.visible = options[:force][:visible] unless options[:force][:visible].nil?
+              book.excel.calculation = options[:calculation] unless options[:calculation].nil?
               return book
             end
           end
@@ -120,6 +121,8 @@ module RobustExcelOle
           book = bookstore.fetch(filename)
           if book && book.alive?
             book.visible = opts[:force][:visible] unless opts[:force][:visible].nil?
+            #book.excel.calculation = opts[:calculation].nil? ? book.excel.calculation : opts[:calculation]
+            book.excel.calculation = opts[:calculation] unless opts[:calculation].nil?
             return book 
           end
         end
@@ -141,7 +144,8 @@ module RobustExcelOle
         # use the Excel instance where the workbook is opened
         win32ole_excel = WIN32OLE.connect(workbook.Fullname).Application rescue nil   
         @excel = excel_class.new(win32ole_excel)     
-        @excel.visible = options[force][:visible] unless options[:force][:visible].nil?     
+        @excel.visible = options[force][:visible] unless options[:force][:visible].nil? 
+        @excel.calculation = options[:calculation] unless options[:calculation].nil?
         ensure_excel(options)
       else
         file = file_or_workbook
@@ -233,7 +237,6 @@ module RobustExcelOle
         return
       end
       excel_option = (options[:force].nil? or options[:force][:excel].nil?) ? options[:default][:excel] : options[:force][:excel]
-      
       @excel = self.class.excel_of(excel_option) unless (excel_option == :current || excel_option == :new)
       @excel = excel_class.new(:reuse => (excel_option == :current)) unless (@excel && @excel.alive?)
 
@@ -330,20 +333,24 @@ module RobustExcelOle
             end
           end
           begin
-            with_workaround_linked_workbooks_excel2007 do            
+            with_workaround_linked_workbooks_excel2007(options) do            
               workbooks.Open(filename, { 'ReadOnly' => options[:read_only] ,
-                                       'UpdateLinks' => updatelinks_vba(options[:update_links]) })
+                                         'UpdateLinks' => updatelinks_vba(options[:update_links]) })
             end
           rescue WIN32OLERuntimeError => msg
             if msg.message =~ /800A03EC/
-              raise ExcelError, "user canceled or runtime error"
+              raise ExcelError, "user canceled or runtime error #{msg.message}"
             else 
               raise UnexpectedError, "unexpected WIN32OLERuntimeError: #{msg.message}"
             end 
           end
           begin
             # workaround for bug in Excel 2010: workbook.Open does not always return the workbook when given file name
-            @ole_workbook = workbooks.Item(File.basename(filename))
+            begin
+              @ole_workbook = workbooks.Item(File.basename(filename))
+            rescue WIN32OLERuntimeError => msg
+              raise UnexpectedError, "unexpected WIN32OLERuntimeError: #{msg.message}"
+            end
             if options[:force][:visible].nil? && (not options[:default][:visible].nil?)
               if @excel.created   
                 self.visible = options[:default][:visible] 
@@ -354,7 +361,7 @@ module RobustExcelOle
               self.visible = options[:force][:visible] unless options[:force][:visible].nil?
             end
             @ole_workbook.CheckCompatibility = options[:check_compatibility]
-            @excel.calculation = options[:calculation].nil? ? @excel.calculation : options[:calculation]             
+            @excel.calculation = options[:calculation] unless options[:calculation].nil?
             self.Saved = true # unless self.Saved # ToDo: this is too hard
           rescue WIN32OLERuntimeError => msg
             raise UnexpectedError, "unexpected WIN32OLERuntimeError: #{msg.message} #{msg.backtrace}"
@@ -376,20 +383,20 @@ module RobustExcelOle
     end
 
     # workaround for linked workbooks for Excel 2007: 
-    # ToDo: calculation mode of the empty workbook is taken (automatic)
-    #        so calculation mode cannot be set for the actual workbook 
     # opening and closing a dummy workbook if Excel has no workbooks.
     # delay: with visible: 0.2 sec, without visible almost none
-    def with_workaround_linked_workbooks_excel2007
+    def with_workaround_linked_workbooks_excel2007(options)
       workbooks = @excel.Workbooks
-      workaround_condition = @excel.Version.split(".").first.to_i == 12 && workbooks.Count == 0
-      workaround_condition = true
-      workbooks.Add if workaround_condition
+      workaround_condition = @excel.Version.split(".").first.to_i >= 12 && workbooks.Count == 0
+      if workaround_condition
+        workbooks.Add 
+        @excel.calculation = options[:calculation].nil? ? @excel.calculation : options[:calculation] 
+      end
       begin
         #@excel.with_displayalerts(update_links_opt == :alert ? true : @excel.displayalerts) do
         yield self
       ensure
-        workbooks.Item(1).Close if workaround_condition
+        workbooks.Item(1).Close
       end
     end
        

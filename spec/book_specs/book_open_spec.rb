@@ -115,9 +115,9 @@ describe Book do
       end
 
       it "should change the calculation mode from manual to automatic" do
-        book1 = Book.open(@simple_file)
+        book1 = Book.open(@simple_file, :visible => true)
         excel1 = Excel.current(:calculation => :automatic)        
-        book2 = Book.open(@different_file)
+        book2 = Book.open(@different_file, :visible => true)
         book2.excel.Calculation.should == -4105
         book1.excel.Calculation.should == -4105
       end

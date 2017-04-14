@@ -396,7 +396,7 @@ module RobustExcelOle
         #@excel.with_displayalerts(update_links_opt == :alert ? true : @excel.displayalerts) do
         yield self
       ensure
-        workbooks.Item(1).Close
+        workbooks.Item(1).Close if workaround_condition
       end
     end
        

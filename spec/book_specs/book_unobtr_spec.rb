@@ -120,19 +120,61 @@ describe Book do
         Book.unobtrusively(@simple_file, :visible => true) do |book|
           book.should be_a Book
           book.should be_alive
-          book.excel.visible.should be_true
+          book.excel.Visible.should be_true
+          book.Windows(book.Name).Visible.should be_true
         end
       end
 
-      it "should be visible" do
+      it "should be visible and displayalerts" do
         excel = Excel.new(:reuse => false, :displayalerts => true)
         Book.unobtrusively(@simple_file, :visible => true) do |book|
           book.should be_a Book
           book.should be_alive
-          book.excel.visible.should be_true
-          book.excel.displayalerts.should be_true
+          book.excel.Visible.should be_true
+          book.Windows(book.Name).Visible.should be_true
+          book.excel.DisplayAlerts.should be_true
         end
       end
+
+      it "should do default-visible" do
+        excel = Excel.new(:reuse => false, :visible => false)
+        Book.unobtrusively(@simple_file, :default => {:visible => true}) do |book|
+          book.should be_a Book
+          book.should be_alive
+          book.excel.Visible.should_not be_true
+          book.Windows(book.Name).Visible.should be_true
+        end
+      end
+
+      it "should do default-invisible" do
+        excel = Excel.new(:reuse => false, :visible => true)
+        Book.unobtrusively(@simple_file, :default => {:visible => false}) do |book|
+          book.should be_a Book
+          book.should be_alive
+          book.excel.Visible.should be_true
+          book.Windows(book.Name).Visible.should be_false
+        end
+      end      
+
+      it "should do force-visible" do
+        excel = Excel.new(:reuse => false, :visible => false)
+        Book.unobtrusively(@simple_file, :force => {:visible => true}) do |book|
+          book.should be_a Book
+          book.should be_alive
+          book.excel.Visible.should be_true
+          book.Windows(book.Name).Visible.should be_true
+        end
+      end
+
+      it "should do force-invisible" do
+        excel = Excel.new(:reuse => false, :visible => true)
+        Book.unobtrusively(@simple_file, :force => {:visible => false}) do |book|
+          book.should be_a Book
+          book.should be_alive
+          book.excel.Visible.should be_true
+          book.Windows(book.Name).Visible.should be_false
+        end
+      end      
 
     end
 

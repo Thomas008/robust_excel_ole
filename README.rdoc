@@ -30,11 +30,16 @@ Another feature that RobustExcelOle povides is reopening workbooks after closing
 
   book1 = Book.open('workbook.xls', :default => {:excel => :new})
 
-Moreover, RobustExcelOle allows unobtrusively reading and modifying workbooks, i.e. accessing workbooks without changing their "status". The status comprises whether the workbook is open in some Excel instance , saved and writable. 
+Moreover, RobustExcelOle allows unobtrusively reading and modifying workbooks, i.e. accessing workbooks without changing their "status". The status comprises whether the workbook is open or closed, saved or unsaved, read-only or writable, visible or invisible, calculation mode is manual or automatic, and checking compatibility is done. 
 
   Book.for_modifying('workbook.xls') do |book|
     ...
   end
+
+  Book.for_reading('workbook.xls') do |book|
+    ...
+  end
+
 
 == Requirements
 
@@ -132,7 +137,7 @@ If a workbook blocks the workbook that should be saved, then the former one can 
 
 === Unobtrusively opening a workbook
 
-The method +unobtrusively+ enables reading and modifying a workbook, without changing its "status". This status comprises whether the workbook is open in some Excel instance or closed, whether it is saved or unsaved, and whether it is writable or not. Some options determine the Excel instance in which a closed workbook is opened.  
+The method +unobtrusively+ enables reading and modifying a workbook, without changing its "status". This status comprises whether the workbook is open or closed, saved or unsaved, read-only or writable, visible or invisible, calculation mode is manual or automatic, and checking compatibility is done or not. Some options determine the Excel instance in which a closed workbook is opened.  
 
   Book.unobtrusively('workbook.xls') do |book|
     # some modification

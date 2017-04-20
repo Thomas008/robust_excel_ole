@@ -216,15 +216,13 @@ If a workbook blocks the workbook that should be saved, then the former one can 
 
 === Unobtrusively modifying a workbook
 
-The method +unobtrusively+ enables the user to read or modify a workbook, no matter if it is open in some Excel instance, if it is saved or unsaved, and if it is writable or not. When opening a workbook unobtrusively, its status remains unchanged. This status includes, whether the workbook is opened or closed, saved or unsaved, readonly or writable. 
+The method +unobtrusively+ enables the user to read or modify a workbook, no matter if it is open in some Excel instance, if it is saved or unsaved, and if it is writable or not. When opening a workbook unobtrusively, its status remains unchanged. This status includes, whether the workbook is opened or closed, saved or unsaved, readonly or writable, visible or invisible, calculation mode is automatic or manual, and checking compatibility is turned on or off. 
 
-One option chooses the Excel instance in which a closed workbook is opened. The option +:current+ (or +:active+, or +:reuse) (default) indicates that the closed workbook is opened in the Excel instance of the workbook, if it exists, or that another Excel instance is reused. The option +:hidden+ provokes that the closed workbook is opened in a separate Excel instance that is not visible and has no DisplayAlerts. Any following closed workbook would be opened in this Excel instance as well when using this option. Moreover, an Excel instance can be given directly where to open the closed workbook.
+One option chooses the Excel instance in which a closed workbook is opened. The option +:current+ (or +:active+, or +:reuse) (default) indicates that the closed workbook is opened in the Excel instance of the workbook, if it exists, or that another Excel instance is reused.  Moreover, an Excel instance can be given directly where to open the closed workbook.
 
 Options are the following:
 
 +:current+ (or +:active, or +:reuse+:): (default) : open a closed workbook in the Excel instance where it was opened most recently, if such an Excel instance exists, otherwise open it in the current (first opened) Excel instance
-+:hidden+::          : open a closed workbook in one separate Excel instance that is not visible and has no displayalerts
-<excel-instance> : open a closed workbooks in the given Excel instance
                
 +:read_only+:: Open the workbook unobtrusively for reading only  (default: false)
 +:readonly_excel+::  if the workbook is opened only as ReadOnly and shall be modified, then
@@ -232,8 +230,6 @@ Options are the following:
                      false (default) open it as writable in another running excel instance, if it exists, 
                                      otherwise open in a new excel instance
 +:keep_open+::          let the workbook open after unobtrusively opening (default: false)
-+:visible+::            make the window of the workbook visible (default: false)
-+:check_compatibility+:: checks compatibility when saving
 
   Book.unobtrusively('workbook.xls') do |book|
     # some modification

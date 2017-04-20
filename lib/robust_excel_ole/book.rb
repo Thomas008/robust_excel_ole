@@ -396,7 +396,7 @@ module RobustExcelOle
         #@excel.with_displayalerts(update_links_opt == :alert ? true : @excel.displayalerts) do
         yield self
       ensure
-        workbooks.Item(1).Close if workaround_condition
+        @excel.with_displayalerts(false){workbooks.Item(1).Close} if workaround_condition           
       end
     end
        
@@ -473,27 +473,70 @@ module RobustExcelOle
       unobtrusively(*args, &block)
     end
 
-    # allows to modify a workbook such that its state (open/close, saved/unsaved, readonly/writable) remains unchanged
+    # allows to read or modify a workbook such that its state remains unchanged
+    # state comprises: open, saved, writable, visible, calculation mode, check compatibility 
     # @param [String] file        the file name
-    # @param [Hash]   if_closed   an option
     # @param [Hash]   opts        the options
-    # @option opts [Variant] :if_closed  :current (or :reuse, :active) (default), :hidden or a Excel instance
-    # @option opts [Boolean] :read_only whether the file is opened for read-only
+    # @option opts [Variant] :if_closed  :current (default), :new or an Excel instance
+    # @option opts [Boolean] :read_only whether the workbook is opened for read-only
     # @option opts [Boolean] :readonly_excel behaviour when workbook is opened read-only and shall be modified
-    # @option opts [Boolean] :keep_open whether the workbook shall be kept open after unobtrusively opening
-    # @option opts [Boolean] :visible        true, or false (default) 
-    #  options: 
-    #   :if_closed :   if the workbook is closed, then open it in
-    #                    :current (or :active, :reuse) -> the Excel instance of the workbook, if it exists, 
-    #                                                     reuse another Excel, otherwise          
-    #                    :hidden -> a separate Excel instance that is not visible and has no displayalerts
-    #                    <excel-instance> -> the given Excel instance
-    #  :readonly_excel:  if the workbook is opened only as ReadOnly and shall be modified, then
-    #                    true:  closes it and open it as writable in the Excel instance where it was open so far
-    #                    false (default)   opens it as writable in another running excel instance, if it exists,
-    #                                      otherwise open in a new Excel instance.
-    #  :visible, :read_only, :update_links, :check_compatibility : see options in #open
+    #               true:  closes it and open it as writable in the Excel instance where it was open so far
+    #               false (default)  opens it as writable in another running excel instance, if it exists,
+    #                                otherwise open in a new Excel instance.
+    # @option opts [Boolean] :keep_open whether the workbook shall be kept open after unobtrusively opening 
     # @return [Book] a workbook
+
+    state = [:open, :saved, :writable, :visible, :calculation, :check_compatibility]
+
+    def self.unobtrusively(file, opts = { }, &block) 
+      options = {:if_closed => :current, 
+              :read_only => false,
+              :readonly_excel => false,
+              :keep_open => false}.merge(opts)
+      book = bookstore.fetch(file, :prefer_writable => (not options[:read_only]))
+      was_open = book && book.alive?
+      if was_open
+        was_saved = book.saved
+        was_writable = book.writable
+        was_visible = book.visible
+        was_calculation = book.calculation
+        was_check_compatibility = book.check_compatibility
+      end     
+      begin 
+        book = 
+          if was_open 
+            if (not was_writable) && (not options[:read_only])
+              open(file, :force => {:excel => (options[:readonly_excel] ? book.excel : :new)}, :read_only => false)
+            else
+              book
+            end
+          else
+            open(file, :force => {:excel => options[:if_closed]}, :read_only => false)
+          end
+        yield book
+      ensure
+        if book && book.alive?
+          unless book.saved
+            book.save unless options[:read_only]
+            book.Saved = true if (was_saved || (not was_open)) && options[:read_only]
+            book.Saved = false if (not was_saved) && (not options[:read_only]) && was_open
+          end
+          if was_open
+            if (not was_writable) && (not options[:read_only]) && options[:readonly_excel]
+              book.close
+              open(file, :force => {:excel => book.excel}, :if_obstructed => :new_excel, :read_only => true)
+            end         
+            book.excel.calculation = was_calculation
+            book.CheckCompatibility = was_check_compatibility
+            #book.visible = was_visible  # not necessary
+          end          
+          
+          book.close unless was_open || options[:keep_open]
+        end
+      end
+    end
+
+=begin
     def self.unobtrusively(file, if_closed = nil, opts = { }, &block) 
       if if_closed.is_a? Hash
         opts = if_closed
@@ -557,6 +600,7 @@ module RobustExcelOle
         end
       end
     end
+=end
 
     # reopens a closed workbook
     def reopen
@@ -851,40 +895,6 @@ module RobustExcelOle
       @ole_workbook.Activate
     end
 
-    # returns true, if the workbook is visible, false otherwise 
-    def visible
-      @excel.visible && @ole_workbook.Windows(@ole_workbook.Name).Visible
-    end
-
-    # makes both the Excel instance and the window of the workbook visible, or the window invisible
-    # @param [Boolean] visible_value determines whether the workbook shall be visible
-    def visible= visible_value
-      @excel.visible = true if visible_value
-      self.window_visible = visible_value
-    end
-
-    # returns true, if the window of the workbook is set to visible, false otherwise
-    def window_visible
-      return @ole_workbook.Windows(@ole_workbook.Name).Visible
-    end
-
-    # makes the window of the workbook visible or invisible
-    # @param [Boolean] visible_value determines whether the window of the workbook shall be visible
-    def window_visible= visible_value
-      retain_saved do
-        @ole_workbook.Windows(@ole_workbook.Name).Visible = visible_value if @ole_workbook.Windows.Count > 0
-      end
-    end
-
-#    def visible= visible_value
-#      retain_saved do
-#        @excel.visible = true if visible_value
-#        if @ole_workbook.Windows.Count > 0
-#          @ole_workbook.Windows(@ole_workbook.Name).Visible = visible_value 
-#        end
-#      end
-#    end
-
     # returns true, if the workbook reacts to methods, false otherwise
     def alive?
       begin 
@@ -908,6 +918,39 @@ module RobustExcelOle
 
     def saved   # :nodoc: #
       @ole_workbook.Saved if @ole_workbook
+    end
+
+    def calculation
+      @excel.calculation if @ole_workbook
+    end
+
+    def check_compatibility
+      @ole_workbook.CheckCompatibility if @ole_workbook
+    end
+
+        # returns true, if the workbook is visible, false otherwise 
+    def visible
+      @excel.visible && @ole_workbook.Windows(@ole_workbook.Name).Visible
+    end
+
+    # makes both the Excel instance and the window of the workbook visible, or the window invisible
+    # @param [Boolean] visible_value determines whether the workbook shall be visible
+    def visible= visible_value
+      @excel.visible = true if visible_value
+      self.window_visible = visible_value
+    end
+
+    # returns true, if the window of the workbook is set to visible, false otherwise
+    def window_visible
+      return @ole_workbook.Windows(@ole_workbook.Name).Visible
+    end
+
+    # makes the window of the workbook visible or invisible
+    # @param [Boolean] visible_value determines whether the window of the workbook shall be visible
+    def window_visible= visible_value
+      retain_saved do
+        @ole_workbook.Windows(@ole_workbook.Name).Visible = visible_value if @ole_workbook.Windows.Count > 0
+      end
     end
 
     # @return [Boolean] true, if the full book names and excel Instances are identical, false otherwise  
@@ -939,10 +982,6 @@ module RobustExcelOle
 
     def inspect    # :nodoc: #
       "#<Book: " + "#{"not alive " unless alive?}" + "#{File.basename(self.filename) if alive?}" + " #{@ole_workbook} #{@excel}"  + ">"
-    end
-
-    def self.in_context(klass)  # :nodoc: #
-      
     end
 
     def self.excel_class    # :nodoc: #

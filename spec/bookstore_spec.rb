@@ -408,45 +408,4 @@ describe Bookstore do
     end
   end
 
-  describe "hidden_excel" do
-    
-    context "with some open book" do
-
-      before do
-        @book = Book.open(@simple_file)
-      end
-
-      after do
-        @book.close
-      end
-
-      it "should create and use a hidden Excel instance" do
-        h_excel1 = @bookstore.hidden_excel
-        h_excel1.should_not == @book.excel
-        h_excel1.Visible.should be_false
-        h_excel1.DisplayAlerts.should be_false
-        book1 = Book.open(@simple_file, :force_excel => @bookstore.hidden_excel)
-        book1.excel.should === h_excel1
-        book1.excel.should_not === @book.excel
-        Excel.close_all    
-        h_excel2 = @bookstore.hidden_excel
-        h_excel2.should_not == @book.excel
-        h_excel2.should_not == book1.excel
-        h_excel2.Visible.should be_false
-        h_excel2.DisplayAlerts.should be_false
-        book2 = Book.open(@simple_file, :force_excel => @bookstore.hidden_excel)
-        book2.excel.should === h_excel2
-        book2.excel.should_not === @book.excel
-        book2.excel.should_not === book1.excel
-      end
-
-      it "should exclude hidden excel" do
-        book1 = Book.open(@simple_file, :force_excel => @bookstore.hidden_excel)
-        @bookstore.store(book1)
-        book1.close
-        book2 = @bookstore.fetch(@simple_file)
-        book2.should == nil
-      end  
-    end
-  end
 end

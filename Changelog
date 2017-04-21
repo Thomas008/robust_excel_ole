@@ -6,7 +6,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
- - Book#unobtrusively: option: :if_closed => 
+ - Book#unobtrusively: option: :if_closed
+ - removed :hidden 
 
 ## [1.0.1] - 2017-16-04
 

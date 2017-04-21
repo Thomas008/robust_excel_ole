@@ -555,6 +555,28 @@ describe Book do
 
   end
 
+  describe "hidden_excel" do
+    
+    context "with some open book" do
+
+      before do
+        @book = Book.open(@simple_file1)
+      end
+
+      after do
+        @book.close
+      end
+
+      it "should create and use a hidden Excel instance" do
+        book2 = Book.open(@simple_file1, :force_excel => @book.bookstore.hidden_excel)
+        book2.excel.should_not == @book.excel
+        book2.excel.visible.should be_false
+        book2.excel.displayalerts.should == :if_visible
+        book2.close 
+      end
+    end
+  end
+
   describe "nameval, set_nameval, [], []=" do
   
     before do
@@ -944,6 +966,13 @@ describe Book do
         book.CheckCompatibility.should be_false
         book.CheckCompatibility = true
         book.CheckCompatibility.should be_true
+        Book.unobtrusively(@simple_file, :visible => true, :check_compatibility => false) do |book|
+          book.CheckCompatibility.should be_false
+        end
+        Book.unobtrusively(@simple_file, :visible => true, :check_compatibility => true) do |book|
+          book.CheckCompatibility.should be_true
+        end
+
       end
 
     end

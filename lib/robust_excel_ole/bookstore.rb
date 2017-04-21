@@ -7,6 +7,7 @@ module RobustExcelOle
 
     def initialize
       @filename2books ||= Hash.new {|hash, key| hash[key] = [] }
+      @hidden_excel_instance = nil
     end
 
     # returns a book with the given filename, if it was open once
@@ -15,6 +16,7 @@ module RobustExcelOle
     # @option option [Boolean] :prefer_writable
     # @option option [Boolean] :prefer_excel
     # prefers open books to closed books, and among them, prefers more recently opened books
+    # excludes hidden Excel instance
     # options: :prefer_writable   returns the writable book, if it is open (default: true)
     #                             otherwise returns the book according to the preference order mentioned above
     #          :prefer_excel      returns the book in the given Excel instance, if it exists,
@@ -39,6 +41,7 @@ module RobustExcelOle
           end
         else
           book = wr_book.__getobj__
+          next if book.excel == try_hidden_excel
           if options[:prefer_excel] && book.excel == options[:prefer_excel]
             result = book
             break 
@@ -68,6 +71,14 @@ module RobustExcelOle
       book.stored_filename = book.filename
     end
 
+    # creates and returns a separate Excel instance with Visible and DisplayAlerts equal false
+    def hidden_excel  # :nodoc: #
+      unless (@hidden_excel_instance &&  @hidden_excel_instance.weakref_alive? && @hidden_excel_instance.__getobj__.alive?)       
+        @hidden_excel_instance = WeakRef.new(Excel.create) 
+      end
+      @hidden_excel_instance.__getobj__
+    end
+
     # returns all stored books
     def books
       result = []
@@ -84,6 +95,10 @@ module RobustExcelOle
     end
 
   private
+
+    def try_hidden_excel   # :nodoc: #
+      @hidden_excel_instance.__getobj__ if (@hidden_excel_instance &&  @hidden_excel_instance.weakref_alive? && @hidden_excel_instance.__getobj__.alive?)
+    end
 
     # prints the book store
     def print             # :nodoc: #

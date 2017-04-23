@@ -316,7 +316,7 @@ describe Book do
           @key_sender.puts "{right}{enter}"
           expect{
             Book.open(@simple_file, :if_unsaved => :alert)
-            }.to raise_error(ExcelError, "user canceled or runtime error")
+            }.to raise_error(ExcelError, /user canceled or runtime error/)
           @book.should be_alive
         end
 
@@ -338,7 +338,7 @@ describe Book do
           @key_sender.puts "{right}{enter}"
           expect{
             Book.open(@simple_file, :if_unsaved => :excel)
-            }.to raise_error(ExcelError, "user canceled or runtime error")
+            }.to raise_error(ExcelError, /user canceled or runtime error/)
           @book.should be_alive
         end
 
@@ -575,16 +575,16 @@ describe Book do
       end
 
       it "should open unobtrusively in a new Excel" do
-        Book.unobtrusively(@simple_file, :hidden) do |book|
+        Book.unobtrusively(@simple_file, :if_closed => :current) do |book|
           book.should be_a Book
           book.should be_alive
-            book.excel.should_not == @excel1
+            book.excel.should == @excel1
             book.excel.should_not == @excel2
           end
       end
 
       it "should open unobtrusively in a given Excel" do
-        Book.unobtrusively(@simple_file, @excel2) do |book|
+        Book.unobtrusively(@simple_file, :if_closed => @excel2) do |book|
           book.should be_a Book
           book.should be_alive
             book.excel.should_not == @excel1
@@ -690,17 +690,16 @@ describe Book do
         sheet[1,1].value.should_not == old_cell_value
       end
 
-      # book shall be reanimated even with :hidden
       it "should use the excel of the book and keep open the book" do
         excel = Excel.new(:reuse => false)
         sheet = @book.sheet(1)
         old_cell_value = sheet[1,1].value
         @book.close
         @book.should_not be_alive
-        Book.unobtrusively(@simple_file1, :hidden) do |book|
+        Book.unobtrusively(@simple_file1, :if_closed => :current) do |book|
           book.should be_a Book
           book.should be_alive
-          book.excel.should_not == @book.excel
+          book.excel.should == @book.excel
           book.excel.should_not == excel
           sheet = book.sheet(1)
           cell = sheet[1,1]
@@ -731,7 +730,7 @@ describe Book do
         book2.Readonly.should be_true
         sheet = @book.sheet(1)
         cell_value = sheet[1,1].value
-        Book.unobtrusively(@simple_file1, :hidden) do |book|
+        Book.unobtrusively(@simple_file1, :if_closed => :current) do |book|
           book.should be_a Book
           book.excel.should_not == book2.excel
           book.excel.should_not == @book.excel
@@ -809,8 +808,8 @@ describe Book do
 
       it "should open unobtrusively the closed book in the most recent Excel where it was open before" do      
         Book.unobtrusively(@simple_file) do |book| 
-          book.excel.should == @book2.excel
-          book.excel.should_not == @book1.excel
+          book.excel.should_not == @book2.excel
+          book.excel.should == @book1.excel
           book.ReadOnly.should == false
           sheet = book.sheet(1)
           cell = sheet[1,1]
@@ -823,9 +822,9 @@ describe Book do
       end
 
       it "should open unobtrusively the closed book in the new hidden Excel" do
-        Book.unobtrusively(@simple_file, :hidden) do |book| 
+        Book.unobtrusively(@simple_file, :if_closed => :current) do |book| 
           book.excel.should_not == @book2.excel
-          book.excel.should_not == @book1.excel
+          book.excel.should == @book1.excel
           book.ReadOnly.should == false
           sheet = book.sheet(1)
           cell = sheet[1,1]
@@ -837,7 +836,9 @@ describe Book do
         sheet[1,1].Value.should_not == @old_cell_value
       end
     end
+  end
 
+=begin
     context "with :hidden" do
 
       before do
@@ -864,6 +865,7 @@ describe Book do
       end
     end
   end
+=end
   
   describe "for_reading, for_modifying" do
 
@@ -892,9 +894,10 @@ describe Book do
         sheet[1,1].Value.should == @old_cell_value
       end
 
+
       it "should not change the value and use the hidden Excel instance" do
         new_excel = Excel.new(:reuse => false)
-        Book.for_reading(@simple_file1, :hidden) do |book|
+        Book.for_reading(@simple_file1, :if_closed => :new) do |book|
           sheet = book.sheet(1)
           cell = sheet[1,1]
           sheet[1,1] = cell.value == "foo" ? "bar" : "foo"

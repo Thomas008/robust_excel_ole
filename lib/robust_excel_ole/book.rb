@@ -388,6 +388,7 @@ module RobustExcelOle
     # opening and closing a dummy workbook if Excel has no workbooks.
     # delay: with visible: 0.2 sec, without visible almost none
     def with_workaround_linked_workbooks_excel2007(options)
+      old_visible_value = @excel.Visible
       workbooks = @excel.Workbooks
       workaround_condition = @excel.Version.split(".").first.to_i >= 12 && workbooks.Count == 0
       if workaround_condition
@@ -398,7 +399,8 @@ module RobustExcelOle
         #@excel.with_displayalerts(update_links_opt == :alert ? true : @excel.displayalerts) do
         yield self
       ensure
-        @excel.with_displayalerts(false){workbooks.Item(1).Close} if workaround_condition           
+        @excel.with_displayalerts(false){workbooks.Item(1).Close} if workaround_condition    
+        @excel.visible = old_visible_value       
       end
     end
        

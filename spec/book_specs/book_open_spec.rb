@@ -1281,7 +1281,9 @@ describe Book do
           @new_book.filename.downcase.should == @simple_file.downcase
           @book.should_not be_alive
         end
-
+      end
+=begin
+        # only for Excel2007:
         it "should not open the new book and not close the unsaved book, if user answers 'no'" do
           # "No" is right to "Yes" (the  default). --> language independent
           # strangely, in the "no" case, the question will sometimes be repeated three times
@@ -1294,7 +1296,8 @@ describe Book do
             }.to raise_error(ExcelError, "user canceled or runtime error")
           @book.should be_alive
         end
-      end
+    
+=end      
 
       context "with :if_unsaved => :excel" do
         before do
@@ -1314,6 +1317,7 @@ describe Book do
           @book.should_not be_alive
         end
 
+=begin
         it "should not open the new book and not close the unsaved book, if user answers 'no'" do
           # "No" is right to "Yes" (the  default). --> language independent
           # strangely, in the "no" case, the question will sometimes be repeated three times
@@ -1326,6 +1330,8 @@ describe Book do
             }.to raise_error(ExcelError, "user canceled or runtime error")
           @book.should be_alive
         end
+=end        
+
       end
 
       it "should open the book in a new excel instance, if :if_unsaved is :new_excel" do

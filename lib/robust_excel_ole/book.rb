@@ -306,8 +306,7 @@ module RobustExcelOle
             when :alert, :excel
               @excel.with_displayalerts(true) { open_or_create_workbook(file,options) }
             when :new_excel
-              excel_options[:reuse] = false
-              @excel = excel_class.new(excel_options)
+              @excel = excel_class.new(:reuse => false)
               open_or_create_workbook(file, options)
             else
               raise OptionInvalid, ":if_unsaved: invalid option: #{options[:if_unsaved].inspect}"
@@ -340,12 +339,8 @@ module RobustExcelOle
               workbooks.Open(filename, { 'ReadOnly' => options[:read_only] ,
                                          'UpdateLinks' => updatelinks_vba(options[:update_links]) })
             end
-          rescue WIN32OLERuntimeError => msg
-            if msg.message =~ /800A03EC/
-              raise ExcelError, "user canceled or runtime error #{msg.message}"
-            else 
-              raise UnexpectedError, "unexpected WIN32OLERuntimeError: #{msg.message}"
-            end 
+          rescue WIN32OLERuntimeError
+            raise 
           end
           begin
             # workaround for bug in Excel 2010: workbook.Open does not always return the workbook when given file name

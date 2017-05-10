@@ -251,6 +251,7 @@ module RobustExcelOle
     def ensure_workbook(file, options)     # :nodoc: #
       file = @stored_filename ? @stored_filename : file
       raise(FileNameNotGiven, "filename is nil") if file.nil?
+      raise(FileNotFound, "file #{General::absolute_path(file).inspect} is a directory") if File.directory?(file)
       unless File.exist?(file)
         if options[:if_absent] == :create
           @ole_workbook = excel_class.current.generate_workbook(file)

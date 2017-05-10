@@ -1474,6 +1474,12 @@ describe Book do
           }.to raise_error(FileNameNotGiven, "filename is nil")
       end
 
+      it "should raise error if file is a directory" do
+        expect{
+          Book.open(@nonexisting)
+          }.to raise_error(FileNameNotGiven, "file #{General::absolute_path(@simple_save_file).gsub("/","\\").inspect} is a directory"))
+      end
+
       it "should raise error if file does not exist" do
         File.delete @simple_save_file rescue nil
         expect {

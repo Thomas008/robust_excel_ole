@@ -1476,8 +1476,8 @@ describe Book do
 
       it "should raise error if file is a directory" do
         expect{
-          Book.open(@nonexisting)
-          }.to raise_error(FileNameNotGiven, "file #{General::absolute_path(@simple_save_file).gsub("/","\\").inspect} is a directory"))
+          Book.open(@dir)
+          }.to raise_error(FileNotFound, "file #{General::absolute_path(@dir).gsub("/","\\").inspect} is a directory")
       end
 
       it "should raise error if file does not exist" do

@@ -339,8 +339,11 @@ module RobustExcelOle
               workbooks.Open(filename, { 'ReadOnly' => options[:read_only] ,
                                          'UpdateLinks' => updatelinks_vba(options[:update_links]) })
             end
-          rescue WIN32OLERuntimeError
-            raise 
+          rescue WIN32OLERuntimeError => msg
+            # for Excel2007: for option :if_unsaved => :alert and user cancels: this error appears?
+            # if yes: distinguish these events
+            #raise
+            trace "WIN32OLERuntimeError: #{msg.message}" 
           end
           begin
             # workaround for bug in Excel 2010: workbook.Open does not always return the workbook when given file name

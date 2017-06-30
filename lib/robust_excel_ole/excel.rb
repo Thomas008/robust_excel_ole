@@ -63,10 +63,21 @@ module RobustExcelOle
     #                    or is not being forced (default: nil)
     #  :screenupdating  turns on or off screen updating (default: true)
     # @return [Excel] an Excel instance
-    def self.new(win32ole_excel = nil, options = {})
+    def self.new(win32ole_excel = nil, options = { })
+      if win32ole_excel.is_a? Hash
+        options = win32ole_excel
+        win32ole_excel = nil
+      end
       ole_xl = win32ole_excel unless win32ole_excel.nil?
       options = {:reuse => true}.merge(options)
       ole_xl = current_excel if options[:reuse] == true
+ #   def self.new(options = {})
+ #     if options.class == WIN32OLE
+ #       ole_xl = options
+ #     else
+ #       options = {:reuse => true}.merge(options)
+ #       ole_xl = current_excel if options[:reuse] == true
+ #     end
       ole_xl ||= WIN32OLE.new('Excel.Application')
       hwnd = ole_xl.HWnd
       stored = hwnd2excel(hwnd)

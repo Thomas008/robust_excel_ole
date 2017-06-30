@@ -345,11 +345,15 @@ Further options specify the visibility, displayalerts, screen updating and calcu
 
 You can also promote an Excel instance represented as WIN32OLE object to an Excel object.
 
-  excel = Excel.new(win32ole_object)
+  excel = Excel.new(win32ole_object, :visible => true)
 
 === Making all workbooks visible or invisible
 
   excel1.workbooks_visible true  
+
+=== Setting options
+
+  excel1.set_options(:visible => true, :displayalerts => true)
 
 === Bringing an Excel instance to the foreground
 

@@ -460,7 +460,7 @@ The option +:calculation+ specifies, whether the calculation mode is being force
 
 You can also promote an Excel instance represented as WIN32OLE object to an Excel object.
 
-  excel = Excel.new(win32ole_object)
+  excel = Excel.new(win32ole_object, :visible => true)
 
 === Making a Excel visible or invisible
 
@@ -505,6 +505,14 @@ You can turn off and off DisplayAlerts in a block.
   excel1.workbooks_visible true  
 
   excel1.workbooks_visible false   
+
+=== Setting options
+
+You can set all options in a given Excel instance
+
+  e1 = Excel.current
+
+  e1.set_options(:visible => true, :displayalerts => true)
 
 === Bringing an Excel instance to the foreground
 

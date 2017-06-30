@@ -47,7 +47,7 @@ module RobustExcelOle
     end
 
     # returns an Excel instance  
-    # given a WIN32OLE object representing an Excel instance, or a Hash representing options
+    # @param [Win32Ole] (optional) a WIN32OLE object representing an Excel instance
     # @param [Hash] options the options
     # @option options [Boolean] :reuse      
     # @option options [Boolean] :visible
@@ -63,13 +63,10 @@ module RobustExcelOle
     #                    or is not being forced (default: nil)
     #  :screenupdating  turns on or off screen updating (default: true)
     # @return [Excel] an Excel instance
-    def self.new(options = {})
-      if options.is_a? WIN32OLE
-        ole_xl = options
-      else
-        options = {:reuse => true}.merge(options)
-        ole_xl = current_excel if options[:reuse] == true
-      end
+    def self.new(win32ole_excel = nil, options = {})
+      ole_xl = win32ole_excel unless win32ole_excel.nil?
+      options = {:reuse => true}.merge(options)
+      ole_xl = current_excel if options[:reuse] == true
       ole_xl ||= WIN32OLE.new('Excel.Application')
       hwnd = ole_xl.HWnd
       stored = hwnd2excel(hwnd)
@@ -134,6 +131,10 @@ module RobustExcelOle
         end
       end
       self 
+    end
+
+    def set_options(options)
+      self.class.new(@ole_excel, options)
     end
 
   private

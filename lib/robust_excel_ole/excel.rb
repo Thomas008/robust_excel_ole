@@ -71,13 +71,6 @@ module RobustExcelOle
       ole_xl = win32ole_excel unless win32ole_excel.nil?
       options = {:reuse => true}.merge(options)
       ole_xl = current_excel if options[:reuse] == true
- #   def self.new(options = {})
- #     if options.class == WIN32OLE
- #       ole_xl = options
- #     else
- #       options = {:reuse => true}.merge(options)
- #       ole_xl = current_excel if options[:reuse] == true
- #     end
       ole_xl ||= WIN32OLE.new('Excel.Application')
       hwnd = ole_xl.HWnd
       stored = hwnd2excel(hwnd)

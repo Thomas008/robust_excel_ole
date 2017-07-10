@@ -389,7 +389,7 @@ module RobustExcelOle
     def with_workaround_linked_workbooks_excel2007(options)
       old_visible_value = @excel.Visible
       workbooks = @excel.Workbooks
-      workaround_condition = @excel.Version.split(".").first.to_i >= 12 && workbooks.Count == 0
+      workaround_condition = @excel.Version.split(".").first.to_i == 12 && workbooks.Count == 0
       if workaround_condition
         workbooks.Add 
         @excel.calculation = options[:calculation].nil? ? @excel.calculation : options[:calculation] 

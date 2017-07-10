@@ -518,14 +518,18 @@ module RobustExcelOle
     end
 
     # sets calculation mode
+    # retains the saved-status of the workbooks
     def calculation= calculation_mode
       return if calculation_mode.nil?
       @calculation = calculation_mode
       calc_mode_changable = @ole_excel.Workbooks.Count > 0 &&  @ole_excel.Calculation.is_a?(Fixnum)
       if calc_mode_changable
+        saved = []
+        1.upto(@ole_excel.Workbooks.Count) {|i| saved << @ole_excel.Workbooks(i).Saved}
         @ole_excel.CalculateBeforeSave = false
         @ole_excel.Calculation = 
           (calculation_mode == :automatic) ? XlCalculationAutomatic : XlCalculationManual 
+        1.upto(@ole_excel.Workbooks.Count) {|i| @ole_excel.Workbooks(i).Saved = true if saved[i-1]}
       end    
     end
 

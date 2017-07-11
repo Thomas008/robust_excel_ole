@@ -595,6 +595,14 @@ or
 
   excel.set_nameval(name,value)
 
+=== Retaining the saved-status of all workbooks
+
+You can operate in some Excel instance and retain the saved-status of all workbooks.
+
+  excel.retain_saved_workbooks do
+    ...
+  end  
+
 === Getting and setting the contents of a named range in an Excel application directly
 
 You can get the value of a range

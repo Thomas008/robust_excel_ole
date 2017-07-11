@@ -783,7 +783,32 @@ module RobustExcelOle
       end
     end
 
+    describe "retain_saved_workbooks" do
 
+      before do
+        @book1 = Book.open(@simple_file)
+        @book2 = Book.open(@another_simple_file)
+        @book3 = Book.open(@different_file)
+        sheet2 = @book2.sheet(1)
+        sheet2[1,1] = sheet2[1,1].value == "foo" ? "bar" : "foo"
+        @book2.Saved.should be_false
+        @excel = Excel.current
+      end
+
+      it "should retain saved workbooks" do
+        @excel.retain_saved_workbooks do
+          sheet1 = @book1.sheet(1)
+          sheet1[1,1] = sheet1[1,1].value == "foo" ? "bar" : "foo"
+          @book1.Saved.should be_false
+          sheet3 = @book3.sheet(1)
+          sheet3[1,1] = sheet3[1,1].value == "foo" ? "bar" : "foo"
+          @book3.Saved.should be_false
+        end
+        @book1.Saved.should be_true
+        @book2.Saved.should be_false
+        @book3.Saved.should be_true
+      end
+    end
 
     describe "unsaved_workbooks" do
 

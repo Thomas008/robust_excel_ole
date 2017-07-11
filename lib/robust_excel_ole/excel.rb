@@ -161,6 +161,21 @@ module RobustExcelOle
 
   public
 
+    # retain the saved status of all workbooks
+    def retain_saved_workbooks
+      saved = []
+      @ole_excel.Workbooks.each {|w| saved << w.Saved}
+      begin
+        yield self
+      ensure
+        i = 0
+        @ole_excel.Workbooks.each do |w|
+          w.Saved = saved[i] if saved[i]
+          i = i + 1 
+        end
+      end
+    end
+
     def self.contains_unsaved_workbooks?
       excel = begin
         Excel.current

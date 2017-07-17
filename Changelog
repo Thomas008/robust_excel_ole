@@ -6,6 +6,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 
  - Excel#set_options
+ - Excel#retain_saved_workbooks
+ - Book#retain_saved
 
 ## [1.0.2] - 2017-01-06
 

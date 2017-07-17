@@ -5,7 +5,7 @@ It supports simultaneously running Excel instances and user interactions.
 RobustExcelOle deals with various cases of Excel and user behaviour,
 and implements workarounds for some Excel bugs.
 The gem provides convenient methods for common tasks, and facilitates referenced libraries.
-It supports Excel 2010 and Excel 2007.
+It supports Excel 2010.
 
 RobustExcelOle works by sending VBA methods via Win32OLE.
 Moreover, it implements a management system and keeps track of Excel files and Excel instances.
@@ -780,6 +780,7 @@ Some features in RobustExcelOle that are not compatible with wrap_excel:
 * +save_as+ instead of +save+.
 * position of cells and number of sheets are based on 1 instead of 0
 
+Excel 2007 was supported until version 0.3.6.
 
 === Want to do more things
 

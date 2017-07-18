@@ -1364,8 +1364,7 @@ module RobustExcelOle
 
       it "should do with_calculation with workbook" do
         @excel1 = Excel.new
-        book = Book.open(@simple_file)
-        book.Windows(book.Name).Visible = true
+        book = Book.open(@simple_file, :visible => true)
         old_calculation_mode = @excel1.Calculation
         @excel1.with_calculation(:manual) do
           @excel1.calculation.should == :manual
@@ -1379,7 +1378,7 @@ module RobustExcelOle
           @excel1.calculation.should == :automatic
           @excel1.Calculation.should == -4105
           @excel1.CalculateBeforeSave.should be_false
-          #book.Saved.should be_true
+          book.Saved.should be_false
         end
         @excel1.Calculation.should == old_calculation_mode
         @excel1.CalculateBeforeSave.should be_false
@@ -1387,7 +1386,7 @@ module RobustExcelOle
 
       it "should set calculation mode to manual with workbook" do
         @excel1 = Excel.new
-        book = Book.open(@simple_file)
+        book = Book.open(@simple_file, :visible => true)
         book.Windows(book.Name).Visible = true
         @excel1.calculation = :manual
         @excel1.calculation.should == :manual
@@ -1398,15 +1397,12 @@ module RobustExcelOle
 
       it "should set calculation mode to automatic with workbook" do
         @excel1 = Excel.new
-        book = Book.open(@simple_file)
-        book.Windows(book.Name).Visible = true
-        book.sheet(1)[1,1] = "bla"
+        book = Book.open(@simple_file, :visible => true)
         @excel1.calculation = :automatic
         @excel1.calculation.should == :automatic
         @excel1.Calculation.should == -4105
         @excel1.CalculateBeforeSave.should be_false
         book.Saved.should be_false
-        book.Saved = true
       end
 
       it "should set Calculation without workbooks" do

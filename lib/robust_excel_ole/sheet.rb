@@ -176,7 +176,7 @@ module RobustExcelOle
       end
     end
 
-    # returns the contents of a range with a defined local name
+    # returns the contents of a range with a locally defined name
     # evaluates the formula if the contents is a formula
     # if no contents could be returned, then return default value, if provided, raise error otherwise
     # @param  [String]      name      the name of a range
@@ -200,7 +200,7 @@ module RobustExcelOle
       value
     end
 
-    # assigns a value to a range given a defined local name
+    # assigns a value to a range given a locally defined name
     # @param [String]  name   the name of a range
     # @param [Variant] value  the assigned value
     def set_rangeval(name,value)

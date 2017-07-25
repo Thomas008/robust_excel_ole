@@ -42,7 +42,7 @@ Options are the following:
 
  +:force+:: no matter whether the workbook was open before, use the properties stated in +:force+
 
- +:excel+ and +:visible+ are options stated in +:default+ and +:force+
+ +:excel+ and +:visible+ are options stated in +:default+ or +:force+
 
  +:excel+::          specifies the Excel instance. 
  +:visible+::        makes the workbook visible or invisible
@@ -114,6 +114,10 @@ You can also specify an Excel instance
 If you want to open the workbook and make its window visible, then use
 
   book = Book.open('workbook.xls', :force => {:visible => true})
+
+or
+
+  book = Book.open('workbook.xls', :visible => true)
 
 You can combine options, e.g. 
 
@@ -400,13 +404,13 @@ or
 
 === Getting and setting the contents of a named range in a Worksheet directly
 
-You get the value of a range with
+You get the value of a range of a locally defined name with
 
   sheet.rangeval(name)
 
-and set the value of a range.
+and set the value of this range by
 
-  book.set_rangeval(name,value)
+  sheet.set_rangeval(name,value)
 
 === Adding and copying a worksheet.
 
@@ -605,11 +609,11 @@ You can operate in some Excel instance and retain the saved-status of all workbo
 
 === Getting and setting the contents of a named range in an Excel application directly
 
-You can get the value of a range
+You can get the value of a range of a locally defined name by
 
   excel.rangeval(name)
 
-and set the value of a range.
+and set the value of this range with
 
   excel.set_rangeval(name,value)
   

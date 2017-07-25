@@ -41,43 +41,14 @@ describe Book do
     context "with calculation mode" do
 
       it "should set calculation mode" do
-        book1 = Book.open(@simple_file, :visible => true, :calculation => :manual)
+        book1 = Book.open(@simple_file1, :visible => true)
+        book1.excel.calculation = :manual
         book1.excel.Calculation.should == -4135
-        book1.excel.calculation.should == :manual
         book1.save
         book1.excel.close
-        book2 = Book.open(@simple_file, :visible => true, :calculation => :automatic)
+        book2 = Book.open(@simple_file1, :visible => true)
+        book2.excel.calculation = :automatic
         book2.excel.Calculation.should == -4105
-        book2.excel.calculation.should == :automatic
-        book2.save
-        book2.excel.close
-      end
-
-      it "should set calculation mode and overwrite Excel calculation mode" do
-        excel1 = Excel.new(:calculation => :automatic)
-        book1 = Book.open(@simple_file, :visible => true, :calculation => :manual)
-        book1.excel.Calculation.should == -4135
-        book1.excel.calculation.should == :manual
-        book1.save
-        book1.excel.close
-        excel2 = Excel.new(:calculation => :manual)
-        book2 = Book.open(@simple_file, :visible => true, :calculation => :automatic)
-        book2.excel.Calculation.should == -4105
-        book2.excel.calculation.should == :automatic
-        book2.save
-        book2.excel.close
-      end
-
-      it "should set calculation mode" do
-        excel1 = Excel.new(:calculation => :automatic)
-        book1 = Book.open(@simple_file, :visible => true)
-        book1.excel.Calculation.should == -4105
-        book1.excel.calculation.should == :automatic
-        book1.save
-        book1.close
-        book2 = Book.open(@simple_file, :visible => true, :calculation => :manual)
-        book2.excel.Calculation.should == -4135
-        book2.excel.calculation.should == :manual
         book2.save
         book2.excel.close
       end
@@ -87,31 +58,18 @@ describe Book do
         book1.excel.calculation.should == nil
       end
 
-      it "should set the default value" do
-        book1 = Book.open(@simple_file)
-        book1.excel.calculation.should == nil
-      end
-
       it "should set the calculation mode to automatic" do
-        excel = Excel.create(:calculation => :automatic)
-        excel.calculation.should == :automatic
         book1 = Book.open(@simple_file)
+        book1.excel.calculation = :automatic
+        book1.excel.calculation.should == :automatic
         book1.excel.Calculation.should == -4105
       end
 
       it "should set the calculation mode to manual" do
-        excel = Excel.create(:calculation => :manual)
-        excel.calculation.should == :manual
         book1 = Book.open(@simple_file)
-        excel.calculation.should == :manual
+        book1.excel.calculation = :manual
+        book1.excel.calculation.should == :manual
         book1.excel.Calculation.should == -4135
-      end
-
-      it "should set the calculation mode to automatic" do
-        excel = Excel.create(:calculation => :automatic)
-        excel.calculation.should == :automatic
-        book1 = Book.open(@simple_file)
-        book1.excel.Calculation.should == -4105
       end
 
       it "should change the calculation mode from manual to automatic" do
@@ -121,17 +79,6 @@ describe Book do
         book2.excel.Calculation.should == -4105
         book1.excel.Calculation.should == -4105
       end
-
-      it "should change the calculation mode from automatic to manual" do
-        excel = Excel.create(:calculation => :automatic)
-        book1 = Book.open(@simple_file)
-        book1.excel.Calculation.should == -4105
-        excel2 = Excel.new(:reuse => false, :calculation => :manual)
-        book2 = Book.open(@different_file, :force => {:excel => excel2})
-        book2.excel.Calculation.should == -4135
-        book1.excel.Calculation.should == -4105
-      end
- 
     end
 
    

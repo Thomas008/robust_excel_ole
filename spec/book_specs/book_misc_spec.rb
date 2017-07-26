@@ -961,21 +961,15 @@ describe Book do
 
     context "with compatibility" do      
 
-      it "should open and check compatibility" do
-        book = Book.open(@simple_file, :visible => true, :check_compatibility => false)
-        book.CheckCompatibility.should be_false
-        book.CheckCompatibility = true
+      it "should open with checking compatibility" do
+        book = Book.open(@simple_file, :visible => true, :check_compatibility => true)
         book.CheckCompatibility.should be_true
-        Book.unobtrusively(@simple_file, :visible => true, :check_compatibility => false) do |book|
-          book.CheckCompatibility.should be_false
-        end
-        Book.unobtrusively(@simple_file, :visible => true, :check_compatibility => true) do |book|
-          book.CheckCompatibility.should be_true
-        end
-
       end
 
+      it "should open without checking compatibility" do
+        book = Book.open(@simple_file, :visible => true, :check_compatibility => false)
+        book.CheckCompatibility.should be_false
+      end
     end
-
   end
 end

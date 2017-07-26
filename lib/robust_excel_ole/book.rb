@@ -489,7 +489,7 @@ module RobustExcelOle
     # @option opts [Boolean] :keep_open whether the workbook shall be kept open after unobtrusively opening 
     # @return [Book] a workbook
 
-    state = [:open, :saved, :writable, :visible, :calculation, :check_compatibility]
+    # state = [:open, :saved, :writable, :visible, :calculation, :check_compatibility]
 
     def self.unobtrusively(file, opts = { }, &block) 
       options = {:if_closed => :current, 

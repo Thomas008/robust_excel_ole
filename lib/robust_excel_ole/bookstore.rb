@@ -100,6 +100,8 @@ module RobustExcelOle
       @hidden_excel_instance.__getobj__ if (@hidden_excel_instance &&  @hidden_excel_instance.weakref_alive? && @hidden_excel_instance.__getobj__.alive?)
     end
 
+  public
+
     # prints the book store
     def print             # :nodoc: #
       trace "@filename2books:"
@@ -113,7 +115,7 @@ module RobustExcelOle
             books.each do |book|
               if book.weakref_alive?
                 trace "#{book}"
-              else
+              else # this should never happen
                 trace "weakref not alive"
               end
             end

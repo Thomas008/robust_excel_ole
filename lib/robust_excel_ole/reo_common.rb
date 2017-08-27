@@ -14,10 +14,6 @@ class REOCommon
     (self.methods - Object.methods).sort
   end
 
-  def trace(text)
-    self.class.trace(text)
-  end
-
   def self.tr1(text)
     puts :text
   end
@@ -37,10 +33,6 @@ class REOCommon
         file.puts text
       end
     end
-  end
-
-  def puts_hash(hash)
-    self.class.puts_hash(hash)
   end
 
   def self.puts_hash(hash)

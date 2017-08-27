@@ -47,6 +47,37 @@ describe Book do
     end
   end
 
+  describe "excel_of" do
+
+    before do
+      @book = Book.open(@simple_file)
+    end
+
+    after do
+      @book.close
+    end
+
+    it "should access the excel" do
+      workbook = @book.ole_workbook
+      excel = Book.excel_of(workbook)
+      excel.should be_a Excel
+      excel.should == @book.excel
+    end
+
+    it "should access the Excel of the ole_excel" do
+      excel = Book.excel_of(@book.excel.ole_excel)
+      excel.should be_a Excel
+      excel.should == @book.excel
+    end
+
+    it "should access the Excel of a Book" do
+      excel = Book.excel_of(@book)
+      excel.should be_a Excel
+      excel.should == @book.excel
+    end
+
+  end
+
   describe "with retain_saved" do
 
     before do

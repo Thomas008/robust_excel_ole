@@ -126,8 +126,9 @@ module RobustExcelOle
             return book 
           end
         end
+      else
+        super
       end
-      super
     end
 
     # creates a new Book object, if a file name is given
@@ -343,7 +344,7 @@ module RobustExcelOle
             # for Excel2007: for option :if_unsaved => :alert and user cancels: this error appears?
             # if yes: distinguish these events
             #raise
-            trace "WIN32OLERuntimeError: #{msg.message}" 
+            # trace "WIN32OLERuntimeError: #{msg.message}" 
           end
           begin
             # workaround for bug in Excel 2010: workbook.Open does not always return the workbook when given file name
@@ -437,8 +438,8 @@ module RobustExcelOle
       else
         close_workbook
       end
-      trace "close: canceled by user" if alive? &&  
-        (opts[:if_unsaved] == :alert || opts[:if_unsaved] == :excel) && (not @ole_workbook.Saved)
+      #trace "close: canceled by user" if alive? &&  
+      #  (opts[:if_unsaved] == :alert || opts[:if_unsaved] == :excel) && (not @ole_workbook.Saved)
     end
 
   private
@@ -645,7 +646,7 @@ module RobustExcelOle
         bookstore.store(self)
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
-          trace "save: canceled by user" if options[:if_exists] == :alert || options[:if_exists] == :excel
+          # trace "save: canceled by user" if options[:if_exists] == :alert || options[:if_exists] == :excel
           # another possible semantics. raise WorkbookError, "could not save Workbook"
         else
           raise UnexpectedError, "unknown WIN32OELERuntimeError:\n#{msg.message}"
@@ -686,11 +687,7 @@ module RobustExcelOle
       after_or_before, base_sheet = opts.to_a.first || [:after, last_sheet]
       sheet.Copy({ after_or_before.to_s => base_sheet.worksheet })
       new_sheet = sheet_class.new(@excel.Activesheet)
-      begin
-        new_sheet.name = new_sheet_name if new_sheet_name
-      rescue WIN32OLERuntimeError => msg
-        msg.message =~ /800A03EC/ ? raise(NameAlreadyExists, "sheet name already exists") : raise(UnexpectedError)
-      end
+      new_sheet.name = new_sheet_name if new_sheet_name
       new_sheet
     end      
 
@@ -707,11 +704,7 @@ module RobustExcelOle
       after_or_before, base_sheet = opts.to_a.first || [:after, last_sheet]
       @ole_workbook.Worksheets.Add({ after_or_before.to_s => base_sheet.worksheet })
       new_sheet = sheet_class.new(@excel.Activesheet)
-      begin
-        new_sheet.name = new_sheet_name if new_sheet_name
-      rescue WIN32OLERuntimeError => msg
-        msg.message =~ /800A03EC/ ? raise(NameAlreadyExists, "sheet name already exists") : raise(UnexpectedError)
-      end
+      new_sheet.name = new_sheet_name if new_sheet_name
       new_sheet
     end    
 
@@ -908,10 +901,6 @@ module RobustExcelOle
     def bookstore    # :nodoc: #
       self.class.bookstore
     end   
-
-    def self.all_books   # :nodoc: #
-      bookstore.books
-    end
 
     def to_s    # :nodoc: #
       "#{self.filename}"

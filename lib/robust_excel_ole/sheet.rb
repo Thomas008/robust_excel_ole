@@ -230,17 +230,9 @@ module RobustExcelOle
           self.Names.Add("Name" => name, "RefersToR1C1" => "=" + address)
         end
       rescue WIN32OLERuntimeError => msg
-        trace "WIN32OLERuntimeError: #{msg.message}"
+        #trace "WIN32OLERuntimeError: #{msg.message}"
         raise RangeNotEvaluatable, "cannot add name #{name.inspect} to cell with row #{row.inspect} and column #{column.inspect}"
       end
-    end
-
-    def respond_to?(name, include_private = false)  # :nodoc: #    
-      super
-    end
-
-    def methods   # :nodoc: # 
-      super
     end
 
     def self.book_class   # :nodoc: #

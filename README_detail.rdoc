@@ -9,6 +9,7 @@ It supports Excel 2010.
 
 RobustExcelOle works by sending VBA methods via Win32OLE.
 Moreover, it implements a management system and keeps track of Excel files and Excel instances.
+The tool is optimised with help of rcov.
 
 == Requirements
 

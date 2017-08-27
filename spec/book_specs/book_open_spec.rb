@@ -1364,6 +1364,12 @@ describe Book do
             old_book.close
           end
 
+          it "should close the old book and open the new book, if :if_obstructed is :close_if_saved" do
+            @book.close(:if_unsaved => :forget)
+            book = Book.open(@simple_file_other_path)
+            Book.open(@simple_file1, :if_obstructed => :close_if_saved)
+          end
+
           it "should open the book in a new excel instance, if :if_obstructed is :new_excel" do
             @new_book = Book.open(@simple_file1, :if_obstructed => :new_excel)
             @book.should be_alive
@@ -1630,6 +1636,12 @@ describe Book do
           book.should be_a Book
         end
       end
+      it 'block parameter should be instance of Book for new' do
+        Book.new(@simple_file) do |book|
+          book.should be_a Book
+        end
+      end
+
     end
 
     context "with WIN32OLE#GetAbsolutePathName" do

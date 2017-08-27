@@ -49,7 +49,13 @@ module RobustExcelOle
           ["ActiveCell", "ActiveSheet", "ActiveWorkbook", "Application",  "Calculate", "Cells", "Columns",
             "DisplayAlerts", "Evaluate", "Hwnd", "Name", "Names", "Quit", "Range", "Ready", "Save", 
             "Sheets", "UserName", "Value", "Visible", "Workbooks", "Worksheets"]
-        @excel_methods = ["alive?", "book_class", "close", "displayalerts", "recreate", "visible", "with_displayalerts"] 
+        @excel_methods = ["alive?", "book_class", "close", "displayalerts", "recreate", "visible", 
+          "with_displayalerts"] 
+        @ole_sheet_methods = []
+         # ["Activate", "Calculate", "Copy", "Name", "Select", "Evaluate", "Protect", "Unprotect"]
+        @sheet_methods = ["book_class", "col_range", "each", "each_column", "each_column_with_index",
+                          "each_row", "each_row_with_index", "nameval", "rangeval", 
+                          "set_rangeval", "row_range", "set_nameval"]
       end
 
       after do
@@ -82,6 +88,20 @@ module RobustExcelOle
 
       it "should respond to popular excel methods" do
         @excel_methods.each{|m| @book1.excel.respond_to?(m).should be_true}
+      end
+
+      it "should do methods for sheet" do
+        ((@ole_sheet_methods + @sheet_methods) - @book1.sheet(1).methods).should be_empty
+        (Object.instance_methods.select{|m| m =~ /^(?!\_)/}  - @book1.sheet(1).methods).sort.should be_empty       
+      end
+
+      it "should do own_methods with popular ole_excel and excel methods" do
+        ((@ole_sheet_methods + @sheet_methods) - @book1.sheet(1).own_methods).should == [] #be_empty
+         (Object.instance_methods - @book1.sheet(1).own_methods).should == Object.instance_methods
+      end
+
+      it "should respond to popular sheet methods" do
+        @sheet_methods.each{|m| @book1.sheet(1).respond_to?(m).should be_true}
       end
 
     end
@@ -154,6 +174,20 @@ module RobustExcelOle
           }.to raise_error(TypeErrorREO, "No string given to canonize, but 1")
         end
 
+      end
+    end
+
+    describe "path" do
+
+      it "should create a path" do
+        path1 = "this" / "is" / "a" / "path"
+        path1.should == "this/is/a/path"
+        path2 = "this" / "is" / "a" / "path" / 
+        #path2.should == "this/is/a/path/"
+        path3 = "this" / 
+        #path3.should == "this/"
+        path4 = "this" / nil
+        path4.should == "this"
       end
     end
 

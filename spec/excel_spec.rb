@@ -839,6 +839,94 @@ module RobustExcelOle
       end
     end
 
+    describe "unsaved_known_workbooks" do
+
+      it "should return empty list" do
+        Excel.unsaved_known_workbooks.should be_empty
+      end
+
+      it "should return empty list for first Excel instance" do
+        book = Book.open(@simple_file)
+        Excel.unsaved_known_workbooks.should == [[]]
+        book.close
+      end
+       
+      it "should return one unsaved book" do
+        book = Book.open(@simple_file)
+        sheet = book.sheet(1)
+        sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
+        # Excel.unsaved_known_workbooks.should == [[book.ole_workbook]]
+        unsaved_known_wbs = Excel.unsaved_known_workbooks
+        unsaved_known_wbs.size.should == 1
+        unsaved_known_wbs.each do |ole_wb_list|
+          ole_wb_list.size.should == 1
+          ole_wb_list.each do |ole_workbook|
+            ole_workbook.Fullname.tr('\\','/').should == @simple_file  
+          end
+        end
+        book2 = Book.open(@another_simple_file)
+        # Excel.unsaved_known_workbooks.should == [[book.ole_workbook]]
+        unsaved_known_wbs = Excel.unsaved_known_workbooks
+        unsaved_known_wbs.size.should == 1
+        unsaved_known_wbs.each do |ole_wb_list|
+          ole_wb_list.size.should == 1
+          ole_wb_list.each do |ole_workbook|
+            ole_workbook.Fullname.tr('\\','/').should == @simple_file  
+          end
+        end        
+        book2.close
+        book.close(:if_unsaved => :forget)
+      end
+
+      it "should return two unsaved books" do
+        book = Book.open(@simple_file)
+        sheet = book.sheet(1)
+        sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
+        book2 = Book.open(@another_simple_file)
+        sheet2 = book2.sheet(1)
+        sheet2[1,1] = sheet2[1,1].value == "foo" ? "bar" : "foo"
+        #Excel.unsaved_known_workbooks.should == [[book.ole_workbook, book2.ole_workbook]]
+        unsaved_known_wbs = Excel.unsaved_known_workbooks
+        unsaved_known_wbs.size.should == 1
+        unsaved_known_wbs.each do |ole_wb_list|
+          ole_wb_list.size.should == 2
+          ole_workbook1, ole_workbook2 = ole_wb_list
+          ole_workbook1.Fullname.tr('\\','/').should == @simple_file  
+          ole_workbook2.Fullname.tr('\\','/').should == @another_simple_file  
+        end        
+        book2.close(:if_unsaved => :forget)
+        book.close(:if_unsaved => :forget)
+      end
+
+      it "should return two unsaved books" do
+        book = Book.open(@simple_file)
+        sheet = book.sheet(1)
+        sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
+        book2 = Book.open(@another_simple_file, :force_excel => :new)
+        sheet2 = book2.sheet(1)
+        sheet2[1,1] = sheet2[1,1].value == "foo" ? "bar" : "foo"
+        #Excel.unsaved_known_workbooks.should == [[book.ole_workbook], [book2.ole_workbook]]
+        unsaved_known_wbs = Excel.unsaved_known_workbooks
+        unsaved_known_wbs.size.should == 2
+        ole_wb_list1, ole_wb_list2 = unsaved_known_wbs
+        ole_wb_list1.each do |ole_wb_list|
+          ole_wb_list1.size.should == 1
+          ole_wb_list1.each do |ole_workbook|
+            ole_workbook.Fullname.tr('\\','/').should == @simple_file  
+          end
+        end
+        ole_wb_list2.each do |ole_wb_list|
+          ole_wb_list2.size.should == 1
+          ole_wb_list2.each do |ole_workbook|
+            ole_workbook.Fullname.tr('\\','/').should == @another_simple_file  
+          end
+        end
+        book2.close(:if_unsaved => :forget)
+        book.close(:if_unsaved => :forget)
+      end
+
+    end
+
     describe "alive" do
 
       it "should yield alive" do
@@ -1446,6 +1534,45 @@ module RobustExcelOle
       it "should report that Excel is not alive" do
         @excel1.close
         expect{ @excel1.Nonexisting_method }.to raise_error(ObjectNotAlive, "method missing: Excel not alive")
+      end
+
+    end
+
+    describe "set_options" do
+
+      before do
+        @excel = Excel.new(:reuse => false)
+      end
+
+      it "should set options" do
+        @excel.set_options(:displayalerts => true, :visible => true, :screenupdating => true, :calculaiton => :manual)
+        @excel.DisplayAlerts.should be_true
+        @excel.Visible.should be_true
+        @excel.ScreenUpdating.should be_true
+        book = Book.open(@simple_file)
+        @excel.Calculation.should == -4135
+        book.close
+      end
+
+    end
+
+    describe "excel_processes" do
+
+      it "should return empty list" do
+        Excel.excel_processes.should be_empty
+      end
+
+      it "should return list of one Excel process" do
+        excel = Excel.new
+        Excel.excel_processes.should == [excel]
+        excel.close
+      end
+
+      it "should return list of two Excel processes" do
+        excel1 = Excel.new
+        excel2 = Excel.current
+        excel3 = Excel.create
+        Excel.excel_processes.should == [excel1,excel3]
       end
 
     end

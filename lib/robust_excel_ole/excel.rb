@@ -94,18 +94,12 @@ module RobustExcelOle
           result.calculation = options[:calculation] unless options[:calculation].nil?
           result.screenupdating = options[:screenupdating] unless options[:screenupdating].nil?
           result.created = !reused
-        rescue WIN32OLERuntimeError
-          raise ExcelError, "cannot access Excel"
         end
       end
       result
     end
 
     def initialize(options= {}) # :nodoc: #
-    end
-
-    def excel
-      self
     end
 
     # reopens a closed Excel instance
@@ -177,15 +171,10 @@ module RobustExcelOle
     end
 
     def self.contains_unsaved_workbooks?
-      excel = begin
-        Excel.current
-      rescue
-        return false
-      end
-      not excel.unsaved_workbooks.empty?
+      not Excel.current.unsaved_workbooks.empty?
     end
 
-    # returns unsaved workbooks
+    # returns unsaved workbooks (win32ole objects)
     def unsaved_workbooks
       unsaved_workbooks = []   
       begin   
@@ -470,7 +459,7 @@ module RobustExcelOle
 
     
     # returns unsaved workbooks in known (not opened by user) Excel instances
-    def self.unsaved_known_workbooks    
+    def self.unsaved_known_workbooks  # :nodoc: #
       result = []
       @@hwnd2excel.each do |hwnd,wr_excel| 
         excel = wr_excel.__getobj__ if wr_excel.weakref_alive?
@@ -479,12 +468,12 @@ module RobustExcelOle
       result
     end
 
-    def print_workbooks
+    def print_workbooks   # :nodoc: #
       self.Workbooks.each {|w| trace "#{w.Name} #{w}"}
     end
 
     # generates, saves, and closes empty workbook
-    def generate_workbook file_name  
+    def generate_workbook file_name    # :nodoc: #
       raise FileNameNotGiven, "filename is nil" if file_name.nil?                
       self.Workbooks.Add                           
       empty_workbook = self.Workbooks.Item(self.Workbooks.Count)          

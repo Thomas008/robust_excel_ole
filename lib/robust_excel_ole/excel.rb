@@ -486,7 +486,7 @@ module RobustExcelOle
             raise FileNotFound, "could not save workbook with filename #{file_name.inspect}"
           else
             # todo some time: find out when this occurs : 
-            raise UnexpectedError, "unknown WIN32OELERuntimeError with filename #{file_name.inspect}: \n#{msg.message}"
+            raise UnexpectedError, "unknown WIN32OLERuntimeError with filename #{file_name.inspect}: \n#{msg.message}"
           end
         end      
       end

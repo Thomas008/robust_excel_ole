@@ -328,12 +328,8 @@ module RobustExcelOle
           filename = General::absolute_path(file)
           begin
             workbooks = @excel.Workbooks
-          rescue RuntimeError => msg
-            if msg.message =~ /method missing: Excel not alive/
-              raise ExcelDamaged, "Excel instance not alive or damaged" 
-            else
-              raise UnexpectedError, "unknown RuntimeError: #{msg.message}"
-            end
+          rescue WIN32OLERuntimeError => msg
+            raise UnexpectedError, "WIN32OLERuntimeError: #{msg.message} #{msg.backtrace}"
           end
           begin
             with_workaround_linked_workbooks_excel2007(options) do
@@ -343,15 +339,14 @@ module RobustExcelOle
           rescue WIN32OLERuntimeError => msg
             # for Excel2007: for option :if_unsaved => :alert and user cancels: this error appears?
             # if yes: distinguish these events
-            #raise
-            # trace "WIN32OLERuntimeError: #{msg.message}" 
+            raise UnexpectedError, "WIN32OLERuntimeError: #{msg.message} #{msg.backtrace}"
           end
           begin
             # workaround for bug in Excel 2010: workbook.Open does not always return the workbook when given file name
             begin
               @ole_workbook = workbooks.Item(File.basename(filename))
             rescue WIN32OLERuntimeError => msg
-              raise UnexpectedError, "unexpected WIN32OLERuntimeError: #{msg.message}"
+              raise UnexpectedError, "WIN32OLERuntimeError: #{msg.message}"
             end
             if options[:force][:visible].nil? && (not options[:default][:visible].nil?)
               if @excel.created   
@@ -366,7 +361,7 @@ module RobustExcelOle
             @excel.calculation = options[:calculation] unless options[:calculation].nil?
             self.Saved = true # unless self.Saved # ToDo: this is too hard
           rescue WIN32OLERuntimeError => msg
-            raise UnexpectedError, "unexpected WIN32OLERuntimeError: #{msg.message} #{msg.backtrace}"
+            raise UnexpectedError, "WIN32OLERuntimeError: #{msg.message} #{msg.backtrace}"
           end       
         end
       end
@@ -556,7 +551,7 @@ module RobustExcelOle
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
           raise WorkbookNotSaved, "workbook not saved"
         else
-          raise UnexpectedError, "unknown WIN32OELERuntimeError:\n#{msg.message}"
+          raise UnexpectedError, "unknown WIN32OLERuntimeError:\n#{msg.message}"
         end       
       end
       true

@@ -363,10 +363,13 @@ module RobustExcelOle
     def self.kill_all
       procs = WIN32OLE.connect("winmgmts:\\\\.")
       processes = procs.InstancesOf("win32_process")
-      number = processes.select{|p| (p.name == "EXCEL.EXE")}.size
+      number = 0
       procs.InstancesOf("win32_process").each do |p|
         begin
-          Process.kill('KILL', p.processid) if p.name == "EXCEL.EXE"        
+          if p.name == "EXCEL.EXE"  
+            Process.kill('KILL', p.processid)       
+            number += 1
+          end
         rescue 
            #trace "kill error: #{$!}"
         end
@@ -376,7 +379,10 @@ module RobustExcelOle
     end
 
     def self.excels_number
-      WIN32OLE.connect("winmgmts:\\\\.").InstancesOf("win32_process").select{|p| (p.name == "EXCEL.EXE")}.size
+      processes = WIN32OLE.connect("winmgmts:\\\\.").InstancesOf("win32_process")
+      number = 0
+      processes.each { |p| number += 1 if p.name == "EXCEL.EXE" }
+      number
     end
 
     # provide Excel objects 

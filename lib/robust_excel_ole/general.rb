@@ -1,4 +1,4 @@
-include Enumerable
+# -*- coding: utf-8 -*-
 
 module General
 

@@ -29,6 +29,7 @@ describe Book do
     @simple_file_xlsx = @dir + '/workbook.xlsx'
     @simple_file1 = @simple_file
     @simple_file_other_path1 = @simple_file_other_path
+    @simple_save_file1 = @simple_save_file
   end
 
   after do
@@ -44,6 +45,89 @@ describe Book do
         }.to_not raise_error
         @book.should be_a Book
         @book.close
+      end
+    end
+  end
+
+  describe "Book::save" do
+
+    it "should save a file, if it is open" do
+      @book = Book.open(@simple_file)
+      @book.add_sheet(@sheet, :as => 'a_name')
+      @new_sheet_count = @book.ole_workbook.Worksheets.Count
+      expect {
+        Book.save(@simple_file)
+      }.to_not raise_error
+      @book.ole_workbook.Worksheets.Count.should ==  @new_sheet_count
+      @book.close
+    end
+
+    it "should not save a file, if it is not open" do
+      @book = Book.open(@simple_file)
+      @book.add_sheet(@sheet, :as => 'a_name')
+      @new_sheet_count = @book.ole_workbook.Worksheets.Count
+      @book.close(:if_unsaved => :forget)
+      expect {
+        Book.save(@simple_file)
+      }.to_not raise_error
+    end
+
+  end
+
+  describe "Book::save_as" do
+    
+    it "should save to 'simple_save_file.xls'" do
+      book = Book.open(@simple_file1)
+      Book.save_as(@simple_file1, @simple_save_file1, :if_exists => :overwrite)
+      File.exist?(@simple_save_file1).should be_true
+    end
+  end
+
+  describe "Book::close" do
+
+    it "should close the book if it is open" do
+      book = Book.open(@simple_file1)
+      Book.close(@simple_file1)
+      book.should_not be_alive
+    end
+
+    it "should not close the book if it is not open" do
+      book = Book.open(@simple_file1, :visible => true)
+      book.close
+      Book.close(@simple_file1)
+      book.should_not be_alive
+    end
+
+    it "should raise error if the book is unsaved and open" do
+      book = Book.open(@simple_file1)
+      sheet = book.sheet(1)
+      book.add_sheet(sheet, :as => 'a_name')
+      expect{
+        Book.close(@simple_file1)
+      }.to raise_error(WorkbookNotSaved, /workbook is unsaved: "workbook.xls"/)
+      expect{
+        Book.close(@simple_file, :if_unsaved => :raise)
+      }.to raise_error(WorkbookNotSaved, /workbook is unsaved: "workbook.xls"/)
+    end
+
+    it "should save and close the book" do
+      book = Book.open(@simple_file1)
+      sheet_count = book.ole_workbook.Worksheets.Count
+      sheet = book.sheet(1)
+      book.add_sheet(sheet, :as => 'a_name')
+      ole_workbook = book.ole_workbook
+      excel = book.excel
+      excel.Workbooks.Count.should == 1
+      Book.close(@simple_file1, {:if_unsaved => :save})
+      excel.Workbooks.Count.should == 0
+      book.ole_workbook.should == nil
+      book.should_not be_alive
+      expect{ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
+      new_book = Book.open(@simple_file1)
+      begin
+        new_book.ole_workbook.Worksheets.Count.should == sheet_count + 1
+      ensure
+        new_book.close
       end
     end
   end

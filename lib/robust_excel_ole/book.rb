@@ -651,6 +651,24 @@ module RobustExcelOle
 
   public
 
+    # closes a given file if it is open
+    def self.close(file, opts = {:if_unsaved => :raise})
+      book = bookstore.fetch(file) rescue nil
+      book.close(opts) if book && book.alive?
+    end
+
+    # saves a given file if it is open
+    def self.save(file)
+      book = bookstore.fetch(file) rescue nil
+      book.save if book && book.alive?
+    end
+
+    # saves a given file under a new name if it is open
+    def self.save_as(file, new_file, opts = { })
+      book = bookstore.fetch(file) rescue nil
+      book.save_as(new_file, opts) if book && book.alive?
+    end
+
     # returns a sheet, if a sheet name or a number is given
     # @param [String] or [Number]
     # @returns [Sheet]

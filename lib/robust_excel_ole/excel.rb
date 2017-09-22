@@ -361,10 +361,8 @@ module RobustExcelOle
     # kill all Excel instances
     # @return [Fixnum] number of killed Excel processes
     def self.kill_all
-      procs = WIN32OLE.connect("winmgmts:\\\\.")
-      processes = procs.InstancesOf("win32_process")
       number = 0
-      procs.InstancesOf("win32_process").each do |p|
+      WIN32OLE.connect("winmgmts:\\\\.").InstancesOf("win32_process").each do |p|
         begin
           if p.name == "EXCEL.EXE"  
             Process.kill('KILL', p.processid)       
@@ -380,9 +378,7 @@ module RobustExcelOle
 
     def self.excels_number
       processes = WIN32OLE.connect("winmgmts:\\\\.").InstancesOf("win32_process")
-      number = 0
-      processes.each { |p| number += 1 if p.name == "EXCEL.EXE" }
-      number
+      processes.select{ |p| p.name == "EXCEL.EXE"}.size
     end
 
     # provide Excel objects 
@@ -400,20 +396,19 @@ module RobustExcelOle
           pid2excel[pid] = excel
         end
       end
-      procs = WIN32OLE.connect("winmgmts:\\\\.")
-      processes = procs.InstancesOf("win32_process")     
-      result = []
-      processes.each do |p|
-        if p.name == "EXCEL.EXE"
-          if pid2excel.include?(p.processid)
-            excel = pid2excel[p.processid]
-            result << excel
-          end
-          # how to connect to an (interactively opened) Excel instance and get a WIN32OLE object?
-          # after that, lift it to an Excel object
-        end
-      end
-      result
+      processes = WIN32OLE.connect("winmgmts:\\\\.").InstancesOf("win32_process")
+      processes.select{ |p| pid2excel[p.processid] if p.name == "EXCEL.EXE" && pid2excel.include?(p.processid)}
+      #result = []
+      #processes.each do |p|
+      #  if p.name == "EXCEL.EXE"
+      #    if pid2excel.include?(p.processid)
+      #      excel = pid2excel[p.processid]
+      #      result << excel
+      #    end
+      #    # how to connect to an (interactively opened) Excel instance and get a WIN32OLE object?
+      #    # after that, lift it to an Excel object
+      #  end
+      #end
     end
 
     def excel   # :nodoc: #
@@ -736,5 +731,9 @@ module RobustExcelOle
       end
     end
 
-  end  
+  end
 end
+
+class WIN32OLE
+  include Enumerable
+end  

@@ -350,7 +350,7 @@ module RobustExcelOle
           #trace $!.backtrace.first(9).join "\n"
         end
       end
-      trace "went through #{anz_objekte} OLE objects"
+      #trace "went through #{anz_objekte} OLE objects"
     end   
 
 

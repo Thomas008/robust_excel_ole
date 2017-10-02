@@ -288,7 +288,7 @@ Hard terminating all Excel processes is done by
 {README_detail.rdoc}[file:../README_detail.rdoc]
 
 
-{README_detail.rdoc}(https://github.com/Thomas008/robust_excel_ole/blob/master/README_detail.rdoc)
+{README_detail.rdoc}[https://github.com/Thomas008/robust_excel_ole/blob/master/README_detail.rdoc]
 
 === Want to do more things
 

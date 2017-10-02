@@ -397,18 +397,21 @@ module RobustExcelOle
         end
       end
       processes = WIN32OLE.connect("winmgmts:\\\\.").InstancesOf("win32_process")
-      processes.select{ |p| pid2excel[p.processid] if p.name == "EXCEL.EXE" && pid2excel.include?(p.processid)}
-      #result = []
-      #processes.each do |p|
-      #  if p.name == "EXCEL.EXE"
-      #    if pid2excel.include?(p.processid)
-      #      excel = pid2excel[p.processid]
-      #      result << excel
-      #    end
-      #    # how to connect to an (interactively opened) Excel instance and get a WIN32OLE object?
-      #    # after that, lift it to an Excel object
-      #  end
-      #end
+      #excel_processes = processes.select{ |p| p.name == "EXCEL.EXE" && pid2excel.include?(p.processid)}
+      #excel_processes.map{ |p| Excel.new(pid2excel[p.processid]) }
+      processes.select{ |p| Excel.new(pid2excel[p.processid]) if p.name == "EXCEL.EXE" && pid2excel.include?(p.processid)}
+      result = []
+      processes.each do |p|
+        if p.name == "EXCEL.EXE"
+          if pid2excel.include?(p.processid)
+            excel = pid2excel[p.processid]
+            result << excel
+          end
+          # how to connect to an (interactively opened) Excel instance and get a WIN32OLE object?
+          # after that, lift it to an Excel object
+        end
+      end
+      result
     end
 
     def excel   # :nodoc: #

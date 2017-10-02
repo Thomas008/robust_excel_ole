@@ -1569,11 +1569,19 @@ module RobustExcelOle
       end
 
       it "should return list of two Excel processes" do
+        excel1 = Excel.create
+        excel2 = Excel.create
+        Excel.excel_processes.should == [excel1,excel2]
+      end
+
+      it "should return list of two Excel processes" do
         excel1 = Excel.new
         excel2 = Excel.current
         excel3 = Excel.create
         Excel.excel_processes.should == [excel1,excel3]
       end
+
+
 
     end
 

@@ -381,10 +381,8 @@ module RobustExcelOle
       processes.select{ |p| p.name == "EXCEL.EXE"}.size
     end
 
-    # provide Excel objects 
-    # (so far restricted to all Excel instances opened with RobustExcelOle,
-    #  not for Excel instances opened by the user)
-    def self.excel_processes
+    # returns all Excel objects for all Excel instances opened with RobustExcelOle,
+    def self.known_excel_instances
       pid2excel = {}
       @@hwnd2excel.each do |hwnd,wr_excel|
         if wr_excel.weakref_alive?

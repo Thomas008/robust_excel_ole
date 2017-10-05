@@ -1,7 +1,17 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.1.1] - 2017-11-1
+
+### Changed
+
+  - renamed: Excel.known_excel_instances instead of excel_processes
+
 ## [1.1] - 2017-09-29
+
+### Added
+
+  - Book.save, save_as, close
 
 ## [1.0.4] - 2017-08-30
 
@@ -23,8 +33,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
  
- - Book#open : options :calculation
- - Excel#new : options :calculation, :screen_updating
+ - Book.open : options :calculation
+ - Excel.new : options :calculation, :screen_updating
  - Excel#calculation, calculation=, screen_updating, screenupdating=
 
 ### Changed
@@ -123,18 +133,18 @@ All notable changes to this project will be documented in this file.
 ## [0.3.7] - 2015-12-04
 
 ### Added
- - Book::new: includes lifting Win32Ole objects
+ - Book.new: includes lifting Win32Ole objects
  - Book: class synonym: Workbook
- - Book::open: can force_excel can contain an win32ole object
+ - Book.open: can force_excel can contain an win32ole object
  - Book#excel_of
  - Book: consider Excel version for opening linked workbooks
  - Book#close: with keep_open
- - Excel::new: includes lifting Win32ole objects
- - Excel::close_all: with a little time out
+ - Excel.new: includes lifting Win32ole objects
+ - Excel.close_all: with a little time out
  - Excel: sublassing for Books
  
 ### Changed
- - Excel::close_all: bug fix
+ - Excel.close_all: bug fix
  - Excel#recreate: reopening closed workbooks, restrict reopening, visible, displayalerts
 
  
@@ -143,12 +153,12 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - Excel#recreate: reopening a closed Excel
-- Excel::new(:reuse => <WIN32OLE_excel>): 
+- Excel.new(:reuse => <WIN32OLE_excel>): 
   uplifting an Excel represented as object of the class WIN32OLE to an object of the class Excel
-- Excel#close, Excel::close_all: with managing unsaved workbooks
-- Excel::kill_all
-- Excel::excel_processes: yield Excel objects opened with RobustExcelOle
-- Book::new: uplifting a WIN32OLE object to a Book object
+- Excel#close, Excel.close_all: with managing unsaved workbooks
+- Excel.kill_all
+- Excel.excel_processes: yield Excel objects opened with RobustExcelOle
+- Book.new: uplifting a WIN32OLE object to a Book object
 - Subclassing for Sheet
 - Method missing: error messages for dead objects
 - trace to stdout or file

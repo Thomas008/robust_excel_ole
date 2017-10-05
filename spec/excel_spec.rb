@@ -1556,32 +1556,30 @@ module RobustExcelOle
 
     end
 
-    describe "excel_processes" do
+    describe "known_excel_instances" do
 
       it "should return empty list" do
-        Excel.excel_processes.should be_empty
+        Excel.known_excel_instances.should be_empty
       end
 
       it "should return list of one Excel process" do
         excel = Excel.new
-        Excel.excel_processes.should == [excel]
+        Excel.known_excel_instances.should == [excel]
         excel.close
       end
 
       it "should return list of two Excel processes" do
         excel1 = Excel.create
         excel2 = Excel.create
-        Excel.excel_processes.should == [excel1,excel2]
+        Excel.known_excel_instances.should == [excel1,excel2]
       end
 
       it "should return list of two Excel processes" do
         excel1 = Excel.new
         excel2 = Excel.current
         excel3 = Excel.create
-        Excel.excel_processes.should == [excel1,excel3]
+        Excel.known_excel_instances.should == [excel1,excel3]
       end
-
-
 
     end
 

@@ -32,16 +32,16 @@ RobustExcelOle enables opening and processing Excel files (or workbooks) in seve
 
 For example, suppose you want to open a workbook and make it visible.
 
-  book1 = Book.open('workbook.xls', :visible => true)
+  book1 = Workbook.open('workbook.xls', :visible => true)
 
 Now we want to open another workbook in a different Excel instance.
 
-  book2 = Book.open('workbook2.xls', :force => {:excel => :new}, :visible => true)
+  book2 = Workbook.open('workbook2.xls', :force => {:excel => :new}, :visible => true)
 
 We can also create a third Excel instance and open another workbook in this instance.
 
   excel1 = Excel.create
-  book3 = Book.open('workbook3.xls', :force => {:excel => excel1}, :visible => true)
+  book3 = Workbook.open('workbook3.xls', :force => {:excel => excel1}, :visible => true)
 
 Another feature that RobustExcelOle povides is reopening workbooks after closing them.
 
@@ -51,45 +51,45 @@ Another feature that RobustExcelOle povides is reopening workbooks after closing
 A workbook is opened by default in the Excel instance where it was open before most recently.
 
    book1.close
-   book1 = Book.open('workbook.xls') 
+   book1 = Workbook.open('workbook.xls') 
 
 If this Excel instance is damaged or closed, then options control whether the workbook shall be opened in the current (active), a new or a given Excel instance.
 
-  book1 = Book.open('workbook.xls', :default => {:excel => :new})
+  book1 = Workbook.open('workbook.xls', :default => {:excel => :new})
 
 The workbook can also be forced to be opened in the current, new or given Excel instance, no matter if and where it was opened before, e.g.
 
-  book2 = Book.open('workbook.xls', :force => {:excel => excel1})
+  book2 = Workbook.open('workbook.xls', :force => {:excel => excel1})
 
 As a further feature, RobustExcelOle allows processing workbooks, while still supporting user's interactions: The commands enable to open, close, reopen, read, modify, write and save Excel files, without the need of the user's interaction, and even without the user noticing. Thus, while running a script containing RobustExcelOle commands, the user can open and process Excel files in any Excel instances at any time. RobustExcelOle manages the complex cases of conflicts that might occur such that the user does not need to interfere and the script can continue.
 
 For example, suppose you want to process a list of workbooks. RobustExcelOle allows to rapidly open, manipulate, close and save these workbooks. Now assume, the workbook "workbook.xls" is being processed, while the user has opened this workbook, has modified but not saved it yet. Excel would prompt a message and ask the user what to do. RobustExcelOle solves this conflict by using an option that states whether the changes of the user should be saved (accepted) or discarded before opening the workbook:
 
-  book = Book.open('workbook.xls', :if_unsaved => :accept)
+  book = Workbook.open('workbook.xls', :if_unsaved => :accept)
 
 Similarly, if the user has opened a workbook that has the same name but a different path, the conflict is solved via an option.
 
-  book1 = Book.open('path1/workbook.xls')
+  book1 = Workbook.open('path1/workbook.xls')
     ...
-  book2 = Book.open('workbook.xls', :if_obstructed => :forget)
+  book2 = Workbook.open('workbook.xls', :if_obstructed => :forget)
 
 There are twelve options that control opening workbooks. 
 
 Finally, RobustExcelOle allows unobtrusively reading and modifying workbooks, i.e. accessing workbooks without changing their "status". The status comprises whether the workbook is open or closed, saved or unsaved, read-only or writable, visible or invisible, whether the calculation mode is manual or automatic, and checking compatibility is done or not done. 
 
-  Book.for_modifying('workbook.xls') do |book|
+  Workbook.for_modifying('workbook.xls') do |book|
     # do something
   end
 
-  Book.for_reading('workbook.xls') do |book|
+  Workbook.for_reading('workbook.xls') do |book|
     # do something
   end
 
-=== The Book objects and identity transparency
+=== The Workbook objects and identity transparency
 
-An Excel file (or workbook) is represented by a Book object. A Book object is defined by the full name of the workbook and the Excel instance in which it is opened. RobustExcelOle aims to ensure identity transparency.
-Identity transparency means that the same Book objects refer to the same Excel files, and vice versa.
-In other words, a Book objects is a proxy of an Excel file.
+An Excel file (or workbook) is represented by a Workbook object. A Workbook object is defined by the full name of the workbook and the Excel instance in which it is opened. RobustExcelOle aims to ensure identity transparency.
+Identity transparency means that the same Workbook objects refer to the same Excel files, and vice versa.
+In other words, a Workbook objects is a proxy of an Excel file.
 
 Here are some more details about opening, closing, reading, writing and modifying Excel files.
 
@@ -97,11 +97,11 @@ Here are some more details about opening, closing, reading, writing and modifyin
 
 Let's have a look at an example. Suppose, we want to open a workbook.
 
-  book = Book.open('workbook.xls')
+  book = Workbook.open('workbook.xls')
 
 We could do this in a block as well. The semantics is similar to, e.g.,  +File.open+.
 
-  Book.open('workbook.xls') do |book|
+  Workbook.open('workbook.xls') do |book|
     # do something with book
   end
 
@@ -111,15 +111,15 @@ Now let's make the workbook visible.
 
 We can do this in one step as well.
 
-  book = Book.open('workbook.xls', :visible => true)
+  book = Workbook.open('workbook.xls', :visible => true)
 
 Now we want to open another workbook in a new Excel instance.
 
-  book2 = Book.open('another_workbook.xls', :force => {:excel => :new}, :visible => true)
+  book2 = Workbook.open('another_workbook.xls', :force => {:excel => :new}, :visible => true)
 
 Then we open a third workbook in the second Excel instance. 
 
-  book3 = Book.open('different_workbook.xls', :force => {:excel => book2.excel})
+  book3 = Workbook.open('different_workbook.xls', :force => {:excel => book2.excel})
 
 We close the second workbook.
 
@@ -241,7 +241,7 @@ or
 
 We open a workbook in this Excel instance.
 
-  book4 = Book.open('more_data/workbook', {:force => {:excel => excel2}})
+  book4 = Workbook.open('more_data/workbook', {:force => {:excel => excel2}})
 
 We close the Excel instance by
 

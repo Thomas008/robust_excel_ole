@@ -21,7 +21,7 @@ begin
   extended_file_name = dir + "/" + base_name + "_expanded" + "." + suffix
   FileUtils.copy file_name, extended_file_name 
   
-  Book.unobtrusively(extended_file_name) do |book|     
+  Workbook.unobtrusively(extended_file_name) do |book|     
     book.extend Enumerable
     sheet_names = book.map { |sheet| sheet.name }
 

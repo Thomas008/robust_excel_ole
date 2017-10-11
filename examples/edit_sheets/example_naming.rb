@@ -25,7 +25,7 @@ begin
   extended_file_name = dir + "/" + base_name + "_named" + "." + suffix
   FileUtils.copy file_name, extended_file_name 
 
-  Book.unobtrusively(extended_file_name) do |book|     
+  Workbook.unobtrusively(extended_file_name) do |book|     
     book.each do |sheet|
       sheet.each do |cell_orig|
         contents = cell_orig.Value

@@ -11,7 +11,7 @@ Excel.close_all
 begin
   dir = create_tmpdir
   file_name = dir + 'workbook.xls'
-  book = Book.open(file_name)                                # open a book.  default:  :read_only => false
+  book = Workbook.open(file_name)                                # open a book.  default:  :read_only => false
   book.excel.visible = true                                          # make current Excel visible
   sheet = book.sheet(1)
   workbook = book.ole_workbook

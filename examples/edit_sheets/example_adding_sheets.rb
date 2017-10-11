@@ -13,7 +13,7 @@ begin
   simple_file = dir + 'workbook.xls'
   simple_save_file = dir + 'workbook_save.xls'
   File.delete simple_save_file rescue nil
-  @book = Book.open(simple_file)      # open a book
+  @book = Workbook.open(simple_file)      # open a book
 
   def show_sheets 
     @book.each do |sheet|               # access each sheet

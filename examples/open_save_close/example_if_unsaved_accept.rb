@@ -11,15 +11,15 @@ Excel.close_all
 begin
   dir = create_tmpdir
   file_name = dir + 'workbook.xls' 
-  book = Book.open(file_name)                      # open a book 
+  book = Workbook.open(file_name)                      # open a book 
   sheet = book.sheet(1)                                                  # access a sheet
   sheet[1,1] = sheet[1,1].value == "simple" ? "complex" : "simple" # change a cell
   begin
-    new_book = Book.open(file_name)                # open another book with the same file name
+    new_book = Workbook.open(file_name)                # open another book with the same file name
   rescue WorkbookBeingUsed => msg                     # by default: raises an exception:
     puts "error: open: #{msg.message}"              # a book with the same name is already open and unsaved 
   end
-  new_book = Book.open(file_name, :if_unsaved => :accept) # open another book with the same file name 
+  new_book = Workbook.open(file_name, :if_unsaved => :accept) # open another book with the same file name 
                                                           # and let the unsaved book open
   if book.alive? && new_book.alive? then                  # check whether the referenced workbooks
   	puts "open with :if_unsaved => :accept : the two books are alive." # respond to methods

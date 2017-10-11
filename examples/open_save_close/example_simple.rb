@@ -16,7 +16,7 @@ begin
   dir = create_tmpdir
   file_name = dir + 'workbook.xls'
   other_file_name = dir + 'different_workbook.xls'
-  book = Book.open(file_name)                                # open a book.  default:  :read_only => false
+  book = Workbook.open(file_name)                                # open a book.  default:  :read_only => false
   book.excel.visible = true                                  # make current Excel visible
   sheet = book.sheet(1)                                            # access a sheet
   sleep 1     

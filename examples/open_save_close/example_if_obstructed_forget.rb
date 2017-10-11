@@ -12,18 +12,18 @@ begin
   dir = create_tmpdir
   file_name = dir + 'workbook.xls'
   other_file_name = dir + 'more_data/workbook.xls'
-  book = Book.open(file_name, :visible => true)  # open a book, make Excel application visible
+  book = Workbook.open(file_name, :visible => true)  # open a book, make Excel application visible
   sleep 3 
   begin
-    new_book = Book.open(other_file_name)        # open a book with the same file name in a different path
+    new_book = Workbook.open(other_file_name)        # open a book with the same file name in a different path
   rescue WorkbookBlocked => msg                   # by default: raises an exception 
   	puts "error: open: #{msg.message}"
   end
   # open a new book with the same file name in a different path. close the old book before.
-  new_book = Book.open(other_file_name, :if_obstructed => :forget) 
+  new_book = Workbook.open(other_file_name, :if_obstructed => :forget) 
   sleep 3
   # open another book with the same file name in a different path. Use a new Excel application
-  another_book = Book.open(file_name, :if_obstructed => :new_excel, :visible => true)                                         
+  another_book = Workbook.open(file_name, :if_obstructed => :new_excel, :visible => true)                                         
   sleep 3
   new_book.close                                 # close the books                      
   another_book.close

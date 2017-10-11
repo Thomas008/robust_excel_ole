@@ -18,7 +18,7 @@ begin
   extended_file_name = dir + "/" + base_name + "_concat" + "." + suffix
   FileUtils.copy file_name, extended_file_name 
 
-  Book.unobtrusively(extended_file_name) do |book|
+  Workbook.unobtrusively(extended_file_name) do |book|
     book.each do |sheet|
       sheet.each do |cell|
         name = cell.Name.Name rescue nil

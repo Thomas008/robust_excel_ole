@@ -30,9 +30,9 @@ begin
       i = i + 1
       item_name = 
         case enum_method
-        when :each        : "cell"
-        when :each_row    : "row"
-        when :each_column : "column"
+        when :each        then "cell"
+        when :each_row    then "row"
+        when :each_column then "column"
         end 
       puts "#{item_name} #{i}: #{item.Value}" # put values of the item of the sheet
     end

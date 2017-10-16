@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 require 'weakref'
+require 'Win32API'
 
 def ka 
   Excel.kill_all

@@ -12,7 +12,7 @@ require "fileutils"
 include RobustExcelOle
 
 begin
-  dir = "C:/data"
+  dir = File.expand_path('../../spec/data', File.dirname(__FILE__))
   workbook_name = 'workbook_named_concat.xls'
   ws = workbook_name.split(".")
   base_name = ws[0,ws.length-1].join(".")

@@ -9,8 +9,8 @@ include RobustExcelOle
 
 begin
   
-  dir = "C:/data"
-  workbook_name = 'workbook_named.xls'
+  dir = File.expand_path('../../spec/data', File.dirname(__FILE__))
+  workbook_name = 'workbook_new.xls'
   ws = workbook_name.split(".")
   base_name = ws[0,ws.length-1].join(".")
   suffix = ws.last  

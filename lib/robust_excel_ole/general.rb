@@ -113,7 +113,7 @@ module MethodHelpers
   end
 
   def methods   # :nodoc: # 
-    (super + ole_object.ole_methods.map{|m| m.to_s}).uniq.select{|m| m =~ /^(?!\_)/}.sort
+    (super.map{|m| m.to_s} + ole_object.ole_methods.map{|m| m.to_s}).uniq.select{|m| m =~ /^(?!\_)/}.sort
   end
 
 end

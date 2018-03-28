@@ -653,7 +653,15 @@ module RobustExcelOle
 
     # closes a given file if it is open
     def self.close(file, opts = {:if_unsaved => :raise})
+      #puts "self.close:"
+      #puts "file: #{file}"
+      #begin
+      #  bookstore.fetch(file)
+      #rescue
+      #  puts "#{$!.message}"
+      #end
       book = bookstore.fetch(file) rescue nil
+      #puts "book after fetch: #{book.inspect}"
       book.close(opts) if book && book.alive?
     end
 
@@ -802,7 +810,7 @@ module RobustExcelOle
     # sets the contents of a range
     # @param [String]  name  the name of a range
     # @param [Variant] value the contents of the range
-    def set_nameval(name, value) 
+    def set_nameval(name, value)
       begin
         name_obj = self.Names.Item(name)
       rescue WIN32OLERuntimeError

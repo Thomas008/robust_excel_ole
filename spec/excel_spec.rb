@@ -1722,10 +1722,6 @@ module RobustExcelOle
         @excel1["firstcell"].should == "foo"
       end        
 
-      it "should return default value if name not defined and default value is given" do
-        @excel1.nameval("foo", :default => 2).should == 2
-      end
-
       it "should evaluate a formula" do
         @excel1.nameval("named_formula").should == 4
         @excel1["named_formula"].should == 4
@@ -1734,18 +1730,18 @@ module RobustExcelOle
       it "should raise an error if name not defined" do
         expect {
           @excel1.nameval("foo")
-        }.to raise_error(NameNotFound, /cannot find name "foo"/)
+        }.to raise_error(NameNotFound, /name "foo"/)
         expect {
         @excel1["foo"]
-        }.to raise_error(NameNotFound, /cannot find name "foo"/)
+        }.to raise_error(NameNotFound, /name "foo"/)
         expect {
           excel2 = Excel.create
           excel2.nameval("one")
-        }.to raise_error(NameNotFound, /cannot find name "one"/)
+        }.to raise_error(NameNotFound, /name "one"/)
         expect {
           excel3 = Excel.create(:visible => true)
           excel3["one"]
-        }.to raise_error(NameNotFound, /cannot find name "one"/)
+        }.to raise_error(NameNotFound, /name "one"/)
       end
 
       it "should set a range to a value" do
@@ -1759,10 +1755,10 @@ module RobustExcelOle
       it "should raise an error if name cannot be evaluated" do
         expect{
           @excel1.set_nameval("foo", 1)
-          }.to raise_error(NameNotFound, /cannot find name "foo"/)
+          }.to raise_error(NameNotFound, /name "foo"/)
         expect{
           @excel1["foo"] = 1
-          }.to raise_error(NameNotFound, /cannot find name "foo"/)
+          }.to raise_error(NameNotFound, /name "foo"/)
       end
     end
 

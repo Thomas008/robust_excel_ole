@@ -654,10 +654,6 @@ describe Book do
       @book1["named_formula"].should == 4      
     end
 
-    it "should return default value if name not defined" do
-      @book1.nameval("foo", :default => 2).should == 2
-    end
-
     it "should raise an error if name not defined" do
       expect {
         @book1.nameval("foo")

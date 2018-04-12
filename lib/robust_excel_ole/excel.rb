@@ -610,17 +610,12 @@ module RobustExcelOle
     # @param [Hash]   opts  the options
     # @option opts [Variant] :default value (default: nil)
     def nameval(name, opts = {:default => nil})
-      begin
-        name_obj = self.Names.Item(name)
-      rescue WIN32OLERuntimeError
-        return opts[:default] if opts[:default]
-        raise NameNotFound, "cannot find name #{name.inspect}"
-      end
-      begin
-        value = name_obj.RefersToRange.Value
+      name_obj = name_object(name)
+      value = begin
+        name_obj.RefersToRange.Value
       rescue  WIN32OLERuntimeError
         begin
-          value = self.Evaluate(name_obj.Name)
+          self.Evaluate(name_obj.Name)
         rescue WIN32OLERuntimeError
           return opts[:default] if opts[:default]
           raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect}"
@@ -633,20 +628,29 @@ module RobustExcelOle
       return opts[:default] if (value.nil? && opts[:default])
       value      
     end
-    
+
     # assigns a value to a range with given name
     # @param [String]  name   the range name
     # @param [Variant] value  the assigned value
     def set_nameval(name,value)
       begin
-        name_obj = self.Names.Item(name)
-      rescue WIN32OLERuntimeError
-        raise NameNotFound, "cannot find name #{name.inspect}"
-      end
-      begin
-        name_obj.RefersToRange.Value = value
+        cell = name_object(name).RefersToRange
+        cell.Value = value
+        #cell.Interior.ColorIndex = 42 # aqua-marin, 7-green
       rescue  WIN32OLERuntimeError
         raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect}"
+      end
+    end
+
+    def name_object(name)
+      begin
+        self.Parent.Names.Item(name)
+      rescue WIN32OLERuntimeError
+        begin
+          self.Names.Item(name)
+        rescue WIN32OLERuntimeError
+          raise NameNotFound, "name #{name.inspect}"
+        end
       end
     end    
 

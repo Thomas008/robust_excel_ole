@@ -478,10 +478,6 @@ describe Sheet do
         @sheet1.nameval("firstcell").should == "foo"
       end
 
-      it "should return default value if name not defined and default value is given" do
-        @sheet1.nameval("foo", :default => 2).should == 2
-      end
-
       it "should evaluate a formula" do
         @sheet1.nameval("another_formula").should == 5
       end      
@@ -490,9 +486,6 @@ describe Sheet do
         expect {
           @sheet1.nameval("foo")
         }.to raise_error(NameNotFound, /name "foo" not in Sheet1/)
-        expect {
-          @sheet1.nameval("named_formula")
-        }.to raise_error(NameNotFound, /name "named_formula" not in Sheet1/)
       end
 
       it "should raise an error of coordinates are given instead of a defined name" do
@@ -501,10 +494,8 @@ describe Sheet do
         }.to raise_error(NameNotFound, /name "A1" not in Sheet1/)
       end
 
-      it "should raise an error for a range with empty contents" do
-        expect{
-          @sheet1.nameval("another")
-          }.to raise_error(NameNotFound, /name "another" not in Sheet1/)
+      it "should return default value for a range with empty contents" do
+        @sheet1.nameval("another", :default => 2) == 2
       end 
 
       it "should set a range to a value" do

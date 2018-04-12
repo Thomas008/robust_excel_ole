@@ -782,28 +782,22 @@ module RobustExcelOle
     # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
     # @return [Variant] the contents of a range with given name
     def nameval(name, opts = {:default => nil})
-      default_val = opts[:default]
-      begin
-        name_obj = self.Names.Item(name)
-      rescue WIN32OLERuntimeError
-        return default_val if default_val
-        raise NameNotFound, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"
-      end
-      begin
-        value = name_obj.RefersToRange.Value
+      name_obj = name_object(name)
+      value = begin
+        name_obj.RefersToRange.Value
       rescue  WIN32OLERuntimeError
         begin
-          value = self.sheet(1).Evaluate(name_obj.Name)
+          self.sheet(1).Evaluate(name_obj.Name)
         rescue WIN32OLERuntimeError
-          return default_val if default_val
+          return opts[:default] if opts[:default]
           raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{File.basename(self.stored_filename).inspect}"
         end
       end
       if value.is_a?(Bignum)  #RobustExcelOle::XlErrName  
-        return default_val if default_val
+        return opts[:default] if opts[:default]
         raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{File.basename(self.stored_filename).inspect}"
       end 
-      return default_val if default_val && value.nil?
+      return opts[:default] if opts[:default] && value.nil?
       value      
     end
 
@@ -812,16 +806,25 @@ module RobustExcelOle
     # @param [Variant] value the contents of the range
     def set_nameval(name, value)
       begin
-        name_obj = self.Names.Item(name)
-      rescue WIN32OLERuntimeError
-        raise NameNotFound, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"  
-      end
-      begin
-        name_obj.RefersToRange.Value = value
+        cell = name_object(name).RefersToRange
+        cell.Value = value
+        #cell.Interior.ColorIndex = 42 # aqua-marin, 7-green
       rescue WIN32OLERuntimeError
         raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{File.basename(self.stored_filename).inspect}"    
       end
     end    
+
+    def name_object(name)
+      begin
+        self.Parent.Names.Item(name)
+      rescue WIN32OLERuntimeError
+        begin
+          self.Names.Item(name)
+        rescue WIN32OLERuntimeError
+          raise NameNotFound, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"  
+        end
+      end
+    end
 
     # renames a range
     # @param [String] name     the previous range name

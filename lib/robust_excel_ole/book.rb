@@ -546,6 +546,7 @@ module RobustExcelOle
       raise ObjectNotAlive, "workbook is not alive" if (not alive?)
       raise WorkbookReadOnly, "Not opened for writing (opened with :read_only option)" if @ole_workbook.ReadOnly
       begin
+        recoloring
         @ole_workbook.Save 
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
@@ -553,7 +554,7 @@ module RobustExcelOle
         else
           raise UnexpectedError, "unknown WIN32OLERuntimeError:\n#{msg.message}"
         end       
-      end
+      end      
       true
     end
 
@@ -628,6 +629,10 @@ module RobustExcelOle
 
   private
 
+    def recoloring
+      self.each{|sheet| sheet.each{|cell| cell.Interior.ColorIndex = XlNone}}
+    end
+
     def save_as_workbook(file, options)   # :nodoc: #
       begin
         dirname, basename = File.split(file)
@@ -637,6 +642,7 @@ module RobustExcelOle
             when '.xlsx'; RobustExcelOle::XlOpenXMLWorkbook
             when '.xlsm'; RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
           end
+        recoloring  
         @ole_workbook.SaveAs(General::absolute_path(file), file_format)
         bookstore.store(self)
       rescue WIN32OLERuntimeError => msg
@@ -691,6 +697,14 @@ module RobustExcelOle
     def each
       @ole_workbook.Worksheets.each do |sheet|
         yield sheet_class.new(sheet)
+      end
+    end
+
+    def each_with_index(offset = 0)
+      i = offset
+      @ole_workbook.Worksheets.each do |sheet|
+        yield sheet_class.new(sheet), i
+        i += 1
       end
     end
   
@@ -808,11 +822,13 @@ module RobustExcelOle
       begin
         cell = name_object(name).RefersToRange
         cell.Value = value
-        #cell.Interior.ColorIndex = 42 # aqua-marin, 7-green
+        cell.Interior.ColorIndex = 42 # aqua-marin, 7-green
       rescue WIN32OLERuntimeError
         raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{File.basename(self.stored_filename).inspect}"    
       end
-    end    
+    end
+
+  private        
 
     def name_object(name)
       begin
@@ -825,6 +841,8 @@ module RobustExcelOle
         end
       end
     end
+
+  public    
 
     # renames a range
     # @param [String] name     the previous range name

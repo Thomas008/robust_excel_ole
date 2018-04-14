@@ -91,6 +91,16 @@ module RobustExcelOle
       end
     end
 
+    def each_with_index(offset = 0)
+      i = offset
+      each_row do |row_range|
+        row_range.each do |cell|          
+          yield cell, i
+          i+=1
+        end
+      end
+    end
+
     def each_row(offset = 0)
       offset += 1
       1.upto(@end_row) do |row|
@@ -162,7 +172,7 @@ module RobustExcelOle
       begin
         cell = name_object(name).RefersToRange
         cell.Value = value
-        #cell.Interior.ColorIndex = 42 # aqua-marin, 7-green
+        cell.Interior.ColorIndex = 42 # aqua-marin, 7-green
       rescue  WIN32OLERuntimeError
         raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.name}"
       end

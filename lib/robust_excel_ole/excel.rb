@@ -636,11 +636,13 @@ module RobustExcelOle
       begin
         cell = name_object(name).RefersToRange
         cell.Value = value
-        #cell.Interior.ColorIndex = 42 # aqua-marin, 7-green
+        cell.Interior.ColorIndex = 42 # aqua-marin, 7-green
       rescue  WIN32OLERuntimeError
         raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect}"
       end
     end
+
+  private  
 
     def name_object(name)
       begin
@@ -652,7 +654,9 @@ module RobustExcelOle
           raise NameNotFound, "name #{name.inspect}"
         end
       end
-    end    
+    end  
+
+  public    
 
     # returns the contents of a range with a locally defined name
     # evaluates the formula if the contents is a formula
@@ -690,6 +694,7 @@ module RobustExcelOle
       end
       begin
         range.Value = value
+        range.Interior.ColorIndex = 42 # aqua-marin, 7-green
       rescue  WIN32OLERuntimeError
         raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.name}"
       end

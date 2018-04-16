@@ -147,6 +147,15 @@ describe Sheet do
       @sheet[1, 1].value.should eq nil
     end
 
+    it "should raise error for bad ranges" do
+      expect{
+        @sheet[0,0]
+      }.to raise_error(RangeNotEvaluatable, "cannot read cell (0,0)")
+      expect{
+        @sheet[0,0] = "foo"
+      }.to raise_error(RangeNotEvaluatable, /cannot assign value/)
+    end
+
     describe '#each' do
       it "should sort line in order of column" do
         @sheet.each_with_index do |cell, i|

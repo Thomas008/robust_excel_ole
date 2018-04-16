@@ -654,7 +654,7 @@ describe Book do
           @excel1.close
           @excel2.close 
         rescue ExcelError => msg
-          puts "ExcelError: #{msg.message}" if msg.message =~ /Excel instance not alive or damaged/
+          # puts "ExcelError: #{msg.message}" if msg.message =~ /Excel instance not alive or damaged/
         end
       end
 
@@ -1342,6 +1342,12 @@ describe Book do
 
       it 'with block' do
         @book.each do |sheet|
+          sheet.should be_kind_of Sheet
+        end
+      end
+
+      it 'with each_with_index' do
+        @book.each_with_index do |sheet,i|
           sheet.should be_kind_of Sheet
         end
       end

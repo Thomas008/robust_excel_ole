@@ -301,7 +301,11 @@ You can set the contents of a range with
 
 or
 
-  book.set_nameval("name") = "value"
+  book.set_nameval("name", value)
+
+You can also specify the color of a changed range: 
+  
+  book.set_nameval("name", value, :color => 4)
 
 === Bringing a workbook to the focus.
 
@@ -430,6 +434,10 @@ You get the value of a range of a locally defined name with
 and set the value of this range by
 
   sheet.set_rangeval(name,value)
+
+You can also specify the color of a modified range:
+ 
+  sheet.set_rangeval(name, value, :color => 4)
 
 === Adding and copying a worksheet.
 
@@ -618,6 +626,10 @@ or
 
   excel.set_nameval(name,value)
 
+You can also specify the color of a changed range: 
+  
+  excel.set_nameval(name, value, :color => 4)
+
 === Retaining the saved-status of all workbooks
 
 You can operate in some Excel instance and retain the saved-status of all workbooks.
@@ -635,6 +647,10 @@ You can get the value of a range of a locally defined name by
 and set the value of this range with
 
   excel.set_rangeval(name,value)
+
+You can also specify the color of a changed range: 
+  
+  excel.set_rangeval(name, value, :color => 4)  
   
 
 === Examples

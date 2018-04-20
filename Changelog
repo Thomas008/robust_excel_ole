@@ -1,7 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [1.1.1] - 2017-11-1
+## [1.1.1] - 2018-20-4
+
+### Added
+  - Book#save, save_as: options: discoloring
+  - Book#set_nameval, Sheet, Excel#set_nameval, set_rangeval: option :color
 
 ### Changed
 

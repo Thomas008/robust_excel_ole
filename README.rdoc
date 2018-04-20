@@ -143,9 +143,9 @@ Now we assign a new value to this range.
 
   book2["new"] = "bar"
 
-or
+or, with coloring the cell,
 
-  book2.set_nameval("new", "bar")
+  book2.set_nameval("new", "bar", :color => 4)
 
 Then we access the first worksheet by
 
@@ -183,9 +183,9 @@ We get the value of a range
 
   sheet1.nameval("firstcell")    # => "hello"
 
-and set the value 
+and set the value, while coloring the cell
 
-  sheet1.set_nameval("firstcell", "foo")
+  sheet1.set_nameval("firstcell", "foo", :color => 4)
 
 We get the value of a range of a locally defined name.
 
@@ -220,6 +220,14 @@ Then we close this workbook.
 Simple saving and closing can be also done in one step by
 
   book2.close(:if_unsaved => :save)
+
+When you want discolor all cells that have been colored when modifying them, then use
+  
+  book2.save(:discoloring => true)
+
+or
+
+  book2.save_as('example_workbook.xls', :if_exists => :overwrite, :discoloring => true)
 
 === Operating on Excel instances.
 
@@ -263,9 +271,9 @@ and set the value of this range by using
 
   excel2["firstcell"] = "bar"
 
-or
+or, with coloring the cell,
 
-  excel2.set_nameval("firstcell", "bar")
+  excel2.set_nameval("firstcell", "bar", :color => 4)
 
 We get and set the value of a range with a locally defined named by
 

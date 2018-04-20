@@ -541,13 +541,13 @@ module RobustExcelOle
     end
 
     # simple save of a workbook.
-    # @option opts [Boolean]  states, whether colored ranges shall be recolored
+    # @option opts [Boolean]  states, whether colored ranges shall be discolored
     # @return [Boolean] true, if successfully saved, nil otherwise
-    def save(opts = {:recoloring => false})      
+    def save(opts = {:discoloring => false})      
       raise ObjectNotAlive, "workbook is not alive" if (not alive?)
       raise WorkbookReadOnly, "Not opened for writing (opened with :read_only option)" if @ole_workbook.ReadOnly
       begin
-        recoloring if opts[:recoloring] 
+        discoloring if opts[:discoloring] 
         @ole_workbook.Save 
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
@@ -575,7 +575,7 @@ module RobustExcelOle
     #                  :save                -> saves the blocking workbook and closes it
     #                  :close_if_saved      -> closes the blocking workbook, if it is saved, 
     #                                          otherwise raises an exception
-    # :recoloring     states, wheter colored ranges shall be recolored
+    # :discoloring     states, wheter colored ranges shall be discolored
     # @return [Book], the book itself, if successfully saved, raises an exception otherwise
     def save_as(file, opts = { } )
       raise FileNameNotGiven, "filename is nil" if file.nil?
@@ -589,7 +589,7 @@ module RobustExcelOle
         case options[:if_exists]
         when :overwrite
           if file == self.filename
-            save({:recoloring => opts[:recoloring]})
+            save({:discoloring => opts[:discoloring]})
             return self
           else
             begin
@@ -631,7 +631,7 @@ module RobustExcelOle
 
   private
 
-    def recoloring
+    def discoloring
       self.each{|sheet| sheet.each{|cell| cell.Interior.ColorIndex = XlNone}}
     end
 
@@ -644,7 +644,7 @@ module RobustExcelOle
             when '.xlsx'; RobustExcelOle::XlOpenXMLWorkbook
             when '.xlsm'; RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
           end
-        recoloring if options[:recoloring]  
+        discoloring if options[:discoloring]  
         @ole_workbook.SaveAs(General::absolute_path(file), file_format)
         bookstore.store(self)
       rescue WIN32OLERuntimeError => msg

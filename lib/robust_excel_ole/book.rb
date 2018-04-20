@@ -541,12 +541,13 @@ module RobustExcelOle
     end
 
     # simple save of a workbook.
+    # @option opts [Boolean]  states, whether colored ranges shall be recolored
     # @return [Boolean] true, if successfully saved, nil otherwise
-    def save      
+    def save(opts = {:recoloring => false})      
       raise ObjectNotAlive, "workbook is not alive" if (not alive?)
       raise WorkbookReadOnly, "Not opened for writing (opened with :read_only option)" if @ole_workbook.ReadOnly
       begin
-        recoloring
+        recoloring if opts[:recoloring] 
         @ole_workbook.Save 
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
@@ -574,6 +575,7 @@ module RobustExcelOle
     #                  :save                -> saves the blocking workbook and closes it
     #                  :close_if_saved      -> closes the blocking workbook, if it is saved, 
     #                                          otherwise raises an exception
+    # :recoloring     states, wheter colored ranges shall be recolored
     # @return [Book], the book itself, if successfully saved, raises an exception otherwise
     def save_as(file, opts = { } )
       raise FileNameNotGiven, "filename is nil" if file.nil?
@@ -587,7 +589,7 @@ module RobustExcelOle
         case options[:if_exists]
         when :overwrite
           if file == self.filename
-            save
+            save({:recoloring => opts[:recoloring]})
             return self
           else
             begin
@@ -642,7 +644,7 @@ module RobustExcelOle
             when '.xlsx'; RobustExcelOle::XlOpenXMLWorkbook
             when '.xlsm'; RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
           end
-        recoloring  
+        recoloring if options[:recoloring]  
         @ole_workbook.SaveAs(General::absolute_path(file), file_format)
         bookstore.store(self)
       rescue WIN32OLERuntimeError => msg
@@ -783,7 +785,7 @@ module RobustExcelOle
     # @param [String]  name  the name of the range
     # @param [Variant] value the contents of the range
     def []= (name, value)
-      set_nameval(name,value)
+      set_nameval(name,value, :color => 42)   # 42 - aqua-marin, 4-green
     end
 
     # returns the contents of a range with given name
@@ -818,11 +820,13 @@ module RobustExcelOle
     # sets the contents of a range
     # @param [String]  name  the name of a range
     # @param [Variant] value the contents of the range
-    def set_nameval(name, value)
+    # @param [FixNum]  color the color when setting a value
+    # @param [Hash]    opts :color [FixNum]  the color when setting the contents
+    def set_nameval(name, value, opts = {:color => 0})
       begin
         cell = name_object(name).RefersToRange
+        cell.Interior.ColorIndex = opts[:color] 
         cell.Value = value
-        cell.Interior.ColorIndex = 42 # aqua-marin, 7-green
       rescue WIN32OLERuntimeError
         raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{File.basename(self.stored_filename).inspect}"    
       end

@@ -600,7 +600,7 @@ module RobustExcelOle
     # @param [String]  name  the name of the range
     # @param [Variant] value the contents of the range
     def []= (name, value)
-      set_nameval(name,value)
+      set_nameval(name,value, :color => 42) # 42 - aqua-marin, 7-green
     end
 
     # returns the contents of a range with given name
@@ -632,11 +632,12 @@ module RobustExcelOle
     # assigns a value to a range with given name
     # @param [String]  name   the range name
     # @param [Variant] value  the assigned value
-    def set_nameval(name,value)
+    # @param [Hash]    opts :color [FixNum]  the color when setting the contents
+    def set_nameval(name,value, opts = {:color => 0})
       begin
         cell = name_object(name).RefersToRange
+        cell.Interior.ColorIndex = opts[:color]
         cell.Value = value
-        cell.Interior.ColorIndex = 42 # aqua-marin, 7-green
       rescue  WIN32OLERuntimeError
         raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect}"
       end
@@ -686,15 +687,16 @@ module RobustExcelOle
     # assigns a value to a range given a locally defined name
     # @param [String]  name   the range name
     # @param [Variant] value  the assigned value
-    def set_rangeval(name,value)
+    # @param [Hash]    opts :color [FixNum]  the color when setting the contents
+    def set_rangeval(name,value, opts = {:color => 0})
       begin
         range = self.Range(name)
       rescue WIN32OLERuntimeError
         raise NameNotFound, "cannot find name #{name.inspect}"
       end
       begin
-        range.Value = value
-        range.Interior.ColorIndex = 42 # aqua-marin, 7-green
+        range.Interior.ColorIndex = opts[:color]
+        range.Value = value        
       rescue  WIN32OLERuntimeError
         raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.name}"
       end

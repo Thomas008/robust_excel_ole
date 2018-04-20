@@ -75,14 +75,14 @@ module RobustExcelOle
         begin
           cell = @worksheet.Cells.Item(y, x)
           cell.Value = value
-          cell.Interior.ColorIndex = 42 # aqua-marin, 7-green
+          cell.Interior.ColorIndex = 42 # aqua-marin, 4-green
         rescue WIN32OLERuntimeError
           raise RangeNotEvaluatable, "cannot assign value #{p3.inspect} to cell (#{p1.inspect},#{p2.inspect})"
         end
       else
         name, value = p1, p2
         begin
-          set_nameval(name, value) 
+          set_nameval(name, value, :color => 42) # aqua-marin, 4-green
         rescue REOError
           begin
             workbook.set_nameval(name, value)
@@ -122,11 +122,12 @@ module RobustExcelOle
     # assigns a value to a range
     # @param [String]  name   the name of a range
     # @param [Variant] value  the assigned value
-    def set_nameval(name,value)
+    # @param [Hash]    opts :color [FixNum]  the color when setting the contents
+    def set_nameval(name,value, opts = {:color => 0})
       begin
-        cell = name_object(name).RefersToRange
+        cell = name_object(name).RefersToRange        
+        cell.Interior.ColorIndex = opts[:color]
         cell.Value = value
-        cell.Interior.ColorIndex = 42 # aqua-marin, 7-green
       rescue  WIN32OLERuntimeError
         raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.name}"
       end
@@ -175,15 +176,16 @@ module RobustExcelOle
     # assigns a value to a range given a locally defined name
     # @param [String]  name   the name of a range
     # @param [Variant] value  the assigned value
-    def set_rangeval(name,value)
+    # @param [Hash]    opts :color [FixNum]  the color when setting the contents
+    def set_rangeval(name,value, opts = {:color => 0})
       begin
         range = self.Range(name)
       rescue WIN32OLERuntimeError
         raise NameNotFound, "name #{name.inspect} not in #{self.name}"
       end
       begin
+        range.Interior.ColorIndex = opts[:color]
         range.Value = value
-        range.Interior.ColorIndex = 42 # aqua-marin, 7-green
       rescue  WIN32OLERuntimeError
         raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.name}"
       end

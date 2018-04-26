@@ -632,7 +632,7 @@ module RobustExcelOle
   private
 
     def discoloring
-      self.each{|sheet| sheet.each{|cell| cell.Interior.ColorIndex = XlNone}}
+      self.each{|sheet| sheet.UsedRange.each{|cell| cell.Interior.ColorIndex = XlNone}}
     end
 
     def save_as_workbook(file, options)   # :nodoc: #

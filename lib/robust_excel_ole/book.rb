@@ -10,6 +10,7 @@ module RobustExcelOle
     attr_accessor :ole_workbook
     attr_accessor :stored_filename
     attr_accessor :options    
+    attr_accessor :modified_cells
 
     alias ole_object ole_workbook
 
@@ -154,6 +155,7 @@ module RobustExcelOle
         ensure_workbook(file, options)        
       end
       bookstore.store(self)
+      @modified_cells = []
       if block
         begin
           yield self
@@ -548,6 +550,7 @@ module RobustExcelOle
       raise WorkbookReadOnly, "Not opened for writing (opened with :read_only option)" if @ole_workbook.ReadOnly
       begin
         discoloring if opts[:discoloring] 
+        @modified_cells = []
         @ole_workbook.Save 
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
@@ -632,7 +635,8 @@ module RobustExcelOle
   private
 
     def discoloring
-      self.each{|sheet| sheet.UsedRange.each{|cell| cell.Interior.ColorIndex = XlNone}}
+      # self.each{|sheet| sheet.UsedRange.each{|cell| cell.Interior.ColorIndex = XlNone}}
+      @modified_cells.each{|cell| cell.Interior.ColorIndex = XlNone}
     end
 
     def save_as_workbook(file, options)   # :nodoc: #
@@ -645,6 +649,7 @@ module RobustExcelOle
             when '.xlsm'; RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
           end
         discoloring if options[:discoloring]  
+        @modified_cells = []
         @ole_workbook.SaveAs(General::absolute_path(file), file_format)
         bookstore.store(self)
       rescue WIN32OLERuntimeError => msg
@@ -661,15 +666,7 @@ module RobustExcelOle
 
     # closes a given file if it is open
     def self.close(file, opts = {:if_unsaved => :raise})
-      #puts "self.close:"
-      #puts "file: #{file}"
-      #begin
-      #  bookstore.fetch(file)
-      #rescue
-      #  puts "#{$!.message}"
-      #end
       book = bookstore.fetch(file) rescue nil
-      #puts "book after fetch: #{book.inspect}"
       book.close(opts) if book && book.alive?
     end
 
@@ -826,13 +823,19 @@ module RobustExcelOle
       begin
         cell = name_object(name).RefersToRange
         cell.Interior.ColorIndex = opts[:color] 
+        @modified_cells << cell unless cell_included?(cell)
         cell.Value = value
       rescue WIN32OLERuntimeError
         raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{File.basename(self.stored_filename).inspect}"    
       end
     end
 
-  private        
+  private
+
+    def cell_included?(cell)
+      @modified_cells.each{|c| return true if c.Name.Value == cell.Name.Value}
+      false
+    end        
 
     def name_object(name)
       begin

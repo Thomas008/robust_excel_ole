@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.1.2] - 2018-31-5
+
+### Added
+  - Excel#active_workbook
+
 ## [1.1.1] - 2018-20-4
 
 ### Added

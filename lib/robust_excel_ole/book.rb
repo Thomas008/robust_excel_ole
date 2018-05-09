@@ -10,6 +10,7 @@ module RobustExcelOle
     attr_accessor :ole_workbook
     attr_accessor :stored_filename
     attr_accessor :options    
+    attr_accessor :modified_cells
 
     alias ole_object ole_workbook
 
@@ -154,7 +155,7 @@ module RobustExcelOle
         ensure_workbook(file, options)        
       end
       bookstore.store(self)
-      initialize_modified_cells
+      @modified_cells = []
       if block
         begin
           yield self
@@ -545,14 +546,11 @@ module RobustExcelOle
     # @option opts [Boolean]  states, whether colored ranges shall be discolored
     # @return [Boolean] true, if successfully saved, nil otherwise
     def save(opts = {:discoloring => false})      
-      puts "save:"
       raise ObjectNotAlive, "workbook is not alive" if (not alive?)
       raise WorkbookReadOnly, "Not opened for writing (opened with :read_only option)" if @ole_workbook.ReadOnly
       begin
         discoloring if opts[:discoloring] 
-        puts "modified_cells: #{modified_cells.inspect}"
-        initialize_modified_cells
-        puts "modified_cells: #{modified_cells.inspect}"
+        @modified_cells = []
         @ole_workbook.Save 
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
@@ -637,14 +635,8 @@ module RobustExcelOle
   private
 
     def discoloring
-      puts "discoloring:"
-      puts "modified_cells:#{modified_cells}"
       # self.each{|sheet| sheet.UsedRange.each{|cell| cell.Interior.ColorIndex = XlNone}}
-      # @modified_cells.each{|cell| cell.Interior.ColorIndex = XlNone}
-      modified_cells.each do |cell|
-        puts "(#{cell.Row},#{cell.Column})"
-      end
-      modified_cells.each{|cell| cell.Interior.ColorIndex = XlNone}
+      @modified_cells.each{|cell| cell.Interior.ColorIndex = XlNone}
     end
 
     def save_as_workbook(file, options)   # :nodoc: #
@@ -657,8 +649,7 @@ module RobustExcelOle
             when '.xlsm'; RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
           end
         discoloring if options[:discoloring]  
-        # @modified_cells = []
-        modified_cells = []
+        @modified_cells = []
         @ole_workbook.SaveAs(General::absolute_path(file), file_format)
         bookstore.store(self)
       rescue WIN32OLERuntimeError => msg

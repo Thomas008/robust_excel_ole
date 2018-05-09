@@ -8,12 +8,6 @@ File.delete REO_LOG_FILE rescue nil
 
 class REOCommon
 
-  attr_accessor :modified_cells
-
-  def initialize_modified_cells
-    @modified_cells = []
-  end
-
   # returns the contents of a range with given name
   # evaluates formula contents of the range is a formula
   # if no contents could be returned, then return default value, if provided, raise error otherwise
@@ -49,18 +43,10 @@ class REOCommon
   # @param [FixNum]  color the color when setting a value
   # @param [Hash]    opts :color [FixNum]  the color when setting the contents
   def set_nameval(name, value, opts = {:color => 0})
-    puts "set_nameval:"
-    puts "name: #{name}"
-    puts "value: #{value}"
     begin
       cell = name_object(name).RefersToRange
-      puts "cell:#{cell.Name.Value}"
       cell.Interior.ColorIndex = opts[:color] 
-      @modified_cells << cell unless cell_modified?(cell)
-      puts "modified_cells:"
-      @modified_cells.each do |cell|
-        puts "(#{cell.Row},#{cell.Column})"
-      end
+      book.modified_cells << cell unless cell_modified?(cell)
       cell.Value = value
     rescue WIN32OLERuntimeError
       raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{File.basename(self.stored_filename).inspect}"    
@@ -75,17 +61,14 @@ class REOCommon
   # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
   # @return [Variant] the contents of a range with given name   
   def rangeval(name, opts = {:default => nil})
-    puts "rangeval"
     begin
       range = self.Range(name)
-      puts "range: #{range}"
     rescue WIN32OLERuntimeError
       return opts[:default] if opts[:default]
       raise NameNotFound, "name #{name.inspect} not in #{self.name}"
     end
     begin
       value = range.Value
-      puts "value:#{value}"
     rescue  WIN32OLERuntimeError
       return opts[:default] if opts[:default]
       raise RangeNotEvaluatable, "cannot determine value of range named #{name.inspect} in #{self.name}"
@@ -108,16 +91,17 @@ class REOCommon
     end
     begin
       range.Interior.ColorIndex = opts[:color]
-      a = cell_modified?(range)
-      puts "cell_modified?: #{a}"
-      @modified_cells << range unless a
-      @modified_cells.each do |cell|
-        puts "(#{cell.Row},#{cell.Column})"
-      end 
-      # @modified_cells << range unless cell_modified?(range)
+      book.modified_cells << range unless cell_modified?(range)
       range.Value = value
     rescue  WIN32OLERuntimeError
       raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.name}"
+    end
+  end
+
+  def book
+    if self.is_a?(Book) then self
+    elsif self.is_a?(Sheet) then workbook
+    elsif self.is_a?(Excel) then active_workbook 
     end
   end
 
@@ -136,12 +120,7 @@ private
   end
 
   def cell_modified?(cell)
-    puts "cell_modified:"
-    puts "modified_cells: #{@modified_cells.inspect}"
-    @modified_cells.each do |cell|
-      puts "(#{cell.Row},#{cell.Column})"
-    end
-    @modified_cells.each{|c| return true if c.Name.Value == cell.Name.Value}
+    book.modified_cells.each{|c| return true if c.Name.Value == cell.Name.Value}    
     false
   end
 

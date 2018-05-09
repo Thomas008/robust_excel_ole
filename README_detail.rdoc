@@ -1,15 +1,13 @@
 = RobustExcelOle
 
-This ruby gem automates modifying, reading and writing Excel files.
-It supports simultaneously running Excel instances and user interactions.
+This ruby gem automates reading, modifying, and writing Excel files. It is designed to support several kinds of concurrency of both simultaneously running Excel instances and simultanously happening user interactions.
 RobustExcelOle deals with various cases of Excel and user behaviour,
 and implements workarounds for some Excel bugs.
 The gem provides convenient methods for common tasks, and facilitates referenced libraries.
 It supports Excel 2010.
 
 RobustExcelOle works by sending VBA methods via Win32OLE.
-Moreover, it implements a management system and keeps track of Excel files and Excel instances.
-The tool is optimised with help of rcov.
+It implements a management system and keeps track of Excel files and Excel instances.
 
 == Requirements
 
@@ -21,7 +19,12 @@ The tool is optimised with help of rcov.
 
 == Usage
 
+  require 'robust_excel_ole'
   include RobustExcelOle
+
+or call the console 
+
+  reo.bat
 
 === Opening a workbook.
 

@@ -1722,10 +1722,10 @@ module RobustExcelOle
         @excel1["firstcell"].should == "foo"
       end        
 
-      it "should evaluate a formula" do
-        @excel1.nameval("named_formula").should == 4
-        @excel1["named_formula"].should == 4
-      end
+      #it "should evaluate a formula" do
+      #  @excel1.nameval("named_formula").should == 4
+      #  @excel1["named_formula"].should == 4
+      #end
 
       it "should raise an error if name not defined" do
         expect {
@@ -1791,14 +1791,14 @@ module RobustExcelOle
       it "should raise an error if name not defined for the sheet" do
         expect {
           @excel1.rangeval("foo")
-          }.to raise_error(NameNotFound, /cannot find name "foo"/)
+          }.to raise_error(NameNotFound, /name "foo" not in/)
         expect {
           @excel1.rangeval("named_formula")
-          }.to raise_error(NameNotFound, /cannot find name "named_formula"/)
+          }.to raise_error(NameNotFound, /name "named_formula" not in/)
         expect {
           excel2 = Excel.create
           excel2.rangeval("one")
-        }.to raise_error(NameNotFound, /cannot find name "one"/)
+        }.to raise_error(NameNotFound, /name "one" not in/)
       end
     
       it "should set a range to a value" do
@@ -1810,7 +1810,7 @@ module RobustExcelOle
       it "should raise an error if name cannot be evaluated" do
         expect{
           @excel1.set_nameval("foo", 1)
-        }.to raise_error(NameNotFound, /cannot find name "foo"/)
+        }.to raise_error(NameNotFound, /name "foo" not in/)
       end
 
     end

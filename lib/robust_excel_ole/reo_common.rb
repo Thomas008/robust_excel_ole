@@ -92,7 +92,7 @@ class RangeOwners < REOCommon
     begin
       cell = name_object(name).RefersToRange
       cell.Interior.ColorIndex = opts[:color] 
-      book.modified_cells << cell unless cell_modified?(cell)
+      workbook.modified_cells << cell unless cell_modified?(cell)
       cell.Value = value
     rescue WIN32OLERuntimeError
       raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{File.basename(self.stored_filename).inspect}"    
@@ -137,7 +137,7 @@ class RangeOwners < REOCommon
     end
     begin
       range.Interior.ColorIndex = opts[:color]
-      book.modified_cells << range unless cell_modified?(range)
+      workbook.modified_cells << range unless cell_modified?(range)
       range.Value = value
     rescue  WIN32OLERuntimeError
       raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.name}"
@@ -159,15 +159,8 @@ private
   end
 
   def cell_modified?(cell)
-    book.modified_cells.each{|c| return true if c.Name.Value == cell.Name.Value}    
+    workbook.modified_cells.each{|c| return true if c.Name.Value == cell.Name.Value}    
     false
-  end
-
-  def book
-    if self.is_a?(Book) then self
-    elsif self.is_a?(Sheet) then workbook
-    elsif self.is_a?(Excel) then active_workbook 
-    end
   end
 
 end

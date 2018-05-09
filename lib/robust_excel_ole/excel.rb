@@ -14,13 +14,14 @@ module RobustExcelOle
 
     attr_accessor :ole_excel
     attr_accessor :created
-    
+    attr_accessor :workbook
+
     # setter methods are implemented below
     attr_reader :visible
     attr_reader :displayalerts
     attr_reader :calculation
     attr_reader :screenupdating
-
+    
     alias ole_object ole_excel
 
     @@hwnd2excel = {}    
@@ -96,7 +97,7 @@ module RobustExcelOle
           result.screenupdating = options[:screenupdating] unless options[:screenupdating].nil?
           result.created = !reused
         end
-      end
+      end    
       result
     end
 
@@ -603,130 +604,12 @@ module RobustExcelOle
       set_nameval(name,value, :color => 42) # 42 - aqua-marin, 7-green
     end
 
-=begin
-    # returns the contents of a range with given name
-    # evaluates the formula if the contents is a formula
-    # if no contents could be returned, then return default value, if provided, raise error otherwise
-    # @param [String] name  the range name
-    # @param [Hash]   opts  the options
-    # @option opts [Variant] :default value (default: nil)
-    def nameval(name, opts = {:default => nil})
-      name_obj = name_object(name)
-      value = begin
-        name_obj.RefersToRange.Value
-      rescue  WIN32OLERuntimeError
-        begin
-          self.Evaluate(name_obj.Name)
-        rescue WIN32OLERuntimeError
-          return opts[:default] if opts[:default]
-          raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect}"
-        end
-      end
-      if value.is_a?(Bignum)
-        return opts[:default] if opts[:default]
-        raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect}"
-      end 
-      return opts[:default] if (value.nil? && opts[:default])
-      value      
-    end
-=end
-=begin
-    # assigns a value to a range with given name
-    # @param [String]  name   the range name
-    # @param [Variant] value  the assigned value
-    # @param [Hash]    opts :color [FixNum]  the color when setting the contents
-    def set_nameval(name,value, opts = {:color => 0})
-      begin
-        cell = name_object(name).RefersToRange
-        cell.Interior.ColorIndex = opts[:color]
-        active_workbook.modified_cells << cell unless cell_included?(active_workbook.modified_cells,cell)
-        cell.Value = value
-      rescue  WIN32OLERuntimeError
-        raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect}"
-      end
-    end
-
-  private  
-
-    def cell_included?(cell)
-      active_workbook.modified_cells.each{|c| return true if c.Name.Value == cell.Name.Value}
-      false
-    end
-=end         
-
-=begin
-    def name_object(name)
-      begin
-        self.Parent.Names.Item(name)
-      rescue WIN32OLERuntimeError
-        begin
-          self.Names.Item(name)
-        rescue WIN32OLERuntimeError
-          raise NameNotFound, "name #{name.inspect}"
-        end
-      end
-    end
-=end      
-
-=begin
-  public    
-
-    # returns the contents of a range with a locally defined name
-    # evaluates the formula if the contents is a formula
-    # if no contents could be returned, then return default value, if provided, raise error otherwise
-    # @param  [String]      name      the range name
-    # @param  [Hash]        opts      the options
-    # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
-    # @return [Variant] the contents of a range with given name   
-    def rangeval(name, opts = {:default => nil})
-      begin
-        range = self.Range(name)
-      rescue WIN32OLERuntimeError
-        return opts[:default] if opts[:default]
-        raise NameNotFound, "cannot find name #{name.inspect}"
-      end
-      begin
-        value = range.Value
-      rescue  WIN32OLERuntimeError
-        return opts[:default] if opts[:default]
-        raise RangeNotEvaluatable, "cannot determine value of range named #{name.inspect}"
-      end
-      return opts[:default] if (value.nil? && opts[:default])
-      raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect}" if value.is_a?(Bignum)
-      value
-    end
-
-    # assigns a value to a range given a locally defined name
-    # @param [String]  name   the range name
-    # @param [Variant] value  the assigned value
-    # @param [Hash]    opts :color [FixNum]  the color when setting the contents
-    def set_rangeval(name,value, opts = {:color => 0})
-      begin
-        range = self.Range(name)
-      rescue WIN32OLERuntimeError
-        raise NameNotFound, "cannot find name #{name.inspect}"
-      end
-      begin
-        range.Interior.ColorIndex = opts[:color]
-        active_workbook.modified_cells << range unless cell_included?(range)
-        range.Value = value        
-      rescue  WIN32OLERuntimeError
-        raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.name}"
-      end
-    end
-=end
-
-
     def to_s              # :nodoc: #
       "#<Excel: " + "#{hwnd}" + ("#{"not alive" unless self.alive?}") + ">"
     end
 
     def inspect           # :nodoc: #
       self.to_s
-    end
-
-    def active_workbook
-      book_class.new(@ole_excel.ActiveWorkbook)
     end
 
     def self.book_class   # :nodoc: #

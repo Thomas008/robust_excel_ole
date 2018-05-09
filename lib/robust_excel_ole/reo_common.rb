@@ -8,7 +8,53 @@ File.delete REO_LOG_FILE rescue nil
 
 class REOCommon
 
-  # returns the contents of a range with given name
+  def excel
+    raise TypeErrorREO, "receiver instance is neither an Excel nor a Book"
+  end
+
+  def own_methods
+    (self.methods - Object.methods).sort
+  end
+
+  def self.tr1(text)
+    puts :text
+  end
+
+  def self.trace(text)
+    if LOG_TO_STDOUT 
+      puts text
+    else
+      if REO_LOG_DIR.empty?
+        homes = ["HOME", "HOMEPATH"]
+        home = homes.find {|h| ENV[h] != nil}
+        reo_log_dir = ENV[home]
+      else
+        reo_log_dir = REO_LOG_DIR
+      end
+      File.open(reo_log_dir + "/" + REO_LOG_FILE,"a") do | file |
+        file.puts text
+      end
+    end
+  end
+
+  def self.puts_hash(hash)
+    hash.each do |e|
+      if e[1].is_a?(Hash)
+        puts "#{e[0]} =>"
+        e[1].each do |f|
+          puts "  #{f[0]} => #{f[1]}"
+        end
+      else
+        puts "#{e[0]} => #{e[1]}"
+      end
+    end
+  end
+
+end
+
+class RangeOwners < REOCommon
+
+    # returns the contents of a range with given name
   # evaluates formula contents of the range is a formula
   # if no contents could be returned, then return default value, if provided, raise error otherwise
   # Excel Bug: if a local name without a qualifier is given, then by default Excel takes the first worksheet,
@@ -98,13 +144,6 @@ class REOCommon
     end
   end
 
-  def book
-    if self.is_a?(Book) then self
-    elsif self.is_a?(Sheet) then workbook
-    elsif self.is_a?(Excel) then active_workbook 
-    end
-  end
-
 private  
 
   def name_object(name)
@@ -124,47 +163,10 @@ private
     false
   end
 
-public  
-
-  def excel
-    raise TypeErrorREO, "receiver instance is neither an Excel nor a Book"
-  end
-
-  def own_methods
-    (self.methods - Object.methods).sort
-  end
-
-  def self.tr1(text)
-    puts :text
-  end
-
-  def self.trace(text)
-    if LOG_TO_STDOUT 
-      puts text
-    else
-      if REO_LOG_DIR.empty?
-        homes = ["HOME", "HOMEPATH"]
-        home = homes.find {|h| ENV[h] != nil}
-        reo_log_dir = ENV[home]
-      else
-        reo_log_dir = REO_LOG_DIR
-      end
-      File.open(reo_log_dir + "/" + REO_LOG_FILE,"a") do | file |
-        file.puts text
-      end
-    end
-  end
-
-  def self.puts_hash(hash)
-    hash.each do |e|
-      if e[1].is_a?(Hash)
-        puts "#{e[0]} =>"
-        e[1].each do |f|
-          puts "  #{f[0]} => #{f[1]}"
-        end
-      else
-        puts "#{e[0]} => #{e[1]}"
-      end
+  def book
+    if self.is_a?(Book) then self
+    elsif self.is_a?(Sheet) then workbook
+    elsif self.is_a?(Excel) then active_workbook 
     end
   end
 

@@ -10,7 +10,7 @@ end
 
 module RobustExcelOle      
 
-  class Excel < REOCommon    
+  class Excel < RangeOwners   
 
     attr_accessor :ole_excel
     attr_accessor :created

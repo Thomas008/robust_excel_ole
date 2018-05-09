@@ -603,6 +603,7 @@ module RobustExcelOle
       set_nameval(name,value, :color => 42) # 42 - aqua-marin, 7-green
     end
 
+=begin
     # returns the contents of a range with given name
     # evaluates the formula if the contents is a formula
     # if no contents could be returned, then return default value, if provided, raise error otherwise
@@ -628,7 +629,8 @@ module RobustExcelOle
       return opts[:default] if (value.nil? && opts[:default])
       value      
     end
-
+=end
+=begin
     # assigns a value to a range with given name
     # @param [String]  name   the range name
     # @param [Variant] value  the assigned value
@@ -637,7 +639,7 @@ module RobustExcelOle
       begin
         cell = name_object(name).RefersToRange
         cell.Interior.ColorIndex = opts[:color]
-        active_workbook.modified_cells << cell unless cell_included?(cell)
+        active_workbook.modified_cells << cell unless cell_included?(active_workbook.modified_cells,cell)
         cell.Value = value
       rescue  WIN32OLERuntimeError
         raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect}"
@@ -649,8 +651,10 @@ module RobustExcelOle
     def cell_included?(cell)
       active_workbook.modified_cells.each{|c| return true if c.Name.Value == cell.Name.Value}
       false
-    end     
+    end
+=end         
 
+=begin
     def name_object(name)
       begin
         self.Parent.Names.Item(name)
@@ -661,8 +665,10 @@ module RobustExcelOle
           raise NameNotFound, "name #{name.inspect}"
         end
       end
-    end  
+    end
+=end      
 
+=begin
   public    
 
     # returns the contents of a range with a locally defined name
@@ -708,6 +714,8 @@ module RobustExcelOle
         raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.name}"
       end
     end
+=end
+
 
     def to_s              # :nodoc: #
       "#<Excel: " + "#{hwnd}" + ("#{"not alive" unless self.alive?}") + ">"

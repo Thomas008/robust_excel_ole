@@ -8,6 +8,145 @@ File.delete REO_LOG_FILE rescue nil
 
 class REOCommon
 
+  attr_accessor :modified_cells
+
+  def initialize_modified_cells
+    @modified_cells = []
+  end
+
+  # returns the contents of a range with given name
+  # evaluates formula contents of the range is a formula
+  # if no contents could be returned, then return default value, if provided, raise error otherwise
+  # Excel Bug: if a local name without a qualifier is given, then by default Excel takes the first worksheet,
+  #            even if a different worksheet is active
+  # @param  [String]      name      the name of the range
+  # @param  [Hash]        opts      the options
+  # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
+  # @return [Variant] the contents of a range with given name
+  def nameval(name, opts = {:default => nil})
+    name_obj = name_object(name)
+    value = begin
+      name_obj.RefersToRange.Value
+    rescue  WIN32OLERuntimeError
+      #begin
+      #  self.sheet(1).Evaluate(name_obj.Name)
+      #rescue WIN32OLERuntimeError
+      return opts[:default] if opts[:default]
+      raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{File.basename(self.stored_filename).inspect}"
+      #end
+    end
+    if value.is_a?(Bignum)  #RobustExcelOle::XlErrName  
+      return opts[:default] if opts[:default]
+      raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{File.basename(self.stored_filename).inspect}"
+    end 
+    return opts[:default] if opts[:default] && value.nil?
+    value      
+  end
+
+  # sets the contents of a range
+  # @param [String]  name  the name of a range
+  # @param [Variant] value the contents of the range
+  # @param [FixNum]  color the color when setting a value
+  # @param [Hash]    opts :color [FixNum]  the color when setting the contents
+  def set_nameval(name, value, opts = {:color => 0})
+    puts "set_nameval:"
+    puts "name: #{name}"
+    puts "value: #{value}"
+    begin
+      cell = name_object(name).RefersToRange
+      puts "cell:#{cell.Name.Value}"
+      cell.Interior.ColorIndex = opts[:color] 
+      @modified_cells << cell unless cell_modified?(cell)
+      puts "modified_cells:"
+      @modified_cells.each do |cell|
+        puts "(#{cell.Row},#{cell.Column})"
+      end
+      cell.Value = value
+    rescue WIN32OLERuntimeError
+      raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{File.basename(self.stored_filename).inspect}"    
+    end
+  end
+
+  # returns the contents of a range with a locally defined name
+  # evaluates the formula if the contents is a formula
+  # if no contents could be returned, then return default value, if provided, raise error otherwise
+  # @param  [String]      name      the name of a range
+  # @param  [Hash]        opts      the options
+  # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
+  # @return [Variant] the contents of a range with given name   
+  def rangeval(name, opts = {:default => nil})
+    puts "rangeval"
+    begin
+      range = self.Range(name)
+      puts "range: #{range}"
+    rescue WIN32OLERuntimeError
+      return opts[:default] if opts[:default]
+      raise NameNotFound, "name #{name.inspect} not in #{self.name}"
+    end
+    begin
+      value = range.Value
+      puts "value:#{value}"
+    rescue  WIN32OLERuntimeError
+      return opts[:default] if opts[:default]
+      raise RangeNotEvaluatable, "cannot determine value of range named #{name.inspect} in #{self.name}"
+    end
+    return opts[:default] if (value.nil? && opts[:default])
+    raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect}" if value.is_a?(Bignum)
+    value
+  end
+
+  # assigns a value to a range given a locally defined name
+  # @param [String]  name   the name of a range
+  # @param [Variant] value  the assigned value
+  # @param [Hash]    opts :color [FixNum]  the color when setting the contents
+  def set_rangeval(name,value, opts = {:color => 0})
+    begin
+      if self.is_a?(Book) then return set_nameval(name, value, opts) end
+      range = self.Range(name)
+    rescue WIN32OLERuntimeError
+      raise NameNotFound, "name #{name.inspect} not in #{self.name}"
+    end
+    begin
+      range.Interior.ColorIndex = opts[:color]
+      a = cell_modified?(range)
+      puts "cell_modified?: #{a}"
+      @modified_cells << range unless a
+      @modified_cells.each do |cell|
+        puts "(#{cell.Row},#{cell.Column})"
+      end 
+      # @modified_cells << range unless cell_modified?(range)
+      range.Value = value
+    rescue  WIN32OLERuntimeError
+      raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.name}"
+    end
+  end
+
+private  
+
+  def name_object(name)
+    begin
+      self.Parent.Names.Item(name)
+    rescue WIN32OLERuntimeError
+      begin
+        self.Names.Item(name)
+      rescue WIN32OLERuntimeError
+        raise NameNotFound, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"  
+      end
+    end
+  end
+
+  def cell_modified?(cell)
+    puts "cell_modified:"
+    puts "modified_cells: #{@modified_cells.inspect}"
+    @modified_cells.each do |cell|
+      puts "(#{cell.Row},#{cell.Column})"
+    end
+    @modified_cells.each{|c| return true if c.Name.Value == cell.Name.Value}
+    false
+  end
+
+public  
+
   def excel
     raise TypeErrorREO, "receiver instance is neither an Excel nor a Book"
   end

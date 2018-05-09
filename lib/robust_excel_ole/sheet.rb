@@ -93,6 +93,7 @@ module RobustExcelOle
       end
     end
 
+=begin
     # returns the contents of a range
     # evaluates the formula if the contents is a formula
     # if no contents could be returned, then return default value, if provided, raise error otherwise
@@ -118,7 +119,9 @@ module RobustExcelOle
       return opts[:default] if (value.nil? && opts[:default])
       value      
     end
+=end
     
+=begin    
     # assigns a value to a range
     # @param [String]  name   the name of a range
     # @param [Variant] value  the assigned value
@@ -127,20 +130,21 @@ module RobustExcelOle
       begin
         cell = name_object(name).RefersToRange        
         cell.Interior.ColorIndex = opts[:color]
-        workbook.modified_cells << cell unless cell_included?(cell)
+        workbook.modified_cells << cell unless cell_included?(workbook.modified_cells,cell)
         cell.Value = value
       rescue  WIN32OLERuntimeError
         raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.name}"
       end
     end
-
   private
 
-   def cell_included?(cell)
+    def cell_included?(cell)
       workbook.modified_cells.each{|c| return true if c.Name.Value == cell.Name.Value}
       false
-    end     
+    end
+=end         
 
+=begin
     def name_object(name)
       begin
         self.Parent.Names.Item(name)
@@ -154,7 +158,9 @@ module RobustExcelOle
     end
 
   public    
+=end
 
+=begin
     # returns the contents of a range with a locally defined name
     # evaluates the formula if the contents is a formula
     # if no contents could be returned, then return default value, if provided, raise error otherwise
@@ -178,7 +184,8 @@ module RobustExcelOle
       return opts[:default] if (value.nil? && opts[:default])
       value
     end
-
+=end    
+=begin
     # assigns a value to a range given a locally defined name
     # @param [String]  name   the name of a range
     # @param [Variant] value  the assigned value
@@ -197,6 +204,8 @@ module RobustExcelOle
         raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.name}"
       end
     end
+
+=end
     
     # assigns a name to a range (a cell) given by an address
     # @param [String] name   the range name

@@ -10,7 +10,6 @@ module RobustExcelOle
     attr_accessor :ole_workbook
     attr_accessor :stored_filename
     attr_accessor :options    
-    attr_accessor :modified_cells
 
     alias ole_object ole_workbook
 
@@ -155,7 +154,7 @@ module RobustExcelOle
         ensure_workbook(file, options)        
       end
       bookstore.store(self)
-      @modified_cells = []
+      initialize_modified_cells
       if block
         begin
           yield self
@@ -546,11 +545,14 @@ module RobustExcelOle
     # @option opts [Boolean]  states, whether colored ranges shall be discolored
     # @return [Boolean] true, if successfully saved, nil otherwise
     def save(opts = {:discoloring => false})      
+      puts "save:"
       raise ObjectNotAlive, "workbook is not alive" if (not alive?)
       raise WorkbookReadOnly, "Not opened for writing (opened with :read_only option)" if @ole_workbook.ReadOnly
       begin
         discoloring if opts[:discoloring] 
-        @modified_cells = []
+        puts "modified_cells: #{modified_cells.inspect}"
+        initialize_modified_cells
+        puts "modified_cells: #{modified_cells.inspect}"
         @ole_workbook.Save 
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
@@ -635,8 +637,14 @@ module RobustExcelOle
   private
 
     def discoloring
+      puts "discoloring:"
+      puts "modified_cells:#{modified_cells}"
       # self.each{|sheet| sheet.UsedRange.each{|cell| cell.Interior.ColorIndex = XlNone}}
-      @modified_cells.each{|cell| cell.Interior.ColorIndex = XlNone}
+      # @modified_cells.each{|cell| cell.Interior.ColorIndex = XlNone}
+      modified_cells.each do |cell|
+        puts "(#{cell.Row},#{cell.Column})"
+      end
+      modified_cells.each{|cell| cell.Interior.ColorIndex = XlNone}
     end
 
     def save_as_workbook(file, options)   # :nodoc: #
@@ -649,7 +657,8 @@ module RobustExcelOle
             when '.xlsm'; RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
           end
         discoloring if options[:discoloring]  
-        @modified_cells = []
+        # @modified_cells = []
+        modified_cells = []
         @ole_workbook.SaveAs(General::absolute_path(file), file_format)
         bookstore.store(self)
       rescue WIN32OLERuntimeError => msg
@@ -785,6 +794,7 @@ module RobustExcelOle
       set_nameval(name,value, :color => 42)   # 42 - aqua-marin, 4-green
     end
 
+=begin
     # returns the contents of a range with given name
     # evaluates formula contents of the range is a formula
     # if no contents could be returned, then return default value, if provided, raise error otherwise
@@ -813,7 +823,9 @@ module RobustExcelOle
       return opts[:default] if opts[:default] && value.nil?
       value      
     end
+=end    
 
+=begin
     # sets the contents of a range
     # @param [String]  name  the name of a range
     # @param [Variant] value the contents of the range
@@ -823,20 +835,21 @@ module RobustExcelOle
       begin
         cell = name_object(name).RefersToRange
         cell.Interior.ColorIndex = opts[:color] 
-        @modified_cells << cell unless cell_included?(cell)
+        @modified_cells << cell unless cell_included?(@modified_cells,cell)
         cell.Value = value
       rescue WIN32OLERuntimeError
         raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{File.basename(self.stored_filename).inspect}"    
       end
     end
-
   private
 
     def cell_included?(cell)
       @modified_cells.each{|c| return true if c.Name.Value == cell.Name.Value}
       false
-    end        
+    end
+=end            
 
+=begin
     def name_object(name)
       begin
         self.Parent.Names.Item(name)
@@ -850,6 +863,7 @@ module RobustExcelOle
     end
 
   public    
+=end
 
     # renames a range
     # @param [String] name     the previous range name

@@ -1064,17 +1064,17 @@ describe Book do
       @book1.nameval("new").should == "bar"
     end
 
-    it "should evaluate a formula" do
-      @book1.nameval("named_formula").should == 4      
-    end
+    #it "should evaluate a formula" do
+    #  @book1.nameval("named_formula").should == 4      
+    #end
 
-    it "should evaluate a formula via []" do
-      @book1["named_formula"].should == 4      
-    end
+    #it "should evaluate a formula via []" do
+    #  @book1["named_formula"].should == 4      
+    #end
 
-    it "should return default value if name not defined" do
-      @book1.nameval("foo", :default => 2).should == 2
-    end
+    #it "should return default value if name not defined" do
+    #  @book1.nameval("foo", :default => 2).should == 2
+    #end
 
   end
 

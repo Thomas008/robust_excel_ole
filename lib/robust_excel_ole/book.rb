@@ -721,7 +721,7 @@ module RobustExcelOle
     def copy_sheet(sheet, opts = { })
       new_sheet_name = opts.delete(:as)
       after_or_before, base_sheet = opts.to_a.first || [:after, last_sheet]
-      sheet.Copy({ after_or_before.to_s => base_sheet.worksheet })
+      sheet.Copy({ after_or_before.to_s => base_sheet.ole_worksheet })
       new_sheet = sheet_class.new(@excel.Activesheet)
       new_sheet.name = new_sheet_name if new_sheet_name
       new_sheet
@@ -738,7 +738,7 @@ module RobustExcelOle
     def add_empty_sheet(opts = { })
       new_sheet_name = opts.delete(:as)
       after_or_before, base_sheet = opts.to_a.first || [:after, last_sheet]
-      @ole_workbook.Worksheets.Add({ after_or_before.to_s => base_sheet.worksheet })
+      @ole_workbook.Worksheets.Add({ after_or_before.to_s => base_sheet.ole_worksheet })
       new_sheet = sheet_class.new(@excel.Activesheet)
       new_sheet.name = new_sheet_name if new_sheet_name
       new_sheet

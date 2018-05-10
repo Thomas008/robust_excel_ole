@@ -16,7 +16,7 @@ describe RobustExcelOle::Range do
     @dir = create_tmpdir
     @book = Book.open(@dir + '/workbook.xls', :force_excel => :new)
     @sheet = @book.sheet(2)
-    @range = RobustExcelOle::Range.new(@sheet.worksheet.UsedRange.Rows(1))
+    @range = RobustExcelOle::Range.new(@sheet.ole_worksheet.UsedRange.Rows(1))
   end
 
   after do
@@ -53,7 +53,7 @@ describe RobustExcelOle::Range do
     context "when instance is column range" do
       before do
         @sheet = @book.sheet(1)
-        @range = RobustExcelOle::Range.new(@sheet.worksheet.UsedRange.Columns(1))
+        @range = RobustExcelOle::Range.new(@sheet.ole_worksheet.UsedRange.Columns(1))
       end
       it { @range.values.should eq ['foo', 'foo', 'matz'] }
     end

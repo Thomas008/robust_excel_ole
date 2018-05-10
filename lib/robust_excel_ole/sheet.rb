@@ -4,16 +4,16 @@ module RobustExcelOle
 
   class Sheet < RangeOwners
 
-    attr_reader :worksheet
+    attr_reader :ole_worksheet
     attr_reader :workbook
 
     def initialize(win32_worksheet)
-      @worksheet = win32_worksheet
-      if @worksheet.ProtectContents
-        @worksheet.Unprotect
+      @ole_worksheet = win32_worksheet
+      if @ole_worksheet.ProtectContents
+        @ole_worksheet.Unprotect
         @end_row = last_row
         @end_column = last_column
-        @worksheet.Protect
+        @ole_worksheet.Protect
       else
         @end_row = last_row
         @end_column = last_column
@@ -23,14 +23,14 @@ module RobustExcelOle
 
     # returns name of the sheet
     def name
-      @worksheet.Name
+      @ole_worksheet.Name
     end
 
     # name the sheet
     # @param [String] new_name the new name of the sheet 
     def name= (new_name)
       begin
-        @worksheet.Name = new_name
+        @ole_worksheet.Name = new_name
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /800A03EC/ 
           raise NameAlreadyExists, "sheet name #{new_name.inspect} already exists"
@@ -48,7 +48,7 @@ module RobustExcelOle
         yx = "#{y}_#{x}"
         @cells = { }
         begin
-          @cells[yx] = RobustExcelOle::Cell.new(@worksheet.Cells.Item(y, x))
+          @cells[yx] = RobustExcelOle::Cell.new(@ole_worksheet.Cells.Item(y, x))
         rescue
           raise RangeNotEvaluatable, "cannot read cell (#{p1.inspect},#{p2.inspect})"
         end
@@ -72,7 +72,7 @@ module RobustExcelOle
       if p3 != :__not_provided
         y, x, value = p1, p2, p3
         begin
-          cell = @worksheet.Cells.Item(y, x)
+          cell = @ole_worksheet.Cells.Item(y, x)
           cell.Value = value
           cell.Interior.ColorIndex = 42 # aqua-marin, 4-green
         rescue WIN32OLERuntimeError
@@ -134,7 +134,7 @@ module RobustExcelOle
       offset += 1
       1.upto(@end_row) do |row|
         next if row < offset
-        yield RobustExcelOle::Range.new(@worksheet.Range(@worksheet.Cells(row, 1), @worksheet.Cells(row, @end_column)))
+        yield RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(row, 1), @ole_worksheet.Cells(row, @end_column)))
       end
     end
 
@@ -148,7 +148,7 @@ module RobustExcelOle
       offset += 1
       1.upto(@end_column) do |column|
         next if column < offset
-        yield RobustExcelOle::Range.new(@worksheet.Range(@worksheet.Cells(1, column), @worksheet.Cells(@end_row, column)))
+        yield RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(1, column), @ole_worksheet.Cells(@end_row, column)))
       end
     end
 
@@ -160,12 +160,12 @@ module RobustExcelOle
 
     def row_range(row, range = nil)
       range ||= 1..@end_column
-      RobustExcelOle::Range.new(@worksheet.Range(@worksheet.Cells(row , range.min ), @worksheet.Cells(row , range.max )))
+      RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(row , range.min ), @ole_worksheet.Cells(row , range.max )))
     end
 
     def col_range(col, range = nil)
       range ||= 1..@end_row
-      RobustExcelOle::Range.new(@worksheet.Range(@worksheet.Cells(range.min , col ), @worksheet.Cells(range.max , col )))
+      RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(range.min , col ), @ole_worksheet.Cells(range.max , col )))
     end
 
 
@@ -182,12 +182,20 @@ module RobustExcelOle
       self.class.book_class
     end
 
+    def to_s    # :nodoc: #
+      "#<Sheet: " + "#{"not alive " unless @workbook.alive?}" + "#{name}" + " #{File.basename(@workbook.stored_filename)} >"
+    end
+
+    def inspect    # :nodoc: #
+      self.to_s
+    end
+
   private
 
     def method_missing(name, *args)    # :nodoc: #
       if name.to_s[0,1] =~ /[A-Z]/ 
         begin
-          @worksheet.send(name, *args)
+          @ole_worksheet.send(name, *args)
         rescue WIN32OLERuntimeError => msg
           if msg.message =~ /unknown property or method/
             raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
@@ -201,15 +209,15 @@ module RobustExcelOle
     end
 
     def last_row
-      special_last_row = @worksheet.UsedRange.SpecialCells(RobustExcelOle::XlLastCell).Row
-      used_last_row = @worksheet.UsedRange.Rows.Count
+      special_last_row = @ole_worksheet.UsedRange.SpecialCells(RobustExcelOle::XlLastCell).Row
+      used_last_row = @ole_worksheet.UsedRange.Rows.Count
 
       special_last_row >= used_last_row ? special_last_row : used_last_row
     end
 
     def last_column
-      special_last_column = @worksheet.UsedRange.SpecialCells(RobustExcelOle::XlLastCell).Column
-      used_last_column = @worksheet.UsedRange.Columns.Count
+      special_last_column = @ole_worksheet.UsedRange.SpecialCells(RobustExcelOle::XlLastCell).Column
+      used_last_column = @ole_worksheet.UsedRange.Columns.Count
 
       special_last_column >= used_last_column ? special_last_column : used_last_column
     end    

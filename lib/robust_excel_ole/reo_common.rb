@@ -147,7 +147,7 @@ class RangeOwners < REOCommon
       #  self.sheet(1).Evaluate(name_obj.Name)
       #rescue WIN32OLERuntimeError
       return opts[:default] if opts[:default]
-      raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{File.basename(workbook.stored_filename).inspect rescue nil}"
+      raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{self}"
       #end
     end
     if value.is_a?(Bignum)  #RobustExcelOle::XlErrName  
@@ -170,7 +170,7 @@ class RangeOwners < REOCommon
       workbook.modified_cells << cell unless cell_modified?(cell)
       cell.Value = value
     rescue WIN32OLERuntimeError
-      raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{File.basename(workbook.stored_filename).inspect rescue nil}" 
+      raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.inspect}" 
     end
   end
 
@@ -186,13 +186,13 @@ class RangeOwners < REOCommon
       range = self.Range(name)
     rescue WIN32OLERuntimeError
       return opts[:default] if opts[:default]
-      raise NameNotFound, "name #{name.inspect} not in #{workbook.stored_filename rescue nil}"
+      raise NameNotFound, "name #{name.inspect} not in #{self.inspect}"
     end
     begin
       value = range.Value
     rescue  WIN32OLERuntimeError
       return opts[:default] if opts[:default]
-      raise RangeNotEvaluatable, "cannot determine value of range named #{name.inspect} in #{workbook.stored_filename rescue nil}"
+      raise RangeNotEvaluatable, "cannot determine value of range named #{name.inspect} in #{self.inspect}"
     end
     return opts[:default] if (value.nil? && opts[:default])
     raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect}" if value.is_a?(Bignum)
@@ -208,14 +208,14 @@ class RangeOwners < REOCommon
       return set_nameval(name, value, opts) if self.is_a?(Book)
       range = self.Range(name)
     rescue WIN32OLERuntimeError
-      raise NameNotFound, "name #{name.inspect} not in #{workbook.stored_filename rescue nil}"
+      raise NameNotFound, "name #{name.inspect} not in #{self.inspect}"
     end
     begin
       range.Interior.ColorIndex = opts[:color]
       workbook.modified_cells << range unless cell_modified?(range)
       range.Value = value
     rescue  WIN32OLERuntimeError
-      raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{workbook.stored_filename rescue nil}"
+      raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.inspect}"
     end
   end
 
@@ -228,7 +228,7 @@ private
       begin
         self.Names.Item(name)
       rescue WIN32OLERuntimeError
-        raise RobustExcelOle::NameNotFound, "name #{name.inspect} not in #{File.basename(workbook.stored_filename).inspect rescue nil}"  
+        raise RobustExcelOle::NameNotFound, "name #{name.inspect} not in #{self.inspect}"  
       end
     end
   end

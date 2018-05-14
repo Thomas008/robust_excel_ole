@@ -163,7 +163,7 @@ module RobustExcelOle
       begin
         cell = name_object(name).RefersToRange
         cell.Interior.ColorIndex = opts[:color] 
-        workbook.modified_cells << cell unless cell_modified?(cell)
+        workbook.modified_cells << cell unless cell_modified?(cell) if workbook
         cell.Value = value
       rescue WIN32OLERuntimeError
         raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.inspect}" 
@@ -208,7 +208,7 @@ module RobustExcelOle
       end
       begin
         range.Interior.ColorIndex = opts[:color]
-        workbook.modified_cells << range unless cell_modified?(range)
+        workbook.modified_cells << range unless cell_modified?(range) if workbook
         range.Value = value
       rescue  WIN32OLERuntimeError
         raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.inspect}"

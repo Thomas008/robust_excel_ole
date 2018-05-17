@@ -57,11 +57,7 @@ module RobustExcelOle
         begin
           nameval(name) 
         rescue REOError
-          begin
-            book_class.new(self.Parent).nameval(name)
-          rescue REOError
-            rangeval(name)
-          end
+          rangeval(name)
         end
       end
     end

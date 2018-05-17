@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-LOG_TO_STDOUT = true     unless Object.const_defined?(:LOG_TO_STDOUT)
+LOG_TO_STDOUT = true     unless Object.cExonst_defined?(:LOG_TO_STDOUT)
 REO_LOG_DIR   = "" unless Object.const_defined?(:REO_LOG_DIR)
 REO_LOG_FILE  = "reo.log" unless Object.const_defined?(:REO_LOG_FILE)
   
@@ -11,76 +11,76 @@ module RobustExcelOle
   class REOError < RuntimeError                 # :nodoc: #
   end                 
 
-  class ExcelError < REOError                   # :nodoc: #
+  class ExcelREOError < REOError                   # :nodoc: #
   end
 
-  class WorkbookError < REOError                # :nodoc: #
+  class WorkbookREOError < REOError                # :nodoc: #
   end
 
-  class FileError < REOError                    # :nodoc: #
+  class FileREOError < REOError                    # :nodoc: #
   end
 
-  class NamesError < REOError                   # :nodoc: #
+  class NamesREOError < REOError                   # :nodoc: #
   end
 
-  class MiscError < REOError                    # :nodoc: #
+  class MiscREOError < REOError                    # :nodoc: #
   end
 
-  class ExcelDamaged < ExcelError               # :nodoc: #
+  class ExcelDamaged < ExcelREOError               # :nodoc: #
   end
 
-  class UnsavedWorkbooks < ExcelError           # :nodoc: #
+  class UnsavedWorkbooks < ExcelREOError           # :nodoc: #
   end
 
-  class WorkbookBlocked < WorkbookError         # :nodoc: #
+  class WorkbookBlocked < WorkbookREOError         # :nodoc: #
   end
 
-  class WorkbookNotSaved < WorkbookError        # :nodoc: #
+  class WorkbookNotSaved < WorkbookREOError        # :nodoc: #
   end
 
-  class WorkbookReadOnly < WorkbookError        # :nodoc: #
+  class WorkbookReadOnly < WorkbookREOError        # :nodoc: #
   end
 
-  class WorkbookBeingUsed < WorkbookError       # :nodoc: #
+  class WorkbookBeingUsed < WorkbookREOError       # :nodoc: #
   end
 
-  class FileNotFound < FileError                # :nodoc: #
+  class FileNotFound < FileREOError                # :nodoc: #
   end
 
-  class FileNameNotGiven < FileError            # :nodoc: #
+  class FileNameNotGiven < FileREOError            # :nodoc: #
   end
 
-  class FileAlreadyExists < FileError           # :nodoc: #
+  class FileAlreadyExists < FileREOError           # :nodoc: #
   end
 
-  class NameNotFound < NamesError               # :nodoc: #
+  class NameNotFound < NamesREOError               # :nodoc: #
   end
 
-  class NameAlreadyExists < NamesError          # :nodoc: #
+  class NameAlreadyExists < NamesREOError          # :nodoc: #
   end
 
-  class RangeNotEvaluatable < MiscError         # :nodoc: #
+  class RangeNotEvaluatable < MiscREOError         # :nodoc: #
   end
 
-  class OptionInvalid < MiscError               # :nodoc: #
+  class OptionInvalid < MiscREOError               # :nodoc: #
   end
 
-  class ObjectNotAlive < MiscError              # :nodoc: #
+  class ObjectNotAlive < MiscREOError              # :nodoc: #
   end
 
-  class TypeErrorREO < REOError                 # :nodoc: #
+  class TypeREOError < REOError                    # :nodoc: #
   end   
 
-  class TimeOut < REOError                      # :nodoc: #
+  class TimeOut < REOError                         # :nodoc: #
   end  
 
-  class UnexpectedError < REOError              # :nodoc: #
+  class UnexpectedREOError < REOError              # :nodoc: #
   end
 
   class REOCommon
 
     def excel
-      raise TypeErrorREO, "receiver instance is neither an Excel nor a Book"
+      raise TypeREOError, "receiver instance is neither an Excel nor a Book"
     end
 
     def own_methods

@@ -210,7 +210,7 @@ module RobustExcelOle
         begin
           object.excel
         rescue
-          raise TypeErrorREO, "given object is neither an Excel, a Workbook, nor a Win32ole"
+          raise TypeREOError, "given object is neither an Excel, a Workbook, nor a Win32ole"
         end
       end
     end
@@ -657,7 +657,7 @@ module RobustExcelOle
       rescue WIN32OLERuntimeError => msg
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
           # trace "save: canceled by user" if options[:if_exists] == :alert || options[:if_exists] == :excel
-          # another possible semantics. raise WorkbookError, "could not save Workbook"
+          # another possible semantics. raise WorkbookREOError, "could not save Workbook"
         else
           raise UnexpectedError, "unknown WIN32OELERuntimeError:\n#{msg.message}"
         end       

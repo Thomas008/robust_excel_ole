@@ -714,7 +714,7 @@ module RobustExcelOle
           @key_sender.puts "{left}{enter}"
           expect{
             @excel.close(:if_unsaved => :alert)
-            }.to raise_error(ExcelError, "user canceled or runtime error")
+            }.to raise_error(ExcelREOError, "user canceled or runtime error")
         end
       end
     end

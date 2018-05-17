@@ -251,7 +251,7 @@ describe Book do
         expect{
           Book.unobtrusively(@simple_file, :if_closed => :invalid_option) do |book|
           end
-        }.to raise_error(TypeErrorREO, "given object is neither an Excel, a Workbook, nor a Win32ole")
+        }.to raise_error(TypeREOError, "given object is neither an Excel, a Workbook, nor a Win32ole")
       end
 
     end

@@ -379,7 +379,7 @@ describe Book do
       it "should raise an error if no Excel or Book is given" do
         expect{
           Book.open(@simple_file1, :force => {:excel => :b})
-          }.to raise_error(TypeErrorREO, "given object is neither an Excel, a Workbook, nor a Win32ole")
+          }.to raise_error(TypeREOError, "given object is neither an Excel, a Workbook, nor a Win32ole")
       end
 
       it "should do force_excel even if both force_ and default_excel is given" do
@@ -537,7 +537,7 @@ describe Book do
       it "should raise an error if no Excel or Book is given" do
         expect{
           Book.open(@simple_file1, :force_excel => :b)
-          }.to raise_error(TypeErrorREO, "given object is neither an Excel, a Workbook, nor a Win32ole")
+          }.to raise_error(TypeREOError, "given object is neither an Excel, a Workbook, nor a Win32ole")
       end
 
       it "should do force_excel even if both force_ and default_excel is given" do
@@ -766,7 +766,7 @@ describe Book do
       it "should raise an error if no Excel or Book is given" do
         expect{
           Book.open(@different_file, :default => {:excel => :a})
-          }.to raise_error(TypeErrorREO, "given object is neither an Excel, a Workbook, nor a Win32ole")
+          }.to raise_error(TypeREOError, "given object is neither an Excel, a Workbook, nor a Win32ole")
       end
       
     end
@@ -948,7 +948,7 @@ describe Book do
       it "should raise an error if no Excel or Book is given" do
         expect{
           Book.open(@different_file, :default_excel => :a)
-          }.to raise_error(TypeErrorREO, "given object is neither an Excel, a Workbook, nor a Win32ole")
+          }.to raise_error(TypeREOError, "given object is neither an Excel, a Workbook, nor a Win32ole")
       end
       
     end
@@ -1240,7 +1240,7 @@ describe Book do
           @key_sender.puts "{right}{enter}"
           expect{
             Book.open(@simple_file1, :if_unsaved => :alert)
-            }.to raise_error(ExcelError, "user canceled or runtime error")
+            }.to raise_error(ExcelREOError, "user canceled or runtime error")
           @book.should be_alive
         end
     
@@ -1274,7 +1274,7 @@ describe Book do
           @key_sender.puts "{right}{enter}"
           expect{
             Book.open(@simple_file1, :if_unsaved => :excel)
-            }.to raise_error(ExcelError, "user canceled or runtime error")
+            }.to raise_error(ExcelREOError, "user canceled or runtime error")
           @book.should be_alive
         end
 =end        

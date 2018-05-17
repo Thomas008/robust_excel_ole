@@ -400,7 +400,7 @@ describe Book do
           @key_sender.puts "{right}{enter}"
           #expect{
           #  Book.open(@simple_file, :if_unsaved => :alert)
-          #  }.to raise_error(ExcelError, /user canceled or runtime error/)
+          #  }.to raise_error(ExcelREOError, /user canceled or runtime error/)
           @book.should be_alive
         end
 
@@ -422,7 +422,7 @@ describe Book do
           @key_sender.puts "{right}{enter}"
           #expect{
           #  Book.open(@simple_file, :if_unsaved => :excel)
-          #  }.to raise_error(ExcelError, /user canceled or runtime error/)
+          #  }.to raise_error(ExcelREOError, /user canceled or runtime error/)
           @book.should be_alive
         end
 
@@ -653,8 +653,8 @@ describe Book do
         begin
           @excel1.close
           @excel2.close 
-        rescue ExcelError => msg
-          # puts "ExcelError: #{msg.message}" if msg.message =~ /Excel instance not alive or damaged/
+        rescue ExcelREOError => msg
+          # puts "ExcelREOError: #{msg.message}" if msg.message =~ /Excel instance not alive or damaged/
         end
       end
 

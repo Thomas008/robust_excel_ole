@@ -100,7 +100,7 @@ module RobustExcelOle
       it "should raise an error when asking excel of a sheet" do
         expect{
           @sheet.excel
-          }.to raise_error(TypeErrorREO, "receiver instance is neither an Excel nor a Book")
+          }.to raise_error(TypeREOError, "receiver instance is neither an Excel nor a Book")
       end
 
     end

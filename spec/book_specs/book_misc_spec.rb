@@ -654,10 +654,18 @@ describe Book do
     #  @book1["named_formula"].should == 4      
     #end
 
-    it "should raise an error if name not defined" do
+    it "should raise an error if name not defined and default value is not provided" do
+      expect {
+        @book1.nameval("foo", :default => nil)
+      }.to_not raise_error
+      expect {
+        @book1.nameval("foo", :default => :__not_provided)
+      }.to raise_error(NameNotFound, /name "foo" not in #<Book: another_workbook/)
       expect {
         @book1.nameval("foo")
       }.to raise_error(NameNotFound, /name "foo" not in #<Book: another_workbook/)
+      @book1.nameval("foo", :default => nil).should be_nil
+      @book1.nameval("foo", :default => 1).should == 1
       expect {
           @book1.set_nameval("foo","bar")
       }.to raise_error(NameNotFound, /name "foo" not in #<Book: another_workbook/)

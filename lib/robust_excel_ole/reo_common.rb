@@ -126,31 +126,37 @@ module RobustExcelOle
   class RangeOwners < REOCommon
 
     # returns the contents of a range with given name
-    # evaluates formula contents of the range is a formula
-    # if no contents could be returned, then return default value, if provided, raise error otherwise
-    # Excel Bug: if a local name without a qualifier is given, then by default Excel takes the first worksheet,
-    #            even if a different worksheet is active
+    # if the name could not be found or the value could not be determined,
+    #   then return default value, if provided, raise error otherwise
+    # Excel Bug: if a local name without a qualifier is given, 
+    #   then by default Excel takes the first worksheet,
+    #   even if a different worksheet is active
     # @param  [String]      name      the name of the range
     # @param  [Hash]        opts      the options
     # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
     # @return [Variant] the contents of a range with given name
-    def nameval(name, opts = {:default => nil})
-      name_obj = name_object(name)
+    def nameval(name, opts = {:default => :__not_provided})
+      name_obj = begin
+        name_object(name)
+      rescue NameNotFound => msg
+        return opts[:default] unless opts[:default] == :__not_provided
+        raise
+      end
       value = begin
         name_obj.RefersToRange.Value
       rescue  WIN32OLERuntimeError
         #begin
         #  self.sheet(1).Evaluate(name_obj.Name)
         #rescue WIN32OLERuntimeError
-        return opts[:default] if opts[:default]
+        return opts[:default] unless opts[:default] == :__not_provided
         raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{self}"
         #end
       end
       if value.is_a?(Bignum)  #RobustExcelOle::XlErrName  
-        return opts[:default] if opts[:default]
+        return opts[:default] unless opts[:default] == __not_provided
         raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{File.basename(workbook.stored_filename).inspect rescue nil}"
       end 
-      return opts[:default] if opts[:default] && value.nil?
+      return opts[:default] unless opts[:default] == :__not_provided
       value      
     end
 
@@ -172,25 +178,26 @@ module RobustExcelOle
 
     # returns the contents of a range with a locally defined name
     # evaluates the formula if the contents is a formula
-    # if no contents could be returned, then return default value, if provided, raise error otherwise
+    # if the name could not be found or the range or value could not be determined,
+    # then return default value, if provided, raise error otherwise
     # @param  [String]      name      the name of a range
     # @param  [Hash]        opts      the options
     # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
     # @return [Variant] the contents of a range with given name   
-    def rangeval(name, opts = {:default => nil})
+    def rangeval(name, opts = {:default => :__not_provided})
       begin
         range = self.Range(name)
       rescue WIN32OLERuntimeError
-        return opts[:default] if opts[:default]
+        return opts[:default] unless opts[:default] == :__not_provided
         raise NameNotFound, "name #{name.inspect} not in #{self.inspect}"
       end
       begin
         value = range.Value
       rescue  WIN32OLERuntimeError
-        return opts[:default] if opts[:default]
+        return opts[:default] unless opts[:default] == :__not_provided
         raise RangeNotEvaluatable, "cannot determine value of range named #{name.inspect} in #{self.inspect}"
       end
-      return opts[:default] if (value.nil? && opts[:default])
+      return opts[:default] unless opts[:default] == :__not_provided
       raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect}" if value.is_a?(Bignum)
       value
     end
@@ -228,7 +235,7 @@ module RobustExcelOle
         end
       end
     end
-
+     
     def cell_modified?(cell)
       workbook.modified_cells.each{|c| return true if c.Name.Value == cell.Name.Value}    
       false

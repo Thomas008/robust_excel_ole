@@ -152,7 +152,7 @@ module RobustExcelOle
         raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{self}"
         #end
       end
-      if value.is_a?(Bignum)  #RobustExcelOle::XlErrName  
+      if value == -2146828288 + RobustExcelOle::XlErrName  
         return opts[:default] unless opts[:default] == __not_provided
         raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{File.basename(workbook.stored_filename).inspect rescue nil}"
       end 
@@ -198,7 +198,7 @@ module RobustExcelOle
         raise RangeNotEvaluatable, "cannot determine value of range named #{name.inspect} in #{self.inspect}"
       end
       return opts[:default] unless opts[:default] == :__not_provided
-      raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect}" if value.is_a?(Bignum)
+      raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect}" if value == -2146828288 + RobustExcelOle::XlErrName
       value
     end
 

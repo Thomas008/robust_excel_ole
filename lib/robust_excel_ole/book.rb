@@ -95,11 +95,14 @@ module RobustExcelOle
                  (not (book.alive? && (not book.saved) && (not options[:if_unsaved] == :accept))))
               book.options = options
               book.ensure_excel(options) # unless book.excel.alive?
-              # if the book is opened as readonly and should be opened as writable, then close it and open the book with the new readonly mode
-              book.close if (book.alive? && (not book.writable) && (not options[:read_only]))
+              # if the ReadOnly status shall be changed, then close and reopen it
+              book.close(:if_unsaved => true) if (book.alive? && 
+                (((not book.writable) and (not options[:read_only])) or
+                  (book.writable and options[:read_only]))) 
               # reopens the book
               book.ensure_workbook(file,options) unless book.alive?
               book.visible = options[:force][:visible] unless options[:force][:visible].nil?
+              book.CheckCompatibility = options[:check_compatibility] unless options[:check_compatibility].nil?
               book.excel.calculation = options[:calculation] unless options[:calculation].nil?
               return book
             end
@@ -170,7 +173,7 @@ module RobustExcelOle
   private
 
     # merges options with defaults and translates abbreviations and synonyms
-    def self.process_options(options) # :nodoc: #
+    def self.process_options(options, proc_opts = {:use_defaults => true}) # :nodoc: #
       translator = proc do |opts|
         SYNONYMS_OPTS.each do |a|
           synonym = a[1][1].nil? ? opts[a[1][0]] : opts[a[1][0]][a[1][1]] unless opts[a[1][0]].nil?
@@ -187,9 +190,11 @@ module RobustExcelOle
         opts[:force][:excel] = :current if (not opts[:force].nil?) && (opts[:force][:excel] == :reuse || opts[:force][:excel] == :active)        
         opts
       end
-      default_opts = translator.call(DEFAULT_OPEN_OPTS)
-      given_opts = translator.call(options)
-      opts = default_opts.merge(given_opts)
+      opts = translator.call(options)
+      default_open_opts = proc_opts[:use_defaults] ? DEFAULT_OPEN_OPTS : 
+        {:default => {:excel => :current}, :force => {}, :update_links => :never }
+      default_opts = translator.call(default_open_opts)
+      opts = default_opts.merge(opts)
       opts[:default] = default_opts[:default].merge(opts[:default]) unless opts[:default].nil?
       opts[:force] = default_opts[:force].merge(opts[:force]) unless opts[:force].nil?
       opts
@@ -333,7 +338,7 @@ module RobustExcelOle
           begin
             workbooks = @excel.Workbooks
           rescue WIN32OLERuntimeError => msg
-            raise UnexpectedError, "WIN32OLERuntimeError: #{msg.message} #{msg.backtrace}"
+            raise UnexpectedREOError, "WIN32OLERuntimeError: #{msg.message} #{msg.backtrace}"
           end
           begin
             with_workaround_linked_workbooks_excel2007(options) do
@@ -343,14 +348,14 @@ module RobustExcelOle
           rescue WIN32OLERuntimeError => msg
             # for Excel2007: for option :if_unsaved => :alert and user cancels: this error appears?
             # if yes: distinguish these events
-            raise UnexpectedError, "WIN32OLERuntimeError: #{msg.message} #{msg.backtrace}"
+            raise UnexpectedREOError, "WIN32OLERuntimeError: #{msg.message} #{msg.backtrace}"
           end
           begin
             # workaround for bug in Excel 2010: workbook.Open does not always return the workbook when given file name
             begin
               @ole_workbook = workbooks.Item(File.basename(filename))
             rescue WIN32OLERuntimeError => msg
-              raise UnexpectedError, "WIN32OLERuntimeError: #{msg.message}"
+              raise UnexpectedREOError, "WIN32OLERuntimeError: #{msg.message}"
             end
             if options[:force][:visible].nil? && (not options[:default][:visible].nil?)
               if @excel.created   
@@ -365,7 +370,7 @@ module RobustExcelOle
             @excel.calculation = options[:calculation] unless options[:calculation].nil?
             self.Saved = true # unless self.Saved # ToDo: this is too hard
           rescue WIN32OLERuntimeError => msg
-            raise UnexpectedError, "WIN32OLERuntimeError: #{msg.message} #{msg.backtrace}"
+            raise UnexpectedREOError, "WIN32OLERuntimeError: #{msg.message} #{msg.backtrace}"
           end       
         end
       end
@@ -540,12 +545,13 @@ module RobustExcelOle
     end
 
     # reopens a closed workbook
-    def reopen
-      self.class.open(self.stored_filename)
+    # @options options 
+    def reopen(options = { })
+      self.class.open(@stored_filename, options)
     end
 
     # simple save of a workbook.
-    # @option opts [Boolean]  states, whether colored ranges shall be discolored
+    # @option opts [Boolean] :discoloring  states, whether colored ranges shall be discolored
     # @return [Boolean] true, if successfully saved, nil otherwise
     def save(opts = {:discoloring => false})      
       raise ObjectNotAlive, "workbook is not alive" if (not alive?)
@@ -558,7 +564,7 @@ module RobustExcelOle
         if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
           raise WorkbookNotSaved, "workbook not saved"
         else
-          raise UnexpectedError, "unknown WIN32OLERuntimeError:\n#{msg.message}"
+          raise UnexpectedREOError, "unknown WIN32OLERuntimeError:\n#{msg.message}"
         end       
       end      
       true
@@ -659,7 +665,7 @@ module RobustExcelOle
           # trace "save: canceled by user" if options[:if_exists] == :alert || options[:if_exists] == :excel
           # another possible semantics. raise WorkbookREOError, "could not save Workbook"
         else
-          raise UnexpectedError, "unknown WIN32OELERuntimeError:\n#{msg.message}"
+          raise UnexpectedREOError, "unknown WIN32OELERuntimeError:\n#{msg.message}"
         end       
       end
     end
@@ -667,6 +673,7 @@ module RobustExcelOle
   public
 
     # closes a given file if it is open
+    # @options opts [Symbol] :if_unsaved
     def self.close(file, opts = {:if_unsaved => :raise})
       book = bookstore.fetch(file) rescue nil
       book.close(opts) if book && book.alive?
@@ -799,8 +806,32 @@ module RobustExcelOle
       begin
         item.Name = new_name
       rescue WIN32OLERuntimeError
-        raise UnexpectedError, "name error in #{File.basename(self.stored_filename).inspect}"      
+        raise UnexpectedREOError, "name error in #{File.basename(self.stored_filename).inspect}"      
       end
+    end
+
+    # sets options
+    # @param [Hash] opts
+    def for_this_workbook(opts)
+      return unless alive?
+      opts = self.class.process_options(opts, :use_defaults => false)
+      visible_before = visible
+      check_compatibility_before = check_compatibility
+      unless opts[:read_only].nil?
+        # if the ReadOnly status shall be changed, then close and reopen it
+        if ((not writable) and (not opts[:read_only])) or (writable and opts[:read_only])          
+          #opts[:check_compatibility] = opts[:check_compatibility].nil? ? check_compatibility :
+          #                             DEFAULT_OPEN_OPTS[:check_compatibility] 
+          #opts[:check_compatibility] = opts[:check_compatibility].nil? ? check_compatibility :
+          #                             opts[:check_compatibility]
+          opts[:check_compatibility] = check_compatibility if opts[:check_compatibility].nil?                                         
+          close(:if_unsaved => true)      
+          open_or_create_workbook(@stored_filename, opts)
+        end
+      end   
+      self.visible = opts[:force][:visible].nil? ? visible_before : opts[:force][:visible]
+      self.CheckCompatibility = opts[:check_compatibility].nil? ? check_compatibility_before : opts[:check_compatibility]
+      @excel.calculation = opts[:calculation] unless opts[:calculation].nil?
     end
 
     # brings workbook to foreground, makes it available for heyboard inputs, makes the Excel instance visible

@@ -1,7 +1,15 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [1.1.3] - 2018-10-6
+## [1.1.4] - 2018-10-6
+
+### Added
+  - Excel#for_this_instance
+  - Excel#for_all_workbooks
+  - Book#for_this_workbooks
+  - Book#reopen : wirth options
+
+## [1.1.3] - 2018-13-5
 
 ## [1.1.2] - 2018-10-5
 

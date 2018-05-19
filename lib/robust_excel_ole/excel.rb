@@ -133,10 +133,6 @@ module RobustExcelOle
       self 
     end
 
-    def set_options(options)
-      self.class.new(@ole_excel, options)
-    end
-
   private
     
     # returns a Win32OLE object that represents a Excel instance to which Excel connects
@@ -219,7 +215,7 @@ module RobustExcelOle
         if msg.message =~ /800A03EC/
           raise ExcelREOError, "user canceled or runtime error"
         else 
-          raise UnexpectedError, "unknown WIN32OLERuntimeError: #{msg.message}"
+          raise UnexpectedREOError, "unknown WIN32OLERuntimeError: #{msg.message}"
         end
       end   
       weak_wkbks = nil
@@ -490,7 +486,7 @@ module RobustExcelOle
             raise FileNotFound, "could not save workbook with filename #{file_name.inspect}"
           else
             # todo some time: find out when this occurs : 
-            raise UnexpectedError, "unknown WIN32OLERuntimeError with filename #{file_name.inspect}: \n#{msg.message}"
+            raise UnexpectedREOError, "unknown WIN32OLERuntimeError with filename #{file_name.inspect}: \n#{msg.message}"
           end
         end      
       end
@@ -568,6 +564,32 @@ module RobustExcelOle
       end
     end
 
+    # set options in this Excel instance
+    def for_this_instance(options)
+      self.class.new(@ole_excel, options)
+    end
+
+    def set_options(options)
+      for_this_instance(options)
+    end
+
+    # set options in all workbooks
+    def for_all_workbooks(options)
+      ole_workbooks = begin
+        @ole_excel.Workbooks
+      rescue WIN32OLERuntimeError => msg
+        if msg.message =~ /failed to get Dispatch Interface/
+          raise ExcelDamaged, "Excel instance not alive or damaged"
+        else
+          raise ExcelREOError, "workbooks could not be determined"
+        end 
+      end
+      ole_workbooks.each do |ole_workbook|
+        book_class.open(ole_workbook).for_this_workbook(options)
+      end
+    end
+
+=begin
     # make all workbooks visible or invisible
     def workbooks_visible= visible_value
       begin
@@ -580,6 +602,7 @@ module RobustExcelOle
         raise ExcelDamaged, "Excel instance not alive or damaged" if msg.message =~ /failed to get Dispatch Interface/
       end
     end
+=end
 
     def focus
       self.visible = true

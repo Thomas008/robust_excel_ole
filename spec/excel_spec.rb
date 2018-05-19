@@ -27,7 +27,7 @@ module RobustExcelOle
 
     after do
       Excel.kill_all
-      #rm_tmp(@dir)
+      rm_tmp(@dir)
     end
 
     context "Illegal Refrence" do
@@ -984,54 +984,7 @@ module RobustExcelOle
 
     end
 
-    context "workbooks_visible" do
-
-      it "should not raise an error for an empty Excel instance" do
-        excel = Excel.create
-        expect{
-          excel.workbooks_visible = true
-        }.to_not raise_error
-      end
-
-      it "should make visible a workbook" do
-        book1 = Book.open(@simple_file)
-        book1.excel.workbooks_visible = true
-        book1.excel.Visible.should be_true
-        book1.Windows(book1.Name).Visible.should be_true
-        book1.visible.should be_true
-      end
-
-      it "should make visible and invisible two workbooks" do
-        book1 = Book.open(@simple_file)
-        book2 = Book.open(@different_file)
-        excel = book1.excel
-        excel.workbooks_visible = true
-        excel.Visible.should be_true
-        book1.Windows(book1.Name).Visible.should be_true
-        book1.visible.should be_true
-        book2.Windows(book2.Name).Visible.should be_true
-        book2.visible.should be_true
-        excel.workbooks_visible = false
-        excel.Visible.should be_true
-        book1.Windows(book1.Name).Visible.should be_false
-        book1.visible.should be_false
-        book2.Windows(book2.Name).Visible.should be_false
-        book2.visible.should be_false
-      end
-
-      it "should make visible all workbooks" do
-        book1 = Book.open(@simple_file, :visible => true)
-        book2 = Book.open(@different_file)
-        excel = book1.excel
-        excel.workbooks_visible = true
-        excel.Visible.should be_true
-        book1.Windows(book1.Name).Visible.should be_true
-        book1.visible.should be_true
-        book2.Windows(book2.Name).Visible.should be_true
-        book2.visible.should be_true
-      end
-
-    end
+    
 
     context "with Visible and DisplayAlerts, focus" do
 
@@ -1538,20 +1491,65 @@ module RobustExcelOle
 
     end
 
-    describe "set_options" do
+    describe "for_this_instance" do
 
       before do
         @excel = Excel.new(:reuse => false)
       end
 
-      it "should set options" do
-        @excel.set_options(:displayalerts => true, :visible => true, :screenupdating => true, :calculaiton => :manual)
+      it "should set options in the Excel instance" do
+        @excel.for_this_instance(:displayalerts => true, :visible => true, :screenupdating => true, :calculaiton => :manual)
         @excel.DisplayAlerts.should be_true
         @excel.Visible.should be_true
         @excel.ScreenUpdating.should be_true
         book = Book.open(@simple_file)
         @excel.Calculation.should == -4135
         book.close
+      end
+
+    end
+
+    context "for_all_workbooks" do
+
+      it "should not raise an error for an empty Excel instance" do
+        excel = Excel.create
+        expect{
+          excel.for_all_workbooks(:visible => true, :read_only => true, :check_compatibility => true)
+        }.to_not raise_error
+      end
+
+      it "should set options to true for a workbook" do
+        book1 = Book.open(@simple_file)
+        book1.excel.for_all_workbooks(:visible => true, :read_only => true, :check_compatibility => true)
+        book1.excel.Visible.should be_true
+        book1.Windows(book1.Name).Visible.should be_true
+        book1.visible.should be_true
+        book1.ReadOnly.should be_true
+        book1.CheckCompatibility.should be_true
+      end
+
+      it "should set options for two workbooks" do
+        book1 = Book.open(@simple_file)
+        book2 = Book.open(@different_file)
+        excel = book1.excel
+        excel.for_all_workbooks(:visible => true, :read_only => true, :check_compatibility => true)
+        excel.Visible.should be_true
+        book1.Windows(book1.Name).Visible.should be_true
+        book1.visible.should be_true
+        book1.ReadOnly.should be_true
+        book1.CheckCompatibility.should be_true
+        book2.Windows(book2.Name).Visible.should be_true
+        book2.visible.should be_true
+        book2.ReadOnly.should be_true
+        book2.CheckCompatibility.should be_true
+        excel.for_all_workbooks(:visible => false, :read_only => false, :check_compatibility => false)
+        excel.Visible.should be_true
+        book1.Windows(book1.Name).Visible.should be_false
+        book1.visible.should be_false
+        book2.Windows(book2.Name).Visible.should be_false
+        book2.visible.should be_false
+        book2.ReadOnly.should be_false
+        book2.CheckCompatibility.should be_false
       end
 
     end

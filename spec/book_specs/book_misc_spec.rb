@@ -47,6 +47,65 @@ describe Book do
     end
   end
 
+  describe "for_this_workbook" do
+
+    before do
+      @book = Book.open(@simple_file)
+    end
+
+    it "should set options" do
+      @book.for_this_workbook(:visible => true)
+      @book.excel.Visible.should be_true
+      @book.Windows(@book.Name).Visible.should be_true
+      @book.visible.should be_true
+      @book.ReadOnly.should be_false
+      @book.CheckCompatibility.should be_false
+      @book.for_this_workbook(:visible => false)
+      @book.excel.Visible.should be_true
+      @book.Windows(@book.Name).Visible.should be_false
+      @book.visible.should be_false
+      @book.ReadOnly.should be_false
+      @book.CheckCompatibility.should be_false
+      @book.for_this_workbook(:read_only => true)
+      @book.excel.Visible.should be_true
+      @book.Windows(@book.Name).Visible.should be_false
+      @book.visible.should be_false
+      @book.ReadOnly.should be_true
+      @book.CheckCompatibility.should be_false
+      @book.for_this_workbook(:visible => true)
+      @book.excel.Visible.should be_true
+      @book.Windows(@book.Name).Visible.should be_true
+      @book.visible.should be_true
+      @book.ReadOnly.should be_true
+      @book.CheckCompatibility.should be_false
+      @book.for_this_workbook(:check_compatibility => true)
+      @book.excel.Visible.should be_true
+      @book.Windows(@book.Name).Visible.should be_true
+      @book.visible.should be_true
+      @book.ReadOnly.should be_true
+      @book.CheckCompatibility.should be_true
+      @book.for_this_workbook(:visible => false, :check_compatibility => false)
+      @book.excel.Visible.should be_true
+      @book.Windows(@book.Name).Visible.should be_false
+      @book.visible.should be_false
+      @book.ReadOnly.should be_true
+      @book.CheckCompatibility.should be_false
+      @book.for_this_workbook(:calculation => true)
+      @book.excel.Visible.should be_true
+      @book.Windows(@book.Name).Visible.should be_false
+      @book.visible.should be_false
+      @book.ReadOnly.should be_true
+      @book.CheckCompatibility.should be_false
+      @book.excel.calculation.should be_true    
+    end
+
+    it "should set options" do
+      @book.for_this_workbook(:read_only => true, :check_compatibility => true)
+      @book.CheckCompatibility.should be_true
+    end
+
+  end
+
   describe "excel_of" do
 
     before do

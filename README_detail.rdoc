@@ -280,6 +280,12 @@ This method ensures keeping the save status of the workbook
     # some reading or modifying
   end
 
+=== Setting options
+
+You can set options, e.g. with
+
+  book.for_this_workbook(:visible => true, :read_only => true)
+
 === Checking whether the workbook is alive.
 
 This method finds out whether the Excel workbook that is referenced by the Workbook object responds to methods.
@@ -536,17 +542,17 @@ You can turn off and off DisplayAlerts in a block.
 
 === Making all workbooks visible or invisible
 
-  excel1.workbooks_visible true  
+  excel.workbooks_visible true  
 
-  excel1.workbooks_visible false   
+  excel.workbooks_visible false   
 
 === Setting options
 
 You can set all options in a given Excel instance
 
-  e1 = Excel.current
+  excel = Excel.current
 
-  e1.set_options(:visible => true, :displayalerts => true)
+  excel.for_this_instance(:visible => true, :displayalerts => true)
 
 === Bringing an Excel instance to the foreground
 

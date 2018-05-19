@@ -35,7 +35,7 @@ module RobustExcelOle
         if msg.message =~ /800A03EC/ 
           raise NameAlreadyExists, "sheet name #{new_name.inspect} already exists"
         else
-          raise UnexpectedError, "unexpected WIN32OLERuntimeError: #{msg.message}"
+          raise UnexpectedREOError, "unexpected WIN32OLERuntimeError: #{msg.message}"
         end
       end
     end

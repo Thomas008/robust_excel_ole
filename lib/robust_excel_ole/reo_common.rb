@@ -144,13 +144,17 @@ module RobustExcelOle
       end
       value = begin
         name_obj.RefersToRange.Value
-      rescue  WIN32OLERuntimeError
-        #begin
-        #  self.sheet(1).Evaluate(name_obj.Name)
-        #rescue WIN32OLERuntimeError
-        return opts[:default] unless opts[:default] == :__not_provided
-        raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{self}"
-        #end
+      rescue WIN32OLERuntimeError
+        sheet = if self.is_a?(Sheet) then self
+        elsif self.is_a?(Book) then self.sheet(1)
+        elsif self.is_a?(Excel) then self.workbook.sheet(1)
+        end
+        begin
+          sheet.Evaluate(name_obj.Name).Value
+        rescue # WIN32OLERuntimeError
+          return opts[:default] unless opts[:default] == :__not_provided
+          raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{self}"
+        end
       end
       if value == -2146828288 + RobustExcelOle::XlErrName  
         return opts[:default] unless opts[:default] == __not_provided

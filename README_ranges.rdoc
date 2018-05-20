@@ -1,0 +1,118 @@
+= RobustExcelOle
+
+== Reading and writing the contents of ranges and cells
+
+RobustExcelOle enables to read and write the contents of ranges and cells in Excel files. This can be done from a Sheet, a Book or an Excel object representing a Worksheet, Workbook, or Application object in VBA.
+
+=== Reading and writing the contents of a named range in a workbook.
+
+Assume you have opened a workbook:
+ 
+  book = Workbook.open('workbook.xls', :visible => true)
+
+You can get the contents of a range with a defined name with help of the method [] or nameval:
+
+  book["name"] 
+  => "value"
+
+or
+
+  book.nameval("name")
+  => "value"
+
+You can set the contents of a range with
+
+  book["name"] = "new_value"
+
+or
+
+  book.set_nameval("name", "new_value")
+
+The method []= colores the written cell. You can specify the color of a changed range via the method set_nameval: 
+  
+  book.set_nameval("name", "new_value", :color => 4)
+
+Similarly, the contents of a named range can be read and modified in a worksheet 
+
+  sheet = book.sheet(1)
+
+  sheet["name"]
+  => value
+
+  sheet["name"] = "new_value" 
+
+or an application object:
+
+  excel = book.excel
+
+  excel["name"]
+  => "value"
+
+  excel["name"] = "new_value"
+
+=== Reading and writing the contents of a range with a locally defined name
+
+The contents of locally defined ranges can be read
+
+  sheet.rangeval("name")
+  => "value"
+
+or
+
+  excel.rangeval("name")
+  => "value" 
+
+and be modified:
+
+  sheet.set_rangeval("name", "value")
+
+or
+
+  excel.set_rangeval("name", "value")
+
+=== Accessing a cell
+
+You can read and write a cell from a sheet object by providing the row and the column. For example, the following lines provide and set the value of the first cell (first row, first column):
+
+  sheet[1,1].value  
+  => "foo
+
+  sheet[1,1] = "new_value"
+
+=== Accessing rows and columns
+
+The methods Sheet#each, Sheet#each_row and Sheet#each_column enable to access each cell, row and column, respectively.
+
+  sheet.each do |cell|
+    # do something with cell
+    # read every row, every column
+  end
+
+  sheet.each_row do |row|
+    # do something with row
+  end
+
+  sheet.each_column do |column|
+    # do something with column
+  end
+
+You access a range of a row by giving the number of the row, and optionally, the range of the cell numbers.
+
+  sheet.row_range(1)  # => first row
+  sheet.row_range(1, 1..3 )  # => first three cells of the first row  
+
+Simarly you can access a range of a column.
+
+  sheet.col_range(3)  # => third column
+  sheet.col_range(3, 1..2)  # => first two cells of the third column
+
+Within a row or column range you can access a certain cell.
+
+  row_range[1]  # => first cell in row_range
+  column_range[2] # => second cell in column_range
+
+=== Naming a cell
+
+You can (re-) name a cell range.
+
+  book.set_name(1,1,"name")

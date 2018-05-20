@@ -586,7 +586,7 @@ module RobustExcelOle
     #                  :save                -> saves the blocking workbook and closes it
     #                  :close_if_saved      -> closes the blocking workbook, if it is saved, 
     #                                          otherwise raises an exception
-    # :discoloring     states, wheter colored ranges shall be discolored
+    # :discoloring     states, whether colored ranges shall be discolored
     # @return [Book], the book itself, if successfully saved, raises an exception otherwise
     def save_as(file, opts = { } )
       raise FileNameNotGiven, "filename is nil" if file.nil?

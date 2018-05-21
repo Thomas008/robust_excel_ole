@@ -1,0 +1,61 @@
+= RobustExcelOle
+
+== Accessing and processing worksheets
+
+Worksheets are represented by Sheet objects.
+
+Assume you have opened a workbook
+
+  book = Workbook.open('workbook.xls', :visible => true)
+
+=== Accessing a worksheet.
+
+You can access a worksheet by giving the number
+
+  sheet = book.sheet(1)
+
+or its name
+
+  sheet = book.sheet('Sheet1')
+
+You can get the first and last worksheet with
+
+  sheet = book.first_sheet  
+
+and
+
+  sheet = book.last_sheet  
+
+You can access all sheet objects by using the methods Workbook#each.
+
+  book.each do |sheet|               
+    # do something with sheet
+  end
+
+=== Adding and copying a worksheet.
+
+You can add (append) an empty worksheet using
+
+  book.add_empty_sheet
+
+Additionally you can name it.
+
+  book.add_empty_sheet(:as => 'sheet_name')
+
+You can specify the position of the added empty worksheet.
+
+  book.add_empty_sheet(:as => 'new_name', :before => another_sheet)
+
+You can copy a worksheet and add it.
+
+  book.copy_sheet sheet
+
+Additionally you can specify a name and a position.
+
+  book.copy_sheet(sheet, :as => 'new_name', :after => another_sheet)
+
+If you want to copy a worksheet, if a sheet is given, and add an empty worksheet, if no worksheet is given, then use
+
+  book.add_or_copy_sheet
+
+  book.add_or_copy_sheet(sheet, :as => 'new_name', :after => another_sheet)  

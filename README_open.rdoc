@@ -15,21 +15,26 @@ The semantics is similar to, e.g.,  +File.open+.
 
 The options are the following:
 
-+:default+:: if the workbook was already open, then use the properties of this workbook.
- otherwise use the properties stated in +:default+
++:default+:: if the workbook was already open, then use the properties of this workbook.otherwise use the properties stated in +:default+
 
- +:force+:: no matter whether the workbook was open before, use the properties stated in +:force+
++:force+:: no matter whether the workbook was open before, use the properties stated in +:force+
 
- +:excel+ and +:visible+ are options stated in +:default+ or +:force+
++:excel+ and +:visible+ are options stated in +:default+ or +:force+
 
- +:excel+::          specifies the Excel instance. 
- +:visible+::        makes the workbook visible or invisible
++:excel+::          specifies the Excel instance. 
+
++:visible+::        makes the workbook visible or invisible
 
 +:if_unsaved+::      specify behaviour if the workbook was unsaved (default: +new_excel+)
+
 +:if_obstructed+::   specify behaviour if the workbook is blocked by another book (default: +new_excel+)
-+:read_only+::       open in read-only mode (default: +false+) 
+
++:read_only+::       open in read-only mode (default: +false+)
+
 +:check_compatibility:: check compatibility when saving
+
 +:calculation+::     forces the calculation mode to be manual (:manual) or automatic (:automatic)
+
 +:if_absent+::       specify behaviour if the workbook with the given file name does not exist if the workbook does not exist (default: +create+)
 
 The option +:excel+ :
@@ -155,8 +160,7 @@ Options are the following:
 +:read_only+:: Open the workbook unobtrusively for reading only  (default: false)
 +:readonly_excel+::  if the workbook is opened only as ReadOnly and shall be modified, then
                      true:  close it and open it as writable in the excel instance where it was open so far
-                     false (default) open it as writable in another running excel instance, if it exists, 
-                                     otherwise open in a new excel instance
+                     false (default) open it as writable in another running excel instance, if it exists, otherwise open in a new excel instance
 +:keep_open+::          let the workbook open after unobtrusively opening (default: false)
 
   Workbook.unobtrusively('workbook.xls') do |book|
@@ -186,4 +190,6 @@ This method ensures keeping the save status of the workbook
 
 This method finds out whether the Excel workbook that is referenced by the Workbook object responds to methods.
 
-  if book.alive? then sheet = book[0] end
+  book.alive?
+  # => true
+

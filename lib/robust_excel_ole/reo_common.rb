@@ -160,7 +160,7 @@ module RobustExcelOle
         return opts[:default] unless opts[:default] == __not_provided
         raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{File.basename(workbook.stored_filename).inspect rescue nil}"
       end 
-      return opts[:default] unless opts[:default] == :__not_provided
+      return opts[:default] unless opts[:default] == :__not_provided or value.nil?
       value      
     end
 
@@ -201,9 +201,14 @@ module RobustExcelOle
         return opts[:default] unless opts[:default] == :__not_provided
         raise RangeNotEvaluatable, "cannot determine value of range named #{name.inspect} in #{self.inspect}"
       end
-      return opts[:default] unless opts[:default] == :__not_provided
-      raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect}" if value == -2146828288 + RobustExcelOle::XlErrName
-      value
+      if value == -2146828288 + RobustExcelOle::XlErrName  
+        return opts[:default] unless opts[:default] == __not_provided
+        raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{File.basename(workbook.stored_filename).inspect rescue nil}"
+      end 
+      return opts[:default] unless opts[:default] == :__not_provided or value.nil?
+      value      
+      #return opts[:default] unless opts[:default] == :__not_provided
+      #raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect}" if value == -2146828288 + RobustExcelOle::XlErrName
     end
 
     # assigns a value to a range given a locally defined name

@@ -731,6 +731,7 @@ describe Book do
       expect {
           @book1["foo"] = "bar"
       }.to raise_error(NameNotFound, /name "foo" not in #<Book: another_workbook/)
+      @book1.nameval("empty", :default => 1).should be_nil
     end    
 
     it "should raise an error if name was defined but contents is calcuated" do

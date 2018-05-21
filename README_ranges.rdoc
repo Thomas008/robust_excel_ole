@@ -20,6 +20,10 @@ or
   book.nameval("name")
   => "value"
 
+Using nameval, via the option :default you can provide a value that is returned when the name cannot be found or some other error would occur.
+
+  book.namval("name", :default => "default_value")
+
 You can set the contents of a range with
 
   book["name"] = "new_value"
@@ -69,6 +73,10 @@ and be modified:
 or
 
   excel.set_rangeval("name", "value")
+
+Similarly to nameval, you can provide a default value that is returned when ocurring an error.
+
+  sheet.rangeval("name", :default => "default_value")
 
 === Accessing a cell
 

@@ -583,6 +583,20 @@ describe Sheet do
         }.to raise_error(NameNotFound, /name "foo" not in #<Sheet: Sheet1/)
       end
 
+      it "should raise an error if name not defined and default value is not provided" do
+        expect {
+          @sheet1.rangeval("foo", :default => nil)
+        }.to_not raise_error
+        expect {
+          @sheet1.rangeval("foo", :default => :__not_provided)
+        }.to raise_error(NameNotFound, /name "foo" not in #<Sheet: Sheet1 another_workbook/)
+        expect {
+          @sheet1.rangeval("foo")
+        }.to raise_error(NameNotFound, /name "foo" not in #<Sheet: Sheet1 another_workbook/)
+        @sheet1.rangeval("foo", :default => nil).should be_nil
+        @sheet1.rangeval("foo", :default => 1).should == 1
+        @sheet1.nameval("empty", :default => 1).should be_nil
+      end
     end
 
     describe "set_name" do

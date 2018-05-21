@@ -1,0 +1,145 @@
+= RobustExcelOle
+
+== Creating, using and closing Excel instances
+
+RobustExcelOle enables simultanously running Excel instances. An Excel application is represented by an Excel object.
+
+=== Creating and reusing an Excel instance.
+
+You can start a new Excel instance by
+
+  excel1 = Excel.create
+
+or 
+
+  excel1 = Excel.new(:reuse => false)  
+
+In case you want to reuse an already running Excel instance, write
+
+  excel2 = Excel.current
+
+or 
+
+  excel2 = Excel.new(:reuse => true)  
+
+Options of the methods +create+ and +new+ are +:reuse+ (+true+, +false+), +:visible+ (+true+, +false+), +:displayalerts+ (+true+, +false+, +:if_visible+), +:calculation+ (+:manual+, +:automatic+, +nil+) and +:screenupdating+ (+true+, +false+).
+
+The option +:calculation+ specifies, whether the calculation mode is being forced to be manual (:manual), automatic (+:automatic+) or is not being forced (+nil+).
+
+You can also promote an Excel instance represented as WIN32OLE object to an Excel object.
+
+  excel = Excel.new(win32ole_object, :visible => true)
+
+=== Setting options
+
+You can set all options in a given Excel instance
+
+  excel = Excel.current
+
+  excel.for_this_instance(:visible => true, :displayalerts => true, :calculation => :manual)
+
+=== Making an Excel visible or invisible
+
+You can create a new Excel instance and make it visible.
+
+  excel1 = Excel.create(:visible => true)
+
+or
+
+  excel1 = Excel.new(:reuse => false, :visible => true)  
+
+or 
+
+  excel1 = Excel.create
+  excel1.visible = true  
+
+
+=== Enabling or disabling DisplayAlerts
+
+You can enable DisplayAlerts with, e.g. 
+
+  excel1 = Excel.new(:reuse => true, :displayalerts => true)
+
+or 
+
+  excel1 = Excel.current
+  excel1.displayalerts = true
+
+and turn DisplayAlerts off with
+
+  excel1.displayalerts = false
+
+You can turn off and off DisplayAlerts in a block.
+
+  excel = Excel.create
+  excel.with_displayalerts false do
+    # do something
+  end
+
+=== Setting Calculation mode.
+
+You can set the calculation mode of an Excel instance to manual or automatic.
+
+  excel.calculation = :manual
+
+You can do it in a block:
+
+  excel = Excel.create
+  book = Workbook.open('workbook.xls')
+  excel.with_calculation(:manual) do 
+    # do something
+  end
+
+
+
+=== Setting options for all workbooks
+
+You can set options for all workbooks of an Excel instance.
+
+  excel.for_all_workooks(:visible => true, :read_only => true)
+
+=== Bringing an Excel instance to the foreground
+
+  excel1.focus
+
+=== Closing an Excel
+
+  excel = Excel.current
+  excel.close
+
+The method +close has the option +:if_unsaved+ with the values +:raise+, +:save+, +:forget+ and +:alert+.
+
+For example, if you want to close an Excel instance and save unsaved workbooks, use
+
+  excel.close(:if_unsaved => :save)
+
+=== Recreating an Excel instance    
+
+Closed Excel instances can also be reopened. This includes reopening all workbooks that were open in that Excel instance.
+
+  excel.close
+  excel.recreate
+
+The options are :reopen_workbooks, :visible and :displayalerts.
+
+  excel.recreate(:reopen_workbooks => true, :visible => true, :displayalerts => true)
+
+=== Providing Excel instances
+
+Providing all Excel instances (opened via RobustExcelOle) as objects of the class Excel
+
+  Excel.excel_processes 
+
+=== Closing all Excel instances
+
+  Excel.close_all
+
+This method has the option +:if_unsaved+ as described above. For example, if you want to close all Excel instances containing saved workbooks and raise an error for Excel instances with unsaved workbooks, use
+
+  Excel.close_all(:if_unsaved => :raise)   
+
+=== Terminating all Excel processes
+
+  Excel.kill_all
+
+This method kills all Excel instances no matter whether they contain unsaved workbooks.  

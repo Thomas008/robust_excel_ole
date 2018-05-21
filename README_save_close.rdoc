@@ -1,0 +1,77 @@
+= RobustExcelOle
+
+== Saving and closing workbooks
+
+=== Saving a workbook.
+
+Imagine, you have opened a workbook with
+
+  book = Workbook.open('workbook.xls', :visible => true)
+
+and have modified it.
+
+You can save the workbook by
+
+  book.save
+
+If you want to save a workbook with a file name, then use
+
+  book.save_as('new_workbook.xls')
+
+The options and respective valid values are the following:
+
++:if_exists+:: +:raise+ (default), +:overwrite+, +:alert+
++:if_obstruced+:: +:raise (default), +:forget+, +:save+, +close_if_saved
+
+The option +:if_exists+ :
+
+If a workbook with the file name already exists, then
+
++:raise+::     Raise an exeption. Don't write the file.
++:overwrite+:: Delete the existing file and write the file. If the workbook is open in an Excel instance, then raise an exception.
++:alert+::     Give the control to Excel.
+  
+For example, you want to save a workbook and overwrite the file if it exists before, then use
+
+  book.save_as('another_workbook.xls', :if_exists => :overwrite) 
+
+If a workbook blocks the workbook that should be saved, then the former one can be saved and closed before.
+
+  book = Workbook.open('workbook.xls')
+  book2 = Workbook.open('another_workbook.xls')
+  book2.save_as('dir/workbook.xls', :if_exists => :overwrite, :if_obstructed => :save)  
+
+=== Closing a workbook.
+
+You can close the workbook with the command
+
+  book.close
+
+There is one option: +:if_unsaved+ . It can have one of the following values:
+
++:raise+ (default), +:save+, +:forget+, +:alert+
+
+The option specifies: If the workbook is unsaved, then
+
++:save+::   Save the workbook before closing it.
++:raise+::  Raise an exception. Don't close the workbook.
++:forget+:: Close the workbook. 
++:alert+::  Give control to Excel.
+
+=== Opening, saving and closing a workbook under a certain name
+
+You can open a workbook with given file name.
+
+  book = Workbook.open('workbook.xls')
+
+You can save a workbook with given file name, if it is open.
+
+  Workbook.save_as('workbook.xls')
+
+The workbook can be saved under a new file name, if it is open.
+
+  Workbook.save_as('workbook.xls', 'new_workbook.xls')
+
+Finally the workbook can be closed with a given filename.
+
+  Workbook.close('workbook.xls')

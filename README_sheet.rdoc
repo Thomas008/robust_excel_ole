@@ -32,6 +32,15 @@ You can access all sheet objects by using the methods Workbook#each.
     # do something with sheet
   end
 
+=== Reading and changing the worksheet name
+
+You can read and change the worksheet name.
+
+  sheet1.name
+  # => "Sheet1"
+
+  sheet1.name = "new_sheet"
+
 === Adding and copying a worksheet.
 
 You can add (append) an empty worksheet using
@@ -59,3 +68,4 @@ If you want to copy a worksheet, if a sheet is given, and add an empty worksheet
   book.add_or_copy_sheet
 
   book.add_or_copy_sheet(sheet, :as => 'new_name', :after => another_sheet)  
+

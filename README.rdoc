@@ -4,7 +4,7 @@ This ruby gem automates reading, modifying, and writing Excel files. It is desig
 RobustExcelOle deals with various cases of Excel and user behaviour,
 and implements workarounds for some Excel bugs.
 The gem provides convenient methods for common tasks, and facilitates referenced libraries.
-It supports Excel 2010.
+It can be used for any recent Excel Office version, and is tested for Excel 2010.
 
 RobustExcelOle works by sending VBA methods via Win32OLE.
 It implements a management system and keeps track of Excel files and Excel instances.
@@ -19,36 +19,136 @@ It implements a management system and keeps track of Excel files and Excel insta
 
 == Usage
 
+RobustExcelOle can be used either for scripts
+
   require 'robust_excel_ole'
   include RobustExcelOle
 
-or call the console 
+or as a console 
 
-  reo.bat
+  reo
+
+This will include RobustExcelOle for you.
+
+The following lines can be used for both scripts and console.
 
 == Description  
 
-In the following, some features of RobustExcelOle are depicted.
+RobustExcelOle enables opening and processing Excel files (or workbooks). In the following example, we want to open a workbook, modify a cell, save and close the workbook. 
 
-RobustExcelOle enables opening and processing Excel files (or workbooks) in several Excel instances. Using more than one Excel process allows, e.g., running a script that operates in one Excel instance, while a user (or another script) modifies workbooks in another Excel instance. 
+First we open a workbook.
+
+  workbook = Workbook.open 'spec/data/workbook.xls'
+
+We can also open the workbook using a block, similar to, e.g., +File.open+. 
+
+  Workbook.open('spec/data/workbook.xls') do |workbook|
+    # do something
+  end
+
+We can make the workbook visible, using
+
+  workbook.visible = true
+
+or
+
+  workbook.for_this_workbook(:visible => true)
+
+You can also open a workbook and make it visible in one step.
+
+  workbook = Workbook.open('spec/data/workbook.xls', :visible => true)
+
+or
+
+  workbook = Workbook.open('spec/data/workbook.xls', :v => true)
+
+Then we read the value of a cell.
+
+  value = workbook['firstcell']
+  # => "foo"
+
+Now we write a new value in this cell.
+
+  workbook['firstcell'] = "new"
+
+For more details about reading and writing contents of cells and ranges see {README_ranges.rdoc}[https://github.com/Thomas008/robust_excel_ole/blob/master/README_ranges.rdoc]
+
+Then we save the workbook.
+
+  workbook.save
+
+We can also save the workbook under a different name.
+
+  workbook.save_as('spec/data/new_workbook.xls')
+
+Finally we close the workbook.
+
+  workbook.close
+
+We could also have saved and closed the workbook in one step.
+
+  workbook.close(:if_unsaved => :save)
+
+For more details about saving and closing workbooks see {README_save_close.rdoc}[https://github.com/Thomas008/robust_excel_ole/blob/master/README_save_close.rdoc]
+
+One special feature of RobustExcelOle is that it enables reopening workbooks.
+
+  workbook.reopen
+
+Technically, this feature is implemented in such way, that a workbook is represented by a Workbook object. A Workbook object is defined by the full name of the workbook and the Excel instance in which it is opened. RobustExcelOle aims to ensure identity transparency which means that the same Workbook objects refer to the same Excel files, and vice versa. In other words, a Workbook object is a proxy of an Excel file.
+
+=== Using Excel instances
+
+You can start a new Excel instance with
+
+  excel1 = Excel.create
+
+or
+
+  excel1 = Excel.new(:reuse => false)
+
+You can also have an Excel object by connecting to the already running Excel instance.
+
+  excel2 = Excel.current
+
+or 
+
+  excel2 = Excel.new(:reuse => true)  
+
+We close the Excel instance using
+
+  excel1.close
+
+Closed Excel instances can be reopened.
+
+  excel1.recreate(:reopen_workbooks => true, :visible => true)
+
+Closing all Excel instances is done by
+
+  Excel.close_all(:if_unsaved => :forget)
+
+For hard terminating all Excel processes you can use
+
+  Excel.kill_all
+
+For more details see {README_excel.rdoc}[https://github.com/Thomas008/robust_excel_ole/blob/master/README_excel.rdoc]
+
+=== Opening workbooks in several Excel instances
+
+RobustExcelOle enables opening and processing workbooks in several Excel instances. Using more than one Excel process allows, e.g., running a script that operates in one Excel instance, while a user (or another script) modifies workbooks in another Excel instance. 
 
 For example, suppose you want to open a workbook and make it visible.
 
-  book1 = Workbook.open('workbook.xls', :visible => true)
+  workbook1 = Workbook.open('workbook.xls', :v => true)
 
 Now we want to open another workbook in a different Excel instance.
 
-  book2 = Workbook.open('workbook2.xls', :force => {:excel => :new}, :visible => true)
+  workbook2 = Workbook.open('workbook2.xls', :force => {:excel => :new}, :v => true)
 
 We can also create a third Excel instance and open another workbook in this instance.
 
   excel1 = Excel.create
-  book3 = Workbook.open('workbook3.xls', :force => {:excel => excel1}, :visible => true)
-
-Another feature that RobustExcelOle povides is reopening workbooks after closing them.
-
-  book1.close
-  book1.reopen
+  book3 = Workbook.open('workbook3.xls', :force => {:excel => excel1}, :v => true)
 
 A workbook is opened by default in the Excel instance where it was open before most recently.
 
@@ -57,23 +157,23 @@ A workbook is opened by default in the Excel instance where it was open before m
 
 If this Excel instance is damaged or closed, then options control whether the workbook shall be opened in the current (active), a new or a given Excel instance.
 
-  book1 = Workbook.open('workbook.xls', :default => {:excel => :new})
+  workbook1 = Workbook.open('workbook.xls', :default => {:excel => :new})
 
 The workbook can also be forced to be opened in the current, new or given Excel instance, no matter if and where it was opened before, e.g.
 
-  book2 = Workbook.open('workbook.xls', :force => {:excel => excel1})
+  workbook2 = Workbook.open('workbook.xls', :force => {:excel => excel1})
 
 As a further feature, RobustExcelOle allows processing workbooks, while still supporting user's interactions: The commands enable to open, close, reopen, read, modify, write and save Excel files, without the need of the user's interaction, and even without the user noticing. Thus, while running a script containing RobustExcelOle commands, the user can open and process Excel files in any Excel instances at any time. RobustExcelOle manages the complex cases of conflicts that might occur such that the user does not need to interfere and the script can continue.
 
-For example, suppose you want to process a list of workbooks. RobustExcelOle allows to rapidly open, manipulate, close and save these workbooks. Now assume, the workbook "workbook.xls" is being processed, while the user has opened this workbook, has modified but not saved it yet. Excel would prompt a message and ask the user what to do. RobustExcelOle solves this conflict by using an option that states whether the changes of the user should be saved (accepted) or discarded before opening the workbook:
+For example, suppose you want to process a list of workbooks. RobustExcelOle allows to rapidly open, manipulate, close and save these workbooks. Now assume, the workbook "workbook.xls" is being processed, while the user has opened this workbook, has modified but not saved it yet. Excel would prompt a message and ask the user what to do. RobustExcelOle solves this conflict by using an option that states whether the changes of the user should be saved (accepted) or discarded before opening the workbook, e.g.
 
-  book = Workbook.open('workbook.xls', :if_unsaved => :accept)
+  workbook = Workbook.open('workbook.xls', :if_unsaved => :accept)
 
 Similarly, if the user has opened a workbook that has the same name but a different path, the conflict is solved via an option.
 
-  book1 = Workbook.open('path1/workbook.xls')
-    ...
-  book2 = Workbook.open('workbook.xls', :if_obstructed => :forget)
+  workbook1 = Workbook.open('path1/workbook.xls')
+  # do something
+  workbook2 = Workbook.open('workbook.xls', :if_obstructed => :forget)
 
 There are twelve options that control opening workbooks. 
 
@@ -87,69 +187,11 @@ Finally, RobustExcelOle allows unobtrusively reading and modifying workbooks, i.
     # do something
   end
 
-=== The Workbook objects and identity transparency
+For more details see {README_open.rdoc}[https://github.com/Thomas008/robust_excel_ole/blob/master/README_open.rdoc]
 
-An Excel file (or workbook) is represented by a Workbook object. A Workbook object is defined by the full name of the workbook and the Excel instance in which it is opened. RobustExcelOle aims to ensure identity transparency.
-Identity transparency means that the same Workbook objects refer to the same Excel files, and vice versa.
-In other words, a Workbook objects is a proxy of an Excel file.
+=== Processing worksheets
 
-Here are some more details about opening, closing, reading, writing and modifying Excel files.
-
-=== Opening and closing workbooks
-
-Let's have a look at an example. Suppose, we want to open a workbook.
-
-  book = Workbook.open('workbook.xls')
-
-We could do this in a block as well. The semantics is similar to, e.g.,  +File.open+.
-
-  Workbook.open('workbook.xls') do |book|
-    # do something with book
-  end
-
-Now let's make the workbook visible.
-
-  book.visible = true
-
-We can do this in one step as well.
-
-  book = Workbook.open('workbook.xls', :visible => true)
-
-Now we want to open another workbook in a new Excel instance.
-
-  book2 = Workbook.open('another_workbook.xls', :force => {:excel => :new}, :visible => true)
-
-Then we open a third workbook in the second Excel instance. 
-
-  book3 = Workbook.open('different_workbook.xls', :force => {:excel => book2.excel})
-
-We close the second workbook.
-
-  book2.close
-
-Reopening this workbook is done by
-
-  book2.reopen
-
-=== Reading and modifying workbooks
-
-We can get the value of a named range.
-
-  book2["new"]   # => foo
-
-or
-
-  book2.nameval("new")  # => "foo"
-
-Now we assign a new value to this range.
-
-  book2["new"] = "bar"
-
-or, with coloring the cell,
-
-  book2.set_nameval("new", "bar", :color => 4)
-
-Then we access the first worksheet by
+You access the first worksheet by
 
   sheet1 = book2.sheet(1)
 
@@ -161,7 +203,14 @@ or
   
   sheet1 = book2.first_sheet
 
-We can read the first three cells of the first row
+You can read and change the worksheet name.
+
+  sheet1.name
+  # => "Sheet1"
+
+  sheet1.name = "new_sheet"
+
+You can read the first three cells of the first row
 
   sheet1.row_range(1, 1..3).values   # => ["foo","workbook","sheet1"]
 
@@ -169,7 +218,7 @@ and the third column
 
   sheet1.col_range(3).values   # => ["sheet1", 2.0, 4.0]
 
-Then we read first cell
+You can read the first cell, using
 
   sheet1[1,1].value    # => "foo"
 
@@ -181,125 +230,23 @@ Then we modify it
 
   sheet1[1,1] = "hello"
 
-We get the value of a range
+You can get the value of a named range 
 
-  sheet1.nameval("firstcell")    # => "hello"
+  sheet1["firstcell"]    # => "hello"
 
-and set the value, while coloring the cell
+and set another value to that range.
 
-  sheet1.set_nameval("firstcell", "foo", :color => 4)
+  sheet1["firstcell"] = "new_value"
 
-We get the value of a range of a locally defined name.
-
-  sheet1.rangeval("firstcell")     # => "foo"
-
-or
-
-  sheet1.rangeval("A1")    # => "foo"
-
-Then we set the value of this range.
-
-  sheet1.set_rangeval("firstcell", "bar")
-
-We can copy the first worksheet, name it and add it before the third worksheet.
+You can copy the first worksheet, name it and add it before the third worksheet.
 
   book2.add_or_copy_sheet(sheet1, :as => "copied_name, :before => book2.last_sheet)
 
-=== Saving (writing) workbooks
-
-Simple save is done by
-
-  book2.save
-
-We could save the workbook under a different name, and overwrite, if a file with the same name exists.
-
-  book2.save_as('example_workbook.xls', :if_exists => :overwrite)
-
-Then we close this workbook.
-
-  book2.close
-
-Simple saving and closing can be also done in one step by
-
-  book2.close(:if_unsaved => :save)
-
-When you want discolor all cells that have been colored when modifying them, then use
-  
-  book2.save(:discoloring => true)
-
-or
-
-  book2.save_as('example_workbook.xls', :if_exists => :overwrite, :discoloring => true)
-
-=== Operating on Excel instances.
-
-Suppose we want to create an Excel object by connecting to the already running Excel instance.
-
-  excel1 = Excel.current
-
-or 
-
-  excel1 = Excel.new(:reuse => true)  
-
-Now we want to start a new, visible Excel instance.
-
-  excel2 = Excel.create(:visible => true)
-
-or 
-
-  excel2 = Excel.new(:reuse => false, :visible => true)  
-
-We open a workbook in this Excel instance.
-
-  book4 = Workbook.open('more_data/workbook', {:force => {:excel => excel2}})
-
-We close the Excel instance by
-
-  excel1.close
-
-Closed Excel instances can be reopened.
-
-  excel1.recreate(:reopen_workbooks => true, :visible => true)
-
-We can get the value of a range in an Excel instance by
-
-  excel2["firstcell"] => "foo"
-  
-or
-
-  excel2.nameval("firstcell") = "foo"
-
-and set the value of this range by using
-
-  excel2["firstcell"] = "bar"
-
-or, with coloring the cell,
-
-  excel2.set_nameval("firstcell", "bar", :color => 4)
-
-We get and set the value of a range with a locally defined named by
-
-  excel2.rangeval("firstcell")
-
-and set its value by
-
-  excel2.set_rangeval("firstcell, "bar")
-
-Closing all Excel instances is done by
-
-  Excel.close_all(:if_unsaved => :forget)
-
-Hard terminating all Excel processes is done by
-
-  Excel.kill_all
+For more details see {README_sheet.rdoc}[https://github.com/Thomas008/robust_excel_ole/blob/master/README_sheet.rdoc]
 
 === Development
 
 The tests of RobustExcelOle are optimised with help of the rcov tool.  
-
-=== More details
-
-{README_detail.rdoc}[https://github.com/Thomas008/robust_excel_ole/blob/master/README_detail.rdoc]
 
 === Want to do more things
 

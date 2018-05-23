@@ -89,7 +89,7 @@ We could also have saved and closed the workbook in one step.
 
   workbook.close(:if_unsaved => :save)
 
-For more details about saving and closing workbooks see {README_save_close.rdoc}[https://github.com/Thomas008/robust_excel_ole/blob/master/README_save_close.rdoc]
+For more details about saving and closing workbooks see README_save_close[link:../doc/README_save_close_rdoc.html]
 
 One special feature of RobustExcelOle is that it enables reopening workbooks.
 
@@ -131,7 +131,7 @@ For hard terminating all Excel processes you can use
 
   Excel.kill_all
 
-For more details see {README_excel.rdoc}[https://github.com/Thomas008/robust_excel_ole/blob/master/README_excel.rdoc]
+For more details see README_excel[link:../doc/README_excel_rdoc.html]
 
 === Opening workbooks in several Excel instances
 
@@ -187,7 +187,7 @@ Finally, RobustExcelOle allows unobtrusively reading and modifying workbooks, i.
     # do something
   end
 
-For more details see {README_open.rdoc}[https://github.com/Thomas008/robust_excel_ole/blob/master/README_open.rdoc]
+For more details see README_open[link:../doc/README_open_rdoc.html]
 
 === Processing worksheets
 
@@ -242,7 +242,7 @@ You can copy the first worksheet, name it and add it before the third worksheet.
 
   book2.add_or_copy_sheet(sheet1, :as => "copied_name, :before => book2.last_sheet)
 
-For more details see {README_sheet.rdoc}[https://github.com/Thomas008/robust_excel_ole/blob/master/README_sheet.rdoc]
+For more details see README_sheet[link:../doc/README_sheet_rdoc.html]
 
 === Development
 

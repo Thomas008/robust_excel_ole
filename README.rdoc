@@ -246,7 +246,7 @@ For more details see README_sheet[link:../doc/README_sheet_rdoc.html]
 
 === Development
 
-The tests of RobustExcelOle are optimised with help of the rcov tool.  
+For some details see README_development[link:../doc/README_development_rdoc.html]
 
 === Want to do more things
 

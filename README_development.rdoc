@@ -1,0 +1,5 @@
+= RobustExcelOle
+
+=== Development
+
+The tests of RobustExcelOle are optimised with help of the rcov tool.  

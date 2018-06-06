@@ -41,7 +41,7 @@ describe Book do
     context "with standard" do
       it "open an existing file" do
         expect {
-          @book = Book.new(@simple_file)
+          @book = Book.open(@simple_file)
         }.to_not raise_error
         @book.should be_a Book
         @book.close

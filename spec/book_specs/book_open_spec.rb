@@ -1407,7 +1407,7 @@ describe Book do
         context "with :if_unsaved => #{options_value} and in the same and different path" do
           before do
             @new_book = Book.open(@simple_file1, :reuse => true, :if_unsaved => options_value)
-            @different_book = Book.new(@different_file, :reuse => true, :if_unsaved => options_value)
+            @different_book = Book.open(@different_file, :reuse => true, :if_unsaved => options_value)
           end
           after do
             @new_book.close
@@ -1537,8 +1537,8 @@ describe Book do
         sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
         book.Saved.should be_false
         new_book = Book.open(@simple_file1, :read_only => true, :if_unsaved => :accept)
-        new_book.ReadOnly.should be_false
-        new_book.Saved.should be_false
+        new_book.ReadOnly.should be_true
+        new_book.Saved.should be_true
         new_book.should == book
       end
 
@@ -1569,8 +1569,8 @@ describe Book do
         sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
         book.Saved.should be_false
         new_book = Book.open(@simple_file1, :force => {:excel => book.excel}, :read_only => true, :if_unsaved => :accept)
-        new_book.ReadOnly.should be_false
-        new_book.Saved.should be_false
+        new_book.ReadOnly.should be_true
+        new_book.Saved.should be_true
         new_book.should == book
       end
 
@@ -1636,12 +1636,6 @@ describe Book do
           book.should be_a Book
         end
       end
-      it 'block parameter should be instance of Book for new' do
-        Book.new(@simple_file) do |book|
-          book.should be_a Book
-        end
-      end
-
     end
 
     context "with WIN32OLE#GetAbsolutePathName" do

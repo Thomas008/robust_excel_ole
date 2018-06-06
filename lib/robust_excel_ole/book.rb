@@ -90,8 +90,8 @@ module RobustExcelOle
                  (not (book.alive? && (not book.saved) && (not options[:if_unsaved] == :accept))))
               book.options = options
               book.ensure_excel(options) # unless book.excel.alive?
-              # if the ReadOnly status shall be changed, then close and reopen it
-              book.close(:if_unsaved => true) if (book.alive? && 
+              # if the ReadOnly status shall be changed, then save, close and reopen it
+              book.close(:if_unsaved => :save) if (book.alive? && 
                 (((not book.writable) and (not options[:read_only])) or
                   (book.writable and options[:read_only]))) 
               # reopens the book

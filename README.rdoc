@@ -140,18 +140,18 @@ For more details about creating Excel instances see README_excel[https://github.
 
 RobustExcelOle enables opening and processing workbooks in several Excel instances. Using more than one Excel process allows, e.g., running a script that operates in one Excel instance, while a user (or another script) modifies workbooks in another Excel instance. 
 
-For example, suppose you want to open a workbook and make it visible.
+For example, suppose you want to open a workbook.
 
-  workbook1 = Workbook.open('spec/data/workbook.xls', :v => true)
+  workbook1 = Workbook.open('spec/data/workbook.xls')
 
 Now we want to open another workbook in a different Excel instance.
 
-  workbook2 = Workbook.open('spec/data/different_workbook.xls', :force => {:excel => :new}, :v => true)
+  workbook2 = Workbook.open('spec/data/different_workbook.xls', :excel => :new)
 
 We can also create a third Excel instance and open another workbook in this instance.
 
   excel1 = Excel.create
-  book3 = Workbook.open('spec/data/another_workbook.xls', :force => {:excel => excel1}, :v => true)
+  book3 = Workbook.open('spec/data/another_workbook.xls', :excel => excel1)
 
 A workbook is opened by default in the Excel instance where it was open before most recently.
 
@@ -162,9 +162,9 @@ If this Excel instance is damaged or closed, then options control whether the wo
 
   workbook1 = Workbook.open('spec/data/workbook.xls', :default => {:excel => :new})
 
-The workbook can also be forced to be opened in the current, new or given Excel instance, no matter if and where it was opened before, e.g.
+Without the option +:default+, the workbook is forced to be opened in the current, new or given Excel instance, no matter if and where it was opened before, e.g.
 
-  workbook2 = Workbook.open('spec/data/workbook.xls', :force => {:excel => excel1})
+  workbook2 = Workbook.open('spec/data/workbook.xls', :excel => excel1)
 
 As a further feature, RobustExcelOle allows processing workbooks, while still supporting user's interactions: The commands enable to open, close, reopen, read, modify, write and save Excel files, without the need of the user's interaction, and even without the user noticing. Thus, while running a script containing RobustExcelOle commands, the user can open and process Excel files in any Excel instances at any time. RobustExcelOle manages the complex cases of conflicts that might occur such that the user does not need to interfere and the script can continue.
 

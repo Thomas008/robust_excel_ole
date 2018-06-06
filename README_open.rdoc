@@ -37,6 +37,13 @@ The options are the following:
 
 +:if_absent+::       specify behaviour if the workbook with the given file name does not exist if the workbook does not exist (default: +create+)
 
+You can use the following abbreviations:
+
++:f+:: +:force+
++:d+:: +:default+
++:e+:: +:excel+
++:v+:: +:visible+
+
 The option +:excel+ :
 
 Valid values are : +:current+ (or +:active+ or +:reuse+), +:new+, or a given Excel instance (default: +:current).
@@ -86,27 +93,27 @@ If you want to open a workbook in a new Excel instance, no matter if it was open
 
   Workbook.open('workbook.xls', :force => {:excel => :new})
 
+For simplicity, you can also leave out the +:force+ option (but not the +:default+ option).
+
+  Workbook.open('workbook.xls', :excel => :new)
+
 You can also specify an Excel instance
 
   excel1 = Excel.create
   # do something
-  Workbook.open('workbook.xls', :force => {:excel => excel1})
+  Workbook.open('workbook.xls', :excel => excel1)
 
 If you want to open the workbook and make its window visible, then use
-
-  book = Workbook.open('workbook.xls', :force => {:visible => true})
-
-or
 
   book = Workbook.open('workbook.xls', :visible => true)
 
 You can combine options, e.g. 
 
-  Workbook.open('workbook.xls', :force => {:excel => :new, :visible => true})
+  Workbook.open('workbook.xls', :excel => :new, :visible => true, :default => {:excel => excel1})
 
-You can use some abbreviations, e.g. in this case
+You can use the abbreviations, e.g. in this case
 
-  Workbook.open('workbook.xls', :f => {:e => :new, :v => true})  
+  Workbook.open('workbook.xls', :e => :new, :v => true, :d => {:e => excel1})  
 
 If a workbook contains unsaved changes and a workbook with the same filename shall be opened, then the option +:if_unsaved+ manages this conflict. For example, if the workbook with the unsaved changes shall remain open, you can use
 

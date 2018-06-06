@@ -25,13 +25,8 @@ module RobustExcelOle
       :check_compatibility => false,       
       :update_links => :never
     }
-
-    SYNONYMS_OPTS = [[[:default],[:d]], [[:force], [:f]], 
-                     [[:default,:excel],[:default_excel]],[[:force,:excel],[:force_excel]],                    
-                     [[:default,:excel],[:default,:e]], [[:force,:excel],[:force,:e]],
-                     [[:default,:visible],[:default,:v]], [[:force,:visible],[:force,:v]],
-                     [[:force,:visible],[:visible]], [[:force,:visible],[:v]]
-    ]
+     
+    ABBREVIATIONS = [[:default,:d], [:force, :f], [:excel, :e], [:visible, :v]]
 
     class << self
       
@@ -142,8 +137,9 @@ module RobustExcelOle
     # @param [Hash]    opts              the options
     # @option opts [Symbol] see above
     # @return [Book] a workbook
-    def initialize(file_or_workbook, opts={ }, &block)
-      options = self.class.process_options(opts)
+    #def initialize(file_or_workbook, opts={ }, &block)
+    def initialize(file_or_workbook, options={ }, &block)
+      #options = self.class.process_options(opts)
       if file_or_workbook.is_a? WIN32OLE        
         workbook = file_or_workbook
         @ole_workbook = workbook        
@@ -172,23 +168,33 @@ module RobustExcelOle
 
   private
 
-    # merges options with defaults and translates abbreviations and synonyms
-    def self.process_options(options, proc_opts = {:use_defaults => true}) # :nodoc: #
+    # translates abbreviations and synonyms and merges with default options
+    def self.process_options(options, proc_opts = {:use_defaults => true})
       translator = proc do |opts|
-        SYNONYMS_OPTS.each do |a|
-          synonym = a[1][1].nil? ? opts[a[1][0]] : opts[a[1][0]][a[1][1]] unless opts[a[1][0]].nil?
-          unless synonym.nil?
-            if a[0][1].nil?
-              opts[a[0][0]] = synonym if opts[a[0][0]].nil?
-            else
-              opts[a[0][0]] = {} if opts[a[0][0]].nil?
-              opts[a[0][0]][a[0][1]] = synonym if opts[a[0][0]][a[0][1]].nil?
+        erg = {}
+        opts.each do |key,value|
+          new_key = key
+          ABBREVIATIONS.each{|long,short| new_key = long if key == short}
+          if value.is_a?(Hash)
+            erg[new_key] = {}
+            value.each do |k,v|
+              new_k = k
+              ABBREVIATIONS.each{|long,short| new_k = long if k == short}
+              erg[new_key][new_k] = v
             end
-          end          
+          else
+            erg[new_key] = value
+          end
         end
-        opts[:default][:excel] = :current if (not opts[:default].nil?) && (opts[:default][:excel] == :reuse || opts[:default][:excel] == :active)
-        opts[:force][:excel] = :current if (not opts[:force].nil?) && (opts[:force][:excel] == :reuse || opts[:force][:excel] == :active)        
-        opts
+        erg[:default] = {} if erg[:default].nil?
+        erg[:force] = {} if erg[:force].nil?
+        force_list = [:visible, :excel]
+        erg.each {|key,value| erg[:force][key] = value if force_list.include?(key)}
+        erg[:default][:excel] = erg[:default_excel] unless erg[:default_excel].nil?
+        erg[:force][:excel] = erg[:force_excel] unless erg[:force_excel].nil?
+        erg[:default][:excel] = :current if (erg[:default][:excel] == :reuse || erg[:default][:excel] == :active)
+        erg[:force][:excel] = :current if (erg[:force][:excel] == :reuse || erg[:force][:excel] == :active)        
+        erg
       end
       opts = translator.call(options)
       default_open_opts = proc_opts[:use_defaults] ? DEFAULT_OPEN_OPTS : 
@@ -196,7 +202,7 @@ module RobustExcelOle
       default_opts = translator.call(default_open_opts)
       opts = default_opts.merge(opts)
       opts[:default] = default_opts[:default].merge(opts[:default]) unless opts[:default].nil?
-      opts[:force] = default_opts[:force].merge(opts[:force]) unless opts[:force].nil?
+      opts[:force] = default_opts[:force].merge(opts[:force]) unless opts[:force].nil?  
       opts
     end
 
@@ -495,7 +501,6 @@ module RobustExcelOle
     # @return [Book] a workbook
 
     # state = [:open, :saved, :writable, :visible, :calculation, :check_compatibility]
-
     def self.unobtrusively(file, opts = { }, &block) 
       options = {:if_closed => :current, 
                  :read_only => false,
@@ -553,7 +558,7 @@ module RobustExcelOle
     # simple save of a workbook.
     # @option opts [Boolean] :discoloring  states, whether colored ranges shall be discolored
     # @return [Boolean] true, if successfully saved, nil otherwise
-    def save(opts = {:discoloring => false})      
+    def save(opts = {:discoloring => false})  
       raise ObjectNotAlive, "workbook is not alive" if (not alive?)
       raise WorkbookReadOnly, "Not opened for writing (opened with :read_only option)" if @ole_workbook.ReadOnly
       begin

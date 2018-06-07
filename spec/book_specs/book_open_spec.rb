@@ -274,6 +274,91 @@ describe Book do
 
     end
 
+    context "with abbrevations" do
+
+      before do
+        @book = Book.open(@simple_file1)
+      end
+
+      after do
+        @book.close rescue nil
+      end
+
+      it "should work as force" do
+        book2 = Book.open(@another_simple_file, :excel => :new)
+        book2.excel.should_not == @book.excel
+        book3 = Book.open(@different_file, :excel => book2.excel)
+        book3.excel.should == book2.excel
+      end
+
+      it "should work with abbrevation of force and excel" do
+        book2 = Book.open(@another_simple_file, :f => {:e => :new})
+        book2.excel.should_not == @book.excel
+        book3 = Book.open(@different_file, :f => {:e => book2.excel})
+        book3.excel.should == book2.excel
+      end
+
+      it "should work with abbrevation of force" do
+        book2 = Book.open(@another_simple_file, :f => {:excel => :new})
+        book2.excel.should_not == @book.excel
+        book3 = Book.open(@different_file, :f => {:excel => book2.excel})
+        book3.excel.should == book2.excel
+      end
+
+      it "should work with abbrevation of force" do
+        book2 = Book.open(@another_simple_file, :force => {:e => :new})
+        book2.excel.should_not == @book.excel
+        book3 = Book.open(@different_file, :force => {:e => book2.excel})
+        book3.excel.should == book2.excel
+      end
+
+      it "should open in a given Excel provided as Excel, Book, or WIN32OLE representing an Excel or Workbook" do
+        book2 = Book.open(@another_simple_file)
+        book3 = Book.open(@different_file)
+        book3 = Book.open(@simple_file1, :excel => book2.excel)
+        book3.excel.should === book2.excel
+        book4 = Book.open(@simple_file1, :excel => @book) 
+        book4.excel.should === @book.excel
+        book3.close
+        book4.close
+        book5 = Book.open(@simple_file1, :excel => book2.ole_workbook)
+        book5.excel.should ===  book2.excel
+        win32ole_excel1 = WIN32OLE.connect(@book.ole_workbook.Fullname).Application
+        book6 = Book.open(@simple_file1, :excel => win32ole_excel1)
+        book6.excel.should === @book.excel
+      end
+
+      it "should use abbreviations of default" do
+        book2 = Book.open(@simple_file1, :d => {:excel => :current})
+        book2.excel.should == @book.excel
+      end
+
+      it "should use abbreviations of default" do
+        book2 = Book.open(@simple_file1, :d => {:e => :current})
+        book2.excel.should == @book.excel
+      end
+
+      it "should use abbreviations of default" do
+        book2 = Book.open(@simple_file1, :default => {:e => :current})
+        book2.excel.should == @book.excel
+      end
+
+      it "should reopen the book in the Excel where it was opened most recently" do
+        excel1 = @book.excel
+        excel2 = Excel.new(:reuse => false)
+        @book.close
+        book2 = Book.open(@simple_file1, :d => {:e => :current})
+        book2.excel.should == excel1
+        book2.close
+        book3 = Book.open(@simple_file1, :e => excel2)
+        book3.close
+        book3 = Book.open(@simple_file1, :d => {:e => :current})
+        book3.excel.should == excel2
+        book3.close
+      end
+
+    end
+
     context "with :force => {:excel}" do
 
       before do
@@ -299,7 +384,6 @@ describe Book do
         book6 = Book.open(@simple_file1, :force => {:excel => win32ole_excel1})
         book6.excel.should === @book.excel
       end
-
 
       it "should open in a new Excel" do
         book2 = Book.open(@simple_file1, :force => {:excel => :new})

@@ -179,7 +179,7 @@ module RobustExcelOle
             erg[new_key] = {}
             value.each do |k,v|
               new_k = k
-              ABBREVIATIONS.each{|long,short| new_k = long if k == short}
+              ABBREVIATIONS.each{|l,s| new_k = l if k == s}
               erg[new_key][new_k] = v
             end
           else

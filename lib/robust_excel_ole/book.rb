@@ -75,7 +75,7 @@ module RobustExcelOle
       # :update_links         true -> user is being asked how to update links, false -> links are never updated
       # @return [Book] a workbook
       def open(file, opts={ }, &block)
-        options = process_options(opts)
+        options = @options = process_options(opts)
         book = nil
         if (not (options[:force][:excel] == :new))
           # if readonly is true, then prefer a book that is given in force_excel if this option is set
@@ -114,14 +114,13 @@ module RobustExcelOle
     # @option opts [Symbol] see above
     # @return [Book] a workbook
     def self.new(workbook, opts={ }, &block)
+      opts = process_options(opts)
       if workbook && (workbook.is_a? WIN32OLE)
-        opts = process_options(opts)
         filename = workbook.Fullname.tr('\\','/') rescue nil
         if filename
           book = bookstore.fetch(filename)
           if book && book.alive?
-            book.visible = opts[:force][:visible] unless opts[:force][:visible].nil?
-            #book.excel.calculation = opts[:calculation].nil? ? book.excel.calculation : opts[:calculation]
+            book.visible = opts[:force][:visible] unless opts[:force].nil? or opts[:force][:visible].nil?
             book.excel.calculation = opts[:calculation] unless opts[:calculation].nil?
             return book 
           end
@@ -139,7 +138,7 @@ module RobustExcelOle
     # @return [Book] a workbook
     #def initialize(file_or_workbook, opts={ }, &block)
     def initialize(file_or_workbook, options={ }, &block)
-      #options = self.class.process_options(opts)
+      #options = @options = self.class.process_options(options) if options.empty?
       if file_or_workbook.is_a? WIN32OLE        
         workbook = file_or_workbook
         @ole_workbook = workbook        
@@ -257,11 +256,6 @@ module RobustExcelOle
       excel_option = (options[:force].nil? or options[:force][:excel].nil?) ? options[:default][:excel] : options[:force][:excel]
       @excel = self.class.excel_of(excel_option) unless (excel_option == :current || excel_option == :new)
       @excel = excel_class.new(:reuse => (excel_option == :current)) unless (@excel && @excel.alive?)
-
-      #options[:excel] = options[:force_excel] ? options[:force_excel] : options[:default_excel]
-      #options[:excel] = :current if (options[:excel] == :reuse || options[:excel] == :active)
-      #@excel = self.class.excel_of(options[:excel]) unless (options[:excel] == :current || options[:excel] == :new)
-      #@excel = excel_class.new(:reuse => (options[:excel] == :current)) unless (@excel && @excel.alive?)
     end    
 
     def ensure_workbook(file, options)     # :nodoc: #

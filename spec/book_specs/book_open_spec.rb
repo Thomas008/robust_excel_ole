@@ -36,6 +36,40 @@ describe Book do
     #rm_tmp(@dir)
   end
 
+  describe "simple open" do
+
+    it "should simply open" do
+      book = Workbook.open(@simple_file, :v => true, :f => {:e => :new})
+    end
+
+  end
+
+  describe "new" do
+
+    it "should simply create a new one" do
+      book = Workbook.new(@simple_file)
+      book.should be_alive
+      book.should be_a Book
+    end
+
+    it "should set options" do
+      book = Workbook.new(@simple_file, :visible => true, :read_only => true, :force => {:excel => :new})
+      book.should be_alive
+      book.should be_a Book
+      book.excel.Visible.should be_true
+      book.Windows(book.Name).Visible.should be_true
+      book.ReadOnly.should be_true
+      book2 = Workbook.new(@different_file, :force => {:excel => :new}, :v => true)
+      book2.should be_alive
+      book2.should be_a Book
+      book2.excel.Visible.should be_true
+      book2.Windows(book2.Name).Visible.should be_true
+      book2.ReadOnly.should be_false
+      book2.excel.should_not == book.excel
+    end
+
+  end
+
   describe "open" do
 
     context "with calculation mode" do

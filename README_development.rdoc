@@ -3,3 +3,5 @@
 === Development
 
 The tests of RobustExcelOle are optimised with help of the rcov tool.  
+
+RobustExcelOle is being tested for Excel 2010. It can be used for any recent Excel Office version.

@@ -61,16 +61,16 @@ First we want to make the workbook visible.
 
 This method makes both the Excel instance and the window of the Workbook-win32ole-object visible.
 
-Now we can read the value of a named cell.
+Let's read the value of a named cell.
 
   value = workbook['firstcell']
   # => "foo"
 
-We want to write a new value into this cell.
+Now we want to write a new value into this cell.
 
   workbook['firstcell'] = "new"
 
-Then we will save the workbook.
+Then we'll save the workbook.
 
   workbook.save
 

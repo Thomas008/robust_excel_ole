@@ -18,9 +18,9 @@ You can install the gem by running the command
 
   gem install robust_excel_ole
 
-or using bundler.
+or by using bundler and putting the following line in your Gemfile.
 
-  bundle install
+  gem 'robust_excel_ole'
 
 == Usage
 
@@ -41,7 +41,7 @@ The following examples can be used for both scripts and console. If you are in t
 
 In the following example, we want to open a workbook, modify a cell, save and close the workbook. 
 
-First we open a workbook.
+Let's open a workbook.
 
   workbook = Workbook.open 'spec/data/workbook.xls'
 
@@ -50,29 +50,31 @@ Now we have a Workbook object that wraps a win32ole object. That is, you can sen
   workbook.Name 
   # => "workbook.xls"
 
-  workbook.Saved
+  workbook.Visible
   # => false
 
 For some common tasks and for considering various complex cases of Excel and user behaviour, more convenient methods are implemented. For example, RobustExcelOle provides methods for reading and writing the contents of ranges, for opening, saving, closing, reopening and unobtrusively opening workbooks, and for setting options.
 
-First we make the workbook visible.
+First we want to make the workbook visible.
 
   workbook.visible = true
 
-Now we read the value of a named cell.
+This method makes both the Excel instance and the window of the Workbook-win32ole-object visible.
+
+Now we can read the value of a named cell.
 
   value = workbook['firstcell']
   # => "foo"
 
-We write a new value in this cell.
+We want to write a new value into this cell.
 
   workbook['firstcell'] = "new"
 
-Then we save the workbook.
+Then we will save the workbook.
 
   workbook.save
 
-Finally we close the workbook.
+Finally we want to close the workbook.
 
   workbook.close
 
@@ -86,7 +88,7 @@ The workbook is now open again and ready for applying further operations, e.g.
   workbook.save
   workbook.close
 
-RobustExcelOle allows unobtrusively reading and modifying workbooks, i.e. accessing workbooks without changing their "status". The status comprises whether the workbook is open or closed, saved or unsaved, read-only or writable, visible or invisible, whether the calculation mode is manual or automatic, and checking compatibility is done or not done. 
+RobustExcelOle allows unobtrusively reading and modifying workbooks, i.e. accessing workbooks without changing their "status". The status comprises whether the workbook is open or closed, saved or unsaved, read-only or writable, visible or invisible, whether the calculation mode is manual or automatic, and checking compatibility is done or not done (the Workbook object remembers its properties).
 
   Workbook.for_modifying('spec/data/workbook.xls') do |workbook|
     # do something

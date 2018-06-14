@@ -118,7 +118,7 @@ or, using abbreviations,
 
   workbook = Workbook.open('spec/data/workbook.xls', :v => true)
 
-For more details about opening workbooks see {README_open}[https://github.com/Thomas008/robust_excel_ole/blob/master/README_open.rdoc]
+For more details about opening workbooks see {README_open}[https://github.com/Thomas008/robust_excel_ole/blob/master/README/README_open.rdoc]
  
 We can do a simple save
 
@@ -133,7 +133,7 @@ Finally we can save and close the workbook in one step.
   workbook.close(:if_unsaved => :save)
 
 For more details about saving and closing workbooks see
-{README_save_close}[https://github.com/Thomas008/robust_excel_ole/blob/master/README_save_close.rdoc]
+{README_save_close}[https://github.com/Thomas008/robust_excel_ole/blob/master/README/README_save_close.rdoc]
 
 
 === Using Excel instances
@@ -170,7 +170,7 @@ For hard terminating all Excel processes we can use
 
   Excel.kill_all
 
-For more details about creating Excel instances see README_excel[https://github.com/Thomas008/robust_excel_ole/blob/master/README_excel_rdoc]
+For more details about creating Excel instances see README_excel[https://github.com/Thomas008/robust_excel_ole/blob/master/README/README_excel_rdoc]
 
 === Opening workbooks in several Excel instances
 
@@ -214,7 +214,7 @@ Similarly, if the user has opened a workbook that has the same name but a differ
   # do something
   workbook2 = Workbook.open('spec/data/more/workbook.xls', :if_obstructed => :forget)
 
-For more details about opening and closing workbooks in Excel instances see {README_open}[https://github.com/Thomas008/robust_excel_ole/blob/master/README_open.rdoc]
+For more details about opening and closing workbooks in Excel instances see {README_open}[https://github.com/Thomas008/robust_excel_ole/blob/master/README/README_open.rdoc]
 
 === Operating on worksheets
 
@@ -245,7 +245,7 @@ We can copy the first worksheet, name it and add it before the third worksheet.
 
   workbook.add_or_copy_sheet(sheet, :as => "copied_name, :before => workbook.last_sheet)
 
-For more details about processing worksheets see {README_sheet}[https://github.com/Thomas008/robust_excel_ole/blob/master/README_sheet.rdoc]
+For more details about processing worksheets see {README_sheet}[https://github.com/Thomas008/robust_excel_ole/blob/master/README/README_sheet.rdoc]
 
 === Reading and writing ranges in worksheets
 
@@ -277,7 +277,7 @@ and set another value to that range.
 
   sheet["firstcell"] = "new_value"
 
-For more details about reading and writing contents of cells and ranges see {README_ranges}[https://github.com/Thomas008/robust_excel_ole/blob/master/README_ranges.rdoc]
+For more details about reading and writing contents of cells and ranges see {README_ranges}[https://github.com/Thomas008/robust_excel_ole/blob/master/README/README_ranges.rdoc]
 
 === Development
 

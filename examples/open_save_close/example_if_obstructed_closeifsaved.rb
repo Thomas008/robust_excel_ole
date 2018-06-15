@@ -7,7 +7,7 @@ require "fileutils"
 
 include RobustExcelOle
 
-Excel.close_all
+Excel.kill_all
 begin
   dir = create_tmpdir
   file_name = dir + 'workbook.xls'
@@ -31,6 +31,6 @@ begin
   puts "the old book was saved" unless new_first_cell == first_cell 
   new_book.close                                 # close the books                  
 ensure
-  Excel.close_all                         # close all workbooks, quit Excel application
+  Excel.kill_all                         # close all workbooks, quit Excel application
   rm_tmp(dir)
 end

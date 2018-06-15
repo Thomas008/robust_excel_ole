@@ -7,7 +7,7 @@ require "fileutils"
 
 include RobustExcelOle
 
-Excel.close_all
+Excel.kill_all
 begin
   dir = create_tmpdir
   file_name = dir + 'workbook.xls' 
@@ -19,7 +19,7 @@ begin
   sleep 1
   begin
     new_book = Book.open(file_name, :if_unsaved => :alert) # open another book with the same file name 
-  rescue ExcelUserCanceled => msg                          # if the user chooses not open the book,
+  rescue WorkbookREOError => msg                          # if the user chooses not open the book,
   	puts "#{msg.message}"                                  #   an exeptions is raised
   end
   puts "new book has opened" if new_book
@@ -39,6 +39,6 @@ begin
   	new_book.close                                         # close the new book, if the user chose to open it
   end
 ensure                                                              
-  Excel.close_all                                       # close ALL workbooks, quit Excel application
+  Excel.kill_all                                       # close ALL workbooks, quit Excel application
   rm_tmp(dir)
 end

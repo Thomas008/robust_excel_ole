@@ -1690,6 +1690,9 @@ describe Book do
         new_book.ReadOnly.should be_true
         new_book.Saved.should be_true
         new_book.should == book
+        new_sheet = new_book.sheet(1)
+        new_cell_value = new_sheet[1,1].value
+        new_cell_value.should_not == old_cell_value
       end
 
       it "should open the second book in another Excel as writable" do

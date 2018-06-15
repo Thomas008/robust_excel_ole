@@ -279,13 +279,19 @@ and set another value to that range.
 
 For more details about reading and writing contents of cells and ranges see {README_ranges}[https://github.com/Thomas008/robust_excel_ole/blob/master/README/README_ranges.rdoc]
 
-=== Development
+=== Examples
+
+You can run the examples included in the directory +examples+, e.g.
+
+  ruby examples\open_save_close\example_unobtrusively.rb
+
+== Development
 
 This project RobustExcelOle is work in progress. We are happy to implement further features. So we invite you to send your pull requests. We then strive to realize them as soon as possible. If you have any feedback, or use cases that RobustExcelOle does not satisfy, please let us know.
 
 RobustExcelOle is being tested for Excel 2010. It can be used for any recent Excel Office version.
 
-The tests of RobustExcelOle are optimised with help of the rcov tool.  
+The tests of RobustExcelOle are optimised with help of the rcov tool. 
 
 == Support
 

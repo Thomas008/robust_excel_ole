@@ -153,7 +153,7 @@ module RobustExcelOle
       else
         file = file_or_workbook
         ensure_excel(options)
-        ensure_workbook(file, options)        
+        ensure_workbook(file, options)
       end
       bookstore.store(self)
       @modified_cells = []

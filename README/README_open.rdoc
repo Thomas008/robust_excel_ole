@@ -155,9 +155,10 @@ One option chooses the Excel instance in which a closed workbook is opened. The 
 
 Options are the following:
 
-+:current+ (or +:active, or +:reuse+:): (default) : open a closed workbook in the Excel instance where it was opened most recently, if such an Excel instance exists, otherwise open it in the current (first opened) Excel instance
++:if_closed+:: +:current+ (or +:active, or +:reuse+:): (default) : open a closed workbook in the Excel instance where it was opened most recently, if such an Excel instance exists, otherwise open it in the current (first opened) Excel instance
                
 +:read_only+:: Open the workbook unobtrusively for reading only  (default: false)
+
 +:readonly_excel+::  if the workbook is opened only as ReadOnly and shall be modified, then
                      true:  close it and open it as writable in the excel instance where it was open so far
                      false (default) open it as writable in another running excel instance, if it exists, otherwise open in a new excel instance

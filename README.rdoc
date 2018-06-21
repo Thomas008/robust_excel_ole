@@ -5,8 +5,7 @@ RobustExcelOle deals with various cases of Excel and user behaviour,
 and implements workarounds for some Excel bugs.
 The gem provides convenient methods for common tasks, and facilitates referenced libraries.
 
-RobustExcelOle works by sending VBA methods via Win32OLE.
-It implements a management system and keeps track of Excel workbooks and Excel instances.
+RobustExcelOle works by sending VBA methods via Win32OLE. It keeps track of Excel workbooks and Excel instances.
 
 == Requirements
 
@@ -287,7 +286,7 @@ You can run the examples included in the directory +examples+, e.g.
 
 == Development
 
-This project RobustExcelOle is work in progress. We are happy to implement further features. So we invite you to send your pull requests. We then strive to realize them as soon as possible. If you have any feedback, or use cases that RobustExcelOle does not satisfy, please let us know.
+This project RobustExcelOle is work in progress. We are happy to implement further features. So we invite you to send your pull requests. We then strive to realize them as soon as possible. If you have any feedback, or you find use cases that RobustExcelOle does not satisfy, please let us know.
 
 RobustExcelOle is being tested for Excel 2010. It can be used for any recent Excel Office version.
 

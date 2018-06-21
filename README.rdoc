@@ -1,6 +1,6 @@
 = RobustExcelOle
 
-This ruby gem automates reading, modifying, and writing Excel workbooks. It is designed to support several kinds of concurrency of both simultaneously running Excel instances and simultanously happening user interactions.
+This library automates reading, modifying, and writing Excel workbooks. It is designed to support several kinds of concurrency of both simultaneously running Excel instances and simultanously happening user interactions.
 RobustExcelOle deals with various cases of Excel and user behaviour,
 and implements workarounds for some Excel bugs.
 The gem provides convenient methods for common tasks, and facilitates referenced libraries.

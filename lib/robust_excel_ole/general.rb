@@ -107,13 +107,20 @@ end
 
 module MethodHelpers
 
-  def respond_to?(meth_name, include_private = false)  # :nodoc: #    
-    raise ObjectNotAlive, "respond_to?: #{self.class.name} not alive" unless alive?
-    super
+  def respond_to?(meth_name, include_private = false)  # :nodoc: #  
+    if alive?
+      methods.include?(meth_name.to_s)
+    else
+      super
+    end
   end
 
   def methods   # :nodoc: # 
-    (super.map{|m| m.to_s} + ole_object.ole_methods.map{|m| m.to_s}).uniq.select{|m| m =~ /^(?!\_)/}.sort
+    if alive?
+      (super.map{|m| m.to_s} + ole_object.ole_methods.map{|m| m.to_s}).uniq.select{|m| m =~ /^(?!\_)/}.sort
+    else
+      super
+    end
   end
 
 end

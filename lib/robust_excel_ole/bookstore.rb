@@ -32,12 +32,12 @@ module RobustExcelOle
       @filename2books[filename_key] = weakref_books
       weakref_books.each do |wr_book|
         if (not wr_book.weakref_alive?)
-          trace "warn: this should never happen"
+          #trace "warn: this should never happen"
           begin 
             @filename2books[filename_key].delete(wr_book)
           rescue 
-            trace "#{$!.message}"
-            trace "Warning: deleting dead reference failed: file: #{filename.inspect}"
+            #trace "#{$!.message}"
+            #trace "Warning: deleting dead reference failed: file: #{filename.inspect}"
           end
         else
           book = wr_book.__getobj__
@@ -104,19 +104,19 @@ module RobustExcelOle
 
     # prints the book store
     def print             # :nodoc: #
-      trace "@filename2books:"
+      #trace "@filename2books:"
       if @filename2books
         @filename2books.each do |filename,books|
-          trace " filename: #{filename}"
-          trace " books:"
+          #trace " filename: #{filename}"
+          #trace " books:"
           if books.empty? 
-            trace " []" 
+            #trace " []" 
           else
             books.each do |book|
               if book.weakref_alive?
-                trace "#{book}"
+                #trace "#{book}"
               else # this should never happen
-                trace "weakref not alive"
+                #trace "weakref not alive"
               end
             end
           end

@@ -152,18 +152,17 @@ A Workbook object can be created when giving an Excel workbook.
 
 The method +unobtrusively+ enables the user to read or modify a workbook, no matter if it is open in some Excel instance, if it is saved or unsaved, and if it is writable or not. When opening a workbook unobtrusively, its status remains unchanged. This status includes, whether the workbook is opened or closed, saved or unsaved, readonly or writable, visible or invisible, calculation mode is automatic or manual, and checking compatibility is turned on or off. 
 
-One option chooses the Excel instance in which a closed workbook is opened. The option +:current+ (or +:active+, or +:reuse) (default) indicates that the closed workbook is opened in the Excel instance of the workbook, if it exists, or that another Excel instance is reused.  Moreover, an Excel instance can be given directly where to open the closed workbook.
-
 Options are the following:
 
 +:if_closed+:: +:current+ (or +:active, or +:reuse+:): (default) : open a closed workbook in the Excel instance where it was opened most recently, if such an Excel instance exists, otherwise open it in the current (first opened) Excel instance
                
-+:read_only+:: Open the workbook unobtrusively for reading only  (default: false)
++:read_only+:: Whether the workbook shall be forced to be open in ReadOnly mode (default: +false+)
++:writable+::  Whether changes in the workbook shall be saved (default: +true+)
 
-+:readonly_excel+::  if the workbook is opened only as ReadOnly and shall be modified, then
-                     true:  close it and open it as writable in the excel instance where it was open so far
-                     false (default) open it as writable in another running excel instance, if it exists, otherwise open in a new excel instance
-+:keep_open+::          let the workbook open after unobtrusively opening (default: false)
++:readonly_excel+::  Whether some necessary change of the ReadOnly mode of the workbook shall be done in the Excel instance where it was open so far (+true+, default) or in another (already running or new) Excel instance (+false+)
+
++:keep_open+::       Whether the workbook shall be open after unobtrusively opening (default: false)
+
 
   Workbook.unobtrusively('workbook.xls') do |book|
     # some modification

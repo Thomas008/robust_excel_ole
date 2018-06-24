@@ -1,12 +1,18 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.1.5] - 2018-10-7
+
+### Added
+  - Book#unobtrusively: 
+    option :writable
+
+### Added
+
 ## [1.1.4] - 2018-10-6
 
 ### Added
   - Book#open: for the options: simplifiaction: :force can be left out
-
-### Added
   - Excel#for_this_instance
   - Excel#for_all_workbooks
   - Book#for_this_workbooks

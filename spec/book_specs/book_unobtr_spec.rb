@@ -52,6 +52,688 @@ describe Book do
       expect{unobtrusively_ok?}.to_not raise_error
     end
 
+    describe "writability" do
+
+      context "with no book" do
+
+        it "should open as read-write by default" do
+          Book.unobtrusively(@simple_file1) do |book|
+            @old_value = book.sheet(1)[1,1].Value
+            puts "old_value: #{@old_value}"
+            book.ReadOnly.should be_false
+            puts "value: #{@old_value}"
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.Saved.should be_false
+          end          
+          Excel.current.Workbooks.Count.should == 0
+          b1 = Book.open(@simple_file1)
+          b1.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should open as read-write" do
+          Book.unobtrusively(@simple_file, :read_only => false) do |book|
+            book.ReadOnly.should be_false
+            @old_value = book.sheet(1)[1,1].Value
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.Saved.should be_false
+          end
+          Excel.current.Workbooks.Count.should == 0
+          b1 = Book.open(@simple_file1)
+          b1.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should open as read-write" do
+          Book.unobtrusively(@simple_file, :writable => true) do |book|
+            book.ReadOnly.should be_false
+            @old_value = book.sheet(1)[1,1].Value
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.Saved.should be_false
+          end
+          Excel.current.Workbooks.Count.should == 0
+          b1 = Book.open(@simple_file1)
+          b1.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should open as read-write" do
+          Book.unobtrusively(@simple_file, :writable => true, :read_only => false) do |book|
+            book.ReadOnly.should be_false
+            @old_value = book.sheet(1)[1,1].Value
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.Saved.should be_false
+          end
+          Excel.current.Workbooks.Count.should == 0
+          b1 = Book.open(@simple_file1)
+          b1.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should force to read-only" do
+          Book.unobtrusively(@simple_file, :read_only => true) do |book|            
+            book.ReadOnly.should be_true
+            @old_value = book.sheet(1)[1,1].Value
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.Saved.should be_false
+          end
+          Excel.current.Workbooks.Count.should == 0
+          b1 = Book.open(@simple_file1)
+          b1.sheet(1)[1,1].Value.should == @old_value
+        end
+
+        it "should open not writable" do
+          Book.unobtrusively(@simple_file, :writable => false) do |book|
+            book.ReadOnly.should be_false
+            @old_value = book.sheet(1)[1,1].Value
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.Saved.should be_false            
+          end
+          Excel.current.Workbooks.Count.should == 0          
+          b1 = Book.open(@simple_file1)
+          b1.sheet(1)[1,1].Value.should == @old_value
+        end
+
+        it "should raise error if both options contradict" do
+          expect{
+            Book.unobtrusively(@simple_file, :writable => false, :read_only => false) {|book|}
+          }.to raise_error(OptionInvalid, "contradicting options: :writable=false, :read_only=false")
+          expect{
+            Book.unobtrusively(@simple_file, :writable => true, :read_only => true) {|book|}
+          }.to raise_error(OptionInvalid, "contradicting options: :writable=true, :read_only=true")
+        end
+      end
+  
+      context "with open writable book" do
+
+        before do
+           @book = Book.open(@simple_file1)
+           @old_value = @book.sheet(1)[1,1].Value
+        end
+
+        it "should open as read-write by default" do
+          Book.unobtrusively(@simple_file1) do |book|
+            book.Readonly.should be_false
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.close
+          book2 = Book.open(@simple_file1)
+          book2.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should open as read-write" do
+          Book.unobtrusively(@simple_file1, :writable => true) do |book|
+            book.Readonly.should be_false
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.close
+          book2 = Book.open(@simple_file1)
+          book2.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should open as read-write" do
+          Book.unobtrusively(@simple_file1, :read_only => false) do |book|
+            book.Readonly.should be_false
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.close
+          book2 = Book.open(@simple_file1)
+          book2.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should open as read-write" do          
+          Book.unobtrusively(@simple_file1, :writable => true, :read_only => false) do |book|
+            book.Readonly.should be_false
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.close
+          book2 = Book.open(@simple_file1)
+          book2.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should force to read-only" do
+          Book.unobtrusively(@simple_file1, :read_only => true) do |book|            
+            book.ReadOnly.should be_true
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+          end
+          @book.close
+          book2 = Book.open(@simple_file1)
+          book2.sheet(1)[1,1].Value.should == @old_value
+        end
+
+        it "should open not writable" do
+          Book.unobtrusively(@simple_file1, :writable => false) do |book|
+            book.ReadOnly.should be_false
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.close
+          book2 = Book.open(@simple_file1)
+          book2.sheet(1)[1,1].Value.should == @old_value
+        end
+      end
+
+      context "with open read-only book" do
+
+        before do
+          @book = Book.open(@simple_file1, :read_only => true)
+          @old_value = @book.sheet(1)[1,1].Value 
+        end
+
+        it "should open as read-write by default" do
+          Book.unobtrusively(@simple_file1) do |book|
+            book.Readonly.should be_false
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.close
+          book2 = Book.open(@simple_file1)
+          book2.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should open as read-write by default with readonly_excel false" do
+          Book.unobtrusively(@simple_file1, :readonly_excel => false) do |book|
+            book.Readonly.should be_false
+            #book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should_not == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.close
+          book2 = Book.open(@simple_file1)
+          book2.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should open as read-write by default with readonly_excel true" do
+          Book.unobtrusively(@simple_file1, :readonly_excel => true) do |book|
+            book.Readonly.should be_false
+            book.filename.should == @book.filename
+            book.should == @book
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.close
+          book2 = Book.open(@simple_file1)
+          book2.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should open as read-write" do
+          Book.unobtrusively(@simple_file1, :writable => true) do |book|
+            book.Readonly.should be_false
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.close
+          book2 = Book.open(@simple_file1)
+          book2.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should open as read-write" do
+          Book.unobtrusively(@simple_file1, :read_only => false) do |book|
+            book.Readonly.should be_false
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.close
+          book2 = Book.open(@simple_file1)
+          book2.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should open as read-write" do
+          Book.unobtrusively(@simple_file1, :writable => true, :read_only => false) do |book|
+            book.Readonly.should be_false
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.close
+          book2 = Book.open(@simple_file1)
+          book2.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should open as read-write" do
+          Book.unobtrusively(@simple_file1, :writable => true) do |book|
+            book.Readonly.should be_false
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.close
+          book2 = Book.open(@simple_file1)
+          book2.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should open as read-write" do
+          Book.unobtrusively(@simple_file1, :read_only => false) do |book|
+            book.Readonly.should be_false
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.close
+          book2 = Book.open(@simple_file1)
+          book2.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should open as read-write" do
+          Book.unobtrusively(@simple_file1, :writable => true, :read_only => false) do |book|
+            book.Readonly.should be_false
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.close
+          book2 = Book.open(@simple_file1)
+          book2.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should force to read-only" do
+          Book.unobtrusively(@simple_file1, :read_only => true) do |book|            
+            book.ReadOnly.should be_true
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+          end
+          @book.close
+          book2 = Book.open(@simple_file1)
+          book2.sheet(1)[1,1].Value.should == @old_value
+        end
+
+        it "should open not writable" do
+          Book.unobtrusively(@simple_file1, :writable => false) do |book|
+            book.ReadOnly.should be_true
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.close
+          book2 = Book.open(@simple_file1)
+          book2.sheet(1)[1,1].Value.should == @old_value
+        end
+      end
+
+      context "with open unsaved writable book" do
+
+        before do
+           @book = Book.open(@simple_file1)           
+           @book.sheet(1)[1,1] = @book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"           
+           @old_value = @book.sheet(1)[1,1].Value
+        end
+
+        it "should open as read-write by default" do
+          Book.unobtrusively(@simple_file1) do |book|
+            book.Readonly.should be_false
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.Saved.should be_false
+          @book.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should open as read-write" do
+          Book.unobtrusively(@simple_file1, :writable => true) do |book|
+            book.Readonly.should be_false
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.Saved.should be_false
+          @book.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should open as read-write" do
+          Book.unobtrusively(@simple_file1, :read_only => false) do |book|
+            book.Readonly.should be_false
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.Saved.should be_false
+          @book.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should open as read-write" do          
+          Book.unobtrusively(@simple_file1, :writable => true, :read_only => false) do |book|
+            book.Readonly.should be_false
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.Saved.should be_false
+          @book.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should force to read-only" do
+          Book.unobtrusively(@simple_file1, :read_only => true) do |book|            
+            book.ReadOnly.should be_true
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+          end
+          @book.Saved.should be_false
+          @book.sheet(1)[1,1].Value.should == @old_value
+        end
+
+        it "should open not writable" do
+          Book.unobtrusively(@simple_file1, :writable => false) do |book|
+            book.ReadOnly.should be_false
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.Saved.should be_false
+          @book.sheet(1)[1,1].Value.should_not == @old_value
+          @book.close(:if_unsaved => :forget)
+          book2 = Book.open(@simple_file1)
+          book2.sheet(1)[1,1].Value.should_not == @old_value
+        end
+      end
+
+      context "with open unsaved read-only book" do
+
+        before do
+          @book = Book.open(@simple_file1, :read_only => true)
+          @old_value = @book.sheet(1)[1,1].Value
+          puts "@old_value: #{@old_value}"
+          @book.sheet(1)[1,1] = @book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          @new_value = @book.sheet(1)[1,1].Value
+          puts "@new_value: #{@old_value}"
+        end
+
+        it "should open as read-write by default" do
+          Book.unobtrusively(@simple_file1) do |book|
+            book.Readonly.should be_false
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1].Value.should == @old_value
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.Saved.should be_false
+          @book.ReadOnly.should be_true
+          @book.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should open as read-write by default with readonly_excel false" do
+          Book.unobtrusively(@simple_file1, :readonly_excel => false) do |book|
+            book.Readonly.should be_false
+            #book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should_not == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.Saved.should be_false
+          @book.ReadOnly.should be_true
+          @book.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+
+        it "should open as read-write by default with readonly_excel true" do
+          Book.unobtrusively(@simple_file1, :readonly_excel => true) do |book|
+            book.Readonly.should be_false
+            book.filename.should == @book.filename
+            book.should == @book
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.Saved.should be_false
+          @book.ReadOnly.should be_true
+          @book.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should open as read-write" do
+          Book.unobtrusively(@simple_file1, :writable => true) do |book|
+            book.Readonly.should be_false
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.Saved.should be_false
+          @book.ReadOnly.should be_true
+          @book.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should open as read-write" do
+          Book.unobtrusively(@simple_file1, :read_only => false) do |book|
+            book.Readonly.should be_false
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+           @book.Saved.should be_false
+           @book.ReadOnly.should be_true
+           @book.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should open as read-write" do
+          Book.unobtrusively(@simple_file1, :writable => true, :read_only => false) do |book|
+            book.Readonly.should be_false
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.Saved.should be_false
+          @book.ReadOnly.should be_true
+          @book.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should open as read-write" do
+          Book.unobtrusively(@simple_file1, :writable => true) do |book|
+            book.Readonly.should be_false
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.Saved.should be_false
+          @book.ReadOnly.should be_true
+          @book.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should open as read-write" do
+          Book.unobtrusively(@simple_file1, :read_only => false) do |book|
+            book.Readonly.should be_false
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.Saved.should be_false
+          @book.ReadOnly.should be_true
+          @book.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should open as read-write" do
+          Book.unobtrusively(@simple_file1, :writable => true, :read_only => false) do |book|
+            book.Readonly.should be_false
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.Saved.should be_false
+          @book.ReadOnly.should be_true
+          @book.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should force to read-only" do
+          Book.unobtrusively(@simple_file1, :read_only => true) do |book|            
+            book.ReadOnly.should be_true
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+          end
+          @book.Saved.should be_false
+          @book.ReadOnly.should be_true
+          @book.sheet(1)[1,1].Value.should == @old_value
+        end
+
+        it "should open not writable" do
+          Book.unobtrusively(@simple_file1, :writable => false) do |book|
+            book.ReadOnly.should be_true
+            book.should == @book
+            book.filename.should == @book.filename
+            book.excel.should == @book.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          end
+          @book.Saved.should be_false
+          @book.ReadOnly.should be_true
+          @book.sheet(1)[1,1].Value.should == @old_value
+        end
+      end
+
+    end
+
+    describe "intertweened blocks" do
+
+      context "with no book" do
+      
+        it "should not close the book in the outer block" do
+          Book.unobtrusively(@simple_file1) do |book|
+            Book.unobtrusively(@simple_file1) do |book2|
+              book2.should == book
+            end
+            book.should be_alive
+            Book.unobtrusively(@simple_file1) do |book3|
+              book3.should == book
+            end
+            book.should be_alive
+          end
+        end
+
+        it "should write in the outer and inner block" do
+          Book.unobtrusively(@simple_file1) do |book|
+            @old_value = book.sheet(1)[1,1].Value
+            book.ReadOnly.should be_false
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+            book.Saved.should be_false
+            book.sheet(1)[1,1].Value.should_not == @old_value
+            Book.unobtrusively(@simple_file1) do |book2|
+              book2.should == book
+              book2.ReadOnly.should be_false
+              book2.Saved.should be_false
+              book2.sheet(1)[1,1].Value.should_not == @old_value
+              book2.sheet(1)[1,1] = book2.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+              book2.sheet(1)[1,1].Value.should == @old_value
+            end
+            book.should be_alive
+            book.Saved.should be_false
+            book.sheet(1)[1,1].Value.should == @old_value            
+          end
+          book = Book.open(@simple_file1)
+          book.sheet(1)[1,1].Value.should == @old_value 
+        end
+
+        it "should write in the outer and not in the inner block" do
+          Book.unobtrusively(@simple_file1) do |book|
+            @old_value = book.sheet(1)[1,1].Value
+            book.ReadOnly.should be_false
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+            book.Saved.should be_false
+            book.sheet(1)[1,1].Value.should_not == @old_value
+            Book.unobtrusively(@simple_file1, :read_only => true) do |book2|
+              book2.should == book
+              book2.ReadOnly.should be_true
+              #book2.Saved.should be_false
+              book2.sheet(1)[1,1].Value.should_not == @old_value
+              book2.sheet(1)[1,1] = book2.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+              book2.sheet(1)[1,1].Value.should == @old_value
+            end
+            book.should be_alive
+            book.Saved.should be_false
+            book.sheet(1)[1,1].Value.should_not == @old_value            
+          end
+          book = Book.open(@simple_file1)
+          book.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+        it "should write in the outer and not in the inner block" do
+          Book.unobtrusively(@simple_file1) do |book|
+            @old_value = book.sheet(1)[1,1].Value
+            book.ReadOnly.should be_false
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+            book.Saved.should be_false
+            book.sheet(1)[1,1].Value.should_not == @old_value
+            Book.unobtrusively(@simple_file1, :writable => false) do |book2|
+              book2.should == book
+              book2.ReadOnly.should be_false
+              book2.Saved.should be_false
+              book2.sheet(1)[1,1].Value.should_not == @old_value
+              book2.sheet(1)[1,1] = book2.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+              book2.sheet(1)[1,1].Value.should == @old_value
+            end
+            book.should be_alive
+            book.Saved.should be_false
+            book.sheet(1)[1,1].Value.should == @old_value            
+          end
+          book = Book.open(@simple_file1)
+          book.sheet(1)[1,1].Value.should == @old_value
+        end
+
+        it "should be read-only in the outer and write in the inner block" do
+          Book.unobtrusively(@simple_file1, :read_only => true) do |book|
+            @old_value = book.sheet(1)[1,1].Value
+            book.ReadOnly.should be_true
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+            book.Saved.should be_false
+            book.sheet(1)[1,1].Value.should_not == @old_value
+            Book.unobtrusively(@simple_file1) do |book2|
+              book2.should == book
+              book2.ReadOnly.should be_false
+              book2.Saved.should be_true
+              book2.sheet(1)[1,1].Value.should == @old_value
+              book2.sheet(1)[1,1] = book2.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+              book2.sheet(1)[1,1].Value.should_not == @old_value
+            end
+            book.should be_alive
+            book.Saved.should be_false
+            book.ReadOnly.should be_true
+            book.sheet(1)[1,1].Value.should_not == @old_value            
+          end
+          book = Book.open(@simple_file1)
+          book.sheet(1)[1,1].Value.should_not == @old_value
+        end
+
+      end
+
+    end
+
     describe "unchanging" do
 
       context "with openess" do
@@ -75,18 +757,18 @@ describe Book do
 
       context "with writability" do
 
-        it "should remain writable" do
-          book1 = Book.open(@simple_file1, :read_only => false)
-          Book.unobtrusively(@simple_file1) do |book|
-          end
-          book1.ReadOnly.should be_false
-        end
-
         it "should remain read_only" do
           book1 = Book.open(@simple_file1, :read_only => true)
           Book.unobtrusively(@simple_file1) do |book|
           end
           book1.ReadOnly.should be_true
+        end
+
+        it "should remain writable" do
+          book1 = Book.open(@simple_file1, :read_only => false)
+          Book.unobtrusively(@simple_file1) do |book|
+          end
+          book1.ReadOnly.should be_false
         end
 
         it "should write and remain read_only and open the workbook in another Excel" do
@@ -198,53 +880,55 @@ describe Book do
       it "should open unobtrusively in a new Excel" do
         expect{ unobtrusively_ok? }.to_not raise_error
       end
-          
-      context "with two running excel instances" do
-        before :all do
-          Excel.close_all
-        end
+    end
 
-        before do
-          @excel1 = Excel.new(:reuse => false)
-          @excel2 = Excel.new(:reuse => false)
-        end
+    context "with two running excel instances" do
+      
+      before :all do
+        Excel.close_all
+      end
 
-        after do
-          Excel.kill_all
-        end
+      before do
+        @excel1 = Excel.new(:reuse => false)
+        @excel2 = Excel.new(:reuse => false)
+      end
+
+      after do
+        Excel.kill_all
+      end
 
       it "should open unobtrusively in the first opened Excel" do
         Book.unobtrusively(@simple_file) do |book|
-            book.excel.should     == @excel1
-            book.excel.should_not == @excel2
-          end
+          book.excel.should     == @excel1
+          book.excel.should_not == @excel2
+        end
       end
 
       it "should open unobtrusively in a new Excel" do
         Book.unobtrusively(@simple_file, :if_closed => :new) do |book|
           book.should be_a Book
           book.should be_alive
-            book.excel.should_not == @excel1
-            book.excel.should_not == @excel2
-          end
+          book.excel.should_not == @excel1
+          book.excel.should_not == @excel2
+        end
       end
 
       it "should open unobtrusively in a given Excel" do
         Book.unobtrusively(@simple_file, :if_closed => @excel2) do |book|
           book.should be_a Book
           book.should be_alive
-            book.excel.should_not == @excel1
-            book.excel.should     == @excel2
+          book.excel.should_not == @excel1
+          book.excel.should     == @excel2
         end
       end
-  
+
       it "should raise an error if the excel instance is not alive" do
-        Excel.close_all
+        Excel.kill_all
+        sleep 2
         expect{
           Book.unobtrusively(@simple_file, :if_closed => @excel2) do |book|
           end
-        }.to_not raise_error
-        end
+        }.to raise_error
       end
 
       it "should raise an error if the option is invalid" do
@@ -325,13 +1009,13 @@ describe Book do
         @book.should be_alive
         @book.Saved.should be_false
         @book.close(:if_unsaved => :forget)
-        @book2 = Book.open(@simple_file)
+        @book2 = Book.open(@simple_file1)
         sheet2 = @book2.sheet(1)
         sheet2[1,1].value.should_not == old_cell_value
       end
 
       it "should modify unobtrusively the second, writable book" do
-        @book2 = Book.open(@simple_file, :force_excel => :new)
+        @book2 = Book.open(@simple_file1, :force_excel => :new)
         @book.ReadOnly.should be_false
         @book2.ReadOnly.should be_true
         sheet = @book2.sheet(1)
@@ -346,8 +1030,8 @@ describe Book do
         sheet2 = new_book.sheet(1)
         sheet2[1,1].value.should_not == old_cell_value
       end    
-
     end
+
 
     context "with a closed book" do
       
@@ -608,7 +1292,7 @@ describe Book do
       end
 
       it "should open unobtrusively by default the writable book" do
-        book2 = Book.open(@simple_file, :force_excel => :new, :read_only => false)
+        book2 = Book.open(@simple_file1, :force_excel => :new, :read_only => false)
         @book.ReadOnly.should be_true
         book2.Readonly.should be_false
         sheet = @book.sheet(1)
@@ -1037,3 +1721,4 @@ describe Book do
   end
   
 end
+

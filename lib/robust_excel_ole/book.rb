@@ -90,19 +90,19 @@ module RobustExcelOle
                  (not (book.alive? && (not book.saved) && (not options[:if_unsaved] == :accept))))
               book.options = options
               book.ensure_excel(options) # unless book.excel.alive?
-              # if the ReadOnly status shall be changed, close and reopen it; save before, if it is writable
-              if book.alive? and (((not book.writable) and (not options[:read_only])) or
-                  (book.writable and options[:read_only]))
-                book.save if book.writable  
-                book.close(:if_unsaved => :forget)
-              end                
-              # reopens the book
-              book.ensure_workbook(file,options) unless book.alive?
-              book.visible = options[:force][:visible] unless options[:force][:visible].nil?
-              book.CheckCompatibility = options[:check_compatibility] unless options[:check_compatibility].nil?
-              book.excel.calculation = options[:calculation] unless options[:calculation].nil?
-              return book
             end
+            # if the ReadOnly status shall be changed, save, close and reopen it
+            if book.alive? and (((not book.writable) and (options[:read_only] == false)) or
+                (book.writable and options[:read_only]))
+              book.save if book.writable && (not book.saved)
+              book.close(:if_unsaved => :forget)
+            end                
+            # reopens the book
+            book.ensure_workbook(file,options) unless book.alive?
+            book.visible = options[:force][:visible] unless options[:force][:visible].nil?
+            book.CheckCompatibility = options[:check_compatibility] unless options[:check_compatibility].nil?
+            book.excel.calculation = options[:calculation] unless options[:calculation].nil?
+            return book
           end
         end
         new(file, options, &block)
@@ -228,27 +228,6 @@ module RobustExcelOle
     end
 
   public
-
-=begin
-    # work in progress#
-    def self.open_in_current_excel(file, opts = { }) # :nodoc: # 
-      options = DEFAULT_OPEN_OPTS.merge(opts)
-      filename = General::absolute_path(file)
-      ole_workbook = WIN32OLE.connect(filename)
-      workbook = Book.new(ole_workbook)
-      workbook.visible = options[:force][:visible] unless options[:force][:visible].nil?
-      update_links_opt =
-            case options[:update_links]
-            when :alert; RobustExcelOle::XlUpdateLinksUserSetting
-            when :never; RobustExcelOle::XlUpdateLinksNever
-            when :always; RobustExcelOle::XlUpdateLinksAlways
-            else RobustExcelOle::XlUpdateLinksNever
-          end
-      workbook.UpdateLinks = update_links_opt
-      workbook.CheckCompatibility = options[:check_compatibility]
-      workbook
-    end
-=end
 
     def ensure_excel(options)   # :nodoc: #
       if @excel && @excel.alive?
@@ -470,7 +449,7 @@ module RobustExcelOle
     def self.for_reading(*args, &block)
       args = args.dup
       opts = args.last.is_a?(Hash) ? args.pop : {}
-      opts = {:read_only => true}.merge(opts)
+      opts = {:writable => false}.merge(opts)
       args.push opts
       unobtrusively(*args, &block)
     end
@@ -478,7 +457,7 @@ module RobustExcelOle
     def self.for_modifying(*args, &block)
       args = args.dup
       opts = args.last.is_a?(Hash) ? args.pop : {}
-      opts = {:read_only => false}.merge(opts)
+      opts = {:writable => true}.merge(opts)
       args.push opts
       unobtrusively(*args, &block)
     end
@@ -488,7 +467,8 @@ module RobustExcelOle
     # @param [String] file        the file name
     # @param [Hash]   opts        the options
     # @option opts [Variant] :if_closed  :current (default), :new or an Excel instance
-    # @option opts [Boolean] :read_only whether the workbook is opened for read-only
+    # @option opts [Boolean] :read_only true/false, open the workbook in read-only/read-write modus (save changes)
+    # @option opts [Boolean] :writable  true/false changes of the workbook shall be saved/not saved                                  
     # @option opts [Boolean] :readonly_excel behaviour when workbook is opened read-only and shall be modified
     #               true:  closes it and open it as writable in the Excel instance where it was open so far
     #               false (default)  opens it as writable in another running excel instance, if it exists,
@@ -498,11 +478,16 @@ module RobustExcelOle
 
     # state = [:open, :saved, :writable, :visible, :calculation, :check_compatibility]
     def self.unobtrusively(file, opts = { }, &block) 
-      options = {:if_closed => :current, 
-                 :read_only => false,
-                 :readonly_excel => false,
-                 :keep_open => false}.merge(opts)
-      book = bookstore.fetch(file, :prefer_writable => (not options[:read_only]))
+      opts = {:if_closed => :current,
+              :readonly_excel => true,
+              :keep_open => false}.merge(opts)
+      if (opts[:writable]==true and opts[:read_only]==true) or 
+         (opts[:writable]==false and opts[:read_only]==false)
+        raise OptionInvalid,
+          "contradicting options: :writable=#{opts[:writable].inspect}, :read_only=#{opts[:read_only].inspect}"
+      end
+      write_it = (not (opts[:writable]==false or opts[:read_only]==true))
+      book = bookstore.fetch(file, :prefer_writable => (not opts[:read_only]))
       was_open = book && book.alive?
       if was_open
         was_saved = book.saved
@@ -511,36 +496,34 @@ module RobustExcelOle
         was_calculation = book.calculation
         was_check_compatibility = book.check_compatibility
       end     
-      begin 
+      change_readonly = (was_writable==false && write_it) || (was_writable && opts[:read_only]==true) 
+      begin
         book = 
           if was_open 
-            if (not was_writable) && (not options[:read_only])
-              open(file, :force => {:excel => (options[:readonly_excel] ? book.excel : :new)}, :read_only => false)
+            if change_readonly  
+              open(file, :force => {:excel => (opts[:readonly_excel] ? book.excel : :new)},
+                   :read_only => (not write_it))
             else
               book
             end
           else
-            open(file, :force => {:excel => options[:if_closed]}, :read_only => false)
+            open(file, :force => {:excel => opts[:if_closed]}, :read_only => (opts[:read_only]==true))
           end
         yield book
       ensure
         if book && book.alive?
-          unless book.saved
-            book.save unless options[:read_only]
-            book.Saved = true if (was_saved || (not was_open)) && options[:read_only]
-            book.Saved = false if (not was_saved) && (not options[:read_only]) && was_open
-          end
+          book.save if (not book.saved) && write_it
           if was_open
-            if (not was_writable) && (not options[:read_only]) && options[:readonly_excel]
-              book.close
-              open(file, :force => {:excel => book.excel}, :if_obstructed => :new_excel, :read_only => true)
-            end         
+            if opts[:readonly_excel] && change_readonly
+              book.close(:if_unsaved => :forget)
+              book = open(file, :force => {:excel => book.excel}, :read_only => (not was_writable)) # not write_it?
+            end    
             book.excel.calculation = was_calculation
             book.CheckCompatibility = was_check_compatibility
             #book.visible = was_visible  # not necessary
-          end          
-          
-          book.close unless was_open || options[:keep_open]
+          end
+          book.Saved = (was_saved || (not was_open))
+          book.close unless was_open || opts[:keep_open]
         end
       end
     end

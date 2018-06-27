@@ -86,8 +86,10 @@ module RobustExcelOle
                   :prefer_writable => (not options[:read_only]), 
                   :prefer_excel    => (options[:read_only] ? forced_excel : nil)) rescue nil
           if book
-            if (((not options[:force][:excel]) || (forced_excel == book.excel)) &&
-                 (not (book.alive? && (not book.saved) && (not options[:if_unsaved] == :accept))))
+            if forced_excel != book.excel && 
+              (not (book.alive? && (not book.saved) && (not options[:if_unsaved] == :accept)))
+            #if (((not options[:force][:excel]) || (forced_excel == book.excel)) &&
+            #    (not (book.alive? && (not book.saved) && (not options[:if_unsaved] == :accept))))
               book.options = options
               book.ensure_excel(options) # unless book.excel.alive?
             end
@@ -97,8 +99,7 @@ module RobustExcelOle
               book.save if book.writable && (not book.saved)
               book.close(:if_unsaved => :forget)
             end                
-            # reopens the book
-            book.ensure_workbook(file,options) unless book.alive?
+            book.ensure_workbook(file,options) #unless book.alive? ???
             book.visible = options[:force][:visible] unless options[:force][:visible].nil?
             book.CheckCompatibility = options[:check_compatibility] unless options[:check_compatibility].nil?
             book.excel.calculation = options[:calculation] unless options[:calculation].nil?
@@ -230,13 +231,15 @@ module RobustExcelOle
   public
 
     def ensure_excel(options)   # :nodoc: #
-      if @excel && @excel.alive?
+      if (excel && @excel.alive? && (options[:force].nil? or options[:force][:excel].nil? or 
+                   options[:force][:excel]==@excel))
         @excel.created = false
         return
       end
       excel_option = (options[:force].nil? or options[:force][:excel].nil?) ? options[:default][:excel] : options[:force][:excel]
       @excel = self.class.excel_of(excel_option) unless (excel_option == :current || excel_option == :new)
       @excel = excel_class.new(:reuse => (excel_option == :current)) unless (@excel && @excel.alive?)
+      @excel
     end    
 
     def ensure_workbook(file, options)     # :nodoc: #

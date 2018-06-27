@@ -59,9 +59,7 @@ describe Book do
         it "should open as read-write by default" do
           Book.unobtrusively(@simple_file1) do |book|
             @old_value = book.sheet(1)[1,1].Value
-            puts "old_value: #{@old_value}"
             book.ReadOnly.should be_false
-            puts "value: #{@old_value}"
             book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
             book.Saved.should be_false
           end          
@@ -466,10 +464,8 @@ describe Book do
         before do
           @book = Book.open(@simple_file1, :read_only => true)
           @old_value = @book.sheet(1)[1,1].Value
-          puts "@old_value: #{@old_value}"
           @book.sheet(1)[1,1] = @book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
           @new_value = @book.sheet(1)[1,1].Value
-          puts "@new_value: #{@old_value}"
         end
 
         it "should open as read-write by default" do
@@ -777,7 +773,7 @@ describe Book do
           Book.unobtrusively(@simple_file1) do |book|
             sheet = book.sheet(1)
             sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
-            book.excel.should_not == book1.excel
+            book.excel.should == book1.excel
           end
           book1.ReadOnly.should be_true
           book1.close

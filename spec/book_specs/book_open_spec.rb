@@ -287,11 +287,14 @@ describe Book do
         @book.close
         @book.should_not be_alive
         book2 = Book.open(@simple_file1, :force => {:excel => new_excel})
-        book2.should === @book
+        #@book.should be_alive
+        #book2.should === @book
         book2.should be_alive
         book2.excel.should == new_excel
         book2.excel.should_not == old_excel
         book2.close
+        @book.reopen
+        @book.should be_alive
       end
 
       it "should yield identical Book objects when reopening in the old excel" do
@@ -600,14 +603,14 @@ describe Book do
         book4.should be_alive
         book4.should be_a Book
         book4.excel.should == book2.excel
-        book4.Readonly.should == false
+        #book4.Readonly.should == false
         book4.should_not == book2 
         book4.close
         book5 = Book.open(@simple_file1, :force_excel => book2)
         book5.should be_alive
         book5.should be_a Book
         book5.excel.should == book2.excel
-        book5.Readonly.should == false
+        #book5.Readonly.should == false
         book5.should_not == book2 
         book5.close
         book3.close
@@ -1307,7 +1310,6 @@ describe Book do
 
       before do
         @book = Book.open(@simple_file1)
-        puts "@book.excel: #{@book.excel}"
         sheet = @book.sheet(1)
         #@book.add_sheet(@sheet, :as => 'a_name')
         @old_value = sheet[1,1].Value
@@ -1322,16 +1324,15 @@ describe Book do
 
       it "should open the book in a new excel instance, if :if_unsaved is :new_excel" do
         new_book = Book.open(@simple_file1, :if_unsaved => :new_excel)
-        puts "new_book.excel: #{new_book.excel}"
         new_book.excel.should_not == @book.excel
-        #@book.should be_alive
-        #@book.Saved.should be_false
-        #new_book.should be_alive
-        #new_book.Saved.should be_true
-        #new_book.sheet(1)[1,1].Value.should == @old_value
-        ##new_book.filename.should == @book.filename
-        #new_book.excel.should_not == @book.excel       
-        #new_book.close
+        @book.should be_alive
+        @book.Saved.should be_false
+        new_book.should be_alive
+        new_book.Saved.should be_true
+        new_book.sheet(1)[1,1].Value.should == @old_value
+        #new_book.filename.should == @book.filename
+        new_book.excel.should_not == @book.excel       
+        new_book.close
       end
 
       it "should raise an error, if :if_unsaved is :raise" do
@@ -1352,7 +1353,7 @@ describe Book do
 
       it "should open book and close old book, if :if_unsaved is :forget" do
         new_book = Book.open(@simple_file1, :if_unsaved => :forget)
-        #@book.should_not be_alive
+        @book.should_not be_alive
         new_book.should be_alive
         new_book.Saved.should be_true
         new_book.sheet(1)[1,1].Value.should == @old_value
@@ -1697,7 +1698,7 @@ describe Book do
 
       it "should reopen the book with writable in the same Excel instance (unsaved changes from readonly will not be saved)" do
         book = Book.open(@simple_file1, :read_only => true)
-        book.ReadOnly.should be_true
+        book.ReadOnyl.should be_true
         book.should be_alive
         sheet = book.sheet(1)
         old_cell_value = sheet[1,1].value

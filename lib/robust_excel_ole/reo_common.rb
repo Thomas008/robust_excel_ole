@@ -77,6 +77,9 @@ module RobustExcelOle
   class UnexpectedREOError < REOError              # :nodoc: #
   end
 
+  class NotImplementedREOError < REOError          # :nodoc: #
+  end
+
   class REOCommon
 
     def excel

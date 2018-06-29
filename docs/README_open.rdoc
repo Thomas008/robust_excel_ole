@@ -159,7 +159,9 @@ Options are the following:
 +:read_only+:: Whether the workbook shall be forced to be open in ReadOnly mode (default: +false+)
 +:writable+::  Whether changes in the workbook shall be saved (default: +true+)
 
-+:readonly_excel+::  Whether some necessary change of the ReadOnly mode of the workbook shall be done in the Excel instance where it was open so far (+true+, default) or in another (already running or new) Excel instance (+false+)
++:rw_change_excel+::  Excel instance in which the workbook with the
+                      changed read-write permissions shall be opened  
+                      :current (default), :new or an Excel instance                   
 
 +:keep_open+::       Whether the workbook shall be open after unobtrusively opening (default: false)
 

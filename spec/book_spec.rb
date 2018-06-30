@@ -814,7 +814,7 @@ describe Book do
         book2.Readonly.should be_true
         sheet = @book.sheet(1)
         cell_value = sheet[1,1].value
-        Book.unobtrusively(@simple_file1, :if_closed => :current) do |book|
+        Book.unobtrusively(@simple_file1, :rw_change_excel => :new, :if_closed => :current, :writable => true) do |book|
           book.should be_a Book
           book.excel.should_not == book2.excel
           book.excel.should_not == @book.excel

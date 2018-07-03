@@ -79,7 +79,7 @@ describe Book do
     it "should save to 'simple_save_file.xls'" do
       book = Book.open(@simple_file1)
       Book.save_as(@simple_file1, @simple_save_file1, :if_exists => :overwrite)
-      File.exist?(@simple_save_file1).should be true
+      File.exist?(@simple_save_file1).should be_true
     end
   end
 
@@ -122,7 +122,7 @@ describe Book do
       excel.Workbooks.Count.should == 0
       book.ole_workbook.should == nil
       book.should_not be_alive
-      #expect{ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
+      expect{ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
       new_book = Book.open(@simple_file1)
       begin
         new_book.ole_workbook.Worksheets.Count.should == sheet_count + 1
@@ -159,8 +159,8 @@ describe Book do
         book2.should be_a Book
         book2.excel.should_not == @book.excel 
         book2.should_not == @book
-        @book.Readonly.should be false
-        book2.Readonly.should be true
+        @book.Readonly.should be_false
+        book2.Readonly.should be_true
         book2.close
       end
     end
@@ -185,8 +185,8 @@ describe Book do
         new_book.filename.should == @book.filename
         new_book.excel.should == @book.excel
         new_book.should === @book
-        new_book.excel.Visible.should be true
-        new_book.excel.DisplayAlerts.should be true
+        new_book.excel.Visible.should be_true
+        new_book.excel.DisplayAlerts.should be_true
         new_book.close
       end
 
@@ -256,8 +256,8 @@ describe Book do
         book2.should be_a Book
         book2.excel.should_not == @book.excel 
         book2.should_not == @book
-        @book.Readonly.should be false
-        book2.Readonly.should be true
+        @book.Readonly.should be_false
+        book2.Readonly.should be_true
         book2.close
       end
 
@@ -274,14 +274,14 @@ describe Book do
         book4.should be_alive
         book4.should be_a Book
         book4.excel.should == book2.excel
-        book4.ReadOnly.should be true
+        book4.ReadOnly.should be_true
         book4.should == book2
         book4.close
         book5 = Book.open(@simple_file1, :force => {:excel => book2}, :read_only => true)
         book5.should be_alive
         book5.should be_a Book
         book5.excel.should == book2.excel
-        book5.ReadOnly.should be true
+        book5.ReadOnly.should be_true
         book5.should == book2
         book5.close
         book3.close
@@ -486,7 +486,7 @@ describe Book do
         book = Book.open(@simple_save_file, :if_absent => :create)
         book.should be_a Book
         book.close
-        File.exist?(@simple_save_file).should be true
+        File.exist?(@simple_save_file).should be_true
       end
 
       it "should raise an exception by default" do
@@ -501,14 +501,14 @@ describe Book do
       
       it "should reopen the book with writable (unsaved changes from readonly will not be saved)" do
         book = Book.open(@simple_file1, :read_only => true)
-        book.ReadOnly.should be true
+        book.ReadOnly.should be_true
         book.should be_alive
         sheet = book.sheet(1)
         old_cell_value = sheet[1,1].value
         sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
-        book.Saved.should be false
+        book.Saved.should be_false
         new_book = Book.open(@simple_file1, :read_only => false, :if_unsaved => :accept)
-        new_book.ReadOnly.should be false 
+        new_book.ReadOnly.should be_false 
         new_book.should be_alive
         book.should be_alive   
         new_book.should == book 
@@ -578,27 +578,27 @@ describe Book do
     it "should preserve :visible if they are not set" do
       excel1 = Excel.create(:visible => true)
       book1 = Book.open(@simple_file)
-      book1.excel.Visible.should be true
+      book1.excel.Visible.should be_true
       book1.close
     end
 
     it "should preserve :visible if they are not set" do
       excel1 = Excel.create
       book1 = Book.open(@simple_file, :visible => true)
-      book1.excel.Visible.should be true
+      book1.excel.Visible.should be_true
     end
 
     it "should preserve :visible if they are not set" do
       excel1 = Excel.create(:visible => true)
       book1 = Book.open(@different_file, :default => {:excel => :new})
-      book1.excel.Visible.should be false
+      book1.excel.Visible.should be_false
     end
 
     it "should preserve :visible if they are not set" do
       excel1 = Excel.create(:visible => true)
       excel2 = Excel.create(:visible => true)
       book1 = Book.open(@different_file, :force => {:excel => excel2})
-      book1.excel.Visible.should be true
+      book1.excel.Visible.should be_true
       book1.close
     end
 
@@ -608,11 +608,11 @@ describe Book do
         book.should be_a Book
         book.should be_alive
         book.excel.should == @book.excel
-        book.excel.Visible.should be true
+        book.excel.Visible.should be_true
       end        
       @book.should be_alive
       @book.should be_a Book
-      @book.excel.Visible.should be true
+      @book.excel.Visible.should be_true
       @book.close(:if_unsaved => :forget)
       @book2.close(:if_unsaved => :forget) rescue nil
     end
@@ -627,7 +627,7 @@ describe Book do
         sheet = book.sheet(1)
         sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
         book.should be_alive
-        book.Saved.should be false
+        book.Saved.should be_false
       end
     end
 
@@ -703,12 +703,12 @@ describe Book do
       end
 
       it "should let a saved book saved" do
-        @book.Saved.should be true
+        @book.Saved.should be_true
         @book.should be_alive
         sheet = @book.sheet(1)
         old_cell_value = sheet[1,1].value
         unobtrusively_ok?
-        @book.Saved.should be true
+        @book.Saved.should be_true
         @book.should be_alive
         sheet = @book.sheet(1)
         sheet[1,1].value.should_not == old_cell_value
@@ -718,10 +718,10 @@ describe Book do
         sheet = @book.sheet(1)
         sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
         old_cell_value = sheet[1,1].value
-        @book.Saved.should be false
+        @book.Saved.should be_false
         unobtrusively_ok?
         @book.should be_alive
-        @book.Saved.should be false
+        @book.Saved.should be_false
         @book.close(:if_unsaved => :forget)
         @book2 = Book.open(@simple_file1)
         sheet2 = @book2.sheet(1)
@@ -765,7 +765,7 @@ describe Book do
           sheet = book.sheet(1)
           cell = sheet[1,1]
           sheet[1,1] = cell.value == "foo" ? "bar" : "foo"
-          book.Saved.should be false
+          book.Saved.should be_false
         end
         @book.should be_alive
         @book.close
@@ -788,7 +788,7 @@ describe Book do
           sheet = book.sheet(1)
           cell = sheet[1,1]
           sheet[1,1] = cell.value == "foo" ? "bar" : "foo"
-          book.Saved.should be false
+          book.Saved.should be_false
         end
         @book.should_not be_alive
         new_book = Book.open(@simple_file1)
@@ -810,8 +810,8 @@ describe Book do
 
       it "should open unobtrusively the book in a new Excel such that the book is writable" do
         book2 = Book.open(@simple_file1, :force => {:excel => :new}, :read_only => true)
-        @book.ReadOnly.should be true
-        book2.Readonly.should be true
+        @book.ReadOnly.should be_true
+        book2.Readonly.should be_true
         sheet = @book.sheet(1)
         cell_value = sheet[1,1].value
         Book.unobtrusively(@simple_file1, :rw_change_excel => :new, :if_closed => :current, :writable => true) do |book|
@@ -821,10 +821,10 @@ describe Book do
           sheet = book.sheet(1)
           sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
           book.should be_alive
-          book.Saved.should be false          
+          book.Saved.should be_false          
         end  
-        @book.Saved.should be true
-        @book.ReadOnly.should be true
+        @book.Saved.should be_true
+        @book.ReadOnly.should be_true
         @book.close
         book2.close
         book3 = Book.open(@simple_file1)
@@ -869,7 +869,7 @@ describe Book do
       it "should yield the block result true" do
         result = 
           Book.unobtrusively(@simple_file) do |book| 
-            @book1.Saved.should be true
+            @book1.Saved.should be_true
           end
         result.should == true
       end
@@ -898,7 +898,7 @@ describe Book do
           sheet = book.sheet(1)
           cell = sheet[1,1]
           sheet[1,1] = cell.value == "foo" ? "bar" : "foo"
-          book.Saved.should be false
+          book.Saved.should be_false
         end
         new_book = Book.open(@simple_file1)
         sheet = new_book.sheet(1)
@@ -913,7 +913,7 @@ describe Book do
           sheet = book.sheet(1)
           cell = sheet[1,1]
           sheet[1,1] = cell.value == "foo" ? "bar" : "foo"
-          book.Saved.should be false
+          book.Saved.should be_false
         end
         new_book = Book.open(@simple_file1)
         sheet = new_book.sheet(1)
@@ -935,15 +935,15 @@ describe Book do
         Book.unobtrusively(@simple_file1, :hidden) do |book| 
           book.should be_a Book
           book.should be_alive
-          book.excel.Visible.should be false
-          book.excel.DisplayAlerts.should be false
+          book.excel.Visible.should be_false
+          book.excel.DisplayAlerts.should be_false
           hidden_excel = book.excel
         end
         Book.unobtrusively(@different_file, :hidden) do |book| 
           book.should be_a Book
           book.should be_alive
-          book.excel.Visible.should be false
-          book.excel.DisplayAlerts.should be false
+          book.excel.Visible.should be_false
+          book.excel.DisplayAlerts.should be_false
           book.excel.should == hidden_excel
         end
       end
@@ -966,11 +966,11 @@ describe Book do
         Book.for_reading(@simple_file) do |book|
           book.should be_a Book
           book.should be_alive
-          book.Saved.should be true  
+          book.Saved.should be_true  
           sheet = book.sheet(1)
           cell = sheet[1,1]
           sheet[1,1] = cell.value == "foo" ? "bar" : "foo"
-          book.Saved.should be false
+          book.Saved.should be_false
           book.excel.should == @book.excel
         end
         new_book = Book.open(@simple_file1, :visible => true)
@@ -987,7 +987,7 @@ describe Book do
           sheet[1,1] = cell.value == "foo" ? "bar" : "foo"
           book.excel.should_not == @book.excel
           book.excel.should_not == new_excel
-          book.excel.visible.should be false
+          book.excel.visible.should be_false
           book.excel.displayalerts.should == :if_visible
         end
         new_book = Book.open(@simple_file1, :visible => true)
@@ -1021,7 +1021,7 @@ describe Book do
       end
 
       it "should send Saved to workbook" do
-        @book.Saved.should be true
+        @book.Saved.should be_true
       end
     end
   end
@@ -1123,8 +1123,8 @@ describe Book do
         excel.Workbooks.Count.should == 0
         @book.ole_workbook.should == nil
         @book.should_not be_alive
-        #expect{
-         # ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
+        expect{
+          ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
         new_book = Book.open(@simple_file)
         begin
           new_book.ole_workbook.Worksheets.Count.should == @sheet_count + 1
@@ -1159,7 +1159,7 @@ describe Book do
       end
 
       it "should save to 'simple_save_file.xlsx'" do
-        File.exist?(@simple_save_file).should be true
+        File.exist?(@simple_save_file).should be_true
       end
     end
   end
@@ -1233,10 +1233,7 @@ describe Book do
         @book2.close(:if_unsaved => :forget)
         @key_sender.close
       end
-    end
-  end
 
-=begin
       it "should bring a book to focus" do
         sheet = @book.sheet(2)
         sheet.Activate
@@ -1249,8 +1246,8 @@ describe Book do
         sleep 0.2
         sheet2[3,2].Value.should == "a"
         @book.focus
-        @book.Windows(1).Visible.should be true
-        @book.Windows(@book.Name).Visible.should be true
+        @book.Windows(1).Visible.should be_true
+        @book.Windows(@book.Name).Visible.should be_true
         @key_sender.puts "{a}{enter}"
         sleep 0.2
         sheet[2,3].Value.should == "a"
@@ -1258,7 +1255,6 @@ describe Book do
       end
     end
   end
-=end
 
   describe "#add_sheet" do
     before do
@@ -1370,24 +1366,24 @@ describe Book do
       it "should keep the save state 'unsaved'" do
         sheet = @book.sheet(1)
         sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
-        @book.Saved.should be false
+        @book.Saved.should be_false
         @book.retain_saved do
           sheet = @book.sheet(1)
           a = sheet[1,1]
           b = @book.visible
         end
-        @book.Saved.should be false
+        @book.Saved.should be_false
       end
 
       it "should keep the save state 'unsaved' even when the workbook was saved before" do
         sheet = @book.sheet(1)
         sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
-        @book.Saved.should be false
+        @book.Saved.should be_false
         @book.retain_saved do
           @book.save
-          @book.Saved.should be true
+          @book.Saved.should be_true
         end
-        @book.Saved.should be false
+        @book.Saved.should be_false
       end
     end
 
@@ -1396,18 +1392,18 @@ describe Book do
 
       it "should keep the save status" do
         book1 = Book.open(@simple_file, :visible => true)
-        book1.Saved.should be true
+        book1.Saved.should be_true
         book2 = Book.open(@another_simple_file, :visible => true)
-        book1.Saved.should be true
-        book2.Saved.should be true
+        book1.Saved.should be_true
+        book2.Saved.should be_true
         sheet2 = book2.sheet(1)
         sheet2[1,1] = sheet2[1,1].value == "foo" ? "bar" : "foo"
-        book1.Saved.should be true
-        book2.Saved.should be false
+        book1.Saved.should be_true
+        book2.Saved.should be_false
         book3 = Book.open(@different_file, :visible => true)
-        book1.Saved.should be true
-        book2.Saved.should be false
-        book3.Saved.should be true
+        book1.Saved.should be_true
+        book2.Saved.should be_false
+        book3.Saved.should be_true
       end
     end
 =end

@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 
 require File.join(File.dirname(__FILE__), './../spec_helper')
@@ -63,7 +62,6 @@ describe Book do
           @book.close
           }.to_not raise_error
         new_book = Book.open(@simple_file1)
- 
         new_book.ole_workbook.Worksheets.Count.should ==  @sheet_count
         new_book.close
       end
@@ -110,8 +108,8 @@ describe Book do
         excel.Workbooks.Count.should == 0
         @book.ole_workbook.should == nil
         @book.should_not be_alive
-        #expect{
-        #  ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
+        expect{
+          ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
         new_book = Book.open(@simple_file1)
         begin
           new_book.ole_workbook.Worksheets.Count.should ==  @sheet_count
@@ -129,8 +127,8 @@ describe Book do
         excel.Workbooks.Count.should == 0
         @book.ole_workbook.should == nil
         @book.should_not be_alive
-        #expect{
-        #  ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
+        expect{
+          ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
         new_book = Book.open(@simple_file1)
         begin
           new_book.ole_workbook.Worksheets.Count.should ==  @sheet_count
@@ -154,8 +152,8 @@ describe Book do
         excel.Workbooks.Count.should == 0
         @book.ole_workbook.should == nil
         @book.should_not be_alive
-        #expect{
-        #  ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
+        expect{
+          ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
         new_book = Book.open(@simple_file1)
         begin
           new_book.ole_workbook.Worksheets.Count.should == @sheet_count + 1
@@ -185,7 +183,7 @@ describe Book do
               expect {
               @book.close(:if_unsaved => :alert)
               }.to_not raise_error
-              @book.ole_workbook.Saved.should be false
+              @book.ole_workbook.Saved.should be_false
               @book.ole_workbook.should_not == nil
               @book.should be_alive
             else
@@ -194,7 +192,7 @@ describe Book do
               @book.excel.Workbooks.Count.should == 0
               @book.ole_workbook.should == nil
               @book.should_not be_alive
-             # expect{ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
+              expect{ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
             end
             new_book = Book.open(@simple_file1, :if_unsaved => :forget)
             begin
@@ -228,7 +226,7 @@ describe Book do
               expect {
               @book.close(:if_unsaved => :excel)
               }.to_not raise_error
-              @book.ole_workbook.Saved.should be false
+              @book.ole_workbook.Saved.should be_false
               @book.ole_workbook.should_not == nil
               @book.should be_alive
             else
@@ -237,7 +235,7 @@ describe Book do
               @book.excel.Workbooks.Count.should == 0
               @book.ole_workbook.should == nil
               @book.should_not be_alive
-              #expect{ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
+              expect{ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)
             end
             new_book = Book.open(@simple_file1, :if_unsaved => :forget)
             begin

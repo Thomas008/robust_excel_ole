@@ -64,7 +64,7 @@ module RobustExcelOle
 
       it "should do methods for book" do
         ((@ole_workbook_methods + @book_methods) - @book1.methods).should be_empty
-        # (Object.instance_methods.select{|m| m =~ /^(?!\_)/} - @book1.methods).should be_empty
+        (Object.instance_methods.select{|m| m =~ /^(?!\_)/} - @book1.methods).should be_empty
       end
 
       it "should do own_methods with popular ole_workbook and workbook methods" do
@@ -73,12 +73,12 @@ module RobustExcelOle
       end
 
       it "should respond to popular workbook methods" do
-        @book_methods.each{|m| @book1.respond_to?(m).should be true}
+        @book_methods.each{|m| @book1.respond_to?(m).should be_true}
       end
 
       it "should do methods for excel" do
         ((@ole_excel_methods + @excel_methods) - @book1.excel.methods).should be_empty
-        #(Object.instance_methods.select{|m| m =~ /^(?!\_)/}  - @book1.excel.methods).sort.should be_empty       
+        (Object.instance_methods.select{|m| m =~ /^(?!\_)/}  - @book1.excel.methods).sort.should be_empty       
       end
 
       it "should do own_methods with popular ole_excel and excel methods" do
@@ -87,21 +87,21 @@ module RobustExcelOle
       end
 
       it "should respond to popular excel methods" do
-        @excel_methods.each{|m| @book1.excel.respond_to?(m).should be true}
+        @excel_methods.each{|m| @book1.excel.respond_to?(m).should be_true}
       end
 
       it "should do methods for sheet" do
-        # ((@ole_sheet_methods + @sheet_methods) - @book1.sheet(1).methods).should be_empty
+        ((@ole_sheet_methods + @sheet_methods) - @book1.sheet(1).methods).should be_empty
         (Object.instance_methods.select{|m| m =~ /^(?!\_)/}  - @book1.sheet(1).methods).sort.should be_empty       
       end
 
       it "should do own_methods with popular ole_excel and excel methods" do
-        # ((@ole_sheet_methods + @sheet_methods) - @book1.sheet(1).own_methods).should == [] #be_empty
+        ((@ole_sheet_methods + @sheet_methods) - @book1.sheet(1).own_methods).should == [] #be_empty
          (Object.instance_methods - @book1.sheet(1).own_methods).should == Object.instance_methods
       end
 
       it "should respond to popular sheet methods" do
-        @sheet_methods.each{|m| @book1.sheet(1).respond_to?(m).should be true}
+        @sheet_methods.each{|m| @book1.sheet(1).respond_to?(m).should be_true}
       end
 
     end

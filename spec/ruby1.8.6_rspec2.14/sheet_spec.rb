@@ -48,7 +48,7 @@ describe Sheet do
       end
 
       it "should be a protected sheet" do
-        @protected_sheet.ProtectContents.should be true
+        @protected_sheet.ProtectContents.should be_true
       end
 
       it "protected sheet can't be write" do
@@ -644,7 +644,7 @@ describe Sheet do
       it "should raise an error for unknown methods or properties" do
         expect{
           @sheet.Foo
-        }.to raise_error
+        }.to raise_error(VBAMethodMissingError, /unknown VBA property or method :Foo/)
       end
 
     end

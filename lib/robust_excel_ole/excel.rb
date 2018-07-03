@@ -482,12 +482,12 @@ module RobustExcelOle
         begin
           empty_workbook.SaveAs(filename) 
         rescue WIN32OLERuntimeError => msg
-          if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
+          #if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
             raise FileNotFound, "could not save workbook with filename #{file_name.inspect}"
-          else
-            # todo some time: find out when this occurs : 
-            raise UnexpectedREOError, "unknown WIN32OLERuntimeError with filename #{file_name.inspect}: \n#{msg.message}"
-          end
+          #else
+          #  # todo some time: find out when this occurs : 
+          #  raise UnexpectedREOError, "unknown WIN32OLERuntimeError with filename #{file_name.inspect}: \n#{msg.message}"
+          #end
         end      
       end
       empty_workbook                               

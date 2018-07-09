@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   
   s.summary     = "RobustExcelOle automates processing Excel workbooks in Windows by using the win32ole library."
   s.description = "RobustExcelOle automates reading and writing Excel workbooks in Windows by using the win32ole library.
-                   It is disigned to cope with several kinds of concurrency of both simultaneously running
+                   It is designed to cope with several kinds of concurrency of both simultaneously running
                    Excel instances and simultanously happening user interactions.
                    RobustExcelOle deals with various cases of Excel (and user) behaviour,
                    supplies workarounds for some Excel bugs, and supports referenced libraries."                 

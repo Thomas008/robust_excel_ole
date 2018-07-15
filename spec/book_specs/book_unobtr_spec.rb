@@ -52,6 +52,33 @@ describe Book do
       expect{unobtrusively_ok?}.to_not raise_error
     end
 
+    describe "block transparency" do
+
+      it "should return correct value of the block" do
+        (Book.unobtrusively(@simple_file1) do |book| 
+          22
+         end).should == 22
+      end
+
+      it "should return value of the last block" do
+        (Book.unobtrusively(@simple_file1) do |book|
+          Book.unobtrusively(@different_file) do |book2|
+            11
+          end
+          22
+        end).should == 22
+      end
+
+      it "should return correct value in several blocks" do
+        (Book.unobtrusively(@simple_file1) do |book|
+          Book.unobtrusively(@different_file) do |book2|
+            22
+          end
+        end).should == 22
+      end
+
+    end
+
     describe "writability" do
 
       context "with no book" do

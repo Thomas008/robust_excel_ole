@@ -278,6 +278,21 @@ describe Book do
           @old_value = @book.sheet(1)[1,1].Value 
         end
 
+        it "should not write" do
+          Book.unobtrusively(@simple_file1, :writable => false) do |book|
+            book.Readonly.should be_true
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1].Value.should_not == @old_value
+          end
+          @book.close
+          Book.unobtrusively(@simple_file1, :writable => false) do |book|
+            book.sheet(1)[1,1].Value.should == @old_value
+          end
+          #@book.close
+          #book2 = Book.open(@simple_file1)
+          #book2.sheet(1)[1,1].Value.should == @old_value
+        end
+
         it "should not change the read_only mode" do
           Book.unobtrusively(@simple_file1) do |book|
             book.Readonly.should be true
@@ -693,6 +708,19 @@ describe Book do
               book3.should == book
             end
             book.should be_alive
+          end
+        end
+
+        it "should not close the book in the outer block with writable false" do
+          Book.unobtrusively(@simple_file1, :writable => false) do |book|
+            Book.unobtrusively(@simple_file1, :writable => false) do |book2|
+              book2.should == book
+            end
+            book.should be_alive
+            #Book.unobtrusively(@simple_file1, :writable => false) do |book3|
+            #  book3.should == book
+            #end
+            #book.should be_alive
           end
         end
 

@@ -27,13 +27,110 @@ module RobustExcelOle
 
     after do
       Excel.kill_all
-      #rm_tmp(@dir)
+      rm_tmp(@dir)
+    end
+
+    context "with already open Excel instances and an open unsaved workbook" do
+
+      before do
+        @ole_excel1 = WIN32OLE.new('Excel.Application')
+        @ole_excel2 = WIN32OLE.new('Excel.Application')
+        ole_workbook1 = @ole_excel1.Workbooks.Open(@another_simple_file, { 'ReadOnly' => false })
+        ole_workbook1.Names.Item("firstcell").RefersToRange.Value = "foo"
+      end
+
+      it "should create a new Excel instance" do
+        excel1 = Excel.new(:reuse => false)
+        excel1.ole_excel.Hwnd.should_not == @ole_excel1.Hwnd
+        excel1.ole_excel.Hwnd.should_not == @ole_excel2.Hwnd
+      end
+
+      it "should connect to the already opened Excel instance" do
+        excel1 = Excel.new(:reuse => true)
+        excel1.ole_excel.Hwnd.should == @ole_excel1.Hwnd
+      end
+
+      it "should connect to the already running Excel instance" do
+        excel1 = Excel.create
+        excel1.close
+        sleep 0.2
+        excel2 = Excel.current
+        excel1.should_not be_alive
+        excel2.should be_alive
+        excel2.ole_excel.Hwnd.should == @ole_excel1.Hwnd
+        Excel.excels_number.should == 2
+      end
+
+      it "should make the Excel instance not alive if the Excel that was connected with was closed" do
+        excel1 = Excel.create
+        excel2 = Excel.current
+        excel1.close
+        sleep 0.2
+        excel1.should_not be_alive
+        excel2.should be_alive
+        excel2.ole_excel.Hwnd.should == @ole_excel1.Hwnd
+      end
+
+      it "should reuse the first opened Excel instance if not the first opened Excel instance was closed" do
+        excel1 = Excel.create
+        excel2 = Excel.create
+        excel2.close
+        sleep 0.2
+        excel3 = Excel.current
+        excel3.ole_excel.Hwnd.should == @ole_excel1.Hwnd
+      end
+
+      it "should reuse the Excel that was not closed" do
+        excel1 = Excel.create
+        excel2 = Excel.create
+        excel1.close
+        sleep 0.2
+        excel3 = Excel.current
+        excel3.ole_excel.Hwnd.should == @ole_excel1.Hwnd        
+      end
+
+      it "should kill hard all Excel instances" do
+        excel1 = Excel.create
+        Excel.kill_all
+        excel1.should_not be_alive
+        expect{
+          @ole_excel1.Name
+          }.to raise_error
+        expect{
+          @ole_excel2.Name
+          }.to raise_error  
+      end
+
+      it "should close all Excel instances" do
+        excel1 = Excel.create
+        result = Excel.close_all(:if_unsaved => :forget)
+        sleep 1
+        expect{
+          @ole_excel1.Name
+          }.to raise_error
+        expect{
+          @ole_excel2.Name
+          }.to raise_error  
+        result.should == [2,0]
+      end
+
+      it "should recreate an Excel instance" do
+        excel1 = Excel.create
+        excel1.close
+        excel1.should_not be_alive
+        excel1.recreate
+        excel1.should be_a Excel
+        excel1.should be_alive
+        excel1.ole_excel.Hwnd.should_not == @ole_excel1.Hwnd
+        excel1.ole_excel.Hwnd.should_not == @ole_excel2.Hwnd
+        Excel.excels_number.should == 3
+      end
+
     end
 
     context "Illegal Refrence" do
 
       before do
-
         book1 = Book.open(@simple_file1)
         book2 = Book.open(@simple_file1, :force_excel => :new)
         a = book1.saved 
@@ -964,7 +1061,6 @@ module RobustExcelOle
         @excel1.should_not == nil
       end
 
-      # Error
       it "should be false with dead Excel objects" do
         excel2 = Excel.current
         sleep 3
@@ -984,8 +1080,6 @@ module RobustExcelOle
       end
 
     end
-
-    
 
     context "with Visible and DisplayAlerts, focus" do
 

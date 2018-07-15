@@ -225,6 +225,8 @@ module RobustExcelOle
 
     # closes all Excel instances
     # @return [Fixnum,Fixnum] number of closed Excel instances, number of errors
+    # remark: the returned number of closed Excel instances is valid only for known Excel instances
+    # if there are unknown Excel instances (opened not via this class), then they are counted as 1
     # @param [Hash] options the options
     # @option options [Symbol]  :if_unsaved :raise, :save, :forget, or :alert
     # options:
@@ -588,21 +590,6 @@ module RobustExcelOle
         book_class.open(ole_workbook).for_this_workbook(options)
       end
     end
-
-=begin
-    # make all workbooks visible or invisible
-    def workbooks_visible= visible_value
-      begin
-        @ole_excel.Workbooks.each do |ole_wb| 
-          workbook = Book.new(ole_wb)
-          workbook.visible = visible_value
-        end
-      rescue RuntimeError => msg
-        trace "RuntimeError: #{msg.message}" 
-        raise ExcelDamaged, "Excel instance not alive or damaged" if msg.message =~ /failed to get Dispatch Interface/
-      end
-    end
-=end
 
     def focus
       self.visible = true

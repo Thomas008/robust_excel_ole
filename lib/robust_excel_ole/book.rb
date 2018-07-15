@@ -651,7 +651,6 @@ module RobustExcelOle
   private
 
     def discoloring
-      # self.each{|sheet| sheet.UsedRange.each{|cell| cell.Interior.ColorIndex = XlNone}}
       @modified_cells.each{|cell| cell.Interior.ColorIndex = XlNone}
     end
 

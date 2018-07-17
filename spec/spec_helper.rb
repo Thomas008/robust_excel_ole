@@ -32,4 +32,7 @@ end
 
 RSpec.configure do |config|
   config.include RobustExcelOle::SpecHelpers
+  config.expect_with :rspec do |expectations|
+    expectations.syntax = [:should, :expect]
+  end
 end

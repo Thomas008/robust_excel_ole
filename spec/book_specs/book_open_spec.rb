@@ -64,7 +64,6 @@ describe Book do
 
       it "should fetch the workbook" do
         new_book = Book.new(@ole_workbook1)
-        puts "new_book: #{new_book.inspect}"
         new_book.should be_a Book
         new_book.should be_alive
         new_book.ole_workbook.should == @ole_workbook1

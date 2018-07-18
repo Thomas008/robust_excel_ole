@@ -40,17 +40,16 @@ module RobustExcelOle
       end
     end
 
-    # returns the value of a cell, if row and column are given
-    # returns the value of a range if its name is given 
+    # returns cell, if row and column are given 
     def [] p1, p2 = :__not_provided
       if p2 != :__not_provided  
-        y, x = p1, p2
-        yx = "#{y}_#{x}"
+        x, y = p1, p2
+        xy = "#{x}_#{y}"
         @cells = { }
         begin
-          @cells[yx] = RobustExcelOle::Cell.new(@ole_worksheet.Cells.Item(y, x))
+          @cells[xy] = RobustExcelOle::Cell.new(@ole_worksheet.Cells.Item(x, y))
         rescue
-          raise RangeNotEvaluatable, "cannot read cell (#{p1.inspect},#{p2.inspect})"
+          raise RangeNotEvaluatable, "cannot read cell (#{x.inspect},#{y.inspect})"
         end
       else
         name = p1
@@ -66,18 +65,12 @@ module RobustExcelOle
     # sets the value of a range if its name is given
     def []= (p1, p2, p3 = :__not_provided)
       if p3 != :__not_provided
-        y, x, value = p1, p2, p3
-        begin
-          cell = @ole_worksheet.Cells.Item(y, x)
-          cell.Value = value
-          cell.Interior.ColorIndex = 42 # aqua-marin, 4-green
-        rescue WIN32OLERuntimeError
-          raise RangeNotEvaluatable, "cannot assign value #{p3.inspect} to cell (#{p1.inspect},#{p2.inspect})"
-        end
+        x, y, value = p1, p2, p3
+        set_cellval(x,y,value)       
       else
         name, value = p1, p2
         begin
-          set_nameval(name, value, :color => 42) # aqua-marin, 4-green
+          set_nameval(name, value, :color => opts[:color]) # aqua-marin, 4-green
         rescue REOError
           begin
             workbook.set_nameval(name, value)
@@ -85,6 +78,30 @@ module RobustExcelOle
             set_rangeval(name, value)
           end
         end
+      end
+    end
+
+    # returns the value of a cell, if row and column are given
+    def cellval(x,y)
+      xy = "#{x}_#{y}"
+      @cells = { }
+      begin
+        @cells[xy] = RobustExcelOle::Cell.new(@ole_worksheet.Cells.Item(x, y))
+        @cells[xy].Value
+      rescue
+        raise RangeNotEvaluatable, "cannot read cell (#{p1.inspect},#{p2.inspect})"
+      end
+    end
+
+    # sets the value of a cell, if row, column and color of the cell are given
+    def set_cellval(x,y,value, opts = {:color => 0})
+      begin
+        cell = @ole_worksheet.Cells.Item(x, y)        
+        cell.Interior.ColorIndex = opts[:color] # 42 - aqua-marin, 4-green
+        @workbook.modified_cells << cell if @workbook
+        cell.Value = value
+      rescue WIN32OLERuntimeError
+        raise RangeNotEvaluatable, "cannot assign value #{value.inspect} to cell (#{y.inspect},#{x.inspect})"
       end
     end
     

@@ -88,12 +88,24 @@ Similarly to nameval, you can provide a default value that is returned when ocur
 
 === Accessing a cell
 
-You can read and write a cell from a sheet object by providing the row and the column. For example, the following lines provide and set the value of the first cell (first row, first column):
+You can read a cell from a sheet object by providing the row and the column. For example, the following lines provide the value of the first cell (first row, first column):
 
   sheet[1,1].value  
   => "foo
 
+or
+
+  sheet.cellval(1,1)
+  => "foo"
+
+Similarly, you can write a cell.
+
   sheet[1,1] = "new_value"
+
+or
+
+  sheet.set_cellval(1,1,"new_value", :color => 42)
+
 
 === Accessing rows and columns
 

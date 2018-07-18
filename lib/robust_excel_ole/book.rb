@@ -145,6 +145,8 @@ module RobustExcelOle
             book.visible = opts[:force][:visible] unless opts[:force].nil? or opts[:force][:visible].nil?
             book.excel.calculation = opts[:calculation] unless opts[:calculation].nil?
             return book 
+          else
+            super
           end
         end
       else

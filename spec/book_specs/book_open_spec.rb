@@ -37,6 +37,146 @@ describe Book do
     rm_tmp(@dir)
   end
 
+  describe "with already open Excel instances and an open unsaved workbook" do
+
+    before do
+      @ole_excel1 = WIN32OLE.new('Excel.Application')
+      @ole_excel2 = WIN32OLE.new('Excel.Application')
+      @ole_workbook1 = @ole_excel1.Workbooks.Open(@simple_file1, { 'ReadOnly' => false })
+      @ole_workbook1.Worksheets.Add
+    end
+
+    context "with simple general situations" do
+      
+      it "should simply open" do
+        book = Workbook.open(@simple_file1, :if_unsaved => :accept)
+        book.should be_alive
+        book.should be_a Book
+      end
+
+      it "should open in a new Excel" do
+        book2 = Workbook.open(@simple_file1, :force => {:excel => :new})
+        book2.should be_alive
+        book2.should be_a Book
+        book2.excel.should_not == @ole_excel1 
+        book2.Readonly.should be true
+      end
+
+      it "should fetch the workbook" do
+        new_book = Book.new(@ole_workbook1)
+        puts "new_book: #{new_book.inspect}"
+        new_book.should be_a Book
+        new_book.should be_alive
+        new_book.ole_workbook.should == @ole_workbook1
+        new_book.excel.ole_excel.Hwnd.should == @ole_excel1.Hwnd
+      end
+
+      it "should fetch a closed workbook" do
+        new_book = Book.new(@ole_workbook1)
+        new_book.close(:if_unsaved => :forget)
+        new_book.should_not be_alive
+        book2 = Book.open(@simple_file1)
+        book2.should === new_book
+        book2.should be_alive
+        book2.close
+      end
+
+      it "should force_excel with :reuse" do
+        book2 = Book.open(@different_file, :force => {:excel => :current})
+        book2.should be_alive
+        book2.should be_a Book
+        book2.excel.ole_excel.Hwnd.should == @ole_excel1.Hwnd 
+      end
+
+      it "should force_excel with :reuse when reopening and the Excel is not alive even if :default_excel says sth. else" do
+        book1 = Book.open(@simple_file1, :if_unsaved => :forget)
+        excel2 = Excel.new(:reuse => false)
+        book1.excel.close(:if_unsaved => :forget)
+        sleep 1
+        book2 = Book.open(@simple_file1, :force => {:excel => :current}, :default => {:excel => :new})
+        book2.should be_alive
+        book2.should be_a Book
+        book2.excel.ole_excel.Hwnd.should == @ole_excel2.Hwnd
+      end
+
+      it "should reopen the closed book" do
+        book1 = Book.open(@simple_file1, :if_unsaved => :accept)
+        book1.should be_alive
+        book2 = book1
+        book1.close(:if_unsaved => :forget)
+        book1.should_not be_alive
+        book1.reopen
+        book1.should be_a Book
+        book1.should be_alive
+        book1.should === book2
+      end
+    end
+
+    context "with :if_unsaved" do
+
+      before do
+        @book = Book.open(@simple_file1, :if_unsaved => :accept)
+        sheet = @book.sheet(1)
+        @old_value = sheet[1,1].Value
+        sheet[1,1] = (sheet[1,1].value == "foo" ? "bar" : "foo")
+        @new_value = sheet[1,1].Value
+        @book.Saved.should be false
+      end
+
+      after do
+        @book.close(:if_unsaved => :forget)
+      end
+
+      it "should let the book open, if :if_unsaved is :accept" do
+        new_book = Book.open(@simple_file1, :if_unsaved => :accept)
+        @book.should be_alive
+        new_book.should be_alive
+        new_book.Saved.should be false      
+        @book.Saved.should be false  
+        new_book.sheet(1)[1,1].Value.should == @new_value
+        new_book.should == @book
+      end
+
+      it "should open book and close old book, if :if_unsaved is :forget" do
+        new_book = Book.open(@simple_file1, :if_unsaved => :forget)
+        @book.should_not be_alive
+        new_book.should be_alive
+        new_book.Saved.should be true
+      end
+    end
+
+    context "with :if_obstructed" do
+
+      it "should raise an error, if :if_obstructed is :raise" do
+        expect {
+          new_book = Book.open(@simple_file_other_path1)
+        }.to raise_error(WorkbookBlocked, /blocked by a workbook with the same name in a different path/)
+      end
+
+      it "should close the other book and open the new book, if :if_obstructed is :forget" do
+        new_book = Book.open(@simple_file_other_path1, :if_obstructed => :forget)
+        expect{
+          @ole_workbook1.Name
+        }.to raise_error 
+        new_book.should be_alive
+      end
+
+    end
+
+    context "with :force => {:excel}" do
+
+      it "should open in a provided Excel" do
+        book1 = Book.open(@simple_file1, :force => {:excel => :new})
+        book2 = Book.open(@simple_file1, :force => {:excel => :new})
+        book3 = Book.open(@simple_file1, :force => {:excel => book2.excel})
+        book3.should be_alive
+        book3.should be_a Book
+        book3.excel.should == book2.excel 
+        book3.Readonly.should be true
+      end 
+    end
+  end
+
   describe "simple open" do
 
     it "should simply open" do

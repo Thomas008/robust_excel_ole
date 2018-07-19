@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.1.6] - 2018-20-7
+
+### Added
+  - Sheet#cellval
+  - Sheet#set_cellval
+
 ## [1.1.5] - 2018-10-7
 
 ### Added

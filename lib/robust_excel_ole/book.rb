@@ -111,24 +111,6 @@ module RobustExcelOle
       end
     end    
 
-# here is what is different and works 
-=begin
-           if book
-             if (((not options[:force][:excel]) || (forced_excel == book.excel)) &&
-                  (not (book.alive? && (not book.saved) && (not options[:if_unsaved] == :accept))))
-               book.options = options
-               book.ensure_excel(options) # unless book.excel.alive?
-               # if the ReadOnly status shall be changed, close and reopen it; save before, if it is writable
-               if book.alive? and (((not book.writable) and (not options[:read_only])) or
-                   (book.writable and options[:read_only]))
-                 book.save if book.writable  
-                 book.close(:if_unsaved => :forget)
-               end                
-               # reopens the book
-               book.ensure_workbook(file,options) unless book.alive?
-=end
-
-
     # creates a Book object by opening an Excel file given its filename workbook or 
     # by lifting a Win32OLE object representing an Excel file
     # @param [WIN32OLE] workbook a workbook
@@ -489,6 +471,7 @@ module RobustExcelOle
 
     # allows to read or modify a workbook such that its state remains unchanged
     # state comprises: open, saved, writable, visible, calculation mode, check compatibility 
+    # remarks: works only for workbooks opened with RobustExcelOle
     # @param [String] file        the file name
     # @param [Hash]   opts        the options
     # @option opts [Variant] :if_closed  :current (default), :new or an Excel instance

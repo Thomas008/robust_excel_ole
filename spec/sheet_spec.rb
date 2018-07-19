@@ -137,6 +137,13 @@ describe Sheet do
 
     end
 
+    describe "cellval" do
+
+      it "should return value" do
+        @sheet.cellval(1,1).should == "foo"
+      end
+    end
+
     it "change a cell to 'bar'" do
       @sheet[1, 1] = 'bar'
       @sheet[1, 1].value.should eq 'bar'
@@ -154,6 +161,15 @@ describe Sheet do
       expect{
         @sheet[0,0] = "foo"
       }.to raise_error(RangeNotEvaluatable, /cannot assign value/)
+    end
+
+    describe "set_cellval" do
+
+      it "should set color" do
+        @sheet.set_cellval(1,1,"foo",:color => 42)
+        @sheet.cellval(1,1).should == "foo"
+        @sheet[1,1].Interior.ColorIndex.should == 42
+      end
     end
 
     describe '#each' do
@@ -520,6 +536,14 @@ describe Sheet do
           @sheet1.set_nameval("foo", 1)
         }.to raise_error(NameNotFound, /name "foo" not in #<Sheet: Sheet1/)
       end
+
+      it "should color the cell" do
+        @sheet1.set_nameval("new", "bar")
+        @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
+        @sheet1.set_nameval("new", "bar", :color => 4)
+        @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
+      end
+
     end
 
     describe "rangeval, set_rangeval" do
@@ -597,6 +621,14 @@ describe Sheet do
         @sheet1.rangeval("foo", :default => 1).should == 1
         @sheet1.nameval("empty", :default => 1).should be_nil
       end
+
+      it "should color the cell" do
+        @sheet1.set_rangeval("new", "bar")
+        @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
+        @sheet1.set_rangeval("new", "bar", :color => 4)
+        @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
+      end
+
     end
 
     describe "set_name" do

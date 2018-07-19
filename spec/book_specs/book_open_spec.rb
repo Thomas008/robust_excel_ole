@@ -259,12 +259,11 @@ describe Book do
     context "with causing warning dead excel without window handle" do
 
       it "combined" do
-        Excel.kill_all
-        book1 = Book.open(@simple_file, :visible => true)
+        book1 = Book.open(@simple_file1)
         book2 = Book.open(@different_file)
         Excel.kill_all
-        #sleep 1
-        book3 = Book.open(@another_simple_file)
+        #sleep 1 #then no warning
+        Excel.current # or book3 = Book.open(@another_simple_file)
       end
 
     end

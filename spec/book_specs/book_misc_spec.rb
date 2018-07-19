@@ -753,6 +753,30 @@ describe Book do
       @book1.Worksheets.Item(1).Delete
       @book1.nameval("localname").should == "simple"
     end
+
+    it "should color the cell" do
+      @book1.set_nameval("new", "bar")
+      @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
+      @book1.set_nameval("new", "bar", :color => 4)
+      @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
+      @book1["new"].should == "bar"
+      @book1["new"] = "bar"
+      @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 42
+      @book1.save
+      @book1.close
+      #book2 = Book.open(@simple_file1, :visible =>  true)
+      #book2.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 42
+    end
+
+    it "should save without color" do
+      @book1.set_nameval("new", "bar", :color => 4)
+      @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
+      @book1.save(:discoloring => true)
+      @book1.close
+      #book2 = Book.open(@simple_file1, :visible =>  true)
+      #book2.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 0
+    end
+
   end
 
   describe "rename_range" do

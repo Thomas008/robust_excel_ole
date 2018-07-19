@@ -34,7 +34,7 @@ describe Book do
 
   after do
     Excel.kill_all
-    rm_tmp(@dir)
+    #rm_tmp(@dir)
   end
 
   describe "with already open Excel instances and an open unsaved workbook" do
@@ -683,6 +683,162 @@ describe Book do
         book2 = Book.open(@different_file1, :force => {:excel => :new})
         book2.excel.close
         book3 = Book.open(@different_file1, :force => {:excel => :current}, :default => {:excel => :new})
+        book3.should be_alive
+        book3.should be_a Book
+        book3.excel.should == @book.excel
+      end
+   
+    end
+
+    context "with leaving out :force => {:excel}" do
+
+      before do
+        @book = Book.open(@simple_file1)
+      end
+
+      after do
+        @book.close rescue nil
+      end
+
+      it "should open in a given Excel provided as Excel, Book, or WIN32OLE representing an Excel or Workbook" do
+        book2 = Book.open(@another_simple_file)
+        book3 = Book.open(@different_file)
+        book3 = Book.open(@simple_file1, :excel => book2.excel)
+        book3.excel.should === book2.excel
+        book4 = Book.open(@simple_file1, :excel => @book) 
+        book4.excel.should === @book.excel
+        book3.close
+        book4.close
+        book5 = Book.open(@simple_file1, :excel => book2.ole_workbook)
+        book5.excel.should ===  book2.excel
+        win32ole_excel1 = WIN32OLE.connect(@book.ole_workbook.Fullname).Application
+        book6 = Book.open(@simple_file1, :excel => win32ole_excel1)
+        book6.excel.should === @book.excel
+      end
+
+      it "should open in a new Excel" do
+        book2 = Book.open(@simple_file1, :excel => :new)
+        book2.should be_alive
+        book2.should be_a Book
+        book2.excel.should_not == @book.excel 
+        book2.should_not == @book
+        @book.Readonly.should be false
+        book2.Readonly.should be true
+        book2.close
+      end
+
+      it "should open in a given Excel, not provide identity transparency, because old book readonly, new book writable" do
+        book2 = Book.open(@simple_file1, :excel => :new)
+        book2.excel.should_not == @book.excel
+        book3 = Book.open(@simple_file1, :excel => :new)
+        book3.excel.should_not == book2.excel
+        book3.excel.should_not == @book.excel
+        book2.close
+        book4 = Book.open(@simple_file1, :excel => book2.excel)
+        book4.should be_alive
+        book4.should be_a Book
+        book4.excel.should == book2.excel
+        #book4.Readonly.should == true
+        book4.should_not == book2 
+        book4.close
+        book5 = Book.open(@simple_file1, :excel => book2)
+        book5.should be_alive
+        book5.should be_a Book
+        book5.excel.should == book2.excel
+        #book5.Readonly.should == true
+        book5.should_not == book2 
+        book5.close
+        book3.close
+      end
+
+      it "should open in a given Excel, provide identity transparency, because book can be readonly, such that the old and the new book are readonly" do
+        book2 = Book.open(@simple_file1, :excel => :new)
+        book2.excel.should_not == @book.excel
+        book3 = Book.open(@simple_file1, :excel => :new)
+        book3.excel.should_not == book2.excel
+        book3.excel.should_not == @book.excel
+        book2.close
+        book3.close
+        @book.close
+        book4 = Book.open(@simple_file1, :excel => book2.excel, :read_only => true)
+        book4.should be_alive
+        book4.should be_a Book
+        book4.excel.should == book2.excel
+        book4.ReadOnly.should be true
+        book4.should == book2
+        book4.close
+        book5 = Book.open(@simple_file1, :excel => book2, :read_only => true)
+        book5.should be_alive
+        book5.should be_a Book
+        book5.excel.should == book2.excel
+        book5.ReadOnly.should be true
+        book5.should == book2
+        book5.close
+        book3.close
+      end
+
+      it "should open in a given Excel, provide identity transparency, because book can be readonly, such that the old and the new book are readonly" do
+        book2 = Book.open(@simple_file1, :excel => :new)
+        book2.excel.should_not == @book.excel
+        book2.close
+        @book.close
+        book4 = Book.open(@simple_file1, :excel => book2, :read_only => true)
+        book4.should be_alive
+        book4.should be_a Book
+        book4.excel.should == book2.excel
+        book4.ReadOnly.should be true
+        book4.should == book2
+        book4.close
+      end
+
+      it "should raise an error if no Excel or Book is given" do
+        expect{
+          Book.open(@simple_file1, :excel => :b)
+          }.to raise_error(TypeREOError, "given object is neither an Excel, a Workbook, nor a Win32ole")
+      end
+
+      it "should do force_excel even if both force_ and default_excel is given" do
+        book2 = Book.open(@simple_file1, :default => {:excel => @book.excel}, :force => {:excel => :new})
+        book2.should be_alive
+        book2.should be_a Book
+        book2.excel.should_not == @book.excel 
+        book2.should_not == @book
+      end
+
+      it "should do default_excel if force_excel is nil" do
+        book2 = Book.open(@another_simple_file, :excel => nil)
+        book2.should be_alive
+        book2.should be_a Book
+        book2.excel.should == @book.excel
+      end
+
+      it "should force_excel with :reuse" do
+        book2 = Book.open(@different_file, :excel => :current)
+        book2.should be_alive
+        book2.should be_a Book
+        book2.excel.should == @book.excel
+      end
+
+      it "should force_excel with :reuse even if :default_excel says sth. else" do
+        book2 = Book.open(@different_file, :excel => :current, :default => {:excel => :new})
+        book2.should be_alive
+        book2.should be_a Book
+        book2.excel.should == @book.excel
+      end
+
+      it "should force_excel with :reuse when reopening and the Excel is not alive even if :default_excel says sth. else" do
+        excel2 = Excel.new(:reuse => false)
+        @book.excel.close
+        book2 = Book.open(@simple_file1, :excel => :current, :default => {:excel => :new})
+        book2.should be_alive
+        book2.should be_a Book
+        book2.excel.should === excel2
+      end
+
+      it "should force_excel with :reuse when reopening and the Excel is not alive even if :default_excel says sth. else" do
+        book2 = Book.open(@different_file1, :excel => :new)
+        book2.excel.close
+        book3 = Book.open(@different_file1, :excel => :current, :default => {:excel => :new})
         book3.should be_alive
         book3.should be_a Book
         book3.excel.should == @book.excel

@@ -180,6 +180,8 @@ The methods +for_reading+ and +for_modifying+ indicate unobtrusively reading or 
     sheet[1,1] = "c" 
   end
 
+Remark: The methods +unobtrusively+, +for_reading+ and +for_modifying+ work only for workbooks opened via RobustExcelOle. They do not connect to workbooks opened outside RobustExcelOle.
+
 === Retaining the saved-status
 
 This method ensures keeping the save status of the workbook

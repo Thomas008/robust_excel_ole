@@ -1854,6 +1854,18 @@ module RobustExcelOle
           @excel1["foo"] = 1
           }.to raise_error(NameNotFound, /name "foo"/)
       end
+
+      it "should color the cell" do
+        @excel1.set_nameval("firstcell", "foo")
+        @book1.Names.Item("firstcell").RefersToRange.Interior.ColorIndex.should == -4142 
+        @excel1.set_nameval("firstcell", "foo", :color => 4)
+        @book1.Names.Item("firstcell").RefersToRange.Interior.ColorIndex.should == 4
+        @excel1["firstcell"].should == "foo"
+        @excel1["firstcell"] = "foo"
+        @excel1.Names.Item("firstcell").RefersToRange.Interior.ColorIndex.should == 42
+        @book1.save
+      end
+
     end
 
     describe "rangeval, set_rangeval" do
@@ -1905,6 +1917,13 @@ module RobustExcelOle
         expect{
           @excel1.set_nameval("foo", 1)
         }.to raise_error(NameNotFound, /name "foo" not in/)
+      end
+
+      it "should color the cell" do
+        @excel1.set_rangeval("firstcell", "foo")
+        @book1.Names.Item("firstcell").RefersToRange.Interior.ColorIndex.should == -4142 
+        @excel1.set_rangeval("firstcell", "foo", :color => 4)
+        @book1.Names.Item("firstcell").RefersToRange.Interior.ColorIndex.should == 4
       end
 
     end

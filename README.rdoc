@@ -203,7 +203,7 @@ Without the option +:default+, the workbook can be forced to be opened in the cu
 
 As a further feature, RobustExcelOle allows processing workbooks, while still supporting user's interactions: The commands enable to open, close, reopen, read, modify, write and save Excel workbooks, without the need of the user's interaction, and even without the user noticing. Thus, while running a script containing RobustExcelOle commands, the user can open and process workbooks in any Excel instances at any time. RobustExcelOle manages the complex cases of conflicts that might occur such that the user does not need to interfere and the script can continue.
 
-For example, suppose we want to process a list of workbooks. RobustExcelOle allows to rapidly open, manipulate, close and save these workbooks. Now assume, the workbook "workbook.xls" is being processed, while the user has already opened this workbook, has modified but not saved it yet. Excel would prompt a message and ask the user what to do. RobustExcelOle solves this conflict by using an option that states whether the changes of the user should be saved (accepted) or discarded before opening the workbook, e.g.
+For example, suppose we want to process a list of workbooks. RobustExcelOle allows to rapidly open, manipulate, close and save these workbooks. Now assume, the workbook "workbook.xls" is being processed, while the user has already opened this workbook, has modified but not saved it yet. Excel would prompt a message and ask the user what to do. RobustExcelOle solves this conflict by using an option that states whether the changes of the user should be saved (accepted) or discarded (forgotten) before opening the workbook, e.g.
 
   workbook = Workbook.open('workbook.xls', :if_unsaved => :accept)
 
@@ -264,7 +264,7 @@ or
 
   sheet.row_range(1)[0].value    # => "foo"
 
-Then we modify it
+Then we modify it.
 
   sheet[1,1] = "hello"
 

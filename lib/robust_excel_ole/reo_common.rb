@@ -8,13 +8,16 @@ File.delete REO_LOG_FILE rescue nil
 
 module RobustExcelOle
 
-  class REOError < RuntimeError                 # :nodoc: #
+  class REOError < RuntimeError                    # :nodoc: #
   end                 
 
   class ExcelREOError < REOError                   # :nodoc: #
   end
 
   class WorkbookREOError < REOError                # :nodoc: #
+  end
+
+  class SheetREOError < REOError                   # :nodoc: #
   end
 
   class FileREOError < REOError                    # :nodoc: #

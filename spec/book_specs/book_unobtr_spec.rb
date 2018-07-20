@@ -32,7 +32,7 @@ describe Book do
 
   after do
     Excel.kill_all
-    #rm_tmp(@dir)
+    rm_tmp(@dir)
   end
 
   
@@ -523,7 +523,7 @@ describe Book do
 
         it "should not write" do
           Book.unobtrusively(@simple_file1, :writable => false) do |book|
-            book.Readonly.should be_true
+            book.Readonly.should be true
             book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
             book.sheet(1)[1,1].Value.should_not == @old_value
           end

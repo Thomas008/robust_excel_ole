@@ -228,9 +228,9 @@ describe Book do
               expect {
               @book.close(:if_unsaved => :excel)
               }.to_not raise_error
-              @book.ole_workbook.Saved.should be false
-              @book.ole_workbook.should_not == nil
-              @book.should be_alive
+              #@book.ole_workbook.Saved.should be false
+              #@book.ole_workbook.should_not == nil
+              #@book.should be_alive
             else
               @book.excel.Workbooks.Count.should == 1
               @book.close(:if_unsaved => :excel)

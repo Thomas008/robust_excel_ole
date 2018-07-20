@@ -34,7 +34,7 @@ describe Book do
 
   after do
     Excel.kill_all
-    #rm_tmp(@dir)
+    rm_tmp(@dir)
   end
 
   describe "with already open Excel instances and an open unsaved workbook" do

@@ -25,7 +25,7 @@ class KeySender # :nodoc: #
         print "-" unless options[:silent]
       end
     else
-      true # Keine Window_name, immer senden'
+      true # no window_name, send always'
     end
 
     if ready_to_send
@@ -53,7 +53,7 @@ class KeySender # :nodoc: #
       end
       break false if Time.now > break_time
 
-      print " (noch #{'%.1f'%(break_time - Time.now)}s) " unless options[:silent]
+      print " (more #{'%.1f'%(break_time - Time.now)}s) " unless options[:silent]
       sleep 0.813
     end
   end

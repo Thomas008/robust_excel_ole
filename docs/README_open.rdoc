@@ -1,6 +1,6 @@
 = RobustExcelOle
 
-=== Opening and unobtrusively modifying a workbook.
+=== Opening a workbook.
 
 If you want to open a workbook, use
   
@@ -25,9 +25,9 @@ The options are the following:
 
 +:visible+::        makes the workbook visible or invisible
 
-+:if_unsaved+::      specify behaviour if the workbook was unsaved (default: +new_excel+)
++:if_unsaved+::      specify behaviour if the workbook was unsaved (default: +:raise+)
 
-+:if_obstructed+::   specify behaviour if the workbook is blocked by another book (default: +new_excel+)
++:if_obstructed+::   specify behaviour if the workbook is blocked by another book (default: +:raise+)
 
 +:read_only+::       open in read-only mode (default: +false+)
 
@@ -37,12 +37,7 @@ The options are the following:
 
 +:if_absent+::       specify behaviour if the workbook with the given file name does not exist if the workbook does not exist (default: +create+)
 
-You can use the following abbreviations:
-
-+:f+:: +:force+
-+:d+:: +:default+
-+:e+:: +:excel+
-+:v+:: +:visible+
+You can use the following abbreviations: +:f+ for  +:force+, +:d+ for +:default+, +:e+ for +:excel+, and +:v+ for +:visible+. Finally you can leave out the option +:force+ or +:f+.
 
 The option +:excel+ :
 
@@ -100,7 +95,6 @@ For simplicity, you can also leave out the +:force+ option (but not the +:defaul
 You can also specify an Excel instance
 
   excel1 = Excel.create
-  # do something
   Workbook.open('workbook.xls', :excel => excel1)
 
 If you want to open the workbook and make its window visible, then use
@@ -156,8 +150,8 @@ Options are the following:
 
 +:if_closed+:: +:current+ (or +:active, or +:reuse+:): (default) : open a closed workbook in the Excel instance where it was opened most recently, if such an Excel instance exists, otherwise open it in the current (first opened) Excel instance
                
-+:read_only+:: Whether the workbook shall be forced to be open in ReadOnly mode (default: +false+)
-+:writable+::  Whether changes in the workbook shall be saved (default: +true+)
++:read_only+:: Whether the workbook shall be forced to be open in ReadOnly mode
++:writable+::  Whether changes in the workbook shall be saved
 
 +:rw_change_excel+::  Excel instance in which the workbook with the
                       changed read-write permissions shall be opened  

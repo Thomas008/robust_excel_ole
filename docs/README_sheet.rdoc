@@ -26,7 +26,7 @@ and
 
   sheet = book.last_sheet  
 
-You can access all sheet objects by using the methods Workbook#each.
+You can access all Sheet objects by using the methods Workbook#each.
 
   book.each do |sheet|               
     # do something with sheet

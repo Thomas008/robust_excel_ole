@@ -2,7 +2,7 @@
 
 == Reading and writing the contents of ranges and cells
 
-RobustExcelOle enables to read and write the contents of ranges and cells in workbooks. This can be done from a Sheet, a Book or an Excel object representing a Worksheet, Workbook, or Application object in VBA.
+RobustExcelOle enables to read and write the contents of ranges and cells in workbooks. This can be done from a Sheet, a Book or an Excel object representing a Worksheet, Workbook, or Application object, respectively, in VBA.
 
 === Reading and writing the contents of a named range in a workbook.
 
@@ -10,7 +10,7 @@ Assume you have opened a workbook:
  
   book = Workbook.open('workbook.xls', :visible => true)
 
-You can get the contents of a range with a defined name with help of the method [] or nameval:
+You can get the contents of a range with a defined name with help of the method [] or +nameval+.
 
   book["name"] 
   => "value"
@@ -20,7 +20,7 @@ or
   book.nameval("name")
   => "value"
 
-Using nameval, via the option :default you can provide a value that is returned when the name cannot be found or some other error would occur.
+Using +nameval+, via the option +:default+ you can provide a value that is returned when the name cannot be found or some other error would occur.
 
   book.namval("name", :default => "default_value")
 
@@ -32,11 +32,11 @@ or
 
   book.set_nameval("name", "new_value")
 
-The method []= colors the written cell. You can specify the color of a changed range via the method set_nameval: 
+The method []= colors the written cell. You can specify the color of a changed range via the method +set_nameval+. 
   
   book.set_nameval("name", "new_value", :color => 4)
 
-Similarly, the contents of a named range can be read and modified in a worksheet 
+Similarly, the contents of a named range can be read and modified in a worksheet
 
   sheet = book.sheet(1)
 
@@ -45,7 +45,7 @@ Similarly, the contents of a named range can be read and modified in a worksheet
 
   sheet["name"] = "new_value" 
 
-or an application object:
+or an Application object.
 
   excel = book.excel
 
@@ -64,7 +64,7 @@ or
 
 === Reading and writing the contents of a range with a locally defined name
 
-The contents of locally defined ranges can be read
+The contents of locally defined ranges can be read by
 
   sheet.rangeval("name")
   => "value"
@@ -74,7 +74,7 @@ or
   excel.rangeval("name")
   => "value" 
 
-and be modified:
+and be modified by
 
   sheet.set_rangeval("name", "value")
 

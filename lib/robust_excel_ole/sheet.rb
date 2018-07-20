@@ -74,7 +74,7 @@ module RobustExcelOle
       else
         name, value = p1, p2
         begin
-          set_nameval(name, value, :color => opts[:color]) # aqua-marin, 4-green
+          set_nameval(name, value, :color => 42) # aqua-marin, 4-green
         rescue REOError
           begin
             workbook.set_nameval(name, value)

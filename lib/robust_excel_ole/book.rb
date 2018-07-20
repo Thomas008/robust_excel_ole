@@ -142,7 +142,6 @@ module RobustExcelOle
     # @param [Hash]    opts              the options
     # @option opts [Symbol] see above
     # @return [Book] a workbook
-    #def initialize(file_or_workbook, opts={ }, &block)
     def initialize(file_or_workbook, options={ }, &block)
       #options = @options = self.class.process_options(options) if options.empty?
       if file_or_workbook.is_a? WIN32OLE        
@@ -234,8 +233,6 @@ module RobustExcelOle
   public
 
     def ensure_excel(options)   # :nodoc: #
-      #if (excel && @excel.alive? && (options[:force].nil? or options[:force][:excel].nil? or 
-      #             options[:force][:excel]==@excel))
       if excel && @excel.alive?  
         @excel.created = false
         return
@@ -481,7 +478,6 @@ module RobustExcelOle
     #                         write permissions shall be opened  :current (default), :new or an Excel instance                   
     # @option opts [Boolean] :keep_open whether the workbook shall be kept open after unobtrusively opening 
     # @return [Book] a workbook
-    # state = [:open, :saved, :writable, :visible, :calculation, :check_compatibility]
     def self.unobtrusively(file, opts = { }, &block) 
       opts = {:if_closed => :current,
               :rw_change_excel => :current,

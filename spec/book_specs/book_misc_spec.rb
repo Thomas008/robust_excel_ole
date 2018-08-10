@@ -1044,7 +1044,7 @@ describe Book do
     context "with focus" do
 
       before do
-        @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '../helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"        
+        @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '../helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"        
         @book = Book.open(@simple_file, :visible => true)
         @book.excel.displayalerts = false
         @book2 = Book.open(@another_simple_file, :visible => true)

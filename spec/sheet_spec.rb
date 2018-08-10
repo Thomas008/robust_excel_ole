@@ -35,7 +35,7 @@ describe Sheet do
   describe ".initialize" do
     context "when open sheet protected(with password is 'protect')" do
       before do
-        @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"
+        @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
         @book_protect = Book.open(@protected_file, :visible => true, :read_only => true, :force_excel => :new)
         @book_protect.excel.displayalerts = false
         @key_sender.puts "{p}{r}{o}{t}{e}{c}{t}{enter}"

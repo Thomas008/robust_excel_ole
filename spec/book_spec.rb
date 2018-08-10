@@ -375,7 +375,7 @@ describe Book do
 
       context "with :if_unsaved => :alert or :if_unsaved => :excel" do
         before do
-         @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"
+         @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
         end
 
         after do
@@ -398,9 +398,9 @@ describe Book do
           @key_sender.puts "{right}{enter}"
           @key_sender.puts "{right}{enter}"
           @key_sender.puts "{right}{enter}"
-          #expect{
-          #  Book.open(@simple_file, :if_unsaved => :alert)
-          #  }.to raise_error(ExcelREOError, /user canceled or runtime error/)
+          expect{
+            Book.open(@simple_file, :if_unsaved => :alert)    
+            }.to raise_error(UnexpectedREOError)
           @book.should be_alive
         end
 
@@ -420,9 +420,9 @@ describe Book do
           @key_sender.puts "{right}{enter}"
           @key_sender.puts "{right}{enter}"
           @key_sender.puts "{right}{enter}"
-          #expect{
-          #  Book.open(@simple_file, :if_unsaved => :excel)
-          #  }.to raise_error(ExcelREOError, /user canceled or runtime error/)
+          expect{
+            Book.open(@simple_file, :if_unsaved => :excel)
+          }.to raise_error(UnexpectedREOError)
           @book.should be_alive
         end
 
@@ -1223,7 +1223,7 @@ describe Book do
     context "with focus" do
 
       before do
-        @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"        
+        @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"        
         @book = Book.open(@simple_file, :visible => true)
         @book2 = Book.open(@another_simple_file, :visible => true)
       end

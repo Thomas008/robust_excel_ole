@@ -1652,7 +1652,7 @@ describe Book do
 
       context "with :if_unsaved => :alert" do
         before do
-         @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '../helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"
+         @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '../helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
         end
 
         after do
@@ -1669,7 +1669,7 @@ describe Book do
           new_book.Saved.should be true
           new_book.sheet(1)[1,1].Value.should == @old_value
         end
-      end
+      
 =begin
         # only for Excel2007:
         it "should not open the new book and not close the unsaved book, if user answers 'no'" do
@@ -1679,17 +1679,18 @@ describe Book do
           @key_sender.puts "{right}{enter}"
           @key_sender.puts "{right}{enter}"
           @key_sender.puts "{right}{enter}"
+     
           expect{
             Book.open(@simple_file1, :if_unsaved => :alert)
-            }.to raise_error(ExcelREOError, "user canceled or runtime error")
+            }.to raise_error(UnexpectedREOError)
           @book.should be_alive
         end
-    
 =end      
-
+      end
+    
       context "with :if_unsaved => :excel" do
         before do
-         @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '../helpers/key_sender.rb') + '" "Microsoft Office Excel" '  , "w"
+         @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '../helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
         end
 
         after do
@@ -1706,7 +1707,6 @@ describe Book do
           new_book.sheet(1)[1,1].Value.should == @old_value
         end
 
-=begin
         it "should not open the new book and not close the unsaved book, if user answers 'no'" do
           # "No" is right to "Yes" (the  default). --> language independent
           # strangely, in the "no" case, the question will sometimes be repeated three times
@@ -1716,10 +1716,9 @@ describe Book do
           @key_sender.puts "{right}{enter}"
           expect{
             Book.open(@simple_file1, :if_unsaved => :excel)
-            }.to raise_error(ExcelREOError, "user canceled or runtime error")
+            }.to raise_error(UnexpectedREOError)
           @book.should be_alive
         end
-=end        
 
       end
 

@@ -36,7 +36,7 @@ describe Book do
 
   after do
     Excel.kill_all
-   # rm_tmp(@dir)
+    #rm_tmp(@dir)
   end
 
   describe "save" do
@@ -378,10 +378,9 @@ describe Book do
             @key_sender.close
           end
 
-=begin
           it "should save if user answers 'yes'" do
             # "Yes" is to the left of "No", which is the  default. --> language independent
-            @key_sender.puts "{left}{enter}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
+            @key_sender.puts "{right}{right}{right}{enter}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
             #@key_sender.puts "{left}{enter}"
             #@key_sender.puts "{left}{enter}"
             @book.save_as(@simple_save_file1, :if_exists => :alert)
@@ -393,8 +392,6 @@ describe Book do
             new_book.close
             @book.excel.DisplayAlerts.should == displayalert_value
           end
-=end
-
           it "should not save if user answers 'no'" do
             # Just give the "Enter" key, because "No" is the default. --> language independent
             # strangely, in the "no" case, the question will sometimes be repeated three times
@@ -435,12 +432,11 @@ describe Book do
             @key_sender.close
           end
 
-=begin
           it "should save if user answers 'yes'" do
             # "Yes" is to the left of "No", which is the  default. --> language independent
-            @key_sender.puts "{left}{enter}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
-            @key_sender.puts "{left}{enter}"
-            @key_sender.puts "{left}{enter}"
+            @key_sender.puts "{right}{right}{right}{enter}" #, :initial_wait => 0.2, :if_target_missing=>"Excel window not found")
+            #@key_sender.puts "{left}{enter}"
+            #@key_sender.puts "{left}{enter}"
             @book.save_as(@simple_save_file1, :if_exists => :excel)
             File.exist?(@simple_save_file1).should be true
             File.size?(@simple_save_file1).should > @garbage_length
@@ -448,9 +444,9 @@ describe Book do
             new_book = Book.open(@simple_save_file1, :excel => :new)
             new_book.should be_a Book
             new_book.close
+ 
             @book.excel.DisplayAlerts.should == displayalert_value
           end
-=end
 
           it "should not save if user answers 'no'" do
             # Just give the "Enter" key, because "No" is the default. --> language independent

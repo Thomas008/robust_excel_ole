@@ -1599,58 +1599,32 @@ describe Book do
     context "with :if_unsaved" do
 
       before do
-        @book = Book.open(@simple_file1)
-        sheet = @book.sheet(1)
-        #@book.add_sheet(@sheet, :as => 'a_name')
-        @old_value = sheet[1,1].Value
-        sheet[1,1] = (sheet[1,1].value == "foo" ? "bar" : "foo")
-        @new_value = sheet[1,1].Value
-        @book.Saved.should be false
+        @book = Book.open(@simple_file)
+        @sheet = @book.sheet(1)
+        @book.add_sheet(@sheet, :as => 'a_name')
       end
 
       after do
         @book.close(:if_unsaved => :forget)
-      end
-
-      it "should open the book in a new excel instance, if :if_unsaved is :new_excel" do
-        new_book = Book.open(@simple_file1, :if_unsaved => :new_excel)
-        new_book.excel.should_not == @book.excel
-        @book.should be_alive
-        @book.Saved.should be false
-        new_book.should be_alive
-        new_book.Saved.should be true
-        new_book.sheet(1)[1,1].Value.should == @old_value
-        #new_book.filename.should == @book.filename
-        new_book.excel.should_not == @book.excel       
-        new_book.close
+        @new_book.close rescue nil
       end
 
       it "should raise an error, if :if_unsaved is :raise" do
         expect {
-          new_book = Book.open(@simple_file1, :if_unsaved => :raise)
+          @new_book = Book.open(@simple_file, :if_unsaved => :raise)
         }.to raise_error(WorkbookNotSaved, /workbook is already open but not saved: "workbook.xls"/)
       end
 
       it "should let the book open, if :if_unsaved is :accept" do
-        new_book = Book.open(@simple_file1, :if_unsaved => :accept)
+        expect {
+          @new_book = Book.open(@simple_file, :if_unsaved => :accept)
+          }.to_not raise_error
         @book.should be_alive
-        new_book.should be_alive
-        new_book.Saved.should be false      
-        @book.Saved.should be false  
-        new_book.sheet(1)[1,1].Value.should == @new_value
-        new_book.should == @book
+        @new_book.should be_alive
+        @new_book.should == @book
       end
 
-      it "should open book and close old book, if :if_unsaved is :forget" do
-        new_book = Book.open(@simple_file1, :if_unsaved => :forget)
-        @book.should_not be_alive
-        new_book.should be_alive
-        new_book.Saved.should be true
-        new_book.sheet(1)[1,1].Value.should == @old_value
-        #@new_book.filename.downcase.should == @simple_file.downcase
-      end
-
-      context "with :if_unsaved => :alert" do
+      context "with :if_unsaved => :alert or :if_unsaved => :excel" do
         before do
          @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '../helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
         end
@@ -1662,16 +1636,12 @@ describe Book do
         it "should open the new book and close the unsaved book, if user answers 'yes'" do
           # "Yes" is the  default. --> language independent
           @key_sender.puts "{enter}"
-          new_book = Book.open(@simple_file1, :if_unsaved => :alert)
-          new_book.should be_alive
-          #@book.should_not be_alive
-          #new_book.filename.downcase.should == @simple_file.downcase
-          new_book.Saved.should be true
-          new_book.sheet(1)[1,1].Value.should == @old_value
+          @new_book = Book.open(@simple_file1, :if_unsaved => :alert)
+          @new_book.should be_alive
+          @new_book.filename.downcase.should == @simple_file1.downcase
+          @book.should_not be_alive
         end
-      
-=begin
-        # only for Excel2007:
+
         it "should not open the new book and not close the unsaved book, if user answers 'no'" do
           # "No" is right to "Yes" (the  default). --> language independent
           # strangely, in the "no" case, the question will sometimes be repeated three times
@@ -1679,32 +1649,19 @@ describe Book do
           @key_sender.puts "{right}{enter}"
           @key_sender.puts "{right}{enter}"
           @key_sender.puts "{right}{enter}"
-     
           expect{
-            Book.open(@simple_file1, :if_unsaved => :alert)
+            Book.open(@simple_file, :if_unsaved => :alert)    
             }.to raise_error(UnexpectedREOError)
           @book.should be_alive
-        end
-=end      
-      end
-    
-      context "with :if_unsaved => :excel" do
-        before do
-         @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '../helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
-        end
-
-        after do
-          @key_sender.close
         end
 
         it "should open the new book and close the unsaved book, if user answers 'yes'" do
           # "Yes" is the  default. --> language independent
           @key_sender.puts "{enter}"
-          new_book = Book.open(@simple_file1, :if_unsaved => :excel)
-          new_book.should be_alive
+          @new_book = Book.open(@simple_file1, :if_unsaved => :excel)
+          @new_book.should be_alive
+          @new_book.filename.downcase.should == @simple_file1.downcase
           #@book.should_not be_alive
-          new_book.Saved.should be true
-          new_book.sheet(1)[1,1].Value.should == @old_value
         end
 
         it "should not open the new book and not close the unsaved book, if user answers 'no'" do
@@ -1715,23 +1672,11 @@ describe Book do
           @key_sender.puts "{right}{enter}"
           @key_sender.puts "{right}{enter}"
           expect{
-            Book.open(@simple_file1, :if_unsaved => :excel)
-            }.to raise_error(UnexpectedREOError)
+            Book.open(@simple_file, :if_unsaved => :excel)
+          }.to raise_error(UnexpectedREOError)
           @book.should be_alive
         end
 
-      end
-
-      it "should raise an error, if :if_unsaved is default" do
-        expect {
-          new_book = Book.open(@simple_file1, :if_unsaved => :raise)
-        }.to raise_error(WorkbookNotSaved, /workbook is already open but not saved: "workbook.xls"/)
-      end
-
-      it "should raise an error, if :if_unsaved is invalid option" do
-        expect {
-          new_book = Book.open(@simple_file1, :if_unsaved => :invalid_option)
-        }.to raise_error(OptionInvalid, ":if_unsaved: invalid option: :invalid_option")
       end
     end
 

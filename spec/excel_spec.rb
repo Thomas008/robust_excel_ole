@@ -27,6 +27,7 @@ module RobustExcelOle
 
     after do
       Excel.kill_all
+      #sleep 0.1
       rm_tmp(@dir)
     end
 

@@ -1591,6 +1591,9 @@ module RobustExcelOle
 
       before do
         @excel = Excel.new(:reuse => false)
+        book = Book.open(@simple_file)
+        book.excel.calculation = :manual
+        book.close(:if_unsaved => :save)
       end
 
       it "should set options in the Excel instance" do

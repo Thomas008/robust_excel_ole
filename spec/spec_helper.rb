@@ -12,7 +12,7 @@ module RobustExcelOle::SpecHelpers
   end
 
   def rm_tmp(tmpdir)     # :nodoc: #
-    FileUtils.remove_entry_secure(File.dirname(tmpdir))
+    FileUtils.rm_f(File.dirname(tmpdir))
   end
 
   # This method is almost copy of wycats's implementation.

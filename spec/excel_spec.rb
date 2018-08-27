@@ -1495,7 +1495,7 @@ module RobustExcelOle
         old_calculation_mode = @excel1.Calculation
         @excel1.with_calculation(:manual) do
           @excel1.calculation.should == :manual
-          @excel1.Calculation.should == -4135
+          @excel1.Calculation.should == XlCalculationManual
           @excel1.CalculateBeforeSave.should be false
           book.Saved.should be true
         end
@@ -1503,7 +1503,7 @@ module RobustExcelOle
         @excel1.CalculateBeforeSave.should be false
         @excel1.with_calculation(:automatic) do
           @excel1.calculation.should == :automatic
-          @excel1.Calculation.should == -4105
+          @excel1.Calculation.should == XlCalculationAutomatic
           @excel1.CalculateBeforeSave.should be false
           book.Saved.should be false
         end
@@ -1517,7 +1517,7 @@ module RobustExcelOle
         book.Windows(book.Name).Visible = true
         @excel1.calculation = :manual
         @excel1.calculation.should == :manual
-        @excel1.Calculation.should == -4135
+        @excel1.Calculation.should == XlCalculationManual
         @excel1.CalculateBeforeSave.should be false
         book.Saved.should be true
       end
@@ -1527,7 +1527,7 @@ module RobustExcelOle
         book = Book.open(@simple_file, :visible => true)
         @excel1.calculation = :automatic
         @excel1.calculation.should == :automatic
-        @excel1.Calculation.should == -4105
+        @excel1.Calculation.should == XlCalculationAutomatic
         @excel1.CalculateBeforeSave.should be false
         book.Saved.should be false
       end
@@ -1535,24 +1535,24 @@ module RobustExcelOle
       it "should set Calculation without workbooks" do
         @excel1 = Excel.new
         expect{
-          @excel1.Calculation = -4135
+          @excel1.Calculation = XlCalculationManual
         }.to raise_error(WIN32OLERuntimeError)
       end
 
       it "should do Calculation to manual with workbook" do
         @excel1 = Excel.new
         b = Book.open(@simple_file)
-        @excel1.Calculation = -4135
+        @excel1.Calculation = XlCalculationManual
         @excel1.calculation.should == :manual
-        @excel1.Calculation.should == -4135
+        @excel1.Calculation.should == XlCalculationManual
       end
 
       it "should do Calculation to automatic with workbook" do
         @excel1 = Excel.new
         b = Book.open(@simple_file)
-        @excel1.Calculation = -4105
+        @excel1.Calculation = XlCalculationAutomatic
         @excel1.calculation.should == :automatic
-        @excel1.Calculation.should == -4105
+        @excel1.Calculation.should == XlCalculationAutomatic
       end
 
     end
@@ -1593,7 +1593,7 @@ module RobustExcelOle
         @excel.Visible.should be true
         @excel.ScreenUpdating.should be true
         book = Book.open(@simple_file)
-        @excel.Calculation.should == -4135
+        @excel.Calculation.should == XlCalculationManual
         book.close
       end
 

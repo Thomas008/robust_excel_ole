@@ -217,12 +217,12 @@ describe Book do
       it "should set calculation mode" do
         book1 = Book.open(@simple_file1, :visible => true)
         book1.excel.calculation = :manual
-        book1.excel.Calculation.should == -4135
+        book1.excel.Calculation.should == XlCalculationManual
         book1.save
         book1.excel.close
         book2 = Book.open(@simple_file1, :visible => true)
         book2.excel.calculation = :automatic
-        book2.excel.Calculation.should == -4105
+        book2.excel.Calculation.should == XlCalculationAutomatic
         book2.save
         book2.excel.close
       end
@@ -236,22 +236,22 @@ describe Book do
         book1 = Book.open(@simple_file)
         book1.excel.calculation = :automatic
         book1.excel.calculation.should == :automatic
-        book1.excel.Calculation.should == -4105
+        book1.excel.Calculation.should == XlCalculationAutomatic
       end
 
       it "should set the calculation mode to manual" do
         book1 = Book.open(@simple_file)
         book1.excel.calculation = :manual
         book1.excel.calculation.should == :manual
-        book1.excel.Calculation.should == -4135
+        book1.excel.Calculation.should == XlCalculationManual
       end
 
       it "should change the calculation mode from manual to automatic" do
         book1 = Book.open(@simple_file, :visible => true)
         excel1 = Excel.current(:calculation => :automatic)        
         book2 = Book.open(@different_file, :visible => true)
-        book2.excel.Calculation.should == -4105
-        book1.excel.Calculation.should == -4105
+        book2.excel.Calculation.should == XlCalculationAutomatic
+        book1.excel.Calculation.should == XlCalculationAutomatic
       end
     end
 

@@ -1155,14 +1155,14 @@ describe Book do
           book1 = Book.open(@simple_file1, :calculation => :manual)
           Book.unobtrusively(@simple_file1) do |book|
           end
-          book1.excel.Calculation.should == -4135
+          book1.excel.Calculation.should == XlCalculationManual
         end
 
         it "should remain calculation automatic" do
           book1 = Book.open(@simple_file1, :calculation => :automatic)
           Book.unobtrusively(@simple_file1) do |book|
           end
-          book1.excel.Calculation.should == -4105
+          book1.excel.Calculation.should == XlCalculationAutomatic
         end
        
       end

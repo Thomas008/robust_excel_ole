@@ -113,7 +113,7 @@ module RobustExcelOle
     # @param [String] name   the range name
     # @param [Fixnum] row    the row
     # @param [Fixnum] column the column
-    def set_name(name,row,column)
+    def set_name(row,column,name)
       begin
         old_name = self[row,column].Name.Name rescue nil
         if old_name

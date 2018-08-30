@@ -141,6 +141,6 @@ Within a row or column range you can access a certain cell.
 
 === Naming a cell
 
-You can (re-) name a cell range.
+You can (re-) name a cell range by stating the row and the column of the cell, and the new name.
 
   sheet.set_name(1,1,"name")

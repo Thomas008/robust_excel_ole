@@ -113,7 +113,7 @@ module RobustExcelOle
     # @param [String] name   the range name
     # @param [Fixnum] row    the row
     # @param [Fixnum] column the column
-    def set_name(row,column,name)
+    def set_name(name,row,column)
       begin
         old_name = self[row,column].Name.Name rescue nil
         if old_name
@@ -127,7 +127,6 @@ module RobustExcelOle
         raise RangeNotEvaluatable, "cannot add name #{name.inspect} to cell with row #{row.inspect} and column #{column.inspect}"
       end
     end
-
 
     def each
       each_row do |row_range|

@@ -8,7 +8,7 @@ RobustExcelOle enables to read and write the contents of ranges and cells in wor
 
 You can (re-) name a cell range by stating its name, and the row and the column of the cell.
 
-  sheet.set_name("name",1,1)
+  sheet.add_name("name",1,1)
 
 === Reading and writing the contents of a named range in a workbook.
 

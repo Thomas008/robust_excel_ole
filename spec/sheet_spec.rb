@@ -631,7 +631,7 @@ describe Sheet do
 
     end
 
-    describe "set_name" do
+    describe "add_name" do
 
       context "setting the name of a range" do
 
@@ -649,19 +649,19 @@ describe Sheet do
           expect{
             @sheet1[1,2].Name.Name
           }.to raise_error          
-          @sheet1.set_name("foo",1,2)
+          @sheet1.add_name("foo",1,2)
           @sheet1[1,2].Name.Name.should == "Sheet1!foo"
         end
 
         it "should rename an already named range with a giving address" do
           @sheet1[1,1].Name.Name.should == "Sheet1!firstcell"
-          @sheet1.set_name("foo",1,1)
+          @sheet1.add_name("foo",1,1)
           @sheet1[1,1].Name.Name.should == "Sheet1!foo"
         end
 
         it "should raise an error" do
           expect{
-            @sheet1.set_name("foo", -2, 1)
+            @sheet1.add_name("foo", -2, 1)
           }.to raise_error(RangeNotEvaluatable, /cannot add name "foo" to cell with row -2 and column 1/)
         end
       end

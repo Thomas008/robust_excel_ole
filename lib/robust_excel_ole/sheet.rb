@@ -109,11 +109,15 @@ module RobustExcelOle
       end
     end
     
-    # assigns a name to a range (a cell) given by an address
+    def set_name(name,row,column) # :deprivated :#
+      add_name(name,row,column)
+    end
+
+    # adds a name referring to a range (a cell) given by an address
     # @param [String] name   the range name
     # @param [Fixnum] row    the row
     # @param [Fixnum] column the column
-    def set_name(name,row,column)
+    def add_name(name,row,column)
       begin
         old_name = self[row,column].Name.Name rescue nil
         if old_name

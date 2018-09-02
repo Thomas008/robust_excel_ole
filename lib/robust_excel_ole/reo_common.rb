@@ -242,10 +242,10 @@ module RobustExcelOle
 
     def name_object(name)
       begin
-        self.Parent.Names.Item(name)
+        self.Names.Item(name)        
       rescue WIN32OLERuntimeError
         begin
-          self.Names.Item(name)
+          self.Parent.Names.Item(name)
         rescue WIN32OLERuntimeError
           raise RobustExcelOle::NameNotFound, "name #{name.inspect} not in #{self.inspect}"  
         end

@@ -174,14 +174,14 @@ module RobustExcelOle
       end
     end
 
-    def row_range(row, range = nil)
-      range ||= 1..@end_column
-      RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(row , range.min ), @ole_worksheet.Cells(row , range.max )))
+    def row_range(row, integer_range = nil)
+      integer_range ||= 1..@end_column
+      RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(row , integer_range.min ), @ole_worksheet.Cells(row , integer_range.max )))
     end
 
-    def col_range(col, range = nil)
-      range ||= 1..@end_row
-      RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(range.min , col ), @ole_worksheet.Cells(range.max , col )))
+    def col_range(col, integer_range = nil)
+      integer_range ||= 1..@end_row
+      RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(integer_range.min , col ), @ole_worksheet.Cells(integer_range.max , col )))
     end
 
 

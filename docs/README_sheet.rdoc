@@ -6,7 +6,7 @@ Worksheets are represented by Sheet objects.
 
 Assume you have opened a workbook
 
-  book = Workbook.open('workbook.xls', :visible => true)
+  book = Workbook.open('spec/data/workbook.xls', :visible => true)
 
 === Accessing a worksheet.
 

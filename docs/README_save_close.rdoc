@@ -6,7 +6,7 @@
 
 Imagine, you have opened a workbook with
 
-  book = Workbook.open('workbook.xls', :visible => true)
+  book = Workbook.open('spec/data/workbook.xls', :visible => true)
 
 and have modified it.
 
@@ -37,8 +37,8 @@ For example, you want to save a workbook and overwrite the file if it exists bef
 
 If a workbook blocks the workbook that should be saved, then the former one can be saved and closed before.
 
-  book = Workbook.open('workbook.xls')
-  book2 = Workbook.open('another_workbook.xls')
+  book = Workbook.open('spec/data/workbook.xls')
+  book2 = Workbook.open('spec/data/another_workbook.xls')
   book2.save_as('dir/workbook.xls', :if_exists => :overwrite, :if_obstructed => :save)  
 
 === Closing a workbook.
@@ -62,7 +62,7 @@ The option specifies: If the workbook is unsaved, then
 
 You can open a workbook with given file name.
 
-  book = Workbook.open('workbook.xls')
+  book = Workbook.open('spec/data/workbook.xls')
 
 You can save a workbook with given file name, if it is open.
 
@@ -70,8 +70,8 @@ You can save a workbook with given file name, if it is open.
 
 The workbook can be saved under a new file name, if it is open.
 
-  Workbook.save_as('workbook.xls', 'new_workbook.xls')
+  Workbook.save_as('spec/data/workbook.xls', 'new_workbook.xls')
 
 Finally the workbook can be closed with a given filename.
 
-  Workbook.close('workbook.xls')
+  Workbook.close('spec/data/workbook.xls')

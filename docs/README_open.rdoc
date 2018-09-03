@@ -4,12 +4,12 @@
 
 If you want to open a workbook, use
   
-  book = Workbook.open('workbook.xls')
+  book = Workbook.open('spec/data/workbook.xls')
 
 You can also open a workbook with a block. 
 The semantics is similar to, e.g.,  +File.open+.
 
-  Workbook.open('workbook.xls') do |book|
+  Workbook.open('spec/data/workbook.xls') do |book|
     # do something
   end
 
@@ -74,45 +74,45 @@ Here are a few examples:
 
 If you want to open a workbook that was not opened before, or reopen a workbook that was open in an Excel instance that is now closed, in the current (active) Excel instance, then use
 
-  Workbook.open('workbook.xls', :default => {:excel => :current})
+  Workbook.open('spec/data/workbook.xls', :default => {:excel => :current})
 
 or
   
-  Workbook.open('workbook.xls')
+  Workbook.open('spec/data/workbook.xls')
 
 In case you want to open such a workbook in a new Excel instance, then use
 
-  Workbook.open('workbook.xls', :default => {:excel => :new})
+  Workbook.open('spec/data/workbook.xls', :default => {:excel => :new})
 
 If you want to open a workbook in a new Excel instance, no matter if it was opened before, you can write
 
-  Workbook.open('workbook.xls', :force => {:excel => :new})
+  Workbook.open('spec/data/workbook.xls', :force => {:excel => :new})
 
 For simplicity, you can also leave out the +:force+ option (but not the +:default+ option).
 
-  Workbook.open('workbook.xls', :excel => :new)
+  Workbook.open('spec/data/workbook.xls', :excel => :new)
 
 You can also specify an Excel instance
 
   excel1 = Excel.create
-  Workbook.open('workbook.xls', :excel => excel1)
+  Workbook.open('spec/data/workbook.xls', :excel => excel1)
 
 If you want to open the workbook and make its window visible, then use
 
-  book = Workbook.open('workbook.xls', :visible => true)
+  book = Workbook.open('spec/data/workbook.xls', :visible => true)
 
 Notice, that when the workbook is visible, the DisplayAlerts of the respective Excel instance is true, if not explicitely DisplayAlerts is set to false in this Excel instance.
 You can combine options, e.g. 
 
-  Workbook.open('workbook.xls', :excel => :new, :visible => true, :default => {:excel => excel1})
+  Workbook.open('spec/data/workbook.xls', :excel => :new, :visible => true, :default => {:excel => excel1})
 
 You can use the abbreviations, e.g. in this case
 
-  Workbook.open('workbook.xls', :e => :new, :v => true, :d => {:e => excel1})  
+  Workbook.open('spec/data/workbook.xls', :e => :new, :v => true, :d => {:e => excel1})  
 
 If a workbook contains unsaved changes and a workbook with the same filename shall be opened, then the option +:if_unsaved+ manages this conflict. For example, if the workbook with the unsaved changes shall remain open, you can use
 
-  book = Workbook.open('workbook.xls', :if_unsaved => :accept)
+  book = Workbook.open('spec/data/workbook.xls', :if_unsaved => :accept)
 
 If a workbook is open and a workbook with the same name but in different path shall be opened, i.e. the first workbook blocks opening the other workbook, then the option +:if_obstructed+ handles this situation, e.g.
 
@@ -128,7 +128,7 @@ Doing updating links seems to be dependent on calculation mode: updates happen, 
 
 A special feature of RobustExcelOle is that it allows to reopen workbooks after closing them.
 
-  book = Workbook.open('workbook.xls')
+  book = Workbook.open('spec/data/workbook.xls')
   book.close
   book.reopen
 
@@ -160,7 +160,7 @@ Options are the following:
 +:keep_open+::       Whether the workbook shall be open after unobtrusively opening (default: false)
 
 
-  Workbook.unobtrusively('workbook.xls') do |book|
+  Workbook.unobtrusively('spec/data/workbook.xls') do |book|
     # some modification
     sheet = book[0]
     sheet[1,1] = "c" 
@@ -168,7 +168,7 @@ Options are the following:
   
 The methods +for_reading+ and +for_modifying+ indicate unobtrusively reading or modifying.
 
-  Workbook.for_modifying('workbook.xls') do |book|
+  Workbook.for_modifying('spec/data/workbook.xls') do |book|
     # some modification
     sheet = book[0]
     sheet[1,1] = "c" 
@@ -180,7 +180,7 @@ Remark: The methods +unobtrusively+, +for_reading+ and +for_modifying+ work only
 
 This method ensures keeping the save status of the workbook
 
-  book = Workbook.open('workbook.xls')
+  book = Workbook.open('spec/data/workbook.xls')
   book.retain_saved do
     # some reading or modifying
   end

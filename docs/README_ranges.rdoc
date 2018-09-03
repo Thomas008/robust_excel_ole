@@ -2,7 +2,13 @@
 
 == Reading and writing the contents of ranges and cells
 
-RobustExcelOle enables to read and write the contents of ranges and cells in workbooks. This can be done from a Sheet, a Book or an Excel object representing a Worksheet, Workbook, or Application object, respectively, in VBA.
+RobustExcelOle enables to read and write the contents of ranges and cells in workbooks. This can be done from a Sheet, a Book or an Excel object representing a Worksheet, Workbook, or Application object, respectively. You can use VBA methods or methods provided by RobustExcelOle.
+
+=== Example
+
+Suppose you have opened a workbook without any defined names.
+
+  book = Workbook.open('spec/data/workbook.xls', :visible => true)
 
 === Naming a cell
 
@@ -14,21 +20,21 @@ You can (re-) name a cell range by stating its name, and the row and the column 
 
 Assume you have opened a workbook:
  
-  book = Workbook.open('workbook.xls', :visible => true)
+  book = Workbook.open('spec/data/workbook.xls', :visible => true)
 
-You can get the contents of a range with a defined name with help of the method [] or +nameval+.
+You can get the contents of a range with a defined name with help of the method [] or +namevalue_glob+.
 
   book["name"] 
   => "value"
 
 or
 
-  book.nameval("name")
+  book.namevalue_glob("name")
   => "value"
 
-Using +nameval+, via the option +:default+ you can provide a value that is returned when the name cannot be found or some other error would occur.
+Using +namevalue_glob+, via the option +:default+ you can provide a value that is returned when the name cannot be found or some other error would occur.
 
-  book.namval("name", :default => "default_value")
+  book.namvalue_glob("name", :default => "default_value")
 
 You can set the contents of a range with
 
@@ -36,11 +42,11 @@ You can set the contents of a range with
 
 or
 
-  book.set_nameval("name", "new_value")
+  book.set_namevalue_glob("name", "new_value")
 
-The method []= colors the written cell. You can specify the color of a changed range via the method +set_nameval+. 
+The method []= colors the written cell. You can specify the color of a changed range via the method +set_namevalue_glob+. 
   
-  book.set_nameval("name", "new_value", :color => 4)
+  book.set_namevalue_glob("name", "new_value", :color => 4)
 
 Similarly, the contents of a named range can be read and modified in a worksheet
 
@@ -66,31 +72,31 @@ When saving, the written cells get discolored when using the option :discoloring
 
 or
 
-  book.save_as('workbook.xls', :discoloring => true)
+  book.save_as('spec/data/workbook.xls', :discoloring => true)
 
 === Reading and writing the contents of a range with a locally defined name
 
 The contents of locally defined ranges can be read by
 
-  sheet.rangeval("name")
+  sheet.namevalue("name")
   => "value"
 
 or
 
-  excel.rangeval("name")
+  excel.namevalue("name")
   => "value" 
 
 and be modified by
 
-  sheet.set_rangeval("name", "value")
+  sheet.set_namevalue("name", "value")
 
 or
 
-  excel.set_rangeval("name", "value")
+  excel.set_namevalue("name", "value")
 
-Similarly to nameval, you can provide a default value that is returned when ocurring an error.
+Similarly to namevalue, you can provide a default value that is returned when ocurring an error.
 
-  sheet.rangeval("name", :default => "default_value")
+  sheet.namevalue("name", :default => "default_value")
 
 === Accessing a cell
 
@@ -111,7 +117,6 @@ Similarly, you can write a cell.
 or
 
   sheet.set_cellval(1,1,"new_value", :color => 42)
-
 
 === Accessing rows and columns
 

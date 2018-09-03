@@ -4,15 +4,36 @@
 
 RobustExcelOle enables to read and write the contents of ranges and cells in workbooks. This can be done from a Sheet, a Book or an Excel object representing a Worksheet, Workbook, or Application object, respectively. You can use VBA methods or methods provided by RobustExcelOle.
 
-=== Example
+=== Introducing Example
 
 Suppose you have opened a workbook without any defined names.
 
   book = Workbook.open('spec/data/workbook.xls', :visible => true)
 
+Now we define a name that refers to the range that is the first cell, i.e. in the 1st row and 1st column. Using VBA methods, you can use
+
+  sheet.Names.Add("Name" => "name", "RefersToR1C1" => "Z1S1")
+
+RobustExcelOle provides the method +add_name+:
+
+  sheet.add_name("name",1,1)
+
+Now we assign a value to that named range.
+
+  sheet["name"] = "bar"
+
+Then we can read this value.
+
+  sheet["name"]
+  => "bar" 
+
 === Naming a cell
 
-You can (re-) name a cell range by stating its name, and the row and the column of the cell.
+You can (re-) define a name referring to a cell range with help of VBA methods by stating its name, and the row and the column of the cell.
+
+  sheet.Names.Add("Name" => "name", "RefersToR1C1" => "Z1S1")
+
+Using RobustExcelOle you can use
 
   sheet.add_name("name",1,1)
 

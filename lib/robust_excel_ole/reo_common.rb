@@ -252,6 +252,30 @@ module RobustExcelOle
       set_namevalue(name, value, opts)
     end
 
+    # adds a name referring to a range (a cell) given by an address
+    # @param [String] name   the range name
+    # @param [Fixnum] row    the row
+    # @param [Fixnum] column the column
+    def add_name(name,row,column)
+      begin
+        old_name = self[row,column].Name.Name rescue nil
+        if old_name
+          self[row,column].Name.Name = name
+        else
+          address = "Z" + row.to_s + "S" + column.to_s 
+          self.Names.Add("Name" => name, "RefersToR1C1" => "=" + address)
+        end
+      rescue WIN32OLERuntimeError => msg
+        #trace "WIN32OLERuntimeError: #{msg.message}"
+        raise RangeNotEvaluatable, "cannot add name #{name.inspect} to cell with row #{row.inspect} and column #{column.inspect}"
+      end
+      name
+    end
+
+    def set_name(name,row,column)     # :deprivated :#
+      add_name(name,row,column)
+    end
+
 
   private  
 

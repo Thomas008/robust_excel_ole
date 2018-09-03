@@ -54,8 +54,8 @@ module RobustExcelOle
         @ole_sheet_methods = []
          # ["Activate", "Calculate", "Copy", "Name", "Select", "Evaluate", "Protect", "Unprotect"]
         @sheet_methods = ["book_class", "col_range", "each", "each_column", "each_column_with_index",
-                          "each_row", "each_row_with_index", "nameval", "rangeval", 
-                          "set_rangeval", "row_range", "set_nameval"]
+                          "each_row", "each_row_with_index", "nameval", "namevalue", 
+                          "set_namevalue", "row_range", "set_nameval"]
       end
 
       after do

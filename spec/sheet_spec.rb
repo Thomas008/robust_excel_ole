@@ -488,7 +488,7 @@ describe Sheet do
       end
     end
 
-    describe "nameval, set_nameval" do
+    describe "namevalue_glob, set_namevalue_glob" do
 
       before do
         @book1 = Book.open(@dir + '/another_workbook.xls')
@@ -500,53 +500,53 @@ describe Sheet do
       end   
 
       it "should return value of a defined name" do
-        @sheet1.nameval("firstcell").should == "foo"
+        @sheet1.namevalue_glob("firstcell").should == "foo"
       end
 
       #it "should evaluate a formula" do
-      #  @sheet1.nameval("another_formula").should == 5
+      #  @sheet1.namevalue_glob("another_formula").should == 5
       #end      
 
       it "should raise an error if name not defined" do
         expect {
-          @sheet1.nameval("foo")
+          @sheet1.namevalue_glob("foo")
         }.to raise_error(NameNotFound, /name "foo" not in/)
       end
 
       it "should raise an error of coordinates are given instead of a defined name" do
         expect {
-          @sheet1.nameval("A1")
+          @sheet1.namevalue_glob("A1")
         }.to raise_error(NameNotFound, /name "A1" not in #<Sheet: Sheet1/)
       end
 
       it "should return default value for a range with empty contents" do
-        @sheet1.nameval("another", :default => 2) == 2
+        @sheet1.namevalue_glob("another", :default => 2) == 2
       end 
 
       it "should set a range to a value" do
-        @sheet1.nameval("firstcell").should == "foo"
+        @sheet1.namevalue_glob("firstcell").should == "foo"
         @sheet1[1,1].Value.should == "foo"
-        @sheet1.set_nameval("firstcell","bar")
-        @sheet1.nameval("firstcell").should == "bar"
+        @sheet1.set_namevalue_glob("firstcell","bar")
+        @sheet1.namevalue_glob("firstcell").should == "bar"
         @sheet1[1,1].Value.should == "bar"
       end
 
       it "should raise an error if name cannot be evaluated" do
         expect{
-          @sheet1.set_nameval("foo", 1)
+          @sheet1.set_namevalue_glob("foo", 1)
         }.to raise_error(NameNotFound, /name "foo" not in #<Sheet: Sheet1/)
       end
 
       it "should color the cell" do
-        @sheet1.set_nameval("new", "bar")
+        @sheet1.set_namevalue_glob("new", "bar")
         @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
-        @sheet1.set_nameval("new", "bar", :color => 4)
+        @sheet1.set_namevalue_glob("new", "bar", :color => 4)
         @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
       end
 
     end
 
-    describe "rangeval, set_rangeval" do
+    describe "namevalue, set_namevalue" do
       
       before do
         @book1 = Book.open(@dir + '/another_workbook.xls')
@@ -559,73 +559,73 @@ describe Sheet do
       end   
 
       it "should return value of a locally defined name" do
-        @sheet1.rangeval("firstcell").should == "foo"          
+        @sheet1.namevalue("firstcell").should == "foo"          
       end        
 
       it "should return value of a name with coordinates" do
-        @sheet1.rangeval("A1").should == "foo"         
+        @sheet1.namevalue("A1").should == "foo"         
       end  
 
       it "should return nil for a range with empty contents" do
-        @sheet1.rangeval("another").should == nil
+        @sheet1.namevalue("another").should == nil
       end 
 
       it "should return value of a defined name" do
-        @sheet1.rangeval("new").should == "foo"         
-        @sheet1.rangeval("one").should == 1.0    
-        @sheet1.rangeval("four").should == [[1,2],[3,4]]
-        @sheet1.rangeval("firstrow").should == [[1,2]]
+        @sheet1.namevalue("new").should == "foo"         
+        @sheet1.namevalue("one").should == 1.0    
+        @sheet1.namevalue("four").should == [[1,2],[3,4]]
+        @sheet1.namevalue("firstrow").should == [[1,2]]
       end    
 
       it "should return default value if name not defined and default value is given" do
-        @sheet1.rangeval("foo", :default => 2).should == 2
+        @sheet1.namevalue("foo", :default => 2).should == 2
       end
 
       it "should raise an error if name not defined for the sheet" do
         expect {
-          @sheet1.rangeval("foo")
+          @sheet1.namevalue("foo")
           }.to raise_error(NameNotFound, /name "foo" not in #<Sheet: Sheet1/)
         expect {
-          @sheet1.rangeval("named_formula")
+          @sheet1.namevalue("named_formula")
           }.to raise_error(NameNotFound, /name "named_formula" not in #<Sheet: Sheet1/)
         expect {
-          @sheet2.rangeval("firstcell")
+          @sheet2.namevalue("firstcell")
           }.to raise_error(NameNotFound, /name "firstcell" not in #<Sheet: Sheet2/)
       end
     
       it "should set a range to a value" do
-        @sheet1.rangeval("firstcell").should == "foo"
+        @sheet1.namevalue("firstcell").should == "foo"
         @sheet1[1,1].Value.should == "foo"
-        @sheet1.set_rangeval("firstcell","bar")
-        @sheet1.rangeval("firstcell").should == "bar"
+        @sheet1.set_namevalue("firstcell","bar")
+        @sheet1.namevalue("firstcell").should == "bar"
         @sheet1[1,1].Value.should == "bar"          
       end
 
       it "should raise an error if name cannot be evaluated" do
         expect{
-          @sheet1.set_nameval("foo", 1)
+          @sheet1.set_namevalue_glob("foo", 1)
         }.to raise_error(NameNotFound, /name "foo" not in #<Sheet: Sheet1/)
       end
 
       it "should raise an error if name not defined and default value is not provided" do
         expect {
-          @sheet1.rangeval("foo", :default => nil)
+          @sheet1.namevalue("foo", :default => nil)
         }.to_not raise_error
         expect {
-          @sheet1.rangeval("foo", :default => :__not_provided)
+          @sheet1.namevalue("foo", :default => :__not_provided)
         }.to raise_error(NameNotFound, /name "foo" not in #<Sheet: Sheet1 another_workbook/)
         expect {
-          @sheet1.rangeval("foo")
+          @sheet1.namevalue("foo")
         }.to raise_error(NameNotFound, /name "foo" not in #<Sheet: Sheet1 another_workbook/)
-        @sheet1.rangeval("foo", :default => nil).should be_nil
-        @sheet1.rangeval("foo", :default => 1).should == 1
-        @sheet1.nameval("empty", :default => 1).should be_nil
+        @sheet1.namevalue("foo", :default => nil).should be_nil
+        @sheet1.namevalue("foo", :default => 1).should == 1
+        @sheet1.namevalue_glob("empty", :default => 1).should be_nil
       end
 
       it "should color the cell" do
-        @sheet1.set_rangeval("new", "bar")
+        @sheet1.set_namevalue("new", "bar")
         @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
-        @sheet1.set_rangeval("new", "bar", :color => 4)
+        @sheet1.set_namevalue("new", "bar", :color => 4)
         @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
       end
 

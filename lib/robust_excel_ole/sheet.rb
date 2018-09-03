@@ -58,9 +58,9 @@ module RobustExcelOle
       else
         name = p1
         begin
-          nameval(name) 
+          namevalue_glob(name) 
         rescue REOError
-          rangeval(name)
+          namevalue(name)
         end
       end
     end
@@ -74,12 +74,12 @@ module RobustExcelOle
       else
         name, value = p1, p2
         begin
-          set_nameval(name, value, :color => 42) # aqua-marin, 4-green
+          set_namevalue_glob(name, value, :color => 42) # aqua-marin, 4-green
         rescue REOError
           begin
-            workbook.set_nameval(name, value)
+            workbook.set_namevalue_glob(name, value)
           rescue REOError
-            set_rangeval(name, value)
+            set_namevalue(name, value)
           end
         end
       end
@@ -109,10 +109,6 @@ module RobustExcelOle
       end
     end
     
-    def set_name(name,row,column) # :deprivated :#
-      add_name(name,row,column)
-    end
-
     # adds a name referring to a range (a cell) given by an address
     # @param [String] name   the range name
     # @param [Fixnum] row    the row
@@ -130,6 +126,10 @@ module RobustExcelOle
         #trace "WIN32OLERuntimeError: #{msg.message}"
         raise RangeNotEvaluatable, "cannot add name #{name.inspect} to cell with row #{row.inspect} and column #{column.inspect}"
       end
+    end
+
+    def set_name(name,row,column)     # :deprivated :#
+      add_name(name,row,column)
     end
 
     def each

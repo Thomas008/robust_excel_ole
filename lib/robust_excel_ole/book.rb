@@ -772,14 +772,14 @@ module RobustExcelOle
     # @param [String] name the name of a range
     # @returns [Variant] the value of the range
     def [] name
-      nameval(name)
+      namevalue_glob(name)
     end
 
     # sets the value of a range
     # @param [String]  name  the name of the range
     # @param [Variant] value the contents of the range
     def []= (name, value)
-      set_nameval(name,value, :color => 42)   # 42 - aqua-marin, 4-green
+      set_namevalue_glob(name,value, :color => 42)   # 42 - aqua-marin, 4-green
     end
 
     # renames a range

@@ -1806,25 +1806,25 @@ module RobustExcelOle
       end   
 
       it "should return value of a defined name" do
-        @excel1.nameval("firstcell").should == "foo"
+        @excel1.namevalue_glob("firstcell").should == "foo"
         @excel1["firstcell"].should == "foo"
       end        
 
       #it "should evaluate a formula" do
-      #  @excel1.nameval("named_formula").should == 4
+      #  @excel1.namevalue_glob("named_formula").should == 4
       #  @excel1["named_formula"].should == 4
       #end
 
       it "should raise an error if name not defined" do
         expect {
-          @excel1.nameval("foo")
+          @excel1.namevalue_glob("foo")
         }.to raise_error(NameNotFound, /name "foo"/)
         expect {
         @excel1["foo"]
         }.to raise_error(NameNotFound, /name "foo"/)
         expect {
           excel2 = Excel.create
-          excel2.nameval("one")
+          excel2.namevalue_glob("one")
         }.to raise_error(NameNotFound, /name "one"/)
         expect {
           excel3 = Excel.create(:visible => true)
@@ -1833,16 +1833,16 @@ module RobustExcelOle
       end
 
       it "should set a range to a value" do
-        @excel1.nameval("firstcell").should == "foo"
-        @excel1.set_nameval("firstcell","bar")
-        @excel1.nameval("firstcell").should == "bar"
+        @excel1.namevalue_glob("firstcell").should == "foo"
+        @excel1.set_namevalue_glob("firstcell","bar")
+        @excel1.namevalue_glob("firstcell").should == "bar"
         @excel1["firstcell"] = "foo"
-        @excel1.nameval("firstcell").should == "foo"
+        @excel1.namevalue_glob("firstcell").should == "foo"
       end
 
       it "should raise an error if name cannot be evaluated" do
         expect{
-          @excel1.set_nameval("foo", 1)
+          @excel1.set_namevalue_glob("foo", 1)
           }.to raise_error(NameNotFound, /name "foo"/)
         expect{
           @excel1["foo"] = 1
@@ -1850,9 +1850,9 @@ module RobustExcelOle
       end
 
       it "should color the cell" do
-        @excel1.set_nameval("firstcell", "foo")
+        @excel1.set_namevalue_glob("firstcell", "foo")
         @book1.Names.Item("firstcell").RefersToRange.Interior.ColorIndex.should == -4142 
-        @excel1.set_nameval("firstcell", "foo", :color => 4)
+        @excel1.set_namevalue_glob("firstcell", "foo", :color => 4)
         @book1.Names.Item("firstcell").RefersToRange.Interior.ColorIndex.should == 4
         @excel1["firstcell"].should == "foo"
         @excel1["firstcell"] = "foo"
@@ -1862,7 +1862,7 @@ module RobustExcelOle
 
     end
 
-    describe "rangeval, set_rangeval" do
+    describe "namevalue, set_namevalue" do
       
       before do
         @book1 = Book.open(@dir + '/another_workbook.xls')
@@ -1874,49 +1874,49 @@ module RobustExcelOle
       end   
 
       it "should return value of a locally defined name" do
-        @excel1.rangeval("firstcell").should == "foo"          
+        @excel1.namevalue("firstcell").should == "foo"          
       end        
 
       it "should return value of a defined name" do
-        @excel1.rangeval("new").should == "foo"         
-        @excel1.rangeval("one").should == 1.0    
-        @excel1.rangeval("four").should == [[1,2],[3,4]]
-        @excel1.rangeval("firstrow").should == [[1,2]]
+        @excel1.namevalue("new").should == "foo"         
+        @excel1.namevalue("one").should == 1.0    
+        @excel1.namevalue("four").should == [[1,2],[3,4]]
+        @excel1.namevalue("firstrow").should == [[1,2]]
       end    
 
       it "should return default value if name not defined and default value is given" do
-        @excel1.rangeval("foo", :default => 2).should == 2
+        @excel1.namevalue("foo", :default => 2).should == 2
       end
 
       it "should raise an error if name not defined for the sheet" do
         expect {
-          @excel1.rangeval("foo")
+          @excel1.namevalue("foo")
           }.to raise_error(NameNotFound, /name "foo" not in/)
         expect {
-          @excel1.rangeval("named_formula")
+          @excel1.namevalue("named_formula")
           }.to raise_error(NameNotFound, /name "named_formula" not in/)
         expect {
           excel2 = Excel.create
-          excel2.rangeval("one")
+          excel2.namevalue("one")
         }.to raise_error(NameNotFound, /name "one" not in/)
       end
     
       it "should set a range to a value" do
-        @excel1.rangeval("firstcell").should == "foo"
-        @excel1.set_rangeval("firstcell","bar")
-        @excel1.rangeval("firstcell").should == "bar"
+        @excel1.namevalue("firstcell").should == "foo"
+        @excel1.set_namevalue("firstcell","bar")
+        @excel1.namevalue("firstcell").should == "bar"
       end
 
       it "should raise an error if name cannot be evaluated" do
         expect{
-          @excel1.set_nameval("foo", 1)
+          @excel1.set_namevalue_glob("foo", 1)
         }.to raise_error(NameNotFound, /name "foo" not in/)
       end
 
       it "should color the cell" do
-        @excel1.set_rangeval("firstcell", "foo")
+        @excel1.set_namevalue("firstcell", "foo")
         @book1.Names.Item("firstcell").RefersToRange.Interior.ColorIndex.should == -4142 
-        @excel1.set_rangeval("firstcell", "foo", :color => 4)
+        @excel1.set_namevalue("firstcell", "foo", :color => 4)
         @book1.Names.Item("firstcell").RefersToRange.Interior.ColorIndex.should == 4
       end
 

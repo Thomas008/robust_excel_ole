@@ -1037,12 +1037,12 @@ describe Book do
     end   
 
     it "should return value of a range" do
-      @book1.nameval("new").should == "foo"
-      @book1.nameval("one").should == 1
-      @book1.nameval("firstrow").should == [[1,2]]        
-      @book1.nameval("four").should == [[1,2],[3,4]]
-      @book1.nameval("firstrow").should_not == "12"
-      @book1.nameval("firstcell").should == "foo"        
+      @book1.namevalue_glob("new").should == "foo"
+      @book1.namevalue_glob("one").should == 1
+      @book1.namevalue_glob("firstrow").should == [[1,2]]        
+      @book1.namevalue_glob("four").should == [[1,2],[3,4]]
+      @book1.namevalue_glob("firstrow").should_not == "12"
+      @book1.namevalue_glob("firstcell").should == "foo"        
     end
 
     it "should return value of a range via []" do
@@ -1055,17 +1055,17 @@ describe Book do
     end
 
     it "should set value of a range" do
-      @book1.set_nameval("new", "bar")
-      @book1.nameval("new").should == "bar"
+      @book1.set_namevalue_glob("new", "bar")
+      @book1.namevalue_glob("new").should == "bar"
     end
 
     it "should set value of a range via []=" do
       @book1["new"] = "bar"
-      @book1.nameval("new").should == "bar"
+      @book1.namevalue_glob("new").should == "bar"
     end
 
     #it "should evaluate a formula" do
-    #  @book1.nameval("named_formula").should == 4      
+    #  @book1.namevalue_glob("named_formula").should == 4      
     #end
 
     #it "should evaluate a formula via []" do
@@ -1073,7 +1073,7 @@ describe Book do
     #end
 
     #it "should return default value if name not defined" do
-    #  @book1.nameval("foo", :default => 2).should == 2
+    #  @book1.namevalue_glob("foo", :default => 2).should == 2
     #end
 
   end

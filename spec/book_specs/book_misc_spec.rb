@@ -678,12 +678,12 @@ describe Book do
     end   
 
     it "should return value of a range" do
-      @book1.nameval("new").should == "foo"
-      @book1.nameval("one").should == 1
-      @book1.nameval("firstrow").should == [[1,2]]        
-      @book1.nameval("four").should == [[1,2],[3,4]]
-      @book1.nameval("firstrow").should_not == "12"
-      @book1.nameval("firstcell").should == "foo"        
+      @book1.namevalue_glob("new").should == "foo"
+      @book1.namevalue_glob("one").should == 1
+      @book1.namevalue_glob("firstrow").should == [[1,2]]        
+      @book1.namevalue_glob("four").should == [[1,2],[3,4]]
+      @book1.namevalue_glob("firstrow").should_not == "12"
+      @book1.namevalue_glob("firstcell").should == "foo"        
     end
 
     it "should return value of a range via []" do
@@ -696,17 +696,17 @@ describe Book do
     end
 
     it "should set value of a range" do
-      @book1.set_nameval("new", "bar")
-      @book1.nameval("new").should == "bar"
+      @book1.set_namevalue_glob("new", "bar")
+      @book1.namevalue_glob("new").should == "bar"
     end
 
     it "should set value of a range via []=" do
       @book1["new"] = "bar"
-      @book1.nameval("new").should == "bar"
+      @book1.namevalue_glob("new").should == "bar"
     end
 
     #it "should evaluate a formula" do
-    #  @book1.nameval("named_formula").should == 4      
+    #  @book1.namevalue_glob("named_formula").should == 4      
     #end
 
     #it "should evaluate a formula via []" do
@@ -715,28 +715,28 @@ describe Book do
 
     it "should raise an error if name not defined and default value is not provided" do
       expect {
-        @book1.nameval("foo", :default => nil)
+        @book1.namevalue_glob("foo", :default => nil)
       }.to_not raise_error
       expect {
-        @book1.nameval("foo", :default => :__not_provided)
+        @book1.namevalue_glob("foo", :default => :__not_provided)
       }.to raise_error(NameNotFound, /name "foo" not in #<Book: another_workbook/)
       expect {
-        @book1.nameval("foo")
+        @book1.namevalue_glob("foo")
       }.to raise_error(NameNotFound, /name "foo" not in #<Book: another_workbook/)
-      @book1.nameval("foo", :default => nil).should be_nil
-      @book1.nameval("foo", :default => 1).should == 1
+      @book1.namevalue_glob("foo", :default => nil).should be_nil
+      @book1.namevalue_glob("foo", :default => 1).should == 1
       expect {
-          @book1.set_nameval("foo","bar")
+          @book1.set_namevalue_glob("foo","bar")
       }.to raise_error(NameNotFound, /name "foo" not in #<Book: another_workbook/)
       expect {
           @book1["foo"] = "bar"
       }.to raise_error(NameNotFound, /name "foo" not in #<Book: another_workbook/)
-      @book1.nameval("empty", :default => 1).should be_nil
+      @book1.namevalue_glob("empty", :default => 1).should be_nil
     end    
 
     it "should raise an error if name was defined but contents is calcuated" do
       expect {
-        @book1.set_nameval("named_formula","bar")
+        @book1.set_namevalue_glob("named_formula","bar")
       }.to raise_error(RangeNotEvaluatable, /cannot assign value to range named "named_formula" in #<Book: another_workbook/)
       expect {
         @book1["named_formula"] = "bar"
@@ -745,19 +745,19 @@ describe Book do
 
     # Excel Bug: for local names without uqifier: takes the first sheet as default even if another sheet is activated
     it "should take the first sheet as default even if the second sheet is activated" do
-      @book1.nameval("Sheet1!localname").should == "bar"
-      @book1.nameval("Sheet2!localname").should == "simple"
-      @book1.nameval("localname").should == "bar"
+      @book1.namevalue_glob("Sheet1!localname").should == "bar"
+      @book1.namevalue_glob("Sheet2!localname").should == "simple"
+      @book1.namevalue_glob("localname").should == "bar"
       @book1.Worksheets.Item(2).Activate
-      @book1.nameval("localname").should == "bar"
+      @book1.namevalue_glob("localname").should == "bar"
       @book1.Worksheets.Item(1).Delete
-      @book1.nameval("localname").should == "simple"
+      @book1.namevalue_glob("localname").should == "simple"
     end
 
     it "should color the cell" do
-      @book1.set_nameval("new", "bar")
+      @book1.set_namevalue_glob("new", "bar")
       @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
-      @book1.set_nameval("new", "bar", :color => 4)
+      @book1.set_namevalue_glob("new", "bar", :color => 4)
       @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
       @book1["new"].should == "bar"
       @book1["new"] = "bar"
@@ -769,7 +769,7 @@ describe Book do
     end
 
     it "should save without color" do
-      @book1.set_nameval("new", "bar", :color => 4)
+      @book1.set_namevalue_glob("new", "bar", :color => 4)
       @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
       @book1.save(:discoloring => true)
       @book1.close
@@ -791,7 +791,7 @@ describe Book do
 
     it "should rename a range" do
       @book1.rename_range("four","five")
-      @book1.nameval("five").should == [[1,2],[3,4]]
+      @book1.namevalue_glob("five").should == [[1,2],[3,4]]
       expect {
         @book1.rename_range("four","five")
       }.to raise_error(NameNotFound, /name "four" not in "another_workbook.xls"/)

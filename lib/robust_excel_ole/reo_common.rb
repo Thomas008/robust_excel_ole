@@ -141,7 +141,7 @@ module RobustExcelOle
     # @param  [Hash]        opts      the options
     # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
     # @return [Variant] the contents of a range with given name
-    def nameval(name, opts = {:default => :__not_provided})
+    def namevalue_glob(name, opts = {:default => :__not_provided})
       name_obj = begin
         name_object(name)
       rescue NameNotFound => msg
@@ -175,7 +175,7 @@ module RobustExcelOle
     # @param [Variant] value the contents of the range
     # @param [FixNum]  color the color when setting a value
     # @param [Hash]    opts :color [FixNum]  the color when setting the contents
-    def set_nameval(name, value, opts = {:color => 0})
+    def set_namevalue_glob(name, value, opts = {:color => 0})
       begin
         cell = name_object(name).RefersToRange
         cell.Interior.ColorIndex = opts[:color] 
@@ -194,8 +194,8 @@ module RobustExcelOle
     # @param  [Hash]        opts      the options
     # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
     # @return [Variant] the contents of a range with given name   
-    def rangeval(name, opts = {:default => :__not_provided})
-      return nameval(name, opts) if self.is_a?(Book)
+    def namevalue(name, opts = {:default => :__not_provided})
+      return namevalue_glob(name, opts) if self.is_a?(Book)
       begin
         range = self.Range(name)
       rescue WIN32OLERuntimeError
@@ -214,17 +214,15 @@ module RobustExcelOle
       end 
       return opts[:default] unless opts[:default] == :__not_provided or value.nil?
       value      
-      #return opts[:default] unless opts[:default] == :__not_provided
-      #raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect}" if value == -2146828288 + RobustExcelOle::XlErrName
     end
 
     # assigns a value to a range given a locally defined name
     # @param [String]  name   the name of a range
     # @param [Variant] value  the assigned value
     # @param [Hash]    opts :color [FixNum]  the color when setting the contents
-    def set_rangeval(name,value, opts = {:color => 0})
+    def set_namevalue(name, value, opts = {:color => 0})
       begin
-        return set_nameval(name, value, opts) if self.is_a?(Book)
+        return set_namevalue_glob(name, value, opts) if self.is_a?(Book)
         range = self.Range(name)
       rescue WIN32OLERuntimeError
         raise NameNotFound, "name #{name.inspect} not in #{self.inspect}"
@@ -237,6 +235,23 @@ module RobustExcelOle
         raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.inspect}"
       end
     end
+
+    def nameval(name, opts = {:default => :__not_provided})   # :deprivated: #
+      namevalue_glob(name, opts)
+    end
+
+    def set_nameval(name, value, opts = {:color => 0})        # :deprivated: #
+      set_namevalue_glob(name, value, opts)
+    end
+
+    def rangeval(name, opts = {:default => :__not_provided})  # :deprivated: #
+      namevalue(name, opts)
+    end
+
+    def set_rangeval(name, value, opts = {:color => 0})       # :deprivated: #
+      set_namevalue(name, value, opts)
+    end
+
 
   private  
 

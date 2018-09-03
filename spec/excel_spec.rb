@@ -1793,6 +1793,52 @@ module RobustExcelOle
       end
     end
 
+    context "setting the name of a range" do
+
+       before do
+        @book1 = Book.open(@dir + '/another_workbook.xls', :read_only => true, :visible => true)
+        @book1.excel.displayalerts = false
+        @excel1 = @book1.excel
+      end
+
+      after do
+        @book1.close
+      end   
+
+      it "should name an unnamed range with a giving address" do
+        @excel1.add_name("foo",1,2)
+        @excel1.Names.Item("foo").Name.should == "foo"
+        @excel1.Names.Item("foo").Value.should == "=Sheet1!$B$1"
+      end
+
+      it "should rename an already named range with a giving address" do
+        @excel1.add_name("foo",1,1)
+        @excel1.Names.Item("foo").Name.should == "foo"
+        @excel1.Names.Item("foo").Value.should == "=Sheet1!$A$1"
+      end
+
+      it "should raise an error" do
+        expect{
+          @excel1.add_name("foo", -2, 1)
+        }.to raise_error(RangeNotEvaluatable, /cannot add name "foo" to cell with row -2 and column 1/)
+      end
+
+      it "should rename a range" do
+        @excel1.add_name("foo",1,1)
+        @excel1.rename_range("foo","bar")
+        @excel1.namevalue_glob("bar").should == "foo"
+      end
+
+      it "should delete a name of a range" do
+        @excel1.add_name("foo",1,1)
+        @excel1.delete_name("foo")
+        expect{
+          @excel1.namevalue_glob("foo")
+        }.to raise_error(NameNotFound, /name "foo"/)
+      end
+    end
+  
+
     describe "nameval, set_nameval" do
 
       before do

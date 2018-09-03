@@ -1078,6 +1078,45 @@ describe Book do
       end
     end
 
+    context "adding and deleting the name of a range" do
+
+       before do
+        @book1 = Book.open(@dir + '/another_workbook.xls', :read_only => true, :visible => true)
+        @book1.excel.displayalerts = false
+      end
+
+      after do
+        @book1.close
+      end   
+
+      it "should name an unnamed range with a giving address" do
+        @book1.add_name("foo",1,2)
+        @book1.Names.Item("foo").Name.should == "foo"
+        @book1.Names.Item("foo").Value.should == "=Sheet1!$B$1"
+      end
+
+      it "should rename an already named range with a giving address" do
+        @book1.add_name("foo",1,1)
+        @book1.Names.Item("foo").Name.should == "foo"
+        @book1.Names.Item("foo").Value.should == "=Sheet1!$A$1"
+      end
+
+      it "should raise an error" do
+        expect{
+          @book1.add_name("foo", -2, 1)
+        }.to raise_error(RangeNotEvaluatable, /cannot add name "foo" to cell with row -2 and column 1/)
+      end
+
+      it "should delete a name of a range" do
+        @book1.add_name("foo",1,1)
+        @book1.delete_name("foo")
+        expect{
+          @book1.namevalue_glob("foo")
+        }.to raise_error(NameNotFound, /name "foo"/)
+      end
+
+    end
+  
     context "with compatibility" do      
 
       it "should open with checking compatibility" do

@@ -631,9 +631,9 @@ describe Sheet do
 
     end
 
-    describe "add_name" do
+    describe "add_name, delete_name, rename_range" do
 
-      context "setting the name of a range" do
+      context "adding, renaming, deleting the name of a range" do
 
          before do
           @book1 = Book.open(@dir + '/another_workbook.xls', :read_only => true, :visible => true)
@@ -664,6 +664,21 @@ describe Sheet do
             @sheet1.add_name("foo", -2, 1)
           }.to raise_error(RangeNotEvaluatable, /cannot add name "foo" to cell with row -2 and column 1/)
         end
+
+        it "should rename a range" do
+          @sheet1.add_name("foo",1,1)
+          @sheet1.rename_range("foo","bar")
+          @sheet1.namevalue_glob("bar").should == "foo"
+        end
+
+        it "should delete a name of a range" do
+          @sheet1.add_name("foo",1,1)
+          @sheet1.delete_name("foo")
+          expect{
+            @sheet1.namevalue_glob("foo")
+         }.to raise_error(NameNotFound, /name "foo"/)
+        end
+
       end
     end
 

@@ -276,6 +276,38 @@ module RobustExcelOle
       add_name(name,row,column)
     end
 
+    # renames a range
+    # @param [String] name     the previous range name
+    # @param [String] new_name the new range name
+    def rename_range(name, new_name)
+      begin
+        item = self.Names.Item(name)
+      rescue WIN32OLERuntimeError
+        raise NameNotFound, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"  
+      end
+      begin
+        item.Name = new_name
+      rescue WIN32OLERuntimeError
+        raise UnexpectedREOError, "name error in #{File.basename(self.stored_filename).inspect}"      
+      end
+    end
+
+    # deletes a name of a range
+    # @param [String] name     the previous range name
+    # @param [String] new_name the new range name
+    def delete_name(name)
+      begin
+        item = self.Names.Item(name)
+      rescue WIN32OLERuntimeError
+        raise NameNotFound, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"  
+      end
+      begin
+        item.Delete
+      rescue WIN32OLERuntimeError
+        raise UnexpectedREOError, "name error in #{File.basename(self.stored_filename).inspect}"      
+      end
+    end
+
 
   private  
 

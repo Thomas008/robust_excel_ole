@@ -10,22 +10,43 @@ Suppose you have opened a workbook without any defined names.
 
   book = Workbook.open('spec/data/workbook.xls', :visible => true)
 
-Now we define a name that refers to the range that is the first cell, i.e. in the 1st row and 1st column. Using VBA methods, you can use
+Now we define a name that refers to the range that shall consists of just the first cell, i.e. the 1st row and 1st column. Using VBA methods, you can use
 
-  sheet.Names.Add("Name" => "name", "RefersToR1C1" => "Z1S1")
+  book.Names.Add("Name" => "name", "RefersToR1C1" => "=Z1S1")
 
-RobustExcelOle provides the method +add_name+:
+RobustExcelOle provides the method +add_name+.
 
-  sheet.add_name("name",1,1)
+  book.add_name("name",1,1)
 
-Now we assign a value to that named range.
+Now we can assign a value to that named range. With help of VBA methods this can be done by
 
-  sheet["name"] = "bar"
+  book.Names.Item("name").RefersToRange.Value = "bar"
 
-Then we can read this value.
+Using RobustExcelOle the assignment can be done by
 
-  sheet["name"]
+  book["name"] = "bar"
+
+Similarly, we can read the value of the range, using VBA methods
+
+  book.Names.Item("name").RefersToRange.Value
+  => "bar"
+
+or RobustExcelOle
+
+  book["name"]
   => "bar" 
+
+Finally we can rename a range, and delete the name of a range. With help of VBA methods this can be achieved by
+
+  book.Names.Item("name").Name = "new_name"
+  book.Names.Item("new_name").Delete
+
+Using RobustExcelOle, we write
+
+  book.rename_range("name", "new_name")
+  book.delete_name("name")
+
+In the following some details are being summarized.
 
 === Naming a cell
 

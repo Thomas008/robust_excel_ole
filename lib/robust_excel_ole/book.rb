@@ -782,22 +782,6 @@ module RobustExcelOle
       set_namevalue_glob(name,value, :color => 42)   # 42 - aqua-marin, 4-green
     end
 
-    # renames a range
-    # @param [String] name     the previous range name
-    # @param [String] new_name the new range name
-    def rename_range(name, new_name)
-      begin
-        item = self.Names.Item(name)
-      rescue WIN32OLERuntimeError
-        raise NameNotFound, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"  
-      end
-      begin
-        item.Name = new_name
-      rescue WIN32OLERuntimeError
-        raise UnexpectedREOError, "name error in #{File.basename(self.stored_filename).inspect}"      
-      end
-    end
-
     # sets options
     # @param [Hash] opts
     def for_this_workbook(opts)

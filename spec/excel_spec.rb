@@ -1836,6 +1836,11 @@ module RobustExcelOle
           @excel1.namevalue_glob("foo")
         }.to raise_error(NameNotFound, /name "foo"/)
       end
+
+      it "should add a name of a rectangular range" do
+        @excel1.add_name("foo",1,1,3,4)
+        @excel1["foo"].should == [["foo", "workbook", "sheet1", nil], ["foo", 1.0, 2.0, 4.0], ["matz", 3.0, 4.0, 4.0]] 
+      end
     end
   
 

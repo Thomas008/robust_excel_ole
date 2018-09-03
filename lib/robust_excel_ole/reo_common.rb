@@ -252,19 +252,21 @@ module RobustExcelOle
       set_namevalue(name, value, opts)
     end
 
-    # adds a name referring to a range (a cell) given by an address
+    # adds a name referring to a range given by the row and column
+    # range is a cell if one row and one column are provided
+    # range is a rectangular if two pairs of coordinates are provifed
     # @param [String] name   the range name
-    # @param [Fixnum] row    the row
-    # @param [Fixnum] column the column
-    def add_name(name,row,column)
+    # @params [Fixnum] rows, columns  
+    def add_name(name,row,column, row_end = nil, column_end = nil)
       begin
-        old_name = self[row,column].Name.Name rescue nil
-        if old_name
-          self[row,column].Name.Name = name
-        else
-          address = "Z" + row.to_s + "S" + column.to_s 
-          self.Names.Add("Name" => name, "RefersToR1C1" => "=" + address)
-        end
+        #old_name = self[row,column].Name.Name rescue nil
+        #if old_name
+        #  self[row,column].Name.Name = name
+        #else
+        address = "Z" + row.to_s + "S" + column.to_s 
+        address += (":Z" + row_end.to_s + "S" + column_end.to_s) unless row_end.nil?
+        self.Names.Add("Name" => name, "RefersToR1C1" => "=" + address)
+        #end
       rescue WIN32OLERuntimeError => msg
         #trace "WIN32OLERuntimeError: #{msg.message}"
         raise RangeNotEvaluatable, "cannot add name #{name.inspect} to cell with row #{row.inspect} and column #{column.inspect}"

@@ -1115,6 +1115,11 @@ describe Book do
         }.to raise_error(NameNotFound, /name "foo"/)
       end
 
+      it "should add a name of a rectangular range" do
+        @book1.add_name("foo",1,1,3,4)
+        @book1["foo"].should == [["foo", "workbook", "sheet1", nil], ["foo", 1.0, 2.0, 4.0], ["matz", 3.0, 4.0, 4.0]] 
+      end
+
     end
   
     context "with compatibility" do      

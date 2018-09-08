@@ -2,6 +2,7 @@
 module RobustExcelOle
   class Range < REOCommon
     include Enumerable
+    attr_reader :ole_range
 
     def initialize(win32_range)
       @range = win32_range

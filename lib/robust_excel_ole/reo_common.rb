@@ -236,19 +236,19 @@ module RobustExcelOle
       end
     end
 
-    def nameval(name, opts = {:default => :__not_provided})   # :deprivated: #
+    def nameval(name, opts = {:default => :__not_provided})   # :deprecated: #
       namevalue_glob(name, opts)
     end
 
-    def set_nameval(name, value, opts = {:color => 0})        # :deprivated: #
+    def set_nameval(name, value, opts = {:color => 0})        # :deprecated: #
       set_namevalue_glob(name, value, opts)
     end
 
-    def rangeval(name, opts = {:default => :__not_provided})  # :deprivated: #
+    def rangeval(name, opts = {:default => :__not_provided})  # :deprecated: #
       namevalue(name, opts)
     end
 
-    def set_rangeval(name, value, opts = {:color => 0})       # :deprivated: #
+    def set_rangeval(name, value, opts = {:color => 0})       # :deprecated: #
       set_namevalue(name, value, opts)
     end
 
@@ -274,7 +274,7 @@ module RobustExcelOle
       name
     end
 
-    def set_name(name,row,column)     # :deprivated :#
+    def set_name(name,row,column)     # :deprecated :#
       add_name(name,row,column)
     end
 

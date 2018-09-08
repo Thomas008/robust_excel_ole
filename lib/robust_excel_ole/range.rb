@@ -5,11 +5,11 @@ module RobustExcelOle
     attr_reader :ole_range
 
     def initialize(win32_range)
-      @range = win32_range
+      @ole_range = win32_range
     end
 
     def each
-      @range.each do |row_or_column|
+      @ole_range.each do |row_or_column|
         yield RobustExcelOle::Cell.new(row_or_column)
       end
     end
@@ -29,11 +29,11 @@ module RobustExcelOle
 
     def [] index
       @cells = []
-      @cells[index + 1] = RobustExcelOle::Cell.new(@range.Cells.Item(index + 1))
+      @cells[index + 1] = RobustExcelOle::Cell.new(@ole_range.Cells.Item(index + 1))
     end
 
     def method_missing(id, *args)  # :nodoc: #
-      @range.send(id, *args)
+      @ole_range.send(id, *args)
     end
   end
 end

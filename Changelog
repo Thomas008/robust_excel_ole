@@ -6,11 +6,11 @@ All notable changes to this project will be documented in this file.
 ### Added
   - ReoCommon#add_name, rename_range, delete_name
   - Sheet#range
+  - Range#copy
 
 ### Changed:
   - ReoCommon#namevalue, namevalue_glob, set_namevalue, set_namevalue_glob replace
     set_namevalue replaces set_rangeval, set_namevalue_glob, respectively
-
 
 ## [1.2.1] 2018-9-2
 

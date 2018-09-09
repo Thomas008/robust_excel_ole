@@ -119,6 +119,19 @@ describe RobustExcelOle::Range do
     end
   end
 
+  describe "#copy" do
+    after do
+      @book.close(:if_unsaved => :forget)
+    end
+
+    it "should copy range" do
+      puts "@range.values: #{@range.values}"
+      @range.copy(4,4)
+      @sheet.range(4,4,6,6).values.should == ["simple", "file", "sheet2", nil, nil, nil, nil, nil, nil]
+    end
+
+  end
+
   describe "#method_missing" do
     it "can access COM method" do
       @range.Range(@range.Cells.Item(1), @range.Cells.Item(3)).value.should eq [@range.values(0..2)]

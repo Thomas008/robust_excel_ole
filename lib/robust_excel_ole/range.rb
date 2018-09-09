@@ -3,9 +3,11 @@ module RobustExcelOle
   class Range < REOCommon
     include Enumerable
     attr_reader :ole_range
+    attr_reader :worksheet
 
     def initialize(win32_range)
       @ole_range = win32_range
+      @worksheet = sheet_class.new(self.Parent)
     end
 
     def each
@@ -31,6 +33,33 @@ module RobustExcelOle
       @cells = []
       @cells[index + 1] = RobustExcelOle::Cell.new(@ole_range.Cells.Item(index + 1))
     end
+
+    def copy(r1, c1, r2 = :__not_provided, c2 = :__not_provided)
+      if r2 == :__not_provided
+        r2 = r1
+        c2 = c1
+      end
+      begin
+        self.Copy(:destination => @worksheet.range(r1,c1,r2,c2).ole_range)
+      rescue WIN32OLERuntimeError
+        raise RangeNotCopied, "cannot copy range to (#{r1.inspect},#{c1.inspect}),(#{r2.inspect},#{c2.inspect})"
+      end
+    end
+
+    def self.sheet_class    # :nodoc: #
+      @sheet_class ||= begin
+        module_name = self.parent_name
+        "#{module_name}::Sheet".constantize
+      rescue NameError => e
+        Sheet
+      end
+    end
+
+    def sheet_class        # :nodoc: #
+      self.class.sheet_class
+    end
+
+  private
 
     def method_missing(id, *args)  # :nodoc: #
       @ole_range.send(id, *args)

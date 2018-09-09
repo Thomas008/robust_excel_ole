@@ -68,6 +68,9 @@ module RobustExcelOle
   class RangeNotCreated < MiscREOError             # :nodoc: #
   end
 
+  class RangeNotCopied < MiscREOError              # :nodoc: #
+  end
+
   class OptionInvalid < MiscREOError               # :nodoc: #
   end
 

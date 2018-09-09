@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 module RobustExcelOle
+  
   class Range < REOCommon
     include Enumerable
     attr_reader :ole_range
@@ -16,6 +17,9 @@ module RobustExcelOle
       end
     end
 
+    # values of a range, as array
+    # @params [Range] a range
+    # @returns [Array] the values
     def values(range = nil)
 #+#      result = self.map(&:value).flatten
       result = self.map{|x| x.value}.flatten
@@ -34,13 +38,22 @@ module RobustExcelOle
       @cells[index + 1] = RobustExcelOle::Cell.new(@ole_range.Cells.Item(index + 1))
     end
 
-    def copy(r1, c1, r2 = :__not_provided, c2 = :__not_provided)
+    # copies a range
+    # @params [Fixnum] row, column of the destination cell or
+    #                  row, column of the top left cell and the bottum down cell of a rectangular range
+    # @options [Sheet] the worksheet in which to copy      
+    def copy(r1, c1, r2 = :__not_provided, c2 = :__not_provided, sheet = :__not_provided)
+      if r2.is_a?(RobustExcelOle::Sheet)
+        sheet = r2
+        r2 = :__not_provided
+      end
       if r2 == :__not_provided
         r2 = r1
         c2 = c1
       end
+      sheet = @worksheet if sheet == :__not_provided
       begin
-        self.Copy(:destination => @worksheet.range(r1,c1,r2,c2).ole_range)
+        self.Copy(:destination => sheet.range(r1,c1,r2,c2).ole_range)
       rescue WIN32OLERuntimeError
         raise RangeNotCopied, "cannot copy range to (#{r1.inspect},#{c1.inspect}),(#{r2.inspect},#{c2.inspect})"
       end

@@ -120,14 +120,30 @@ describe RobustExcelOle::Range do
   end
 
   describe "#copy" do
+    
+    before do
+      @book2 = Book.open(@dir + '/different_workbook.xls')
+      @sheet2 = @book.sheet(1)
+      @range2 = @sheet2.range(1,1,2,3)
+    end
+
     after do
       @book.close(:if_unsaved => :forget)
     end
 
-    it "should copy range" do
-      puts "@range.values: #{@range.values}"
-      @range.copy(4,4)
-      @sheet.range(4,4,6,6).values.should == ["simple", "file", "sheet2", nil, nil, nil, nil, nil, nil]
+    it "should copy range at a cell" do
+      @range2.copy(4,4)
+      @sheet2.range(4,4,5,6).values.should == ["foo", "workbook", "sheet1", "foo", nil, "foobaaa"]
+    end
+
+    #it "should copy range at another range" do
+    #  @range2.copy(4,4,10,10)
+    #  @sheet2.range(4,4,10,10).values.should == ["simple", "file", "sheet2", nil, nil, nil, nil, nil, nil]
+    #end
+
+    it "should copy range into a certain worksheet of another workbook" do
+      @range2.copy(4,4,@book2.sheet(3))
+      @book2.sheet(3).range(4,4,5,6).values.should == ["foo", "workbook", "sheet1", "foo", nil, "foobaaa"]
     end
 
   end

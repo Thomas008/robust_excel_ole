@@ -91,7 +91,7 @@ You can read the values by
 
   range.values
 
-We can copy and paste a range. The destination may be one cell. With help of VBA methods you would do
+We can copy and paste a range. The destination may be one cell in the same worksheet. With help of VBA methods you would do
 
   range.Copy(:destination => sheet.range(6,2).ole_range)
 
@@ -102,6 +102,11 @@ or with help of RobustExcelOle
 If you provide a rectangular range as destination, the range might be copied several times.
 
   range.copy(10,1,30,30)
+
+You can also copy into another worksheet even of another workbook (but not in a different Excel instance), e.g.
+
+  book = Workbook.open('spec/data/another_workbook.xls', :visible => true)
+  range.copy(5,8,book2.sheet(3))
 
 Suppose you want to define a named range consisting of several cells forming a rectangular. Using VBA methods this can be done by
 

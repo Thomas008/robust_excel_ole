@@ -21,7 +21,8 @@ module RobustExcelOle
       @workbook = book_class.new(self.Parent)
     end
 
-    # returns name of the sheet
+    # sheet name
+    # @returns name of the sheet
     def name
       begin
         @ole_worksheet.Name
@@ -30,7 +31,7 @@ module RobustExcelOle
       end
     end
 
-    # name the sheet
+    # sets sheet name
     # @param [String] new_name the new name of the sheet 
     def name= (new_name)
       begin
@@ -44,7 +45,9 @@ module RobustExcelOle
       end
     end
 
-    # returns cell, if row and column are given 
+    # a cell given the defined name or row and column
+    # @params row, column, or name
+    # @returns cell, if row and column are given 
     def [] p1, p2 = :__not_provided
       if p2 != :__not_provided  
         x, y = p1, p2
@@ -65,8 +68,8 @@ module RobustExcelOle
       end
     end
 
-    # sets the value of a cell, if row and column are given
-    # sets the value of a range if its name is given
+    # sets the value of a cell
+    # @params row and colulumn, or defined name
     def []= (p1, p2, p3 = :__not_provided)
       if p3 != :__not_provided
         x, y, value = p1, p2, p3
@@ -85,7 +88,9 @@ module RobustExcelOle
       end
     end
 
-    # returns the value of a cell, if row and column are given
+    # value of a cell, if row and column are given
+    # @params row and column
+    # @returns value of the cell
     def cellval(x,y)
       xy = "#{x}_#{y}"
       @cells = { }
@@ -98,6 +103,8 @@ module RobustExcelOle
     end
 
     # sets the value of a cell, if row, column and color of the cell are given
+    # @params [Fixnum] x,y row and column
+    # @option opts [Symbol] :color the color of the cell when set 
     def set_cellval(x,y,value, opts = {:color => 0})
       begin
         cell = @ole_worksheet.Cells.Item(x, y)        

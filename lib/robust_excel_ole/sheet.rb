@@ -109,6 +109,23 @@ module RobustExcelOle
       end
     end
 
+    # creates a range.
+    # @params [Fixnum] row and column of a cell, or 
+    # @params [Fixnum] row and column of the top left cell and 
+    #                  row and column of the bottum right cell of a rectangur range 
+    # @return [Range] a range
+    def range(r1, c1, r2 = :__not_provided, c2 = :__not_provided)
+      if r2 == :__not_provided
+        r2 = r1
+        c2 = c1
+      end
+      begin
+        RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(r1, c1), @ole_worksheet.Cells(r2, c2)))
+      rescue WIN32OLERuntimeError
+        raise RangeNotCreated, "cannot create range (#{r1.inspect},#{c1.inspect}),(#{r2.inspect},#{c2.inspect})"
+      end
+    end
+
     def each
       each_row do |row_range|
         row_range.each do |cell|

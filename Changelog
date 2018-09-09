@@ -3,11 +3,14 @@ All notable changes to this project will be documented in this file.
 
 ## [1.2.2]
 
+### Added
+  - ReoCommon#add_name, rename_range, delete_name
+  - Sheet#range
+
 ### Changed:
   - ReoCommon#namevalue, namevalue_glob, set_namevalue, set_namevalue_glob replace
     set_namevalue replaces set_rangeval, set_namevalue_glob, respectively
-### Added
-  - ReoCommon#add_name, rename_range, delete_name
+
 
 ## [1.2.1] 2018-9-2
 

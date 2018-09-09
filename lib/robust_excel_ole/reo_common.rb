@@ -65,6 +65,9 @@ module RobustExcelOle
   class RangeNotEvaluatable < MiscREOError         # :nodoc: #
   end
 
+  class RangeNotCreated < MiscREOError             # :nodoc: #
+  end
+
   class OptionInvalid < MiscREOError               # :nodoc: #
   end
 

@@ -6,9 +6,42 @@ RobustExcelOle enables to read and write the contents of ranges and cells in wor
 
 === Introducing Example
 
-Suppose you have opened a workbook without any defined names.
+Suppose you have opened a workbook.
 
   book = Workbook.open('spec/data/workbook.xls', :visible => true)
+
+We can access a range consisting of one cell by providing the row and and the column of a cell. With help of VBA methods you can put
+
+  sheet.Range(sheet.Cells(1,1))
+
+or using RobustExcelOle
+
+  range = sheet.range(1,1)
+
+Similarly you can access a rectangular range by providing the row and column of the top left cell and the row and column of the bottum right cell. Wit VBA methods you use
+
+  range = sheet.Range(sheet.Cells(1,1), sheet.Cells(3,4))
+
+or with help of RobustExcelOle
+
+  range = sheet.range(1,1,3,4)
+
+You can read the values by 
+
+  range.values
+
+Now we copy and paste a range. With help of VBA methods you would do
+
+  range.Copy(:destination => sheet.range(6,2).ole_range)
+
+or with help of RobustExcelOle
+
+  range.copy(6,2)
+
+You can also copy a range into another worksheet in another workbook.
+
+  book2 = Workbook.open('spec/data/another_workbook.xls', :excel => :new, :visible => true)
+  range.copy(5,8,book2.sheet(3))
 
 Now we define a name that refers to a range consisting of only the first cell, i.e. the 1st row and 1st column. Using VBA methods, you can use
 
@@ -18,7 +51,7 @@ RobustExcelOle provides the method +add_name+.
 
   book.add_name("name",1,1)
 
-Defining a name referring to a rectangular range is done by stating the row and column of the top-left corner and the row and column of the bottom right corner.
+Defining a name referring to a rectangular range is done by stating the row and column of the top left cell and the row and column of the bottom right cell.
 
   book.add_name("name",1,1,3,4)
 
@@ -71,43 +104,6 @@ or using RobustExcelOle
 
   sheet[1,1] = "new_value"
 
-We can access a range consisting of one cell by providing the row and and the column of a cell.
-
-  sheet.Range(sheet.Cells(1,1))
-
-or using RobustExcelOle
-
-  range = sheet.range(1,1)
-
-Similarly you can access a rectangular range by providing the top left cell and the bottum right cell.
-
-  range = sheet.Range(sheet.Cells(1,1), sheet.Cells(3,4))
-
-or with help of RobustExcelOle
-
-  range = sheet.range(1,1,3,4)
-
-You can read the values by 
-
-  range.values
-
-We can copy and paste a range. The destination may be one cell in the same worksheet. With help of VBA methods you would do
-
-  range.Copy(:destination => sheet.range(6,2).ole_range)
-
-or with help of RobustExcelOle
-
-  range.copy(6,2)
-
-If you provide a rectangular range as destination, the range might be copied several times.
-
-  range.copy(10,1,30,30)
-
-You can also copy into another worksheet even of another workbook (but not in a different Excel instance), e.g.
-
-  book = Workbook.open('spec/data/another_workbook.xls', :visible => true)
-  range.copy(5,8,book2.sheet(3))
-
 Suppose you want to define a named range consisting of several cells forming a rectangular. Using VBA methods this can be done by
 
   book.Names.Add("Name" => "rec_name", "RefersToR1C1" => "=Z1S2:Z3S4")
@@ -136,6 +132,31 @@ or
   => [["workbook", "sheet1", nil], [nil, "foobaaa", nil], ["is", "nice", nil]] 
 
 In the following some details are being summarized. 
+
+=== Accessing a range
+
+You can access a range consisting of one cell by providing the row and and the column of a cell. 
+
+  range = sheet.range(1,1)
+
+You can access a rectangular range by providing the row and column of the top left cell and the row and column of the bottum right cell. 
+
+  range = sheet.range(1,1,3,4)
+
+You get the values of the range with
+
+  range.values
+
+=== Copying a range
+
+You can copy and paste a range. 
+
+  range.copy(6,2)
+
+You can also copy a range into another worksheet in another workbook, and even another Excel instance. When copying into another Excel instance the destination shall be a cell (a rectangular range destination is not being considered)
+
+  book2 = Workbook.open('spec/data/another_workbook.xls', :excel => :new, :visible => true)
+  range.copy(5,8,book2.sheet(3))
 
 === Naming a cell
 

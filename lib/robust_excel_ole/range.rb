@@ -52,10 +52,15 @@ module RobustExcelOle
         c2 = c1
       end
       sheet = @worksheet if sheet == :__not_provided
-      begin
-        self.Copy(:destination => sheet.range(r1,c1,r2,c2).ole_range)
-      rescue WIN32OLERuntimeError
-        raise RangeNotCopied, "cannot copy range to (#{r1.inspect},#{c1.inspect}),(#{r2.inspect},#{c2.inspect})"
+      if sheet.workbook.excel == @worksheet.workbook.excel 
+        puts "same Excel instances!!!"
+        begin
+          self.Copy(:destination => sheet.range(r1,c1,r2,c2).ole_range)
+        rescue WIN32OLERuntimeError
+          raise RangeNotCopied, "cannot copy range to (#{r1.inspect},#{c1.inspect}),(#{r2.inspect},#{c2.inspect})"
+        end
+      else
+        self.each { |cell| sheet[r1+cell.Row-1,c1+cell.Column-1] = cell.Value }
       end
     end
 

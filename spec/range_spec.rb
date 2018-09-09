@@ -125,6 +125,7 @@ describe RobustExcelOle::Range do
       @book2 = Book.open(@dir + '/different_workbook.xls')
       @sheet2 = @book.sheet(1)
       @range2 = @sheet2.range(1,1,2,3)
+      @book3 = Book.open(@dir + '/another_workbook.xls', :force => {:excel => :new})
     end
 
     after do
@@ -144,6 +145,11 @@ describe RobustExcelOle::Range do
     it "should copy range into a certain worksheet of another workbook" do
       @range2.copy(4,4,@book2.sheet(3))
       @book2.sheet(3).range(4,4,5,6).values.should == ["foo", "workbook", "sheet1", "foo", nil, "foobaaa"]
+    end
+
+    it "should copy range at a cell into a worksheet in another Excel instance" do
+      @range2.copy(4,4,@book3.sheet(3))
+      @book3.sheet(3).range(4,4,5,6).values.should == ["foo", "workbook", "sheet1", "foo", nil, "foobaaa"]
     end
 
   end

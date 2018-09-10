@@ -179,13 +179,13 @@ describe Sheet do
       end
 
       it "should create a rectangular range" do
-        @sheet.range(1,2,3,4).values.should == ["workbook", "sheet1", nil, nil, "foobaaa", nil, "is", "nice", nil]
+        @sheet.range(1..3,2..4).values.should == ["workbook", "sheet1", nil, nil, "foobaaa", nil, "is", "nice", nil]
       end
 
       it "should raise an error" do
         expect{
           @sheet.range(0,0)
-          }.to raise_error(RangeNotCreated, "cannot create range (0,0),(0,0)")
+          }.to raise_error(RangeNotCreated, "cannot create range (0..0,0..0)")
       end
 
     end

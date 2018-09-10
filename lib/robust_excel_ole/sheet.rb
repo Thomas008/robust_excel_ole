@@ -117,19 +117,19 @@ module RobustExcelOle
     end
 
     # creates a range.
-    # @params [Fixnum] row and column of a cell, or 
-    # @params [Fixnum] row and column of the top left cell and 
+    # @params [Fixnum,Range] row or range of the rows 
+    # @params [Fixnum,Range] column or range of columns  
     #                  row and column of the bottum right cell of a rectangur range 
     # @return [Range] a range
-    def range(r1, c1, r2 = :__not_provided, c2 = :__not_provided)
-      if r2 == :__not_provided
-        r2 = r1
-        c2 = c1
-      end
+    def range(int_range1, int_range2)
+      int_range1 = int_range1 .. int_range1 if int_range1.is_a?(Fixnum)
+      int_range2 = int_range2 .. int_range2 if int_range2.is_a?(Fixnum)
       begin
-        RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(r1, c1), @ole_worksheet.Cells(r2, c2)))
+        RobustExcelOle::Range.new(@ole_worksheet.Range(
+          @ole_worksheet.Cells(int_range1.min, int_range2.min),
+          @ole_worksheet.Cells(int_range1.max, int_range2.max)))
       rescue WIN32OLERuntimeError
-        raise RangeNotCreated, "cannot create range (#{r1.inspect},#{c1.inspect}),(#{r2.inspect},#{c2.inspect})"
+        raise RangeNotCreated, "cannot create range (#{int_range1.inspect},#{int_range2.inspect})"
       end
     end
 

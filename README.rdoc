@@ -44,7 +44,10 @@ Let's open a workbook.
 
   workbook = Workbook.open 'spec/data/workbook.xls'
 
-Now we have a Workbook object that wraps a win32ole object. That is, you can send any win32ole (VBA) method to it. For example, you can determine the name and the saved-status of the workbook.
+Now we have a Workbook object that wraps a win32ole object. That is, you can send any win32ole (VBA) method to it. See 
+https://docs.microsoft.com/en-us/office/vba/api/overview/excel
+
+For example, you can determine the name and the saved-status of the workbook.
 
   workbook.Name 
   # => "workbook.xls"

@@ -41,7 +41,7 @@ You can use the following abbreviations: +:f+ for  +:force+, +:d+ for +:default+
 
 The option +:excel+ :
 
-Valid values are : +:current+ (or +:active+ or +:reuse+), +:new+, or a given Excel instance (default: +:current).
+Valid values are : +:current+ (or +:active+ or +:reuse+), +:new+, +:reserved_new+, or a given Excel instance (default: +:current).
 
 The option +:if_unsaved+  : 
 
@@ -74,28 +74,32 @@ Here are a few examples:
 
 If you want to open a workbook that was not opened before, or reopen a workbook that was open in an Excel instance that is now closed, in the current (active) Excel instance, then use
 
-  Workbook.open('spec/data/workbook.xls', :default => {:excel => :current})
+  book = Workbook.open('spec/data/workbook.xls', :default => {:excel => :current})
 
 or
   
-  Workbook.open('spec/data/workbook.xls')
+  book = Workbook.open('spec/data/workbook.xls')
 
 In case you want to open such a workbook in a new Excel instance, then use
 
-  Workbook.open('spec/data/workbook.xls', :default => {:excel => :new})
+  book = Workbook.open('spec/data/workbook.xls', :default => {:excel => :new})
+
+You can also open the workbook in a separate, reserved Excel instance.
+
+  book = Workbook.open('spec/data/workbook.xls', :default => {:excel => :reserved_new})
 
 If you want to open a workbook in a new Excel instance, no matter if it was opened before, you can write
 
-  Workbook.open('spec/data/workbook.xls', :force => {:excel => :new})
+  book = Workbook.open('spec/data/workbook.xls', :force => {:excel => :new})
 
 For simplicity, you can also leave out the +:force+ option (but not the +:default+ option).
 
-  Workbook.open('spec/data/workbook.xls', :excel => :new)
+  book = Workbook.open('spec/data/workbook.xls', :excel => :new)
 
 You can also specify an Excel instance
 
   excel1 = Excel.create
-  Workbook.open('spec/data/workbook.xls', :excel => excel1)
+  book = Workbook.open('spec/data/workbook.xls', :excel => excel1)
 
 If you want to open the workbook and make its window visible, then use
 
@@ -104,11 +108,11 @@ If you want to open the workbook and make its window visible, then use
 Notice, that when the workbook is visible, the DisplayAlerts of the respective Excel instance is true, if not explicitely DisplayAlerts is set to false in this Excel instance.
 You can combine options, e.g. 
 
-  Workbook.open('spec/data/workbook.xls', :excel => :new, :visible => true, :default => {:excel => excel1})
+  book = Workbook.open('spec/data/workbook.xls', :excel => :new, :visible => true, :default => {:excel => excel1})
 
 You can use the abbreviations, e.g. in this case
 
-  Workbook.open('spec/data/workbook.xls', :e => :new, :v => true, :d => {:e => excel1})  
+  book = Workbook.open('spec/data/workbook.xls', :e => :new, :v => true, :d => {:e => excel1})  
 
 If a workbook contains unsaved changes and a workbook with the same filename shall be opened, then the option +:if_unsaved+ manages this conflict. For example, if the workbook with the unsaved changes shall remain open, you can use
 

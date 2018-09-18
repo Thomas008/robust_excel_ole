@@ -75,9 +75,10 @@ module RobustExcelOle
       # :update_links         true -> user is being asked how to update links, false -> links are never updated
       # @return [Book] a representation of a workbook
       def open(file, opts={ }, &block)
+        puts "open:"
         options = @options = process_options(opts)
         book = nil
-        if (not (options[:force][:excel] == :new))
+        if (not (options[:force][:excel] == :new) and not (options[:force][:excel] == :reserved_new))
           # if readonly is true, then prefer a book that is given in force_excel if this option is set
           forced_excel = if options[:force][:excel]
             options[:force][:excel] == :current ? excel_class.new(:reuse => true) : excel_of(options[:force][:excel])
@@ -86,10 +87,12 @@ module RobustExcelOle
                   :prefer_writable => (not options[:read_only]), 
                   :prefer_excel    => (options[:read_only] ? forced_excel : nil)) rescue nil
           if book
+            puts "found book: #{book.inspect}"
             #if forced_excel != book.excel && 
             #  (not (book.alive? && (not book.saved) && (not options[:if_unsaved] == :accept)))
             if (((not options[:force][:excel]) || (forced_excel == book.excel)) &&
                 (not (book.alive? && (not book.saved) && (not options[:if_unsaved] == :accept))))
+              puts "here:"
               book.options = options
               book.ensure_excel(options) # unless book.excel.alive?
               # if the ReadOnly status shall be changed, save, close and reopen it
@@ -238,8 +241,18 @@ module RobustExcelOle
         return
       end
       excel_option = (options[:force].nil? or options[:force][:excel].nil?) ? options[:default][:excel] : options[:force][:excel]
-      @excel = self.class.excel_of(excel_option) unless (excel_option == :current || excel_option == :new)
-      @excel = excel_class.new(:reuse => (excel_option == :current)) unless (@excel && @excel.alive?)
+      @excel = self.class.excel_of(excel_option) unless (excel_option == :current || excel_option == :new || excel_option == :reserved_new)
+      if excel_option == :reserved_new
+        if not defined?(@@reserved_excel)
+          @excel = excel_class.new(:reuse => false)
+          @@reserved_excel = @excel
+        else
+          @excel = @@reserved_excel
+        end
+      else
+        @excel = excel_class.new(:reuse => (excel_option == :current)) unless (@excel && @excel.alive?)
+        @excel = excel_class.new(:reuse => false) if (defined?(@@reserved_excel) and @excel == @@reserved_excel)
+      end  
       @excel
     end    
 

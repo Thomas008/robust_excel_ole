@@ -259,8 +259,6 @@ module RobustExcelOle
     end
 
     # adds a name referring to a range given by the row and column
-    # range is a cell if one row and one column are provided
-    # range is a rectangular if two pairs of coordinates are provifed
     # @param [String] name   the range name
     # @params [Fixnum,Range] row or range of the rows 
     # @params [Fixnum,Range] column or range of columns 

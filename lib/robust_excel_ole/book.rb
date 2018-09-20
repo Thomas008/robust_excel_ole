@@ -75,7 +75,6 @@ module RobustExcelOle
       # :update_links         true -> user is being asked how to update links, false -> links are never updated
       # @return [Book] a representation of a workbook
       def open(file, opts={ }, &block)
-        puts "open:"
         options = @options = process_options(opts)
         book = nil
         if (not (options[:force][:excel] == :new) and not (options[:force][:excel] == :reserved_new))
@@ -87,12 +86,10 @@ module RobustExcelOle
                   :prefer_writable => (not options[:read_only]), 
                   :prefer_excel    => (options[:read_only] ? forced_excel : nil)) rescue nil
           if book
-            puts "found book: #{book.inspect}"
             #if forced_excel != book.excel && 
             #  (not (book.alive? && (not book.saved) && (not options[:if_unsaved] == :accept)))
             if (((not options[:force][:excel]) || (forced_excel == book.excel)) &&
                 (not (book.alive? && (not book.saved) && (not options[:if_unsaved] == :accept))))
-              puts "here:"
               book.options = options
               book.ensure_excel(options) # unless book.excel.alive?
               # if the ReadOnly status shall be changed, save, close and reopen it

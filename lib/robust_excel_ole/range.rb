@@ -39,27 +39,22 @@ module RobustExcelOle
     end
 
     # copies a range
-    # @params [Fixnum] row, column of the destination cell or
-    #                  row, column of the top left cell and the bottum down cell of a rectangular range
+    # @params [Fixnum,Range] row or range of the rows 
+    # @params [Fixnum,Range] column or range of columns 
     # @options [Sheet] the worksheet in which to copy      
-    def copy(r1, c1, r2 = :__not_provided, c2 = :__not_provided, sheet = :__not_provided)
-      if r2.is_a?(RobustExcelOle::Sheet)
-        sheet = r2
-        r2 = :__not_provided
-      end
-      if r2 == :__not_provided
-        r2 = r1
-        c2 = c1
-      end
+    def copy(int_range1, int_range2, sheet = :__not_provided)
+      int_range1 = int_range1 .. int_range1 if int_range1.is_a?(Fixnum)
+      int_range2 = int_range2 .. int_range2 if int_range2.is_a?(Fixnum)
       sheet = @worksheet if sheet == :__not_provided
       if sheet.workbook.excel == @worksheet.workbook.excel 
         begin
-          self.Copy(:destination => sheet.range(r1..r2,c1..c2).ole_range)
+          self.Copy(:destination => sheet.range(int_range1.min..int_range1.max,
+                                                int_range2.min..int_range2.max).ole_range)
         rescue WIN32OLERuntimeError
-          raise RangeNotCopied, "cannot copy range to (#{r1.inspect},#{c1.inspect}),(#{r2.inspect},#{c2.inspect})"
+          raise RangeNotCopied, "cannot copy range"
         end
       else
-        self.each { |cell| sheet[r1+cell.Row-1,c1+cell.Column-1] = cell.Value }
+        self.each { |cell| sheet[int_range1.min+cell.Row-1,int_range2.min+cell.Column-1] = cell.Value }
       end
     end
 

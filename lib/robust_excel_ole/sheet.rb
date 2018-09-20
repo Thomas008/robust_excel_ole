@@ -242,6 +242,12 @@ module RobustExcelOle
 
       special_last_column >= used_last_column ? special_last_column : used_last_column
     end    
+
   end
-  
+
+public
+
+  Worksheet = Sheet
+
 end
+  

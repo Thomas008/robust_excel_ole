@@ -32,6 +32,10 @@ You can access all Sheet objects by using the methods Workbook#each.
     # do something with sheet
   end
 
+Once you have got a Sheet object (in RobustExcelOle), you can apply all VBA methods that you would apply to a VBA Worksheet object
+(see https://docs.microsoft.com/en-us/office/vba/api/excel.worksheet#methods).
+For some common and complex tasks you can apply methods of RobustExcelOle.
+
 === Reading and changing the worksheet name
 
 You can read and change the worksheet name.

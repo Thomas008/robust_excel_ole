@@ -6,7 +6,7 @@ RobustExcelOle enables simultanously running Excel instances. An Excel applicati
 
 === Creating and reusing an Excel instance.
 
-You can start a new Excel instance by
+You can create a new Excel instance by
 
   excel1 = Excel.create
 
@@ -29,6 +29,10 @@ The option +:calculation+ specifies, whether the calculation mode is being force
 You can also promote an Excel instance represented as WIN32OLE object to an Excel object.
 
   excel = Excel.new(win32ole_object, :visible => true)
+
+Once you have got an Excel object, you can apply all VBA methods that you would apply to a VBA Application object
+(see https://docs.microsoft.com/en-us/office/vba/api/excel.application(object)#methods).
+For some common and complex tasks you can use the methods of RobustExcelOle. 
 
 === Setting options
 

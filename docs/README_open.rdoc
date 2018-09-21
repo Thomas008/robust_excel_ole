@@ -6,6 +6,10 @@ If you want to open a workbook, use
   
   book = Workbook.open('spec/data/workbook.xls')
 
+Once you have got an Book object, you can apply all VBA methods that you would apply to a VBA Workbook object
+(see https://docs.microsoft.com/en-us/office/vba/api/excel.workbook#methods).
+For some common and complex tasks you can use the methods of RobustExcelOle.
+
 You can also open a workbook with a block. 
 The semantics is similar to, e.g.,  +File.open+.
 

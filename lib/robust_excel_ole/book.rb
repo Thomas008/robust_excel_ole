@@ -239,17 +239,8 @@ module RobustExcelOle
       end
       excel_option = (options[:force].nil? or options[:force][:excel].nil?) ? options[:default][:excel] : options[:force][:excel]
       @excel = self.class.excel_of(excel_option) unless (excel_option == :current || excel_option == :new || excel_option == :reserved_new)
-      if excel_option == :reserved_new
-        if not defined?(@@reserved_excel)
-          @excel = excel_class.new(:reuse => false)
-          @@reserved_excel = @excel
-        else
-          @excel = @@reserved_excel
-        end
-      else
-        @excel = excel_class.new(:reuse => (excel_option == :current)) unless (@excel && @excel.alive?)
-        @excel = excel_class.new(:reuse => false) if (defined?(@@reserved_excel) and @excel == @@reserved_excel)
-      end  
+      excel_class.new(:reuse => false) if excel_option == :reserved_new and Excel.known_excel_instances.empty?
+      @excel = excel_class.new(:reuse => (excel_option == :current)) unless (@excel && @excel.alive?)
       @excel
     end    
 

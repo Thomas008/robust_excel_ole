@@ -544,6 +544,21 @@ describe Book do
         @book.close rescue nil
       end
 
+      it "should open not in the reserved Excel instance" do
+        Excel.kill_all
+        sleep 1
+        book2 = Book.open(@simple_file1, :force => {:excel => :reserved_new})
+        Excel.current.should_not == book2.excel
+        book3 = Book.open(@different_file1, :default => {:excel => :current})
+        book3.excel.should_not == book2.excel
+        book4 = Book.open(@another_simple_file1, :default => {:excel => :new})
+        book4.excel.should_not == book2.excel
+        book4.close
+        sleep 1
+        book5 = Book.open(@another_simple_file1, :default => {:excel => :reserved_new})
+        book5.excel.should_not == book2.excel
+      end
+
       it "should open in the reserved Excel instance" do
         excel1 = @book.excel
         @book.close
@@ -557,7 +572,7 @@ describe Book do
         book4 = Book.open(@another_simple_file1, :force => {:excel => :new})
         book5 = Book.open(@another_simple_file1, :force => {:excel => :current})
         book2.excel.should_not == @book.excel
-        book3.excel.should == book2.excel
+        book3.excel.should_not == book2.excel
         book4.excel.should_not == @book.excel
         book4.excel.should_not == book2.excel
         book5.excel.should == @book.excel
@@ -1048,6 +1063,17 @@ describe Book do
           book3.excel.should_not == @book.excel
         end
 
+        it "should open in separate Excel instances" do
+          Excel.kill_all
+          sleep 1
+          book2 = Book.open(@simple_file1, :default => {:excel => :reserved_new})
+          book3 = Book.open(@different_file1, :default => {:excel => :reserved_new})
+          book2.excel.should_not == book3.excel
+          book4 = Book.open(@another_simple_file1, :default => {:excel => :current})
+          book4.excel.should_not == book2.excel
+          book4.excel.should_not == book3.excel
+        end
+
         it "should use the open book" do
           book2 = Book.open(@simple_file1, :default => {:excel => :reserved_new})
           book2.excel.should == @book.excel
@@ -1066,7 +1092,7 @@ describe Book do
           book2.excel.should == @book.excel
         end
 
-        it "should open one books the reserved Excel instance" do
+        it "should open one book in the reserved Excel instance" do
           book3 = Book.open(@different_file1, :default => {:excel => :reserved_new})
           @book.close
           book2 = Book.open(@simple_file1, :default => {:excel => :reserved_new})
@@ -1098,19 +1124,18 @@ describe Book do
 
         it "should not reopen in the reserved Excel instance when opened the reserved Excel instance first" do
           Excel.kill_all
+          sleep 1
           book1 = Book.open(@simple_file1, :default => {:excel => :reserved_new})
           book2 = Book.open(@different_file1, :default => {:excel => :new})
           book2.excel.should_not == book1.excel
           book3 = Book.open(@another_simple_file1, :default => {:excel => :current})
           book3.excel.should_not == book1.excel
-          #book3.excel.should == book2.excel
           book2.close
           book2.reopen
           book2.excel.should_not == book1.excel
           book3.close
           book3.reopen
           book3.excel.should_not == book1.excel
-          #book3.excel.should == book2.excel
           book1.close
           book1.reopen
           book1.excel.should_not == book2.excel
@@ -1122,7 +1147,7 @@ describe Book do
           book3 = Book.open(@another_simple_file1, :default => {:excel => :reserved_new})
           book2.excel.should_not == @book.excel
           book3.excel.should_not == @book.excel
-          book2.excel.should == book3.excel
+          book2.excel.should_not == book3.excel
         end
 
         it "should open several workbooks in the reserved Excel instance" do

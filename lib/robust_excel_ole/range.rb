@@ -54,10 +54,9 @@ module RobustExcelOle
           raise RangeNotCopied, "cannot copy range"
         end
       else
-        #self.Select
-        #self.Copy
-        #self.PasteSpecial()
-        self.each { |cell| sheet[int_range1.min+cell.Row-1,int_range2.min+cell.Column-1] = cell.Value }
+        self.Select
+        self.Copy
+        sheet.Paste(sheet.range(int_range1.min..int_range1.max,int_range2.min..int_range2.max).ole_range)
       end
     end
 

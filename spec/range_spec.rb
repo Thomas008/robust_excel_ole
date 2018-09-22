@@ -1,4 +1,4 @@
-# -*- cdoing: utf-8 -*-
+# -*- coding: utf-8 -*-
 require File.join(File.dirname(__FILE__), './spec_helper')
 
 include RobustExcelOle
@@ -143,8 +143,14 @@ describe RobustExcelOle::Range do
     end
 
     it "should copy range at a cell into a worksheet in another Excel instance" do
-      @range2.copy(4,4,@book3.sheet(3))
-      @book3.sheet(3).range(4..5,4..6).values.should == ["foo", "workbook", "sheet1", "foo", nil, "foobaaa"]
+      Excel.kill_all
+      sleep 1
+      book1 = Book.open(@dir + '/workbook.xls', :force_excel => :new)
+      book2 = Book.open(@dir + '/different_workbook.xls', :force_excel => :new)
+      sheet1 = book1.sheet(1)
+      range1 = sheet1.range(1..2,1..3)
+      range1.copy(4,4,book2.sheet(1))
+      book2.sheet(1).range(4..5,4..6).values.should == ["foo", "workbook", "sheet1", "foo", nil, "foobaaa"]
     end
 
   end

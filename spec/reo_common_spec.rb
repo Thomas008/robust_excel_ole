@@ -33,7 +33,94 @@ module RobustExcelOle
 
     after do
       Excel.kill_all
-      #rm_tmp(@dir)
+      rm_tmp(@dir)
+    end
+
+    describe "Address" do
+
+      it "should read a1-format" do
+        address = Address.new("A1")
+        address.rows.should == 1 .. 1
+        address.columns.should == "A" .."A"
+        address.a1format.should be_true
+      end
+
+      it "should read a1-format" do
+        address = Address.new("ABO15")
+        address.rows.should == 15..15
+        address.columns.should == "ABO".."ABO"
+        address.a1format.should be_true
+      end
+
+      it "should read a1-format when row and column are given separated" do
+        address = Address.new("A",1)
+        address.rows.should == 1..1
+        address.columns.should == "A".."A"
+        address.a1format.should be_true
+      end
+
+      it "should read a1-format with rows as integer range" do
+        address = Address.new("AB", 2..4)
+        address.rows.should == 2..4
+        address.columns.should == "AB".."AB"
+        address.a1format.should be_true
+      end
+
+      it "should read a1-format with columns as string range" do
+        address = Address.new("A".."C", 2)
+        address.rows.should == 2
+        address.columns.should == "A".."C"
+        address.a1format.should be_true
+      end
+
+      it "should read a1-format with rows and columns as string range" do
+        address = Address.new("A".."C", 2..6)
+        address.rows.should == 2..6
+        address.columns.should == "A".."C"
+        address.a1format.should be_true
+      end
+
+      it "should read r1c1-format" do
+        address = Address.new(1,2)
+        address.rows.should == 1 .. 1
+        address.columns.should == 2 .. 2
+        address.a1format.should be_false
+      end
+
+      it "should read r1c1-format with rows as integer range" do
+        address = Address.new(1..2,3)
+        address.rows.should == 1..2
+        address.columns.should == 3..3
+        address.a1format.should be_false
+      end
+     
+      it "should read r1c1-format with columns as integer range" do
+        address = Address.new(1,3..5)
+        address.rows.should == 1..1
+        address.columns.should == 3..5
+        address.a1format.should be_false
+      end
+
+      it "should read r1c1-format with rows and columns as integer range" do
+        address = Address.new(1..4,3..5)
+        address.rows.should == 1..4
+        address.columns.should == 3..5
+        address.a1format.should be_false
+      end
+
+      it "should raise an error" do
+        expect{
+          Address.new("1A")
+        }.to raise_error(AddressInvalid, /address ("1A") not in A1 format/)
+        expect{
+          Address.new("A1B")
+        }.to raise_error(AddressInvalid, /address ("A1B") not in A1 format/)
+        expect{
+          Address.new("A".."B","C".."D")
+        }.to raise_error(AddressInvalid, /address ("A".."B", "C".."D") not in A1 format/)
+      end
+
+
     end
 
     describe "trace" do

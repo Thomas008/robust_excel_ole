@@ -83,6 +83,9 @@ module RobustExcelOle
   class TimeOut < REOError                         # :nodoc: #
   end  
 
+  class AddressInvalid < REOError                  # :nodoc: #
+  end
+
   class UnexpectedREOError < REOError              # :nodoc: #
   end
 
@@ -133,6 +136,42 @@ module RobustExcelOle
       end
     end
 
+  end
+
+  class Address < REOCommon
+
+    attr_reader :rows
+    attr_reader :columns
+    attr_reader :a1_format
+
+    def initialize(address_comp1, address_comp2 = __not_provided)
+      begin
+        if address_comp2 == __not_provided                  
+          row_comp = address_comp1.gsub(/[0-9]/,'')
+          column_comp = address_comp1.gsub(/[A-Z]/,'')
+          if address_comp1 != column_comp+row_comp
+            raise AddressInvalid, "address #{address_comp1.inspect} not in A1-format"
+          end             
+          address_comp1, address_comp2 = column_comp, row_comp
+        end
+        address_comp1 = address_comp1 .. address_comp1 unless address_comp1.is_a?(Range)
+        address_comp2 = address_comp2 .. address_comp2 unless address_comp2.is_a?(Range)
+        if address_comp1.min.is_a?(String)
+          raise AddressInvalid, "address (#{address_comp1.inspect}, #{address_comp2.inspect}) not in A1-format" if address_comp2.min.is_a?(String)
+          @columns = address_comp1
+          @rows = address_comp2
+          @a1_format = true
+        else
+          @columns = address_comp2
+          @rows = address_comp1
+          @a1_format = false
+        end
+      rescue  
+        address_string = (address_comp2 == __not_provided) ? 
+          "#{address_comp1.inspect}" : "#{address_comp1.inspect}, #{address_comp2.inspect}"
+        raise AddressInvalid, "address (#{address_string}) not in A1- or R1C1-format"
+      end
+    end
   end
 
   class RangeOwners < REOCommon

@@ -69,7 +69,7 @@ module RobustExcelOle
     end
 
     # sets the value of a cell
-    # @params row and colulumn, or defined name
+    # @params row and column, or defined name
     def []= (p1, p2, p3 = :__not_provided)
       if p3 != :__not_provided
         x, y, value = p1, p2, p3

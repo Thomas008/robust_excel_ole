@@ -1078,6 +1078,21 @@ describe Book do
       end
     end
 
+    context "name2range" do
+
+      before do
+        @book1 = Book.open(@dir + '/another_workbook.xls', :read_only => true, :visible => true)
+        @book1.excel.displayalerts = false
+      end
+
+      it "should create a range from the name" do
+        @book1.add_name("foo",[1..3,1..4])
+        range = @book1.name2range("foo")
+        range.Address.should == "$A$1:$D$3"
+      end
+
+    end
+
     context "adding and deleting the name of a range" do
 
        before do

@@ -315,6 +315,14 @@ module RobustExcelOle
       set_namevalue(name, value, opts)
     end
 
+    def name2range(name)
+      begin
+        RobustExcelOle::Range.new(name_object(name).RefersToRange)
+      rescue WIN32OLERuntimeError
+        raise RangeNotCreated, "range could not be created from the defined name"
+      end
+    end
+
     # adds a name referring to a range given by the row and column
     # @param [String] name   the range name
     # @params [Address] address of the range 

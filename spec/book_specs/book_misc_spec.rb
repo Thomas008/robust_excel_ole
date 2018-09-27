@@ -1090,25 +1090,25 @@ describe Book do
       end   
 
       it "should name an unnamed range with a giving address" do
-        @book1.add_name("foo",1,2)
+        @book1.add_name("foo",[1,2])
         @book1.Names.Item("foo").Name.should == "foo"
-        @book1.Names.Item("foo").Value.should == "=Sheet1!$B$1"
+        @book1.Names.Item("foo").Value.should == "=Sheet1!$B$1:$B$1"
       end
 
       it "should rename an already named range with a giving address" do
-        @book1.add_name("foo",1,1)
+        @book1.add_name("foo",[1,1])
         @book1.Names.Item("foo").Name.should == "foo"
-        @book1.Names.Item("foo").Value.should == "=Sheet1!$A$1"
+        @book1.Names.Item("foo").Value.should == "=Sheet1!$A$1:$A$1"
       end
 
       it "should raise an error" do
         expect{
-          @book1.add_name("foo", -2, 1)
-        }.to raise_error(RangeNotEvaluatable, /cannot add name "foo" to cell with row -2 and column 1/)
+          @book1.add_name("foo", [-2, 1])
+        }.to raise_error(RangeNotEvaluatable, /cannot add name "foo" to range/)
       end
 
       it "should delete a name of a range" do
-        @book1.add_name("foo",1,1)
+        @book1.add_name("foo",[1,1])
         @book1.delete_name("foo")
         expect{
           @book1.namevalue_glob("foo")
@@ -1116,7 +1116,12 @@ describe Book do
       end
 
       it "should add a name of a rectangular range" do
-        @book1.add_name("foo",1,1,3,4)
+        @book1.add_name("foo",[1..3,1..4])
+        @book1["foo"].should == [["foo", "workbook", "sheet1", nil], ["foo", 1.0, 2.0, 4.0], ["matz", 3.0, 4.0, 4.0]] 
+      end
+
+       it "should accept the old interface" do
+        @book1.add_name("foo",1..3,1..4)
         @book1["foo"].should == [["foo", "workbook", "sheet1", nil], ["foo", 1.0, 2.0, 4.0], ["matz", 3.0, 4.0, 4.0]] 
       end
 

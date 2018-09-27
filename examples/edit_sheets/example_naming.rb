@@ -29,7 +29,7 @@ begin
     book.each do |sheet|
       sheet.each do |cell_orig|
         contents = cell_orig.Value
-        sheet.add_name(contents, cell_orig.Row, cell_orig.Column) if contents && contents.is_a?(String)
+        sheet.add_name(contents, [cell_orig.Row, cell_orig.Column]) if contents && contents.is_a?(String)
       end
     end
   end

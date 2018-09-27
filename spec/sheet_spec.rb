@@ -175,17 +175,27 @@ describe Sheet do
     describe "range" do
 
       it "should create a range of one cell" do
-        @sheet.range(1,1).values.should == ["foo"]
+        @sheet.range([1,2]).values.should == ["workbook"]
+        @sheet.range(["B1"]).values.should == ["workbook"]
+        @sheet.range("B1").values.should == ["workbook"]
       end
 
       it "should create a rectangular range" do
+        @sheet.range([1..3,2..4]).values.should == ["workbook", "sheet1", nil, nil, "foobaaa", nil, "is", "nice", nil]
+        @sheet.range(["B".."D",1..3]).values.should == ["workbook", "sheet1", nil, nil, "foobaaa", nil, "is", "nice", nil]     
+        @sheet.range(["B1:D3"]).values.should == ["workbook", "sheet1", nil, nil, "foobaaa", nil, "is", "nice", nil]
+        @sheet.range("B1:D3").values.should == ["workbook", "sheet1", nil, nil, "foobaaa", nil, "is", "nice", nil]
+      end
+
+      it "should accept old interface" do
         @sheet.range(1..3,2..4).values.should == ["workbook", "sheet1", nil, nil, "foobaaa", nil, "is", "nice", nil]
+        @sheet.range("B".."D",1..3).values.should == ["workbook", "sheet1", nil, nil, "foobaaa", nil, "is", "nice", nil]     
       end
 
       it "should raise an error" do
         expect{
-          @sheet.range(0,0)
-          }.to raise_error(RangeNotCreated, "cannot create range (0..0,0..0)")
+          @sheet.range([0,0])
+          }.to raise_error(AddressInvalid, /not in/)
       end
 
     end
@@ -667,30 +677,30 @@ describe Sheet do
           expect{
             @sheet1[1,2].Name.Name
           }.to raise_error          
-          @sheet1.add_name("foo",1,2)
-          @sheet1[1,2].Name.Name.should == "Sheet1!foo"
+          @sheet1.add_name("foo",[1,2])
+          @sheet1.Range("foo").Address.should == "$B$1"
         end
 
         it "should rename an already named range with a giving address" do
           @sheet1[1,1].Name.Name.should == "Sheet1!firstcell"
-          @sheet1.add_name("foo",1,1)
-          @sheet1[1,1].Name.Name.should == "Sheet1!foo"
+          @sheet1.add_name("foo",[1..2,3..4])
+          @sheet1.Range("foo").Address.should == "$C$1:$D$2"
         end
 
         it "should raise an error" do
           expect{
-            @sheet1.add_name("foo", -2, 1)
-          }.to raise_error(RangeNotEvaluatable, /cannot add name "foo" to cell with row -2 and column 1/)
+            @sheet1.add_name("foo", [-2, 1])
+          }.to raise_error(RangeNotEvaluatable, /cannot add name "foo" to range/)
         end
 
         it "should rename a range" do
-          @sheet1.add_name("foo",1,1)
+          @sheet1.add_name("foo",[1,1])
           @sheet1.rename_range("foo","bar")
           @sheet1.namevalue_glob("bar").should == "foo"
         end
 
         it "should delete a name of a range" do
-          @sheet1.add_name("foo",1,1)
+          @sheet1.add_name("foo",[1,1])
           @sheet1.delete_name("foo")
           expect{
             @sheet1.namevalue_glob("foo")
@@ -698,7 +708,27 @@ describe Sheet do
         end
 
         it "should add a name of a rectangular range" do
-          @sheet1.add_name("foo",1..3,1..4)
+          @sheet1.add_name("foo",[1..3,1..4])
+          @sheet1["foo"].should == [["foo", "workbook", "sheet1", nil], ["foo", 1.0, 2.0, 4.0], ["matz", 3.0, 4.0, 4.0]] 
+        end
+
+        it "should add a name of a rectangular range" do
+          @sheet1.add_name("foo","A1:D3")
+          @sheet1["foo"].should == [["foo", "workbook", "sheet1", nil], ["foo", 1.0, 2.0, 4.0], ["matz", 3.0, 4.0, 4.0]] 
+        end
+
+        it "should add a name of a rectangular range" do
+          @sheet1.add_name("foo",["A1:D3"])
+          @sheet1["foo"].should == [["foo", "workbook", "sheet1", nil], ["foo", 1.0, 2.0, 4.0], ["matz", 3.0, 4.0, 4.0]] 
+        end
+
+        it "should use the old interface" do
+          @sheet1.add_name("foo","A".."D",1..3)
+          @sheet1["foo"].should == [["foo", "workbook", "sheet1", nil], ["foo", 1.0, 2.0, 4.0], ["matz", 3.0, 4.0, 4.0]] 
+        end
+
+        it "should add a name of a rectangular range" do
+          @sheet1.add_name("foo",["A".."D",1..3])
           @sheet1["foo"].should == [["foo", "workbook", "sheet1", nil], ["foo", 1.0, 2.0, 4.0], ["matz", 3.0, 4.0, 4.0]] 
         end
 

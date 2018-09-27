@@ -40,86 +40,96 @@ module RobustExcelOle
 
       it "should read a1-format" do
         address = Address.new("A1")
-        address.rows.should == 1 .. 1
-        address.columns.should == "A" .."A"
-        address.a1format.should be_true
+        address.rows.should == (1..1)
+        address.columns.should == (1..1)
+      end
+
+      it "should read a1-format with brackets" do
+        address = Address.new(["A1"])
+        address.rows.should == (1..1)
+        address.columns.should == (1..1)
       end
 
       it "should read a1-format" do
         address = Address.new("ABO15")
-        address.rows.should == 15..15
-        address.columns.should == "ABO".."ABO"
-        address.a1format.should be_true
+        address.columns.should == (743..743)
+        address.rows.should == (15..15)
       end
 
       it "should read a1-format when row and column are given separated" do
-        address = Address.new("A",1)
-        address.rows.should == 1..1
-        address.columns.should == "A".."A"
-        address.a1format.should be_true
+        address = Address.new(["A",1])
+        address.rows.should == (1..1)
+        address.columns.should == (1..1)
       end
 
       it "should read a1-format with rows as integer range" do
-        address = Address.new("AB", 2..4)
-        address.rows.should == 2..4
-        address.columns.should == "AB".."AB"
-        address.a1format.should be_true
+        address = Address.new(["AB", 2..4])
+        address.rows.should == (2..4)
+        address.columns.should == (28..28)
       end
 
       it "should read a1-format with columns as string range" do
-        address = Address.new("A".."C", 2)
-        address.rows.should == 2
-        address.columns.should == "A".."C"
-        address.a1format.should be_true
+        address = Address.new(["A".."C", 2])
+        address.rows.should == (2..2)
+        address.columns.should == (1..3)
       end
 
       it "should read a1-format with rows and columns as string range" do
-        address = Address.new("A".."C", 2..6)
-        address.rows.should == 2..6
-        address.columns.should == "A".."C"
-        address.a1format.should be_true
+        address = Address.new(["A".."C", 2..6])
+        address.rows.should == (2..6)
+        address.columns.should == (1..3)
       end
 
       it "should read r1c1-format" do
-        address = Address.new(1,2)
-        address.rows.should == 1 .. 1
-        address.columns.should == 2 .. 2
-        address.a1format.should be_false
+        address = Address.new([1,2])
+        address.rows.should == (1..1)
+        address.columns.should == (2..2)
       end
 
       it "should read r1c1-format with rows as integer range" do
-        address = Address.new(1..2,3)
-        address.rows.should == 1..2
-        address.columns.should == 3..3
-        address.a1format.should be_false
+        address = Address.new([1..2,3])
+        address.rows.should == (1..2)
+        address.columns.should == (3..3)
       end
      
       it "should read r1c1-format with columns as integer range" do
-        address = Address.new(1,3..5)
-        address.rows.should == 1..1
-        address.columns.should == 3..5
-        address.a1format.should be_false
+        address = Address.new([1,3..5])
+        address.rows.should == (1..1)
+        address.columns.should == (3..5)
       end
 
       it "should read r1c1-format with rows and columns as integer range" do
-        address = Address.new(1..4,3..5)
-        address.rows.should == 1..4
-        address.columns.should == 3..5
-        address.a1format.should be_false
+        address = Address.new([1..4,3..5])
+        address.rows.should == (1..4)
+        address.columns.should == (3..5)
+      end
+
+      it "should read a1-format for a rectangular range" do
+        address = Address.new(["A1:B3"])
+        address.rows.should == (1..3)
+        address.columns.should == (1..2)
+      end
+
+      it "should read a1-format for a rectangular range without brackets" do
+        address = Address.new("A1:B3")
+        address.rows == (1..3)
+        address.columns == (1..2)
       end
 
       it "should raise an error" do
         expect{
           Address.new("1A")
-        }.to raise_error(AddressInvalid, /address ("1A") not in A1 format/)
+        }.to raise_error(AddressInvalid, /not in A1/)
         expect{
           Address.new("A1B")
-        }.to raise_error(AddressInvalid, /address ("A1B") not in A1 format/)
+        }.to raise_error(AddressInvalid, /not in A1/)
         expect{
-          Address.new("A".."B","C".."D")
-        }.to raise_error(AddressInvalid, /address ("A".."B", "C".."D") not in A1 format/)
+          Address.new(["A".."B","C".."D"])
+        }.to raise_error(AddressInvalid, /not in A1/)
+        expect{
+          Address.new(["A",1,2])
+        }.to raise_error(AddressInvalid, /more than two components/)
       end
-
 
     end
 

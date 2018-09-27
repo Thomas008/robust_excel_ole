@@ -37,24 +37,27 @@ module RobustExcelOle
     end
 
     # copies a range
-    # @params [Fixnum,Range] row or range of the rows 
-    # @params [Fixnum,Range] column or range of columns 
+    # @params [Address] address of a range
     # @options [Sheet] the worksheet in which to copy      
-    def copy(int_range1, int_range2, sheet = :__not_provided)
-      int_range1 = int_range1 .. int_range1 if int_range1.is_a?(Fixnum)
-      int_range2 = int_range2 .. int_range2 if int_range2.is_a?(Fixnum)
+    def copy(address, sheet = :__not_provided, third_argument_deprecated = :__not_provided)
+      if third_argument_deprecated != :__not_provided
+        address = [address,sheet]
+        sheet = third_argument_deprecated
+      end
+      address = Address.new(address)
       sheet = @worksheet if sheet == :__not_provided
+      destination_range = sheet.range([address.rows.min..address.rows.max,
+                                       address.columns.min..address.columns.max]).ole_range
       if sheet.workbook.excel == @worksheet.workbook.excel 
         begin
-          self.Copy(:destination => sheet.range(int_range1.min..int_range1.max,
-                                                int_range2.min..int_range2.max).ole_range)
+          self.Copy(:destination => destination_range)
         rescue WIN32OLERuntimeError
           raise RangeNotCopied, "cannot copy range"
         end
       else
         self.Select
         self.Copy
-        sheet.Paste(sheet.range(int_range1.min..int_range1.max,int_range2.min..int_range2.max).ole_range)
+        sheet.Paste(destination_range)
       end
     end
 

@@ -33,7 +33,7 @@ begin
           cell_name = short_name ? short_name : sheet_name
           contains_named_cells = true
           new_sheet[cell.Row, cell.Column].Value = cell.Value
-          new_sheet.add_name(cell_name, cell.Row,cell.Column)
+          new_sheet.add_name(cell_name, [cell.Row,cell.Column])
         end
       end
       new_sheet.Delete() unless contains_named_cells

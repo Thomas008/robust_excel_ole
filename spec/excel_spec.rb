@@ -1806,31 +1806,31 @@ module RobustExcelOle
       end   
 
       it "should name an unnamed range with a giving address" do
-        @excel1.add_name("foo",1,2)
+        @excel1.add_name("foo",[1,2])
         @excel1.Names.Item("foo").Name.should == "foo"
-        @excel1.Names.Item("foo").Value.should == "=Sheet1!$B$1"
+        @excel1.Names.Item("foo").Value.should == "=Sheet1!$B$1:$B$1"
       end
 
       it "should rename an already named range with a giving address" do
-        @excel1.add_name("foo",1,1)
+        @excel1.add_name("foo",[1,1])
         @excel1.Names.Item("foo").Name.should == "foo"
-        @excel1.Names.Item("foo").Value.should == "=Sheet1!$A$1"
+        @excel1.Names.Item("foo").Value.should == "=Sheet1!$A$1:$A$1"
       end
 
       it "should raise an error" do
         expect{
-          @excel1.add_name("foo", -2, 1)
-        }.to raise_error(RangeNotEvaluatable, /cannot add name "foo" to cell with row -2 and column 1/)
+          @excel1.add_name("foo", [-2, 1])
+        }.to raise_error(RangeNotEvaluatable, /cannot add name "foo" to range/)
       end
 
       it "should rename a range" do
-        @excel1.add_name("foo",1,1)
+        @excel1.add_name("foo",[1,1])
         @excel1.rename_range("foo","bar")
         @excel1.namevalue_glob("bar").should == "foo"
       end
 
       it "should delete a name of a range" do
-        @excel1.add_name("foo",1,1)
+        @excel1.add_name("foo",[1,1])
         @excel1.delete_name("foo")
         expect{
           @excel1.namevalue_glob("foo")
@@ -1838,9 +1838,15 @@ module RobustExcelOle
       end
 
       it "should add a name of a rectangular range" do
-        @excel1.add_name("foo",1,1,3,4)
+        @excel1.add_name("foo",[1..3,1..4])
         @excel1["foo"].should == [["foo", "workbook", "sheet1", nil], ["foo", 1.0, 2.0, 4.0], ["matz", 3.0, 4.0, 4.0]] 
       end
+
+      it "should accept the old interface" do
+        @excel1.add_name("foo",1..3,1..4)
+        @excel1["foo"].should == [["foo", "workbook", "sheet1", nil], ["foo", 1.0, 2.0, 4.0], ["matz", 3.0, 4.0, 4.0]] 
+      end
+
     end
   
 

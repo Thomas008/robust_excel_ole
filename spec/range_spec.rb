@@ -124,7 +124,7 @@ describe RobustExcelOle::Range do
     before do
       @book2 = Book.open(@dir + '/different_workbook.xls')
       @sheet2 = @book.sheet(1)
-      @range2 = @sheet2.range(1..2,1..3)
+      @range2 = @sheet2.range([1..2,1..3])
       @book3 = Book.open(@dir + '/another_workbook.xls', :force => {:excel => :new})
     end
 
@@ -133,13 +133,28 @@ describe RobustExcelOle::Range do
     end
 
     it "should copy range at a cell" do
-      @range2.copy(4,4)
-      @sheet2.range(4..5,4..6).values.should == ["foo", "workbook", "sheet1", "foo", nil, "foobaaa"]
+      @range2.copy([4,4])
+      @sheet2.range([4..5,4..6]).values.should == ["foo", "workbook", "sheet1", "foo", nil, "foobaaa"]
+    end
+
+    it "should copy range at a cell" do
+      @range2.copy(["D4"])
+      @sheet2.range([4..5,4..6]).values.should == ["foo", "workbook", "sheet1", "foo", nil, "foobaaa"]
+    end
+
+    it "should copy range at a cell" do
+      @range2.copy("D4")
+      @sheet2.range([4..5,4..6]).values.should == ["foo", "workbook", "sheet1", "foo", nil, "foobaaa"]
     end
 
     it "should copy range into a certain worksheet of another workbook" do
+      @range2.copy([4,4],@book2.sheet(3))
+      @book2.sheet(3).range([4..5,4..6]).values.should == ["foo", "workbook", "sheet1", "foo", nil, "foobaaa"]
+    end
+
+    it "should accept old interface" do
       @range2.copy(4,4,@book2.sheet(3))
-      @book2.sheet(3).range(4..5,4..6).values.should == ["foo", "workbook", "sheet1", "foo", nil, "foobaaa"]
+      @book2.sheet(3).range([4..5,4..6]).values.should == ["foo", "workbook", "sheet1", "foo", nil, "foobaaa"]
     end
 
     it "should copy range at a cell into a worksheet in another Excel instance" do
@@ -148,9 +163,9 @@ describe RobustExcelOle::Range do
       book1 = Book.open(@dir + '/workbook.xls', :force_excel => :new)
       book2 = Book.open(@dir + '/different_workbook.xls', :force_excel => :new)
       sheet1 = book1.sheet(1)
-      range1 = sheet1.range(1..2,1..3)
-      range1.copy(4,4,book2.sheet(1))
-      book2.sheet(1).range(4..5,4..6).values.should == ["foo", "workbook", "sheet1", "foo", nil, "foobaaa"]
+      range1 = sheet1.range([1..2,1..3])
+      range1.copy([4,4],book2.sheet(1))
+      book2.sheet(1).range([4..5,4..6]).values.should == ["foo", "workbook", "sheet1", "foo", nil, "foobaaa"]
     end
 
   end

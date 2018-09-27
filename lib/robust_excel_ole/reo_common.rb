@@ -142,36 +142,54 @@ module RobustExcelOle
 
     attr_reader :rows
     attr_reader :columns
-    attr_reader :a1_format
 
-    def initialize(address_comp1, address_comp2 = __not_provided)
+    def initialize(address)
+      address = [address] unless address.is_a?(Array)
+      raise AddressInvalid, "more than two components" if address.size > 2
       begin
-        if address_comp2 == __not_provided                  
-          row_comp = address_comp1.gsub(/[0-9]/,'')
-          column_comp = address_comp1.gsub(/[A-Z]/,'')
-          if address_comp1 != column_comp+row_comp
-            raise AddressInvalid, "address #{address_comp1.inspect} not in A1-format"
-          end             
-          address_comp1, address_comp2 = column_comp, row_comp
-        end
-        address_comp1 = address_comp1 .. address_comp1 unless address_comp1.is_a?(Range)
-        address_comp2 = address_comp2 .. address_comp2 unless address_comp2.is_a?(Range)
-        if address_comp1.min.is_a?(String)
-          raise AddressInvalid, "address (#{address_comp1.inspect}, #{address_comp2.inspect}) not in A1-format" if address_comp2.min.is_a?(String)
-          @columns = address_comp1
-          @rows = address_comp2
-          @a1_format = true
+        if address.size == 1
+          comp1, comp2 = address[0].split(':')          
+          address_comp1 = comp1.gsub(/[0-9]/,'')
+          address_comp2 = comp1.gsub(/[A-Z]/,'')
+          if comp1 != address_comp1+address_comp2
+            raise AddressInvalid, "address #{comp1.inspect} not in A1-format"
+          end
+          unless comp2.nil?
+            address_comp3 = comp2.gsub(/[0-9]/,'')            
+            address_comp4 = comp2.gsub(/[A-Z]/,'')
+            if comp2 != address_comp3+address_comp4
+              raise AddressInvalid, "address #{comp2.inspect} not in A1-format"
+            end
+            address_comp1 = address_comp1..address_comp3
+            address_comp2 = address_comp2..address_comp4
+          end
         else
-          @columns = address_comp2
-          @rows = address_comp1
-          @a1_format = false
+          address_comp1, address_comp2 = address
+        end
+        address_comp1 = address_comp1 .. address_comp1 unless address_comp1.is_a?(Object::Range)
+        address_comp2 = address_comp2 .. address_comp2 unless address_comp2.is_a?(Object::Range)
+        if address_comp1.min.to_i == 0
+          raise AddressInvalid, "address (#{address_comp1.inspect}, #{address_comp2.inspect}) not in A1-format" if address_comp2.min.to_i == 0
+          @columns = str2num(address_comp1.min) .. str2num(address_comp1.max)
+          @rows = address_comp2.min.to_i .. address_comp2.max.to_i
+        else
+          @rows = address_comp1.min.to_i .. address_comp1.max.to_i
+          @columns = address_comp2.min.to_i .. address_comp2.max.to_i
         end
       rescue  
-        address_string = (address_comp2 == __not_provided) ? 
-          "#{address_comp1.inspect}" : "#{address_comp1.inspect}, #{address_comp2.inspect}"
-        raise AddressInvalid, "address (#{address_string}) not in A1- or R1C1-format"
+        raise AddressInvalid, "address (#{address.inspect}) not in A1- or R1C1-format"
       end
     end
+
+  private
+
+    def str2num(str)
+      str = str.upcase
+      sum = 0
+      (1..str.length).each { |i| sum += (str[i-1].ord-64) * 26 ** (str.length - i) }
+      sum
+    end
+
   end
 
   class RangeOwners < REOCommon
@@ -299,21 +317,20 @@ module RobustExcelOle
 
     # adds a name referring to a range given by the row and column
     # @param [String] name   the range name
-    # @params [Fixnum,Range] row or range of the rows 
-    # @params [Fixnum,Range] column or range of columns 
-    def add_name(name, int_range1, int_range2)
-      int_range1 = int_range1 .. int_range1 if int_range1.is_a?(Fixnum)
-      int_range2 = int_range2 .. int_range2 if int_range2.is_a?(Fixnum)
-      address = "Z" + int_range1.min.to_s + "S" + int_range2.min.to_s + 
-                ":Z" + int_range1.max.to_s + "S" + int_range2.max.to_s
+    # @params [Address] address of the range 
+    def add_name(name, addr, addr_deprecated = :__not_provided)
+      addr = [addr,addr_deprecated] unless addr_deprecated == :__not_provided
+      address = Address.new(addr)
+      address_string = "Z" + address.rows.min.to_s + "S" + address.columns.min.to_s + 
+                ":Z" + address.rows.max.to_s + "S" + address.columns.max.to_s
       begin
-        self.Names.Add("Name" => name, "RefersToR1C1" => "=" + address)
+        self.Names.Add("Name" => name, "RefersToR1C1" => "=" + address_string)
       rescue WIN32OLERuntimeError => msg
         #trace "WIN32OLERuntimeError: #{msg.message}"
-        raise RangeNotEvaluatable, "cannot add name #{name.inspect} to cell with row #{row.inspect} and column #{column.inspect}"
+        raise RangeNotEvaluatable, "cannot add name #{name.inspect} to range #{addr.inspect}"
       end
       name
-    end 
+    end
 
     def set_name(name,row,column)     # :deprecated :#
       add_name(name,row,column)

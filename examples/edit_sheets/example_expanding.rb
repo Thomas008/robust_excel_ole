@@ -36,7 +36,7 @@ begin
       rescue REOError => msg
         sheet_new.name = sheet_name + sheet.name if msg.message == "sheet name already exists" 
       end
-      sheet_new.add_name("name",2,2)
+      sheet_new.add_name("name",[2,2])
       sheet_new["name"] = sheet_name   
     end
     

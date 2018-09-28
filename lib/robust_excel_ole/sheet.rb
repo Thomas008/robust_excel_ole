@@ -127,7 +127,7 @@ module RobustExcelOle
           @ole_worksheet.Cells(address.rows.min, address.columns.min),
           @ole_worksheet.Cells(address.rows.max, address.columns.max)))
       rescue WIN32OLERuntimeError
-        raise RangeNotCreated, "cannot create range #{address.inpsect}"
+        raise RangeNotCreated, "cannot create range #{address.inspect}"
       end
     end
 

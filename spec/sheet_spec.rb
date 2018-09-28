@@ -182,14 +182,14 @@ describe Sheet do
 
       it "should create a rectangular range" do
         @sheet.range([1..3,2..4]).values.should == ["workbook", "sheet1", nil, nil, "foobaaa", nil, "is", "nice", nil]
-        @sheet.range(["B".."D",1..3]).values.should == ["workbook", "sheet1", nil, nil, "foobaaa", nil, "is", "nice", nil]     
+        @sheet.range([1..3, "B".."D"]).values.should == ["workbook", "sheet1", nil, nil, "foobaaa", nil, "is", "nice", nil]     
         @sheet.range(["B1:D3"]).values.should == ["workbook", "sheet1", nil, nil, "foobaaa", nil, "is", "nice", nil]
         @sheet.range("B1:D3").values.should == ["workbook", "sheet1", nil, nil, "foobaaa", nil, "is", "nice", nil]
       end
 
       it "should accept old interface" do
         @sheet.range(1..3,2..4).values.should == ["workbook", "sheet1", nil, nil, "foobaaa", nil, "is", "nice", nil]
-        @sheet.range("B".."D",1..3).values.should == ["workbook", "sheet1", nil, nil, "foobaaa", nil, "is", "nice", nil]     
+        @sheet.range(1..3, "B".."D").values.should == ["workbook", "sheet1", nil, nil, "foobaaa", nil, "is", "nice", nil]     
       end
 
       it "should raise an error" do
@@ -723,12 +723,12 @@ describe Sheet do
         end
 
         it "should use the old interface" do
-          @sheet1.add_name("foo","A".."D",1..3)
+          @sheet1.add_name("foo",1..3,"A".."D")
           @sheet1["foo"].should == [["foo", "workbook", "sheet1", nil], ["foo", 1.0, 2.0, 4.0], ["matz", 3.0, 4.0, 4.0]] 
         end
 
         it "should add a name of a rectangular range" do
-          @sheet1.add_name("foo",["A".."D",1..3])
+          @sheet1.add_name("foo",[1..3, "A".."D"])
           @sheet1["foo"].should == [["foo", "workbook", "sheet1", nil], ["foo", 1.0, 2.0, 4.0], ["matz", 3.0, 4.0, 4.0]] 
         end
 

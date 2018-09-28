@@ -149,15 +149,15 @@ module RobustExcelOle
       begin
         if address.size == 1
           comp1, comp2 = address[0].split(':')          
-          address_comp1 = comp1.gsub(/[0-9]/,'')
-          address_comp2 = comp1.gsub(/[A-Z]/,'')
-          if comp1 != address_comp1+address_comp2
+          address_comp1 = comp1.gsub(/[A-Z]/,'')
+          address_comp2 = comp1.gsub(/[0-9]/,'')
+          if comp1 != address_comp2+address_comp1
             raise AddressInvalid, "address #{comp1.inspect} not in A1-format"
           end
           unless comp2.nil?
-            address_comp3 = comp2.gsub(/[0-9]/,'')            
-            address_comp4 = comp2.gsub(/[A-Z]/,'')
-            if comp2 != address_comp3+address_comp4
+            address_comp3 = comp2.gsub(/[A-Z]/,'')
+            address_comp4 = comp2.gsub(/[0-9]/,'')  
+            if comp2 != address_comp4+address_comp3
               raise AddressInvalid, "address #{comp2.inspect} not in A1-format"
             end
             address_comp1 = address_comp1..address_comp3
@@ -168,12 +168,11 @@ module RobustExcelOle
         end
         address_comp1 = address_comp1 .. address_comp1 unless address_comp1.is_a?(Object::Range)
         address_comp2 = address_comp2 .. address_comp2 unless address_comp2.is_a?(Object::Range)
-        if address_comp1.min.to_i == 0
-          raise AddressInvalid, "address (#{address_comp1.inspect}, #{address_comp2.inspect}) not in A1-format" if address_comp2.min.to_i == 0
-          @columns = str2num(address_comp1.min) .. str2num(address_comp1.max)
-          @rows = address_comp2.min.to_i .. address_comp2.max.to_i
+        @rows = address_comp1.min.to_i .. address_comp1.max.to_i
+        if address_comp2.min.to_i == 0
+          raise AddressInvalid, "address (#{address_comp1.inspect}, #{address_comp2.inspect}) not in A1-format" if address_comp1.min.to_i == 0                    
+          @columns = str2num(address_comp2.min) .. str2num(address_comp2.max)
         else
-          @rows = address_comp1.min.to_i .. address_comp1.max.to_i
           @columns = address_comp2.min.to_i .. address_comp2.max.to_i
         end
       rescue  
@@ -315,6 +314,8 @@ module RobustExcelOle
       set_namevalue(name, value, opts)
     end
 
+    # @params [String] name  defined range name
+    # @returns [Range] a Range object
     def name2range(name)
       begin
         RobustExcelOle::Range.new(name_object(name).RefersToRange)

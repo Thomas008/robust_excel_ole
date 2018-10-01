@@ -60,7 +60,7 @@ module RobustExcelOle
       end
 
       it "should promote a range" do
-        range = @book1.sheet(1).range([1,1])ole_range.to_reo
+        range = @book1.sheet(1).range([1,1]).ole_range.to_reo
         range.should be_kind_of Range
         range.Value.should == "foo"
       end

@@ -75,9 +75,21 @@ module RobustExcelOle
     end
 
   private
-
-    def method_missing(id, *args)  # :nodoc: #
-      @ole_range.send(id, *args)
+    def method_missing(name, *args)    # :nodoc: #
+      if name.to_s[0,1] =~ /[A-Z]/ 
+        begin
+          @ole_range.send(name, *args)
+        rescue WIN32OLERuntimeError => msg
+          if msg.message =~ /unknown property or method/
+            raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
+          else 
+            raise msg
+          end
+        end
+      else  
+        super 
+      end
     end
+
   end
 end

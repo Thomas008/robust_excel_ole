@@ -10,6 +10,8 @@ end
 
 module RobustExcelOle      
 
+  # see https://docs.microsoft.com/en-us/office/vba/api/excel.application(object)#methods
+
   class Excel < RangeOwners   
 
     attr_accessor :ole_excel

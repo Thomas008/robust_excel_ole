@@ -33,14 +33,14 @@ describe Cell do
 
     describe "#value" do
       it "get cell's value" do
-        @cell.value.should eq 'simple'
+        @cell.Value.should eq 'simple'
       end
     end
 
     describe "#value=" do
       it "change cell data to 'fooooo'" do
-        @cell.value = 'fooooo'
-        @cell.value.should eq 'fooooo'
+        @cell.Value = 'fooooo'
+        @cell.Value.should eq 'fooooo'
       end
     end
 
@@ -63,14 +63,14 @@ describe Cell do
     end
 
     it "merged cell get same value" do
-      @sheet[1, 1].value.should be_nil
-      @sheet[2, 1].value.should eq 'first merged'
+      @sheet[1, 1].Value.should be_nil
+      @sheet[2, 1].Value.should eq 'first merged'
     end
 
     it "set merged cell" do
-      @sheet[2, 1].value = "set merge cell"
-      @sheet[2, 1].value.should eq "set merge cell"
-      @sheet[2, 2].value.should eq "set merge cell"
+      @sheet[2, 1].Value = "set merge cell"
+      @sheet[2, 1].Value.should eq "set merge cell"
+      @sheet[2, 2].Value.should eq "set merge cell"
     end
   end
 end

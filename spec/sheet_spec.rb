@@ -117,21 +117,21 @@ describe Sheet do
       context "access [1,1]" do
 
         it { @sheet[1, 1].should be_kind_of Cell }
-        it { @sheet[1, 1].value.should eq 'foo' }
+        it { @sheet[1, 1].Value.should eq 'foo' }
       end
 
       context "access [1, 1], [1, 2], [3, 1]" do
         it "should get every values" do
-          @sheet[1, 1].value.should eq 'foo'
-          @sheet[1, 2].value.should eq 'workbook'
-          @sheet[3, 1].value.should eq 'matz'
+          @sheet[1, 1].Value.should eq 'foo'
+          @sheet[1, 2].Value.should eq 'workbook'
+          @sheet[3, 1].Value.should eq 'matz'
         end
       end
 
       context "supplying nil as parameter" do
         it "should access [1,1]" do
-          @sheet[1, nil].value.should eq 'foo'
-          @sheet[nil, 1].value.should eq 'foo'
+          @sheet[1, nil].Value.should eq 'foo'
+          @sheet[nil, 1].Value.should eq 'foo'
         end
       end
 
@@ -146,12 +146,12 @@ describe Sheet do
 
     it "change a cell to 'bar'" do
       @sheet[1, 1] = 'bar'
-      @sheet[1, 1].value.should eq 'bar'
+      @sheet[1, 1].Value.should eq 'bar'
     end
 
     it "should change a cell to nil" do
       @sheet[1, 1] = nil
-      @sheet[1, 1].value.should eq nil
+      @sheet[1, 1].Value.should eq nil
     end
 
     it "should raise error for bad ranges" do
@@ -205,17 +205,17 @@ describe Sheet do
         @sheet.each_with_index do |cell, i|
           case i
           when 0
-            cell.value.should eq 'foo'
+            cell.Value.should eq 'foo'
           when 1
-            cell.value.should eq 'workbook'
+            cell.Value.should eq 'workbook'
           when 2
-            cell.value.should eq 'sheet1'
+            cell.Value.should eq 'sheet1'
           when 3
-            cell.value.should eq 'foo'
+            cell.Value.should eq 'foo'
           when 4
-            cell.value.should be_nil
+            cell.Value.should be_nil
           when 5
-            cell.value.should eq 'foobaaa'
+            cell.Value.should eq 'foobaaa'
           end
         end
       end
@@ -227,15 +227,15 @@ describe Sheet do
           @sheet_with_blank.each_with_index do |cell, i|
             case i
             when 5
-              cell.value.should be_nil
+              cell.Value.should be_nil
             when 6
-              cell.value.should eq 'simple'
+              cell.Value.should eq 'simple'
             when 7
-              cell.value.should be_nil
+              cell.Value.should be_nil
             when 8
-              cell.value.should eq 'workbook'
+              cell.Value.should eq 'workbook'
             when 9
-              cell.value.should eq 'sheet1'
+              cell.Value.should eq 'sheet1'
             end
           end
         end

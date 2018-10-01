@@ -29,6 +29,18 @@ module General
 end
 
 class WIN32OLE
+
+  # promoting WIN32OLE objects to RobustExcelOle objects
+  def to_reo
+    case self.ole_type
+    when "#<WIN32OLE_TYPE:Range>" then Range.new(self)
+    when "#<WIN32OLE_TYPE:_Worksheet>" then Sheet.new(self)
+    when "#<WIN32OLE_TYPE:_Workbook>" then Book.new(self)
+    when "#<WIN32OLE_TYPE:_Application>" then Excel.new(self)
+    else
+      self
+    end
+  end
 end
 
 class ::String    # :nodoc: #

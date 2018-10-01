@@ -196,8 +196,8 @@ describe Book do
           file.puts "garbage"
         end
         sheet = @book.sheet(1)
-        cell_value = sheet[1,1].value
-        sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
+        cell_value = sheet[1,1].Value
+        sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
         @book.Saved.should be false
         @book2.save_as(@simple_file_other_path1, :if_exists => :overwrite, :if_obstructed => :forget)
         @book.should_not be_alive
@@ -208,7 +208,7 @@ describe Book do
         new_book.close
         old_book = Book.open(@simple_file1)
         old_sheet = old_book.sheet(1)
-        old_sheet[1,1].value.should == cell_value
+        old_sheet[1,1].Value.should == cell_value
         old_book.close
       end
 
@@ -218,8 +218,8 @@ describe Book do
           file.puts "garbage"
         end
         sheet = @book.sheet(1)
-        cell_value = sheet[1,1].value
-        sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
+        cell_value = sheet[1,1].Value
+        sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
         @book.Saved.should be false
         @book2.save_as(@simple_file_other_path1, :if_exists => :overwrite, :if_obstructed => :save)
         @book.should_not be_alive
@@ -230,7 +230,7 @@ describe Book do
         new_book.close
         old_book = Book.open(@simple_file1)
         old_sheet = old_book.sheet(1)
-        old_sheet[1,1].value.should_not == cell_value
+        old_sheet[1,1].Value.should_not == cell_value
         old_book.close
       end
 
@@ -251,8 +251,8 @@ describe Book do
 
       it "should raise an error if the blocking workbook was unsaved with :if_obstructed => :close_if_saved" do
         sheet = @book.sheet(1)
-        cell_value = sheet[1,1].value
-        sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
+        cell_value = sheet[1,1].Value
+        sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
         @book.Saved.should be false      
         expect{
           @book2.save_as(@simple_file_other_path1, :if_exists => :overwrite, :if_obstructed => :close_if_saved)
@@ -340,12 +340,12 @@ describe Book do
 
         it "should simple save if file name is equal to the old one with :if_exists => :overwrite" do
           sheet = @book.sheet(1)
-          sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
-          new_value = sheet[1,1].value
+          sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+          new_value = sheet[1,1].Value
           @book.save_as(@simple_file1, :if_exists => :overwrite)
           new_book = Book.open(@simple_file1)
           new_sheet = new_book.sheet(1)
-          new_sheet[1,1].value.should == new_value
+          new_sheet[1,1].Value.should == new_value
           new_book.close
         end
 

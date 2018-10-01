@@ -16,7 +16,7 @@ begin
   #book.excel.visible = true                        # make current Excel visible 
   sleep 1
   sheet = book.sheet(1)                                            # access a sheet
-  first_cell = sheet[1,1].value
+  first_cell = sheet[1,1].Value
   sheet[1,1] = first_cell == "simple" ? "complex" : "simple" # change a cell
   sleep 1
   puts "new_book: before"
@@ -25,11 +25,11 @@ begin
                                                           # and close the unsaved book without saving it
   puts "new_book: after"
   sheet_new_book = new_book.sheet(1)
-  if (not book.alive?) && new_book.alive? && sheet_new_book[1,1].value == first_cell then # check whether the unsaved book 
+  if (not book.alive?) && new_book.alive? && sheet_new_book[1,1].Value == first_cell then # check whether the unsaved book 
     puts "open with :if_unsaved => :forget : the unsaved book is closed and not saved."     # is closed and was not saved
   end
   sleep 1
-  sheet_new_book[1,1] = sheet_new_book[1,1].value == "simple" ? "complex" : "simple" # change a cell
+  sheet_new_book[1,1] = sheet_new_book[1,1].Value == "simple" ? "complex" : "simple" # change a cell
   # open another book in a new Excel application, and make Excel visible, leaving the unsaved book open
   another_book = Workbook.open(file_name, :if_unsaved => :new_excel, :visible => true)  
   sleep 3                                                                  # leaving the unsaved book open  

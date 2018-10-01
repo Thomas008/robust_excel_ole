@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 module RobustExcelOle
   
+  # see https://docs.microsoft.com/en-us/office/vba/api/excel.worksheet#methods
+
   class Range < REOCommon
     include Enumerable
     attr_reader :ole_range
@@ -21,7 +23,7 @@ module RobustExcelOle
     # @params [Range] a range
     # @returns [Array] the values
     def values(range = nil)
-      result = self.map{|x| x.value}.flatten
+      result = self.map{|x| x.Value}.flatten
       if range 
         relevant_result = []
         result.each_with_index{ |row_or_column, i| relevant_result << row_or_column if range.include?(i) }

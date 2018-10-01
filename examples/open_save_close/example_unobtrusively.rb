@@ -12,14 +12,14 @@ begin
   simple_file = dir + 'workbook.xls'
   book = Workbook.open(simple_file, :visible => true)  # open a book, make Excel visible
   old_sheet = book.sheet(1)
-  p "1st cell: #{old_sheet[1,1].value}"
+  p "1st cell: #{old_sheet[1,1].Value}"
   sleep 2
   Workbook.unobtrusively(simple_file) do |book|   # modify the book and keep its status unchanged
     sheet = book.sheet(1)
-    sheet[1,1] = sheet[1,1].value == "simple" ? "complex" : "simple"
+    sheet[1,1] = sheet[1,1].Value == "simple" ? "complex" : "simple"
   end
   new_sheet = book.sheet(1)
-  p "1st cell: #{new_sheet[1,1].value}"
+  p "1st cell: #{new_sheet[1,1].Value}"
   p "book saved" if book.Saved
   book.close                                 # close the book                      
 ensure

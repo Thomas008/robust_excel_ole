@@ -14,7 +14,7 @@ begin
   book = Workbook.open(file_name, :read_only => true, :visible => true) # open a book with read_only and make Excel visible
   sheet = book.sheet(1)                                     			        # access a sheet
   sleep 1     
-  sheet[1,1] = sheet[1,1].value == "simple" ? "complex" : "simple" # change a cell
+  sheet[1,1] = sheet[1,1].Value == "simple" ? "complex" : "simple" # change a cell
   sleep 1
   begin
     book.save                                         # simple save. 

@@ -166,7 +166,7 @@ describe Book do
 
     it "should keep the save state 'unsaved'" do
       sheet = @book.sheet(1)
-      sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
+      sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
       @book.Saved.should be false
       @book.retain_saved do
         sheet = @book.sheet(1)
@@ -180,7 +180,7 @@ describe Book do
       @book.Saved.should be true
       @book.retain_saved do
         sheet = @book.sheet(1)
-        sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
+        sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
         @book.Saved.should be false
       end
       @book.Saved.should be true
@@ -188,7 +188,7 @@ describe Book do
 
     it "should keep the save state 'unsaved' even when the workbook was saved before" do
       sheet = @book.sheet(1)
-      sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
+      sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
       @book.Saved.should be false
       @book.retain_saved do
         @book.save
@@ -896,7 +896,7 @@ describe Book do
 
       it "should yield false for an unsaved book" do
         sheet = @book.sheet(1)
-        sheet[1,1] = sheet[1,1].value == "foo" ? "bar" : "foo"
+        sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
         @book.saved.should be false
       end
     end

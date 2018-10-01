@@ -103,18 +103,18 @@ describe RobustExcelOle::Range do
   describe "#[]" do
     context "access [0]" do
       it { @range[0].should be_kind_of RobustExcelOle::Cell }
-      it { @range[0].value.should eq 'simple' }
+      it { @range[0].Value.should eq 'simple' }
     end
 
     context "access [2]" do
-      it { @range[2].value.should eq 'sheet2' }
+      it { @range[2].Value.should eq 'sheet2' }
     end
 
     context "access [0] and [1] and [2]" do
       it "should get every values" do
-        @range[0].value.should eq 'simple'
-        @range[1].value.should eq 'file'
-        @range[2].value.should eq 'sheet2'
+        @range[0].Value.should eq 'simple'
+        @range[1].Value.should eq 'file'
+        @range[2].Value.should eq 'sheet2'
       end
     end
   end
@@ -172,7 +172,7 @@ describe RobustExcelOle::Range do
 
   describe "#method_missing" do
     it "can access COM method" do
-      @range.Range(@range.Cells.Item(1), @range.Cells.Item(3)).value.should eq [@range.values(0..2)]
+      @range.Range(@range.Cells.Item(1), @range.Cells.Item(3)).Value.should eq [@range.values(0..2)]
     end
 
     context "unknown method" do

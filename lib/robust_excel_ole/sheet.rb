@@ -2,6 +2,8 @@
 
 module RobustExcelOle
 
+  # see https://docs.microsoft.com/en-us/office/vba/api/excel.worksheet#methods
+
   class Sheet < RangeOwners
 
     attr_reader :ole_worksheet

@@ -4,7 +4,7 @@ require 'weakref'
 
 module RobustExcelOle
 
-  # https://docs.microsoft.com/en-us/office/vba/api/excel.workbook#methods
+  # see https://docs.microsoft.com/en-us/office/vba/api/excel.workbook#methods
 
   class Book < RangeOwners
 
@@ -113,8 +113,8 @@ module RobustExcelOle
       end
     end    
 
-    # creates a Book object by opening an Excel file given its filename workbook or 
-    # by lifting a Win32OLE object representing an Excel file
+    # creates a Book object by opening an Excel file given its filename workbook
+    # or by promoting a Win32OLE object representing an Excel file
     # @param [WIN32OLE] workbook a workbook
     # @param [Hash] opts the options
     # @option opts [Symbol] see above

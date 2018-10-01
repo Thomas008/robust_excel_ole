@@ -224,7 +224,7 @@ module RobustExcelOle
      end
 
     # closes all Excel instances
-    # @return [Fixnum,Fixnum] number of closed Excel instances, number of errors
+    # @return [Integer,Integer] number of closed Excel instances, number of errors
     # remark: the returned number of closed Excel instances is valid only for known Excel instances
     # if there are unknown Excel instances (opened not via this class), then they are counted as 1
     # @param [Hash] options the options
@@ -359,7 +359,7 @@ module RobustExcelOle
     end    
 
     # kill all Excel instances
-    # @return [Fixnum] number of killed Excel processes
+    # @return [Integer] number of killed Excel processes
     def self.kill_all
       number = 0
       WIN32OLE.connect("winmgmts:\\\\.").InstancesOf("win32_process").each do |p|
@@ -528,7 +528,7 @@ module RobustExcelOle
     def calculation= calculation_mode
       return if calculation_mode.nil?
       @calculation = calculation_mode
-      calc_mode_changable = @ole_excel.Workbooks.Count > 0 &&  @ole_excel.Calculation.is_a?(Fixnum)
+      calc_mode_changable = @ole_excel.Workbooks.Count > 0 &&  @ole_excel.Calculation.is_a?(Integer)
       if calc_mode_changable
         if calculation_mode == :manual then
           saved = []
@@ -562,7 +562,7 @@ module RobustExcelOle
         self.calculation = calculation_mode
         yield self
       ensure
-        @ole_excel.Calculation = old_calculation_mode if @ole_excel.Calculation.is_a?(Fixnum)
+        @ole_excel.Calculation = old_calculation_mode if @ole_excel.Calculation.is_a?(Integer)
       end
     end
 

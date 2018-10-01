@@ -103,7 +103,7 @@ module RobustExcelOle
     end
 
     # sets the value of a cell, if row, column and color of the cell are given
-    # @params [Fixnum] x,y row and column
+    # @params [Integer] x,y row and column
     # @option opts [Symbol] :color the color of the cell when set 
     def set_cellval(x,y,value, opts = {:color => 0})
       begin

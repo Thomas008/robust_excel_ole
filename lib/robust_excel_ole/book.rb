@@ -4,6 +4,8 @@ require 'weakref'
 
 module RobustExcelOle
 
+  # https://docs.microsoft.com/en-us/office/vba/api/excel.workbook#methods
+
   class Book < RangeOwners
 
     attr_accessor :excel

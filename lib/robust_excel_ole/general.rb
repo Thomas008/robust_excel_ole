@@ -36,7 +36,7 @@ class WIN32OLE
     when "Range" then RobustExcelOle::Range.new(self)
     when "_Worksheet" then Sheet.new(self)
     when "_Workbook" then Book.new(self)
-    when "_Application>" then Excel.new(self)
+    when "_Application" then Excel.new(self)
     else
       self
     end

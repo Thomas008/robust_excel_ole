@@ -57,25 +57,25 @@ module RobustExcelOle
       end
 
       it "should read a1-format when row and column are given separated" do
-        address = Address.new(["A",1])
+        address = Address.new([1,"A"])
         address.rows.should == (1..1)
         address.columns.should == (1..1)
       end
 
       it "should read a1-format with rows as integer range" do
-        address = Address.new(["AB", 2..4])
+        address = Address.new([2..4, "AB"])
         address.rows.should == (2..4)
         address.columns.should == (28..28)
       end
 
       it "should read a1-format with columns as string range" do
-        address = Address.new(["A".."C", 2])
+        address = Address.new([2, "A".."C"])
         address.rows.should == (2..2)
         address.columns.should == (1..3)
       end
 
       it "should read a1-format with rows and columns as string range" do
-        address = Address.new(["A".."C", 2..6])
+        address = Address.new([2..6, "A" .. "C"])
         address.rows.should == (2..6)
         address.columns.should == (1..3)
       end

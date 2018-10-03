@@ -161,7 +161,7 @@ module RobustExcelOle
 
     def each_row_with_index(offset = 0)
       each_row(offset) do |row_range|
-        yield RobustExcelOle::Range.new(row_range), (row_range.row - 1 - offset)
+        yield RobustExcelOle::Range.new(row_range), (row_range.Row - 1 - offset)
       end
     end
 
@@ -175,7 +175,7 @@ module RobustExcelOle
 
     def each_column_with_index(offset = 0)
       each_column(offset) do |column_range|
-        yield RobustExcelOle::Range.new(column_range), (column_range.column - 1 - offset)
+        yield RobustExcelOle::Range.new(column_range), (column_range.Column - 1 - offset)
       end
     end
 

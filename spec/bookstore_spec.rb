@@ -30,7 +30,7 @@ end
 
 $mock_bookstore = MockBookstore.new
 
-class Book
+class Workbook
   @@bookstore = $mock_bookstore
 end
 
@@ -80,8 +80,8 @@ describe Bookstore do
 
   describe "Mock-Test" do
     it "should never store any book" do
-      b1 = Book.open(@simple_file1)
-      b2 = Book.open(@simple_file1)
+      b1 = Workbook.open(@simple_file1)
+      b2 = Workbook.open(@simple_file1)
       b2.object_id.should_not == b1.object_id
     end
   end
@@ -92,7 +92,7 @@ describe Bookstore do
     context "with one open book" do
       
       before do
-        @book = Book.open(@simple_file)
+        @book = Workbook.open(@simple_file)
       end
 
       after do
@@ -102,7 +102,7 @@ describe Bookstore do
       it "should do simple store and fetch" do        
         @bookstore.store(@book)
         new_book = @bookstore.fetch(@simple_file)
-        new_book.should be_a Book
+        new_book.should be_a Workbook
         new_book.should be_alive
         new_book.should == @book
         new_book.close
@@ -112,10 +112,10 @@ describe Bookstore do
         @bookstore.store(@book)
         book1 = @bookstore.fetch(@simple_file1)
         book2 = @bookstore.fetch(@simple_file1)
-        expect(book1).to be_a Book
+        expect(book1).to be_a Workbook
         book1.should be_alive
         book1.should == @book
-        book2.should be_a Book
+        book2.should be_a Workbook
         book2.should be_alive
         book2.should == @book
         book1.should == book2
@@ -132,7 +132,7 @@ describe Bookstore do
         @bookstore.store(@book)
         @book.close
         book1 = @bookstore.fetch(@simple_file)
-        book1.should be_a Book
+        book1.should be_a Workbook
         book1.should_not be_alive
       end
 
@@ -153,7 +153,7 @@ describe Bookstore do
     context "with several books" do
 
       before do
-        @book = Book.open(@simple_file)
+        @book = Workbook.open(@simple_file)
         @bookstore.store(@book)
       end
 
@@ -163,14 +163,14 @@ describe Bookstore do
       end
 
       it "should store and open two different books" do
-        @book2 = Book.open(@different_file1)
+        @book2 = Workbook.open(@different_file1)
         @bookstore.store(@book2)
         new_book = @bookstore.fetch(@simple_file)
         new_book2 = @bookstore.fetch(@different_file1)
-        new_book.should be_a Book
+        new_book.should be_a Workbook
         new_book.should be_alive
         new_book.should == @book
-        new_book2.should be_a Book
+        new_book2.should be_a Workbook
         new_book2.should be_alive
         new_book2.should == @book2
         new_book.should_not == new_book2
@@ -179,7 +179,7 @@ describe Bookstore do
       end
 
       it "should fetch the first, writable book" do
-        @book2 = Book.open(@simple_file1, :force_excel => :new)
+        @book2 = Workbook.open(@simple_file1, :force_excel => :new)
         @bookstore.store(@book2)
         @book.ReadOnly.should be false
         @book2.ReadOnly.should be true
@@ -190,7 +190,7 @@ describe Bookstore do
       end
 
       it "should fetch the last book with :prefer_writeable => false" do
-        @book2 = Book.open(@simple_file1, :force_excel => :new)
+        @book2 = Workbook.open(@simple_file1, :force_excel => :new)
         @bookstore.store(@book2)
         @book.ReadOnly.should be false
         @book2.ReadOnly.should be true
@@ -201,7 +201,7 @@ describe Bookstore do
       end
 
       it "should fetch the second, open book, if the first book is closed" do
-        @book2 = Book.open(@simple_file1, :force_excel => :new)
+        @book2 = Workbook.open(@simple_file1, :force_excel => :new)
         @bookstore.store(@book2)
         @book.ReadOnly.should be false
         @book2.ReadOnly.should be true
@@ -217,7 +217,7 @@ describe Bookstore do
       end
 
       it "should fetch the first, open book, if the second book is closed, even with :prefer_writeable => false" do
-        @book2 = Book.open(@simple_file1, :force_excel => :new)
+        @book2 = Workbook.open(@simple_file1, :force_excel => :new)
         @bookstore.store(@book2)
         @book.ReadOnly.should be false
         @book2.ReadOnly.should be true
@@ -237,7 +237,7 @@ describe Bookstore do
     context "with readonly book" do
 
       before do
-        @book = Book.open(@simple_file, :read_only => true)
+        @book = Workbook.open(@simple_file, :read_only => true)
         @bookstore.store(@book)
       end
 
@@ -247,7 +247,7 @@ describe Bookstore do
       end
 
       it "should fetch the second, writable book" do
-        @book2 = Book.open(@simple_file1, :force_excel => :new)
+        @book2 = Workbook.open(@simple_file1, :force_excel => :new)
         @bookstore.store(@book2)
         @book.ReadOnly.should be true
         @book2.ReadOnly.should be false
@@ -266,7 +266,7 @@ describe Bookstore do
       end
 
       it "should fetch the recent readonly book when there are only readonly books" do
-        @book2 = Book.open(@simple_file1, :force_excel => :new, :read_only => true)
+        @book2 = Workbook.open(@simple_file1, :force_excel => :new, :read_only => true)
         @bookstore.store(@book2)
         @book.ReadOnly.should be true
         @book2.ReadOnly.should be true
@@ -277,8 +277,8 @@ describe Bookstore do
       end
 
       it "should fetch the second, writable book, if a writable, a readonly and an unsaved readonly book exist" do
-        @book2 = Book.open(@simple_file1, :force_excel => :new)
-        @book3 = Book.open(@simple_file1, :force_excel => :new)
+        @book2 = Workbook.open(@simple_file1, :force_excel => :new)
+        @book3 = Workbook.open(@simple_file1, :force_excel => :new)
         @bookstore.store(@book2)
         @bookstore.store(@book3)
         sheet = @book3.sheet(1)
@@ -303,10 +303,10 @@ describe Bookstore do
     context "with several closed books" do
       
       before do
-        @book = Book.open(@simple_file1)
+        @book = Workbook.open(@simple_file1)
         @bookstore.store(@book)
         @bookstore.store(@book)
-        @book2 = Book.open(@simple_file1, :force_excel => :new)
+        @book2 = Workbook.open(@simple_file1, :force_excel => :new)
         @bookstore.store(@book2)
         @book.close
         @book2.close
@@ -323,7 +323,7 @@ describe Bookstore do
     context "with changing file name" do
 
       before do
-        @book = Book.open(@simple_file)
+        @book = Workbook.open(@simple_file)
         @book.save_as(@simple_save_file, :if_exists => :overwrite)      
         @bookstore.store(@book)
         #@bookstore = @book.book_store
@@ -347,9 +347,9 @@ describe Bookstore do
     context "with given excel instance and fetching readonly" do
       
       before do
-        @book = Book.open(@simple_file1)
+        @book = Workbook.open(@simple_file1)
         @bookstore.store(@book)
-        @book2 = Book.open(@simple_file1, :force_excel => :new)
+        @book2 = Workbook.open(@simple_file1, :force_excel => :new)
         @bookstore.store(@book2)        
       end
 
@@ -361,7 +361,7 @@ describe Bookstore do
         @book.ReadOnly.should be false
         @book2.ReadOnly.should be true
         book_new = @bookstore.fetch(@simple_file, :prefer_excel => @book2.excel)
-        book_new.should be_a Book
+        book_new.should be_a Workbook
         book_new.should be_alive
         book_new.should == @book2
       end
@@ -373,7 +373,7 @@ describe Bookstore do
     context "with an open book" do
 
       before do
-        @book = Book.open(@simple_file)
+        @book = Workbook.open(@simple_file)
         @bookstore.store(@book)
       end
 
@@ -393,11 +393,11 @@ describe Bookstore do
       end
 
       it "should have forgotten some books if they have no reference anymore" do
-        book_new = Book.open(@different_file1)
+        book_new = Workbook.open(@different_file1)
         @bookstore.store(book_new)
         @book = nil
         @book = "Bla"
-        @book = Book.open(@simple_file1)
+        @book = Workbook.open(@simple_file1)
         @bookstore.store(@book)
         @book = nil
         GC.start
@@ -411,9 +411,9 @@ describe Bookstore do
   describe "books" do
 
     before do
-       @book = Book.open(@simple_file)
+       @book = Workbook.open(@simple_file)
        @bookstore.store(@book)
-       @book2 = Book.open(@different_file)
+       @book2 = Workbook.open(@different_file)
        @bookstore.store(@book2)
     end
 
@@ -432,9 +432,9 @@ describe Bookstore do
   describe "print" do
 
     before do
-       @book = Book.open(@simple_file)
+       @book = Workbook.open(@simple_file)
        @bookstore.store(@book)
-       @book2 = Book.open(@different_file)
+       @book2 = Workbook.open(@different_file)
        @bookstore.store(@book2)
     end
 
@@ -456,7 +456,7 @@ describe Bookstore do
     context "with some open book" do
 
       before do
-        @book = Book.open(@simple_file)
+        @book = Workbook.open(@simple_file)
       end
 
       after do
@@ -468,7 +468,7 @@ describe Bookstore do
         h_excel1.should_not == @book.excel
         h_excel1.Visible.should be false
         h_excel1.DisplayAlerts.should be false
-        book1 = Book.open(@simple_file, :force_excel => @bookstore.hidden_excel)
+        book1 = Workbook.open(@simple_file, :force_excel => @bookstore.hidden_excel)
         book1.excel.should === h_excel1
         book1.excel.should_not === @book.excel
         Excel.close_all    
@@ -477,14 +477,14 @@ describe Bookstore do
         h_excel2.should_not == book1.excel
         h_excel2.Visible.should be false
         h_excel2.DisplayAlerts.should be false
-        book2 = Book.open(@simple_file, :force_excel => @bookstore.hidden_excel)
+        book2 = Workbook.open(@simple_file, :force_excel => @bookstore.hidden_excel)
         book2.excel.should === h_excel2
         book2.excel.should_not === @book.excel
         book2.excel.should_not === book1.excel
       end
 
       it "should exclude hidden excel" do
-        book1 = Book.open(@simple_file, :force_excel => @bookstore.hidden_excel)
+        book1 = Workbook.open(@simple_file, :force_excel => @bookstore.hidden_excel)
         @bookstore.store(book1)
         book1.close
         book2 = @bookstore.fetch(@simple_file)

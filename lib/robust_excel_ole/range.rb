@@ -10,7 +10,7 @@ module RobustExcelOle
 
     def initialize(win32_range)
       @ole_range = win32_range
-      @worksheet = sheet_class.new(self.Parent)
+      @worksheet = worksheet_class.new(self.Parent)
     end
 
     def each
@@ -40,7 +40,7 @@ module RobustExcelOle
 
     # copies a range
     # @params [Address] address of a range
-    # @options [Sheet] the worksheet in which to copy      
+    # @options [Worksheet] the worksheet in which to copy      
     def copy(address, sheet = :__not_provided, third_argument_deprecated = :__not_provided)
       if third_argument_deprecated != :__not_provided
         address = [address,sheet]
@@ -63,17 +63,17 @@ module RobustExcelOle
       end
     end
 
-    def self.sheet_class    # :nodoc: #
-      @sheet_class ||= begin
+    def self.worksheet_class    # :nodoc: #
+      @worksheet_class ||= begin
         module_name = self.parent_name
-        "#{module_name}::Sheet".constantize
+        "#{module_name}::Worksheet".constantize
       rescue NameError => e
-        Sheet
+        Worksheet
       end
     end
 
-    def sheet_class        # :nodoc: #
-      self.class.sheet_class
+    def worksheet_class        # :nodoc: #
+      self.class.worksheet_class
     end
 
   private

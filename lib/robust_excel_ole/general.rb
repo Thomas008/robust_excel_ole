@@ -34,8 +34,8 @@ class WIN32OLE
   def to_reo
     case self.ole_type.name
     when "Range" then RobustExcelOle::Range.new(self)
-    when "_Worksheet" then Sheet.new(self)
-    when "_Workbook" then Book.new(self)
+    when "_Worksheet" then Worksheet.new(self)
+    when "_Workbook" then Workbook.new(self)
     when "_Application" then Excel.new(self)
     else
       self

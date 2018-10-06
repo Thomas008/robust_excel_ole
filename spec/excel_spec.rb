@@ -131,14 +131,14 @@ module RobustExcelOle
     context "Illegal Refrence" do
 
       before do
-        book1 = Book.open(@simple_file1)
-        book2 = Book.open(@simple_file1, :force_excel => :new)
+        book1 = Workbook.open(@simple_file1)
+        book2 = Workbook.open(@simple_file1, :force_excel => :new)
         a = book1.saved 
       end
 
       it "should not cause warning 'Illegal Reference probably recycled'" do
         Excel.close_all
-        book = Book.open(@simple_file)
+        book = Workbook.open(@simple_file)
       end
     end
 
@@ -191,7 +191,7 @@ module RobustExcelOle
       context "lifting an Excel instance given as WIN32Ole object" do
 
         before do
-          @book = Book.open(@simple_file)
+          @book = Workbook.open(@simple_file)
           @excel = @book.excel          
         end
 
@@ -330,7 +330,7 @@ module RobustExcelOle
       context "with a single Excel instance" do
 
         before do
-          @book1 = Book.open(@simple_file)
+          @book1 = Workbook.open(@simple_file)
           @excel1 = @book1.excel
         end
 
@@ -396,9 +396,9 @@ module RobustExcelOle
       context "with several Excel instances" do
 
         before do
-          @book1 = Book.open(@simple_file)      
-          @book2 = Book.open(@another_simple_file, :force_excel => @book1)
-          @book3 = Book.open(@different_file, :force_excel => :new)
+          @book1 = Workbook.open(@simple_file)      
+          @book2 = Workbook.open(@another_simple_file, :force_excel => @book1)
+          @book3 = Workbook.open(@different_file, :force_excel => :new)
           @excel1 = @book1.excel
           @excel3 = @book3.excel
           @excel1.visible = true
@@ -491,7 +491,7 @@ module RobustExcelOle
         context "with one Excel instance" do
 
           before do
-            book1 = Book.open(@simple_file1, :visible => true)
+            book1 = Workbook.open(@simple_file1, :visible => true)
             @excel1 = book1.excel
             sheet1 = book1.sheet(1)
             @old_cell_value1 = sheet1[1,1].Value
@@ -503,7 +503,7 @@ module RobustExcelOle
             result = Excel.close_all(:if_unsaved => :save)
             sleep 0.2
             @excel1.should_not be_alive
-            new_book1 = Book.open(@simple_file1)
+            new_book1 = Workbook.open(@simple_file1)
             new_sheet1 = new_book1.sheet(1)
             new_sheet1[1,1].Value.should_not == @old_cell_value1
             new_book1.close
@@ -514,7 +514,7 @@ module RobustExcelOle
             result = Excel.close_all(:if_unsaved => :forget)
             sleep 0.2
             @excel1.should_not be_alive
-            new_book1 = Book.open(@simple_file1)
+            new_book1 = Workbook.open(@simple_file1)
             new_sheet1 = new_book1.sheet(1)
             new_sheet1[1,1].Value.should == @old_cell_value1
             new_book1.close
@@ -525,8 +525,8 @@ module RobustExcelOle
         context "with two Excel instances" do
           
           before do          
-            book1 = Book.open(@simple_file1, :force_excel => :new)
-            book2 = Book.open(@different_file, :force_excel => :new)          
+            book1 = Workbook.open(@simple_file1, :force_excel => :new)
+            book2 = Workbook.open(@different_file, :force_excel => :new)          
             @excel1 = book1.excel
             @excel2 = book2.excel
             sheet2 = book2.sheet(1)
@@ -565,7 +565,7 @@ module RobustExcelOle
             sleep 0.2
             @excel1.should_not be_alive
             @excel2.should_not be_alive
-            new_book2 = Book.open(@different_file1)
+            new_book2 = Workbook.open(@different_file1)
             new_sheet2 = new_book2.sheet(1)
             new_sheet2[1,1].Value.should_not == @old_cell_value2
             new_book2.close
@@ -577,7 +577,7 @@ module RobustExcelOle
             sleep 0.2
             @excel1.should_not be_alive
             @excel2.should_not be_alive
-            new_book2 = Book.open(@different_file1)
+            new_book2 = Workbook.open(@different_file1)
             new_sheet2 = new_book2.sheet(1)
             new_sheet2[1,1].Value.should == @old_cell_value2
             new_book2.close
@@ -594,9 +594,9 @@ module RobustExcelOle
         context "with three Excel instances" do
 
          before do          
-            @book1 = Book.open(@simple_file1, :force_excel => :new)
-            @book2 = Book.open(@another_simple_file, :force_excel => :new) 
-            @book3 = Book.open(@different_file, :force_excel => :new)
+            @book1 = Workbook.open(@simple_file1, :force_excel => :new)
+            @book2 = Workbook.open(@another_simple_file, :force_excel => :new) 
+            @book3 = Workbook.open(@different_file, :force_excel => :new)
             old_cell_value1 = @book2.sheet(1)[1,1].Value                 
             @book2.sheet(1)[1,1] = old_cell_value1 == "foo" ? "bar" : "foo"
           end
@@ -619,9 +619,9 @@ module RobustExcelOle
 
          before do          
             @ole_xl = WIN32OLE.new('Excel.Application')
-            @book1 = Book.open(@simple_file1, :force_excel => :new)
-            @book2 = Book.open(@another_simple_file, :force_excel => :new) 
-            @book3 = Book.open(@different_file, :force_excel => :new)
+            @book1 = Workbook.open(@simple_file1, :force_excel => :new)
+            @book2 = Workbook.open(@another_simple_file, :force_excel => :new) 
+            @book3 = Workbook.open(@different_file, :force_excel => :new)
             old_cell_value1 = @book2.sheet(1)[1,1].Value                 
             @book2.sheet(1)[1,1] = old_cell_value1 == "foo" ? "bar" : "foo"
           end
@@ -664,7 +664,7 @@ module RobustExcelOle
 
         before do
           @excel = Excel.create
-          @book = Book.open(@simple_file)
+          @book = Workbook.open(@simple_file)
           @excel.should be_alive
         end
 
@@ -689,11 +689,11 @@ module RobustExcelOle
 
         before do
           @excel = Excel.create
-          @book = Book.open(@simple_file)
+          @book = Workbook.open(@simple_file)
           sheet = @book.sheet(1)
           @old_cell_value = sheet[1,1].Value
           sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
-          @book2 = Book.open(@another_simple_file)
+          @book2 = Workbook.open(@another_simple_file)
           sheet2 = @book2.sheet(1)
           @old_cell_value2 = sheet2[1,1].Value
           sheet2[1,1] = sheet2[1,1].Value == "foo" ? "bar" : "foo"
@@ -721,7 +721,7 @@ module RobustExcelOle
           sleep 0.2
           @excel.should_not be_alive
           result.should == 1
-          new_book = Book.open(@simple_file)
+          new_book = Workbook.open(@simple_file)
           new_sheet = new_book.sheet(1)
           new_sheet[1,1].Value.should == @old_cell_value
           new_book.close          
@@ -735,7 +735,7 @@ module RobustExcelOle
           sleep 0.2
           result.should == 1
           @excel.should_not be_alive
-          new_book = Book.open(@simple_file)
+          new_book = Workbook.open(@simple_file)
           new_sheet = new_book.sheet(1)
           new_sheet[1,1].Value.should == @old_cell_value
           new_book.close          
@@ -747,7 +747,7 @@ module RobustExcelOle
           sleep 0.2
           result.should == 1
           @excel.should_not be_alive
-          new_book = Book.open(@simple_file)
+          new_book = Workbook.open(@simple_file)
           new_sheet = new_book.sheet(1)
           new_sheet[1,1].Value.should_not == @old_cell_value
           new_book.close          
@@ -765,7 +765,7 @@ module RobustExcelOle
         before do
           @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '/helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
           @excel = Excel.create(:visible => true)
-          @book = Book.open(@simple_file, :visible => true)
+          @book = Workbook.open(@simple_file, :visible => true)
           sheet = @book.sheet(1)
           @old_cell_value = sheet[1,1].Value
           sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
@@ -782,7 +782,7 @@ module RobustExcelOle
           result = @excel.close(:if_unsaved => :alert)
           @excel.should_not be_alive
           result.should == 1
-          new_book = Book.open(@simple_file)
+          new_book = Workbook.open(@simple_file)
           new_sheet = new_book.sheet(1)
           new_sheet[1,1].Value.should_not == @old_cell_value
           new_book.close   
@@ -797,7 +797,7 @@ module RobustExcelOle
           @excel.should_not be_alive
           result.should == 1
           @book.should_not be_alive
-          new_book = Book.open(@simple_file)
+          new_book = Workbook.open(@simple_file)
           new_sheet = new_book.sheet(1)
           new_sheet[1,1].Value.should == @old_cell_value
           new_book.close     
@@ -822,15 +822,15 @@ module RobustExcelOle
       context "with standard" do
         
         before do
-          @book = Book.open(@simple_file)
+          @book = Workbook.open(@simple_file)
           sheet = @book.sheet(1)
           @old_cell_value = sheet[1,1].Value
           sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"          
-          @book3 = Book.open(@different_file, :read_only => true)
+          @book3 = Workbook.open(@different_file, :read_only => true)
           sheet3 = @book3.sheet(1)
           sheet3[1,1] = sheet3[1,1].Value == "foo" ? "bar" : "foo"
           @excel = @book.excel
-          @book2 = Book.open(@another_simple_file, :force_excel => :new)
+          @book2 = Workbook.open(@another_simple_file, :force_excel => :new)
         end
 
         it "should be ok if there are no unsaved workbooks" do
@@ -856,7 +856,7 @@ module RobustExcelOle
           sleep 0.2
           @excel.should be_alive
           @excel.Workbooks.Count.should == 0          
-          new_book = Book.open(@simple_file)
+          new_book = Workbook.open(@simple_file)
           new_sheet = new_book.sheet(1)
           new_sheet[1,1].Value.should == @old_cell_value
           new_book.close          
@@ -867,7 +867,7 @@ module RobustExcelOle
           sleep 0.2
           @excel.should be_alive
           @excel.Workbooks.Count.should == 0          
-          new_book = Book.open(@simple_file)
+          new_book = Workbook.open(@simple_file)
           new_sheet = new_book.sheet(1)
           new_sheet[1,1].Value.should_not == @old_cell_value
           new_book.close          
@@ -884,9 +884,9 @@ module RobustExcelOle
     describe "retain_saved_workbooks" do
 
       before do
-        @book1 = Book.open(@simple_file)
-        @book2 = Book.open(@another_simple_file)
-        @book3 = Book.open(@different_file)
+        @book1 = Workbook.open(@simple_file)
+        @book2 = Workbook.open(@another_simple_file)
+        @book3 = Workbook.open(@different_file)
         sheet2 = @book2.sheet(1)
         sheet2[1,1] = sheet2[1,1].Value == "foo" ? "bar" : "foo"
         @book2.Saved.should be false
@@ -913,10 +913,10 @@ module RobustExcelOle
       context "with standard" do
         
         before do
-          @book = Book.open(@simple_file)
+          @book = Workbook.open(@simple_file)
           sheet = @book.sheet(1)
           sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"          
-          @book3 = Book.open(@different_file, :read_only => true)
+          @book3 = Workbook.open(@different_file, :read_only => true)
           sheet3 = @book3.sheet(1)
           sheet3[1,1] = sheet3[1,1].Value == "foo" ? "bar" : "foo"
           @book.Saved.should be false
@@ -944,13 +944,13 @@ module RobustExcelOle
       end
 
       it "should return empty list for first Excel instance" do
-        book = Book.open(@simple_file)
+        book = Workbook.open(@simple_file)
         Excel.unsaved_known_workbooks.should == [[]]
         book.close
       end
        
       it "should return one unsaved book" do
-        book = Book.open(@simple_file)
+        book = Workbook.open(@simple_file)
         sheet = book.sheet(1)
         sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
         # Excel.unsaved_known_workbooks.should == [[book.ole_workbook]]
@@ -962,7 +962,7 @@ module RobustExcelOle
             ole_workbook.Fullname.tr('\\','/').should == @simple_file  
           end
         end
-        book2 = Book.open(@another_simple_file)
+        book2 = Workbook.open(@another_simple_file)
         # Excel.unsaved_known_workbooks.should == [[book.ole_workbook]]
         unsaved_known_wbs = Excel.unsaved_known_workbooks
         unsaved_known_wbs.size.should == 1
@@ -977,10 +977,10 @@ module RobustExcelOle
       end
 
       it "should return two unsaved books" do
-        book = Book.open(@simple_file)
+        book = Workbook.open(@simple_file)
         sheet = book.sheet(1)
         sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
-        book2 = Book.open(@another_simple_file)
+        book2 = Workbook.open(@another_simple_file)
         sheet2 = book2.sheet(1)
         sheet2[1,1] = sheet2[1,1].Value == "foo" ? "bar" : "foo"
         #Excel.unsaved_known_workbooks.should == [[book.ole_workbook, book2.ole_workbook]]
@@ -997,8 +997,8 @@ module RobustExcelOle
       end
 
       it "should return two unsaved books" do
-        book = Book.open(@simple_file)
-        book2 = Book.open(@another_simple_file, :force_excel => :new)
+        book = Workbook.open(@simple_file)
+        book2 = Workbook.open(@another_simple_file, :force_excel => :new)
         open_books = [book, book2]
         begin 
           open_books.each do |wb|
@@ -1493,7 +1493,7 @@ module RobustExcelOle
 
       it "should do with_calculation with workbook" do
         @excel1 = Excel.new
-        book = Book.open(@simple_file, :visible => true)
+        book = Workbook.open(@simple_file, :visible => true)
         old_calculation_mode = @excel1.Calculation
         @excel1.with_calculation(:manual) do
           @excel1.calculation.should == :manual
@@ -1515,7 +1515,7 @@ module RobustExcelOle
 
       it "should set calculation mode to manual with workbook" do
         @excel1 = Excel.new
-        book = Book.open(@simple_file, :visible => true)
+        book = Workbook.open(@simple_file, :visible => true)
         book.Windows(book.Name).Visible = true
         @excel1.calculation = :manual
         @excel1.calculation.should == :manual
@@ -1526,7 +1526,7 @@ module RobustExcelOle
 
       it "should set calculation mode to automatic with workbook" do
         @excel1 = Excel.new
-        book = Book.open(@simple_file, :visible => true)
+        book = Workbook.open(@simple_file, :visible => true)
         @excel1.calculation = :automatic
         @excel1.calculation.should == :automatic
         @excel1.Calculation.should == XlCalculationAutomatic
@@ -1543,7 +1543,7 @@ module RobustExcelOle
 
       it "should do Calculation to manual with workbook" do
         @excel1 = Excel.new
-        b = Book.open(@simple_file)
+        b = Workbook.open(@simple_file)
         @excel1.Calculation = XlCalculationManual
         @excel1.calculation.should == :manual
         @excel1.Calculation.should == XlCalculationManual
@@ -1551,7 +1551,7 @@ module RobustExcelOle
 
       it "should do Calculation to automatic with workbook" do
         @excel1 = Excel.new
-        b = Book.open(@simple_file)
+        b = Workbook.open(@simple_file)
         @excel1.Calculation = XlCalculationAutomatic
         @excel1.calculation.should == :automatic
         @excel1.Calculation.should == XlCalculationAutomatic
@@ -1584,7 +1584,7 @@ module RobustExcelOle
 
       before do
         @excel = Excel.new(:reuse => false)
-        book = Book.open(@simple_file)
+        book = Workbook.open(@simple_file)
         book.excel.calculation = :manual
         book.close(:if_unsaved => :save)
       end
@@ -1594,7 +1594,7 @@ module RobustExcelOle
         @excel.DisplayAlerts.should be true
         @excel.Visible.should be true
         @excel.ScreenUpdating.should be true
-        book = Book.open(@simple_file)
+        book = Workbook.open(@simple_file)
         @excel.Calculation.should == XlCalculationManual
         book.close
       end
@@ -1611,7 +1611,7 @@ module RobustExcelOle
       end
 
       it "should set options to true for a workbook" do
-        book1 = Book.open(@simple_file)
+        book1 = Workbook.open(@simple_file)
         book1.excel.for_all_workbooks(:visible => true, :read_only => true, :check_compatibility => true)
         book1.excel.Visible.should be true
         book1.Windows(book1.Name).Visible.should be true
@@ -1621,8 +1621,8 @@ module RobustExcelOle
       end
 
       it "should set options for two workbooks" do
-        book1 = Book.open(@simple_file)
-        book2 = Book.open(@different_file)
+        book1 = Workbook.open(@simple_file)
+        book2 = Workbook.open(@different_file)
         excel = book1.excel
         excel.for_all_workbooks(:visible => true, :read_only => true, :check_compatibility => true)
         excel.Visible.should be true
@@ -1768,7 +1768,7 @@ module RobustExcelOle
         end
 
         it "should generate a workbook if one is already existing" do
-          book = Book.open(@simple_file)
+          book = Workbook.open(@simple_file)
           workbook = @excel1.generate_workbook(@file_name)
           workbook.should be_a WIN32OLE
           workbook.Name.should == File.basename(@file_name)
@@ -1798,7 +1798,7 @@ module RobustExcelOle
     context "setting the name of a range" do
 
        before do
-        @book1 = Book.open(@dir + '/another_workbook.xls', :read_only => true, :visible => true)
+        @book1 = Workbook.open(@dir + '/another_workbook.xls', :read_only => true, :visible => true)
         @book1.excel.displayalerts = false
         @excel1 = @book1.excel
       end
@@ -1855,7 +1855,7 @@ module RobustExcelOle
     describe "nameval, set_nameval" do
 
       before do
-        @book1 = Book.open(@dir + '/another_workbook.xls')
+        @book1 = Workbook.open(@dir + '/another_workbook.xls')
         @book1.Windows(@book1.Name).Visible = true
         @excel1 = @book1.excel
       end
@@ -1924,7 +1924,7 @@ module RobustExcelOle
     describe "namevalue, set_namevalue" do
       
       before do
-        @book1 = Book.open(@dir + '/another_workbook.xls')
+        @book1 = Workbook.open(@dir + '/another_workbook.xls')
         @excel1 = @book1.excel
       end
 

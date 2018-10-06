@@ -38,7 +38,7 @@ module RobustExcelOle
     describe "to_reo" do
 
       before do
-        @book1 = Book.open(@simple_file)
+        @book1 = Workbook.open(@simple_file)
       end
 
       it "should promote an Excel" do
@@ -49,13 +49,13 @@ module RobustExcelOle
 
       it "should promote a workbook" do
         workbook = @book1.ole_workbook.to_reo
-        workbook.should be_a Book
+        workbook.should be_a Workbook
         workbook.should be_alive
       end
 
       it "should promote a worksheet" do
         worksheet = @book1.sheet(1).ole_worksheet.to_reo
-        worksheet.should be_kind_of Sheet
+        worksheet.should be_kind_of Worksheet
         worksheet.name.should == "Sheet1"
       end
 
@@ -70,7 +70,7 @@ module RobustExcelOle
     describe "methods, own_methods, respond_to?" do
 
       before do
-        @book1 = Book.open(@simple_file)
+        @book1 = Workbook.open(@simple_file)
         @ole_workbook_methods = 
           ["Activate", "ActiveSheet", "Application", "Close", "FullName", "HasPassword", "Name", "Names", 
             "Password", "Protect", "ProtectSharing", "ProtectStructure", "Protect", "ReadOnly", "Save", 
@@ -81,11 +81,11 @@ module RobustExcelOle
           ["ActiveCell", "ActiveSheet", "ActiveWorkbook", "Application",  "Calculate", "Cells", "Columns",
             "DisplayAlerts", "Evaluate", "Hwnd", "Name", "Names", "Quit", "Range", "Ready", "Save", 
             "Sheets", "UserName", "Value", "Visible", "Workbooks", "Worksheets"]
-        @excel_methods = ["alive?", "book_class", "close", "displayalerts", "recreate", "visible", 
+        @excel_methods = ["alive?", "workbook_class", "close", "displayalerts", "recreate", "visible", 
           "with_displayalerts"] 
         @ole_sheet_methods = []
          # ["Activate", "Calculate", "Copy", "Name", "Select", "Evaluate", "Protect", "Unprotect"]
-        @sheet_methods = ["book_class", "col_range", "each", "each_column", "each_column_with_index",
+        @sheet_methods = ["workbook_class", "col_range", "each", "each_column", "each_column_with_index",
                           "each_row", "each_row_with_index", "nameval", "namevalue", 
                           "set_namevalue", "row_range", "set_nameval"]
       end
@@ -226,7 +226,7 @@ module RobustExcelOle
     describe "Object methods" do
 
       before do
-        @book = Book.open(@simple_file)
+        @book = Workbook.open(@simple_file)
         @sheet = @book.sheet(1)
       end
 
@@ -237,7 +237,7 @@ module RobustExcelOle
       it "should raise an error when asking excel of a sheet" do
         expect{
           @sheet.excel
-          }.to raise_error(TypeREOError, "receiver instance is neither an Excel nor a Book")
+          }.to raise_error(TypeREOError, "receiver instance is neither an Excel nor a Workbook")
       end
     end
   end

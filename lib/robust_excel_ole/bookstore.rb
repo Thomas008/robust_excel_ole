@@ -59,7 +59,7 @@ module RobustExcelOle
     end
 
     # stores a workbook
-    # @param [Book] book a given book
+    # @param [Workbook] book a given book
     def store(book)
       filename_key = General::canonize(book.filename)      
       if book.stored_filename

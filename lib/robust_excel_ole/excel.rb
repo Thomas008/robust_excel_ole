@@ -126,7 +126,7 @@ module RobustExcelOle
         self.displayalerts = opts[:displayalerts]        
         self.calculation = opts[:calculation]
         if opts[:reopen_workbooks]
-          books = book_class.books
+          books = workbook_class.books
           books.each do |book|
             book.reopen if ((not book.alive?) && book.excel.alive? && book.excel == self)
           end        
@@ -589,7 +589,7 @@ module RobustExcelOle
         end 
       end
       ole_workbooks.each do |ole_workbook|
-        book_class.open(ole_workbook).for_this_workbook(options)
+        workbook_class.open(ole_workbook).for_this_workbook(options)
       end
     end
 
@@ -624,17 +624,17 @@ module RobustExcelOle
       self.to_s
     end
 
-    def self.book_class   # :nodoc: #
-      @book_class ||= begin
+    def self.workbook_class   # :nodoc: #
+      @workbook_class ||= begin
         module_name = self.parent_name
-        "#{module_name}::Book".constantize
+        "#{module_name}::Workbook".constantize
       rescue NameError => e
-        book
+        Workbook
       end
     end
 
-    def book_class        # :nodoc: #
-      self.class.book_class
+    def workbook_class        # :nodoc: #
+      self.class.workbook_class
     end
 
     include MethodHelpers

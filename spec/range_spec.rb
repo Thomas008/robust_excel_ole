@@ -14,7 +14,7 @@ describe RobustExcelOle::Range do
 
   before do
     @dir = create_tmpdir
-    @book = Book.open(@dir + '/workbook.xls', :force_excel => :new)
+    @book = Workbook.open(@dir + '/workbook.xls', :force_excel => :new)
     @sheet = @book.sheet(2)
     @range = RobustExcelOle::Range.new(@sheet.ole_worksheet.UsedRange.Rows(1))
   end
@@ -60,7 +60,7 @@ describe RobustExcelOle::Range do
 
     context "read 'merge_cells.xls'" do
       before do
-        @merge_cells_book = Book.open("#{@dir}/merge_cells.xls", :force_excel => :new)
+        @merge_cells_book = Workbook.open("#{@dir}/merge_cells.xls", :force_excel => :new)
         @merge_cells_sheet = @merge_cells_book.sheet(1)
       end
 
@@ -122,10 +122,10 @@ describe RobustExcelOle::Range do
   describe "#copy" do
     
     before do
-      @book2 = Book.open(@dir + '/different_workbook.xls')
+      @book2 = Workbook.open(@dir + '/different_workbook.xls')
       @sheet2 = @book.sheet(1)
       @range2 = @sheet2.range([1..2,1..3])
-      @book3 = Book.open(@dir + '/another_workbook.xls', :force => {:excel => :new})
+      @book3 = Workbook.open(@dir + '/another_workbook.xls', :force => {:excel => :new})
     end
 
     after do
@@ -160,8 +160,8 @@ describe RobustExcelOle::Range do
     it "should copy range at a cell into a worksheet in another Excel instance" do
       Excel.kill_all
       sleep 1
-      book1 = Book.open(@dir + '/workbook.xls', :force_excel => :new)
-      book2 = Book.open(@dir + '/different_workbook.xls', :force_excel => :new)
+      book1 = Workbook.open(@dir + '/workbook.xls', :force_excel => :new)
+      book2 = Workbook.open(@dir + '/different_workbook.xls', :force_excel => :new)
       sheet1 = book1.sheet(1)
       range1 = sheet1.range([1..2,1..3])
       range1.copy([4,4],book2.sheet(1))

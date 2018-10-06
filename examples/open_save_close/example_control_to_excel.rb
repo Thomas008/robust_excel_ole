@@ -11,14 +11,14 @@ Excel.kill_all
 begin
   dir = create_tmpdir
   file_name = dir + 'workbook.xls' 
-  book = Book.open(file_name)          # open a book
+  book = Workbook.open(file_name)          # open a book
   book.excel.visible = true                   # make current Excel visible 
   sleep 1
   sheet = book.sheet(1)                                                        # access a sheet
   sheet[1,1] = sheet[1,1].Value == "simple" ? "complex" : "simple"       # change a cell
   sleep 1
   begin
-    new_book = Book.open(file_name, :if_unsaved => :alert) # open another book with the same file name 
+    new_book = Workbook.open(file_name, :if_unsaved => :alert) # open another book with the same file name 
   rescue WorkbookREOError => msg                          # if the user chooses not open the book,
   	puts "#{msg.message}"                                  #   an exeptions is raised
   end

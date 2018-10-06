@@ -141,7 +141,7 @@ module RobustExcelOle
       end
 
       it "should put another text" do
-        b = Book.open(@simple_file)
+        b = Workbook.open(@simple_file)
         REOCommon::trace "book: #{b}"
       end
     end
@@ -149,7 +149,7 @@ module RobustExcelOle
     describe "own_methods" do
 
       before do
-        @book1 = Book.open(@simple_file)
+        @book1 = Workbook.open(@simple_file)
         @ole_workbook_methods = 
           ["Activate", "ActiveSheet", "Application", "Close", "FullName", "HasPassword", "Name", "Names", 
             "Password", "Protect", "ProtectSharing", "ProtectStructure", "Protect", "ReadOnly", "Save", 
@@ -160,7 +160,7 @@ module RobustExcelOle
           ["ActiveCell", "ActiveSheet", "ActiveWorkbook", "Application",  "Calculate", "Cells", "Columns",
             "DisplayAlerts", "Evaluate", "Hwnd", "Name", "Names", "Quit", "Range", "Ready", "Save", 
             "Sheets", "UserName", "Value", "Visible", "Workbooks", "Worksheets"]
-        @excel_methods = ["alive?", "book_class", "close", "displayalerts", "recreate", "visible", "with_displayalerts"] 
+        @excel_methods = ["alive?", "workbook_class", "close", "displayalerts", "recreate", "visible", "with_displayalerts"] 
       end
 
       after do
@@ -182,7 +182,7 @@ module RobustExcelOle
     describe "Object methods" do
 
       before do
-        @book = Book.open(@simple_file)
+        @book = Workbook.open(@simple_file)
         @sheet = @book.sheet(1)
       end
 
@@ -193,7 +193,7 @@ module RobustExcelOle
       it "should raise an error when asking excel of a sheet" do
         expect{
           @sheet.excel
-          }.to raise_error(TypeREOError, "receiver instance is neither an Excel nor a Book")
+          }.to raise_error(TypeREOError, "receiver instance is neither an Excel nor a Workbook")
       end
 
     end

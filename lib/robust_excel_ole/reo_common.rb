@@ -95,7 +95,7 @@ module RobustExcelOle
   class REOCommon
 
     def excel
-      raise TypeREOError, "receiver instance is neither an Excel nor a Book"
+      raise TypeREOError, "receiver instance is neither an Excel nor a Workbook"
     end
 
     def own_methods
@@ -213,8 +213,8 @@ module RobustExcelOle
       value = begin
         name_obj.RefersToRange.Value
       rescue WIN32OLERuntimeError
-        sheet = if self.is_a?(Sheet) then self
-        elsif self.is_a?(Book) then self.sheet(1)
+        sheet = if self.is_a?(Worksheet) then self
+        elsif self.is_a?(Workbook) then self.sheet(1)
         elsif self.is_a?(Excel) then self.workbook.sheet(1)
         end
         begin
@@ -257,7 +257,7 @@ module RobustExcelOle
     # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
     # @return [Variant] the contents of a range with given name   
     def namevalue(name, opts = {:default => :__not_provided})
-      return namevalue_glob(name, opts) if self.is_a?(Book)
+      return namevalue_glob(name, opts) if self.is_a?(Workbook)
       begin
         range = self.Range(name)
       rescue WIN32OLERuntimeError
@@ -284,7 +284,7 @@ module RobustExcelOle
     # @param [Hash]    opts :color [FixNum]  the color when setting the contents
     def set_namevalue(name, value, opts = {:color => 0})
       begin
-        return set_namevalue_glob(name, value, opts) if self.is_a?(Book)
+        return set_namevalue_glob(name, value, opts) if self.is_a?(Workbook)
         range = self.Range(name)
       rescue WIN32OLERuntimeError
         raise NameNotFound, "name #{name.inspect} not in #{self.inspect}"

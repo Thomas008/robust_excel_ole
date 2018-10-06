@@ -2,7 +2,7 @@
 
 == Accessing and processing worksheets
 
-Worksheets are represented by Sheet objects.
+Worksheets are represented by Worksheet objects.
 
 Assume you have opened a workbook
 

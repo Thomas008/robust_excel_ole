@@ -152,7 +152,7 @@ You get the values of the range as flat array with help of
 
 You can access a range via its defined name with
 
-  range = sheet.name2range("name")
+  range = sheet.range("name")
 
 === Copying a range
 

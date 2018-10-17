@@ -285,6 +285,12 @@ and set another value to that range.
 
 For more details about reading and writing contents of cells and ranges see {README_ranges}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_ranges.rdoc]
 
+=== More things
+
+You can convert a win32ole object into a RobustExcelOle object.
+
+  range = sheet.Names.Item("firstcell").to_reo
+
 === Examples
 
 You can run the examples included in the directory +examples+, e.g.
@@ -297,7 +303,7 @@ This project RobustExcelOle is work in progress. We are happy to implement furth
 
 RobustExcelOle is being tested for Excel 2010. It can be used for any recent Excel Office version.
 
-The tests of RobustExcelOle are optimised with help of the rcov tool. 
+RobustExcelOle has been optimised with help of the rubocop and the rcov tool. 
 
 == Support
 

@@ -1078,7 +1078,7 @@ describe Workbook do
       end
     end
 
-    context "name2range" do
+    context "range" do
 
       before do
         @book1 = Workbook.open(@dir + '/another_workbook.xls', :read_only => true, :visible => true)
@@ -1087,7 +1087,7 @@ describe Workbook do
 
       it "should create a range from the name" do
         @book1.add_name("foo",[1..3,1..4])
-        range = @book1.name2range("foo")
+        range = @book1.range("foo")
         range.Address.should == "$A$1:$D$3"
       end
 

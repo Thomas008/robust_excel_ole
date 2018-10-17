@@ -49,6 +49,24 @@ describe Workbook do
     end
   end
 
+  describe "Book" do
+
+    context "with standard options" do
+      before do
+        @book = Workbook.open(@simple_file)
+      end
+
+      after do
+        @book.close
+      end
+
+      it "should say that it lives" do
+        @book.should be_alive
+      end
+    end
+
+  end
+
   describe "Workbook::save" do
 
     it "should save a file, if it is open" do

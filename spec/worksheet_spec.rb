@@ -32,6 +32,24 @@ describe Worksheet do
     rm_tmp(@dir)
   end
 
+  describe "Sheet" do
+
+    describe 'access first and last sheet' do
+
+      it "should access the first sheet" do
+        first_sheet = @book.first_sheet
+        first_sheet.name.should == Sheet.new(@book.Sheets.Item(1)).Name
+        first_sheet.name.should == @book.sheet(1).Name
+      end
+
+      it "should access the last sheet" do
+        last_sheet = @book.last_sheet
+        last_sheet.name.should == Sheet.new(@book.Sheets.Item(3)).Name
+        last_sheet.name.should == @book.sheet(3).Name
+      end
+    end
+  end
+
   describe ".initialize" do
     context "when open sheet protected(with password is 'protect')" do
       before do

@@ -5,28 +5,27 @@ module RobustExcelOle
     attr_reader :cell
 
     def initialize(win32_cell)
-      if win32_cell.MergeCells
-        @cell = win32_cell.MergeArea.Item(1,1)
-      else
-        @cell = win32_cell
-      end
+      @cell = if win32_cell.MergeCells
+                win32_cell.MergeArea.Item(1,1)
+              else
+                win32_cell
+              end
     end
 
-    def method_missing(name, *args)    # :nodoc: #
-      if name.to_s[0,1] =~ /[A-Z]/ 
+    def method_missing(name, *args) # :nodoc: #
+      if name.to_s[0,1] =~ /[A-Z]/
         begin
           @cell.send(name, *args)
         rescue WIN32OLERuntimeError => msg
           if msg.message =~ /unknown property or method/
             raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
-          else 
+          else
             raise msg
           end
         end
-      else  
-        super 
+      else
+        super
       end
     end
-
   end
 end

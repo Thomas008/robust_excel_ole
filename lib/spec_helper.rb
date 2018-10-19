@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-require "rspec"
+require 'rspec'
 require 'tmpdir'
-require "fileutils"
+require 'fileutils'
 require File.join(File.dirname(__FILE__), '../lib/robust_excel_ole')
 
-module RobustExcelOle::SpecHelpers   # :nodoc: #
+module RobustExcelOle::SpecHelpers # :nodoc: #
   def create_tmpdir   # :nodoc: #
     tmpdir = Dir.mktmpdir
     FileUtils.cp_r(File.join(File.dirname(__FILE__), 'data'), tmpdir)

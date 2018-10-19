@@ -26,32 +26,28 @@ module RobustExcelOle
     # sheet name
     # @returns name of the sheet
     def name
-      begin
-        @ole_worksheet.Name
-      rescue
-        raise SheetREOError, "name #{name.inspect} could not be determined"
-      end
+      @ole_worksheet.Name
+    rescue
+      raise SheetREOError, "name #{name.inspect} could not be determined"
     end
 
     # sets sheet name
-    # @param [String] new_name the new name of the sheet 
+    # @param [String] new_name the new name of the sheet
     def name= (new_name)
-      begin
-        @ole_worksheet.Name = new_name
-      rescue WIN32OLERuntimeError => msg
-        if msg.message =~ /800A03EC/ 
-          raise NameAlreadyExists, "sheet name #{new_name.inspect} already exists"
-        else
-          raise UnexpectedREOError, "unexpected WIN32OLERuntimeError: #{msg.message}"
-        end
+      @ole_worksheet.Name = new_name
+    rescue WIN32OLERuntimeError => msg
+      if msg.message =~ /800A03EC/
+        raise NameAlreadyExists, "sheet name #{new_name.inspect} already exists"
+      else
+        raise UnexpectedREOError, "unexpected WIN32OLERuntimeError: #{msg.message}"
       end
     end
 
     # a cell given the defined name or row and column
     # @params row, column, or name
-    # @returns cell, if row and column are given 
+    # @returns cell, if row and column are given
     def [] p1, p2 = :__not_provided
-      if p2 != :__not_provided  
+      if p2 != :__not_provided
         x, y = p1, p2
         xy = "#{x}_#{y}"
         @cells = { }
@@ -63,7 +59,7 @@ module RobustExcelOle
       else
         name = p1
         begin
-          namevalue_glob(name) 
+          namevalue_glob(name)
         rescue REOError
           namevalue(name)
         end
@@ -75,7 +71,7 @@ module RobustExcelOle
     def []= (p1, p2, p3 = :__not_provided)
       if p3 != :__not_provided
         x, y, value = p1, p2, p3
-        set_cellval(x,y,value)       
+        set_cellval(x,y,value)
       else
         name, value = p1, p2
         begin
@@ -106,31 +102,14 @@ module RobustExcelOle
 
     # sets the value of a cell, if row, column and color of the cell are given
     # @params [Integer] x,y row and column
-    # @option opts [Symbol] :color the color of the cell when set 
+    # @option opts [Symbol] :color the color of the cell when set
     def set_cellval(x,y,value, opts = {:color => 0})
-      begin
-        cell = @ole_worksheet.Cells.Item(x, y)        
-        cell.Interior.ColorIndex = opts[:color] # 42 - aqua-marin, 4-green
-        @workbook.modified_cells << cell if @workbook
-        cell.Value = value
-      rescue WIN32OLERuntimeError
-        raise RangeNotEvaluatable, "cannot assign value #{value.inspect} to cell (#{y.inspect},#{x.inspect})"
-      end
-    end
-
-    # creates a range.
-    # @params [Address] address  
-    # @return [Range] a range
-    def range(address, address2 = :__not_provided)
-      address = [address,address2] unless address2 == :__not_provided
-      address = Address.new(address)
-      begin
-        RobustExcelOle::Range.new(@ole_worksheet.Range(
-          @ole_worksheet.Cells(address.rows.min, address.columns.min),
-          @ole_worksheet.Cells(address.rows.max, address.columns.max)))
-      rescue WIN32OLERuntimeError
-        raise RangeNotCreated, "cannot create range #{address.inspect}"
-      end
+      cell = @ole_worksheet.Cells.Item(x, y)
+      cell.Interior.ColorIndex = opts[:color] # 42 - aqua-marin, 4-green
+      @workbook.modified_cells << cell if @workbook
+      cell.Value = value
+    rescue WIN32OLERuntimeError
+      raise RangeNotEvaluatable, "cannot assign value #{value.inspect} to cell (#{y.inspect},#{x.inspect})"
     end
 
     def each
@@ -144,9 +123,9 @@ module RobustExcelOle
     def each_with_index(offset = 0)
       i = offset
       each_row do |row_range|
-        row_range.each do |cell|          
+        row_range.each do |cell|
           yield cell, i
-          i+=1
+          i += 1
         end
       end
     end
@@ -181,14 +160,13 @@ module RobustExcelOle
 
     def row_range(row, integer_range = nil)
       integer_range ||= 1..@end_column
-      RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(row , integer_range.min ), @ole_worksheet.Cells(row , integer_range.max )))
+      RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(row, integer_range.min), @ole_worksheet.Cells(row, integer_range.max)))
     end
 
     def col_range(col, integer_range = nil)
       integer_range ||= 1..@end_row
-      RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(integer_range.min , col ), @ole_worksheet.Cells(integer_range.max , col )))
+      RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(integer_range.min, col), @ole_worksheet.Cells(integer_range.max, col)))
     end
-
 
     def self.workbook_class   # :nodoc: #
       @workbook_class ||= begin
@@ -204,28 +182,28 @@ module RobustExcelOle
     end
 
     def to_s    # :nodoc: #
-      "#<Worksheet: " + "#{"not alive " unless @workbook.alive?}" + "#{name}" + " #{File.basename(@workbook.stored_filename)} >"
+      '#<Worksheet: ' + ('not alive ' unless @workbook.alive?).to_s + name.to_s + " #{File.basename(@workbook.stored_filename)} >"
     end
 
     def inspect    # :nodoc: #
       self.to_s
     end
 
-  private
+    private
 
     def method_missing(name, *args)    # :nodoc: #
-      if name.to_s[0,1] =~ /[A-Z]/ 
+      if name.to_s[0,1] =~ /[A-Z]/
         begin
           @ole_worksheet.send(name, *args)
         rescue WIN32OLERuntimeError => msg
           if msg.message =~ /unknown property or method/
             raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
-          else 
+          else
             raise msg
           end
         end
-      else  
-        super 
+      else
+        super
       end
     end
 
@@ -241,13 +219,12 @@ module RobustExcelOle
       used_last_column = @ole_worksheet.UsedRange.Columns.Count
 
       special_last_column >= used_last_column ? special_last_column : used_last_column
-    end    
+    end
 
   end
 
-public
+  public
 
   Sheet = Worksheet
 
 end
-  

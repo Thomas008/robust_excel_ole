@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 module RobustExcelOle
-  
   # see https://docs.microsoft.com/en-us/office/vba/api/excel.worksheet#methods
 
   class Range < REOCommon
@@ -23,11 +22,11 @@ module RobustExcelOle
     # @params [Range] a range
     # @returns [Array] the values
     def values(range = nil)
-      result = self.map{|x| x.Value}.flatten
-      if range 
+      result = map { |x| x.Value }.flatten
+      if range
         relevant_result = []
-        result.each_with_index{ |row_or_column, i| relevant_result << row_or_column if range.include?(i) }
-        relevant_result 
+        result.each_with_index { |row_or_column, i| relevant_result << row_or_column if range.include?(i) }
+        relevant_result
       else
         result
       end
@@ -40,7 +39,7 @@ module RobustExcelOle
 
     # copies a range
     # @params [Address] address of a range
-    # @options [Worksheet] the worksheet in which to copy      
+    # @options [Worksheet] the worksheet in which to copy
     def copy(address, sheet = :__not_provided, third_argument_deprecated = :__not_provided)
       if third_argument_deprecated != :__not_provided
         address = [address,sheet]
@@ -50,11 +49,11 @@ module RobustExcelOle
       sheet = @worksheet if sheet == :__not_provided
       destination_range = sheet.range([address.rows.min..address.rows.max,
                                        address.columns.min..address.columns.max]).ole_range
-      if sheet.workbook.excel == @worksheet.workbook.excel 
+      if sheet.workbook.excel == @worksheet.workbook.excel
         begin
           self.Copy(:destination => destination_range)
         rescue WIN32OLERuntimeError
-          raise RangeNotCopied, "cannot copy range"
+          raise RangeNotCopied, 'cannot copy range'
         end
       else
         self.Select
@@ -63,35 +62,35 @@ module RobustExcelOle
       end
     end
 
-    def self.worksheet_class    # :nodoc: #
+    def self.worksheet_class # :nodoc: #
       @worksheet_class ||= begin
-        module_name = self.parent_name
+        module_name = parent_name
         "#{module_name}::Worksheet".constantize
       rescue NameError => e
         Worksheet
       end
     end
 
-    def worksheet_class        # :nodoc: #
+    def worksheet_class # :nodoc: #
       self.class.worksheet_class
     end
 
-  private
-    def method_missing(name, *args)    # :nodoc: #
-      if name.to_s[0,1] =~ /[A-Z]/ 
+    private
+
+    def method_missing(name, *args) # :nodoc: #
+      if name.to_s[0,1] =~ /[A-Z]/
         begin
           @ole_range.send(name, *args)
         rescue WIN32OLERuntimeError => msg
           if msg.message =~ /unknown property or method/
             raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
-          else 
+          else
             raise msg
           end
         end
-      else  
-        super 
+      else
+        super
       end
     end
-
   end
 end

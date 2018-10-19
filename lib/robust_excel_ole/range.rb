@@ -78,7 +78,7 @@ module RobustExcelOle
     private
 
     def method_missing(name, *args) # :nodoc: #
-      if name.to_s[0,1] =~ /[A-Z]/
+      #if name.to_s[0,1] =~ /[A-Z]/
         begin
           @ole_range.send(name, *args)
         rescue WIN32OLERuntimeError => msg
@@ -88,9 +88,9 @@ module RobustExcelOle
             raise msg
           end
         end
-      else
-        super
-      end
+   #   else
+   #     super
+   #   end
     end
   end
 end

@@ -1,0 +1,74 @@
+AllCops:
+  TargetRubyVersion: 2.2
+  RubyInterpreters:
+    - ruby
+    - macruby
+    - rake
+    - jruby
+    - rbx
+  Include:
+    - '**/*.rb'
+  Exclude:
+    - doc/**/*
+    - docs/**/*
+    - examples/**/*
+    - rcov/**/*
+    - spec/**/*
+    - Changelog
+    - Guardfile
+    - Gemfile
+    - LICENSE
+    - Rakefile
+    - README.rdoc
+    - '**/*.bat'
+    - '**/*.gem'
+    - '**/*.md'
+    - '**/*.yml'
+    - '.gitignore/**/*'
+    - '.yardoc/**/*'
+    - '.yardopts/**/*'
+
+Style/Encoding:
+  Enabled: false
+Style/HashSyntax:
+  Enabled: false
+Style/SymbolProc:
+  Enabled: false
+Style/MethodDefParentheses:
+  Enabled: false
+Style/RescueStandardError:
+  Enabled: false
+Style/RescueModifier:
+  Enabled: false
+Style/WordArray:
+  Enabled: false
+Style/NumericLiterals:
+  Enabled: false
+Style/RedundantSelf:
+  Enabled: false
+Style/ParallelAssignment:
+  Enabled: false
+Style/SymbolArray:
+  Enabled: false
+Style/UnneededCondition:
+  Enabled: false
+Style/BracesAroundHashParameters:
+  Enabled: false
+Layout/SpaceAfterComma:
+  Enabled: false
+Layout/EmptyLinesAroundModuleBody:
+  Enabled: false
+Layout/EmptyLinesAroundClassBody:
+  Enabled: false
+Layout/ExtraSpacing:
+  Enabled: false
+Layout/EmptyLineAfterGuardClause:
+  Enabled: false
+Layout/SpaceInsideHashLiteralBraces:
+  Enabled: false
+Layout/SpaceAfterMethodName:
+  Enabled: false
+Layout/AlignParameters:
+  Enabled: false
+Layout/AccessModifierIndentation:
+  Enabled: false

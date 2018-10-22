@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 module RobustExcelOle
-  # see https://docs.microsoft.com/en-us/office/vba/api/excel.worksheet#methods
+
+  # This class essentially wraps a Win32Ole Range object. 
+  # You can apply all VBA methods (starting with a capital letter) 
+  # that you would apply for a Range object. 
+  # See https://docs.microsoft.com/en-us/office/vba/api/excel.worksheet#methods
 
   class Range < REOCommon
     include Enumerable

@@ -9,7 +9,10 @@ end
 
 module RobustExcelOle
 
-  # see https://docs.microsoft.com/en-us/office/vba/api/excel.application(object)#methods
+  # This class essentially wraps a Win32Ole Application object. 
+  # You can apply all VBA methods (starting with a capital letter) 
+  # that you would apply for an Application object. 
+  # See https://docs.microsoft.com/en-us/office/vba/api/excel.application(object)#methods
 
   class Excel < RangeOwners
     attr_accessor :ole_excel

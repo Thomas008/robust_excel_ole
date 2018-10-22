@@ -4,7 +4,10 @@ require 'weakref'
 
 module RobustExcelOle
 
-  # see https://docs.microsoft.com/en-us/office/vba/api/excel.workbook#methods
+  # This class essentially wraps a Win32Ole Workbook object. 
+  # You can apply all VBA methods (starting with a capital letter) 
+  # that you would apply for a Workbook object. 
+  # See https://docs.microsoft.com/en-us/office/vba/api/excel.workbook#methods
 
   class Workbook < RangeOwners
 

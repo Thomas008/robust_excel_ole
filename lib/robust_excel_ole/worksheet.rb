@@ -2,6 +2,9 @@
 
 module RobustExcelOle
 
+  # This class essentially wraps a Win32Ole Worksheet object. 
+  # You can apply all VBA methods (starting with a capital letter) 
+  # that you would apply for a Worksheet object. 
   # see https://docs.microsoft.com/en-us/office/vba/api/excel.worksheet#methods
 
   class Worksheet < RangeOwners

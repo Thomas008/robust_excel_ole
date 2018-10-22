@@ -166,9 +166,9 @@ You can access a range via its defined name with
 
   range = sheet.range("name")
 
-=== Copying a range
+=== Copying and pasting a range
 
-You can copy and paste a range.
+You can copy and paste a range. For short, with "copy" we mean "copy and paste" here.
 
 Let's assume, you have a source range
 

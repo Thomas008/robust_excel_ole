@@ -32,6 +32,10 @@ module RobustExcelOle
       end
     end
 
+    def v
+      self.Value
+    end
+
     def [] index
       @cells = []
       @cells[index + 1] = RobustExcelOle::Cell.new(@ole_range.Cells.Item(index + 1))
@@ -59,25 +63,6 @@ module RobustExcelOle
         self.Select
         self.Copy
         sheet.Paste(destination_range)
-      end
-    end
-
-    # copies a range
-    # @params address [Address] address of a range
-    # @options sheet [Worksheet] the worksheet in which to copy
-    # @options opts [Hash] the paste special option 
-    def copy_special(address, sheet = :__not_provided, opts = { })
-      address = Address.new(address)
-      sheet = @worksheet if sheet == :__not_provided
-      destination_range = sheet.range([address.rows.min..address.rows.max,
-                                       address.columns.min..address.columns.max]).ole_range
-      values_only = opts[:transpose] ? XlPasteValues : XlPasteAll 
-      begin
-        self.Select
-        self.Copy
-        destination_range.PasteSpecial(:transpose => opts[:transpose], :values_only => values_only)
-      rescue WIN32OLERuntimeError
-        raise RangeNotCopied, "range could not be copied, #{address.inspect}, #{sheet.inspect}, #{opts.inspect}"
       end
     end
 

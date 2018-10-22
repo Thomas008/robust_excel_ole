@@ -119,6 +119,18 @@ describe RobustExcelOle::Range do
     end
   end
 
+  describe "#v" do
+
+    context "v" do
+
+      it "should return value" do
+        @sheet[1,1].v.should == 'simple'
+        @sheet.range(1..2,3..4).v.should == [["sheet2", nil], [nil, nil]] 
+      end 
+    end
+
+  end
+
   describe "#copy" do
     
     before do

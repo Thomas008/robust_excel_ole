@@ -45,10 +45,17 @@ or
 You can read the values by 
 
   range.Value
+  => [["foo", "workbook", "sheet1", nil], ["foo", nil, "foobaaa", nil], ["matz", "is", "nice", nil]]
+
+or
+
+  range.v
+  => [["foo", "workbook", "sheet1", nil], ["foo", nil, "foobaaa", nil], ["matz", "is", "nice", nil]]
 
 or as flat array
   
   range.values
+  =>  ["foo", "workbook", "sheet1", nil, "foo", nil, "foobaaa", nil, "matz", "is", "nice", nil]
 
 Now we copy and paste a range. With help of VBA methods you would do
 
@@ -112,6 +119,11 @@ or with RobustExcelOle
   sheet[1,1].Value  
   => "foo
 
+or
+
+  sheet[1,1].v
+  => "foo"
+
 Similarly, you can write a cell.
 
   sheet.Cells.Item(1,1).Value = "new_value"
@@ -156,11 +168,35 @@ You can access a range via its defined name with
 
 === Copying a range
 
-You can copy and paste a range. 
+You can copy and paste a range by assigning the values using the VBA methods. 
+Then you copy the values only. For example, if you have a source range
 
-  range.copy([6,2])
+  src_range = sheet.range(1..2,3..5)
 
-You can also copy a range into another worksheet in another workbook, and even another Excel instance. When copying into another Excel instance the destination shall be a cell (a rectangular range destination is not being considered)
+you can copy it to the destination range
+
+  dest_range = sheet2.range(4..5,6..8)
+
+with help of
+
+  dest_range.Value = src_range.Value
+
+If you know about the destination range only the left top cell, e.g. [4,6],
+then you can use
+
+   dest_range = sheet2.range(4..4+src_range.Rows.Count,6..6+src_range.Columns.Count)
+
+   dest_range.Value = src_range.Value
+
+If you want to copy not only the values but also formatting, cell formulas, etc., then you can use the VBA method Copy
+
+   src_range.Copy(:destination => dest_range.ole_range)
+
+or you use the RobustExcelOle method +copy+ by providing the destination address and the destination worksheet
+
+   src_range.copy([4..5,6..8],sheet2)
+
+The RobustExcelOle method +copy+ allows to copy a range not only into another worksheet and in another workbook, but also into another Excel instance. Note, that when copying into another Excel instance, the clipboard is being used. Furthermore, the destination range shall be a cell (a rectangular range destination is not being considered). 
 
   book2 = Workbook.open('spec/data/another_workbook.xls', :excel => :new, :visible => true)
   range.copy([5,8],book2.sheet(3))

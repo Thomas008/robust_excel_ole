@@ -168,25 +168,31 @@ You can access a range via its defined name with
 
 === Copying a range
 
-You can copy and paste a range by assigning the values using the VBA methods. 
-Then you copy the values only. For example, if you have a source range
+You can copy and paste a range.
+
+Let's assume, you have a source range
 
   src_range = sheet.range(1..2,3..5)
 
-you can copy it to the destination range
+To copy it, you provide a destination range of the same size.
 
   dest_range = sheet2.range(4..5,6..8)
 
-with help of
+Now you can copy the values only by assigning the values with help of the VBA methods.
 
   dest_range.Value = src_range.Value
 
-If you know about the destination range only the left top cell, e.g. [4,6],
-then you can use
+If you know about the destination range only the left top cell, e.g. [4,6], but don't want to care about the size of the source and destination range,
+then you can use in this case
 
    dest_range = sheet2.range(4..4+src_range.Rows.Count,6..6+src_range.Columns.Count)
 
    dest_range.Value = src_range.Value
+
+If you want to transpose the range you can use 
+  
+  dest_range = sheet2.range(4..6,6..7)
+  dest_range.Value = dest_range.worksheet.workbook.excel.WorksheetFunction.Transpose(src_range)
 
 If you want to copy not only the values but also formatting, cell formulas, etc., then you can use the VBA method Copy
 

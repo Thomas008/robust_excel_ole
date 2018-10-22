@@ -174,7 +174,7 @@ Let's assume, you have a source range
 
   src_range = sheet.range(1..2,3..5)
 
-or
+or, in A1-format,
 
   src_range = sheet.range("C1:E2")
 
@@ -182,7 +182,7 @@ To copy it, you provide a destination range of the same size.
 
   dest_range = sheet2.range(4..5,6..8)
 
-or
+or, in A1-format,
   
   dest_range = sheet2.range("F4:H5")
 

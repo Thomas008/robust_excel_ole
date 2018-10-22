@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.5]
+
+### Changed
+  - Range,Cell#v
+  - Range,Cell: lower-letter VBA methods allowed
+
 ## [1.4.1]
 
 ### Changed
@@ -11,6 +17,7 @@ All notable changes to this project will be documented in this file.
 ### Changed
   - renamed Book to Workbook, Sheet to Worksheet
   - General#to_reo
+  - Range,Cell: lower-letter VBA methods not allowed
 
 ## [1.3.1]
 

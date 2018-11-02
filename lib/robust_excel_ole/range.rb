@@ -46,7 +46,56 @@ module RobustExcelOle
     end
 
     # copies a range
-    # @params [Address] address of a range
+    # @params [Address] address or upper left position of the destination range
+    # @options [Worksheet] the destination worksheet
+    def copy_special(dest_address, dest_sheet = :__not_provided, options = { })
+      address = Address.new(dest_address)
+      dest_sheet = @worksheet if dest_sheet == :__not_provided
+      dest_address_is_position = (address.rows.min == address.rows.max && address.columns.min == address.columns.max)
+      dest_range_address = if (not dest_address_is_position) 
+          [address.rows.min..address.rows.max,address.columns.min..address.columns.max]
+        else
+          if (not options[:transpose])
+            [address.rows.min..address.rows.min+self.Rows.Count-1,
+             address.columns.min..address.columns.min+self.Columns.Count-1]
+          else
+            [address.rows.min..address.rows.min+self.Columns.Count-1,
+             address.columns.min..address.columns.min+self.Rows.Count-1]
+          end
+        end
+      dest_range = dest_sheet.range(dest_range_address)
+      src_excel = @worksheet.workbook.excel      
+      begin
+        if options[:values_only]
+          dest_range.Value = (options[:transpose] ? 
+            src_excel.WorksheetFunction.Transpose(self.ole_range) : self.Value)
+        else
+          if dest_range.worksheet.workbook.excel == src_excel
+            if options[:transpose]
+              self.Copy
+              dest_range.PasteSpecial(:transpose => true) 
+            else
+              self.Copy(:destination => dest_range.ole_range)
+            end            
+          else
+            if options[:transpose]
+              added_sheet = @worksheet.workbook.add_sheet
+              self.copy_special(dest_address, added_sheet, :transpose => true)
+              added_sheet.range(dest_range_address).copy_special(dest_address,dest_sheet)
+              src_excel.with_displayalerts(false) {added_sheet.Delete}
+            else
+              self.Copy
+              dest_sheet.Paste(:destination => dest_range.ole_range)
+            end
+          end
+        end
+      rescue WIN32OLERuntimeError
+        raise RangeNotCopied, 'cannot copy range'
+      end
+    end
+
+    # copies a range
+    # @params [Address] address of the destination range
     # @options [Worksheet] the worksheet in which to copy
     def copy(address, sheet = :__not_provided, third_argument_deprecated = :__not_provided)
       if third_argument_deprecated != :__not_provided
@@ -64,9 +113,9 @@ module RobustExcelOle
           raise RangeNotCopied, 'cannot copy range'
         end
       else
-        self.Select
+        #self.Select
         self.Copy
-        sheet.Paste(destination_range)
+        sheet.Paste(:destination => destination_range) 
       end
     end
 

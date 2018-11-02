@@ -57,18 +57,18 @@ or as flat array
   range.values
   =>  ["foo", "workbook", "sheet1", nil, "foo", nil, "foobaaa", nil, "matz", "is", "nice", nil]
 
-Now we copy and paste a range. With help of VBA methods you would do
+Now we copy and paste the range. With help of VBA methods you would do
 
-  range.Copy(:destination => sheet.range([6,2]).ole_range)
+  range.Copy(:destination => sheet.range([4..6,5..8]).ole_range)
 
 or with help of RobustExcelOle
 
-  range.copy([6,2])
+  range.copy_special([4,5])
 
 You can also copy a range into another worksheet in another workbook.
 
   book2 = Workbook.open('spec/data/another_workbook.xls', :excel => :new, :visible => true)
-  range.copy([5,8],book2.sheet(3))
+  range.copy_special([4,5],book2.sheet(3))
 
 Now we define a name that refers to a range consisting of only the first cell, i.e. the 1st row and 1st column. Using VBA methods, you can use
 
@@ -168,52 +168,33 @@ You can access a range via its defined name with
 
 === Copying and pasting a range
 
-You can copy and paste a range. For short, with "copy" we mean "copy and paste" here.
+You can copy and paste (for short, we use "copy" here) a range.
 
 Let's assume, you have a source range
 
-  src_range = sheet.range(1..2,3..5)
+  range = sheet.range(1..2,3..5)
 
 or, in A1-format,
 
-  src_range = sheet.range("C1:E2")
+  range = sheet.range("C1:E2")
 
-To copy it, you provide a destination range of the same size.
+To copy it to the destination range (3..4,6..8), you can use 
 
-  dest_range = sheet2.range(4..5,6..8)
+  range.copy_special([3..4,6..8])
 
-or, in A1-format,
+or, providing the upper left position only,
+
+  range.copy_special([3,6])
+
+You can copy the range into another worksheet of the same or another workbook, even in another Excel instance.
+
+  range.copy_special([3,6], destination_sheet)
+
+Moreover, you can state, whether you want to copy the values only, and whether you want to transpose the destination range.
+
+  range.copy_special([3,6], destination_range, :values_only => true, :transpose => true)
   
-  dest_range = sheet2.range("F4:H5")
-
-Now you can copy the values only by assigning the values with help of the VBA methods.
-
-  dest_range.Value = src_range.Value
-
-If you know about the destination range only the left top cell, e.g. [4,6], but don't want to care about the size of the source and destination range,
-then you can use in this case
-
-   dest_range = sheet2.range(4..4+src_range.Rows.Count,6..6+src_range.Columns.Count)
-
-   dest_range.Value = src_range.Value
-
-If you want to transpose the range you can use 
-  
-  dest_range = sheet2.range(4..6,6..7)
-  dest_range.Value = dest_range.worksheet.workbook.excel.WorksheetFunction.Transpose(src_range)
-
-If you want to copy not only the values but also formatting, cell formulas, etc., then you can use the VBA method Copy
-
-   src_range.Copy(:destination => dest_range.ole_range)
-
-or you use the RobustExcelOle method +copy+ by providing the destination address and the destination worksheet
-
-   src_range.copy([4..5,6..8],sheet2)
-
-The RobustExcelOle method +copy+ allows to copy a range not only into another worksheet and in another workbook, but also into another Excel instance. Note, that when copying into another Excel instance, the clipboard is being used. Furthermore, the destination range shall be a cell (a rectangular range destination is not being considered). 
-
-  book2 = Workbook.open('spec/data/another_workbook.xls', :excel => :new, :visible => true)
-  range.copy([5,8],book2.sheet(3))
+Note that when you don't copy the values only but all formating as well, and you either copy into another Excel instance or transpose the range, the clipboard is being used. 
 
 === Naming a cell
 

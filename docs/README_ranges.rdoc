@@ -57,18 +57,18 @@ or as flat array
   range.values
   =>  ["foo", "workbook", "sheet1", nil, "foo", nil, "foobaaa", nil, "matz", "is", "nice", nil]
 
-Now we copy and paste the range. With help of VBA methods you would do
+Now we copy the range. With help of VBA methods you would do
 
   range.Copy(:destination => sheet.range([4..6,5..8]).ole_range)
 
 or with help of RobustExcelOle
 
-  range.copy_special([4,5])
+  range.copy([4,5])
 
 You can also copy a range into another worksheet in another workbook.
 
   book2 = Workbook.open('spec/data/another_workbook.xls', :excel => :new, :visible => true)
-  range.copy_special([4,5],book2.sheet(3))
+  range.copy([4,5],book2.sheet(3))
 
 Now we define a name that refers to a range consisting of only the first cell, i.e. the 1st row and 1st column. Using VBA methods, you can use
 
@@ -166,9 +166,7 @@ You can access a range via its defined name with
 
   range = sheet.range("name")
 
-=== Copying and pasting a range
-
-You can copy and paste (for short, we use "copy" here) a range.
+=== Copying a range
 
 Let's assume, you have a source range
 
@@ -180,19 +178,19 @@ or, in A1-format,
 
 To copy it to the destination range (3..4,6..8), you can use 
 
-  range.copy_special([3..4,6..8])
+  range.copy([3..4,6..8])
 
 or, providing the upper left position only,
 
-  range.copy_special([3,6])
+  range.copy([3,6])
 
 You can copy the range into another worksheet of the same or another workbook, even in another Excel instance.
 
-  range.copy_special([3,6], destination_sheet)
+  range.copy([3,6], destination_sheet)
 
 Moreover, you can state, whether you want to copy the values only, and whether you want to transpose the destination range.
 
-  range.copy_special([3,6], destination_range, :values_only => true, :transpose => true)
+  range.copy([3,6], destination_range, :values_only => true, :transpose => true)
   
 Note that when you don't copy the values only but all formating as well, and you either copy into another Excel instance or transpose the range, the clipboard is being used. 
 

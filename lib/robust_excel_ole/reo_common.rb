@@ -330,9 +330,9 @@ module RobustExcelOle
                                             ))
         end
       rescue WIN32OLERuntimeError
-        raise RangeNotCreated, "cannot create range (#{name_or_address.inspect},#{address2.inspect})"
-      end
-      raise RangeNotCreated, "cannot create range (#{name_or_address.inspect},#{address2.inspect})" if range.nil?
+        address2_string = address2.nil? ? "" : ", #{address2.inspect}"
+        raise RangeNotCreated, "cannot create range (#{name_or_address.inspect}#{address2_string})"
+      end      
       range
     end
 

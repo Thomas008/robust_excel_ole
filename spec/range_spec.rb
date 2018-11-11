@@ -131,7 +131,7 @@ describe RobustExcelOle::Range do
 
   end
 
-  describe "#copy_special" do
+  describe "#copy" do
     
     before do
       @book1 = Workbook.open(@dir + '/workbook.xls')
@@ -151,118 +151,143 @@ describe RobustExcelOle::Range do
     end
 
     it "should copy range" do
-      @range1.copy_special([4,2])
+      @range1.copy([4,2])
       @sheet1.range([4..5,2..4]).Value.should == [["foo", "workbook", "sheet1"],["foo", nil, "foobaaa"]]
       @sheet1[4,2].Interior.ColorIndex.should == 4
     end
 
     it "should copy range when giving an address" do
-      @range1.copy_special([4..5,2..4])
+      @range1.copy([4..5,2..4])
       @sheet1.range([4..5,2..4]).Value.should == [["foo", "workbook", "sheet1"],["foo", nil, "foobaaa"]]
       @sheet1[4,2].Interior.ColorIndex.should == 4
     end
 
     it "should copy range to another worksheet of another workbook" do
-      @range1.copy_special([4,2], @sheet2)
+      @range1.copy([4,2], @sheet2)
       @sheet2.range([4..5,2..4]).Value.should == [["foo", "workbook", "sheet1"],["foo", nil, "foobaaa"]]
       @sheet2[4,2].Interior.ColorIndex.should == 4
     end
 
     it "should copy range to another worksheet of another workbook of another Excel instance" do
-      @range1.copy_special([4,2], @sheet3)
+      @range1.copy([4,2], @sheet3)
       @sheet3.range([4..5,2..4]).Value.should == [["foo", "workbook", "sheet1"],["foo", nil, "foobaaa"]]
       @sheet3[4,2].Interior.ColorIndex.should == 4
     end
 
     it "should copy values only" do
-      @range1.copy_special([4,2], @sheet1, :values_only => true)
+      @range1.copy([4,2], @sheet1, :values_only => true)
       @sheet1.range([4..5,2..4]).Value.should == [["foo", "workbook", "sheet1"],["foo", nil, "foobaaa"]]
       @sheet1[4,2].Interior.ColorIndex.should == -4142
     end
 
     it "should copy values only to another worksheet of another Excel instance" do
-      @range1.copy_special([4,2], @sheet3, :values_only => true)
+      @range1.copy([4,2], @sheet3, :values_only => true)
       @sheet3.range([4..5,2..4]).Value.should == [["foo", "workbook", "sheet1"],["foo", nil, "foobaaa"]]
       @sheet3[4,2].Interior.ColorIndex.should == -4142
     end
 
     it "should copy and transpose with values only" do
-      @range1.copy_special([4,2], @sheet1, :values_only => true, :transpose => true)
+      @range1.copy([4,2], @sheet1, :values_only => true, :transpose => true)
       @sheet1.range([4..6,2..3]).Value.should == [["foo", "foo"],["workbook", nil],["sheet1","foobaaa"]]
       @sheet1[4,2].Interior.ColorIndex.should == -4142
     end
 
     it "should copy and transpose with values only into another Excel instance" do
-      @range1.copy_special([4,2], @sheet3, :values_only => true, :transpose => true)
+      @range1.copy([4,2], @sheet3, :values_only => true, :transpose => true)
       @sheet3.range([4..6,2..3]).Value.should == [["foo", "foo"],["workbook", nil],["sheet1","foobaaa"]]
       @sheet3[4,2].Interior.ColorIndex.should == -4142
     end
 
     it "should copy and transpose" do
-      @range1.copy_special([4,2], @sheet1, :transpose => true)
+      @range1.copy([4,2], @sheet1, :transpose => true)
       @sheet1.range([4..6,2..3]).Value.should == [["foo", "foo"],["workbook", nil],["sheet1","foobaaa"]]
       @sheet1[4,2].Interior.ColorIndex.should == 4
     end
 
     it "should copy and transpose into another Excel instance" do
-      @range1.copy_special([4,2], @sheet3, :transpose => true)
+      @range1.copy([4,2], @sheet3, :transpose => true)
       @sheet3.range([4..6,2..3]).Value.should == [["foo", "foo"],["workbook", nil],["sheet1","foobaaa"]]
       @sheet3[4,2].Interior.ColorIndex.should == 4
     end
   end
 
-  describe "#copy" do
-    
+  describe "#copy with deprecated interface" do
+
     before do
+      @book1 = Workbook.open(@dir + '/workbook.xls')
+      @sheet1 = @book1.sheet(1)
+      @range1 = @sheet1.range([1..2,1..3])
+      @sheet1[1,1].Interior.ColorIndex = 4
       @book2 = Workbook.open(@dir + '/different_workbook.xls')
-      @sheet2 = @book.sheet(1)
-      @range2 = @sheet2.range([1..2,1..3])
+      @sheet2 = @book2.sheet(2)
       @book3 = Workbook.open(@dir + '/another_workbook.xls', :force => {:excel => :new})
+      @sheet3 = @book3.sheet(3)
     end
 
     after do
-      @book.close(:if_unsaved => :forget)
+      @book1.close(:if_unsaved => :forget)
+      @book2.close(:if_unsaved => :forget)
+      @book3.close(:if_unsaved => :forget)
     end
 
-    it "should copy range at a cell" do
-      @range2.copy([4,4])
-      @sheet2.range([4..5,4..6]).values.should == ["foo", "workbook", "sheet1", "foo", nil, "foobaaa"]
+    it "should copy range" do
+      @range1.copy(4,2)
+      @sheet1.range(4..5,2..4).Value.should == [["foo", "workbook", "sheet1"],["foo", nil, "foobaaa"]]
+      @sheet1[4,2].Interior.ColorIndex.should == 4
     end
 
-    it "should copy range at a cell" do
-      @range2.copy(["D4"])
-      @sheet2.range([4..5,4..6]).values.should == ["foo", "workbook", "sheet1", "foo", nil, "foobaaa"]
+    it "should copy range when giving an address" do
+      @range1.copy(4..5,2..4)
+      @sheet1.range([4..5,2..4]).Value.should == [["foo", "workbook", "sheet1"],["foo", nil, "foobaaa"]]
+      @sheet1[4,2].Interior.ColorIndex.should == 4
     end
 
-    it "should copy range at a cell" do
-      @range2.copy("D4")
-      @sheet2.range([4..5,4..6]).values.should == ["foo", "workbook", "sheet1", "foo", nil, "foobaaa"]
+    it "should copy range to another worksheet of another workbook" do
+      @range1.copy(4,2, @sheet2)
+      @sheet2.range([4..5,2..4]).Value.should == [["foo", "workbook", "sheet1"],["foo", nil, "foobaaa"]]
+      @sheet2[4,2].Interior.ColorIndex.should == 4
     end
 
-    it "should copy range into a certain worksheet of another workbook" do
-      @range2.copy([4,4],@book2.sheet(3))
-      @book2.sheet(3).range([4..5,4..6]).values.should == ["foo", "workbook", "sheet1", "foo", nil, "foobaaa"]
+    it "should copy range to another worksheet of another workbook of another Excel instance" do
+      @range1.copy(4,2, @sheet3)
+      @sheet3.range([4..5,2..4]).Value.should == [["foo", "workbook", "sheet1"],["foo", nil, "foobaaa"]]
+      @sheet3[4,2].Interior.ColorIndex.should == 4
     end
 
-    it "should copy range into a certain worksheet of another workbook of another Excel instance" do
-      @range2.copy([4,4],@book3.sheet(3))
-      @book3.sheet(3).range([4..5,4..6]).values.should == ["foo", "workbook", "sheet1", "foo", nil, "foobaaa"]
+    it "should copy values only" do
+      @range1.copy(4,2, @sheet1, :values_only => true)
+      @sheet1.range([4..5,2..4]).Value.should == [["foo", "workbook", "sheet1"],["foo", nil, "foobaaa"]]
+      @sheet1[4,2].Interior.ColorIndex.should == -4142
     end
 
-    it "should accept old interface" do
-      @range2.copy(4,4,@book2.sheet(3))
-      @book2.sheet(3).range([4..5,4..6]).values.should == ["foo", "workbook", "sheet1", "foo", nil, "foobaaa"]
+    it "should copy values only to another worksheet of another Excel instance" do
+      @range1.copy(4,2, @sheet3, :values_only => true)
+      @sheet3.range([4..5,2..4]).Value.should == [["foo", "workbook", "sheet1"],["foo", nil, "foobaaa"]]
+      @sheet3[4,2].Interior.ColorIndex.should == -4142
     end
 
-    it "should copy range at a cell into a worksheet in another Excel instance" do
-      Excel.kill_all
-      sleep 1
-      book1 = Workbook.open(@dir + '/workbook.xls', :force_excel => :new)
-      book2 = Workbook.open(@dir + '/different_workbook.xls', :force_excel => :new)
-      sheet1 = book1.sheet(1)
-      range1 = sheet1.range([1..2,1..3])
-      range1.copy([4,4],book2.sheet(1))
-      book2.sheet(1).range([4..5,4..6]).values.should == ["foo", "workbook", "sheet1", "foo", nil, "foobaaa"]
+    it "should copy and transpose with values only" do
+      @range1.copy(4,2, @sheet1, :values_only => true, :transpose => true)
+      @sheet1.range([4..6,2..3]).Value.should == [["foo", "foo"],["workbook", nil],["sheet1","foobaaa"]]
+      @sheet1[4,2].Interior.ColorIndex.should == -4142
+    end
+
+    it "should copy and transpose with values only into another Excel instance" do
+      @range1.copy(4,2, @sheet3, :values_only => true, :transpose => true)
+      @sheet3.range([4..6,2..3]).Value.should == [["foo", "foo"],["workbook", nil],["sheet1","foobaaa"]]
+      @sheet3[4,2].Interior.ColorIndex.should == -4142
+    end
+
+    it "should copy and transpose" do
+      @range1.copy(4,2, @sheet1, :transpose => true)
+      @sheet1.range([4..6,2..3]).Value.should == [["foo", "foo"],["workbook", nil],["sheet1","foobaaa"]]
+      @sheet1[4,2].Interior.ColorIndex.should == 4
+    end
+
+    it "should copy and transpose into another Excel instance" do
+      @range1.copy(4,2, @sheet3, :transpose => true)
+      @sheet3.range([4..6,2..3]).Value.should == [["foo", "foo"],["workbook", nil],["sheet1","foobaaa"]]
+      @sheet3[4,2].Interior.ColorIndex.should == 4
     end
 
   end

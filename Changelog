@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.6]
+
+### Added
+  - Range#copy: options values_only, transpose
+
 ## [1.5]
 
 ### Changed

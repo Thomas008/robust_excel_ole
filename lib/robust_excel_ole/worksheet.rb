@@ -8,7 +8,7 @@ module RobustExcelOle
   # see https://docs.microsoft.com/en-us/office/vba/api/excel.worksheet#methods
 
 
-  # README_sheet [https://github.com/Thomas008/robust_excel_ole/blob/master/lib/robust_excel_ole/worksheet.rb]
+  # worksheet: see https://github.com/Thomas008/robust_excel_ole/blob/master/lib/robust_excel_ole/worksheet.rb
   class Worksheet < RangeOwners
 
     attr_reader :ole_worksheet

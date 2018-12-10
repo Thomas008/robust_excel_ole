@@ -75,3 +75,7 @@ The workbook can be saved under a new file name, if it is open.
 Finally the workbook can be closed with a given filename.
 
   Workbook.close('spec/data/workbook.xls')
+
+== Code
+
+workbook.rb[https://github.com/Thomas008/robust_excel_ole/blob/master/lib/robust_excel_ole/workbook.rb]

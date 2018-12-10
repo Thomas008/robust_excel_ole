@@ -146,3 +146,7 @@ This method has the option +:if_unsaved+ as described above. For example, if you
   Excel.kill_all
 
 This method kills all Excel instances no matter whether they contain unsaved workbooks.  
+
+== Code
+
+excel.rb[https://github.com/Thomas008/robust_excel_ole/blob/master/lib/robust_excel_ole/excel.rb]

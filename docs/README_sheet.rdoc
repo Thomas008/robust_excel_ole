@@ -1,5 +1,8 @@
 = RobustExcelOle
 
+== Link to rubydoc class worksheet:
+=== https://github.com/Thomas008/robust_excel_ole/blob/master/lib/robust_excel_ole/worksheet.rb
+
 == Accessing and processing worksheets
 
 Worksheets are represented by Worksheet objects.

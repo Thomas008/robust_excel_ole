@@ -7,6 +7,10 @@ module RobustExcelOle
   # that you would apply for a Worksheet object. 
   # see https://docs.microsoft.com/en-us/office/vba/api/excel.worksheet#methods
 
+
+  # README:
+  # https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_sheet.rdoc
+
   class Worksheet < RangeOwners
 
     attr_reader :ole_worksheet

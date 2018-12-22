@@ -192,7 +192,7 @@ module RobustExcelOle
     end
 =end
 
-    def self.worksheet_class # :nodoc: #
+    def self.worksheet_class # :nodoc:
       @worksheet_class ||= begin
         module_name = parent_name
         "#{module_name}::Worksheet".constantize
@@ -201,13 +201,13 @@ module RobustExcelOle
       end
     end
 
-    def worksheet_class # :nodoc: #
+    def worksheet_class # :nodoc:
       self.class.worksheet_class
     end
 
     private
 
-    def method_missing(name, *args) # :nodoc: #
+    def method_missing(name, *args) # :nodoc:
       #if name.to_s[0,1] =~ /[A-Z]/
         begin
           @ole_range.send(name, *args)

@@ -126,7 +126,7 @@ module RobustExcelOle
     end
   end
 
-  class BookstoreError < WIN32OLERuntimeError # :nodoc: #
+  class BookstoreError < WIN32OLERuntimeError    # :nodoc: #
   end
 
 end

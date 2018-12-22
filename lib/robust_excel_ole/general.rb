@@ -2,19 +2,19 @@
 
 module General
 
-  def absolute_path(file)   # :nodoc: #
+  def absolute_path(file)   # :nodoc:
     file = File.expand_path(file)
     file = RobustExcelOle::Cygwin.cygpath('-w', file) if RUBY_PLATFORM =~ /cygwin/
     WIN32OLE.new('Scripting.FileSystemObject').GetAbsolutePathName(file)
   end
 
-  def canonize(filename)    # :nodoc: #
+  def canonize(filename)    # :nodoc:
     raise TypeREOError, "No string given to canonize, but #{filename.inspect}" unless filename.is_a?(String)
 
     normalize(filename).downcase
   end
 
-  def normalize(path)       # :nodoc: #
+  def normalize(path)       # :nodoc:
     path = path.gsub('/./', '/') + '/'
     path = path.gsub(/[\/\\]+/, '/')
     nil while path.gsub!(/(\/|^)(?!\.\.?)([^\/]+)\/\.\.\//, '\1')
@@ -24,7 +24,7 @@ module General
 
   module_function :absolute_path, :canonize, :normalize
 
-  class VBAMethodMissingError < RuntimeError # :nodoc: #
+  class VBAMethodMissingError < RuntimeError # :nodoc:
   end
 
 end
@@ -43,7 +43,7 @@ class WIN32OLE
   end
 end
 
-class ::String # :nodoc: #
+class ::String # :nodoc:
   def / path_part
     if empty?
       path_part
@@ -106,7 +106,7 @@ class ::String # :nodoc: #
 end
 
 # taken from http://api.rubyonrails.org/v2.3.8/classes/ActiveSupport/CoreExtensions/Module.html#M000806
-class Module # :nodoc: #
+class Module # :nodoc:
   def parent_name
     unless defined? @parent_name
       @parent_name = name =~ /::[^:]+\Z/ ? $`.freeze : nil
@@ -121,7 +121,7 @@ end
 
 module MethodHelpers
 
-  def respond_to?(meth_name, include_private = false) # :nodoc: #
+  def respond_to?(meth_name, include_private = false) # :nodoc:
     if alive?
       methods.include?(meth_name.to_s)
     else
@@ -129,7 +129,7 @@ module MethodHelpers
     end
   end
 
-  def methods # :nodoc: #
+  def methods # :nodoc:
     if alive?
       (super.map { |m| m.to_s } + ole_object.ole_methods.map { |m| m.to_s }).uniq.select { |m| m =~ /^(?!\_)/ }.sort
     else

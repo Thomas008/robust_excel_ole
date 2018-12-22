@@ -140,7 +140,7 @@ module RobustExcelOle
     # returns a Win32OLE object that represents a Excel instance to which Excel connects
     # connects to the first opened Excel instance
     # if this Excel instance is being closed, then Excel creates a new Excel instance
-    def self.current_excel # :nodoc: #
+    def self.current_excel # :nodoc:
       result = begin
                  WIN32OLE.connect('Excel.Application')
                rescue
@@ -402,7 +402,7 @@ module RobustExcelOle
     end
 
     # frees all OLE objects in the object space
-    def self.free_all_ole_objects # :nodoc: #
+    def self.free_all_ole_objects # :nodoc:
       anz_objekte = 0
       ObjectSpace.each_object(WIN32OLE) do |o|
         anz_objekte += 1
@@ -480,11 +480,11 @@ module RobustExcelOle
       result
     end
 
-    def excel # :nodoc: #
+    def excel # :nodoc:
       self
     end
 
-    def self.hwnd2excel(hwnd) # :nodoc: #
+    def self.hwnd2excel(hwnd) # :nodoc:
       excel_weakref = @@hwnd2excel[hwnd]
       if excel_weakref
         if excel_weakref.weakref_alive?
@@ -501,13 +501,13 @@ module RobustExcelOle
       end
     end
 
-    def hwnd # :nodoc: #
+    def hwnd # :nodoc:
       self.Hwnd
     rescue
       nil
     end
 
-    def self.print_hwnd2excel # :nodoc: #
+    def self.print_hwnd2excel # :nodoc:
       @@hwnd2excel.each do |hwnd,wr_excel|
         excel_string = (wr_excel.weakref_alive? ? wr_excel.__getobj__.to_s : 'weakref not alive')
         printf("hwnd: %8i => excel: %s\n", hwnd, excel_string)
@@ -530,7 +530,7 @@ module RobustExcelOle
     end
 
     # returns unsaved workbooks in known (not opened by user) Excel instances
-    def self.unsaved_known_workbooks # :nodoc: #
+    def self.unsaved_known_workbooks # :nodoc:
       result = []
       @@hwnd2excel.each do |_hwnd,wr_excel|
         excel = wr_excel.__getobj__ if wr_excel.weakref_alive?
@@ -539,12 +539,12 @@ module RobustExcelOle
       result
     end
 
-    def print_workbooks # :nodoc: #
+    def print_workbooks # :nodoc:
       self.Workbooks.each { |w| trace "#{w.Name} #{w}" }
     end
 
     # generates, saves, and closes empty workbook
-    def generate_workbook file_name # :nodoc: #
+    def generate_workbook file_name # :nodoc:
       raise FileNameNotGiven, 'filename is nil' if file_name.nil?
 
       self.Workbooks.Add
@@ -686,15 +686,15 @@ module RobustExcelOle
       set_namevalue_glob(name,value, :color => 42) # 42 - aqua-marin, 7-green
     end
 
-    def to_s              # :nodoc: #
+    def to_s              # :nodoc:
       '#<Excel: ' + hwnd.to_s + ('not alive' unless alive?).to_s + '>'
     end
 
-    def inspect           # :nodoc: #
+    def inspect           # :nodoc:
       to_s
     end
 
-    def self.workbook_class   # :nodoc: #
+    def self.workbook_class   # :nodoc:
       @workbook_class ||= begin
         module_name = parent_name
         "#{module_name}::Workbook".constantize
@@ -703,7 +703,7 @@ module RobustExcelOle
       end
     end
 
-    def workbook_class        # :nodoc: #
+    def workbook_class        # :nodoc:
       self.class.workbook_class
     end
 
@@ -711,7 +711,7 @@ module RobustExcelOle
 
     private
 
-    def method_missing(name, *args) # :nodoc: #
+    def method_missing(name, *args) # :nodoc:
       if name.to_s[0,1] =~ /[A-Z]/
         begin
           raise ObjectNotAlive, 'method missing: Excel not alive' unless alive?

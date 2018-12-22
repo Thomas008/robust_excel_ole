@@ -639,7 +639,7 @@ describe Workbook do
 
   describe "unobtrusively" do
 
-    def unobtrusively_ok? # :nodoc: #
+    def unobtrusively_ok? # :nodoc:
       Workbook.unobtrusively(@simple_file) do |book|
         book.should be_a Workbook
         sheet = book.sheet(1)
@@ -854,7 +854,7 @@ describe Workbook do
 
     context "with a virgin Workbook class" do
       before do
-        class Workbook  # :nodoc: #
+        class Workbook  # :nodoc:
           @@bookstore = nil
         end
       end
@@ -865,7 +865,7 @@ describe Workbook do
 
     context "with a book never opened before" do
       before do
-        class Workbook   # :nodoc: #
+        class Workbook   # :nodoc:
           @@bookstore = nil
         end
         other_book = Workbook.open(@different_file)

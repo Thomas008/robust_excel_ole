@@ -296,57 +296,7 @@ module RobustExcelOle
 
       [finished_number, error_number]
     end
-=begin    
-    def self.close_all(options = { :if_unsaved => :raise }, &blk)
-      options[:if_unsaved] = blk if blk
-      finished_number = error_number = overall_number = 0
-      first_error = nil
-      finishing_action = proc do |excel|
-        if excel
-          begin
-            overall_number += 1
-            finished_number += excel.close(:if_unsaved => options[:if_unsaved])
-          rescue
-            first_error = $ERROR_INFO
-            # trace "error when finishing #{$!}"
-            error_number += 1
-          end
-        end
-      end
 
-      # known Excel-instances
-      @@hwnd2excel.each do |hwnd, wr_excel|
-        if wr_excel.weakref_alive?
-          excel = wr_excel.__getobj__
-          if excel.alive?
-            excel.displayalerts = false
-            finishing_action.call(excel)
-          end
-        else
-          @@hwnd2excel.delete(hwnd)
-        end
-      end
-
-      # unknown Excel-instances
-      old_error_number = error_number
-      9.times do |_index|
-        sleep 0.1
-        excel = begin
-                  new(WIN32OLE.connect('Excel.Application'))
-                rescue
-                  nil
-                end
-        finishing_action.call(excel) if excel
-        free_all_ole_objects unless (error_number > 0) && (options[:if_unsaved] == :raise)
-        break unless excel
-        break if error_number > old_error_number # + 3
-      end
-
-      raise first_error if ((options[:if_unsaved] == :raise) && first_error) || (first_error.class == OptionInvalid)
-
-      [finished_number, error_number]
-    end
-=end
     # closes the Excel
     # @param [Hash] options the options
     # @option options [Symbol] :if_unsaved :raise, :save, :forget, :alert
@@ -355,7 +305,7 @@ module RobustExcelOle
     #                      :raise (default) -> raises an exception
     #                      :save            -> saves the workbooks before closing
     #                      :forget          -> closes the Excel instance without saving the workbooks
-    #                      :alert           -> Excel takes over
+    #                      :alert           -> Excel takes over    
     def close(options = { :if_unsaved => :raise })
       finishing_living_excel = alive?
       if finishing_living_excel

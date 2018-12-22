@@ -192,7 +192,7 @@ module RobustExcelOle
     end
 =end
 
-    def self.worksheet_class # :nodoc:
+    def self.worksheet_class   # :nodoc:
       @worksheet_class ||= begin
         module_name = parent_name
         "#{module_name}::Worksheet".constantize

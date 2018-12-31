@@ -1491,6 +1491,21 @@ module RobustExcelOle
         @excel1.CalculateBeforeSave.should == old_calculatebeforesave
       end
 
+      context "with no visible workbook" do
+        before do
+          @excel1 = Excel.create(:calculation => :manual)
+          @book1 = Workbook.open(@simple_file, :visible => false)
+          expect( @book1.Windows(1).Visible ).to be false
+        end
+
+        it "should set calculation mode " do
+          expect {       @excel1.calculation = :automatic 
+            }.to change{ @excel1.Calculation 
+          }.from(        XlCalculationManual 
+          ).to(          XlCalculationAutomatic )
+        end
+      end
+
       it "should do with_calculation with workbook" do
         @excel1 = Excel.new
         book = Workbook.open(@simple_file, :visible => true)

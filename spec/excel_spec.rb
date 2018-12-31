@@ -1501,9 +1501,9 @@ module RobustExcelOle
 
         it "should set calculation mode " do
           expect {       @excel1.calculation = :automatic 
-            }.to change{ @excel1.Calculation 
-          }.from(        XlCalculationManual 
-          ).to(          XlCalculationAutomatic )
+            }.to change{ @excel1.calculation 
+          }.from(        :automatic
+          ).to(          :manual )
         end
       end
 

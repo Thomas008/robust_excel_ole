@@ -173,7 +173,8 @@ module RobustExcelOle
       RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(integer_range.min, col), @ole_worksheet.Cells(integer_range.max, col)))
     end
 
-    def self.workbook_class   # :nodoc:
+    # @private
+    def self.workbook_class  
       @workbook_class ||= begin
         module_name = self.parent_name
         "#{module_name}::Workbook".constantize
@@ -182,21 +183,25 @@ module RobustExcelOle
       end
     end
 
-    def workbook_class        # :nodoc:
+    # @private
+    def workbook_class        
       self.class.workbook_class
     end
 
-    def to_s    # :nodoc:
+    # @private
+    def to_s    
       '#<Worksheet: ' + ('not alive ' unless @workbook.alive?).to_s + name.to_s + " #{File.basename(@workbook.stored_filename)} >"
     end
 
-    def inspect    # :nodoc:
+    # @private
+    def inspect  
       self.to_s
     end
 
-    private
+  private
 
-    def method_missing(name, *args)    # :nodoc:
+    # @private
+    def method_missing(name, *args)
       if name.to_s[0,1] =~ /[A-Z]/
         begin
           @ole_worksheet.send(name, *args)

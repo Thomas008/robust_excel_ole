@@ -2,12 +2,12 @@
 
 require File.join(File.dirname(__FILE__), './../spec_helper')
 
-
-module My # :nodoc:
-  class Excel < RobustExcelOle::Excel # :nodoc:
+# @private
+module My 
+  class Excel < RobustExcelOle::Excel 
   end
 
-  class Workbook < RobustExcelOle::Workbook   # :nodoc:
+  class Workbook < RobustExcelOle::Workbook   
   end
 
 end

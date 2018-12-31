@@ -8,88 +8,116 @@ File.delete REO_LOG_FILE rescue nil
 
 module RobustExcelOle
 
-  class REOError < RuntimeError                    # :nodoc:
+  # @private
+  class REOError < RuntimeError                    
   end
 
-  class ExcelREOError < REOError                   # :nodoc:
+  # @private
+  class ExcelREOError < REOError                   
   end
 
-  class WorkbookREOError < REOError                # :nodoc:
+  # @private
+  class WorkbookREOError < REOError                
   end
 
-  class SheetREOError < REOError                   # :nodoc:
+  # @private
+  class SheetREOError < REOError                   
   end
 
-  class FileREOError < REOError                    # :nodoc:
+  # @private
+  class FileREOError < REOError                    
   end
 
-  class NamesREOError < REOError                   # :nodoc:
+  # @private
+  class NamesREOError < REOError                   
   end
 
-  class MiscREOError < REOError                    # :nodoc:
+  # @private
+  class MiscREOError < REOError                    
   end
 
-  class ExcelDamaged < ExcelREOError               # :nodoc:
+  # @private
+  class ExcelDamaged < ExcelREOError               
   end
 
-  class UnsavedWorkbooks < ExcelREOError           # :nodoc:
+  # @private
+  class UnsavedWorkbooks < ExcelREOError           
   end
 
-  class WorkbookBlocked < WorkbookREOError         # :nodoc:
+  # @private
+  class WorkbookBlocked < WorkbookREOError         
   end
 
-  class WorkbookNotSaved < WorkbookREOError        # :nodoc:
+  # @private
+  class WorkbookNotSaved < WorkbookREOError        
   end
 
-  class WorkbookReadOnly < WorkbookREOError        # :nodoc:
+  # @private
+  class WorkbookReadOnly < WorkbookREOError        
   end
 
-  class WorkbookBeingUsed < WorkbookREOError       # :nodoc:
+  # @private
+  class WorkbookBeingUsed < WorkbookREOError       
   end
 
-  class FileNotFound < FileREOError                # :nodoc:
+  # @private
+  class FileNotFound < FileREOError                
   end
 
-  class FileNameNotGiven < FileREOError            # :nodoc:
+  # @private
+  class FileNameNotGiven < FileREOError            
   end
 
-  class FileAlreadyExists < FileREOError           # :nodoc:
+  # @private
+  class FileAlreadyExists < FileREOError           
   end
 
-  class NameNotFound < NamesREOError               # :nodoc:
+  # @private
+  class NameNotFound < NamesREOError               
   end
 
-  class NameAlreadyExists < NamesREOError          # :nodoc:
+  # @private
+  class NameAlreadyExists < NamesREOError          
   end
 
-  class RangeNotEvaluatable < MiscREOError         # :nodoc:
+  # @private
+  class RangeNotEvaluatable < MiscREOError         
   end
 
-  class RangeNotCreated < MiscREOError             # :nodoc:
+  # @private
+  class RangeNotCreated < MiscREOError             
   end
 
-  class RangeNotCopied < MiscREOError              # :nodoc:
+  # @private
+  class RangeNotCopied < MiscREOError              
   end
 
-  class OptionInvalid < MiscREOError               # :nodoc:
+  # @private
+  class OptionInvalid < MiscREOError               
   end
 
-  class ObjectNotAlive < MiscREOError              # :nodoc:
+  # @private
+  class ObjectNotAlive < MiscREOError              
   end
 
-  class TypeREOError < REOError                    # :nodoc:
+  # @private
+  class TypeREOError < REOError                    
   end
 
-  class TimeOut < REOError                         # :nodoc:
+  # @private
+  class TimeOut < REOError                         
   end
 
-  class AddressInvalid < REOError                  # :nodoc:
+  # @private
+  class AddressInvalid < REOError                  
   end
 
-  class UnexpectedREOError < REOError              # :nodoc:
+  # @private
+  class UnexpectedREOError < REOError              
   end
 
-  class NotImplementedREOError < REOError          # :nodoc:
+  # @private
+  class NotImplementedREOError < REOError          
   end
 
   class REOCommon

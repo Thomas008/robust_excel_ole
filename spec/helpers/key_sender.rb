@@ -1,7 +1,8 @@
 
 require 'win32ole'
 
-class KeySender # :nodoc: #
+# @private
+class KeySender
   def initialize(window_name, options={})
     @window_name = window_name
     @wsh = WIN32OLE.new('Wscript.Shell')

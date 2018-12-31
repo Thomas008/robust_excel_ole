@@ -17,8 +17,9 @@ IRB.conf[:SAVE_HISTORY] = 250
 # IRB.conf[:HISTORY_FILE] = "#{ENV['HOME']}/.irb-history"
 IRB.conf[:HISTORY_FILE] = "#{ENV['HOME']}/.reo-history"
 
-module Readline   # :nodoc: #
-  module Hist     # :nodoc: #
+# @private
+module Readline
+  module Hist 
     LOG = IRB.conf[:HISTORY_FILE]
     #    LOG = "#{ENV['HOME']}/.irb-history"
 
@@ -31,7 +32,8 @@ module Readline   # :nodoc: #
 
     def self.start_session_log
       timestamp = proc { Time.now.strftime('%Y-%m-%d, %H:%M:%S') }
-      class <<timestamp # :nodoc: #
+      # @private
+      class <<timestamp 
         alias_method :to_s, :call
       end
       write_log("###### session start: #{timestamp}")

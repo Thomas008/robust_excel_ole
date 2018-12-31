@@ -16,7 +16,8 @@ module RobustExcelOle
       self.Value
     end
 
-    def method_missing(name, *args) # :nodoc: #
+    # @private
+    def method_missing(name, *args) 
       #if name.to_s[0,1] =~ /[A-Z]/
         begin
           @cell.send(name, *args)

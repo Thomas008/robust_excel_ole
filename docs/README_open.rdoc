@@ -200,3 +200,6 @@ This method finds out whether the Excel workbook that is referenced by the Workb
   book.alive?
   # => true
 
+== Code
+
+workbook.rb[https://github.com/Thomas008/robust_excel_ole/blob/master/lib/robust_excel_ole/workbook.rb]

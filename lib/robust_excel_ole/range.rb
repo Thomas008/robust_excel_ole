@@ -165,34 +165,8 @@ module RobustExcelOle
       end
     end
 
-=begin
-    # copies a range
-    # @params [Address] address of the destination range
-    # @options [Worksheet] the worksheet in which to copy
-    def copy(address, sheet = :__not_provided, third_argument_deprecated = :__not_provided)
-      if third_argument_deprecated != :__not_provided
-        address = [address,sheet]
-        sheet = third_argument_deprecated
-      end
-      address = Address.new(address)
-      sheet = @worksheet if sheet == :__not_provided
-      destination_range = sheet.range([address.rows.min..address.rows.max,
-                                       address.columns.min..address.columns.max]).ole_range
-      if sheet.workbook.excel == @worksheet.workbook.excel
-        begin
-          self.Copy(:destination => destination_range)
-        rescue WIN32OLERuntimeError
-          raise RangeNotCopied, 'cannot copy range'
-        end
-      else
-        #self.Select
-        self.Copy
-        sheet.Paste(:destination => destination_range) 
-      end
-    end
-=end
-
-    def self.worksheet_class # :nodoc: #
+    # @private
+    def self.worksheet_class   
       @worksheet_class ||= begin
         module_name = parent_name
         "#{module_name}::Worksheet".constantize
@@ -201,13 +175,15 @@ module RobustExcelOle
       end
     end
 
-    def worksheet_class # :nodoc: #
+    # @private
+    def worksheet_class 
       self.class.worksheet_class
     end
 
-    private
+  private
 
-    def method_missing(name, *args) # :nodoc: #
+    # @private
+    def method_missing(name, *args) 
       #if name.to_s[0,1] =~ /[A-Z]/
         begin
           @ole_range.send(name, *args)

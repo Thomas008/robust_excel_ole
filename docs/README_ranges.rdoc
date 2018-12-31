@@ -336,3 +336,8 @@ Within a row or column range you can access a certain cell.
   row_range[1]  # => first cell in row_range
   column_range[2] # => second cell in column_range
 
+== Code
+
+range.rb[https://github.com/Thomas008/robust_excel_ole/blob/master/lib/robust_excel_ole/range.rb]
+
+worksheet.rb[https://github.com/Thomas008/robust_excel_ole/blob/master/lib/robust_excel_ole/worksheet.rb]

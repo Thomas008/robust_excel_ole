@@ -140,7 +140,8 @@ module RobustExcelOle
     # returns a Win32OLE object that represents a Excel instance to which Excel connects
     # connects to the first opened Excel instance
     # if this Excel instance is being closed, then Excel creates a new Excel instance
-    def self.current_excel # :nodoc: #
+    # @private
+    def self.current_excel 
       result = begin
                  WIN32OLE.connect('Excel.Application')
                rescue
@@ -296,57 +297,7 @@ module RobustExcelOle
 
       [finished_number, error_number]
     end
-=begin    
-    def self.close_all(options = { :if_unsaved => :raise }, &blk)
-      options[:if_unsaved] = blk if blk
-      finished_number = error_number = overall_number = 0
-      first_error = nil
-      finishing_action = proc do |excel|
-        if excel
-          begin
-            overall_number += 1
-            finished_number += excel.close(:if_unsaved => options[:if_unsaved])
-          rescue
-            first_error = $ERROR_INFO
-            # trace "error when finishing #{$!}"
-            error_number += 1
-          end
-        end
-      end
 
-      # known Excel-instances
-      @@hwnd2excel.each do |hwnd, wr_excel|
-        if wr_excel.weakref_alive?
-          excel = wr_excel.__getobj__
-          if excel.alive?
-            excel.displayalerts = false
-            finishing_action.call(excel)
-          end
-        else
-          @@hwnd2excel.delete(hwnd)
-        end
-      end
-
-      # unknown Excel-instances
-      old_error_number = error_number
-      9.times do |_index|
-        sleep 0.1
-        excel = begin
-                  new(WIN32OLE.connect('Excel.Application'))
-                rescue
-                  nil
-                end
-        finishing_action.call(excel) if excel
-        free_all_ole_objects unless (error_number > 0) && (options[:if_unsaved] == :raise)
-        break unless excel
-        break if error_number > old_error_number # + 3
-      end
-
-      raise first_error if ((options[:if_unsaved] == :raise) && first_error) || (first_error.class == OptionInvalid)
-
-      [finished_number, error_number]
-    end
-=end
     # closes the Excel
     # @param [Hash] options the options
     # @option options [Symbol] :if_unsaved :raise, :save, :forget, :alert
@@ -355,7 +306,7 @@ module RobustExcelOle
     #                      :raise (default) -> raises an exception
     #                      :save            -> saves the workbooks before closing
     #                      :forget          -> closes the Excel instance without saving the workbooks
-    #                      :alert           -> Excel takes over
+    #                      :alert           -> Excel takes over    
     def close(options = { :if_unsaved => :raise })
       finishing_living_excel = alive?
       if finishing_living_excel
@@ -402,7 +353,8 @@ module RobustExcelOle
     end
 
     # frees all OLE objects in the object space
-    def self.free_all_ole_objects # :nodoc: #
+    # @private
+    def self.free_all_ole_objects
       anz_objekte = 0
       ObjectSpace.each_object(WIN32OLE) do |o|
         anz_objekte += 1
@@ -480,11 +432,13 @@ module RobustExcelOle
       result
     end
 
-    def excel # :nodoc: #
+    # @private
+    def excel
       self
     end
 
-    def self.hwnd2excel(hwnd) # :nodoc: #
+    # @private
+    def self.hwnd2excel(hwnd)
       excel_weakref = @@hwnd2excel[hwnd]
       if excel_weakref
         if excel_weakref.weakref_alive?
@@ -501,13 +455,15 @@ module RobustExcelOle
       end
     end
 
-    def hwnd # :nodoc: #
+    # @private
+    def hwnd 
       self.Hwnd
     rescue
       nil
     end
 
-    def self.print_hwnd2excel # :nodoc: #
+    # @private
+    def self.print_hwnd2excel
       @@hwnd2excel.each do |hwnd,wr_excel|
         excel_string = (wr_excel.weakref_alive? ? wr_excel.__getobj__.to_s : 'weakref not alive')
         printf("hwnd: %8i => excel: %s\n", hwnd, excel_string)
@@ -530,7 +486,8 @@ module RobustExcelOle
     end
 
     # returns unsaved workbooks in known (not opened by user) Excel instances
-    def self.unsaved_known_workbooks # :nodoc: #
+    # @private
+    def self.unsaved_known_workbooks 
       result = []
       @@hwnd2excel.each do |_hwnd,wr_excel|
         excel = wr_excel.__getobj__ if wr_excel.weakref_alive?
@@ -539,12 +496,14 @@ module RobustExcelOle
       result
     end
 
-    def print_workbooks # :nodoc: #
+    # @private
+    def print_workbooks
       self.Workbooks.each { |w| trace "#{w.Name} #{w}" }
     end
 
     # generates, saves, and closes empty workbook
-    def generate_workbook file_name # :nodoc: #
+    # @private
+    def generate_workbook file_name
       raise FileNameNotGiven, 'filename is nil' if file_name.nil?
 
       self.Workbooks.Add
@@ -597,20 +556,19 @@ module RobustExcelOle
     # retains the saved-status of the workbooks when set to manual
     def calculation= calculation_mode
       return if calculation_mode.nil?
-
       @calculation = calculation_mode
       calc_mode_changable = @ole_excel.Workbooks.Count > 0 && @ole_excel.Calculation.is_a?(Integer)
       if calc_mode_changable
-        if calculation_mode == :manual
+        #if calculation_mode == :manual
           saved = []
           (1..@ole_excel.Workbooks.Count).each { |i| saved << @ole_excel.Workbooks(i).Saved }
-        end
+        #end
         @ole_excel.CalculateBeforeSave = false
         @ole_excel.Calculation =
           calculation_mode == :automatic ? XlCalculationAutomatic : XlCalculationManual
-        if calculation_mode == :manual
+        #if calculation_mode == :manual
           (1..@ole_excel.Workbooks.Count).each { |i| @ole_excel.Workbooks(i).Saved = true if saved[i - 1] }
-        end
+        #end
       end
     end
 
@@ -686,15 +644,18 @@ module RobustExcelOle
       set_namevalue_glob(name,value, :color => 42) # 42 - aqua-marin, 7-green
     end
 
-    def to_s              # :nodoc: #
+    # @private
+    def to_s            
       '#<Excel: ' + hwnd.to_s + ('not alive' unless alive?).to_s + '>'
     end
 
-    def inspect           # :nodoc: #
+    # @private
+    def inspect         
       to_s
     end
 
-    def self.workbook_class   # :nodoc: #
+    # @private
+    def self.workbook_class  
       @workbook_class ||= begin
         module_name = parent_name
         "#{module_name}::Workbook".constantize
@@ -703,15 +664,17 @@ module RobustExcelOle
       end
     end
 
-    def workbook_class        # :nodoc: #
+    # @private
+    def workbook_class       
       self.class.workbook_class
     end
 
     include MethodHelpers
 
-    private
+  private
 
-    def method_missing(name, *args) # :nodoc: #
+    # @private
+    def method_missing(name, *args) 
       if name.to_s[0,1] =~ /[A-Z]/
         begin
           raise ObjectNotAlive, 'method missing: Excel not alive' unless alive?

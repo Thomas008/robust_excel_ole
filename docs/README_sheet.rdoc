@@ -1,7 +1,5 @@
 = RobustExcelOle
 
-worksheet[https://github.com/Thomas008/robust_excel_ole/blob/master/lib/robust_excel_ole/worksheet.rb]
-
 == Accessing and processing worksheets
 
 Worksheets are represented by Worksheet objects.
@@ -75,3 +73,6 @@ If you want to copy a worksheet, if a sheet is given, and add an empty worksheet
 
   book.add_or_copy_sheet(sheet, :as => 'new_name', :after => another_sheet)  
 
+== Code
+
+worksheet.rb[https://github.com/Thomas008/robust_excel_ole/blob/master/lib/robust_excel_ole/worksheet.rb]

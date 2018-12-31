@@ -216,7 +216,8 @@ module RobustExcelOle
     end
 
     # returns an Excel object when given Excel, Workbook or Win32ole object representing a Workbook or an Excel
-    def self.excel_of(object)  # :nodoc: #
+    # @private
+    def self.excel_of(object) 
       if object.is_a? WIN32OLE
         case object.ole_obj_help.name
         when /Workbook/i
@@ -237,7 +238,8 @@ module RobustExcelOle
 
   public
 
-    def ensure_excel(options)   # :nodoc: #
+    # @private
+    def ensure_excel(options)  
       if excel && @excel.alive?
         @excel.created = false
         return
@@ -249,7 +251,8 @@ module RobustExcelOle
       @excel
     end
 
-    def ensure_workbook(file, options)     # :nodoc: #
+    # @private
+    def ensure_workbook(file, options)    
       file = @stored_filename ? @stored_filename : file
       raise(FileNameNotGiven, 'filename is nil') if file.nil?
       raise(FileNotFound, "file #{General.absolute_path(file).inspect} is a directory") if File.directory?(file)
@@ -322,7 +325,8 @@ module RobustExcelOle
 
   private
 
-    def open_or_create_workbook(file, options)   # :nodoc: #
+    # @private
+    def open_or_create_workbook(file, options)  
       if !@ole_workbook || (options[:if_unsaved] == :alert) || options[:if_obstructed]
         begin
           filename = General.absolute_path(file)
@@ -637,11 +641,13 @@ module RobustExcelOle
 
   private
 
+    # @private
     def discoloring
       @modified_cells.each { |cell| cell.Interior.ColorIndex = XlNone }
     end
 
-    def save_as_workbook(file, options)   # :nodoc: #
+    # @private
+    def save_as_workbook(file, options)  
       dirname, basename = File.split(file)
       file_format =
         case File.extname(basename)
@@ -826,11 +832,13 @@ module RobustExcelOle
       @ole_workbook.Fullname.tr('\\','/') rescue nil
     end
 
-    def writable   # :nodoc: #
+    # @private
+    def writable   
       !@ole_workbook.ReadOnly if @ole_workbook
     end
 
-    def saved   # :nodoc: #
+    # @private
+    def saved  
       @ole_workbook.Saved if @ole_workbook
     end
 
@@ -838,6 +846,7 @@ module RobustExcelOle
       @excel.calculation if @ole_workbook
     end
 
+    # @private
     def check_compatibility
       @ole_workbook.CheckCompatibility if @ole_workbook
     end
@@ -878,23 +887,28 @@ module RobustExcelOle
       bookstore.books
     end
 
-    def self.bookstore   # :nodoc: #
+    # @private
+    def self.bookstore   
       @@bookstore ||= Bookstore.new
     end
 
-    def bookstore    # :nodoc: #
+    # @private
+    def bookstore    
       self.class.bookstore
     end
 
-    def to_s    # :nodoc: #
+    # @private
+    def to_s    
       self.filename.to_s
     end
 
-    def inspect    # :nodoc: #
+    # @private
+    def inspect    
       '#<Workbook: ' + ('not alive ' unless alive?).to_s + (File.basename(self.filename) if alive?).to_s + " #{@ole_workbook} #{@excel}" + '>'
     end
 
-    def self.excel_class    # :nodoc: #
+    # @private
+    def self.excel_class    
       @excel_class ||= begin
         module_name = self.parent_name
         "#{module_name}::Excel".constantize
@@ -904,7 +918,8 @@ module RobustExcelOle
       end
     end
 
-    def self.worksheet_class    # :nodoc: #
+    # @private
+    def self.worksheet_class    
       @worksheet_class ||= begin
         module_name = self.parent_name
         "#{module_name}::Worksheet".constantize
@@ -913,11 +928,13 @@ module RobustExcelOle
       end
     end
 
-    def excel_class        # :nodoc: #
+    # @private
+    def excel_class        
       self.class.excel_class
     end
 
-    def worksheet_class        # :nodoc: #
+    # @private
+    def worksheet_class        
       self.class.worksheet_class
     end
 
@@ -925,7 +942,8 @@ module RobustExcelOle
 
   private
 
-    def method_missing(name, *args)   # :nodoc: #
+    # @private
+    def method_missing(name, *args)   
       if name.to_s[0,1] =~ /[A-Z]/
         begin
           raise ObjectNotAlive, 'method missing: workbook not alive' unless alive?

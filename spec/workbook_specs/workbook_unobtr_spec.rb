@@ -38,7 +38,8 @@ describe Workbook do
   
   describe "unobtrusively" do
 
-    def unobtrusively_ok? # :nodoc: #
+    # @private
+    def unobtrusively_ok?
       Workbook.unobtrusively(@simple_file) do |book|
         book.should be_a Workbook
         sheet = book.sheet(1)

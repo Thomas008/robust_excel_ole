@@ -11,7 +11,8 @@ module RobustExcelOle
     @conv_to_win32_path =
       Win32API.new('cygwin1.dll', 'cygwin_conv_to_win32_path', 'PP', 'I')
 
-    def cygpath(options, path) # :nodoc: #
+    # @private  
+    def cygpath(options, path) 
       absolute = shortname = false
       func = nil
       options.delete(" \t-").chars do |opt|

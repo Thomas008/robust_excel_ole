@@ -559,10 +559,30 @@ module RobustExcelOle
       @calculation = calculation_mode
       calc_mode_changable = @ole_excel.Workbooks.Count > 0 && @ole_excel.Calculation.is_a?(Integer)
       if calc_mode_changable
+        begin
         #if calculation_mode == :manual
           saved = []
           (1..@ole_excel.Workbooks.Count).each { |i| saved << @ole_excel.Workbooks(i).Saved }
         #end
+          best_wb_to_make_visible = @ole_excel.Workbooks.sort_by {|wb|
+            score =
+              (wb.Saved    ? 0 : 40) +  # an unsaved workbooks is most likely the main workbook
+              (wb.ReadOnly ? 0 : 20) +  # the main wb is usually writable
+              case wb.Name.split(".").last.downcase
+                when "xlsm" then 10  # the main workbook is more likely to have macros
+                when "xls"  then  8
+                when "xlsx" then  4
+                when "xlam" then -2  # libraries are not normally the main workbook
+                else 0
+              end
+            score
+          }.last
+          best_wb_to_make_visible.Windows(1).Visible = true
+        rescue => e
+          trace "error setting calculation=#{calculation_mode} msg: " + e.message
+          trace e.backtrace
+          # continue on errors here, failing would usually disrupt too much
+        end
         @ole_excel.CalculateBeforeSave = false
         @ole_excel.Calculation =
           calculation_mode == :automatic ? XlCalculationAutomatic : XlCalculationManual

@@ -263,8 +263,18 @@ module RobustExcelOle
       end
       @ole_workbook = @excel.Workbooks.Item(File.basename(file)) rescue nil
       if @ole_workbook
-        obstructed_by_other_book = (File.basename(file) == File.basename(@ole_workbook.Fullname)) &&
-                                   (General.absolute_path(file) != @ole_workbook.Fullname)
+        obstructed_by_other_book = if (File.basename(file) == File.basename(@ole_workbook.Fullname)) 
+          p1 = General.absolute_path(file) 
+          p2 = @ole_workbook.Fullname
+          is_same_path = if p1[1..1] == ":" and p2[0..1] == '\\\\' # normal path starting with the drive letter and a path in network notation (starting with 2 backslashes)
+            # this is a Workaround for Excel2010 on WinXP: Network drives won't get translated to drive letters. So we'll do it manually:
+            p1_pure_path = p1[2..-1]
+            p2.end_with?(p1_pure_path)  and p2[0, p2.rindex(p1_pure_path)] =~ /^\\\\[\w\d_]+(\\[\w\d_]+)*$/  # e.g. "\\\\server\\folder\\subfolder"
+          else
+            p1 == p2
+          end
+          not is_same_path
+        end
         # if workbook is obstructed by a workbook with same name and different path
         if obstructed_by_other_book
           case options[:if_obstructed]

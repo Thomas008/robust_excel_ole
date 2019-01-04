@@ -36,12 +36,13 @@ end
 # @private
 class WIN32OLE
   # promoting WIN32OLE objects to RobustExcelOle objects
+
   def to_reo
     case ole_type.name
     when 'Range' then RobustExcelOle::Range.new(self)
-    when '_Worksheet' then Worksheet.new(self)
-    when '_Workbook' then Workbook.new(self)
-    when '_Application' then Excel.new(self)
+    when '_Worksheet' then RobustExcelOle::Worksheet.new(self)
+    when '_Workbook' then RobustExcelOle::Workbook.new(self)
+    when '_Application' then RobustExcelOle::Excel.new(self)
     else
       self
     end

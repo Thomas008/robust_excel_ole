@@ -507,11 +507,11 @@ module RobustExcelOle
       raise FileNameNotGiven, 'filename is nil' if file_name.nil?
 
       self.Workbooks.Add
-      empty_workbook = self.Workbooks.Item(self.Workbooks.Count)
+      empty_ole_workbook = self.Workbooks.Item(self.Workbooks.Count)
       filename = General.absolute_path(file_name).tr('/','\\')
       unless File.exist?(filename)
         begin
-          empty_workbook.SaveAs(filename)
+          empty_ole_workbook.SaveAs(filename)
         rescue WIN32OLERuntimeError => msg
           # if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
           raise FileNotFound, "could not save workbook with filename #{file_name.inspect}"
@@ -521,7 +521,7 @@ module RobustExcelOle
           # end
         end
       end
-      empty_workbook
+      empty_ole_workbook
     end
 
     # sets DisplayAlerts in a block

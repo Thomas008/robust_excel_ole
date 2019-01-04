@@ -117,7 +117,7 @@ module RobustExcelOle
     # creates a Workbook object by opening an Excel file given its filename workbook
     # or by promoting a Win32OLE object representing an Excel file
     # @param [WIN32OLE] workbook a Win32Ole-workbook
-    # @param [Hash] opts the options
+    # @param [Hash] opts the options as in Workbook::open
     # @option opts [Symbol] see Workbook::open
     # @return [Workbook] a workbook
     def self.new(workbook, opts = { }, &block)
@@ -142,7 +142,7 @@ module RobustExcelOle
     # creates a new Workbook object, if a file name is given
     # Promotes the win32ole workbook to a Workbook object, if a win32ole-workbook is given
     # @param [Variant] file_or_workbook  file name or workbook
-    # @param [Hash]    opts              the options
+    # @param [Hash]    opts              the options as in Workbook::open
     # @option opts [Symbol] see above
     # @return [Workbook] a workbook
     def initialize(file_or_workbook, options = { }, &block)
@@ -238,7 +238,7 @@ module RobustExcelOle
 
     # @private
     def ensure_excel(options)  
-      if excel && @excel.alive?
+      if @excel && @excel.alive?
         @excel.created = false
         return
       end
@@ -256,12 +256,13 @@ module RobustExcelOle
       raise(FileNotFound, "file #{General.absolute_path(file).inspect} is a directory") if File.directory?(file)
       unless File.exist?(file)
         if options[:if_absent] == :create
-          @ole_workbook = excel_class.current.generate_workbook(file)
+          @ole_workbook = excel_class.new(:reuse => false).generate_workbook(file)
         else
           raise FileNotFound, "file #{General.absolute_path(file).inspect} not found"
         end
-      end
-      @ole_workbook = @excel.Workbooks.Item(File.basename(file)) rescue nil
+      end  
+      workbooks = @excel.Workbooks
+      @ole_workbook = workbooks.Item(File.basename(file)) rescue nil if @ole_workbook.nil?
       if @ole_workbook
         obstructed_by_other_book = if (File.basename(file) == File.basename(@ole_workbook.Fullname)) 
           p1 = General.absolute_path(file) 
@@ -412,6 +413,14 @@ module RobustExcelOle
     end
 
   public
+
+    # creates, i.e., opens a new, empty workbook, and saves it under a given filename
+    # @param [String] filename the filename under which the new workbook should be saved
+    # @param [Hash] opts the options as in Workbook::open
+    def self.create(filename, opts = { })
+      open(filename, :if_absent => :create)
+      #excel_class.new(:reuse => true).generate_workbook(filename, opts)
+    end
 
     # closes the workbook, if it is alive
     # @param [Hash] opts the options

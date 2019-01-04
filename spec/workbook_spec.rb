@@ -501,8 +501,18 @@ describe Workbook do
 
       it "should create a workbook" do
         File.delete @simple_save_file rescue nil
+        book = Workbook.create(@simple_save_file)
+        book.should be_a Workbook
+        book.ReadOnly.should be false
+        book.close
+        File.exist?(@simple_save_file).should be true
+      end
+
+      it "should create a workbook" do
+        File.delete @simple_save_file rescue nil
         book = Workbook.open(@simple_save_file, :if_absent => :create)
         book.should be_a Workbook
+        book.ReadOnly.should be false
         book.close
         File.exist?(@simple_save_file).should be true
       end

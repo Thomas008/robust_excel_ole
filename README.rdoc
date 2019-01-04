@@ -28,13 +28,17 @@ RobustExcelOle can be used either for scripts
   require 'robust_excel_ole'
   include RobustExcelOle
 
-or as a console 
+or as a console. If you want to use RobustExcelOle as a console, you go (using 'cd') into the gem path that you find with help of 
+
+  gem env
+
+and go into the path of the gem 'robust_excel_ole'. There you start the console via the command
 
   reo
 
 The call of the console will include RobustExcelOle for you.
 
-The following examples can be used for both scripts and console. If you are in the path of the gem and start the console, you can just put these examples.
+The following examples can be used for both scripts and console. If you have started the console in the gem path, you can just put these examples.
 
 == Description  
 

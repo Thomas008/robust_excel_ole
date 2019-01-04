@@ -1528,17 +1528,25 @@ module RobustExcelOle
       end
 
       context "with no visible workbook" do
-        before do
-          @excel1 = Excel.create(:calculation => :manual)
-          @book1 = Workbook.open(@simple_file, :visible => false)
-          expect( @book1.Windows(1).Visible ).to be false
-        end
-
-        it "should set calculation mode " do
-          expect {       @excel1.calculation = :automatic 
-            }.to change{ @excel1.calculation 
+        
+        it "should set calculation mode (change from automatic to manual)" do
+          excel1 = Excel.create(:calculation => :automatic)
+          book1 = Workbook.open(@simple_file1, :visible => false)
+          expect( book1.Windows(1).Visible ).to be false
+          expect {       excel1.calculation = :manual 
+            }.to change{ excel1.calculation 
           }.from(        :automatic
           ).to(          :manual )
+        end
+
+        it "should set calculation mode (change from manual to automatic)" do
+          excel1 = Excel.create(:calculation => :manual)
+          book1 = Workbook.open(@simple_file1, :visible => false)
+          expect( book1.Windows(1).Visible ).to be false
+          expect {       excel1.calculation = :automatic 
+            }.to change{ excel1.calculation 
+          }.from(        :manual
+          ).to(          :automatic )
         end
       end
 

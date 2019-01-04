@@ -101,6 +101,21 @@ You can set options for all workbooks of an Excel instance.
 
   excel.for_all_workooks(:visible => true, :read_only => true)
 
+
+=== Showing and traversing through all workbooks
+
+You can yield a list all Workbook objects of an Excel instance.
+
+  excel.workbooks
+
+You can access all Workbook objects by using the methods Excel#each_workbook and Excel#each_workbook_with_index.
+  
+  excel.each_workook
+
+and
+
+  excel.each_workbook.with_index
+
 === Bringing an Excel instance to the foreground
 
   excel1.focus

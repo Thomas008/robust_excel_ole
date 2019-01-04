@@ -104,7 +104,11 @@ RobustExcelOle allows unobtrusively reading and modifying workbooks, i.e. access
     # do something
   end
 
-=== More features when opening, modifying, saving and closing workbooks
+You can also create a new, empty workbook. 
+
+  Workbook.create('spec/data/new_workbook.xls', :visible => true)
+
+=== More features when opening, modifying, creating saving and closing workbooks
 
 We can open the workbook using a block, similar to, e.g., +File.open+. 
 

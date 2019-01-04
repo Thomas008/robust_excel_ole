@@ -971,6 +971,27 @@ module RobustExcelOle
         end
       end
 
+      it "should each_workbook with options" do
+        i = 0
+        @excel.each_workbook(:visible => true) do |workbook|
+          workbook.should be_alive
+          workbook.should be_a Workbook
+          workbook.visible.should be true
+          workbook.filename.should == @simple_file if i == 0
+          workbook.filename.should == @different_file if i == 1
+          i += 1
+        end
+      end
+
+      it "should set options" do
+        @excel.each_workbook(:visible => true)
+        [1,2].each do |i|
+          ole_workbook = @excel.Workbooks.Item(i) 
+          ole_workbook.Windows(ole_workbook.Name).Visible.should be true
+        end
+      end
+
+
     end
 
     describe "unsaved_known_workbooks" do

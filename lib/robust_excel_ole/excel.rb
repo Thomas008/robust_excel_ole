@@ -163,6 +163,7 @@ module RobustExcelOle
     end
 
     # retain the saved status of all workbooks
+    # @private
     def retain_saved_workbooks
       saved = []
       @ole_excel.Workbooks.each { |w| saved << w.Saved }
@@ -176,6 +177,19 @@ module RobustExcelOle
         end
         saved = []
         @ole_excel.Workbooks.each { |w| saved << w.Saved }
+      end
+    end
+
+    # @private
+    def ole_workbooks
+      ole_workbooks = begin
+        @ole_excel.Workbooks
+      rescue WIN32OLERuntimeError => msg
+        if msg.message =~ /failed to get Dispatch Interface/
+          raise ExcelDamaged, 'Excel instance not alive or damaged'
+        else
+          raise ExcelREOError, 'workbooks could not be determined'
+        end
       end
     end
 
@@ -631,32 +645,28 @@ module RobustExcelOle
 
     # set options in all workbooks
     def for_all_workbooks(options)
-      ole_workbooks = begin
-        @ole_excel.Workbooks
-      rescue WIN32OLERuntimeError => msg
-        if msg.message =~ /failed to get Dispatch Interface/
-          raise ExcelDamaged, 'Excel instance not alive or damaged'
-        else
-          raise ExcelREOError, 'workbooks could not be determined'
-        end
-      end
-      ole_workbooks.each do |ole_workbook|
-        workbook_class.open(ole_workbook).for_this_workbook(options)
-      end
+      each_workbook(options)
     end
 
     def workbooks
-      @ole_excel.Workbooks.map {|ole_workbook| ole_workbook.to_reo }
+      ole_workbooks.map {|ole_workbook| ole_workbook.to_reo }
     end
 
-    def each_workbook
-      @ole_excel.Workbooks.each { |ole_workbook| yield ole_workbook.to_reo } 
+    # traverses over all workbooks and sets options if provided
+    def each_workbook(opts = { })
+      ole_workbooks.each do |ow|
+        if block_given? 
+          yield workbook_class.new(ow, opts)
+        else
+          workbook_class.new(ow, opts)
+        end
+      end
     end
 
-    def each_workbook_with_index(offset = 0)
+    def each_workbook_with_index(opts = { }, offset = 0)
       i = offset
-      @ole_excel.Workbooks.each do |ole_workbook|
-        yield ole_workbook.to_reo, i
+      ole_workbooks.each do |ow| 
+        yield workbook_class.new(ow, opts), i 
         i += 1
       end
     end

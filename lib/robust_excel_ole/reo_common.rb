@@ -6,6 +6,16 @@ REO_LOG_FILE  = 'reo.log'.freeze unless Object.const_defined?(:REO_LOG_FILE)
 
 File.delete REO_LOG_FILE rescue nil
 
+unless "any string".respond_to?(:end_with?)
+  class String 
+    def end_with?(*suffixes)
+      suffixes.any? do |suffix|
+        self[-suffix.size .. -1] == suffix
+      end
+    end
+  end
+end
+
 module RobustExcelOle
 
   # @private

@@ -938,6 +938,41 @@ module RobustExcelOle
       end
     end
 
+    describe "workbooks, each, each_with_index" do
+
+      before do
+        @excel = Excel.create
+        @book1 = Workbook.open(@simple_file)
+        @book2 = Workbook.open(@different_file)
+      end
+
+      it "should list workbooks" do
+        workbooks = @excel.workbooks
+        workbooks.should == [@book1,@book2]
+      end
+
+      it "should each_workbook" do
+        i = 0
+        @excel.each_workbook do |workbook|
+          workbook.should be_alive
+          workbook.should be_a Workbook
+          workbook.filename.should == @simple_file if i == 0
+          workbook.filename.should == @different_file if i == 1
+          i += 1
+        end
+      end
+
+      it "should each_workbook_with_index" do
+        @excel.each_workbook_with_index do |workbook,i|
+          workbook.should be_alive
+          workbook.should be_a Workbook
+          workbook.filename.should == @simple_file if i == 0
+          workbook.filename.should == @different_file if i == 1
+        end
+      end
+
+    end
+
     describe "unsaved_known_workbooks" do
 
       it "should return empty list" do

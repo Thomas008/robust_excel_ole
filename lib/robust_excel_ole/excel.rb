@@ -135,7 +135,7 @@ module RobustExcelOle
       self
     end
 
-    private
+  private
 
     # returns a Win32OLE object that represents a Excel instance to which Excel connects
     # connects to the first opened Excel instance
@@ -162,7 +162,7 @@ module RobustExcelOle
       result
     end
 
-    public
+  public
 
     # retain the saved status of all workbooks
     def retain_saved_workbooks
@@ -603,7 +603,7 @@ module RobustExcelOle
 
     def set_options(options)
       for_this_instance(options)
-    end
+    end    
 
     # set options in all workbooks
     def for_all_workbooks(options)
@@ -618,6 +618,22 @@ module RobustExcelOle
       end
       ole_workbooks.each do |ole_workbook|
         workbook_class.open(ole_workbook).for_this_workbook(options)
+      end
+    end
+
+    def workbooks
+      @ole_excel.Workbooks.map {|ole_workbook| ole_workbook.to_reo }
+    end
+
+    def each_workbook
+      @ole_excel.Workbooks.each { |ole_workbook| yield ole_workbook.to_reo } 
+    end
+
+    def each_workbook_with_index(offset = 0)
+      i = offset
+      @ole_excel.Workbooks.each do |ole_workbook|
+        yield ole_workbook.to_reo, i
+        i += 1
       end
     end
 

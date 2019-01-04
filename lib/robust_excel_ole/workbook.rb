@@ -85,14 +85,12 @@ module RobustExcelOle
         if (options[:force][:excel] != :new) && (options[:force][:excel] != :reserved_new)
           # if readonly is true, then prefer a book that is given in force_excel if this option is set
           forced_excel = if options[:force][:excel]
-                           options[:force][:excel] == :current ? excel_class.new(:reuse => true) : excel_of(options[:force][:excel])
+            options[:force][:excel] == :current ? excel_class.new(:reuse => true) : excel_of(options[:force][:excel])
           end
           book = bookstore.fetch(file,
                   :prefer_writable => !(options[:read_only]),
                   :prefer_excel    => (options[:read_only] ? forced_excel : nil)) rescue nil
           if book
-            # if forced_excel != book.excel &&
-            #  (not (book.alive? && (not book.saved) && (not options[:if_unsaved] == :accept)))
             if (!(options[:force][:excel]) || (forced_excel == book.excel)) &&
                !(book.alive? && !book.saved && (options[:if_unsaved] != :accept))
               book.options = options
@@ -118,9 +116,9 @@ module RobustExcelOle
 
     # creates a Workbook object by opening an Excel file given its filename workbook
     # or by promoting a Win32OLE object representing an Excel file
-    # @param [WIN32OLE] workbook a workbook
+    # @param [WIN32OLE] workbook a Win32Ole-workbook
     # @param [Hash] opts the options
-    # @option opts [Symbol] see above
+    # @option opts [Symbol] see Workbook::open
     # @return [Workbook] a workbook
     def self.new(workbook, opts = { }, &block)
       opts = process_options(opts)

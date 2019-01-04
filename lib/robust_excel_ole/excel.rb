@@ -162,8 +162,6 @@ module RobustExcelOle
       result
     end
 
-  public
-
     # retain the saved status of all workbooks
     def retain_saved_workbooks
       saved = []
@@ -176,8 +174,12 @@ module RobustExcelOle
           w.Saved = saved[i] if saved[i]
           i += 1
         end
+        saved = []
+        @ole_excel.Workbooks.each { |w| saved << w.Saved }
       end
     end
+
+  public
 
     def self.contains_unsaved_workbooks?
       !Excel.current.unsaved_workbooks.empty?
@@ -559,36 +561,38 @@ module RobustExcelOle
       @calculation = calculation_mode
       calc_mode_changable = @ole_excel.Workbooks.Count > 0 && @ole_excel.Calculation.is_a?(Integer)
       if calc_mode_changable
-        begin
-        #if calculation_mode == :manual
+        retain_saved_workbooks do
+        #  saved = []
+        #  (1..@ole_excel.Workbooks.Count).each { |i| saved << @ole_excel.Workbooks(i).Saved }
+          begin
+            best_wb_to_make_visible = @ole_excel.Workbooks.sort_by {|wb|
+              score =
+                (wb.Saved    ? 0 : 40) +  # an unsaved workbooks is most likely the main workbook
+                (wb.ReadOnly ? 0 : 20) +  # the main wb is usually writable
+                case wb.Name.split(".").last.downcase
+                  when "xlsm" then 10  # the main workbook is more likely to have macros
+                  when "xls"  then  8
+                  when "xlsx" then  4
+                  when "xlam" then -2  # libraries are not normally the main workbook
+                  else 0
+                end
+              score
+            }.last
+            best_wb_to_make_visible.Windows(1).Visible = true
+          rescue => e
+            trace "error setting calculation=#{calculation_mode} msg: " + e.message
+            trace e.backtrace
+            # continue on errors here, failing would usually disrupt too much
+          end
           saved = []
-          (1..@ole_excel.Workbooks.Count).each { |i| saved << @ole_excel.Workbooks(i).Saved }
-        #end
-          best_wb_to_make_visible = @ole_excel.Workbooks.sort_by {|wb|
-            score =
-              (wb.Saved    ? 0 : 40) +  # an unsaved workbooks is most likely the main workbook
-              (wb.ReadOnly ? 0 : 20) +  # the main wb is usually writable
-              case wb.Name.split(".").last.downcase
-                when "xlsm" then 10  # the main workbook is more likely to have macros
-                when "xls"  then  8
-                when "xlsx" then  4
-                when "xlam" then -2  # libraries are not normally the main workbook
-                else 0
-              end
-            score
-          }.last
-          best_wb_to_make_visible.Windows(1).Visible = true
-        rescue => e
-          trace "error setting calculation=#{calculation_mode} msg: " + e.message
-          trace e.backtrace
-          # continue on errors here, failing would usually disrupt too much
+          @ole_excel.Workbooks.each { |w| saved << w.Saved }
+          @ole_excel.CalculateBeforeSave = false
+          @ole_excel.Calculation =
+            calculation_mode == :automatic ? XlCalculationAutomatic : XlCalculationManual
+          saved = []
+          @ole_excel.Workbooks.each { |w| saved << w.Saved }
         end
-        @ole_excel.CalculateBeforeSave = false
-        @ole_excel.Calculation =
-          calculation_mode == :automatic ? XlCalculationAutomatic : XlCalculationManual
-        #if calculation_mode == :manual
-          (1..@ole_excel.Workbooks.Count).each { |i| @ole_excel.Workbooks(i).Saved = true if saved[i - 1] }
-        #end
+        #(1..@ole_excel.Workbooks.Count).each { |i| @ole_excel.Workbooks(i).Saved = true if saved[i - 1] }
       end
     end
 

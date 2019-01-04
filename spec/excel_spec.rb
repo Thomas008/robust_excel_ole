@@ -1575,6 +1575,7 @@ module RobustExcelOle
       it "should set calculation mode to manual with workbook" do
         @excel1 = Excel.new
         book = Workbook.open(@simple_file, :visible => true)
+        book.Saved.should be true
         book.Windows(book.Name).Visible = true
         @excel1.calculation = :manual
         @excel1.calculation.should == :manual
@@ -1586,6 +1587,32 @@ module RobustExcelOle
       it "should set calculation mode to automatic with workbook" do
         @excel1 = Excel.new
         book = Workbook.open(@simple_file, :visible => true)
+        book.Saved.should be true
+        @excel1.calculation = :automatic
+        @excel1.calculation.should == :automatic
+        @excel1.Calculation.should == XlCalculationAutomatic
+        @excel1.CalculateBeforeSave.should be false
+        book.Saved.should be true
+      end
+
+      it "should set calculation mode to manual with unsaved workbook" do
+        @excel1 = Excel.new
+        book = Workbook.open(@simple_file, :visible => true)
+        book.sheet(1)[1,1] = "foo"
+        book.Saved.should be false
+        book.Windows(book.Name).Visible = true
+        @excel1.calculation = :manual
+        @excel1.calculation.should == :manual
+        @excel1.Calculation.should == XlCalculationManual
+        @excel1.CalculateBeforeSave.should be false
+        book.Saved.should be false
+      end
+
+      it "should set calculation mode to automatic with unsaved workbook" do
+        @excel1 = Excel.new
+        book = Workbook.open(@simple_file, :visible => true)
+        book.sheet(1)[1,1] = "foo"
+        book.Saved.should be false
         @excel1.calculation = :automatic
         @excel1.calculation.should == :automatic
         @excel1.Calculation.should == XlCalculationAutomatic

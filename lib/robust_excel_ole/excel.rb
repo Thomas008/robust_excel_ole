@@ -170,16 +170,10 @@ module RobustExcelOle
       begin
         yield self
       ensure
-        i = 0
-        @ole_excel.Workbooks.each do |w|
-          w.Saved = saved[i] if saved[i]
-          i += 1
-        end
-        saved = []
-        @ole_excel.Workbooks.each { |w| saved << w.Saved }
+        @ole_excel.Workbooks.zip(saved) { |w,s| w.Saved = s }
       end
     end
-
+    
     # @private
     def ole_workbooks
       ole_workbooks = begin
@@ -576,8 +570,6 @@ module RobustExcelOle
       calc_mode_changable = @ole_excel.Workbooks.Count > 0 && @ole_excel.Calculation.is_a?(Integer)
       if calc_mode_changable
         retain_saved_workbooks do
-        #  saved = []
-        #  (1..@ole_excel.Workbooks.Count).each { |i| saved << @ole_excel.Workbooks(i).Saved }
           begin
             best_wb_to_make_visible = @ole_excel.Workbooks.sort_by {|wb|
               score =
@@ -655,11 +647,13 @@ module RobustExcelOle
     # traverses over all workbooks and sets options if provided
     def each_workbook(opts = { })
       ole_workbooks.each do |ow|
-        if block_given? 
-          yield workbook_class.new(ow, opts)
-        else
-          workbook_class.new(ow, opts)
-        end
+        wb = workbook_class.new(ow, opts)
+        block_given? ? (yield wb) : wb
+        #if block_given? 
+        #  yield workbook_class.new(ow, opts)
+        #else
+        #  workbook_class.new(ow, opts)
+        #end
       end
     end
 

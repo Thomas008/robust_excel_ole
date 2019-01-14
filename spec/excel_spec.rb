@@ -882,6 +882,7 @@ module RobustExcelOle
       end
     end
 
+=begin
     describe "retain_saved_workbooks" do
 
       before do
@@ -908,7 +909,8 @@ module RobustExcelOle
         @book3.Saved.should be true
       end
     end
-
+=end
+ 
     describe "unsaved_workbooks" do
 
       context "with standard" do

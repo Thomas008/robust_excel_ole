@@ -909,7 +909,8 @@ module RobustExcelOle
         @book3.Saved.should be true
       end
     end
-=end
+ 
+ =end
  
     describe "unsaved_workbooks" do
 

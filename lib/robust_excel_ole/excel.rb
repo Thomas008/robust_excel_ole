@@ -165,15 +165,14 @@ module RobustExcelOle
     # retain the saved status of all workbooks
     # @private
     def retain_saved_workbooks
-      saved = []
-      @ole_excel.Workbooks.each { |w| saved << w.Saved }
+      saved_stati = @ole_excel.Workbooks.map { |w| w.Saved }
       begin
         yield self
       ensure
-        @ole_excel.Workbooks.zip(saved) { |w,s| w.Saved = s }
+        @ole_excel.Workbooks.zip(saved_stati) { |w,s| w.Saved = s }
       end
     end
-    
+
     # @private
     def ole_workbooks
       ole_workbooks = begin

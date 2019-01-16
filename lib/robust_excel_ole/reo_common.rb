@@ -31,7 +31,7 @@ module RobustExcelOle
   end
 
   # @private
-  class SheetREOError < REOError                   
+  class WorksheetREOError < REOError                   
   end
 
   # @private

@@ -207,8 +207,8 @@ module RobustExcelOle
     # @option options [Symbol] :if_unsaved :raise, :save, :forget, :alert, Proc
     #  :if_unsaved    if unsaved workbooks are open in an Excel instance
     #                      :raise (default) -> raises an exception
-    #                      :save            -> saves the workbooks before closing
     #                      :forget          -> closes the Excel instance without saving the workbooks
+    #                      :save            -> saves the workbooks before closing
     #                      :alert           -> let Excel do it
     def close_workbooks(options = { :if_unsaved => :raise })
       return unless alive?
@@ -219,7 +219,9 @@ module RobustExcelOle
         when Proc
           options[:if_unsaved].call(self, unsaved_workbooks)
         when :raise
-          raise UnsavedWorkbooks, 'Excel contains unsaved workbooks'
+          raise UnsavedWorkbooks, "Excel contains unsaved workbooks"
+          + "\nuse option :if_unsaved with values :forget and :save to close the 
+           Excel instance without or with saving the unsaved workbooks before, respectively"
         when :alert
           # nothing
         when :forget
@@ -228,6 +230,7 @@ module RobustExcelOle
           unsaved_workbooks.each { |m| m.Save }
         else
           raise OptionInvalid, ":if_unsaved: invalid option: #{options[:if_unsaved].inspect}"
+          + "\nvalid values are :raise, :forget, :save and :alert"
         end
       end
       begin
@@ -514,7 +517,6 @@ module RobustExcelOle
     # @private
     def generate_workbook file_name
       raise FileNameNotGiven, 'filename is nil' if file_name.nil?
-
       self.Workbooks.Add
       empty_ole_workbook = self.Workbooks.Item(self.Workbooks.Count)
       filename = General.absolute_path(file_name).tr('/','\\')
@@ -721,7 +723,6 @@ module RobustExcelOle
       if name.to_s[0,1] =~ /[A-Z]/
         begin
           raise ObjectNotAlive, 'method missing: Excel not alive' unless alive?
-
           @ole_excel.send(name, *args)
         rescue WIN32OLERuntimeError => msg
           if msg.message =~ /unknown property or method/

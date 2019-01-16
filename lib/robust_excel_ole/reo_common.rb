@@ -431,7 +431,7 @@ module RobustExcelOle
       end
     end
 
-    private
+  private
 
     def name_object(name)
       self.Names.Item(name)

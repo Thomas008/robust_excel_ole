@@ -220,7 +220,7 @@ module RobustExcelOle
           options[:if_unsaved].call(self, unsaved_workbooks)
         when :raise
           raise UnsavedWorkbooks, "Excel contains unsaved workbooks" +
-          "\nuse option :if_unsaved with values :forget and :save to close the 
+          "\nHint: Use option :if_unsaved with values :forget and :save to close the 
            Excel instance without or with saving the unsaved workbooks before, respectively"
         when :alert
           # nothing
@@ -230,7 +230,7 @@ module RobustExcelOle
           unsaved_workbooks.each { |m| m.Save }
         else
           raise OptionInvalid, ":if_unsaved: invalid option: #{options[:if_unsaved].inspect}" +
-          "\nvalid values are :raise, :forget, :save and :alert"
+          "\nHint: Valid values are :raise, :forget, :save and :alert"
         end
       end
       begin

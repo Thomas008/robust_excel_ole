@@ -114,24 +114,26 @@ module RobustExcelOle
       end
     end
 
-    # creates a Workbook object by opening an Excel file given its filename workbook
+    # creates a Workbook object by opening an Excel file given its filename
     # or by promoting a Win32OLE object representing an Excel file
     # @param [WIN32OLE] workbook a Win32Ole-workbook
     # @param [Hash] opts the options as in Workbook::open
     # @option opts [Symbol] see Workbook::open
     # @return [Workbook] a workbook
-    def self.new(workbook, opts = { }, &block)
+    def self.new(ole_workbook, opts = { }, &block)
       opts = process_options(opts)
-      if workbook && (workbook.is_a? WIN32OLE)
-        filename = workbook.Fullname.tr('\\','/') rescue nil
+      if ole_workbook && (ole_workbook.is_a? WIN32OLE)
+        filename = ole_workbook.Fullname.tr('\\','/') rescue nil
         if filename
           book = bookstore.fetch(filename)
           if book && book.alive?
-            book.visible = opts[:force][:visible] unless opts[:force].nil? || opts[:force][:visible].nil?
-            book.excel.calculation = opts[:calculation] unless opts[:calculation].nil?
+            open(filename, opts)
+            #book.visible = opts[:force][:visible] unless opts[:force].nil? || opts[:force][:visible].nil?
+            #book.excel.calculation = opts[:calculation] unless opts[:calculation].nil?
+            #book.excel.displayalerts = opts[:calculation] unless opts[:calculation].nil?
             return book
           else
-            super
+            super(filename,opts)
           end
         end
       else
@@ -445,7 +447,8 @@ module RobustExcelOle
       if alive? && !@ole_workbook.Saved && writable
         case opts[:if_unsaved]
         when :raise
-          raise WorkbookNotSaved, "workbook is unsaved: #{File.basename(self.stored_filename).inspect}"
+          raise WorkbookNotSaved, "workbook is unsaved: #{File.basename(self.stored_filename).inspect}" +
+          "\nHint: Use option :save or :forget to close the workbook with or without saving"
         when :save
           save
           close_workbook

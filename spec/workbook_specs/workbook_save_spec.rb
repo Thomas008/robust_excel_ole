@@ -267,7 +267,8 @@ describe Workbook do
         File.exist?(@simple_file_other_path1).should be true
         expect{
           @book2.save_as(@simple_file_other_path1, :if_exists => :overwrite, :if_obstructed => :invalid)
-        }.to raise_error(OptionInvalid, ":if_obstructed: invalid option: :invalid")
+        }.to raise_error(OptionInvalid, ":if_obstructed: invalid option: :invalid" +
+          "\nHint: Valid values are :raise, :overwrite, :alert, :excel")
       end
 
       it "should raise an error by default" do
@@ -322,7 +323,7 @@ describe Workbook do
           book_save = Workbook.open(@simple_save_file1, :excel => :new)
           expect{
             @book.save_as(@simple_save_file1, :if_exists => :overwrite)
-            }.to raise_error(WorkbookBeingUsed, "workbook is open and used in Excel")
+            }.to raise_error(WorkbookBeingUsed, "workbook is open and being used in an Excel instance")
           book_save.close
         end        
 
@@ -506,7 +507,8 @@ describe Workbook do
           @book.save_as(@simple_save_file1)
           expect {
             @book.save_as(@simple_save_file1, :if_exists => :invalid)
-            }.to raise_error(OptionInvalid, ':if_exists: invalid option: :invalid')
+            }.to raise_error(OptionInvalid, ':if_exists: invalid option: :invalid' +
+              "\nHint: Valid values are :raise, :overwrite, :alert, :excel")
         end
       end
     end

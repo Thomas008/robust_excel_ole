@@ -1936,7 +1936,10 @@ describe Workbook do
           it "should raise an error, if :if_obstructed is invalid option" do
             expect {
               new_book = Workbook.open(@simple_file1, :if_obstructed => :invalid_option)
-            }.to raise_error(OptionInvalid, ":if_obstructed: invalid option: :invalid_option")
+            }.to raise_error(OptionInvalid, ":if_obstructed: invalid option: :invalid_option" +
+              "\nHint: Use the option :if_obstructed with values :forget or :save,
+             to close the old workbook, without or with saving before, respectively,
+             and to open the new workbook")
           end
         end
       end
@@ -1992,7 +1995,8 @@ describe Workbook do
         File.delete @simple_save_file rescue nil
         expect {
           Workbook.open(@simple_save_file, :if_absent => :raise)
-        }.to raise_error(FileNotFound, "file #{General::absolute_path(@simple_save_file).gsub("/","\\").inspect} not found")
+        }.to raise_error(FileNotFound, "file #{General::absolute_path(@simple_save_file).gsub("/","\\").inspect} not found" +
+          "\nHint: If you want to create a new file, use option :if_absent => :create or Workbook::create")
       end
 
       it "should create a workbook" do
@@ -2196,7 +2200,8 @@ describe Workbook do
         expected_path = Regexp.new(File.expand_path(path).gsub(/\//, "."))
         expect {
           Workbook.open(path)
-        }.to raise_error(FileNotFound, "file #{General::absolute_path(path).gsub("/","\\").inspect} not found")
+        }.to raise_error(FileNotFound, "file #{General::absolute_path(path).gsub("/","\\").inspect} not found" +
+          "\nHint: If you want to create a new file, use option :if_absent => :create or Workbook::create")
       end
     end
   end

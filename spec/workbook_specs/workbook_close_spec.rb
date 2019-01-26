@@ -142,7 +142,8 @@ describe Workbook do
       it "should raise an error for invalid option" do
         expect {
           @book.close(:if_unsaved => :invalid_option)
-        }.to raise_error(OptionInvalid, ":if_unsaved: invalid option: :invalid_option") 
+        }.to raise_error(OptionInvalid, ":if_unsaved: invalid option: :invalid_option" +
+          "\nHint: Valid values are :raise, :save, :keep_open, :alert, :excel") 
       end
 
 

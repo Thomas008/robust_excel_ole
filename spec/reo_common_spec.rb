@@ -110,12 +110,6 @@ module RobustExcelOle
         address.columns.should == (1..2)
       end
 
-      it "should read a1-format for a rectangular range without brackets" do
-        address = Address.new("A1:B3")
-        address.rows == (1..3)
-        address.columns == (1..2)
-      end
-
       it "should read a1-format for a rectangular range with several letters" do
         address = Address.new(["S1:DP2"])
         address.rows.should == (1..2)
@@ -124,16 +118,16 @@ module RobustExcelOle
 
       it "should raise an error" do
         expect{
-          Address.new("1A")
+          Address.new("1A").rows
         }.to raise_error(AddressInvalid, /not in A1/)
         expect{
-          Address.new("A1B")
+          Address.new("A1B").rows
         }.to raise_error(AddressInvalid, /not in A1/)
         expect{
-          Address.new(["A".."B","C".."D"])
+          Address.new(["A".."B","C".."D"]).rows
         }.to raise_error(AddressInvalid, /not in A1/)
         expect{
-          Address.new(["A",1,2])
+          Address.new(["A",1,2]).rows
         }.to raise_error(AddressInvalid, /more than two components/)
       end
 

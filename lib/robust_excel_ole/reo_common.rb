@@ -132,18 +132,22 @@ module RobustExcelOle
 
   class REOCommon
 
+    # @private
     def excel
       raise TypeREOError, 'receiver instance is neither an Excel nor a Workbook'
     end
 
+    # @private
     def own_methods
       (self.methods - Object.methods).sort
     end
 
+    # @private
     def self.tr1(_text)
       puts :text
     end
 
+    # @private
     def self.trace(text)
       if LOG_TO_STDOUT
         puts text
@@ -161,6 +165,7 @@ module RobustExcelOle
       end
     end
 
+    # @private
     def self.puts_hash(hash)
       hash.each do |e|
         if e[1].is_a?(Hash)
@@ -178,11 +183,20 @@ module RobustExcelOle
 
   class Address < REOCommon
 
-    attr_reader :rows
-    attr_reader :columns
-
     def initialize(address)
-      address = [address] unless address.is_a?(Array)
+      @address = address
+    end
+
+    def rows
+      @rows ||= calculate_rows_columns(:rows)
+    end
+
+    def columns
+      @columns ||= calculate_rows_columns(:columns)
+    end
+
+    def calculate_rows_columns(return_item)
+      address = @address.is_a?(Array) ? @address : [@address]
       raise AddressInvalid, 'more than two components' if address.size > 2
       begin
         if address.size == 1
@@ -216,9 +230,10 @@ module RobustExcelOle
       rescue
         raise AddressInvalid, "address (#{address.inspect}) not in A1- or R1C1-format"
       end
+      return_item == :rows ? @rows : @columns
     end
 
-    private
+  private
 
     def str2num(str)
       str = str.upcase

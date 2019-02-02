@@ -72,7 +72,7 @@ You can also copy a range into another worksheet in another workbook.
 
 Now we define a name that refers to a range consisting of only the first cell, i.e. the 1st row and 1st column. Using VBA methods, you can use
 
-  book.Names.Add("Name" => "name", "RefersToR1C1" => "=R1C1")
+  book.Names.Add("Name" => "name", "RefersToR1C1" => "=Z1S1")
 
 RobustExcelOle provides the method +add_name+.
 
@@ -80,7 +80,7 @@ RobustExcelOle provides the method +add_name+.
 
 We define a name of a rectangular range. With help of VBA methods this is done by supplying the row and column of the top left cell and the row and columns of the bottum right cell of the range.
 
-  book.Names.Add("Name" => "name", "RefersToR1C1" => "=R1C3:R2C4")
+  book.Names.Add("Name" => "name", "RefersToR1C1" => "=Z1S3:Z2S4")
 
 Using RobustExcelOle Defining a name referring to a rectangular range is done by providing the rows and columns as integer range.
 

@@ -195,6 +195,8 @@ module RobustExcelOle
       @columns ||= calculate_rows_columns(:columns)
     end
 
+  private
+    # @private
     def calculate_rows_columns(return_item)
       address = @address.is_a?(Array) ? @address : [@address]
       raise AddressInvalid, 'more than two components' if address.size > 2
@@ -233,8 +235,7 @@ module RobustExcelOle
       return_item == :rows ? @rows : @columns
     end
 
-  private
-
+    # @private
     def str2num(str)
       str = str.upcase
       sum = 0
@@ -349,18 +350,22 @@ module RobustExcelOle
       end
     end
 
+    # @private
     def nameval(name, opts = { :default => :__not_provided })   # :deprecated: #
       namevalue_glob(name, opts)
     end
 
+    # @private
     def set_nameval(name, value, opts = { :color => 0 })        # :deprecated: #
       set_namevalue_glob(name, value, opts)
     end
 
+    # @private
     def rangeval(name, opts = { :default => :__not_provided })  # :deprecated: #
       namevalue(name, opts)
     end
 
+    # @private
     def set_rangeval(name, value, opts = { :color => 0 })       # :deprecated: #
       set_namevalue(name, value, opts)
     end

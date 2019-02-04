@@ -219,15 +219,20 @@ module RobustExcelOle
           end
         else
           address_comp1, address_comp2 = address
+        end    
+        address_comp1 = address_comp1..address_comp1 if address_comp1.is_a?(Integer) || address_comp1.is_a?(String)
+        address_comp2 = address_comp2..address_comp2 if address_comp2.is_a?(Integer) || address_comp2.is_a?(String)
+        @rows = unless address_comp1.nil?
+          raise if address_comp1.min.to_i==0 && address_comp2.min.to_i!=0
+          address_comp1.min.to_i..address_comp1.max.to_i 
         end
-        address_comp1 = address_comp1..address_comp1 unless address_comp1.is_a?(Object::Range)
-        address_comp2 = address_comp2..address_comp2 unless address_comp2.is_a?(Object::Range)
-        @rows = address_comp1.min.to_i..address_comp1.max.to_i
-        if address_comp2.min.to_i == 0
-          raise AddressInvalid, "address (#{address_comp1.inspect}, #{address_comp2.inspect}) not in A1-format" if address_comp1.min.to_i == 0
-          @columns = str2num(address_comp2.begin)..str2num(address_comp2.end)
-        else
-          @columns = address_comp2.min.to_i..address_comp2.max.to_i
+        @columns = unless address_comp2.nil?
+          if address_comp2.min.to_i == 0
+            raise unless address_comp1.nil? || address_comp1.min.to_i != 0
+            str2num(address_comp2.begin)..str2num(address_comp2.end)
+          else
+            address_comp2.min.to_i..address_comp2.max.to_i
+          end
         end
       rescue
         raise AddressInvalid, "address (#{address.inspect}) not in A1- or R1C1-format"

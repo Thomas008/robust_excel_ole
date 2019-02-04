@@ -116,6 +116,42 @@ module RobustExcelOle
         address.columns.should == (19..120)
       end
 
+      it "should read r1c1-format for an infinite row" do
+        address = Address.new([1,nil])
+        address.rows.should == (1..1)
+        address.columns.should == nil
+      end
+
+      it "should read r1c1-format for infinite rows" do
+        address = Address.new([1..2,nil])
+        address.rows.should == (1..2)
+        address.columns.should == nil
+      end
+
+      it "should read r1c1-format for an infinite columns" do
+        address = Address.new([nil,2])
+        address.rows.should == nil
+        address.columns.should == (2..2)
+      end
+
+      it "should read r1c1-format for infinite columns" do
+        address = Address.new([nil,3..5])
+        address.rows.should == nil
+        address.columns.should == (3..5)
+      end
+
+      it "should read r1c1-format for an infinite columns" do
+        address = Address.new([nil,"B"])
+        address.rows.should == nil
+        address.columns.should == (2..2)
+      end
+
+      it "should read r1c1-format for infinite columns" do
+        address = Address.new([nil,"C".."E"])
+        address.rows.should == nil
+        address.columns.should == (3..5)
+      end
+
       it "should raise an error" do
         expect{
           Address.new("1A").rows
@@ -125,6 +161,12 @@ module RobustExcelOle
         }.to raise_error(AddressInvalid, /not in A1/)
         expect{
           Address.new(["A".."B","C".."D"]).rows
+        }.to raise_error(AddressInvalid, /not in A1/)
+        expect{
+          Address.new(["A".."B",1..2]).rows
+        }.to raise_error(AddressInvalid, /not in A1/)
+        expect{
+          Address.new(["A".."B",nil]).rows
         }.to raise_error(AddressInvalid, /not in A1/)
         expect{
           Address.new(["A",1,2]).rows

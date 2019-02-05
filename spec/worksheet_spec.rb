@@ -210,6 +210,9 @@ describe Worksheet do
         @sheet.range(1..3, "B".."D").values.should == ["workbook", "sheet1", nil, nil, "foobaaa", nil, "is", "nice", nil]     
       end
 
+      it "should create infinite ranges" do
+      end
+
       it "should raise an error" do
         expect{
           @sheet.range([0,0])
@@ -681,20 +684,16 @@ describe Worksheet do
 
       context "adding, renaming, deleting the name of a range" do
 
-         before do
-          @book1 = Workbook.open(@dir + '/another_workbook.xls', :read_only => true, :visible => true)
-          @book1.excel.displayalerts = false
+        before do
+          @book1 = Workbook.open(@dir + '/another_workbook.xls', :visible => true)
           @sheet1 = @book1.sheet(1)
         end
 
         after do
-          @book1.close
+          @book1.close(:if_unsaved => :forget)
         end   
 
         it "should name an unnamed range with a giving address" do
-          expect{
-            @sheet1[1,2].Name.Name
-          }.to raise_error          
           @sheet1.add_name("foo",[1,2])
           @sheet1.Range("foo").Address.should == "$B$1"
         end
@@ -748,6 +747,22 @@ describe Worksheet do
         it "should add a name of a rectangular range" do
           @sheet1.add_name("foo",[1..3, "A".."D"])
           @sheet1["foo"].should == [["foo", "workbook", "sheet1", nil], ["foo", 1.0, 2.0, 4.0], ["matz", 3.0, 4.0, 4.0]] 
+        end
+
+        it "should add a name of another rectangular range" do
+          @sheet1.add_name("foo",[1..3, "A"])
+          @sheet1["foo"].should == [["foo"], ["foo"],["matz"]]
+          @sheet1.Range("foo").Address.should == "$A$1:$A$3"
+        end
+
+        it "should add a name of an infinite row range" do
+          @sheet1.add_name("foo",[1..3, nil])
+          @sheet1.Range("foo").Address.should == "$1:$3"
+        end
+
+        it "should add a name of an infinite column range" do
+          @sheet1.add_name("foo",[nil, "A".."C"])
+          @sheet1.Range("foo").Address.should == "$A:$C"
         end
 
       end

@@ -1979,6 +1979,16 @@ module RobustExcelOle
         @excel1["foo"].should == [["foo", "workbook", "sheet1", nil], ["foo", 1.0, 2.0, 4.0], ["matz", 3.0, 4.0, 4.0]] 
       end
 
+      it "should add a name of an infinite row range" do
+        @excel1.add_name("foo",[1..3, nil])
+        @excel1.Names.Item("foo").Value.should == "=Sheet1!$1:$3"
+      end
+
+      it "should add a name of an infinite column range" do
+        @excel1.add_name("foo",[nil, "A".."C"])
+        @excel1.Names.Item("foo").Value.should == "=Sheet1!$A:$C"
+      end
+
     end
   
 

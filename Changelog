@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 ### Added
   - Workbook#create
   - Excel#workbooks, each_workbook, each_workbook_with_index
+  - Address#new, ReoCommon::RangeOwners#add_name: allowing infinite ranges
 
 ## [1.6]
 

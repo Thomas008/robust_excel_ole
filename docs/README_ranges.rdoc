@@ -158,6 +158,10 @@ or
 
   range = sheet.range("A1:D3")
 
+Infinite ranges are defined, e.g., by setting the rows or columns to +nil+
+
+  range = sheet.range([1..3,nil])
+
 You get the values of the range as flat array with help of
 
   range.values

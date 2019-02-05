@@ -388,9 +388,9 @@ module RobustExcelOle
           address = [name_or_address,address2] unless address2 == :__not_provided
           address = Address.new(address)
           range = RobustExcelOle::Range.new(@ole_worksheet.Range(
-                                              @ole_worksheet.Cells(address.rows.min, address.columns.min),
-                                              @ole_worksheet.Cells(address.rows.max, address.columns.max)
-                                            ))
+            @ole_worksheet.Cells(address.rows.min, address.columns.min),
+            @ole_worksheet.Cells(address.rows.max, address.columns.max)
+          ))
         end
       rescue WIN32OLERuntimeError
         address2_string = address2.nil? ? "" : ", #{address2.inspect}"
@@ -409,8 +409,11 @@ module RobustExcelOle
     def add_name(name, addr, addr_deprecated = :__not_provided)
       addr = [addr,addr_deprecated] unless addr_deprecated == :__not_provided
       address = Address.new(addr)
-      address_string = 'Z' + address.rows.min.to_s + 'S' + address.columns.min.to_s +
-                       ':Z' + address.rows.max.to_s + 'S' + address.columns.max.to_s
+      row_string1 = address.rows ? ('Z' + address.rows.min.to_s) : ""
+      row_string2 = address.rows ? ('Z' + address.rows.max.to_s) : ""
+      column_string1 = address.columns ? ('S' + address.columns.min.to_s) : ""
+      column_string2 = address.columns ? ('S' + address.columns.max.to_s) : ""
+      address_string = row_string1 + column_string1 + ':' + row_string2 + column_string2
       begin
         self.Names.Add('Name' => name, 'RefersToR1C1' => '=' + address_string)
       rescue WIN32OLERuntimeError => msg

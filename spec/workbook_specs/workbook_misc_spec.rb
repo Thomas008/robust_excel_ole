@@ -1081,12 +1081,12 @@ describe Workbook do
     context "range" do
 
       before do
-        @book1 = Workbook.open(@dir + '/another_workbook.xls', :read_only => true, :visible => true)
-        @book1.excel.displayalerts = false
+        @book1 = Workbook.open(@dir + '/another_workbook.xls', :visible => true)
       end
 
       it "should create a range from the name" do
         @book1.add_name("foo",[1..3,1..4])
+        @book1.save
         range = @book1.range("foo")
         range.Address.should == "$A$1:$D$3"
       end

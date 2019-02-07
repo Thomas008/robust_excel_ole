@@ -317,7 +317,7 @@ module RobustExcelOle
             case options[:if_unsaved]
             when :raise
               raise WorkbookNotSaved, "workbook is already open but not saved: #{File.basename(file).inspect}" +
-              "\nHint: Use option :if_unsaved with values :forget and :accept to
+              "\nHint: Save the workbook or open the workbook using option :if_unsaved with values :forget and :accept to
                close the unsaved workbook and reopen it, or to let the unsaved workbook open, respectively"
             when :forget
               @ole_workbook.Close

@@ -376,21 +376,38 @@ module RobustExcelOle
     end
 
     # creates a range from a given defined name or address
+    # range(address) does work for Worksheet objects only
     # @params [Variant] range name or address
     # @return [Range] a range
     def range(name_or_address, address2 = :__not_provided)
       begin
         if address2 == :__not_provided
-          range = RobustExcelOle::Range.new(name_object(name_or_address).RefersToRange) rescue nil
+          range = begin
+            RobustExcelOle::Range.new(name_object(name_or_address).RefersToRange) 
+          rescue NameNotFound
+            nil
+          end
         end
         if self.is_a?(Worksheet) && (range.nil? || (address2 != :__not_provided))
           address = name_or_address
           address = [name_or_address,address2] unless address2 == :__not_provided
           address = Address.new(address)
-          range = RobustExcelOle::Range.new(@ole_worksheet.Range(
-            @ole_worksheet.Cells(address.rows.min, address.columns.min),
-            @ole_worksheet.Cells(address.rows.max, address.columns.max)
-          ))
+          ole_range = if address.rows.nil?
+            self.Range(@ole_worksheet.Columns(address.columns.min),
+                       @ole_worksheet.Columns(address.columns.max))
+          elsif address.columns.nil?
+            self.Range(@ole_worksheet.Rows(address.rows.min),
+                       @ole_worksheet.Rows(address.rows.max))
+          else
+            self.Range(
+              @ole_worksheet.Cells(address.rows.min, address.columns.min),
+              @ole_worksheet.Cells(address.rows.max, address.columns.max))
+          end
+          range = ole_range.to_reo
+          #range = RobustExcelOle::Range.new(@ole_worksheet.Range(
+          #  @ole_worksheet.Cells(address.rows.min, address.columns.min),
+          #  @ole_worksheet.Cells(address.rows.max, address.columns.max)
+          #))
         end
       rescue WIN32OLERuntimeError
         address2_string = address2.nil? ? "" : ", #{address2.inspect}"

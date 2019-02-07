@@ -198,13 +198,21 @@ Moreover, you can state, whether you want to copy the values only, and whether y
   
 Note that when you don't copy the values only but all formating as well, and you either copy into another Excel instance or transpose the range, the clipboard is being used. 
 
-=== Naming a cell
+=== Naming a range
 
-You can (re-) define a name referring to a cell with help of VBA methods by stating its name, and the row and the column of the cell.
+You can (re-) define a name referring to a range by stating its name, and the address. For example, you can define a name for a rectangular range by
+
+  book.add_name("name",[1..2,3..5])
+
+Similarly you can define a name referring to a cell
 
   book.add_name("name",[1,1])
 
-Most methods can be done for Workbook, Worksheet, and Excel objects.
+and infinite ranges
+
+  book.add_name("name",[1..2,nil])
+
+You can do the same in an worksheet or Excel object.
 
 === Reading and writing the contents of a named range in a workbook.
 

@@ -183,65 +183,85 @@ module RobustExcelOle
 
   class Address < REOCommon
 
-    def initialize(address)
-      @address = address
+    def self.r1c1(address)
+      transform_address(address,:r1c1)
     end
 
-    def rows
-      @rows ||= calculate_rows_columns(:rows)
+    def self.a1(address)
+      transform_address(address,:a1)
     end
 
-    def columns
-      @columns ||= calculate_rows_columns(:columns)
+    def self.int_range(address)
+      transform_address(address,:int_range)
     end
 
   private
     # @private
-    def calculate_rows_columns(return_item)
-      address = @address.is_a?(Array) ? @address : [@address]
-      raise AddressInvalid, 'more than two components' if address.size > 2
+    # possible formats: a1    e.g. "A3", "A3:B5", "A:B", "3:5", "A", "3"
+    #                   r1c1, e.g. "Z3S1", "Z3S1:Z5S2", 
+    #{                  infinite r1c1-formats are not possible: ("Z3:Z5", "S2:S5", "Z2", "S3")
+    #                   ranges, e.g. [3,1], [3,"A"], [3..5,1..2], [3..5, "A".."B"], [3..4, nil], [nil, 2..4], [2,nil], [nil,4]
+    def self.transform_address(address, format)
+      address = address.is_a?(Array) ? address : [address]
+      raise AddressInvalid, "address #{address.inspect} has more than two components" if address.size > 2
       begin
         if address.size == 1
           comp1, comp2 = address[0].split(':')
-          address_comp1 = comp1.gsub(/[A-Z]/,'')
-          address_comp2 = comp1.gsub(/[0-9]/,'')
-          if comp1 != address_comp2 + address_comp1
-            raise AddressInvalid, "address #{comp1.inspect} not in A1-format"
-          end
-          unless comp2.nil?
-            address_comp3 = comp2.gsub(/[A-Z]/,'')
-            address_comp4 = comp2.gsub(/[0-9]/,'')
-            if comp2 != address_comp4 + address_comp3
-              raise AddressInvalid, "address #{comp2.inspect} not in A1-format"
-            end
-            address_comp1 = address_comp1..address_comp3
-            address_comp2 = address_comp2..address_comp4
-          end
+          is_a1 = comp1 =~ /^(([A-Z]+[0-9]+)|([A-Z]+$)|([0-9]+))$/ && 
+              (comp2.nil? || comp2 =~ /^(([A-Z]+[0-9]+)|([A-Z]+)|([0-9]+))$/ )
+          is_r1c1 = comp1 =~ /^((Z[0-9]+S[0-9]+)|(Z[0-9])|(S[0-9]+))$/ &&
+              (comp2.nil? || comp2 =~ /^((Z[0-9]+S[0-9]+)|(Z[0-9])|(S[0-9]+))$/)
+          raise AddressInvalid, "address #{address.inspect} not in A1- or r1c1-format" unless (is_a1 || is_r1c1)
+          return address[0] if (is_a1 && format==:a1) || (is_r1c1 && format==:r1c1)         
+          given_format = (is_a1) ? :a1 : :r1c1
+          row_comp1, col_comp1 = analyze(comp1,given_format)
+          row_comp2, col_comp2 = analyze(comp2,given_format) unless comp2.nil?
+          address_comp1 = comp2 ? (row_comp1 .. row_comp2) : row_comp1
+          address_comp2 = comp2 ? (col_comp1 .. col_comp2) : col_comp1          
         else
-          address_comp1, address_comp2 = address
-        end    
-        address_comp1 = address_comp1..address_comp1 if address_comp1.is_a?(Integer) || address_comp1.is_a?(String)
-        address_comp2 = address_comp2..address_comp2 if address_comp2.is_a?(Integer) || address_comp2.is_a?(String)
-        @rows = unless address_comp1.nil?
-          raise if address_comp1.min.to_i==0 && address_comp2.min.to_i!=0
-          address_comp1.min.to_i..address_comp1.max.to_i 
+          address_comp1, address_comp2 = address      
         end
-        @columns = unless address_comp2.nil?
-          if address_comp2.min.to_i == 0
-            raise unless address_comp1.nil? || address_comp1.min.to_i != 0
-            str2num(address_comp2.begin)..str2num(address_comp2.end)
+        address_comp1 = address_comp1..address_comp1 if (address_comp1.nil? || address_comp1.is_a?(Integer) || address_comp1.is_a?(String)) #unless address_comp1.is_a?(Range)
+        address_comp2 = address_comp2..address_comp2 if (address_comp2.nil? || address_comp2.is_a?(Integer) || address_comp2.is_a?(String)) #unless address_comp2.is_a?(Range)
+        raise if address_comp1.begin.to_i==0 && (not address_comp1.begin.nil?) && (not address_comp1.begin.empty?)
+        rows = unless address_comp1.begin.to_i==0
+          address_comp1.begin.to_i..address_comp1.end.to_i 
+        end
+        columns = unless address_comp2.begin.nil?
+          if address_comp2.begin.to_i == 0
+            col_range = str2num(address_comp2.begin)..str2num(address_comp2.end)
+            col_range==(0..0) ? nil : col_range
           else
-            address_comp2.min.to_i..address_comp2.max.to_i
+            address_comp2.begin.to_i..address_comp2.end.to_i
           end
         end
-      rescue
-        raise AddressInvalid, "address (#{address.inspect}) not in A1- or R1C1-format"
+      rescue 
+        raise AddressInvalid, "address (#{address.inspect}) format not correct"
       end
-      return_item == :rows ? @rows : @columns
+      if format==:r1c1
+        def self.r(a,b,c); b ? "#{a}#{(c==:min ? b.min : b.max)}" : ""; end 
+        r("Z",rows,:min) + r("S",columns,:min) + ":" + r("Z",rows,:max) + r("S",columns,:max)
+      elsif format==:int_range
+        [rows,columns]
+      else
+        raise NotImplementedREOError, "not implemented"
+      end
     end
 
     # @private
-    def str2num(str)
+    def self.analyze(comp,format)
+      if format==:a1 
+        [comp.gsub(/[A-Z]/,''), comp.gsub(/[0-9]/,'')]
+      else
+        a,b = comp.split('Z')
+        c,d = b.split('S')
+        b.nil? ? ["",b] : (d.nil? ? [c,""] : [c,d])  
+      end
+    end
+
+    # @private
+    def self.str2num(str)
+      #return if str.empty?
       str = str.upcase
       sum = 0
       (1..str.length).each { |i| sum += (str[i - 1].ord - 64) * 26**(str.length - i) }
@@ -391,23 +411,15 @@ module RobustExcelOle
         if self.is_a?(Worksheet) && (range.nil? || (address2 != :__not_provided))
           address = name_or_address
           address = [name_or_address,address2] unless address2 == :__not_provided
-          address = Address.new(address)
-          ole_range = if address.rows.nil?
-            self.Range(@ole_worksheet.Columns(address.columns.min),
-                       @ole_worksheet.Columns(address.columns.max))
-          elsif address.columns.nil?
-            self.Range(@ole_worksheet.Rows(address.rows.min),
-                       @ole_worksheet.Rows(address.rows.max))
+          rows, columns = Address.int_range(address)
+          ole_range = if rows.nil?
+            self.Range(self.Columns(columns.min), self.Columns(columns.max))
+          elsif columns.nil?
+            self.Range(self.Rows(rows.min), self.Rows(rows.max))
           else
-            self.Range(
-              @ole_worksheet.Cells(address.rows.min, address.columns.min),
-              @ole_worksheet.Cells(address.rows.max, address.columns.max))
+            self.Range(self.Cells(rows.min, columns.min), self.Cells(rows.max, columns.max))
           end
           range = ole_range.to_reo
-          #range = RobustExcelOle::Range.new(@ole_worksheet.Range(
-          #  @ole_worksheet.Cells(address.rows.min, address.columns.min),
-          #  @ole_worksheet.Cells(address.rows.max, address.columns.max)
-          #))
         end
       rescue WIN32OLERuntimeError
         address2_string = address2.nil? ? "" : ", #{address2.inspect}"
@@ -425,16 +437,9 @@ module RobustExcelOle
     # @params [Address] address of the range
     def add_name(name, addr, addr_deprecated = :__not_provided)
       addr = [addr,addr_deprecated] unless addr_deprecated == :__not_provided
-      address = Address.new(addr)
-      row_string1 = address.rows ? ('Z' + address.rows.min.to_s) : ""
-      row_string2 = address.rows ? ('Z' + address.rows.max.to_s) : ""
-      column_string1 = address.columns ? ('S' + address.columns.min.to_s) : ""
-      column_string2 = address.columns ? ('S' + address.columns.max.to_s) : ""
-      address_string = row_string1 + column_string1 + ':' + row_string2 + column_string2
       begin
-        self.Names.Add('Name' => name, 'RefersToR1C1' => '=' + address_string)
+        self.Names.Add('Name' => name, 'RefersToR1C1' => '=' + Address.r1c1(addr))
       rescue WIN32OLERuntimeError => msg
-        # trace "WIN32OLERuntimeError: #{msg.message}"
         raise RangeNotEvaluatable, "cannot add name #{name.inspect} to range #{addr.inspect}"
       end
       name
@@ -487,11 +492,6 @@ module RobustExcelOle
         raise RobustExcelOle::NameNotFound, "name #{name.inspect} not in #{self.inspect}"
       end
     end
-
-    # def cell_modified?(cell)
-    #  workbook.modified_cells.each{|c| return true if c.Name.Value == cell.Name.Value}
-    #  false
-    # end
 
   end
 

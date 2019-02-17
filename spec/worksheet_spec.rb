@@ -213,12 +213,14 @@ describe Worksheet do
       it "should create infinite ranges" do
         @sheet.range([1..3,nil]).Address.should == "$1:$3"
         @sheet.range(nil,"B".."D").Address.should == "$B:$D"
+        @sheet.range("1:3").Address.should == "$1:$3"
+        @sheet.range("B:D").Address.should == "$B:$D"
       end
 
       it "should raise an error" do
         expect{
           @sheet.range([0,0])
-          }.to raise_error(AddressInvalid, /not in/)
+          }.to raise_error(AddressInvalid, /format not correct/)
       end
 
     end
@@ -765,6 +767,21 @@ describe Worksheet do
         it "should add a name of an infinite column range" do
           @sheet1.add_name("foo",[nil, "A".."C"])
           @sheet1.Range("foo").Address.should == "$A:$C"
+        end
+
+        it "should add a name of an infinite column range" do
+          @sheet1.add_name("foo",[nil, 1..3])
+          @sheet1.Range("foo").Address.should == "$A:$C"
+        end
+
+        it "should add a name of an infinite column range" do
+          @sheet1.add_name("foo","A:C")
+          @sheet1.Range("foo").Address.should == "$A:$C"
+        end
+
+        it "should add a name of an infinite column range" do
+          @sheet1.add_name("foo","1:2")
+          @sheet1.Range("foo").Address.should == "$1:$2"
         end
 
       end

@@ -1108,12 +1108,36 @@ describe Workbook do
         @book1.add_name("foo",[1,2])
         @book1.Names.Item("foo").Name.should == "foo"
         @book1.Names.Item("foo").Value.should == "=Sheet1!$B$1:$B$1"
-      end
-
-      it "should rename an already named range with a giving address" do
-        @book1.add_name("foo",[1,1])
+        @book1.add_name("foo",[1..2,2..4])
         @book1.Names.Item("foo").Name.should == "foo"
-        @book1.Names.Item("foo").Value.should == "=Sheet1!$A$1:$A$1"
+        @book1.Names.Item("foo").Value.should == "=Sheet1!$B$1:$D$2"
+        @book1.add_name("foo","B1")
+        @book1.Names.Item("foo").Name.should == "foo"
+        @book1.Names.Item("foo").Value.should == "=Sheet1!$B$1:$B$1"
+        @book1.add_name("foo","B1:D2")
+        @book1.Names.Item("foo").Name.should == "foo"
+        @book1.Names.Item("foo").Value.should == "=Sheet1!$B$1:$D$2"
+        @book1.add_name("foo","Z1S2")
+        @book1.Names.Item("foo").Name.should == "foo"
+        @book1.Names.Item("foo").Value.should == "=Sheet1!$B$1"
+        @book1.add_name("foo","Z1S2:Z2S4")
+        @book1.Names.Item("foo").Name.should == "foo"
+        @book1.Names.Item("foo").Value.should == "=Sheet1!$B$1:$D$2"
+        @book1.add_name("foo","A:B")
+        @book1.Names.Item("foo").Name.should == "foo"
+        @book1.Names.Item("foo").Value.should == "=Sheet1!$A:$B"
+        @book1.add_name("foo","1:2")
+        @book1.Names.Item("foo").Name.should == "foo"
+        @book1.Names.Item("foo").Value.should == "=Sheet1!$1:$2"
+        @book1.add_name("foo",[1..2,nil])
+        @book1.Names.Item("foo").Name.should == "foo"
+        @book1.Names.Item("foo").Value.should == "=Sheet1!$1:$2"
+        @book1.add_name("foo",[nil,1..2])
+        @book1.Names.Item("foo").Name.should == "foo"
+        @book1.Names.Item("foo").Value.should == "=Sheet1!$A:$B"
+        @book1.add_name("foo",[nil,"A".."B"])
+        @book1.Names.Item("foo").Name.should == "foo"
+        @book1.Names.Item("foo").Value.should == "=Sheet1!$A:$B"
       end
 
       it "should raise an error" do

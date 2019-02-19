@@ -258,7 +258,17 @@ module RobustExcelOle
       raise(FileNotFound, "file #{General.absolute_path(file).inspect} is a directory") if File.directory?(file)
       unless File.exist?(file)
         if options[:if_absent] == :create
-          @ole_workbook = excel_class.new(:reuse => false).generate_workbook(file)
+          excel.Workbooks.Add
+          empty_ole_workbook = excel.Workbooks.Item(excel.Workbooks.Count)
+          filename = General.absolute_path(file).tr('/','\\')
+          unless File.exist?(file)
+            begin
+              empty_ole_workbook.SaveAs(filename)
+            rescue WIN32OLERuntimeError => msg
+              raise FileNotFound, "could not save workbook with filename #{file.inspect}"
+            end
+          end
+          #@ole_workbook = excel_class.new(:reuse => false).generate_workbook(file)
         else
           raise FileNotFound, "file #{General.absolute_path(file).inspect} not found" +
             "\nHint: If you want to create a new file, use option :if_absent => :create or Workbook::create"

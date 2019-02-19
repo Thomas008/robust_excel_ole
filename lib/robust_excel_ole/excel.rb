@@ -513,26 +513,9 @@ module RobustExcelOle
       self.Workbooks.each { |w| trace "#{w.Name} #{w}" }
     end
 
-    # generates, saves, and closes empty workbook
     # @private
-    def generate_workbook file_name
-      raise FileNameNotGiven, 'filename is nil' if file_name.nil?
-      self.Workbooks.Add
-      empty_ole_workbook = self.Workbooks.Item(self.Workbooks.Count)
-      filename = General.absolute_path(file_name).tr('/','\\')
-      unless File.exist?(filename)
-        begin
-          empty_ole_workbook.SaveAs(filename)
-        rescue WIN32OLERuntimeError => msg
-          # if msg.message =~ /SaveAs/ and msg.message =~ /Workbook/ then
-          raise FileNotFound, "could not save workbook with filename #{file_name.inspect}"
-          # else
-          #  # todo some time: find out when this occurs :
-          #  raise UnexpectedREOError, "unknown WIN32OLERuntimeError with filename #{file_name.inspect}: \n#{msg.message}"
-          # end
-        end
-      end
-      empty_ole_workbook
+    def generate_workbook file_name  # :deprecated: #
+      workbook_class.open(file_name, :if_absent => :create, :force => {:excel => self})
     end
 
     # sets DisplayAlerts in a block

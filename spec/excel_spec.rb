@@ -1871,7 +1871,7 @@ module RobustExcelOle
 
         it "should generate a workbook" do
           workbook = @excel1.generate_workbook(@file_name)
-          workbook.should be_a WIN32OLE
+          workbook.should be_a Workbook
           workbook.Name.should == File.basename(@file_name)
           workbook.FullName.should == General::absolute_path(@file_name)
           workbook.Saved.should be true
@@ -1881,26 +1881,11 @@ module RobustExcelOle
           workbooks.Count.should == 1
         end
 
-        it "should generate the same workbook twice" do
-          workbook = @excel1.generate_workbook(@file_name)
-          workbook.should be_a WIN32OLE
-          workbook.Name.should == File.basename(@file_name)
-          workbook.FullName.should == General::absolute_path(@file_name)
-          workbook.Saved.should be true
-          workbook.ReadOnly.should be false
-          workbook.Sheets.Count.should == 3
-          workbooks = @excel1.Workbooks
-          workbooks.Count.should == 1
-          workbook2 = @excel1.generate_workbook(@file_name)
-          workbook2.should be_a WIN32OLE
-          workbooks = @excel1.Workbooks
-          workbooks.Count.should == 2
-        end
-
+       
         it "should generate a workbook if one is already existing" do
           book = Workbook.open(@simple_file)
           workbook = @excel1.generate_workbook(@file_name)
-          workbook.should be_a WIN32OLE
+          workbook.should be_a Workbook
           workbook.Name.should == File.basename(@file_name)
           workbook.FullName.should == General::absolute_path(@file_name)
           workbook.Saved.should be true

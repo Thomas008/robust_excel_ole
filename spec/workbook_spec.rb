@@ -210,7 +210,6 @@ describe Workbook do
 
     end
 
-
     context "with standard options" do
       before do
         @book = Workbook.open(@simple_file)

@@ -251,114 +251,133 @@ module RobustExcelOle
       @excel
     end
 
+
     # @private
-    def ensure_workbook(file, options)    
-      file = @stored_filename ? @stored_filename : file
-      raise(FileNameNotGiven, 'filename is nil') if file.nil?
-      raise(FileNotFound, "file #{General.absolute_path(file).inspect} is a directory") if File.directory?(file)
-      unless File.exist?(file)
-        if options[:if_absent] == :create
-          excel.Workbooks.Add
-          empty_ole_workbook = excel.Workbooks.Item(excel.Workbooks.Count)
-          filename = General.absolute_path(file).tr('/','\\')
-          unless File.exist?(file)
-            begin
-              empty_ole_workbook.SaveAs(filename)
-            rescue WIN32OLERuntimeError => msg
-              raise FileNotFound, "could not save workbook with filename #{file.inspect}"
-            end
-          end
-          #@ole_workbook = excel_class.new(:reuse => false).generate_workbook(file)
-        else
-          raise FileNotFound, "file #{General.absolute_path(file).inspect} not found" +
-            "\nHint: If you want to create a new file, use option :if_absent => :create or Workbook::create"
-        end
+    def ensure_workbook(filename, options)    
+      filename = @stored_filename ? @stored_filename : filename
+      raise(FileNameNotGiven, 'filename is nil') if filename.nil?
+      if File.directory?(filename)
+        raise(FileNotFound, "file #{General.absolute_path(filename).inspect} is a directory")
       end  
+      manage_nonexisting_file(filename,options)
       workbooks = @excel.Workbooks
-      @ole_workbook = workbooks.Item(File.basename(file)) rescue nil if @ole_workbook.nil?
+      @ole_workbook = workbooks.Item(File.basename(filename)) rescue nil if @ole_workbook.nil?
       if @ole_workbook
-        obstructed_by_other_book = if (File.basename(file) == File.basename(@ole_workbook.Fullname)) 
-          p1 = General.absolute_path(file) 
-          p2 = @ole_workbook.Fullname
-          is_same_path = if p1[1..1] == ":" and p2[0..1] == '\\\\' # normal path starting with the drive letter and a path in network notation (starting with 2 backslashes)
-            # this is a Workaround for Excel2010 on WinXP: Network drives won't get translated to drive letters. So we'll do it manually:
-            p1_pure_path = p1[2..-1]
-            p2.end_with?(p1_pure_path)  and p2[0, p2.rindex(p1_pure_path)] =~ /^\\\\[\w\d_]+(\\[\w\d_]+)*$/  # e.g. "\\\\server\\folder\\subfolder"
-          else
-            p1 == p2
-          end
-          not is_same_path
-        end
-        # if workbook is obstructed by a workbook with same name and different path
-        if obstructed_by_other_book
-          case options[:if_obstructed]
-          when :raise
-            raise WorkbookBlocked, "blocked by a workbook with the same name in a different path: #{@ole_workbook.Fullname.tr('\\','/')}" +
-            "\nHint: Use the option :if_obstructed with values :forget or :save,
-             to close the old workbook, without or with saving before, respectively,
-             and to open the new workbook"
-          when :forget
-            @ole_workbook.Close
-            @ole_workbook = nil
-            open_or_create_workbook(file, options)
-          when :save
-            save unless @ole_workbook.Saved
-            @ole_workbook.Close
-            @ole_workbook = nil
-            open_or_create_workbook(file, options)
-          when :close_if_saved
-            if !@ole_workbook.Saved
-              raise WorkbookBlocked, "workbook with the same name in a different path is unsaved: #{@ole_workbook.Fullname.tr('\\','/')}"
-            else
-              @ole_workbook.Close
-              @ole_workbook = nil
-              open_or_create_workbook(file, options)
-            end
-          when :new_excel
-            @excel = excel_class.new(:reuse => false)
-            open_or_create_workbook(file, options)
-          else
-            raise OptionInvalid, ":if_obstructed: invalid option: #{options[:if_obstructed].inspect}" +
-            "\nHint: Valid values are :raise, :forget, :save, :close_if_saved, :new_excel"
-          end
-        else
-          # book open, not obstructed by an other book, but not saved and writable
-          unless @ole_workbook.Saved
-            case options[:if_unsaved]
-            when :raise
-              raise WorkbookNotSaved, "workbook is already open but not saved: #{File.basename(file).inspect}" +
-              "\nHint: Save the workbook or open the workbook using option :if_unsaved with values :forget and :accept to
-               close the unsaved workbook and reopen it, or to let the unsaved workbook open, respectively"
-            when :forget
-              @ole_workbook.Close
-              @ole_workbook = nil
-              open_or_create_workbook(file, options)
-            when :accept
-              # do nothing
-            when :alert, :excel
-              @excel.with_displayalerts(true) { open_or_create_workbook(file,options) }
-            when :new_excel
-              @excel = excel_class.new(:reuse => false)
-              open_or_create_workbook(file, options)
-            else
-              raise OptionInvalid, ":if_unsaved: invalid option: #{options[:if_unsaved].inspect}" +
-              "\nHint: Valid values are :raise, :forget, :accept, :alert, :excel, :new_excel"
-            end
-          end
-        end
+        manage_blocking_or_unsaved_workbook(filename,options)
       else
-        # open a new workbook
-        open_or_create_workbook(file, options)
+        open_or_create_workbook(filename, options)
       end
     end
 
   private
 
     # @private
-    def open_or_create_workbook(file, options)  
+    def manage_nonexisting_file(filename,options)
+      return if File.exist?(filename)
+      if options[:if_absent] == :create
+        excel.Workbooks.Add
+        empty_ole_workbook = excel.Workbooks.Item(excel.Workbooks.Count)
+        abs_filename = General.absolute_path(filename).tr('/','\\')
+        begin
+          empty_ole_workbook.SaveAs(abs_filename)
+        rescue WIN32OLERuntimeError => msg
+          raise FileNotFound, "could not save workbook with filename #{filename.inspect}"
+        end
+      else
+        raise FileNotFound, "file #{abs_filename.inspect} not found" +
+          "\nHint: If you want to create a new file, use option :if_absent => :create or Workbook::create"
+      end
+    end
+
+    # @private
+    def manage_blocking_or_unsaved_workbook(filename,options)
+      obstructed_by_other_book = if (File.basename(filename) == File.basename(@ole_workbook.Fullname)) 
+        p1 = General.absolute_path(filename) 
+        p2 = @ole_workbook.Fullname
+        is_same_path = if p1[1..1] == ":" and p2[0..1] == '\\\\' # normal path starting with the drive letter and a path in network notation (starting with 2 backslashes)
+          # this is a Workaround for Excel2010 on WinXP: Network drives won't get translated to drive letters. So we'll do it manually:
+          p1_pure_path = p1[2..-1]
+          p2.end_with?(p1_pure_path)  and p2[0, p2.rindex(p1_pure_path)] =~ /^\\\\[\w\d_]+(\\[\w\d_]+)*$/  # e.g. "\\\\server\\folder\\subfolder"
+        else
+          p1 == p2
+        end
+        not is_same_path
+      end      
+      if obstructed_by_other_book
+        # workbook is being obstructed by a workbook with same name and different path
+        manage_blocking_workbook(filename,options)        
+      else
+        unless @ole_workbook.Saved
+        # workbook open and writable, not obstructed by another workbook, but not saved
+          manage_unsaved_workbook(filename,options)
+        end
+      end        
+    end
+
+    # @private
+    def manage_blocking_workbook(filename,options)
+      case options[:if_obstructed]
+      when :raise
+        raise WorkbookBlocked, "blocked by a workbook with the same name in a different path: #{@ole_workbook.Fullname.tr('\\','/')}" +
+        "\nHint: Use the option :if_obstructed with values :forget or :save,
+         to close the old workbook, without or with saving before, respectively,
+         and to open the new workbook"
+      when :forget
+        @ole_workbook.Close
+        @ole_workbook = nil
+        open_or_create_workbook(filename, options)
+      when :save
+        save unless @ole_workbook.Saved
+        @ole_workbook.Close
+        @ole_workbook = nil
+        open_or_create_workbook(filename, options)
+      when :close_if_saved
+        if !@ole_workbook.Saved
+          raise WorkbookBlocked, "workbook with the same name in a different path is unsaved: #{@ole_workbook.Fullname.tr('\\','/')}"
+        else
+          @ole_workbook.Close
+          @ole_workbook = nil
+          open_or_create_workbook(filename, options)
+        end
+      when :new_excel
+        @excel = excel_class.new(:reuse => false)
+        open_or_create_workbook(filename, options)
+      else
+        raise OptionInvalid, ":if_obstructed: invalid option: #{options[:if_obstructed].inspect}" +
+        "\nHint: Valid values are :raise, :forget, :save, :close_if_saved, :new_excel"
+      end
+    end
+
+    def manage_unsaved_workbook(workbook,options)
+      case options[:if_unsaved]
+      when :raise
+        raise WorkbookNotSaved, "workbook is already open but not saved: #{File.basename(filename).inspect}" +
+        "\nHint: Save the workbook or open the workbook using option :if_unsaved with values :forget and :accept to
+         close the unsaved workbook and reopen it, or to let the unsaved workbook open, respectively"
+      when :forget
+        @ole_workbook.Close
+        @ole_workbook = nil
+        open_or_create_workbook(filename, options)
+      when :accept
+        # do nothing
+      when :alert, :excel
+        @excel.with_displayalerts(true) { open_or_create_workbook(filename,options) }
+      when :new_excel
+        @excel = excel_class.new(:reuse => false)
+        open_or_create_workbook(filename, options)
+      else
+        raise OptionInvalid, ":if_unsaved: invalid option: #{options[:if_unsaved].inspect}" +
+        "\nHint: Valid values are :raise, :forget, :accept, :alert, :excel, :new_excel"
+      end
+    end
+
+  private
+
+    # @private
+    def open_or_create_workbook(filename, options)  
       if !@ole_workbook || (options[:if_unsaved] == :alert) || options[:if_obstructed]
         begin
-          filename = General.absolute_path(file)
+          abs_filename = General.absolute_path(filename)
           begin
             workbooks = @excel.Workbooks
           rescue WIN32OLERuntimeError => msg
@@ -366,7 +385,7 @@ module RobustExcelOle
           end
           begin
             with_workaround_linked_workbooks_excel2007(options) do
-              workbooks.Open(filename, { 'ReadOnly' => options[:read_only],
+              workbooks.Open(abs_filename, { 'ReadOnly' => options[:read_only],
                                          'UpdateLinks' => updatelinks_vba(options[:update_links]) })
             end
           rescue WIN32OLERuntimeError => msg

@@ -25,7 +25,10 @@ module RobustExcelOle
         @end_row = last_row
         @end_column = last_column
       end
+      saved_status = self.Parent.Saved
+      self.Parent.Saved = true unless saved_status
       @workbook = workbook_class.new(self.Parent)
+      self.Parent.Saved = saved_status
     end
 
     # sheet name

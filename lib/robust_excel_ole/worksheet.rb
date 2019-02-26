@@ -12,7 +12,6 @@ module RobustExcelOle
   class Worksheet < RangeOwners
 
     attr_reader :ole_worksheet
-    attr_reader :workbook
 
     def initialize(win32_worksheet)
       @ole_worksheet = win32_worksheet
@@ -25,10 +24,15 @@ module RobustExcelOle
         @end_row = last_row
         @end_column = last_column
       end
-      saved_status = self.Parent.Saved
-      self.Parent.Saved = true unless saved_status
-      @workbook = workbook_class.new(self.Parent)
-      self.Parent.Saved = saved_status
+    end
+
+    def workbook
+      ole_workbook = self.Parent
+      saved_status = ole_workbook.Saved
+      ole_workbook.Saved = true unless saved_status
+      workbook = workbook_class.new(ole_workbook)
+      ole_workbook.Saved = saved_status
+      workbook
     end
 
     # sheet name

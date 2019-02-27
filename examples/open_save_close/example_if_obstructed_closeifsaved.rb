@@ -32,5 +32,5 @@ begin
   new_book.close                                 # close the books                  
 ensure
   Excel.kill_all                         # close all workbooks, quit Excel application
-  rm_tmp(dir)
+  #rm_tmp(dir)
 end

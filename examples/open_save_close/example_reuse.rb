@@ -13,7 +13,7 @@ begin
   file_name2 = dir + 'different_workbook.xls'
   file_name3 = dir + 'different_workbook.xls'
   file_name4 = dir + 'book_with_blank.xls'
-  book1 = Workbook.open(file_name1)             # open a book in a new Excel instance since no Excel is open
+  book1 = Workbook.open(file_name1)         # open a book in a new Excel instance since no Excel is open
   book1.excel.visible = true                # make current Excel visible
   sleep 2
   book2 = Workbook.open(file_name2)             # open a new book in the same Excel instance

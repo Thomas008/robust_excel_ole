@@ -73,18 +73,18 @@ module RobustExcelOle
           { }
         end
       end
-      address = Address.new(dest_address)
+      rows, columns = Address.int_range(dest_address)
       dest_sheet = @worksheet if dest_sheet == :__not_provided
-      dest_address_is_position = (address.rows.min == address.rows.max && address.columns.min == address.columns.max)
+      dest_address_is_position = (rows.min == rows.max && columns.min == columns.max)
       dest_range_address = if (not dest_address_is_position) 
-          [address.rows.min..address.rows.max,address.columns.min..address.columns.max]
+          [rows.min..rows.max,columns.min..columns.max]
         else
           if (not options[:transpose])
-            [address.rows.min..address.rows.min+self.Rows.Count-1,
-             address.columns.min..address.columns.min+self.Columns.Count-1]
+            [rows.min..rows.min+self.Rows.Count-1,
+             columns.min..columns.min+self.Columns.Count-1]
           else
-            [address.rows.min..address.rows.min+self.Columns.Count-1,
-             address.columns.min..address.columns.min+self.Rows.Count-1]
+            [rows.min..rows.min+self.Columns.Count-1,
+             columns.min..columns.min+self.Rows.Count-1]
           end
         end
       dest_range = dest_sheet.range(dest_range_address)
@@ -122,18 +122,18 @@ module RobustExcelOle
     # @options [Worksheet] the destination worksheet
     # @options [Hash] options: :transpose, :values_only
     def copy_special(dest_address, dest_sheet = :__not_provided, options = { })
-      address = Address.new(dest_address)
+      rows, columns = Address.int_range(dest_address)
       dest_sheet = @worksheet if dest_sheet == :__not_provided
-      dest_address_is_position = (address.rows.min == address.rows.max && address.columns.min == address.columns.max)
+      dest_address_is_position = (rows.min == rows.max && columns.min == columns.max)
       dest_range_address = if (not dest_address_is_position) 
-          [address.rows.min..address.rows.max,address.columns.min..address.columns.max]
+          [rows.min..rows.max,columns.min..columns.max]
         else
           if (not options[:transpose])
-            [address.rows.min..address.rows.min+self.Rows.Count-1,
-             address.columns.min..address.columns.min+self.Columns.Count-1]
+            [rows.min..rows.min+self.Rows.Count-1,
+             columns.min..columns.min+self.Columns.Count-1]
           else
-            [address.rows.min..address.rows.min+self.Columns.Count-1,
-             address.columns.min..address.columns.min+self.Rows.Count-1]
+            [rows.min..rows.min+self.Columns.Count-1,
+             columns.min..columns.min+self.Rows.Count-1]
           end
         end
       dest_range = dest_sheet.range(dest_range_address)

@@ -666,10 +666,10 @@ describe Worksheet do
         }.to_not raise_error
         expect {
           @sheet1.namevalue("foo", :default => :__not_provided)
-        }.to raise_error(NameNotFound, /name "foo" not in #<Worksheet: Sheet1 another_workbook/)
+        }.to raise_error(NameNotFound, /name "foo" not in #<Worksheet: Sheet1/)
         expect {
           @sheet1.namevalue("foo")
-        }.to raise_error(NameNotFound, /name "foo" not in #<Worksheet: Sheet1 another_workbook/)
+        }.to raise_error(NameNotFound, /name "foo" not in #<Worksheet: Sheet1/)
         @sheet1.namevalue("foo", :default => nil).should be_nil
         @sheet1.namevalue("foo", :default => 1).should == 1
         @sheet1.namevalue_glob("empty", :default => 1).should be_nil

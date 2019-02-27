@@ -57,7 +57,7 @@ begin
   begin
     @book.add_sheet(sheet, :as => 'second_sheet_copy')
   rescue NameAlreadyExists => msg
-    puts "error: add_sheet: #{msg.message}"
+    puts "results in an error: add_sheet: #{msg.message}"
   end    
 
   @book.close(:if_unsaved => :forget)   # close the book without saving it

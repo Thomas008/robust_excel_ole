@@ -197,7 +197,8 @@ module RobustExcelOle
 
     # @private
     def to_s    
-      '#<Worksheet: ' + ('not alive ' unless @workbook.alive?).to_s + name.to_s + " #{File.basename(@workbook.stored_filename)} >"
+      '#<Worksheet: ' + name.to_s + ">"
+      #'#<Worksheet: ' + ('not alive ' unless workbook.alive?).to_s + name.to_s + " #{File.basename(workbook.stored_filename)} >"
     end
 
     # @private

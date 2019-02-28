@@ -1,4 +1,4 @@
-# example_ifunsaved_forget.rb:
+# example_if_unsaved_forget.rb:
 # open with :if_unsaved => :forget, :new_excel, close with :if_unsaved => :save 
 
 require File.expand_path('../../lib/robust_excel_ole', File.dirname(__FILE__))

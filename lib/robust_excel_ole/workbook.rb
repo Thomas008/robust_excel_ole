@@ -348,7 +348,7 @@ module RobustExcelOle
       end
     end
 
-    def manage_unsaved_workbook(workbook,options)
+    def manage_unsaved_workbook(filename,options)
       case options[:if_unsaved]
       when :raise
         raise WorkbookNotSaved, "workbook is already open but not saved: #{File.basename(filename).inspect}" +

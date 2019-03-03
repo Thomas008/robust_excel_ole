@@ -12,6 +12,24 @@ module RobustExcelOle
 
   describe Address do
 
+    it "should transform relative r1c1-reference into r1c1-format" do
+      Address.r1c1("Z1S[2]:Z[-1]S4").should == "Z1S(2):Z(-1)S4"
+      Address.r1c1("Z[1]S2:Z3S[4]").should == "Z(1)S2:Z3S(4)"
+      Address.r1c1("Z1S[2]").should == "Z1S(2)"
+      Address.r1c1("Z[-1]S4").should == "Z(-1)S4"
+      Address.r1c1("Z[3]").should == "Z(3)"
+      Address.r1c1("S[-2]").should == "S(-2)"
+    end
+=begin
+    it "should transform relative r1c1-reference into r1c1-format" do
+      Address.int_range("Z1S[2]:Z[3]S4").should == [1..[3],[2]..4]
+      Address.int_range("Z[1]S2:Z3S[4]").should == [[1]..3,2..[4]]
+      Address.int_range("Z1S[2]").should == [1..1,[2]..[2]]
+      Address.int_range("Z[3]S4").should == [[3]..[3],4..4]
+      Address.int_range("Z[3]").should == [[3]..[3],nil]
+      Address.int_range("S[-2]").should == [nil,[-2]..[-2]]
+    end
+=end
     it "should transform a1-format" do
       Address.a1("A2").should == "A2"
       Address.r1c1("A2").should == "Z2S1:Z2S1"

@@ -18,22 +18,24 @@ module RobustExcelOle
 
   private
     # @private
-    # possible formats: a1    e.g. "A3", "A3:B5", "A:B", "3:5", "A", "3"
-    #                   r1c1, e.g. "Z3S1", "Z3S1:Z5S2", 
-    #{                  infinite r1c1-formats are not possible: ("Z3:Z5", "S2:S5", "Z2", "S3")
-    #                   ranges, e.g. [3,1], [3,"A"], [3..5,1..2], [3..5, "A".."B"], [3..4, nil], [nil, 2..4], [2,nil], [nil,4]
+    # possible formats: a1,   e.g. "A3", "A3:B5", "A:B", "3:5", "A", "3"
+    #                   r1c1, e.g. "Z3S1", "Z3S1:Z5S2", "Z[3]S1", "Z3S[-1]:Z[5]S1", "Z[3]", "S[-2]"
+    #                   not possible are: r1c1-formats for infinite ranges with absolute 
+    #                     references are not possible, e.g. ("Z3:Z5", "S2:S5", "Z2", "S3")
+    #                   int_range, e.g. [3,1], [3,"A"], [3..5,1..2], [3..5, "A".."B"], 
+    #                                   [3..4, nil], [nil, 2..4], [2,nil], [nil,4],                    
     def self.transform_address(address, format)
       address = address.is_a?(Array) ? address : [address]
       raise AddressInvalid, "address #{address.inspect} has more than two components" if address.size > 2
       begin
         if address.size == 1
           comp1, comp2 = address[0].split(':')
-          is_a1 = comp1 =~ /^(([A-Z]+[0-9]+)|([A-Z]+$)|([0-9]+))$/ && 
-              (comp2.nil? || comp2 =~ /^(([A-Z]+[0-9]+)|([A-Z]+)|([0-9]+))$/ )
-          is_r1c1 = comp1 =~ /^((Z[0-9]+S[0-9]+)|(Z[0-9])|(S[0-9]+))$/ &&
-              (comp2.nil? || comp2 =~ /^((Z[0-9]+S[0-9]+)|(Z[0-9])|(S[0-9]+))$/)
+          a1_expr = /^(([A-Z]+[0-9]+)|([A-Z]+$)|([0-9]+))$/
+          is_a1 = comp1 =~ a1_expr && (comp2.nil? || comp2 =~ a1_expr)
+          r1c1_expr = /^((Z\[?-?[0-9]+\]?S\[?-?[0-9]+\]?)|(Z\[?-?[0-9]+\]?)|(S\[?-?[0-9]+\]?))$/
+          is_r1c1 = comp1 =~ r1c1_expr && (comp2.nil? || comp2 =~ r1c1_expr)
           raise AddressInvalid, "address #{address.inspect} not in A1- or r1c1-format" unless (is_a1 || is_r1c1)
-          return address[0] if (is_a1 && format==:a1) || (is_r1c1 && format==:r1c1)         
+          return address[0].gsub('[','(').gsub(']',')') if (is_a1 && format==:a1) || (is_r1c1 && format==:r1c1)         
           given_format = (is_a1) ? :a1 : :r1c1
           row_comp1, col_comp1 = analyze(comp1,given_format)
           row_comp2, col_comp2 = analyze(comp2,given_format) unless comp2.nil?
@@ -41,9 +43,9 @@ module RobustExcelOle
           address_comp2 = comp2 ? (col_comp1 .. col_comp2) : col_comp1          
         else
           address_comp1, address_comp2 = address      
-        end
-        address_comp1 = address_comp1..address_comp1 if (address_comp1.nil? || address_comp1.is_a?(Integer) || address_comp1.is_a?(String)) #unless address_comp1.is_a?(Range)
-        address_comp2 = address_comp2..address_comp2 if (address_comp2.nil? || address_comp2.is_a?(Integer) || address_comp2.is_a?(String)) #unless address_comp2.is_a?(Range)
+        end 
+        address_comp1 = address_comp1..address_comp1 if (address_comp1.nil? || address_comp1.is_a?(Integer) || address_comp1.is_a?(String))
+        address_comp2 = address_comp2..address_comp2 if (address_comp2.nil? || address_comp2.is_a?(Integer) || address_comp2.is_a?(String))
         raise if address_comp1.begin.to_i==0 && (not address_comp1.begin.nil?) && (not address_comp1.begin.empty?)
         rows = unless address_comp1.begin.to_i==0
           address_comp1.begin.to_i..address_comp1.end.to_i 

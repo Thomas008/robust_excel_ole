@@ -216,19 +216,47 @@ Note that when you don't copy the values only but all formating as well, and you
 
 === Naming a range
 
-You can (re-) define a name referring to a range by stating its name, and the address. For example, you can define a name for a rectangular range by
+You can (re-) define a name referring to a range by stating its name, and the address. The address is given by integer-range-format, r1c1-format or a1-format. For example, you can define a name for a rectangular range by
 
   book.add_name("name",[1..2,3..5])
+
+or
+
+  book.add_name("name","Z1S3:Z2S5")
+
+or
+
+  book.add_name("name", "C1:E2")
 
 Similarly you can define a name referring to a cell
 
   book.add_name("name",[1,1])
 
+or
+
+  book.add_name("name","Z1S1")
+
+or
+
+  book.add_name("name","A1")
+
 and infinite ranges
 
   book.add_name("name",[1..2,nil])
 
-You can do the same in an worksheet or Excel object.
+or
+
+  book.add_name("name", "Z1:Z2")
+
+or
+
+  book.add_name("name","1:2")
+
+Furthermore, you can define a name using relative references with the r1c1-format.
+
+  book.add_name("name", "Z1S[2]")
+
+You can do the same for an worksheet or Excel object.
 
 === Reading and writing the contents of a named range in a workbook.
 

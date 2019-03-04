@@ -784,6 +784,20 @@ describe Worksheet do
           @sheet1.Range("foo").Address.should == "$1:$2"
         end
 
+        it "should name an range with a relative columns" do
+          @sheet1.add_name("foo",[1,2])
+          @sheet1.Range("foo").Address.should == "$B$1"
+          @sheet1.add_name("bar","Z3S[4]")
+          @sheet1.Range("bar").Address.should == "$E$3"
+        end
+
+        it "should name an range with a relative row" do
+          @sheet1.add_name("foo",[1,2])
+          @sheet1.Range("foo").Address.should == "$B$1"
+          @sheet1.add_name("bar","Z[3]S4")
+          @sheet1.Range("bar").Address.should == "$D$4"
+        end
+
       end
     end
 

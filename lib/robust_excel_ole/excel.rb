@@ -625,7 +625,8 @@ module RobustExcelOle
     end
 
     def workbooks
-      ole_workbooks.map {|ole_workbook| ole_workbook.to_reo }
+      #ole_workbooks.map {|ole_workbook| ole_workbook.to_reo }
+      ole_workbooks.map {|ole_workbook| workbook_class.new(ole_workbook) }
     end
 
     # traverses over all workbooks and sets options if provided

@@ -151,7 +151,8 @@ module RobustExcelOle
           else
             self.Range(self.Cells(rows.min, columns.min), self.Cells(rows.max, columns.max))
           end
-          range = ole_range.to_reo
+          #range = ole_range.to_reo
+          range = Range.new(ole_range)
         end
       rescue WIN32OLERuntimeError
         address2_string = address2.nil? ? "" : ", #{address2.inspect}"

@@ -33,6 +33,21 @@ module General
 
 end
 
+class Integer
+  
+  def <=> other # <=> other
+    # puts "other: #{other.inspect}"
+    if other.is_a? Array
+      self <=> other.first
+    else
+      self <=> other # old_spaceship other
+    end
+  end
+
+  alias old_spaceship <=>
+
+end
+
 # @private
 class WIN32OLE
   # promoting WIN32OLE objects to RobustExcelOle objects

@@ -95,9 +95,9 @@ module RobustExcelOle
           if dest_range.worksheet.workbook.excel == @worksheet.workbook.excel 
             if options[:transpose]
               self.Copy
-              dest_range.PasteSpecial(:transpose => true) 
+              dest_range.PasteSpecial('transpose' => true) 
             else
-              self.Copy(:destination => dest_range.ole_range)
+              self.Copy('destination' => dest_range.ole_range)
             end            
           else
             if options[:transpose]
@@ -107,7 +107,7 @@ module RobustExcelOle
               @worksheet.workbook.excel.with_displayalerts(false) {added_sheet.Delete}
             else
               self.Copy
-              dest_sheet.Paste(:destination => dest_range.ole_range)
+              dest_sheet.Paste('destination' => dest_range.ole_range)
             end
           end
         end
@@ -144,9 +144,9 @@ module RobustExcelOle
           if dest_range.worksheet.workbook.excel == @worksheet.workbook.excel     
             if options[:transpose]
               self.Copy
-              dest_range.PasteSpecial(:transpose => true) 
+              dest_range.PasteSpecial('transpose' => true) 
             else
-              self.Copy(:destination => dest_range.ole_range)
+              self.Copy('destination' => dest_range.ole_range)
             end            
           else
             if options[:transpose]
@@ -156,7 +156,7 @@ module RobustExcelOle
               @worksheet.workbook.excel.with_displayalerts(false) {added_sheet.Delete}
             else
               self.Copy
-              dest_sheet.Paste(:destination => dest_range.ole_range)
+              dest_sheet.Paste('destination' => dest_range.ole_range)
             end
           end
         end

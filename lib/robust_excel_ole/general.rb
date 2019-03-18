@@ -33,25 +33,43 @@ module General
 
 end
 
+# @private
 class Integer
-  
-  def <=> other # <=> other
-    # puts "other: #{other.inspect}"
+
+  alias old_spaceship <=>
+
+  def <=> other
+    # p other
     if other.is_a? Array
       self <=> other.first
     else
-      self <=> other # old_spaceship other
+      old_spaceship other
     end
   end
-
-  alias old_spaceship <=>
 
 end
 
 # @private
-class WIN32OLE
-  # promoting WIN32OLE objects to RobustExcelOle objects
+class Array
 
+  alias old_spaceship <=>
+
+  def <=> other
+    # p other
+    if other.is_a? Integer
+      self <=> [other]
+    else
+      old_spaceship other
+    end
+  end
+
+end
+
+
+# @private
+class WIN32OLE
+  
+  # promoting WIN32OLE objects to RobustExcelOle objects
   def to_reo
     case ole_type.name
     when 'Range' then RobustExcelOle::Range.new(self)

@@ -84,12 +84,9 @@ module RobustExcelOle
 
     # @private
     def self.str2num(str)
-      str = str.upcase
-      sum = 0
-      (1..str.length).each { |i| sum += ((str[i-1].is_a?(String) ? str[i-1].ord : str[i-1])- 64) * 26**(str.length - i) }
-      sum
+      str.tr("A-Z","0-9A-P").to_i(26) + (26**str.size-1)/25
     end
-
+   
   end
 
 end

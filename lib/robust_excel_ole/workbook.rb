@@ -166,6 +166,8 @@ module RobustExcelOle
       bookstore.store(self)
       @modified_cells = []
       @workbook = @excel.workbook = self
+      r1c1_letters = @ole_workbook.Worksheets.Item(1).Cells.Item(1,1).Address('ReferenceStyle' => XlR1C1).gsub(/[0-9]/,'')
+      address_class.new(r1c1_letters)
       if block
         begin
           yield self
@@ -998,6 +1000,16 @@ module RobustExcelOle
     end
 
     # @private
+    def self.address_class    
+      @address_class ||= begin
+        module_name = self.parent_name
+        "#{module_name}::Address".constantize
+      rescue NameError => e
+        Address
+      end
+    end
+
+    # @private
     def excel_class        
       self.class.excel_class
     end
@@ -1005,6 +1017,11 @@ module RobustExcelOle
     # @private
     def worksheet_class        
       self.class.worksheet_class
+    end
+
+    # @private
+    def address_class        
+      self.class.address_class
     end
 
     include MethodHelpers

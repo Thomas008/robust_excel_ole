@@ -12,6 +12,20 @@ module RobustExcelOle
 
   describe Address do
 
+    before(:all) do
+      excel = Excel.new(:reuse => true)
+      open_books = excel == nil ? 0 : excel.Workbooks.Count
+      puts "*** open books *** : #{open_books}" if open_books > 0
+      Excel.kill_all
+      @dir = create_tmpdir
+      @simple_file = @dir + '/workbook.xls'
+      book = Workbook.open(@simple_file)
+    end
+
+    after(:all) do
+      book.close
+    end
+
     it "should transform relative r1c1-reference into r1c1-format" do
       Address.r1c1("Z1S[2]:Z[-1]S4").should == "Z1S(2):Z(-1)S4"
       Address.r1c1("Z[1]S2:Z3S[4]").should == "Z(1)S2:Z3S(4)"

@@ -4,26 +4,30 @@ module RobustExcelOle
 
   class Address < REOCommon
 
+    def self.new(r1c1_letters)
+      @@row_letter = r1c1_letters[0..0]
+      @@col_letter = r1c1_letters[1..1]
+    end
+
+    # valid address formats: e.g. "Z3S1", "Z3S1:Z5S2", "Z[3]S1", "Z3S[-1]:Z[5]S1", "Z[3]", "S[-2]"
+    # infinite ranges with absolute references are not possible, e.g. "Z3:Z5", "S2:S5", "Z2", "S3" 
     def self.r1c1(address)
       transform_address(address,:r1c1)
     end
 
+    # valid address formats: e.g. "A3", "A3:B5", "A:B", "3:5", "A", "3"
     def self.a1(address)
       transform_address(address,:a1)
     end
 
+    # valid address formats: e.g. [3,1], [3,"A"], [3..5,1..2], [3..5, "A".."B"], 
+    #                             [3..4, nil], [nil, 2..4], [2,nil], [nil,4]
     def self.int_range(address)
       transform_address(address,:int_range)
     end
 
   private
     # @private
-    # possible formats: a1,   e.g. "A3", "A3:B5", "A:B", "3:5", "A", "3"
-    #                   r1c1, e.g. "Z3S1", "Z3S1:Z5S2", "Z[3]S1", "Z3S[-1]:Z[5]S1", "Z[3]", "S[-2]"
-    #                   not possible are: r1c1-formats for infinite ranges with absolute 
-    #                     references are not possible, e.g. ("Z3:Z5", "S2:S5", "Z2", "S3")
-    #                   int_range, e.g. [3,1], [3,"A"], [3..5,1..2], [3..5, "A".."B"], 
-    #                                   [3..4, nil], [nil, 2..4], [2,nil], [nil,4],                    
     def self.transform_address(address, format)
       address = address.is_a?(Array) ? address : [address]
       raise AddressInvalid, "address #{address.inspect} has more than two components" if address.size > 2
@@ -32,8 +36,8 @@ module RobustExcelOle
           comp1, comp2 = address[0].split(':')
           a1_expr = /^(([A-Z]+[0-9]+)|([A-Z]+$)|([0-9]+))$/
           is_a1 = comp1 =~ a1_expr && (comp2.nil? || comp2 =~ a1_expr)
-          r1c1_expr = /^((Z\[?-?[0-9]+\]?S\[?-?[0-9]+\]?)|(Z\[?-?[0-9]+\]?)|(S\[?-?[0-9]+\]?))$/
-          is_r1c1 = comp1 =~ r1c1_expr && (comp2.nil? || comp2 =~ r1c1_expr)
+          r1c1_expr = /^(([A-Z]\[?-?[0-9]+\]?[A-Z]\[?-?[0-9]+\]?)|([A-Z]\[?-?[0-9]+\]?)|([A-Z]\[?-?[0-9]+\]?))$/
+          is_r1c1 = comp1 =~ r1c1_expr && (comp2.nil? || comp2 =~ r1c1_expr) && (not is_a1) 
           raise AddressInvalid, "address #{address.inspect} not in A1- or r1c1-format" unless (is_a1 || is_r1c1)
           return address[0].gsub('[','(').gsub(']',')') if (is_a1 && format==:a1) || (is_r1c1 && format==:r1c1)         
           given_format = (is_a1) ? :a1 : :r1c1
@@ -63,7 +67,7 @@ module RobustExcelOle
       end
       if format==:r1c1
         def self.r(a,b,c); b ? "#{a}#{(c==:min ? b.min : b.max)}" : ""; end 
-        r("Z",rows,:min) + r("S",columns,:min) + ":" + r("Z",rows,:max) + r("S",columns,:max)
+        r(@@row_letter,rows,:min) + r(@@col_letter,columns,:min) + ":" + r(@@row_letter,rows,:max) + r(@@col_letter,columns,:max)
       elsif format==:int_range
         [rows,columns]
       else
@@ -76,8 +80,8 @@ module RobustExcelOle
       if format==:a1 
         [comp.gsub(/[A-Z]/,''), comp.gsub(/[0-9]/,'')]
       else
-        a,b = comp.split('Z')
-        c,d = b.split('S')
+        a,b = comp.split(@@row_letter)
+        c,d = b.split(@@col_letter)
         b.nil? ? ["",b] : (d.nil? ? [c,""] : [c,d])  
       end
     end

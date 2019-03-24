@@ -12,8 +12,6 @@ module RobustExcelOle
     attr_reader :worksheet
 
     def initialize(win32_range)
-      puts "initialize:"
-      puts "win32_range: #{win32_range.inspect}"
       @ole_range = win32_range
       @worksheet = worksheet_class.new(self.Parent)
     end

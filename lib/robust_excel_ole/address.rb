@@ -29,11 +29,7 @@ module RobustExcelOle
   private
 
     def self.transform_address(address, format)
-      puts "transform_address:"
-      puts "address: #{address.inspect}"
-      puts "format: #{format.inspect}"
       address = address.is_a?(Array) ? address : [address]
-      puts "address: #{address.inspect}"
       raise AddressInvalid, "address #{address.inspect} has more than two components" if address.size > 2
       begin
         if address.size == 1
@@ -51,9 +47,9 @@ module RobustExcelOle
           address_comp2 = comp2 ? (col_comp1 .. col_comp2) : col_comp1          
         else
           address_comp1, address_comp2 = address      
+          puts "address_comp1: #{address_comp1.inspect}"
+          puts "address_comp2: #{address_comp2.inspect}"
         end
-        puts "address_comp1: #{address_comp1.inspect}"
-        puts "address_comp2: #{address_comp2.inspect}"
         address_comp1 = address_comp1..address_comp1 if (address_comp1.is_a?(Integer) || address_comp1.is_a?(String))
         address_comp2 = address_comp2..address_comp2 if (address_comp2.is_a?(Integer) || address_comp2.is_a?(String))
         puts "address_comp1: #{address_comp1.inspect}"
@@ -62,7 +58,6 @@ module RobustExcelOle
         rows = unless address_comp1.nil? || address_comp1.begin.to_i==0
           address_comp1.begin.to_i..address_comp1.end.to_i 
         end
-        puts "rows: #{rows.inspect}"
         columns = unless address_comp2.nil?
           if address_comp2.begin.to_i == 0
             col_range = str2num(address_comp2.begin)..str2num(address_comp2.end)
@@ -71,12 +66,10 @@ module RobustExcelOle
             address_comp2.begin.to_i..address_comp2.end.to_i
           end
         end
-        puts "columns: #{columns.inspect}"
       rescue
         raise AddressInvalid, "address (#{address.inspect}) format not correct"
       end
       if format==:r1c1
-        puts "format==:r1c1"        
         r(@@row_letter,rows,:min) + r(@@col_letter,columns,:min) + ":" + r(@@row_letter,rows,:max) + r(@@col_letter,columns,:max)
       elsif format==:int_range
         [rows,columns]
@@ -87,6 +80,10 @@ module RobustExcelOle
 
     # @private
     def self.r(a,b,c)
+      puts "r:"
+      puts "a: #{a.inspect}"
+      puts "b: #{b.inspect}"
+      puts "c: #{c.inspect}"
       b ? "#{a}#{(c==:min ? b.min : b.max)}" : ""
     end 
 

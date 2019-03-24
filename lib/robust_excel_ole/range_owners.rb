@@ -222,10 +222,6 @@ module RobustExcelOle
   private
 
     def name_object(name)
-      puts "name_object:"
-      puts "name: #{name.inspect}"
-      a = self.Names.Item(name)
-      puts "a: #{a.inspect}"
       self.Names.Item(name)
     rescue WIN32OLERuntimeError
       begin

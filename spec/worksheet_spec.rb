@@ -192,10 +192,20 @@ describe Worksheet do
 
     describe "range" do
 
+      it "should a range with relative r1c1-reference" do
+        @sheet.range(["Z1S[3]:Z[2]S8"]).Address.should == "$D$1:$H$3"
+      end
+
+      it "should a range with relative integer-range-reference" do
+        @sheet.range([1..[2],[3]..8]).Address.should == "$D$1:$H$3"
+      end
+
       it "should create a range of one cell" do
         @sheet.range([1,2]).values.should == ["workbook"]
         @sheet.range(["B1"]).values.should == ["workbook"]
         @sheet.range("B1").values.should == ["workbook"]
+        @sheet.range(["Z1S2"]).values.should == ["workbook"]
+        @sheet.range("Z1S2").values.should == ["workbook"]
       end
 
       it "should create a rectangular range" do
@@ -203,6 +213,8 @@ describe Worksheet do
         @sheet.range([1..3, "B".."D"]).values.should == ["workbook", "sheet1", nil, nil, "foobaaa", nil, "is", "nice", nil]     
         @sheet.range(["B1:D3"]).values.should == ["workbook", "sheet1", nil, nil, "foobaaa", nil, "is", "nice", nil]
         @sheet.range("B1:D3").values.should == ["workbook", "sheet1", nil, nil, "foobaaa", nil, "is", "nice", nil]
+        @sheet.range(["Z1S2:Z3S4"]).values.should == ["workbook", "sheet1", nil, nil, "foobaaa", nil, "is", "nice", nil]
+        @sheet.range("Z1S2:Z3S4").values.should == ["workbook", "sheet1", nil, nil, "foobaaa", nil, "is", "nice", nil]
       end
 
       it "should accept old interface" do
@@ -695,7 +707,20 @@ describe Worksheet do
 
         after do
           @book1.close(:if_unsaved => :forget)
+        end
+
+        it "should add a name of a rectangular range using relative int-range-reference" do
+          r = @sheet1.range([2,3])
+          @sheet1.add_name("foo",[[1]..3,1..[2]])
+          @sheet1.range("foo").Address.should == "$A$3:$E$3"
         end   
+
+        it "should add a name of a rectangular range using relative r1c1-reference" do
+          @sheet1.add_name("foo","Z[1]S3:Z1S[2]")
+          @sheet1.range("foo").Address.should == "$C$1:$D$5"
+          @sheet1.add_name("bar","Z[-3]S[-2]")
+          @sheet1.range("bar").Address.should == "$IV$1"
+        end  
 
         it "should name an unnamed range with a giving address" do
           @sheet1.add_name("foo",[1,2])

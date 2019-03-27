@@ -35,13 +35,23 @@ module RobustExcelOle
       Address.r1c1("S[-2]").should == "S(-2)"
     end
 
-    it "should transform relative r1c1-reference into r1c1-format" do
+    # test for 1.8.6
+    it "should transform relative int_range-reference into r1c1-format" do
+      Address.r1c1([1..2,[3]..4]).should == "Z1S(3):Z2S4"
+      Address.r1c1([[1]..2,3..4]).should == "Z(1)S3:Z2S4"
+      Address.r1c1([[1]..2,nil]).should == "Z(1):Z2"
+      Address.r1c1([nil,[1]..2]).should == "S(1):S2"
+      Address.r1c1([nil,[1]]).should == "S(1):S(1)"
+    end
+
+    it "should transform relative int_range-reference into r1c1-format" do
       Address.r1c1([1..[-2],[3]..4]).should == "Z1S(-2):Z(3)S4"
-      Address.r1c1([1]..2,3..[4]).should == "Z(1)S2:Z3S(4)"
-      Address.r1c1(1..[-2],nil).should == "Z1:Z(-2)"
-      Address.r1c1(nil,[-1]..2).should == "S(-1):S(2)"
-      Address.r1c1([3]..[3],nil).should == "Z(3):Z(3)"
-      Address.r1c1(nil,[-2]..[-2]).should == "S(-2):S(-2)"
+      Address.r1c1([[1]..2,3..[4]]).should == "Z(1)S2:Z3S(4)"
+      Address.r1c1([1..[-2],nil]).should == "Z1:Z(-2)"
+      Address.r1c1([nil,[-1]..2]).should == "S(-1):S(2)"
+      Address.r1c1([[3]..[3],nil]).should == "Z(3):Z(3)"
+      Address.r1c1([nil,[-2]..[-2]]).should == "S(-2):S(-2)"
+      Address.r1c1([[3],nil]).should == "Z(3):Z(3)"
     end
 
 =begin

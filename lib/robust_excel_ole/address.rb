@@ -47,30 +47,29 @@ module RobustExcelOle
           address_comp2 = comp2 ? (col_comp1 .. col_comp2) : col_comp1          
         else
           address_comp1, address_comp2 = address      
-          puts "address_comp1: #{address_comp1.inspect}"
-          puts "address_comp2: #{address_comp2.inspect}"
         end
-        address_comp1 = address_comp1..address_comp1 if (address_comp1.is_a?(Integer) || address_comp1.is_a?(String))
-        address_comp2 = address_comp2..address_comp2 if (address_comp2.is_a?(Integer) || address_comp2.is_a?(String))
-        puts "address_comp1: #{address_comp1.inspect}"
-        puts "address_comp2: #{address_comp2.inspect}"
-        raise unless address_comp1.nil? || address_comp1.begin.to_i!=0 || address_comp1.begin.empty?
-        rows = unless address_comp1.nil? || address_comp1.begin.to_i==0
-          address_comp1.begin.to_i..address_comp1.end.to_i 
+        address_comp1 = address_comp1..address_comp1 if (address_comp1.is_a?(Integer) || address_comp1.is_a?(String) || address_comp1.is_a?(Array))
+        address_comp2 = address_comp2..address_comp2 if (address_comp2.is_a?(Integer) || address_comp2.is_a?(String) || address_comp2.is_a?(Array)) 
+        #raise unless address_comp1.nil? || address_comp1.begin.to_i!=0 || address_comp1.begin.empty?
+        rows = unless address_comp1.nil? # || address_comp1.begin.to_i==0          
+          #address_comp1.begin.to_i..address_comp1.end.to_i 
+          address_comp1.begin..address_comp1.end
         end
         columns = unless address_comp2.nil?
-          if address_comp2.begin.to_i == 0
+          if address_comp2.begin.is_a?(String) #address_comp2.begin.to_i == 0
             col_range = str2num(address_comp2.begin)..str2num(address_comp2.end)
             col_range==(0..0) ? nil : col_range
           else
-            address_comp2.begin.to_i..address_comp2.end.to_i
-          end
+            #address_comp2.begin.to_i..address_comp2.end.to_i
+            address_comp2.begin..address_comp2.end
+          end          
         end
       rescue
         raise AddressInvalid, "address (#{address.inspect}) format not correct"
       end
       if format==:r1c1
-        r(@@row_letter,rows,:min) + r(@@col_letter,columns,:min) + ":" + r(@@row_letter,rows,:max) + r(@@col_letter,columns,:max)
+        r1c1_string(@@row_letter,rows,:min) + r1c1_string(@@col_letter,columns,:min) + ":" + 
+        r1c1_string(@@row_letter,rows,:max) + r1c1_string(@@col_letter,columns,:max)
       elsif format==:int_range
         [rows,columns]
       else
@@ -79,12 +78,13 @@ module RobustExcelOle
     end  
 
     # @private
-    def self.r(a,b,c)
-      puts "r:"
-      puts "a: #{a.inspect}"
-      puts "b: #{b.inspect}"
-      puts "c: #{c.inspect}"
-      b ? "#{a}#{(c==:min ? b.min : b.max)}" : ""
+    def self.r1c1_string(letter,int_range,type)
+      return "" if int_range.nil?
+      # b ? "#{a}#{(c==:min ? b.min : b.max)}" : ""
+      parameter = type == :min ? int_range.begin : int_range.end
+      is_relative = parameter.is_a?(Array)
+      parameter = parameter.first if is_relative
+      letter + (is_relative ? "(" : "") + parameter.to_s + (is_relative ? ")" : "")       
     end 
 
     # @private

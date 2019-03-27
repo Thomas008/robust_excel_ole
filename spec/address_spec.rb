@@ -44,6 +44,7 @@ module RobustExcelOle
       Address.r1c1([nil,[1]]).should == "S(1):S(1)"
     end
 
+=begin
     it "should transform relative int_range-reference into r1c1-format" do
       Address.r1c1([1..[-2],[3]..4]).should == "Z1S(-2):Z(3)S4"
       Address.r1c1([[1]..2,3..[4]]).should == "Z(1)S2:Z3S(4)"
@@ -53,7 +54,7 @@ module RobustExcelOle
       Address.r1c1([nil,[-2]..[-2]]).should == "S(-2):S(-2)"
       Address.r1c1([[3],nil]).should == "Z(3):Z(3)"
     end
-
+=end
 =begin
     it "should transform relative r1c1-reference into r1c1-format" do
       Address.int_range("Z1S[2]:Z[3]S4").should == [1..[3],[2]..4]
@@ -159,15 +160,15 @@ module RobustExcelOle
       expect{
         Address.r1c1("A1B")
       }.to raise_error(AddressInvalid, /format not correct/)
-      expect{
-        Address.int_range(["A".."B","C".."D"])
-      }.to raise_error(AddressInvalid, /format not correct/)
-      expect{
-        Address.int_range(["A".."B",1..2])
-      }.to raise_error(AddressInvalid, /format not correct/)
-      expect{
-        Address.int_range(["A".."B",nil])
-      }.to raise_error(AddressInvalid, /format not correct/)
+      #expect{
+      #  Address.int_range(["A".."B","C".."D"])
+      #}.to raise_error(AddressInvalid, /format not correct/)
+      #expect{
+      #  Address.int_range(["A".."B",1..2])
+      #}.to raise_error(AddressInvalid, /format not correct/)
+      #expect{
+      #  Address.int_range(["A".."B",nil])
+      #}.to raise_error(AddressInvalid, /format not correct/)
       expect{
         Address.int_range(["A",1,2])
       }.to raise_error(AddressInvalid, /more than two components/)

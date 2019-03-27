@@ -51,8 +51,7 @@ module RobustExcelOle
         address_comp1 = address_comp1..address_comp1 if (address_comp1.is_a?(Integer) || address_comp1.is_a?(String) || address_comp1.is_a?(Array))
         address_comp2 = address_comp2..address_comp2 if (address_comp2.is_a?(Integer) || address_comp2.is_a?(String) || address_comp2.is_a?(Array)) 
         #raise unless address_comp1.nil? || address_comp1.begin.to_i!=0 || address_comp1.begin.empty?
-        rows = unless address_comp1.nil? # || address_comp1.begin.to_i==0          
-          #address_comp1.begin.to_i..address_comp1.end.to_i 
+        rows = unless address_comp1.nil? || address_comp1.begin == 0 # || address_comp1.begin.to_i==0          
           address_comp1.begin..address_comp1.end
         end
         columns = unless address_comp2.nil?
@@ -60,7 +59,6 @@ module RobustExcelOle
             col_range = str2num(address_comp2.begin)..str2num(address_comp2.end)
             col_range==(0..0) ? nil : col_range
           else
-            #address_comp2.begin.to_i..address_comp2.end.to_i
             address_comp2.begin..address_comp2.end
           end          
         end
@@ -80,7 +78,6 @@ module RobustExcelOle
     # @private
     def self.r1c1_string(letter,int_range,type)
       return "" if int_range.nil?
-      # b ? "#{a}#{(c==:min ? b.min : b.max)}" : ""
       parameter = type == :min ? int_range.begin : int_range.end
       is_relative = parameter.is_a?(Array)
       parameter = parameter.first if is_relative
@@ -89,13 +86,14 @@ module RobustExcelOle
 
     # @private
     def self.analyze(comp,format)
-      if format==:a1 
+      row_comp, col_comp = if format==:a1 
         [comp.gsub(/[A-Z]/,''), comp.gsub(/[0-9]/,'')]
       else
         a,b = comp.split(@@row_letter)
         c,d = b.split(@@col_letter)
         b.nil? ? ["",b] : (d.nil? ? [c,""] : [c,d])  
       end
+      [row_comp.to_i, (col_comp.to_i == 0 ? col_comp : col_comp.to_i)]
     end
 
     # @private

@@ -164,7 +164,7 @@ or
 
   range = sheet.range("A1:D3")
 
-ors using the R1C1-format
+or using the R1C1-format
 
   range = sheet.range("Z1S1:Z3S4")
 
@@ -177,6 +177,14 @@ Using the A1-format you write
 
   range = sheet.range("1:3")
   range = sheet.range("A:B")
+
+You can also apply relative references by using brackets, e.g.
+
+  range = sheet.range("Z[1]S1:Z3S[4]")
+
+or
+
+  range = sheet.range([[1]..3,2..[4]])
 
 You get the values of the range as flat array with help of
 
@@ -254,7 +262,11 @@ or
 
 Furthermore, you can define a name using relative references with the r1c1-format.
 
-  book.add_name("name", "Z1S[2]")
+  book.add_name("name", "Z1S[1]:Z[2]S4")
+
+or
+
+  book.add_name("name", [1..[2],[1]..4])
 
 You can do the same for an worksheet or Excel object.
 

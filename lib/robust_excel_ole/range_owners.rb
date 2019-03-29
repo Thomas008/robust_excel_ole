@@ -176,6 +176,7 @@ module RobustExcelOle
     def add_name(name, addr, addr_deprecated = :__not_provided)
       addr = [addr,addr_deprecated] unless addr_deprecated == :__not_provided
       begin
+        puts "Address.r1c1(addr): #{Address.r1c1(addr).inspect}"
         self.Names.Add('Name' => name, 'RefersToR1C1' => '=' + Address.r1c1(addr))
       rescue WIN32OLERuntimeError => msg
         raise RangeNotEvaluatable, "cannot add name #{name.inspect} to range #{addr.inspect}"

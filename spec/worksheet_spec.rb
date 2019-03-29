@@ -193,7 +193,9 @@ describe Worksheet do
     describe "range" do
 
       it "should a range with relative r1c1-reference" do
-        @sheet.range(["Z1S[3]:Z[2]S8"]).Address.should == "$D$1:$H$3"
+        #@sheet.range(["Z1S[3]:Z[2]S8"]).Address.should == "$D$1:$H$3"
+        @sheet.range(["Z1S3:Z[2]S8"]).Address.should == "$C$1:$H$3"
+        @sheet.range(["Z1S3:Z2S8"]).Address.should == "$C$1:$H$2"
       end
 
       it "should a range with relative integer-range-reference" do
@@ -710,9 +712,9 @@ describe Worksheet do
         end
 
         it "should add a name of a rectangular range using relative int-range-reference" do
-          r = @sheet1.range([2,3])
-          @sheet1.add_name("foo",[[1]..3,1..[2]])
-          @sheet1.range("foo").Address.should == "$A$3:$E$3"
+          #@sheet1.add_name("foo",[[1]..3,1..[2]])
+          @sheet1.add_name("foo",[[1]..3,1..2])
+          @sheet1.range("foo").Address.should == "$A$3:$B$5"
         end   
 
         it "should add a name of a rectangular range using relative r1c1-reference" do

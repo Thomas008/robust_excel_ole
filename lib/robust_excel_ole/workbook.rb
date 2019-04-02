@@ -387,8 +387,8 @@ module RobustExcelOle
           end
           begin
             with_workaround_linked_workbooks_excel2007(options) do
-              workbooks.Open(abs_filename, { 'ReadOnly' => options[:read_only],
-                                         'UpdateLinks' => updatelinks_vba(options[:update_links]) })
+              workbooks.Open(abs_filename, { 'ReadOnly' => options[:read_only] })
+              #                           'UpdateLinks' => updatelinks_vba(options[:update_links]) })
             end
           rescue WIN32OLERuntimeError => msg
             # for Excel2007: for option :if_unsaved => :alert and user cancels: this error appears?

@@ -9,13 +9,17 @@ module RobustExcelOle
       @@col_letter = r1c1_letters[1..1]
     end
 
-    # valid address formats: e.g. "Z3S1", "Z3S1:Z5S2", "Z[3]S1", "Z3S[-1]:Z[5]S1", "Z[3]", "S[-2]"
-    # infinite ranges using absolute references are not possible, e.g. "Z3:Z5", "S2:S5", "Z2", "S3" 
+    # address formats taht are valid:
+    #   r1c1-format: e.g. "Z3S1", "Z3S1:Z5S2", "Z[3]S1", "Z3S[-1]:Z[5]S1", "Z[3]", "S[-2]"
+    #                      infinite ranges are not possible, e.g. "Z3:Z5", "S2:S5", "Z2", "S3", "Z[2]" 
+    #   int_range: e.g. [3,1], [3,"A"], [3..5,1..2], [3..5, "A".."B"], 
+    #                   [3..4, nil], [nil, 2..4], [2,nil], [nil,4]
+    #   a1-format: e.g. "A3", "A3:B5", "A:B", "3:5", "A", "3"
+
     def self.r1c1(address)
       transform_address(address,:r1c1)
     end
 
-    # valid address formats: e.g. "A3", "A3:B5", "A:B", "3:5", "A", "3"
     def self.a1(address)
       transform_address(address,:a1)
     end
@@ -43,8 +47,8 @@ module RobustExcelOle
           given_format = (is_a1) ? :a1 : :r1c1
           row_comp1, col_comp1 = analyze(comp1,given_format)
           row_comp2, col_comp2 = analyze(comp2,given_format) unless comp2.nil?
-          address_comp1 = comp2 ? (row_comp1 .. row_comp2) : row_comp1
-          address_comp2 = comp2 ? (col_comp1 .. col_comp2) : col_comp1          
+          address_comp1 = comp2 && (not row_comp1.nil?) ? (row_comp1 .. row_comp2) : row_comp1
+          address_comp2 = comp2 && (not col_comp1.nil?) ? (col_comp1 .. col_comp2) : col_comp1          
         else
           address_comp1, address_comp2 = address      
         end
@@ -77,7 +81,7 @@ module RobustExcelOle
 
     # @private
     def self.r1c1_string(letter,int_range,type)
-      return "" if int_range.nil?
+      return "" if int_range.nil? || int_range.begin.nil?
       parameter = type == :min ? int_range.begin : int_range.end
       is_relative = parameter.is_a?(Array)
       parameter = parameter.first if is_relative
@@ -93,8 +97,12 @@ module RobustExcelOle
         c,d = b.split(@@col_letter)
         b.nil? ? ["",b] : (d.nil? ? [c,""] : [c,d])  
       end
-      [row_comp.to_i, (col_comp.to_i == 0 ? col_comp : col_comp.to_i)]
+      def self.s2n(s)
+        s!="" ? (s[0] == "[" ? [s.gsub(/\[|\]/,'').to_i] : (s.to_i!=0 ? s.to_i : s)) : nil
+      end
+      [s2n(row_comp), s2n(col_comp)]
     end
+
 
     # @private
     def self.str2num(str)

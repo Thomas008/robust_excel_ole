@@ -193,8 +193,7 @@ describe Worksheet do
     describe "range" do
 
       it "should a range with relative r1c1-reference" do
-        #@sheet.range(["Z1S[3]:Z[2]S8"]).Address.should == "$D$1:$H$3"
-        @sheet.range(["Z1S3:Z[2]S8"]).Address.should == "$C$1:$H$3"
+        @sheet.range(["Z1S[3]:Z[2]S8"]).Address.should == "$D$1:$H$3"
         @sheet.range(["Z1S3:Z2S8"]).Address.should == "$C$1:$H$2"
       end
 
@@ -234,7 +233,7 @@ describe Worksheet do
       it "should raise an error" do
         expect{
           @sheet.range([0,0])
-          }.to raise_error(AddressInvalid, /format not correct/)
+          }.to raise_error(RangeNotCreated, /cannot create/)
       end
 
     end
@@ -712,9 +711,8 @@ describe Worksheet do
         end
 
         it "should add a name of a rectangular range using relative int-range-reference" do
-          #@sheet1.add_name("foo",[[1]..3,1..[2]])
-          @sheet1.add_name("foo",[[1]..3,1..2])
-          @sheet1.range("foo").Address.should == "$A$3:$B$5"
+          @sheet1.add_name("foo",[[1]..3,1..[2]])
+          @sheet1.range("foo").Address.should == "$A$3:$D$5"
         end   
 
         it "should add a name of a rectangular range using relative r1c1-reference" do

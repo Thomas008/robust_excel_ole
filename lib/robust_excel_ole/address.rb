@@ -4,12 +4,16 @@ module RobustExcelOle
 
   class Address < REOCommon
 
+    # hack
+    #@@row_letter = "Z"
+    #@@col_letter = "S"
+
     def self.new(r1c1_letters)
       @@row_letter = r1c1_letters[0..0]
       @@col_letter = r1c1_letters[1..1]
     end
 
-    # address formats taht are valid:
+    # address formats that are valid:
     #   r1c1-format: e.g. "Z3S1", "Z3S1:Z5S2", "Z[3]S1", "Z3S[-1]:Z[5]S1", "Z[3]", "S[-2]"
     #                      infinite ranges are not possible, e.g. "Z3:Z5", "S2:S5", "Z2", "S3", "Z[2]" 
     #   int_range: e.g. [3,1], [3,"A"], [3..5,1..2], [3..5, "A".."B"], 

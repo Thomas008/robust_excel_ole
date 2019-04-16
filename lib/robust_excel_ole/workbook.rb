@@ -387,6 +387,7 @@ module RobustExcelOle
           end
           begin
             with_workaround_linked_workbooks_excel2007(options) do
+              #workbooks.Open(abs_filename)
               workbooks.Open(abs_filename, { 'ReadOnly' => options[:read_only] })
               #                           'UpdateLinks' => updatelinks_vba(options[:update_links]) })
             end

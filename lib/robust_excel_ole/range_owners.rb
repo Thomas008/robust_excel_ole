@@ -146,18 +146,7 @@ module RobustExcelOle
           self.Names.Add('Name' => '__dummy001', 'RefersToR1C1' => '=' + Address.r1c1(address))
           range = RobustExcelOle::Range.new(name_object('__dummy001').RefersToRange)
           self.Names.Item('__dummy001').Delete
-          range          
-          # variant via rows, columns:
-          #rows, columns = Address.int_range(address)
-          #ole_range = if rows.nil?
-          #  self.Range(self.Columns(columns.min), self.Columns(columns.max))
-          #elsif columns.nil?
-          #  self.Range(self.Rows(rows.min), self.Rows(rows.max))
-          #else
-          #  self.Range(self.Cells(rows.min, columns.min), self.Cells(rows.max, columns.max))
-          #end
-          ##range = ole_range.to_reo
-          #range = Range.new(ole_range)
+          range                    
         end
       rescue WIN32OLERuntimeError
         address2_string = address2.nil? ? "" : ", #{address2.inspect}"

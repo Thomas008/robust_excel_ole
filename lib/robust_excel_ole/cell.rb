@@ -5,11 +5,7 @@ module RobustExcelOle
     attr_reader :cell
 
     def initialize(win32_cell)
-      @cell = if win32_cell.MergeCells
-                win32_cell.MergeArea.Item(1,1)
-              else
-                win32_cell
-              end
+      @cell = win32_cell.MergeCells ? win32_cell.MergeArea.Item(1,1) : win32_cell
     end
 
     def v

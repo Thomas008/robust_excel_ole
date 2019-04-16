@@ -1,5 +1,6 @@
 
 require 'win32ole'
+#require 'jruby-win32ole'
 
 # @private
 class KeySender

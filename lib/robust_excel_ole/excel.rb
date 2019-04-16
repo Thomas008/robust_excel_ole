@@ -427,8 +427,6 @@ module RobustExcelOle
         pid2excel[pid] = excel
       end
       processes = WIN32OLE.connect('winmgmts:\\\\.').InstancesOf('win32_process')
-      # excel_processes = processes.select{ |p| p.name == "EXCEL.EXE" && pid2excel.include?(p.processid)}
-      # excel_processes.map{ |p| Excel.new(pid2excel[p.processid]) }
       processes.select { |p| Excel.new(pid2excel[p.processid]) if p.name == 'EXCEL.EXE' && pid2excel.include?(p.processid) }
       result = []
       processes.each do |p|

@@ -166,7 +166,7 @@ module RobustExcelOle
       bookstore.store(self)
       @modified_cells = []
       @workbook = @excel.workbook = self
-      r1c1_letters = @ole_workbook.Worksheets.Item(1).Cells.Item(1,1).Address('ReferenceStyle' => XlR1C1).gsub(/[0-9]/,'')
+      r1c1_letters = @ole_workbook.Worksheets.Item(1).Cells.Item(1,1).Address(true,true,XlR1C1).gsub(/[0-9]/,'') #('ReferenceStyle' => XlR1C1).gsub(/[0-9]/,'')
       address_class.new(r1c1_letters)
       if block
         begin
@@ -387,8 +387,11 @@ module RobustExcelOle
           end
           begin
             with_workaround_linked_workbooks_excel2007(options) do
-              #workbooks.Open(abs_filename)
-              workbooks.Open(abs_filename, { 'ReadOnly' => options[:read_only] })
+              # temporary workaround until jruby-win32ole implements named parameters (Java::JavaLang::RuntimeException (createVariant() not implemented for class org.jruby.RubyHash)
+              workbooks.Open(abs_filename, 
+                                        updatelinks_vba(options[:update_links]), 
+                                        options[:read_only] )
+              #workbooks.Open(abs_filename, { 'ReadOnly' => options[:read_only] })
               #                           'UpdateLinks' => updatelinks_vba(options[:update_links]) })
             end
           rescue WIN32OLERuntimeError => msg

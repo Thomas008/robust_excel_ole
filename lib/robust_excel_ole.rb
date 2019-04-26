@@ -1,5 +1,8 @@
-require 'win32ole'
-#require 'jruby-win32ole'
+if RUBY_PLATFORM =~ /java/
+  require 'jruby-win32ole'
+else
+  require 'win32ole'
+end
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/reo_common')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/range_owners')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/address')

@@ -46,7 +46,7 @@ begin
   book.close               # close the book
   
 ensure
-  Excel.close_all
+  Excel.close_all(:if_unsaved => :forget)
   rm_tmp(dir)
 end
 

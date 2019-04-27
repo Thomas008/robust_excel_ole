@@ -7,7 +7,7 @@ require "fileutils"
 
 include RobustExcelOle
 
-Excel.close_all
+Excel.kill_all
 begin
   dir = create_tmpdir
   simple_file = dir + 'workbook.xls'
@@ -63,7 +63,7 @@ begin
   @book.close(:if_unsaved => :forget)   # close the book without saving it
   
 ensure
-  Excel.close_all
+  Excel.close_all(:if_unsaved => :forget)
   rm_tmp(dir)
 end
 

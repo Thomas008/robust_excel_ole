@@ -20,7 +20,7 @@ begin
   sleep 1
   begin
     new_book = Workbook.open(other_file_name, :if_obstructed => :close_if_saved) # raises an exception since the file is not saved
-    rescue WorkbookNotSaved => msg                                             
+  rescue WorkbookBlocked => msg                                             
     puts "error: open: #{msg.message}"
   end                                                        
   book.save                                                           # save the unsaved book

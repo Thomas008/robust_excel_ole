@@ -149,6 +149,8 @@ module RobustExcelOle
           self.Names.Add('__dummy001',nil,true,nil,nil,nil,nil,nil,nil,'=' + Address.r1c1(address))          
           range = RobustExcelOle::Range.new(name_object('__dummy001').RefersToRange)
           self.Names.Item('__dummy001').Delete
+          workbook = self.is_a?(Workbook) ? self : self.workbook
+          workbook.save
           range                    
         end
       rescue WIN32OLERuntimeError

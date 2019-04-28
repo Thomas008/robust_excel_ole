@@ -134,16 +134,19 @@ module RobustExcelOle
     def range(name_or_address, address2 = :__not_provided)
       begin
         if address2 == :__not_provided
-          range = begin
-            RobustExcelOle::Range.new(name_object(name_or_address).RefersToRange) 
-          rescue NameNotFound
-            nil
+          range = if name_or_address.is_a?(String)
+            begin
+              RobustExcelOle::Range.new(name_object(name_or_address).RefersToRange) 
+            rescue NameNotFound
+              nil
+            end
           end
         end
         if self.is_a?(Worksheet) && (range.nil? || (address2 != :__not_provided))
           address = name_or_address
           address = [name_or_address,address2] unless address2 == :__not_provided
-          self.Names.Add('Name' => '__dummy001', 'RefersToR1C1' => '=' + Address.r1c1(address))
+          #self.Names.Add('Name' => '__dummy001', 'RefersToR1C1' => '=' + Address.r1c1(address))
+          self.Names.Add('__dummy001',nil,true,nil,nil,nil,nil,nil,nil,'=' + Address.r1c1(address))          
           range = RobustExcelOle::Range.new(name_object('__dummy001').RefersToRange)
           self.Names.Item('__dummy001').Delete
           range                    
@@ -165,7 +168,8 @@ module RobustExcelOle
     def add_name(name, addr, addr_deprecated = :__not_provided)
       addr = [addr,addr_deprecated] unless addr_deprecated == :__not_provided
       begin
-        self.Names.Add('Name' => name, 'RefersToR1C1' => '=' + Address.r1c1(addr))
+        #self.Names.Add('Name' => name, 'RefersToR1C1' => '=' + Address.r1c1(addr))
+        self.Names.Add(name, nil, true, nil, nil, nil, nil, nil, nil, '=' + Address.r1c1(addr))
       rescue WIN32OLERuntimeError => msg
         raise RangeNotEvaluatable, "cannot add name #{name.inspect} to range #{addr.inspect}"
       end

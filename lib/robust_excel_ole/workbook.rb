@@ -789,17 +789,45 @@ module RobustExcelOle
 
     # copies a sheet to another position
     # default: copied sheet is appended
-    # @param [Worksheet] sheet a sheet that shall be copied
+    # @param [Worksheet] sheet a worksheet that shall be copied
     # @param [Hash]  opts  the options
     # @option opts [Symbol] :as     new name of the copied sheet
-    # @option opts [Symbol] :before a sheet before which the sheet shall be inserted
-    # @option opts [Symbol] :after  a sheet after which the sheet shall be inserted
+    # @option opts [Symbol] :before a worksheet before which the sheet shall be inserted
+    # @option opts [Symbol] :after  a worksheet after which the sheet shall be inserted
     # @raise  NameAlreadyExists if the sheet name already exists
     # @return [Worksheet] the copied sheet
     def copy_sheet(sheet, opts = { })
       new_sheet_name = opts.delete(:as)
       after_or_before, base_sheet = opts.to_a.first || [:after, last_sheet]
-      sheet.Copy({ after_or_before.to_s => base_sheet.ole_worksheet })
+      #sheet.Copy({ after_or_before.to_s => base_sheet.ole_worksheet })
+      begin
+        if after_or_before == :before 
+          sheet.Copy(base_sheet.ole_worksheet)
+        else
+          self.each_with_index(1) do |sheet_idx,i|
+            if sheet_idx.name == base_sheet.name
+              if i == self.Worksheets.Count
+                puts "sheet should be appended after the last worksheet"
+                # wrong workaround: 
+                # adds the empty sheet before the last one, instead of after the last one
+                sheet.Copy(sheet(i).ole_worksheet)
+                # ???
+                #last_sheet_local = sheet(i)
+                #sheet.Copy(sheet(i).ole_worksheet)
+                #sheet(i+1).Delete
+                # crashes, since last_sheet_local has been deleted
+                # and I cannot store it in last_sheet_local
+                #last_sheet_local.Copy(sheet(i).ole_worksheet)
+              else
+                sheet.Copy(sheet(i+1).ole_worksheet)
+              end
+              break
+            end
+          end
+        end
+      rescue WIN32OLERuntimeError 
+        raise WorksheetREOError, "given sheet #{sheet.inspect} not found"
+      end
       new_sheet = worksheet_class.new(@excel.Activesheet)
       new_sheet.name = new_sheet_name if new_sheet_name
       new_sheet
@@ -816,7 +844,35 @@ module RobustExcelOle
     def add_empty_sheet(opts = { })
       new_sheet_name = opts.delete(:as)
       after_or_before, base_sheet = opts.to_a.first || [:after, last_sheet]
-      @ole_workbook.Worksheets.Add({ after_or_before.to_s => base_sheet.ole_worksheet })
+      #@ole_workbook.Worksheets.Add({ after_or_before.to_s => base_sheet.ole_worksheet })
+      begin
+        if after_or_before == :before 
+          ole_workbook.Worksheets.Add(base_sheet.ole_worksheet)
+        else
+          self.each_with_index(1) do |sheet_idx,i|
+            if sheet_idx.name == base_sheet.name
+              if i == self.Worksheets.Count
+                puts "sheet should be appended after the last worksheet"
+                # wrong workaround: 
+                # adds the empty sheet before the last one, instead of after the last one
+                ole_workbook.Worksheets.Add(sheet(i).ole_worksheet)
+                # ???
+                #last_sheet_local = sheet(i)
+                #sheet.Copy(sheet(i).ole_worksheet)
+                #sheet(i+1).Delete
+                # crashes, since last_sheet_local has been deleted
+                # and I cannot store it in last_sheet_local
+                #last_sheet_local.Copy(sheet(i).ole_worksheet)
+              else
+                ole_workbook.Worksheets.Add(sheet(i+1).ole_worksheet)
+              end
+              break
+            end
+          end
+        end
+      rescue WIN32OLERuntimeError 
+        raise WorksheetREOError, "given sheet #{sheet.inspect} not found"
+      end
       new_sheet = worksheet_class.new(@excel.Activesheet)
       new_sheet.name = new_sheet_name if new_sheet_name
       new_sheet

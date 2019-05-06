@@ -36,6 +36,12 @@ and go into the path of the gem 'robust_excel_ole'. There you start the console 
 
   reo
 
+or
+
+  jreo
+
+depending on whether you are using ruby or jruby.
+
 The call of the console will include RobustExcelOle for you.
 
 The following examples can be used for both scripts and console. If you have started the console in the gem path, you can just put these examples.

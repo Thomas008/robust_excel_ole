@@ -121,6 +121,5 @@ module RobustExcelOle
       REOCommon::puts_hash(h)
  
     end
-
   end
 end

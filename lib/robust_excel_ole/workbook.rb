@@ -391,8 +391,6 @@ module RobustExcelOle
               workbooks.Open(abs_filename, 
                                         updatelinks_vba(options[:update_links]), 
                                         options[:read_only] )
-              #workbooks.Open(abs_filename, { 'ReadOnly' => options[:read_only] })
-              #                           'UpdateLinks' => updatelinks_vba(options[:update_links]) })
             end
           rescue WIN32OLERuntimeError => msg
             # for Excel2007: for option :if_unsaved => :alert and user cancels: this error appears?
@@ -804,26 +802,8 @@ module RobustExcelOle
         if after_or_before == :before 
           sheet.Copy(base_sheet.ole_worksheet)
         else
-          self.each_with_index(1) do |sheet_idx,i|
-            if sheet_idx.name == base_sheet.name
-              if i == self.Worksheets.Count
-                puts "sheet should be appended after the last worksheet"
-                # wrong workaround: 
-                # adds the empty sheet before the last one, instead of after the last one
-                sheet.Copy(sheet(i).ole_worksheet)
-                # ???
-                #last_sheet_local = sheet(i)
-                #sheet.Copy(sheet(i).ole_worksheet)
-                #sheet(i+1).Delete
-                # crashes, since last_sheet_local has been deleted
-                # and I cannot store it in last_sheet_local
-                #last_sheet_local.Copy(sheet(i).ole_worksheet)
-              else
-                sheet.Copy(sheet(i+1).ole_worksheet)
-              end
-              break
-            end
-          end
+          not_given = WIN32OLE_VARIANT.new(nil, WIN32OLE::VARIANT::VT_NULL)
+          sheet.Copy(not_given,base_sheet.ole_worksheet)
         end
       rescue WIN32OLERuntimeError 
         raise WorksheetREOError, "given sheet #{sheet.inspect} not found"
@@ -849,26 +829,8 @@ module RobustExcelOle
         if after_or_before == :before 
           ole_workbook.Worksheets.Add(base_sheet.ole_worksheet)
         else
-          self.each_with_index(1) do |sheet_idx,i|
-            if sheet_idx.name == base_sheet.name
-              if i == self.Worksheets.Count
-                puts "sheet should be appended after the last worksheet"
-                # wrong workaround: 
-                # adds the empty sheet before the last one, instead of after the last one
-                ole_workbook.Worksheets.Add(sheet(i).ole_worksheet)
-                # ???
-                #last_sheet_local = sheet(i)
-                #sheet.Copy(sheet(i).ole_worksheet)
-                #sheet(i+1).Delete
-                # crashes, since last_sheet_local has been deleted
-                # and I cannot store it in last_sheet_local
-                #last_sheet_local.Copy(sheet(i).ole_worksheet)
-              else
-                ole_workbook.Worksheets.Add(sheet(i+1).ole_worksheet)
-              end
-              break
-            end
-          end
+          not_given = WIN32OLE_VARIANT.new(nil, WIN32OLE::VARIANT::VT_NULL)
+          ole_workbook.Worksheets.Add(not_given,base_sheet.ole_worksheet)
         end
       rescue WIN32OLERuntimeError 
         raise WorksheetREOError, "given sheet #{sheet.inspect} not found"

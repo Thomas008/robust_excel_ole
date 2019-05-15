@@ -802,8 +802,9 @@ module RobustExcelOle
         if after_or_before == :before 
           sheet.Copy(base_sheet.ole_worksheet)
         else
-          not_given = WIN32OLE_VARIANT.new(nil, WIN32OLE::VARIANT::VT_NULL)
-          sheet.Copy(not_given,base_sheet.ole_worksheet)
+          #not_given = WIN32OLE_VARIANT.new(nil, WIN32OLE::VARIANT::VT_NULL)
+          #sheet.Copy(not_given,base_sheet.ole_worksheet)
+          sheet.Copy(nil,base_sheet.ole_worksheet)
         end
       rescue WIN32OLERuntimeError 
         raise WorksheetREOError, "given sheet #{sheet.inspect} not found"
@@ -829,8 +830,9 @@ module RobustExcelOle
         if after_or_before == :before 
           ole_workbook.Worksheets.Add(base_sheet.ole_worksheet)
         else
-          not_given = WIN32OLE_VARIANT.new(nil, WIN32OLE::VARIANT::VT_NULL)
-          ole_workbook.Worksheets.Add(not_given,base_sheet.ole_worksheet)
+          #not_given = WIN32OLE_VARIANT.new(nil, WIN32OLE::VARIANT::VT_NULL)
+          #ole_workbook.Worksheets.Add(not_given,base_sheet.ole_worksheet)
+          ole_workbook.Worksheets.Add(nil,base_sheet.ole_worksheet)
         end
       rescue WIN32OLERuntimeError 
         raise WorksheetREOError, "given sheet #{sheet.inspect} not found"

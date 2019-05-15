@@ -1,3 +1,3 @@
 @echo off
 
-jirb -f -r ./lib/robust_excel_ole -r ./lib/reo_console.rb
+jirb -f -r ./lib/robust_excel_ole -r ./lib/jreo_console.rb

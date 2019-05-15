@@ -146,8 +146,9 @@ module RobustExcelOle
           address = name_or_address
           address = [name_or_address,address2] unless address2 == :__not_provided
           #self.Names.Add('Name' => '__dummy001', 'RefersToR1C1' => '=' + Address.r1c1(address))
-          not_given = WIN32OLE_VARIANT.new(nil, WIN32OLE::VARIANT::VT_NULL)
-          self.Names.Add('__dummy001',not_given,true,not_given,not_given,not_given,not_given,not_given,not_given,'=' + Address.r1c1(address))          
+          #not_given = WIN32OLE_VARIANT.new(nil, WIN32OLE::VARIANT::VT_NULL)
+          #self.Names.Add('__dummy001',not_given,true,not_given,not_given,not_given,not_given,not_given,not_given,'=' + Address.r1c1(address))          
+          self.Names.Add('__dummy001',nil,true,nil,nil,nil,nil,nil,nil,'=' + Address.r1c1(address))          
           range = RobustExcelOle::Range.new(name_object('__dummy001').RefersToRange)
           self.Names.Item('__dummy001').Delete
           workbook = self.is_a?(Workbook) ? self : self.workbook
@@ -172,8 +173,9 @@ module RobustExcelOle
       addr = [addr,addr_deprecated] unless addr_deprecated == :__not_provided
       begin
         #self.Names.Add('Name' => name, 'RefersToR1C1' => '=' + Address.r1c1(addr))
-        not_given = WIN32OLE_VARIANT.new(nil, WIN32OLE::VARIANT::VT_NULL)
-        self.Names.Add(name, not_given, true, not_given, not_given, not_given, not_given, not_given, not_given, '=' + Address.r1c1(addr))
+        #not_given = WIN32OLE_VARIANT.new(nil, WIN32OLE::VARIANT::VT_NULL)
+        #self.Names.Add(name, not_given, true, not_given, not_given, not_given, not_given, not_given, not_given, '=' + Address.r1c1(addr))
+        self.Names.Add(name, nil, true, nil, nil, nil, nil, nil, nil, '=' + Address.r1c1(addr))
       rescue WIN32OLERuntimeError => msg
         raise RangeNotEvaluatable, "cannot add name #{name.inspect} to range #{addr.inspect}"
       end

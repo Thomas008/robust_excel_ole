@@ -785,63 +785,6 @@ module RobustExcelOle
       end
     end
 
-    # copies a sheet to another position
-    # default: copied sheet is appended
-    # @param [Worksheet] sheet a worksheet that shall be copied
-    # @param [Hash]  opts  the options
-    # @option opts [Symbol] :as     new name of the copied sheet
-    # @option opts [Symbol] :before a worksheet before which the sheet shall be inserted
-    # @option opts [Symbol] :after  a worksheet after which the sheet shall be inserted
-    # @raise  NameAlreadyExists if the sheet name already exists
-    # @return [Worksheet] the copied sheet
-    def copy_sheet(sheet, opts = { })
-      new_sheet_name = opts.delete(:as)
-      after_or_before, base_sheet = opts.to_a.first || [:after, last_sheet]
-      #sheet.Copy({ after_or_before.to_s => base_sheet.ole_worksheet })
-      begin
-        if after_or_before == :before 
-          sheet.Copy(base_sheet.ole_worksheet)
-        else
-          #not_given = WIN32OLE_VARIANT.new(nil, WIN32OLE::VARIANT::VT_NULL)
-          #sheet.Copy(not_given,base_sheet.ole_worksheet)
-          sheet.Copy(nil,base_sheet.ole_worksheet)
-        end
-      rescue WIN32OLERuntimeError 
-        raise WorksheetREOError, "given sheet #{sheet.inspect} not found"
-      end
-      new_sheet = worksheet_class.new(@excel.Activesheet)
-      new_sheet.name = new_sheet_name if new_sheet_name
-      new_sheet
-    end
-
-    # adds an empty sheet
-    # default: empty sheet is appended
-    # @param [Hash]  opts  the options
-    # @option opts [Symbol] :as     new name of the copied added sheet
-    # @option opts [Symbol] :before a sheet before which the sheet shall be inserted
-    # @option opts [Symbol] :after  a sheet after which the sheet shall be inserted
-    # @raise  NameAlreadyExists if the sheet name already exists
-    # @return [Worksheet] the added sheet
-    def add_empty_sheet(opts = { })
-      new_sheet_name = opts.delete(:as)
-      after_or_before, base_sheet = opts.to_a.first || [:after, last_sheet]
-      #@ole_workbook.Worksheets.Add({ after_or_before.to_s => base_sheet.ole_worksheet })
-      begin
-        if after_or_before == :before 
-          ole_workbook.Worksheets.Add(base_sheet.ole_worksheet)
-        else
-          #not_given = WIN32OLE_VARIANT.new(nil, WIN32OLE::VARIANT::VT_NULL)
-          #ole_workbook.Worksheets.Add(not_given,base_sheet.ole_worksheet)
-          ole_workbook.Worksheets.Add(nil,base_sheet.ole_worksheet)
-        end
-      rescue WIN32OLERuntimeError 
-        raise WorksheetREOError, "given sheet #{sheet.inspect} not found"
-      end
-      new_sheet = worksheet_class.new(@excel.Activesheet)
-      new_sheet.name = new_sheet_name if new_sheet_name
-      new_sheet
-    end
-
     # copies a sheet to another position if a sheet is given, or adds an empty sheet
     # default: copied or empty sheet is appended, i.e. added behind the last sheet
     # @param [Worksheet] sheet a sheet that shall be copied (optional)
@@ -855,11 +798,59 @@ module RobustExcelOle
         opts = sheet
         sheet = nil
       end
-      sheet ? copy_sheet(sheet, opts) : add_empty_sheet(opts)
+      new_sheet_name = opts.delete(:as)
+      last_sheet_local = last_sheet
+      after_or_before, base_sheet = opts.to_a.first || [:after, last_sheet_local]
+      begin
+        #if sheet 
+        #  sheet.Copy({ after_or_before.to_s => base_sheet.ole_worksheet })
+        #else
+        #  @ole_workbook.Worksheets.Add({ after_or_before.to_s => base_sheet.ole_worksheet })
+        #end
+        # workaround for jruby      
+        if after_or_before == :before 
+          if sheet 
+            sheet.Copy(base_sheet.ole_worksheet)
+          else
+            ole_workbook.Worksheets.Add(base_sheet.ole_worksheet)
+          end
+        else
+          #not_given = WIN32OLE_VARIANT.new(nil, WIN32OLE::VARIANT::VT_NULL)
+          #ole_workbook.Worksheets.Add(not_given,base_sheet.ole_worksheet)          
+          if base_sheet.name != last_sheet_local.name
+            if sheet
+              sheet.Copy(base_sheet.Next)
+            else
+              ole_workbook.Worksheets.Add(base_sheet.Next)
+            end
+          else
+            last_sheet_name = base_sheet.name
+            sheet_num = ole_workbook.Worksheets.Count
+            base_sheet.Copy(base_sheet.ole_worksheet)
+            if sheet
+              sheet.Copy(base_sheet.ole_worksheet)  
+            else
+              ole_workbook.Worksheets.Add(base_sheet.ole_worksheet) 
+            end
+            excel.with_displayalerts(false){base_sheet.Delete}
+            sheet(sheet_num).name = last_sheet_name
+          end
+        end
+      rescue WIN32OLERuntimeError 
+        raise WorksheetREOError, "given sheet #{sheet.inspect} not found"
+      end
+      new_sheet = worksheet_class.new(@excel.Activesheet)
+      new_sheet.name = new_sheet_name if new_sheet_name
+      new_sheet
     end
 
     # for compatibility to older versions
     def add_sheet(sheet = nil, opts = { })
+      add_or_copy_sheet(sheet, opts)
+    end
+
+    # for compatibility to older versions
+    def copy_sheet(sheet, opts = { })
       add_or_copy_sheet(sheet, opts)
     end
 

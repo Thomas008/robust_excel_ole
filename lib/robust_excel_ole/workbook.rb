@@ -802,38 +802,41 @@ module RobustExcelOle
       last_sheet_local = last_sheet
       after_or_before, base_sheet = opts.to_a.first || [:after, last_sheet_local]
       begin
-        #if sheet 
-        #  sheet.Copy({ after_or_before.to_s => base_sheet.ole_worksheet })
-        #else
-        #  @ole_workbook.Worksheets.Add({ after_or_before.to_s => base_sheet.ole_worksheet })
-        #end
-        # workaround for jruby      
-        if after_or_before == :before 
+        if RUBY_PLATFORM !~ /java/
           if sheet 
-            sheet.Copy(base_sheet.ole_worksheet)
+            sheet.Copy({ after_or_before.to_s => base_sheet.ole_worksheet })
           else
-            ole_workbook.Worksheets.Add(base_sheet.ole_worksheet)
+            @ole_workbook.Worksheets.Add({ after_or_before.to_s => base_sheet.ole_worksheet })
           end
         else
-          #not_given = WIN32OLE_VARIANT.new(nil, WIN32OLE::VARIANT::VT_NULL)
-          #ole_workbook.Worksheets.Add(not_given,base_sheet.ole_worksheet)          
-          if base_sheet.name != last_sheet_local.name
-            if sheet
-              sheet.Copy(base_sheet.Next)
+          # workaround for jruby      
+          if after_or_before == :before 
+            if sheet 
+              sheet.Copy(base_sheet.ole_worksheet)
             else
-              ole_workbook.Worksheets.Add(base_sheet.Next)
+              ole_workbook.Worksheets.Add(base_sheet.ole_worksheet)
             end
           else
-            last_sheet_name = base_sheet.name
-            sheet_num = ole_workbook.Worksheets.Count
-            base_sheet.Copy(base_sheet.ole_worksheet)
-            if sheet
-              sheet.Copy(base_sheet.ole_worksheet)  
+            #not_given = WIN32OLE_VARIANT.new(nil, WIN32OLE::VARIANT::VT_NULL)
+            #ole_workbook.Worksheets.Add(not_given,base_sheet.ole_worksheet)          
+            if base_sheet.name != last_sheet_local.name
+              if sheet
+                sheet.Copy(base_sheet.Next)
+              else
+                ole_workbook.Worksheets.Add(base_sheet.Next)
+              end
             else
-              ole_workbook.Worksheets.Add(base_sheet.ole_worksheet) 
+              last_sheet_name = base_sheet.name
+              sheet_num = ole_workbook.Worksheets.Count
+              base_sheet.Copy(base_sheet.ole_worksheet)
+              if sheet
+                sheet.Copy(base_sheet.ole_worksheet)  
+              else
+                ole_workbook.Worksheets.Add(base_sheet.ole_worksheet) 
+              end
+              excel.with_displayalerts(false){base_sheet.Delete}
+              sheet(sheet_num).name = last_sheet_name
             end
-            excel.with_displayalerts(false){base_sheet.Delete}
-            sheet(sheet_num).name = last_sheet_name
           end
         end
       rescue WIN32OLERuntimeError 

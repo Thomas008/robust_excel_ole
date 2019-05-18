@@ -35,7 +35,8 @@ module RobustExcelOle
       before do
         @ole_excel1 = WIN32OLE.new('Excel.Application')
         @ole_excel2 = WIN32OLE.new('Excel.Application')
-        ole_workbook1 = @ole_excel1.Workbooks.Open(@another_simple_file, { 'ReadOnly' => false })
+        #ole_workbook1 = @ole_excel1.Workbooks.Open(@another_simple_file, { 'ReadOnly' => false })
+        ole_workbook1 = @ole_excel1.Workbooks.Open(@another_simple_file, nil, false)
         ole_workbook1.Names.Item("firstcell").RefersToRange.Value = "foo"
       end
 

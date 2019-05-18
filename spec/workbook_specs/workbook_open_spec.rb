@@ -43,7 +43,8 @@ describe Workbook do
     before do
       @ole_excel1 = WIN32OLE.new('Excel.Application')
       @ole_excel2 = WIN32OLE.new('Excel.Application')
-      @ole_workbook1 = @ole_excel1.Workbooks.Open(@simple_file1, { 'ReadOnly' => false })
+      #@ole_workbook1 = @ole_excel1.Workbooks.Open(@simple_file1, { 'ReadOnly' => false })
+      @ole_workbook1 = @ole_excel1.Workbooks.Open(@simple_file1, nil, false)
       @ole_workbook1.Worksheets.Add
     end
 

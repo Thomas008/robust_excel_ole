@@ -305,6 +305,14 @@ and set another value to that range.
 
 For more details about reading and writing contents of cells and ranges see {README_ranges}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_ranges.rdoc]
 
+=== Running in jruby
+
+RobustExcelOle runs in jruby as well. You can call the console via the command +jreo+. However, note that, due to some restrictions of the library jruby-win32ole, there are some restrictions, and we had to implement some adaptions:
+
+Excel.current or Excel.new(:reuse => true) does not connect to an already running Excel instance, unless some workbook has been opened via RobustExcelOle.
+
+Workbook#add_empty_sheet and Workbook#copy_sheet: when appending a worksheet, a workaround does copy and delete the last worksheet (serving as a dummy worksheet). That may cause a different behaviour than expected.
+
 === More things
 
 You can convert a win32ole object into a RobustExcelOle object.

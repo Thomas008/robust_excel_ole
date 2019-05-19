@@ -67,11 +67,13 @@ Additionally you can specify a name and a position.
 
   book.copy_sheet(sheet, :as => 'new_name', :after => another_sheet)
 
-If you want to copy a worksheet, if a sheet is given, and add an empty worksheet, if no worksheet is given, then use
+If you want to copy a worksheet, if a worksheet +sheet+ is given, and add an empty worksheet, if no worksheet is given, then use
 
   book.add_or_copy_sheet
 
   book.add_or_copy_sheet(sheet, :as => 'new_name', :after => another_sheet)  
+
+Note, that running in jruby, due to some restrictions of jruby, there is a workaround when adding or copy a worksheet at the end (appending): the last worksheet is being copied and deleted afterwards, in order to serve as a dummy worksheet. This may cause a different behaviour.
 
 == Code
 

@@ -255,7 +255,7 @@ module RobustExcelOle
 
 
     # @private
-    def ensure_workbook(filename, options)    
+    def ensure_workbook(filename, options)  
       filename = @stored_filename ? @stored_filename : filename
       raise(FileNameNotGiven, 'filename is nil') if filename.nil?
       if File.directory?(filename)

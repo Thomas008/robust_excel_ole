@@ -87,6 +87,47 @@ describe Bookstore do
     end
   end
 
+  describe "excel" do
+
+    context "with one open book" do
+      
+      before do
+        @book = Workbook.open(@simple_file)
+        @bookstore.store(@book)
+      end
+
+      after do
+        @book.close rescue nil
+      end
+
+      it "should return the excel" do                
+        @bookstore.excel.should == @book.excel
+      end
+    end
+
+    context "with one closed book" do
+      
+      before do
+        @book = Workbook.open(@simple_file)
+        @bookstore.store(@book)
+        @book.close
+      end
+
+      it "should return the excel of the closed book" do        
+        @bookstore.excel.should == @book.excel
+      end
+    end
+
+    context "with no book" do
+      
+      it "should return nil" do        
+        @bookstore.excel.should == nil
+      end
+    end
+
+
+  end
+
 
   describe "fetch" do
     

@@ -8,6 +8,14 @@ module RobustExcelOle
       @hidden_excel_instance = nil
     end
 
+    # returns an excel
+    def excel
+      fn2books = @filename2books.first
+      return nil if fn2books.nil? || fn2books.empty? || fn2books[1].empty?  
+      book = fn2books[1].first.__getobj__
+      book.excel
+    end
+
     # returns a book with the given filename, if it was open once
     # @param [String] filename  the file name
     # @param [Hash]   options   the options

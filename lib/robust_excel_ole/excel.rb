@@ -75,7 +75,19 @@ module RobustExcelOle
       end
       ole_xl = win32ole_excel unless win32ole_excel.nil?
       options = { :reuse => true }.merge(options)
-      ole_xl = current_excel if options[:reuse] == true
+      if options[:reuse] == true
+        if RUBY_PLATFORM !~ /java/
+          ole_xl = current_excel
+        else
+          bookstore_excel = begin
+            Workbook.bookstore.excel
+          rescue
+            nil
+          end
+          return bookstore_excel unless bookstore_excel.nil?
+        end
+      end
+      #ole_xl = current_excel if options[:reuse] == true
       ole_xl ||= WIN32OLE.new('Excel.Application')
       hwnd = ole_xl.HWnd
       stored = hwnd2excel(hwnd)
@@ -141,12 +153,14 @@ module RobustExcelOle
     # connects to the first opened Excel instance
     # if this Excel instance is being closed, then Excel creates a new Excel instance
     # @private
-    def self.current_excel 
-      result = begin
-                 WIN32OLE.connect('Excel.Application')
-               rescue
-                 nil
-               end
+    def self.current_excel      
+      result = if result.nil?
+        begin
+          WIN32OLE.connect('Excel.Application')
+        rescue
+          nil
+        end
+      end
       if result
         begin
           result.Visible # send any method, just to see if it responds

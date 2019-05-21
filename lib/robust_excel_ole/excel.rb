@@ -75,19 +75,18 @@ module RobustExcelOle
       end
       ole_xl = win32ole_excel unless win32ole_excel.nil?
       options = { :reuse => true }.merge(options)
+      #ole_xl = current_excel if options[:reuse] == true
       if options[:reuse] == true
-        if RUBY_PLATFORM !~ /java/
-          ole_xl = current_excel
-        else
+        if RUBY_PLATFORM =~ /java/
           bookstore_excel = begin
             Workbook.bookstore.excel
           rescue
             nil
           end
-          return bookstore_excel unless bookstore_excel.nil?
+          return bookstore_excel if bookstore_excel && bookstore_excel.alive?
         end
+        ole_xl = current_excel
       end
-      #ole_xl = current_excel if options[:reuse] == true
       ole_xl ||= WIN32OLE.new('Excel.Application')
       hwnd = ole_xl.HWnd
       stored = hwnd2excel(hwnd)

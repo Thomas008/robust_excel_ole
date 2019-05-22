@@ -10,11 +10,20 @@ ARGV.concat ['--readline',
              '--prompt-mode',
              'simple']
 
+#IRB.conf[:PROMPT_MODE] = :SIMPLE
+#IRB.conf[:USE_READLINE] = true
+#IRB.conf[:AUTO_INDENT]  = true
+
+
+
+
 # 250 entries in the list
 IRB.conf[:SAVE_HISTORY] = 250
 
 # Store results in home directory with specified file name
 # IRB.conf[:HISTORY_FILE] = "#{ENV['HOME']}/.irb-history"
+#IRB.conf[:HISTORY_FILE] = "#{ENV['HOME']}/.irb-save-history"
+
 IRB.conf[:HISTORY_FILE] = "#{ENV['HOME']}/.reo-history"
 
 # @private
@@ -53,4 +62,4 @@ module Readline
 end
 
 Readline::Hist.start_session_log
-puts 'REO console started'
+puts 'JREO console started'

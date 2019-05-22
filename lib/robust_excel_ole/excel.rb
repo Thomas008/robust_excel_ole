@@ -69,7 +69,6 @@ module RobustExcelOle
     #  :screenupdating  turns on or off screen updating (default: true)
     # @return [Excel] an Excel instance
     def self.new(win32ole_excel = nil, options = {})
-      puts "new:"
       if win32ole_excel.is_a? Hash
         options = win32ole_excel
         win32ole_excel = nil
@@ -79,10 +78,7 @@ module RobustExcelOle
       #ole_xl = current_excel if options[:reuse] == true
       if options[:reuse] == true
         if RUBY_PLATFORM =~ /java/
-          puts "reuse => true, java"          
-          #bookstore_excel = Workbook.bookstore.excel rescue nil
           excel_instance = known_excel_instance
-          puts "excel_instance: #{excel_instance.inspect}"
           return excel_instance unless excel_instance.nil?
         end
         ole_xl = current_excel
@@ -428,13 +424,9 @@ module RobustExcelOle
 
     # returns an Excel instance
     def self.known_excel_instance
-      puts "known_excel_instance:"
       @@hwnd2excel.each do |hwnd, wr_excel|
-        puts "hwnd: #{hwnd.inspect}"
-        puts "wr_excel: #{wr_excel}"
         if wr_excel.weakref_alive?
           excel = wr_excel.__getobj__
-          puts "excel: #{excel.inspect}"
           return excel if excel.alive?
         end
       end

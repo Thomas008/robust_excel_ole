@@ -669,7 +669,7 @@ describe Workbook do
 
     context "with two running excel instances" do
       before :all do
-        Excel.close_all
+        Excel.kill_all
       end
 
       before do
@@ -691,17 +691,17 @@ describe Workbook do
         Workbook.unobtrusively(@simple_file, :if_closed => :current) do |book|
           book.should be_a Workbook
           book.should be_alive
-            book.excel.should == @excel1
-            book.excel.should_not == @excel2
-          end
+          book.excel.should == @excel1
+          book.excel.should_not == @excel2
+        end
       end
 
       it "should open unobtrusively in a given Excel" do
         Workbook.unobtrusively(@simple_file, :if_closed => @excel2) do |book|
           book.should be_a Workbook
           book.should be_alive
-            book.excel.should_not == @excel1
-            book.excel.should     == @excel2
+          book.excel.should_not == @excel1
+          book.excel.should     == @excel2
         end
       end
     end

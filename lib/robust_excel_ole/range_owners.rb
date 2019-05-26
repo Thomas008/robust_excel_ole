@@ -22,6 +22,8 @@ module RobustExcelOle
         raise
       end
       value = begin
+        range = name_obj.RefersToRange
+        value = range.Value
         name_obj.RefersToRange.Value
       rescue WIN32OLERuntimeError
         sheet = if self.is_a?(Worksheet) then self

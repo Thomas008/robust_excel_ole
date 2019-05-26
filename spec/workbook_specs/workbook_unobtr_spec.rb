@@ -1168,7 +1168,7 @@ describe Workbook do
     context "with no open book" do
 
       it "should open unobtrusively if no Excel is open" do
-        Excel.close_all
+        Excel.kill_all
         Workbook.unobtrusively(@simple_file) do |book|
           book.should be_a Workbook
           book.excel.Visible.should be false
@@ -1185,7 +1185,7 @@ describe Workbook do
     context "with two running excel instances" do
       
       before :all do
-        Excel.close_all
+        Excel.kill_all
       end
 
       before do

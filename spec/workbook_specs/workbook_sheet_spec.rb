@@ -27,6 +27,7 @@ describe Workbook do
     @linked_file = @dir + '/workbook_linked.xlsm'
     @simple_file_xlsm = @dir + '/workbook.xls'
     @simple_file_xlsx = @dir + '/workbook.xlsx'
+    @file_with_references = @dir + '/test_add_sheet.xlsx'
   end
 
   after do
@@ -229,7 +230,8 @@ describe Workbook do
   describe "copy_sheet" do
 
     before do
-      @book = Workbook.open(@simple_file)
+      #@book = Workbook.open(@simple_file)
+      @book = Workbook.open(@file_with_reference)
       @sheet = @book.sheet(1)
       @another_book = Workbook.open(@another_simple_file)
     end
@@ -237,6 +239,13 @@ describe Workbook do
     after do
       @book.close(:if_unsaved => :forget)
       @another_book.close(:if_unsaved => :forget)
+    end
+
+    it "should copy the second sheet, append it and leave the references so far" do
+      @book.add_sheet(@book.sheet(2), :after => @book.sheet(3))
+      @book.sheet(1)[2,1].Value.should == "x"
+      @book.sheet(1)[2,1].Value.should == "y"
+      @book.sheet(1)[2,1].Value.should == "z"
     end
 
     it "should copy and append a given sheet" do

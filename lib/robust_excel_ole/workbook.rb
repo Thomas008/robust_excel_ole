@@ -826,16 +826,12 @@ module RobustExcelOle
                 ole_workbook.Worksheets.Add(base_sheet.Next)
               end
             else
-              last_sheet_name = base_sheet.name
-              sheet_num = ole_workbook.Worksheets.Count
-              base_sheet.Copy(base_sheet.ole_worksheet)
               if sheet
                 sheet.Copy(base_sheet.ole_worksheet)  
               else
                 ole_workbook.Worksheets.Add(base_sheet.ole_worksheet) 
               end
-              excel.with_displayalerts(false){base_sheet.Delete}
-              sheet(sheet_num).name = last_sheet_name
+              base_sheet.Move(ole_workbook.Worksheets.Item(ole_workbook.Worksheets.Count-1))
             end
           end
         end

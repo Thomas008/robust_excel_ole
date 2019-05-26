@@ -5,10 +5,12 @@ include General
 
 require 'irb/completion'
 require 'irb/ext/save-history'
+gem 'jruby-readline'
 
 ARGV.concat ['--readline',
              '--prompt-mode',
-             'simple']
+             'simple',
+             '-rjruby-readline']
 
 #IRB.conf[:PROMPT_MODE] = :SIMPLE
 #IRB.conf[:USE_READLINE] = true

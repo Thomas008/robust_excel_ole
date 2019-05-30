@@ -77,11 +77,12 @@ module RobustExcelOle
       options = { :reuse => true }.merge(options)
       #ole_xl = current_excel if options[:reuse] == true
       if options[:reuse] == true
-        if RUBY_PLATFORM =~ /java/
+        ole_xl = if RUBY_PLATFORM =~ /java/
           excel_instance = known_excel_instance
-          return excel_instance unless excel_instance.nil?
+          ole_xl = excel_instance.ole_excel unless excel_instance.nil?
+        else
+          current_excel
         end
-        ole_xl = current_excel
       end
       ole_xl ||= WIN32OLE.new('Excel.Application')
       hwnd = ole_xl.HWnd
@@ -109,7 +110,7 @@ module RobustExcelOle
         end
       end
       result
-    end
+    end    
 
     def initialize(options = {}); end
 

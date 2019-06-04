@@ -26,7 +26,8 @@ module RobustExcelOle
     # @params [Range] a range
     # @returns [Array] the values
     def values(range = nil)
-      result = map { |x| x.Value }.flatten
+      #result = map { |x| x.Value }.flatten
+      result = map { |x| x.v }.flatten
       if range
         relevant_result = []
         result.each_with_index { |row_or_column, i| relevant_result << row_or_column if range.include?(i) }
@@ -37,7 +38,23 @@ module RobustExcelOle
     end
 
     def v
-      self.Value
+      begin
+        if RUBY_PLATFORM !~ /java/ 
+          self.Value
+        else
+          address_r1c1 = self.AddressLocal(true,true,XlR1C1)
+          row, col = Address.int_range(address_r1c1)
+          values = []
+          row.each do |r|
+            values_col = []
+            col.each{ |c| values_col << worksheet.Cells(r,c).Value}
+            values << values_col
+          end
+          values
+        end
+      rescue WIN32OLERuntimeError
+        raise RangeNotEvaluatable, 'cannot read value'
+      end 
     end
 
     def [] index

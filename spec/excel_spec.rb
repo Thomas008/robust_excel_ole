@@ -1721,7 +1721,7 @@ module RobustExcelOle
       end
 
       it "should set options in the Excel instance" do
-        @excel.for_this_instance(:displayalerts => true, :visible => true, :screenupdating => true, :calculaiton => :manual)
+        @excel.for_this_instance(:displayalerts => true, :visible => true, :screenupdating => true, :calculation => :manual)
         @excel.DisplayAlerts.should be true
         @excel.Visible.should be true
         @excel.ScreenUpdating.should be true

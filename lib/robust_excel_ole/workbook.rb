@@ -282,7 +282,7 @@ module RobustExcelOle
         abs_filename = General.absolute_path(filename).tr('/','\\')
         begin
           empty_ole_workbook.SaveAs(abs_filename)
-        rescue WIN32OLERuntimeError => msg
+        rescue # WIN32OLERuntimeError => msg
           raise FileNotFound, "could not save workbook with filename #{filename.inspect}"
         end
       else

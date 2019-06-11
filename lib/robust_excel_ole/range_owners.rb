@@ -64,10 +64,15 @@ module RobustExcelOle
     # @param [FixNum]  color the color when setting a value
     # @param [Hash]    opts :color [FixNum]  the color when setting the contents
     def set_namevalue_glob(name, value, opts = { :color => 0 })
-      ole_range = name_object(name).RefersToRange
-      ole_range.Interior.ColorIndex = opts[:color]
-      workbook.modified_cells << ole_range if workbook # unless cell_modified?(cell)
       begin
+        name_obj = begin
+          name_object(name)
+        rescue NameNotFound => msg
+          raise
+        end
+        ole_range = name_object(name).RefersToRange
+        ole_range.Interior.ColorIndex = opts[:color]
+        workbook.modified_cells << ole_range if workbook # unless cell_modified?(cell)
         if RUBY_PLATFORM !~ /java/
           ole_range.Value = value
         else
@@ -97,7 +102,7 @@ module RobustExcelOle
       return namevalue_glob(name, opts) if self.is_a?(Workbook)
       begin
         ole_range = self.Range(name)
-      rescue WIN32OLERuntimeError
+      rescue # WIN32OLERuntimeError
         return opts[:default] unless opts[:default] == :__not_provided
         raise NameNotFound, "name #{name.inspect} not in #{self.inspect}"
       end
@@ -109,7 +114,7 @@ module RobustExcelOle
           values = RobustExcelOle::Range.new(ole_range).v
           (values.size==1 && values.first.size==1) ? values.first.first : values
         end
-      rescue  WIN32OLERuntimeError
+      rescue  #WIN32OLERuntimeError
         return opts[:default] unless opts[:default] == :__not_provided
         raise RangeNotEvaluatable, "cannot determine value of range named #{name.inspect} in #{self.inspect}"
       end
@@ -129,7 +134,7 @@ module RobustExcelOle
       begin
         return set_namevalue_glob(name, value, opts) if self.is_a?(Workbook)
         ole_range = self.Range(name)
-      rescue WIN32OLERuntimeError
+      rescue # WIN32OLERuntimeError
         raise NameNotFound, "name #{name.inspect} not in #{self.inspect}"
       end
       begin
@@ -148,7 +153,7 @@ module RobustExcelOle
           end
         end
         value
-      rescue  WIN32OLERuntimeError
+      rescue  # WIN32OLERuntimeError
         raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.inspect}"
       end
     end
@@ -222,7 +227,7 @@ module RobustExcelOle
         #not_given = WIN32OLE_VARIANT.new(nil, WIN32OLE::VARIANT::VT_NULL)
         #self.Names.Add(name, not_given, true, not_given, not_given, not_given, not_given, not_given, not_given, '=' + Address.r1c1(addr))
         self.Names.Add(name, nil, true, nil, nil, nil, nil, nil, nil, '=' + Address.r1c1(addr))
-      rescue WIN32OLERuntimeError => msg
+      rescue # WIN32OLERuntimeError => msg
         raise RangeNotEvaluatable, "cannot add name #{name.inspect} to range #{addr.inspect}"
       end
       name
@@ -271,7 +276,7 @@ module RobustExcelOle
     rescue #WIN32OLERuntimeError
       begin
         self.Parent.Names.Item(name)
-      rescue WIN32OLERuntimeError
+      rescue #WIN32OLERuntimeError
         raise RobustExcelOle::NameNotFound, "name #{name.inspect} not in #{self.inspect}"
       end
     end

@@ -121,14 +121,35 @@ describe RobustExcelOle::Range do
 
   describe "#v" do
 
-    context "v" do
+    context "v, v=" do
+
+      before do
+        @sheet1 = @book.sheet(1)
+      end
+
+      after do
+        @book.close(:if_unsaved => :forget)
+      end
 
       it "should return value" do
         @sheet[1,1].v.should == 'simple'
         @sheet.range(1..2,3..4).v.should == [["sheet2", nil], [nil, nil]] 
       end 
-    end
 
+      it "should set value of a cell and return its value" do
+        @sheet1[2,3].v.should == "foobaaa"
+        @sheet1[2,3].Value.should == "foobaaa"
+        @sheet1[2,3].v = "bar"
+        @sheet1[2,3].v.should == "bar"
+        @sheet1[2,3].Value.should == "bar"
+      end
+
+      it "should set value and return value of a rectangular range" do
+        @sheet1.range([1..2,3..5]).v.should == [["sheet1",nil,nil],["foobaaa",nil,nil]]
+        @sheet1.range([1..2,3..5]).v = [[1,2,3],[4,5,6]]
+        @sheet1.range([1..2,3..5]).v.should == [[1,2,3],[4,5,6]]
+      end
+    end
   end
 
   describe "#copy" do

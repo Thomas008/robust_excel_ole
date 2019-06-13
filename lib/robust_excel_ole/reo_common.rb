@@ -19,6 +19,10 @@ end
 module RobustExcelOle
 
   # @private
+  class VBAMethodMissingError < RuntimeError 
+  end
+
+  # @private
   class REOError < RuntimeError                    
   end
 

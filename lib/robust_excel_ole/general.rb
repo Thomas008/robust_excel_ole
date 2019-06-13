@@ -27,10 +27,6 @@ module General
 
   module_function :absolute_path, :canonize, :normalize
 
-  # @private
-  class VBAMethodMissingError < RuntimeError 
-  end
-
 end
 
 # @private

@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.10]
+
+### Added
+  - workarounds for running in Jruby
+  - Range,Cell#v
+
 ## [1.9]
 
 ### Added

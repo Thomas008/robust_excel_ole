@@ -57,6 +57,14 @@ or as flat array
   range.values
   =>  ["foo", "workbook", "sheet1", nil, "foo", nil, "foobaaa", nil, "matz", "is", "nice", nil]
 
+You can set values with help of range#Value or range#v, e.g.
+
+  range.Value = [[1,2,3,4],[5,6,7,8],[9,10,11,12]]
+
+or 
+
+  range.v = [[1,2,3,4],[5,6,7,8],[9,10,11,12]]
+
 Now we copy the range. With help of VBA methods you would do
 
   range.Copy(:destination => sheet.range([4..6,5..8]).ole_range)

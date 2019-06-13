@@ -47,7 +47,7 @@ describe RobustExcelOle::Range do
     end
 
     context "with no arguments" do
-      it { @range.values.should eq ['simple', 'file', 'sheet2', nil] }
+      it { @range.values.should eq ['simple', 'file', 'sheet2'] }
     end
 
     context "when instance is column range" do
@@ -55,7 +55,7 @@ describe RobustExcelOle::Range do
         @sheet = @book.sheet(1)
         @range = RobustExcelOle::Range.new(@sheet.ole_worksheet.UsedRange.Columns(1))
       end
-      it { @range.values.should eq ['foo', 'foo', 'matz'] }
+      it { @range.values.should eq ['foo', 'foo', 'matz', nil] }
     end
 
     context "read 'merge_cells.xls'" do

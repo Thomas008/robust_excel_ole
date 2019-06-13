@@ -27,7 +27,12 @@ module RobustExcelOle
     # @returns [Array] the values
     def values(range = nil)
       #result = map { |x| x.Value }.flatten
-      result = map { |x| x.v }.flatten
+      result_unflatten = if RUBY_PLATFORM !~ /java/
+        map { |x| x.v }
+      else
+        self.v
+      end
+      result = result_unflatten.flatten
       if range
         relevant_result = []
         result.each_with_index { |row_or_column, i| relevant_result << row_or_column if range.include?(i) }

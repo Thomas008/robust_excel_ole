@@ -57,6 +57,25 @@ module RobustExcelOle
       end 
     end
 
+    def v=(value)
+      begin
+        if RUBY_PLATFORM !~ /java/
+          ole_range.Value = value
+        else
+          address_r1c1 = ole_range.AddressLocal(true,true,XlR1C1)
+          row, col = Address.int_range(address_r1c1)
+          row.each_with_index do |r,i|
+            col.each_with_index do |c,j|
+              ole_range.Cells(i+1,j+1).Value = (value.respond_to?(:first) ? value[i][j] : value)
+            end
+          end
+        end
+        value
+      rescue # WIN32OLERuntimeError
+        raise RangeNotEvaluatable, "cannot assign value to range #{address_r1c1.inspect}"
+      end
+    end
+
     def [] index
       @cells = []
       @cells[index + 1] = RobustExcelOle::Cell.new(@ole_range.Cells.Item(index + 1))
@@ -91,7 +110,7 @@ module RobustExcelOle
         end
       end
       rows, columns = Address.int_range(dest_address)
-      dest_sheet = @worksheet if dest_sheet == :__not_provided
+      #dest_sheet = @worksheet if dest_sheet == :__not_provided
       dest_address_is_position = (rows.min == rows.max && columns.min == columns.max)
       dest_range_address = if (not dest_address_is_position) 
           [rows.min..rows.max,columns.min..columns.max]
@@ -107,7 +126,8 @@ module RobustExcelOle
       dest_range = dest_sheet.range(dest_range_address)
       begin
         if options[:values_only]
-          dest_range.Value = options[:transpose] ? self.Value.transpose : self.Value
+          # dest_range.Value = options[:transpose] ? self.Value.transpose : self.Value
+          dest_range.v = options[:transpose] ? self.v.transpose : self.v
         else
           if dest_range.worksheet.workbook.excel == @worksheet.workbook.excel 
             if options[:transpose]

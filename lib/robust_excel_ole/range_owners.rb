@@ -80,12 +80,12 @@ module RobustExcelOle
           row, col = Address.int_range(address_r1c1)
           row.each_with_index do |r,i|
             col.each_with_index do |c,j|
-              ole_range.Cells(r-1,c-1).Value = (value.respond_to?(:first) ? value[i][j] : value )
+              ole_range.Cells(i+1,j+1).Value = (value.respond_to?(:first) ? value[i][j] : value )
             end
           end
         end
         value
-      rescue WIN32OLERuntimeError
+      rescue # WIN32OLERuntimeError
         raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.inspect}"
       end
     end
@@ -148,7 +148,7 @@ module RobustExcelOle
           row, col = Address.int_range(address_r1c1)
           row.each_with_index do |r,i|
             col.each_with_index do |c,j|
-              ole_range.Cells(r-1,c-1).Value = (value.respond_to?(:first) ? value[i][j] : value)
+              ole_range.Cells(i+1,j+1).Value = (value.respond_to?(:first) ? value[i][j] : value)
             end
           end
         end

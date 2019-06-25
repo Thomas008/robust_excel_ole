@@ -746,7 +746,11 @@ module RobustExcelOle
     # closes a given file if it is open
     # @options opts [Symbol] :if_unsaved
     def self.close(file, opts = {:if_unsaved => :raise})
-      book = bookstore.fetch(file) rescue nil
+      book = begin
+        bookstore.fetch(file)
+        rescue
+          nil
+        end
       book.close(opts) if book && book.alive?
     end
 
@@ -758,7 +762,11 @@ module RobustExcelOle
 
     # saves a given file under a new name if it is open
     def self.save_as(file, new_file, opts = { })
-      book = bookstore.fetch(file) rescue nil
+      book = begin
+        bookstore.fetch(file)
+      rescue 
+        nil
+      end
       book.save_as(new_file, opts) if book && book.alive?
     end
 

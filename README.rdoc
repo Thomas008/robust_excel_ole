@@ -9,7 +9,7 @@ RobustExcelOle works by sending VBA methods via Win32OLE. It keeps track of Exce
 
 == Requirements
 
-* Ruby 1.8.6 or higher
+  Ruby 2.1 or higher. Most functions run on Ruby 1.8.6, too.
 
 == Installation
 
@@ -329,7 +329,7 @@ You can run the examples included in the directory +examples+, e.g.
 
 This project RobustExcelOle is work in progress. We are happy to implement further features. So we invite you to send your pull requests. We then strive to realize them as soon as possible. If you have any feedback, or you find use cases that RobustExcelOle does not satisfy, please let us know.
 
-RobustExcelOle is being tested for Excel 2010. It can be used for any recent Excel Office version.
+RobustExcelOle is being tested for Excel 2010 and Excel 2013. It can be used for any recent Excel Office version. Most functions should run on Excel 2007 as well.
 
 RobustExcelOle has been optimised with help of the rubocop and the rcov tool. 
 

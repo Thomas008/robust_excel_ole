@@ -196,6 +196,13 @@ module RobustExcelOle
           @excel = @book.excel          
         end
 
+        it "lifts an Excel instance given as WIN32OLE object and has same Hwnd" do
+          app = WIN32OLE.new('Excel.Application')
+          ole_excel = WIN32OLE.connect("Excel.Application")  
+          reo_excel = Excel.new(ole_excel)
+          ole_excel.Hwnd.should == reo_excel.Hwnd  
+        end
+
         it "lifts an Excel instance given as WIN32Ole object" do    
           win32ole_excel = WIN32OLE.connect(@book.ole_workbook.Fullname).Application
           excel = Excel.new(win32ole_excel)

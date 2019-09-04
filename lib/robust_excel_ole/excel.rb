@@ -76,10 +76,11 @@ module RobustExcelOle
       ole_xl = win32ole_excel unless win32ole_excel.nil?
       options = { :reuse => true }.merge(options)
       #ole_xl = current_excel if options[:reuse] == true
-      if options[:reuse] == true
+      if options[:reuse] == true && ole_xl.nil?
         ole_xl = if RUBY_PLATFORM =~ /java/
           excel_instance = known_excel_instance
-          ole_xl = excel_instance.ole_excel unless excel_instance.nil?
+          ole_xl2 = excel_instance.ole_excel unless excel_instance.nil?
+          excel_instance.ole_excel unless excel_instance.nil?
         else
           current_excel
         end

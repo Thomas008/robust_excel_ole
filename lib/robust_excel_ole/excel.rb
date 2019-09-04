@@ -79,7 +79,6 @@ module RobustExcelOle
       if options[:reuse] == true && ole_xl.nil?
         ole_xl = if RUBY_PLATFORM =~ /java/
           excel_instance = known_excel_instance
-          ole_xl2 = excel_instance.ole_excel unless excel_instance.nil?
           excel_instance.ole_excel unless excel_instance.nil?
         else
           current_excel

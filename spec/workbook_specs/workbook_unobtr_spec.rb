@@ -25,7 +25,7 @@ describe Workbook do
     @simple_file_other_path = @dir + '/more_data/workbook.xls'
     @another_simple_file = @dir + '/another_workbook.xls'
     @linked_file = @dir + '/workbook_linked.xlsm'
-    @simple_file_xlsm = @dir + '/workbook.xls'
+    @simple_file_xlsm = @dir + '/workbook.xlsm'
     @simple_file_xlsx = @dir + '/workbook.xlsx'
     @simple_file1 = @simple_file
   end
@@ -292,6 +292,28 @@ describe Workbook do
             22
           end
         end).should == 22
+      end
+
+    end
+
+    describe "connecting to unknown workbooks" do
+
+      context "with one unknown workbook" do
+
+        before do
+          ole_e1 = WIN32OLE.new('Excel.Application')
+          ws = ole_e1.Workbooks
+          abs_filename = General.absolute_path(@simple_file1).tr('/','\\')
+          @ole_wb = ws.Open(abs_filename)
+        end
+
+        it "should connect to an unknown workbook" do
+          Workbook.unobtrusively(@simple_file1) do |book|
+            book.filename.should == @simple_file1
+            book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
+          end
+        end
+
       end
 
     end

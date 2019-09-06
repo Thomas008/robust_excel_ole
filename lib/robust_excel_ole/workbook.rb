@@ -549,8 +549,6 @@ module RobustExcelOle
     # @option opts [Boolean] :keep_open whether the workbook shall be kept open after unobtrusively opening
     # @return [Workbook] a workbook
     def self.unobtrusively(file, opts = { })
-      puts "unobtrusively:"
-      puts "file: #{file.inspect}"
       opts = {:if_closed => :current,
               :rw_change_excel => :current,
               :keep_open => false}.merge(opts)
@@ -559,7 +557,6 @@ module RobustExcelOle
                          !(opts[:read_only].nil? && opts[:writable] == false))
       do_not_write = (opts[:read_only] || (opts[:read_only].nil? && opts[:writable] == false))
       book = bookstore.fetch(file, :prefer_writable => prefer_writable)
-      puts "book: #{book.inspect}"
       if book.nil?
         abs_filename = General.absolute_path(file).tr('/','\\') 
         ole_wb = WIN32OLE.connect(abs_filename) rescue nil

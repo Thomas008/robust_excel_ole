@@ -537,6 +537,7 @@ module RobustExcelOle
       unobtrusively(*args, &block)
     end
 
+
     # allows to read or modify a workbook such that its state remains unchanged
     # state comprises: open, saved, writable, visible, calculation mode, check compatibility
     # @param [String] file        the file name

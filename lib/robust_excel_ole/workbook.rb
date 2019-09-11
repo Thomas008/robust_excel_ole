@@ -90,6 +90,7 @@ module RobustExcelOle
           book = bookstore.fetch(file,
                   :prefer_writable => !(options[:read_only]),
                   :prefer_excel    => (options[:read_only] ? forced_excel : nil)) rescue nil
+          book = connect(file) if book.nil?
           if book
             if (!(options[:force][:excel]) || (forced_excel == book.excel)) &&
                !(book.alive? && !book.saved && (options[:if_unsaved] != :accept))
@@ -179,6 +180,12 @@ module RobustExcelOle
 
   private
 
+    def self.connect(file)
+      abs_filename = General.absolute_path(file).tr('/','\\') 
+      ole_wb = WIN32OLE.connect(abs_filename) rescue nil
+      Workbook.new(ole_wb) unless ole_wb.nil?
+    end  
+
     # translates abbreviations and synonyms and merges with default options
     def self.process_options(options, proc_opts = {:use_defaults => true})
       translator = proc do |opts|
@@ -260,7 +267,7 @@ module RobustExcelOle
       raise(FileNameNotGiven, 'filename is nil') if filename.nil?
       if File.directory?(filename)
         raise(FileNotFound, "file #{General.absolute_path(filename).inspect} is a directory")
-      end  
+      end        
       manage_nonexisting_file(filename,options)
       workbooks = @excel.Workbooks
       @ole_workbook = workbooks.Item(File.basename(filename)) rescue nil if @ole_workbook.nil?
@@ -558,11 +565,7 @@ module RobustExcelOle
                          !(opts[:read_only].nil? && opts[:writable] == false))
       do_not_write = (opts[:read_only] || (opts[:read_only].nil? && opts[:writable] == false))
       book = bookstore.fetch(file, :prefer_writable => prefer_writable)
-      if book.nil?
-        abs_filename = General.absolute_path(file).tr('/','\\') 
-        ole_wb = WIN32OLE.connect(abs_filename) rescue nil
-        book = Workbook.new(ole_wb) unless ole_wb.nil?
-      end
+      book = connect(file) if book.nil?
       was_open = book && book.alive?
       if was_open
         was_saved = book.saved

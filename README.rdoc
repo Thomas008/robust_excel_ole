@@ -134,6 +134,8 @@ or, using abbreviations,
 
   workbook = Workbook.open('spec/data/workbook.xls', :v => true)
 
+Note that Workbook.open can also connect to workbooks which were not opened via RobustExcelOle (but had been opened before by some user).
+
 For more details about opening workbooks see {README_open}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_open.rdoc]
  
 We can do a simple save

@@ -323,8 +323,8 @@ module RobustExcelOle
         raise WorkbookBlocked, "can't open workbook #{@ole_workbook.Fullname.tr('\\','/')} because it is 
         obstructed by #{filename} with the same name in a different path." +
         "\nHint: Use the option :if_obstructed with values :forget or :save,
-         to close the old workbook, without or with saving before, respectively,
-         and to open the new workbook"
+         to allow automatic closing of the old workbook (without or with saving before, respectively),
+         before the new workbook is being opened."
       when :forget
         @ole_workbook.Close
         @ole_workbook = nil

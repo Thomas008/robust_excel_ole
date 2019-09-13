@@ -296,6 +296,24 @@ describe Workbook do
 
     end
 
+    describe "excels number" do
+
+      it "should open one excel instance and workbook should be closed" do
+        Workbook.unobtrusively(@simple_file1){ |book| nil }
+        Excel.excels_number.should == 1
+      end
+
+    end
+
+    describe "closed workbook" do
+
+      it "should close the workbook by default" do
+        Workbook.unobtrusively(@simple_file1){ |book| nil}
+        Excel.current.Workbooks.Count.should == 0  
+      end
+
+    end
+
     describe "connecting to unknown workbooks" do
 
       context "with one unknown workbook" do

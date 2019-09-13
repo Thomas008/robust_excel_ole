@@ -97,11 +97,12 @@ module RobustExcelOle
               book.options = options
               book.ensure_excel(options) # unless book.excel.alive?
               # if the ReadOnly status shall be changed, save, close and reopen it
-              if book.alive? && ((!book.writable && !(options[:read_only])) ||
-                 (book.writable && options[:read_only]))
-                book.save if book.writable && !book.saved
-                book.close(:if_unsaved => :forget)
-              end
+              # removed the feature for the next time
+              #if book.alive? && ((!book.writable && !(options[:read_only])) ||
+              #   (book.writable && options[:read_only]))
+              #  book.save if book.writable && !book.saved
+              #  book.close(:if_unsaved => :forget)
+              #end
               # reopens the book if it was closed
               book.ensure_workbook(file,options) unless book.alive?
               book.visible = options[:force][:visible] unless options[:force][:visible].nil?

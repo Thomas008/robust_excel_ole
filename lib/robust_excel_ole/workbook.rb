@@ -90,7 +90,7 @@ module RobustExcelOle
           book = bookstore.fetch(file,
                   :prefer_writable => !(options[:read_only]),
                   :prefer_excel    => (options[:read_only] ? forced_excel : nil)) rescue nil
-          book = connect(file) if book.nil?
+          #book = connect(file) if book.nil?
           if book
             if (!(options[:force][:excel]) || (forced_excel == book.excel)) &&
                !(book.alive? && !book.saved && (options[:if_unsaved] != :accept))
@@ -98,11 +98,11 @@ module RobustExcelOle
               book.ensure_excel(options) # unless book.excel.alive?
               # if the ReadOnly status shall be changed, save, close and reopen it
               # removed the feature for the next time
-              #if book.alive? && ((!book.writable && !(options[:read_only])) ||
-              #   (book.writable && options[:read_only]))
-              #  book.save if book.writable && !book.saved
-              #  book.close(:if_unsaved => :forget)
-              #end
+              if book.alive? && ((!book.writable && !(options[:read_only])) ||
+                 (book.writable && options[:read_only]))
+                book.save if book.writable && !book.saved
+                book.close(:if_unsaved => :forget)
+              end
               # reopens the book if it was closed
               book.ensure_workbook(file,options) unless book.alive?
               book.visible = options[:force][:visible] unless options[:force][:visible].nil?
@@ -567,7 +567,7 @@ module RobustExcelOle
                          !(opts[:read_only].nil? && opts[:writable] == false))
       do_not_write = (opts[:read_only] || (opts[:read_only].nil? && opts[:writable] == false))
       book = bookstore.fetch(file, :prefer_writable => prefer_writable)
-      book = connect(file) if book.nil?
+      #book = connect(file) if book.nil?
       was_open = book && book.alive?
       if was_open
         was_saved = book.saved

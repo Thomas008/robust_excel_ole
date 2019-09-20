@@ -71,6 +71,7 @@ describe Workbook do
 
     it "should save a file, if it is open" do
       @book = Workbook.open(@simple_file)
+      @sheet = @book.sheet(1)
       @book.add_sheet(@sheet, :as => 'a_name')
       @new_sheet_count = @book.ole_workbook.Worksheets.Count
       expect {
@@ -82,6 +83,7 @@ describe Workbook do
 
     it "should not save a file, if it is not open" do
       @book = Workbook.open(@simple_file)
+      @sheet = @book.sheet(1)
       @book.add_sheet(@sheet, :as => 'a_name')
       @new_sheet_count = @book.ole_workbook.Worksheets.Count
       @book.close(:if_unsaved => :forget)
@@ -618,7 +620,8 @@ describe Workbook do
 
     it "should preserve :visible if they are not set" do
       excel1 = Excel.create(:visible => true)
-      book1 = Workbook.open(@different_file, :default => {:excel => :new})
+      book1 = Workbook.open(@simple_file, :default => {:excel => :new})
+      book1.excel.should_not == excel1
       book1.excel.Visible.should be false
     end
 

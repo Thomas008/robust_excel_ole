@@ -40,6 +40,35 @@ describe Workbook do
 
   describe "connecting to unknown workbooks" do
 
+    context "with several unknown workbooks" do
+
+      before do
+        ole_e1 = WIN32OLE.new('Excel.Application')
+        ws1 = ole_e1.Workbooks
+        abs_filename1 = General.absolute_path(@simple_file1).tr('/','\\')
+        @ole_wb1 = ws1.Open(abs_filename1)
+        ole_e2 = WIN32OLE.new('Excel.Application')
+        ws2 = ole_e2.Workbooks
+        abs_filename2 = General.absolute_path(@different_file1).tr('/','\\')
+        @ole_wb2 = ws2.Open(abs_filename2)
+      end
+
+      it "should connect to the 1st unknown workbook in the 1st Excel instance" do
+        Workbook.open(@simple_file1) do |book|
+          book.filename.should == @simple_file1
+          book.excel.ole_excel.Hwnd.should == @ole_wb1.Application.Hwnd
+        end
+      end
+
+      it "should connect to the 2nd unknown workbook in the 2nd Excel instance" do
+        Workbook.open(@different_file1) do |book|
+          book.filename.should == @different_file1
+          book.excel.ole_excel.Hwnd.should == @ole_wb2.Application.Hwnd
+        end
+      end
+
+    end
+
     context "with one unknown workbook" do
 
       before do

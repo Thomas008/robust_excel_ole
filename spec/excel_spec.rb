@@ -1807,6 +1807,8 @@ module RobustExcelOle
         @excel.Visible.should be true
         @excel.ScreenUpdating.should be true
         book = Workbook.open(@simple_file)
+        book.excel.calculation = :manual
+        book.save
         @excel.Calculation.should == XlCalculationManual
         book.close
       end
@@ -2124,10 +2126,10 @@ module RobustExcelOle
       it "should raise an error if name cannot be evaluated" do
         expect{
           @excel1.set_namevalue_glob("foo", 1)
-          }.to raise_error(NameNotFound, /name "foo"/)
+          }.to raise_error(RangeNotEvaluatable, /cannot assign value to range named "foo"/)
         expect{
           @excel1["foo"] = 1
-          }.to raise_error(NameNotFound, /name "foo"/)
+          }.to raise_error(RangeNotEvaluatable, /cannot assign value to range named "foo"/)
       end
 
       it "should color the cell" do
@@ -2191,7 +2193,7 @@ module RobustExcelOle
       it "should raise an error if name cannot be evaluated" do
         expect{
           @excel1.set_namevalue_glob("foo", 1)
-        }.to raise_error(NameNotFound, /name "foo" not in/)
+        }.to raise_error(RangeNotEvaluatable, /cannot assign value to range named "foo" in/)
       end
 
       it "should color the cell" do

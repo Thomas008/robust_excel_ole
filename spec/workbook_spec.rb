@@ -522,8 +522,8 @@ describe Workbook do
         File.delete @simple_save_file rescue nil
         expect {
           Workbook.open(@simple_save_file)
-        }.to raise_error(FileNotFound, "file nil not found" +
-          "\nHint: If you want to create a new file, use option :if_absent => :create or Workbook::create")
+        }.to raise_error(FileNotFound, /not found/ )
+        #  "\nHint: If you want to create a new file, use option :if_absent => :create or Workbook::create")
       end
     end
 

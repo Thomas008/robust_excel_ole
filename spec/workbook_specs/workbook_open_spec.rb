@@ -25,7 +25,7 @@ describe Workbook do
     @simple_file_other_path = @dir + '/more_data/workbook.xls'
     @another_simple_file = @dir + '/another_workbook.xls'
     @linked_file = @dir + '/workbook_linked.xlsm'
-    @simple_file_xlsm = @dir + '/workbook.xls'
+    @simple_file_xlsm = @dir + '/workbook.xlsm'
     @simple_file_xlsx = @dir + '/workbook.xlsx'
     @simple_file1 = @simple_file
     @different_file1 = @different_file
@@ -95,7 +95,8 @@ describe Workbook do
       @ole_excel1 = WIN32OLE.new('Excel.Application')
       @ole_excel2 = WIN32OLE.new('Excel.Application')
       #@ole_workbook1 = @ole_excel1.Workbooks.Open(@simple_file1, { 'ReadOnly' => false })
-      @ole_workbook1 = @ole_excel1.Workbooks.Open(@simple_file1, nil, false)
+      abs_filename = General.absolute_path(@simple_file1).tr('/','\\')
+      @ole_workbook1 = @ole_excel1.Workbooks.Open(abs_filename, nil, false)
       @ole_workbook1.Worksheets.Add
     end
 
@@ -116,7 +117,7 @@ describe Workbook do
       end
 
       it "should fetch the workbook" do
-        new_book = Workbook.new(@ole_workbook1)
+        new_book = Workbook.new(@ole_workbook1, :if_unsaved => :forget)
         new_book.should be_a Workbook
         new_book.should be_alive
         new_book.ole_workbook.should == @ole_workbook1
@@ -202,7 +203,7 @@ describe Workbook do
       it "should raise an error, if :if_obstructed is :raise" do
         expect {
           new_book = Workbook.open(@simple_file_other_path1)
-        }.to raise_error(WorkbookBlocked, /blocked by a workbook with the same name in a different path/)
+        }.to raise_error(WorkbookBlocked, /obstructed by/)
       end
 
       it "should close the other book and open the new book, if :if_obstructed is :forget" do
@@ -239,13 +240,30 @@ describe Workbook do
 
   describe "new" do
 
-    it "should simply create a new one" do
+    it "should simply create a new workbook given a file" do
       book = Workbook.new(@simple_file)
       book.should be_alive
       book.should be_a Workbook
     end
 
-    it "should set options" do
+    it "should create a new workbook given a file and set it visible" do
+      book = Workbook.new(@simple_file, :visible => true)
+      book.should be_alive
+      book.should be_a Workbook
+      book.excel.Visible.should be true
+      book.Windows(book.Name).Visible.should be true
+    end
+
+    it "should create a new workbook given a file and set it visible and readonly" do
+      book = Workbook.new(@simple_file, :visible => true, :read_only => true)
+      book.should be_alive
+      book.should be_a Workbook
+      book.excel.Visible.should be true
+      book.Windows(book.Name).Visible.should be true
+      book.ReadOnly.should be true
+    end
+
+    it "should create a new workbook given a file and set options" do
       book = Workbook.new(@simple_file, :visible => true, :read_only => true, :force => {:excel => :new})
       book.should be_alive
       book.should be_a Workbook
@@ -259,6 +277,83 @@ describe Workbook do
       book2.Windows(book2.Name).Visible.should be true
       book2.ReadOnly.should be false
       book2.excel.should_not == book.excel
+    end
+
+    it "should uplift an open known workbook" do
+      book = Workbook.open(@simple_file)
+      ole_workbook = book.ole_workbook
+      new_book = Workbook.new(ole_workbook)
+      new_book.should == book
+      new_book.Fullname.should == book.Fullname
+      new_book.excel.should == book.excel
+    end
+
+    it "should uplift an open known workbook and let it be visible" do
+      book = Workbook.open(@simple_file, :visible => true)
+      ole_workbook = book.ole_workbook
+      new_book = Workbook.new(ole_workbook)
+      new_book.should == book
+      new_book.Fullname.should == book.Fullname
+      new_book.excel.should == book.excel
+      new_book.excel.Visible.should == true
+      new_book.Windows(new_book.ole_workbook.Name).Visible.should == true
+    end
+
+    it "should uplift an open known workbook and let it be visible and readonly" do
+      book = Workbook.open(@simple_file, :visible => true, :read_only => true)
+      ole_workbook = book.ole_workbook
+      new_book = Workbook.new(ole_workbook)
+      new_book.should == book
+      new_book.Fullname.should == book.Fullname
+      new_book.excel.should == book.excel
+      new_book.excel.Visible.should == true
+      new_book.Windows(new_book.ole_workbook.Name).Visible.should == true
+      new_book.ReadOnly.should == true
+    end
+
+    it "should uplift an open known workbook and make it visible" do
+      book = Workbook.open(@simple_file)
+      ole_workbook = book.ole_workbook
+      new_book = Workbook.new(ole_workbook, :visible => true)
+      new_book.should == book
+      new_book.Fullname.should == book.Fullname
+      new_book.excel.should == book.excel
+      new_book.excel.Visible.should == true
+      new_book.Windows(new_book.ole_workbook.Name).Visible.should == true
+    end
+
+    it "should uplift an open unknown workbook" do
+      ole_excel = WIN32OLE.new('Excel.Application')
+      ws = ole_excel.Workbooks
+      abs_filename = General.absolute_path(@simple_file1).tr('/','\\')
+      ole_workbook = ws.Open(abs_filename)
+      new_book = Workbook.new(ole_workbook)
+      new_book.Fullname.should == ole_workbook.Fullname
+      new_book.excel.Hwnd.should == ole_excel.Hwnd
+    end
+
+    it "should uplift an open unknown workbook and make it visible" do
+      ole_excel = WIN32OLE.new('Excel.Application')
+      ws = ole_excel.Workbooks
+      abs_filename = General.absolute_path(@simple_file1).tr('/','\\')
+      ole_workbook = ws.Open(abs_filename)
+      new_book = Workbook.new(ole_workbook, :visible => true)
+      new_book.Fullname.should == ole_workbook.Fullname
+      new_book.excel.Hwnd.should == ole_excel.Hwnd
+      new_book.excel.Visible.should == true
+      new_book.Windows(new_book.ole_workbook.Name).Visible.should == true
+    end
+
+    it "should uplift an open unknown workbook and make it visible and readonly" do
+      ole_excel = WIN32OLE.new('Excel.Application')
+      ws = ole_excel.Workbooks
+      abs_filename = General.absolute_path(@simple_file1).tr('/','\\')
+      ole_workbook = ws.Open(abs_filename)
+      new_book = Workbook.new(ole_workbook, :visible => true)
+      new_book.Fullname.should == ole_workbook.Fullname
+      new_book.excel.Hwnd.should == ole_excel.Hwnd
+      new_book.excel.Visible.should == true
+      new_book.Windows(new_book.ole_workbook.Name).Visible.should == true
     end
 
   end
@@ -1804,7 +1899,7 @@ describe Workbook do
 
     it "should new_excel" do
       book = Workbook.open(@simple_file1)
-      book.sheet(1)[1,1].Value = "f"
+      book.sheet(1)[1,1].Value = "foo"
       book.Saved.should be false
       book2 = Workbook.open(@simple_file1, :if_unsaved => :new_excel)
     end
@@ -1923,7 +2018,7 @@ describe Workbook do
           it "should raise an error, if :if_obstructed is :raise" do
             expect {
               new_book = Workbook.open(@simple_file1, :if_obstructed => :raise)
-            }.to raise_error(WorkbookBlocked, /blocked by a workbook with the same name in a different path/)
+            }.to raise_error(WorkbookBlocked, /obstructed by/)
           end
 
           it "should close the other book and open the new book, if :if_obstructed is :forget" do
@@ -1976,22 +2071,23 @@ describe Workbook do
             new_book.should be_alive
             new_book.filename.should_not == @book.filename
             new_book.excel.should_not == @book.excel
-            new_book.sheet(1)[1,1].Value.should == @old_value
+            new_book.sheet(1)[1,1].Value.should == @book.sheet(1)[1,1].Value
           end
 
           it "should raise an error, if :if_obstructed is default" do
             expect {
               new_book = Workbook.open(@simple_file1)              
-            }.to raise_error(WorkbookBlocked, /blocked by a workbook with the same name in a different path/)
+            }.to raise_error(WorkbookBlocked, /obstructed by/)
           end         
 
           it "should raise an error, if :if_obstructed is invalid option" do
             expect {
               new_book = Workbook.open(@simple_file1, :if_obstructed => :invalid_option)
-            }.to raise_error(OptionInvalid, ":if_obstructed: invalid option: :invalid_option" +
-              "\nHint: Use the option :if_obstructed with values :forget or :save,
-             to close the old workbook, without or with saving before, respectively,
-             and to open the new workbook")
+            }.to raise_error(OptionInvalid)  
+            #}.to raise_error(OptionInvalid, ":if_obstructed: invalid option: :invalid_option" +
+            #  "\nHint: Use the option :if_obstructed with values :forget or :save,
+            # to close the old workbook, without or with saving before, respectively,
+            # and to open the new workbook")
           end
         end
       end
@@ -2063,7 +2159,8 @@ describe Workbook do
         File.delete @simple_save_file rescue nil
         expect {
           Workbook.open(@simple_save_file)
-        }.to raise_error(FileNotFound, "file #{General::absolute_path(@simple_save_file).gsub("/","\\").inspect} not found")
+        }.to raise_error(FileNotFound, "file #{General::absolute_path(@simple_save_file).gsub("/","\\").inspect} not found" +
+          "\nHint: If you want to create a new file, use option :if_absent => :create or Workbook::create")
       end
 
     end
@@ -2226,15 +2323,16 @@ describe Workbook do
         book.close
       end
 
-      #it "should open xlsm file" do
-      #  book = Workbook.open(@simple_file_xlsm, :visible => true)
-      #  book.close
-      #end
+      it "should open xlsm file" do
+        book = Workbook.open(@simple_file_xlsm, :visible => true)
+        book.close
+      end
 
       it "should open xlsx file" do
         book = Workbook.open(@simple_file_xlsx, :visible => true)
         book.close
       end
+      
     end
 
 
@@ -2281,27 +2379,5 @@ describe Workbook do
         @book.should === book1
       end
     end
-  end
-
-  describe "uplifting" do
-
-    context "with standard" do
-
-      before do
-        @book = Workbook.open(@simple_file)
-      end
-
-      after do
-        @book.close
-      end
-
-      it "should uplift a workbook to a book with an open book" do
-        workbook = @book.ole_workbook
-        book1 = Workbook.new(workbook)
-        book1.should be_a Workbook
-        book1.should be_alive
-        book1.should == @book
-      end
-    end
-  end
+  end  
 end

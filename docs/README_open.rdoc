@@ -150,6 +150,10 @@ A Workbook object can be created when giving an Excel workbook.
 
    book = Workbook.new(win32ole_workbook)
 
+Note that only a restricted number of options can be considered, e.g. +:visible+
+
+   book = Workbook.new(win32ole_workbook, :visible => true)
+
 === Unobtrusively modifying a workbook
 
 The method +unobtrusively+ enables the user to read or modify a workbook, no matter if it is open in some Excel instance, if it is saved or unsaved, and if it is writable or not. When opening a workbook unobtrusively, its status remains unchanged. This status includes, whether the workbook is opened or closed, saved or unsaved, readonly or writable, visible or invisible, calculation mode is automatic or manual, and checking compatibility is turned on or off. 

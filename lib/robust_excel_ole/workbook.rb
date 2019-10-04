@@ -15,7 +15,6 @@ module RobustExcelOle
     attr_accessor :ole_workbook
     attr_accessor :stored_filename
     attr_accessor :modified_cells
-    attr_accessor :options
     attr_reader :workbook
 
     alias ole_object ole_workbook
@@ -92,7 +91,6 @@ module RobustExcelOle
         if book
           if (!(options[:force][:excel]) || (forced_excel == book.excel)) &&
              !(book.alive? && !book.saved && (options[:if_unsaved] != :accept))
-            book.options = options
             book.ensure_excel(options) # unless book.excel.alive?
             # if the ReadOnly status shall be changed, save, close and reopen it
             # removed the feature for the next time
@@ -131,9 +129,10 @@ module RobustExcelOle
         @excel.calculation = options[:calculation] unless options[:calculation].nil?
         ensure_excel(options)
       else
-        file = file_or_workbook
+        file = file_or_workbook        
         ensure_excel(options)
         ensure_workbook(file, options)
+        #connect(file,options)
       end
       bookstore.store(self)
       @modified_cells = []
@@ -211,6 +210,13 @@ module RobustExcelOle
     end
 
   public
+
+    # @private
+    def connect(file,options)
+      abs_filename = General.absolute_path(filename).tr('/','\\')
+      ole_workbook = WIN32OLE.connect(abs_filename)
+      workbook = new(ole_workbook)
+    end  
 
     # @private
     def ensure_excel(options)  

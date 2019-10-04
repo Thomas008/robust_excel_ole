@@ -69,7 +69,6 @@ module RobustExcelOle
     #  :screenupdating  turns on or off screen updating (default: true)
     # @return [Excel] an Excel instance
     def self.new(win32ole_excel = nil, options = {})
-      #puts "Excel: new:"
       if win32ole_excel.is_a? Hash
         options = win32ole_excel
         win32ole_excel = nil
@@ -86,19 +85,13 @@ module RobustExcelOle
         end
       end
       connected = (not ole_xl.nil?)
-      #puts "connected: #{connected.inspect}"
       ole_xl ||= WIN32OLE.new('Excel.Application')
-      #puts "ole_xl: #{ole_xl}"
-      #puts "ole_xl.Visible: #{ole_xl.Visible}"
-      #puts "ole_xl.DisplayAlerts: #{ole_xl.DisplayAlerts}"
       hwnd = ole_xl.HWnd
       stored = hwnd2excel(hwnd)
       if stored && stored.alive?
         result = stored
       else
-        #puts "not stored:"
         result = super(options)
-        #puts "result: #{result.inspect}"
         result.instance_variable_set(:@ole_excel, ole_xl)
         WIN32OLE.const_load(ole_xl, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
         @@hwnd2excel[hwnd] = WeakRef.new(result)
@@ -107,12 +100,9 @@ module RobustExcelOle
       unless options.is_a? WIN32OLE
         begin
           reused = options[:reuse] && stored && stored.alive? 
-          #puts "reused: #{reused.inspect}"
           if (not reused) && (not connected)
-            #puts "condition satisfied:"
             options = { :displayalerts => :if_visible, :visible => false, :screenupdating => true }.merge(options)
           end
-          #puts "options: #{options.inspect}"
           result.visible = options[:visible] unless options[:visible].nil? 
           result.displayalerts = options[:displayalerts] unless options[:displayalerts].nil?
           result.calculation = options[:calculation] unless options[:calculation].nil?

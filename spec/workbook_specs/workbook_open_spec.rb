@@ -240,6 +240,36 @@ describe Workbook do
 
   describe "new" do
 
+    context "with transparency identity" do
+
+      before do
+        @book = Workbook.open(@simple_file1)        
+        abs_filename = General.absolute_path(@simple_file1).tr('/','\\')
+        @ole_book = WIN32OLE.connect(abs_filename)
+      end
+
+      after do
+        @book.close
+      end
+
+      it "should yield identical Workbook objects for identical Excel books after uplifting" do
+        book2 = Workbook.new(@ole_book)
+        book2.should === @book
+        book2.close
+      end
+
+      it "should yield different Workbook objects for different Excel books" do
+        book3 = Workbook.open(@different_file1)
+        abs_filename2 = General.absolute_path(@different_file1).tr('/','\\')
+        ole_book2 = WIN32OLE.connect(abs_filename2)
+        book2 = Workbook.new(ole_book2)
+        book2.should_not === @book
+        book2.close
+        book3.close
+      end
+
+    end
+
     it "should simply create a new workbook given a file" do
       book = Workbook.new(@simple_file)
       book.should be_alive
@@ -268,7 +298,8 @@ describe Workbook do
       book.should be_alive
       book.should be_a Workbook
       book.excel.Visible.should be true
-      book.Windows(book.Name).Visible.should be true
+      book.Windows(book.Name).
+      Visible.should be true
       book.ReadOnly.should be true
       book2 = Workbook.new(@different_file, :force => {:excel => :new}, :v => true)
       book2.should be_alive

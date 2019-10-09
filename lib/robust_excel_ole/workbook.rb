@@ -80,7 +80,7 @@ module RobustExcelOle
     def self.open(file, opts = { }, &block)
       options = process_options(opts)
       book = nil
-      if (options[:force][:excel] != :new) && (options[:force][:excel] != :reserved_new)
+      if options[:force][:excel] != :new
         # if readonly is true, then prefer a book that is given in force_excel if this option is set
         forced_excel = if options[:force][:excel]
           options[:force][:excel] == :current ? excel_class.new(:reuse => true) : excel_of(options[:force][:excel])
@@ -127,12 +127,10 @@ module RobustExcelOle
         @excel = excel_class.new(win32ole_excel)
         @excel.visible = options[:force][:visible] unless options[:force][:visible].nil?
         @excel.calculation = options[:calculation] unless options[:calculation].nil?
-        ensure_excel(options)
       else
-        file = file_or_workbook        
+        filename = file_or_workbook        
         ensure_excel(options)
-        ensure_workbook(file, options)
-        #connect(file,options)
+        ensure_workbook(filename, options)       
       end
       bookstore.store(self)
       @modified_cells = []
@@ -212,23 +210,24 @@ module RobustExcelOle
   public
 
     # @private
-    def connect(file,options)
+    def connect(filename,options)
       abs_filename = General.absolute_path(filename).tr('/','\\')
-      ole_workbook = WIN32OLE.connect(abs_filename)
-      workbook = new(ole_workbook)
+      @ole_workbook = begin
+        WIN32OLE.connect(abs_filename)
+      rescue
+        puts "WIN32OLE.connect error: #{$!.message}"
+      end
+      self.visible = options[:force][:visible].nil? ? options[:default][:visible] : options[:force][:visible]
+      @ole_workbook.CheckCompatibility = options[:check_compatibility]
     end  
 
     # @private
     def ensure_excel(options)  
-      if @excel && @excel.alive?
-        @excel.created = false
-        return
-      end
       excel_option = options[:force].nil? || options[:force][:excel].nil? ? options[:default][:excel] : options[:force][:excel]
-      @excel = self.class.excel_of(excel_option) unless excel_option == :current || excel_option == :new || excel_option == :reserved_new
-      excel_class.new(:reuse => false) if (excel_option == :reserved_new) && Excel.known_excel_instances.empty?
+      @excel = self.class.excel_of(excel_option) unless excel_option == :current || excel_option == :new
       @excel = excel_class.new(:reuse => (excel_option == :current)) unless @excel && @excel.alive?
-      @excel
+      @excel.visible = options[:force][:visible] unless options[:force][:visible].nil?
+      @excel.calculation = options[:calculation] unless options[:calculation].nil?
     end
 
 
@@ -236,16 +235,18 @@ module RobustExcelOle
     def ensure_workbook(filename, options)  
       filename = @stored_filename ? @stored_filename : filename
       raise(FileNameNotGiven, 'filename is nil') if filename.nil?
-      if File.directory?(filename)
-        raise(FileNotFound, "file #{General.absolute_path(filename).inspect} is a directory")
-      end        
+      raise(FileNotFound, "file #{General.absolute_path(filename).inspect} is a directory") if File.directory?(filename)
       manage_nonexisting_file(filename,options)
       workbooks = @excel.Workbooks
       @ole_workbook = workbooks.Item(File.basename(filename)) rescue nil if @ole_workbook.nil?
       if @ole_workbook
         manage_blocking_or_unsaved_workbook(filename,options)
       else
-        open_or_create_workbook(filename, options)
+        if options[:force].nil? || options[:force][:excel].nil? || options[:force][:excel] == :current  
+          connect(filename,options)
+        else
+          open_or_create_workbook(filename, options)
+        end
       end
     end
 
@@ -934,8 +935,10 @@ module RobustExcelOle
     end
 
     # makes both the Excel instance and the window of the workbook visible, or the window invisible
+    # does not do anything if geben visible_value is nil
     # @param [Boolean] visible_value determines whether the workbook shall be visible
     def visible= visible_value
+      return if visible_value.nil?
       @excel.visible = true if visible_value
       self.window_visible = visible_value
     end

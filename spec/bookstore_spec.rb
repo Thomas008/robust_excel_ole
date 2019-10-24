@@ -54,6 +54,11 @@ describe Bookstore do
     @simple_file_other_path = @dir + '/more_data/workbook.xls'
     @simple_file1 = @simple_file
     @different_file1 = @different_file
+
+    @file_path = "spec/data/workbook.xls"
+    @absolute_file_path = "C:/gim/ats/aSrc/gems/robust_excel_ole/spec/data/workbook.xls"
+    @network_path = "N:/data/workbook.xls"
+    @hostname_share_path = "DESKTOP-A3C5CJ6/spec/workbook.xls"
   end
 
   after do
@@ -125,11 +130,96 @@ describe Bookstore do
       end
     end
 
-
   end
 
-
   describe "fetch" do
+
+    before do
+      @file_path = "spec/data/workbook.xls"
+      @absolute_file_path = "C:/gim/ats/aSrc/gems/robust_excel_ole/spec/data/workbook.xls"
+      @network_path = "N:/data/workbook.xls"
+      @hostname_share_path = "//DESKTOP-A3C5CJ6/spec/data/workbook.xls"
+      @network_path_not_existing = "M:/data/workbook.xls"
+      @hostname_not_existing_share_path = "//DESKTOP_not_existing/spec/data/workbook.xls"
+      @hostname_share_not_existing_path = "//DESKTOP-A3C5CJ6/spec_not_existing/data/workbook.xls"
+    end
+
+    context "with stored network and hostname share path" do
+
+      it "should fetch to a given network path file the stored hostname_share_path file" do
+        @book1 = Workbook.open(@hostname_share_path)
+        @bookstore.store(@book1)
+        new_book = @bookstore.fetch(@network_path)
+        new_book.should be_a Workbook
+        new_book.should be_alive
+        new_book.should == @book1
+      end
+
+      it "should not fetch anything to a not existing network path file" do
+        @book1 = Workbook.open(@hostname_share_path)
+        @bookstore.store(@book1)
+        @bookstore.fetch(@network_path_not_existing).should == nil
+      end
+
+      it "should fetch to a given network path file the stored absolute path file" do
+        @book1 = Workbook.open(@absolute_file_path)
+        @bookstore.store(@book1)
+        new_book = @bookstore.fetch(@network_path)
+        new_book.should be_a Workbook
+        new_book.should be_alive
+        new_book.should == @book1
+      end
+
+      it "should not fetch anything to a not existing network path file the stored absolute path file" do
+        @book1 = Workbook.open(@absolute_file_path)
+        @bookstore.store(@book1)
+        @bookstore.fetch(@network_path_not_existing).should == nil
+      end
+
+      it "should fetch to a given hostname share path file the stored network path file" do
+        @book1 = Workbook.open(@network_path)
+        @bookstore.store(@book1)
+        new_book = @bookstore.fetch(@hostname_share_path)
+        new_book.should be_a Workbook
+        new_book.should be_alive
+        new_book.should == @book1
+      end
+
+      it "should fetch to a given hostname_share_path the stored absolute path file" do
+        @book1 = Workbook.open(@absolute_file_path)
+        @bookstore.store(@book1)
+        new_book = @bookstore.fetch(@hostname_share_path)
+        new_book.should be_a Workbook
+        new_book.should be_alive
+        new_book.should == @book1
+      end
+
+      it "should not fetch anything to a given hostname share path file" do
+        @book1 = Workbook.open(@absolute_file_path)
+        @bookstore.store(@book1)
+        @bookstore.fetch(@hostname_not_existing_share_path).should == nil
+        @bookstore.fetch(@hostname_share_not_existing_path).should == nil
+      end
+
+      it "should fetch to a given absolute path file the stored network path file" do
+        @book1 = Workbook.open(@network_path)
+        @bookstore.store(@book1)
+        new_book = @bookstore.fetch(@absolute_file_path)
+        new_book.should be_a Workbook
+        new_book.should be_alive
+        new_book.should == @book1
+      end
+
+      it "should fetch to a given absolute path file the stored hostname share file" do
+        @book1 = Workbook.open(@hostname_share_path)
+        @bookstore.store(@book1)
+        new_book = @bookstore.fetch(@absolute_file_path)
+        new_book.should be_a Workbook
+        new_book.should be_alive
+        new_book.should == @book1
+      end
+
+    end
     
     context "with one open book" do
       

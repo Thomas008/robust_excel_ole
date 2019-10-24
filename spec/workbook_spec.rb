@@ -448,6 +448,56 @@ describe Workbook do
       end
     end
 
+    context "with :if_blocked" do
+
+      for i in 1..2 do
+
+        context "with and without reopen" do
+
+          before do   
+            if i == 1 then 
+              book_before = Workbook.open(@simple_file)
+              book_before.close
+            end
+            @book = Workbook.open(@simple_file_other_path1)
+            @sheet_count = @book.ole_workbook.Worksheets.Count
+            @sheet = @book.sheet(1)
+            @book.add_sheet(@sheet, :as => 'a_name')
+          end
+
+          after do
+            @book.close(:if_unsaved => :forget)
+            @new_book.close rescue nil
+          end
+
+          it "should save the old book, close it, and open the new book, if :if_blocked is :save" do
+            @new_book = Workbook.open(@simple_file1, :if_blocked => :save)
+            @book.should_not be_alive
+            @new_book.should be_alive
+            @new_book.filename.downcase.should == @simple_file1.downcase
+            old_book = Workbook.open(@simple_file_other_path1, :if_blocked => :forget)
+            old_book.ole_workbook.Worksheets.Count.should ==  @sheet_count + 1
+            old_book.close
+          end
+
+          it "should raise an error, if the old book is unsaved, and close the old book and open the new book, 
+              if :if_blocked is :close_if_saved" do
+            expect{
+              @new_book = Workbook.open(@simple_file1, :if_blocked => :close_if_saved)
+            }.to raise_error(WorkbookBlocked, /workbook with the same name in a different path is unsaved/)
+            @book.save
+            @new_book = Workbook.open(@simple_file1, :if_blocked => :close_if_saved)
+            @book.should_not be_alive
+            @new_book.should be_alive
+            @new_book.filename.downcase.should == @simple_file1.downcase
+            old_book = Workbook.open(@simple_file_other_path1, :if_blocked => :forget)
+            old_book.ole_workbook.Worksheets.Count.should ==  @sheet_count + 1
+            old_book.close
+          end
+        end
+      end
+    end
+
     context "with :if_obstructed" do
 
       for i in 1..2 do

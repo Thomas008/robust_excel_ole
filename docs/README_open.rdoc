@@ -25,23 +25,24 @@ The options are the following:
 
 +:excel+ and +:visible+ are options stated in +:default+ or +:force+
 
-+:excel+::          specifies the Excel instance. 
++:excel+::             specifies the Excel instance. 
 
-+:visible+::        makes the workbook visible or invisible
++:visible+::           makes the workbook visible or invisible
 
-+:if_unsaved+::      specify behaviour if the workbook was unsaved (default: +:raise+)
++:if_unsaved+::        specifies behaviour if the workbook was unsaved (default: +:raise+)
 
-+:if_obstructed+::   specify behaviour if the workbook is blocked by another book (default: +:raise+)
++:if_blocked::         specifies behaviour if the workbook is blocked by another book (default: +:raise+)
 
-+:read_only+::       open in read-only mode (default: +false+)
 
-+:check_compatibility:: check compatibility when saving
++:read_only+::          opens in read-only mode (default: +false+)
 
-+:calculation+::     forces the calculation mode to be manual (:manual) or automatic (:automatic)
++:check_compatibility:: checks compatibility when saving
 
-+:if_absent+::       specify behaviour if the workbook with the given file name does not exist if the workbook does not exist (default: +create+)
++:calculation+::        forces the calculation mode to be manual (:manual) or automatic (:automatic)
 
-You can use the following abbreviations: +:f+ for  +:force+, +:d+ for +:default+, +:e+ for +:excel+, and +:v+ for +:visible+. Finally you can leave out the option +:force+ or +:f+.
++:if_absent+::          specifies behaviour if the workbook with the given file name does not exist if the workbook does not exist (default: +create+)
+
+You can use the following abbreviations or synonyms: +:f+ for  +:force+, +:d+ for +:default+, +:e+ for +:excel+, and +:v+ for +:visible+, +:if_obstructed+ for +:if_blocked+. Finally you can leave out the option +:force+ or +:f+.
 
 The option +:excel+ :
 
@@ -57,7 +58,7 @@ If a workbook contains unsaved changes and a new workbook with the same file nam
 +:new_excel+:: Open the new workbook in a new Excel instance
 +:alert+::   Give control to Excel.
 
-The option +:if_obstructed+ :
+The option +:if_blocked+ : 
 
 If a workbook is open and a new workbook with same name and a different path is open, then
 
@@ -122,9 +123,9 @@ If a workbook contains unsaved changes and a workbook with the same filename sha
 
   book = Workbook.open('spec/data/workbook.xls', :if_unsaved => :accept)
 
-If a workbook is open and a workbook with the same name but in different path shall be opened, i.e. the first workbook blocks opening the other workbook, then the option +:if_obstructed+ handles this situation, e.g.
+If a workbook is open and a workbook with the same name but in different path shall be opened, i.e. the first workbook blocks opening the other workbook, then the option +:if_blocked+ handles this situation, e.g.
 
-  book = Workbook.open('path/workbook.xls', :if_obstructed => :forget)
+  book = Workbook.open('path/workbook.xls', :if_blocked => :forget)
 
 Remarks:
 

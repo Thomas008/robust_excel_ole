@@ -236,7 +236,7 @@ Similarly, if the user has opened a workbook that has the same name but a differ
 
   workbook1 = Workbook.open('spec/data/workbook.xls')
   # do something
-  workbook2 = Workbook.open('spec/data/more/workbook.xls', :if_obstructed => :forget)
+  workbook2 = Workbook.open('spec/data/more/workbook.xls', :if_blocked => :forget)
 
 For more details about opening and closing workbooks in Excel instances see {README_open}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_open.rdoc]
 

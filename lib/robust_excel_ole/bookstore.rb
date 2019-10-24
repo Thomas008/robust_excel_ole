@@ -16,24 +16,25 @@ module RobustExcelOle
       book.excel
     end
 
-    # returns a book with the given filename, if it was open once
+    # returns a workbook with the given filename, if it was open once
     # @param [String] filename  the file name
     # @param [Hash]   options   the options
     # @option option [Boolean] :prefer_writable
     # @option option [Boolean] :prefer_excel
-    # prefers open books to closed books, and among them, prefers more recently opened books
+    # prefers open workbooks to closed workbooks, and among them, prefers more recently opened workbooks
     # excludes hidden Excel instance
-    # options: :prefer_writable   returns the writable book, if it is open (default: true)
-    #                             otherwise returns the book according to the preference order mentioned above
-    #          :prefer_excel      returns the book in the given Excel instance, if it exists,
+    # options: :prefer_writable   returns the writable workbook, if it is open (default: true)
+    #                             otherwise returns the workbook according to the preference order mentioned above
+    #          :prefer_excel      returns the workbook in the given Excel instance, if it exists,
     #                             otherwise proceeds according to prefer_writable
     def fetch(filename, options = { :prefer_writable => true })
       return nil unless filename
 
       filename = General.absolute_path(filename)
       filename_key = General.canonize(filename)
-      weakref_books = @filename2books[filename_key]
-      return nil unless weakref_books
+      weakref_books = @filename2books[filename_key]      
+      weakref_books = consider_networkpaths(filename_key) if weakref_books.empty? || weakref_books.nil?
+      return nil if weakref_books.nil? || weakref_books.empty?
 
       result = open_book = closed_book = nil
       weakref_books = weakref_books.map { |wr_book| wr_book if wr_book.weakref_alive? }.compact
@@ -44,8 +45,7 @@ module RobustExcelOle
           begin
             @filename2books[filename_key].delete(wr_book)
           rescue
-            # trace "#{$!.message}"
-            # trace "Warning: deleting dead reference failed: file: #{filename.inspect}"
+            trace "Warning: deleting dead reference failed: file: #{filename.inspect}"
           end
         else
           book = wr_book.__getobj__
@@ -65,6 +65,92 @@ module RobustExcelOle
       end
       result ||= (open_book || closed_book)
       result
+    end
+
+    def consider_networkpaths(filename)      
+      network = WIN32OLE.new('WScript.Network')
+      drives = network.enumnetworkdrives
+      drive_letter, filename_after_drive_letter = filename.split(':')   
+      # if filename starts with a drive letter not c and this drive exists,
+      # then if there is the corresponding host_share_path in the bookstore, 
+      # then take the corresponding workbooks
+      # otherwise (there is an usual file path) find in the bookstore the workbooks of which filenames 
+      # ends with the latter part of the given filename (after the drive letter)
+      if drive_letter != 'c' && drive_letter != filename    
+        for i in 0 .. drives.Count-1
+          next if i % 2 == 1
+          if drives.Item(i).gsub(':','').downcase == drive_letter
+            hostname_share = drives.Item(i+1).gsub('\\','/').gsub('//','').downcase
+            break
+          end
+        end
+        found_filename = nil
+        @filename2books.each do |stored_filename,_|
+          if hostname_share && stored_filename
+            if stored_filename[0] == '/'
+              index_hostname = stored_filename[1,stored_filename.length].index('/')+2
+              index_hostname_share = stored_filename[index_hostname,stored_filename.length].index('/')
+              hostname_share_in_stored_filename = stored_filename[1,index_hostname+index_hostname_share-1] 
+              if hostname_share_in_stored_filename == hostname_share
+                found_filename = stored_filename
+                break
+              end
+            elsif found_filename.nil? && stored_filename.end_with?(filename_after_drive_letter)
+              found_filename = stored_filename
+            end
+          end
+        end
+      elsif filename[0] == '/'
+        # if filename starts with a host name and share, and this is an existing host name share path,
+        # then if there are workbooks with the corresponding drive letter,
+        # then take these workbooks,
+        # otherwise (there is an usual file path) find in the bookstore the workbooks of which filenames
+        # ends with the latter part of the given filename (after the drive letter)
+        index_hostname = filename[1,filename.length].index('/')+2
+        index_hostname_share = filename[index_hostname,filename.length].index('/')
+        hostname_share_in_filename = filename[1,index_hostname+index_hostname_share-1] 
+        filename_after_hostname_share = filename[index_hostname+index_hostname_share+1, filename.length]
+        require 'socket'
+        hostname = Socket.gethostname
+        if hostname_share_in_filename[0,hostname_share_in_filename.index('/')] == hostname.downcase
+          for i in 0 .. drives.Count-1
+            next if i % 2 == 1
+            hostname_share = drives.Item(i+1).gsub('\\','/').gsub('//','').downcase
+            if hostname_share == hostname_share_in_filename
+              drive_letter = drives.Item(i).gsub(':','').downcase
+              break
+            end
+          end
+          @filename2books.each do |stored_filename,_|
+            if stored_filename
+              if drive_letter && stored_filename.start_with?(drive_letter.downcase) && stored_filename.end_with?(filename_after_hostname_share)
+                found_filename = stored_filename
+                break
+              elsif found_filename.nil? && stored_filename.end_with?(filename_after_hostname_share)
+                found_filename = stored_filename
+              end
+            end
+          end
+        end
+      else
+        # if filename is an usual file path,
+        # then find in the bookstore a workbook of which filename starts with
+        # a drive letter or a host name
+        @filename2books.each do |stored_filename,_|
+          drive_letter, _ = stored_filename.split(':')   
+          stored_filename_end = if drive_letter != stored_filename && drive_letter != 'c'
+            stored_filename[stored_filename.index(':')+1,stored_filename.length]
+          elsif stored_filename[0] == '/'
+            index_after_hostname = stored_filename[1,stored_filename.length].index('/')
+            stored_filename[index_after_hostname+1, stored_filename.length]
+          end
+          if stored_filename_end && filename.end_with?(stored_filename_end)
+            found_filename = stored_filename
+            break
+          end
+        end
+      end
+      @filename2books[found_filename]
     end
 
     # stores a workbook

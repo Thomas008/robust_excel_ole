@@ -43,6 +43,133 @@ describe Workbook do
 
   describe "connecting to unknown workbooks" do
 
+     context "with none workbook" do
+
+      it "should open one new Excel with the worbook" do
+        book1 = Workbook.open(@simple_file1)
+        book1.should be_alive
+        book1.should be_a Workbook
+        Excel.excels_number.should == 1
+        book1.ReadOnly.should be false
+        book1.excel.Visible.should be false
+        book1.CheckCompatibility.should be false
+        book1.Saved.should be true
+      end
+
+      it "should set the options" do
+        book1 = Workbook.open(@simple_file1, :force => {:visible => true}, :check_compatibility => true)
+        book1.visible.should be true
+        book1.CheckCompatibility.should be true
+      end
+
+      it "should open in the given known Excel" do
+        excel1 = Excel.create
+        book1 = Workbook.open(@simple_file1)
+        book1.should be_alive
+        book1.should be_a Workbook
+        book1.excel.should == excel1
+        Excel.excels_number.should == 1        
+        book1.excel.Visible.should be false
+      end
+
+      it "should open in the given known visible Excel" do
+        excel1 = Excel.create(:visible => true)
+        book1 = Workbook.open(@simple_file1)
+        book1.should be_alive
+        book1.should be_a Workbook
+        book1.excel.should == excel1
+        Excel.excels_number.should == 1        
+        book1.excel.Visible.should be true
+      end
+
+      it "should open in the given known Excel" do
+        excel1 = Excel.create
+        book1 = Workbook.open(@simple_file1, :force => {:excel => :new})
+        book1.should be_alive
+        book1.should be_a Workbook
+        book1.excel.should_not == excel1
+        Excel.excels_number.should == 2        
+      end
+
+      it "should set the options in a given known Excel" do
+        excel1 = Excel.create
+        book1 = Workbook.open(@simple_file1, :force => {:visible => true}, :check_compatibility => true)
+        book1.visible.should be true
+        book1.CheckCompatibility.should be true
+      end
+
+      it "should open the workbook in the given Excel if there are only unknown Excels" do
+        ole_excel1 = WIN32OLE.new('Excel.Application')
+        book1 = Workbook.open(@simple_file1)
+        book1.should be_alive
+        book1.should be_a Workbook
+        Excel.excels_number.should == 1
+        book1.excel.ole_excel.Hwnd.should == ole_excel1.Hwnd
+      end
+
+    end
+
+    context "with one unknown workbook" do
+
+      before do
+        ole_e1 = WIN32OLE.new('Excel.Application')
+        ws = ole_e1.Workbooks
+        abs_filename = General.absolute_path(@simple_file1).tr('/','\\')
+        @ole_wb = ws.Open(abs_filename)
+      end
+
+      it "should connect to an unknown workbook" do
+        Workbook.open(@simple_file1) do |book|
+          book.filename.should == @simple_file1
+          book.should be_alive
+          book.should be_a Workbook
+          book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
+        end
+      end
+
+      it "should raise error when connecting to a blocking workbook with :if_blocked => :raise" do
+        expect{
+          Workbook.open(@simple_file_other_path1) 
+          }.to raise_error(WorkbookBlocked, /obstructed by/)
+      end
+
+      it "should close the blocking workbook and open the new workbook with :if_blocked => :forget" do
+        new_book = Workbook.open(@simple_file_other_path1, :if_obstructed => :forget)
+        expect{
+          @ole_wb.Name
+        }.to raise_error 
+        new_book.should be_alive
+        new_book.should be_a Workbook
+        new_book.Fullname.should == General.absolute_path(@simple_file_other_path1)
+      end      
+
+      it "should let the workbook open, if :if_unsaved is :raise" do        
+        @ole_wb.Worksheets.Add
+        expect{
+          new_book = Workbook.open(@simple_file1, :if_unsaved => :raise)
+          }.to raise_error(WorkbookNotSaved, /workbook is already open but not saved: "workbook.xls"/)
+      end
+
+      it "should let the workbook open, if :if_unsaved is :accept" do        
+        @ole_wb.Worksheets.Add
+        sheet_num = @ole_wb.Worksheets.Count
+        new_book = Workbook.open(@simple_file1, :if_unsaved => :accept)
+        new_book.should be_alive
+        new_book.should be_a Workbook
+        new_book.Worksheets.Count.should == sheet_num
+      end
+
+      it "should close the workbook, if :if_unsaved is :forget" do        
+        @ole_wb.Worksheets.Add
+        sheet_num = @ole_wb.Worksheets.Count
+        new_book = Workbook.open(@simple_file1, :if_unsaved => :forget)
+        new_book.should be_alive
+        new_book.should be_a Workbook
+        new_book.Worksheets.Count.should == sheet_num - 1
+      end
+
+    end
+
     context "with several unknown workbooks" do
 
       before do
@@ -72,23 +199,7 @@ describe Workbook do
 
     end
 
-    context "with one unknown workbook" do
 
-      before do
-        ole_e1 = WIN32OLE.new('Excel.Application')
-        ws = ole_e1.Workbooks
-        abs_filename = General.absolute_path(@simple_file1).tr('/','\\')
-        @ole_wb = ws.Open(abs_filename)
-      end
-
-      it "should connect to an unknown workbook" do
-        Workbook.open(@simple_file1) do |book|
-          book.filename.should == @simple_file1
-          book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
-        end
-      end
-
-    end
 
   end
 

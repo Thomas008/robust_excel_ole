@@ -424,6 +424,10 @@ module RobustExcelOle
       processes.select { |p| p.name == 'EXCEL.EXE' }.size
     end
 
+    def self.known_excels_number
+      @@hwnd2excel.size
+    end
+
     # returns an Excel instance
     def self.known_excel_instance
       @@hwnd2excel.each do |hwnd, wr_excel|

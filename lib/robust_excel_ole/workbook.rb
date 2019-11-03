@@ -155,21 +155,7 @@ module RobustExcelOle
       end
     end
 
-  private
-
-    # @private
-    # connects to an unknown workbook and returns true, if it exists
-    # opens a new workbook and returns false, else
-    def connect(filename,options)
-      abs_filename = General.absolute_path(filename).tr('/','\\')
-      @ole_workbook = begin
-        WIN32OLE.connect(abs_filename)
-      rescue
-        trace "#{$!.message}"
-      end     
-      ole_excel = WIN32OLE.connect(@ole_workbook.Fullname).Application rescue nil
-      @excel = excel_class.new(ole_excel)
-    end
+  private    
 
     # translates abbreviations and synonyms and merges with default options
     def self.process_options(options, proc_opts = {:use_defaults => true})
@@ -257,7 +243,12 @@ module RobustExcelOle
       filename = @stored_filename ? @stored_filename : filename 
       manage_nonexisting_file(filename,options)
       if RUBY_PLATFORM =~ /java/ && (options[:force][:excel].nil? || options[:force][:excel] == :current)
-        connect(filename,options)
+        begin
+          connect(filename,options)  
+        rescue WorkbookREOError
+          raise WorkbookNotSaved, "workbook is already open but not saved: #{File.basename(filename).inspect}"
+        end
+        #manage_unsaved_workbook(filename,options) unless @ole_workbook.Saved
       else
         workbooks = @excel.Workbooks
         @ole_workbook = workbooks.Item(File.basename(filename)) rescue nil if @ole_workbook.nil?
@@ -275,6 +266,19 @@ module RobustExcelOle
     end
 
   private
+
+    # @private
+    # connects to an unknown workbook and returns true, if it exists
+    def connect(filename,options)
+      abs_filename = General.absolute_path(filename).tr('/','\\')
+      @ole_workbook = WIN32OLE.connect(abs_filename)
+      ole_excel = begin
+        WIN32OLE.connect(@ole_workbook.Fullname).Application 
+      rescue 
+        raise WorkbookREOError
+      end
+      @excel = excel_class.new(ole_excel)
+    end
 
     # @private
     def manage_nonexisting_file(filename,options)      

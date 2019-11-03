@@ -67,16 +67,41 @@ class WIN32OLE
   
   # promoting WIN32OLE objects to RobustExcelOle objects
   def to_reo
-    case ole_type.name
-    when 'Range' then RobustExcelOle::Range.new(self)
-    when '_Worksheet' then RobustExcelOle::Worksheet.new(self)
-    when '_Workbook' then RobustExcelOle::Workbook.new(self)
-    when '_Application' then RobustExcelOle::Excel.new(self)
-    else
-      self
+    begin
+      self.Hwnd
+      RobustExcelOle::Excel.new(self)
+    rescue NoMethodError
+      begin
+        self.FullName
+        RobustExcelOle::Workbook.new(self)
+      rescue NoMethodError
+        begin
+          self.Copy
+          RobustExcelOle::Worksheet.new(self)
+        rescue NoMethodError          
+          begin
+            self.Address
+            RobustExcelOle::Range.new(self)        
+          rescue NoMethodError
+            self
+          end
+        end
+      end
     end
   end
 end
+
+  # workong for ruby
+  #    case ole_type.name
+  #    when 'Range' then RobustExcelOle::Range.new(self)
+  #    when '_Worksheet' then RobustExcelOle::Worksheet.new(self)
+  #    when '_Workbook' then RobustExcelOle::Workbook.new(self)
+  #    when '_Application' then RobustExcelOle::Excel.new(self)
+  #    else
+  #      self
+  #    end
+  #  end
+  # end
 
 # @private
 class ::String 

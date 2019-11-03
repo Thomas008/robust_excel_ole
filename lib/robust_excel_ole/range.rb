@@ -213,6 +213,12 @@ module RobustExcelOle
       end
     end
 
+    def == other_range
+      other_range.is_a?(Range) &&
+        self.worksheet == other_range.worksheet
+        self.Address == other_range.Address 
+    end
+
     # @private
     def self.worksheet_class   
       @worksheet_class ||= begin

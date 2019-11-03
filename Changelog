@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file.
   - Workbook#open: options :if_blocked is synonym to :if_obstructed
 
 ## [1.11]
+
+### Added
+  - Range#==, Worksheet#==
   - Simplified Code
 
 ## [1.10]

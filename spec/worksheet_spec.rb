@@ -102,6 +102,20 @@ describe Worksheet do
     end
 
   end
+
+  describe "==" do
+
+    it "should return true for identical worksheets" do
+      sheet2 = @book.sheet(1)
+      @sheet.should == sheet2
+    end
+
+     it "should return false for non-identical worksheets" do
+      sheet2 = @book.sheet(2)
+      @sheet.should_not == sheet2
+    end
+
+  end
     
   describe "access sheet name" do
     describe "#name" do

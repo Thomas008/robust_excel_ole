@@ -180,6 +180,12 @@ module RobustExcelOle
       RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(integer_range.min, col), @ole_worksheet.Cells(integer_range.max, col)))
     end
 
+    def == other_worksheet
+      other_worksheet.is_a?(Worksheet) && 
+        self.workbook == other_worksheet.workbook &&
+        self.Name == other_worksheet.Name
+    end
+
     # @private
     def self.workbook_class  
       @workbook_class ||= begin

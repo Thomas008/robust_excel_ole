@@ -313,6 +313,18 @@ describe RobustExcelOle::Range do
 
   end
 
+  describe "==" do
+
+    it "should return true for identical ranges" do
+      @sheet.range([1..2,3..4]).should == @sheet.range([1..2,3..4])  
+    end
+
+    it "should return false for non-identical ranges" do
+      @sheet.range([3..4,1..2]).should_not == @sheet.range([1..2,3..4])  
+    end
+
+  end
+
   describe "#method_missing" do
     it "can access COM method" do
       @range.Range(@range.Cells.Item(1), @range.Cells.Item(3)).v.should eq [@range.values(0..2)]

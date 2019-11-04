@@ -237,7 +237,7 @@ module RobustExcelOle
 
 
     # @private
-    # does not manage conflicts with blocking or unsaved workbooks for jruby
+    # restriction for jruby: does not manage conflicts with blocking or unsaved workbooks
     def ensure_workbook(filename, options)  
       return if @ole_workook && alive?
       filename = @stored_filename ? @stored_filename : filename 
@@ -245,10 +245,12 @@ module RobustExcelOle
       if RUBY_PLATFORM =~ /java/ && (options[:force][:excel].nil? || options[:force][:excel] == :current)
         begin
           connect(filename,options)  
-        rescue WorkbookREOError
+        rescue WorkbookConnectingNotAliveError
           raise WorkbookNotSaved, "workbook is already open but not saved: #{File.basename(filename).inspect}"
+        rescue WorkbookConnectingBlockingError # can't find moniker
+          raise WorkbookBlocked, "can't open workbook #{filename}"+
+            "\nbecause it is being blocked by a workbook with the same name in a different path."
         end
-        #manage_unsaved_workbook(filename,options) unless @ole_workbook.Saved
       else
         workbooks = @excel.Workbooks
         @ole_workbook = workbooks.Item(File.basename(filename)) rescue nil if @ole_workbook.nil?
@@ -271,11 +273,15 @@ module RobustExcelOle
     # connects to an unknown workbook and returns true, if it exists
     def connect(filename,options)
       abs_filename = General.absolute_path(filename).tr('/','\\')
-      @ole_workbook = WIN32OLE.connect(abs_filename)
+      @ole_workbook = begin
+        WIN32OLE.connect(abs_filename)
+      rescue
+        raise WorkbookConnectingBlockingError
+      end
       ole_excel = begin
         WIN32OLE.connect(@ole_workbook.Fullname).Application 
       rescue 
-        raise WorkbookREOError
+        raise WorkbookConnectingNotAliveError
       end
       @excel = excel_class.new(ole_excel)
     end
@@ -328,9 +334,9 @@ module RobustExcelOle
     def manage_blocking_workbook(filename,options)
       case options[:if_obstructed]
       when :raise
-        raise WorkbookBlocked, "can't open workbook #{@ole_workbook.Fullname.tr('\\','/')} because it is 
-        obstructed by #{filename} with the same name in a different path." +
-        "\nHint: Use the option :if_obstructed with values :forget or :save,
+        raise WorkbookBlocked, "can't open workbook #{filename},
+        because it is being blocked by #{@ole_workbook.Fullname.tr('\\','/')} with the same name in a different path." +
+        "\nHint: Use the option :if_blocked with values :forget or :save,
          to allow automatic closing of the old workbook (without or with saving before, respectively),
          before the new workbook is being opened."
       when :forget
@@ -354,7 +360,7 @@ module RobustExcelOle
         @excel = excel_class.new(:reuse => false)
         open_or_create_workbook(filename, options)
       else
-        raise OptionInvalid, ":if_obstructed: invalid option: #{options[:if_obstructed].inspect}" +
+        raise OptionInvalid, ":if_blocked: invalid option: #{options[:if_obstructed].inspect}" +
         "\nHint: Valid values are :raise, :forget, :save, :close_if_saved, :new_excel"
       end
     end

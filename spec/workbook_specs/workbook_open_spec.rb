@@ -130,11 +130,11 @@ describe Workbook do
       it "should raise error when connecting to a blocking workbook with :if_blocked => :raise" do
         expect{
           Workbook.open(@simple_file_other_path1) 
-          }.to raise_error(WorkbookBlocked, /obstructed by/)
+          }.to raise_error(WorkbookBlocked, /blocked by/)
       end
 
       it "should close the blocking workbook and open the new workbook with :if_blocked => :forget" do
-        new_book = Workbook.open(@simple_file_other_path1, :if_obstructed => :forget)
+        new_book = Workbook.open(@simple_file_other_path1, :if_blocked => :forget)
         expect{
           @ole_wb.Name
         }.to raise_error 
@@ -312,16 +312,16 @@ describe Workbook do
       end
     end
 
-    context "with :if_obstructed" do
+    context "with :if_blocked" do
 
-      it "should raise an error, if :if_obstructed is :raise" do
+      it "should raise an error, if :if_blocked is :raise" do
         expect {
           new_book = Workbook.open(@simple_file_other_path1)
-        }.to raise_error(WorkbookBlocked, /obstructed by/)
+        }.to raise_error(WorkbookBlocked, /blocked by/)
       end
 
-      it "should close the other book and open the new book, if :if_obstructed is :forget" do
-        new_book = Workbook.open(@simple_file_other_path1, :if_obstructed => :forget)
+      it "should close the other book and open the new book, if :if_blocked is :forget" do
+        new_book = Workbook.open(@simple_file_other_path1, :if_blocked => :forget)
         expect{
           @ole_workbook1.Name
         }.to raise_error 
@@ -2028,7 +2028,7 @@ describe Workbook do
           it "should raise an error, if :if_obstructed is :raise" do
             expect {
               new_book = Workbook.open(@simple_file1, :if_obstructed => :raise)
-            }.to raise_error(WorkbookBlocked, /obstructed by/)
+            }.to raise_error(WorkbookBlocked, /blocked by/)
           end
 
           it "should close the other book and open the new book, if :if_obstructed is :forget" do
@@ -2087,7 +2087,7 @@ describe Workbook do
           it "should raise an error, if :if_obstructed is default" do
             expect {
               new_book = Workbook.open(@simple_file1)              
-            }.to raise_error(WorkbookBlocked, /obstructed by/)
+            }.to raise_error(WorkbookBlocked, /blocked by/)
           end         
 
           it "should raise an error, if :if_obstructed is invalid option" do

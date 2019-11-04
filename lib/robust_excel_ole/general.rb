@@ -70,19 +70,19 @@ class WIN32OLE
     begin
       self.Hwnd
       RobustExcelOle::Excel.new(self)
-    rescue NoMethodError
+    rescue
       begin
         self.FullName
         RobustExcelOle::Workbook.new(self)
-      rescue NoMethodError
+      rescue
         begin
           self.Copy
           RobustExcelOle::Worksheet.new(self)
-        rescue NoMethodError          
+        rescue          
           begin
             self.Address
             RobustExcelOle::Range.new(self)        
-          rescue NoMethodError
+          rescue
             self
           end
         end
@@ -90,18 +90,6 @@ class WIN32OLE
     end
   end
 end
-
-  # workong for ruby
-  #    case ole_type.name
-  #    when 'Range' then RobustExcelOle::Range.new(self)
-  #    when '_Worksheet' then RobustExcelOle::Worksheet.new(self)
-  #    when '_Workbook' then RobustExcelOle::Workbook.new(self)
-  #    when '_Application' then RobustExcelOle::Excel.new(self)
-  #    else
-  #      self
-  #    end
-  #  end
-  # end
 
 # @private
 class ::String 

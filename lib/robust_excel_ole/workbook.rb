@@ -175,8 +175,8 @@ module RobustExcelOle
             erg[new_key] = value
           end
         end
-        erg[:default] = {} if erg[:default].nil?
-        erg[:force] = {} if erg[:force].nil?
+        erg[:default] ||= {}
+        erg[:force] ||= {}
         force_list = [:visible, :excel]
         erg.each { |key,value| erg[:force][key] = value if force_list.include?(key) }
         erg[:default][:excel] = erg[:default_excel] unless erg[:default_excel].nil?

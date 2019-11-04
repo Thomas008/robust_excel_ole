@@ -356,9 +356,7 @@ describe Workbook do
 
     it "should open the workbokk via network path" do
       book1 = Workbook.open(@simple_file)
-      expect{
-        book2 = Workbook.open(@simple_file_via_network)
-      }.to_not raise_error
+      book2 = Workbook.open(@simple_file_via_network)
       book1.should === book2
       book1.Fullname.should == book2.Fullname
     end

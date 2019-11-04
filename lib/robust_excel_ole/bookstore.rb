@@ -67,15 +67,15 @@ module RobustExcelOle
       result
     end
 
+    # @private
     def consider_networkpaths(filename)      
       network = WIN32OLE.new('WScript.Network')
       drives = network.enumnetworkdrives
       drive_letter, filename_after_drive_letter = filename.split(':')   
+      found_filename = nil
       # if filename starts with a drive letter not c and this drive exists,
       # then if there is the corresponding host_share_path in the bookstore, 
-      # then take the corresponding workbooks
-      # otherwise (there is an usual file path) find in the bookstore the workbooks of which filenames 
-      # ends with the latter part of the given filename (after the drive letter)
+      # then take the corresponding workbooks      
       if drive_letter != 'c' && drive_letter != filename    
         for i in 0 .. drives.Count-1
           next if i % 2 == 1
@@ -83,8 +83,7 @@ module RobustExcelOle
             hostname_share = drives.Item(i+1).gsub('\\','/').gsub('//','').downcase
             break
           end
-        end
-        found_filename = nil
+        end        
         @filename2books.each do |stored_filename,_|
           if hostname_share && stored_filename
             if stored_filename[0] == '/'
@@ -95,8 +94,6 @@ module RobustExcelOle
                 found_filename = stored_filename
                 break
               end
-            elsif found_filename.nil? && stored_filename.end_with?(filename_after_drive_letter)
-              found_filename = stored_filename
             end
           end
         end
@@ -104,8 +101,6 @@ module RobustExcelOle
         # if filename starts with a host name and share, and this is an existing host name share path,
         # then if there are workbooks with the corresponding drive letter,
         # then take these workbooks,
-        # otherwise (there is an usual file path) find in the bookstore the workbooks of which filenames
-        # ends with the latter part of the given filename (after the drive letter)
         index_hostname = filename[1,filename.length].index('/')+2
         index_hostname_share = filename[index_hostname,filename.length].index('/')
         hostname_share_in_filename = filename[1,index_hostname+index_hostname_share-1] 
@@ -126,27 +121,8 @@ module RobustExcelOle
               if drive_letter && stored_filename.start_with?(drive_letter.downcase) && stored_filename.end_with?(filename_after_hostname_share)
                 found_filename = stored_filename
                 break
-              elsif found_filename.nil? && stored_filename.end_with?(filename_after_hostname_share)
-                found_filename = stored_filename
               end
             end
-          end
-        end
-      else
-        # if filename is an usual file path,
-        # then find in the bookstore a workbook of which filename starts with
-        # a drive letter or a host name
-        @filename2books.each do |stored_filename,_|
-          drive_letter, _ = stored_filename.split(':')   
-          stored_filename_end = if drive_letter != stored_filename && drive_letter != 'c'
-            stored_filename[stored_filename.index(':')+1,stored_filename.length]
-          elsif stored_filename[0] == '/'
-            index_after_hostname = stored_filename[1,stored_filename.length].index('/')
-            stored_filename[index_after_hostname+1, stored_filename.length]
-          end
-          if stored_filename_end && filename.end_with?(stored_filename_end)
-            found_filename = stored_filename
-            break
           end
         end
       end

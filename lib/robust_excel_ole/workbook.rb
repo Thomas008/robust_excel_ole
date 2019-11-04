@@ -272,7 +272,7 @@ module RobustExcelOle
     # @private
     # connects to an unknown workbook and returns true, if it exists
     def connect(filename,options)
-      abs_filename = General.absolute_path(filename).tr('/','\\')
+      abs_filename = General.absolute_path(filename)
       @ole_workbook = begin
         WIN32OLE.connect(abs_filename)
       rescue
@@ -289,7 +289,7 @@ module RobustExcelOle
     # @private
     def manage_nonexisting_file(filename,options)      
       return if File.exist?(filename)
-      abs_filename = General.absolute_path(filename).tr('/','\\')
+      abs_filename = General.absolute_path(filename)
       if options[:if_absent] == :create
         ensure_excel({:force[:excel] => :new}.merge(options)) if RUBY_PLATFORM !~ /java/
         @excel.Workbooks.Add
@@ -308,16 +308,17 @@ module RobustExcelOle
     # @private
     def manage_blocking_or_unsaved_workbook(filename,options)
       obstructed_by_other_book = if (File.basename(filename) == File.basename(@ole_workbook.Fullname)) 
-        p1 = General.absolute_path(filename) 
-        p2 = @ole_workbook.Fullname
-        is_same_path = if p1[1..1] == ":" and p2[0..1] == '\\\\' # normal path starting with the drive letter and a path in network notation (starting with 2 backslashes)
-          # this is a Workaround for Excel2010 on WinXP: Network drives won't get translated to drive letters. So we'll do it manually:
-          p1_pure_path = p1[2..-1]
-          p2.end_with?(p1_pure_path)  and p2[0, p2.rindex(p1_pure_path)] =~ /^\\\\[\w\d_]+(\\[\w\d_]+)*$/  # e.g. "\\\\server\\folder\\subfolder"
-        else
-          p1 == p2
-        end
-        not is_same_path
+        General.absolute_path(filename) != @ole_workbook.Fullname
+        #p1 = General.absolute_path(filename) 
+        #p2 = @ole_workbook.Fullname
+        #is_same_path = if p1[1..1] == ":" and p2[0..1] == '\\\\' # normal path starting with the drive letter and a path in network notation (starting with 2 backslashes)
+        #  # this is a Workaround for Excel2010 on WinXP: Network drives won't get translated to drive letters. So we'll do it manually:
+        #  p1_pure_path = p1[2..-1]
+        #  p2.end_with?(p1_pure_path)  and p2[0, p2.rindex(p1_pure_path)] =~ /^\\\\[\w\d_]+(\\[\w\d_]+)*$/  # e.g. "\\\\server\\folder\\subfolder"
+        #else
+        #  p1 == p2
+        #end
+        #not is_same_path
       end      
       if obstructed_by_other_book
         # workbook is being obstructed by a workbook with same name and different path

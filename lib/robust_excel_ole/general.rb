@@ -6,7 +6,7 @@ module General
   def absolute_path(file) 
     file = File.expand_path(file)
     file = RobustExcelOle::Cygwin.cygpath('-w', file) if RUBY_PLATFORM =~ /cygwin/
-    WIN32OLE.new('Scripting.FileSystemObject').GetAbsolutePathName(file)
+    WIN32OLE.new('Scripting.FileSystemObject').GetAbsolutePathName(file).tr('/','\\')
   end
 
   # @private

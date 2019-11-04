@@ -1,9 +1,11 @@
 = RobustExcelOle
 
-This library automates reading, modifying, and writing Excel workbooks. It is designed to support several kinds of concurrency of both simultaneously running Excel instances and simultanously happening user interactions.
-RobustExcelOle deals with various cases of Excel and user behaviour,
-and implements workarounds for some Excel bugs.
-The gem provides convenient methods for common tasks, and facilitates referenced libraries.
+RobustExcelOle helps controlling Excel. It is designed to manage simultaneously running Excel instances,
+even with simultanously happening user interactions.
+This obviously includes standard tasks like reading and writing Excel workbooks.
+RobustExcelOle deals with various cases of Excel (and user) behaviour,
+supplies workarounds for some Excel bugs, and supports referenced libraries.
+It runs on Windows only.
 
 RobustExcelOle works by sending VBA methods via Win32OLE. It keeps track of Excel workbooks and Excel instances.
 

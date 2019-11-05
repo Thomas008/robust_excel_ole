@@ -64,32 +64,25 @@ end
 
 # @private
 class WIN32OLE
+
+  include RobustExcelOle
   
   # promoting WIN32OLE objects to RobustExcelOle objects
   def to_reo
-    begin
-      self.Hwnd
-      RobustExcelOle::Excel.new(self)
-    rescue
+    class2method = [{Excel => :Hwnd}, {Workbook => :FullName}, {Worksheet => :Copy}, {Range => :Address}]
+    class2method.each do |element|
+      classname = element.first.first
+      method = element.first.last
       begin
-        self.FullName
-        RobustExcelOle::Workbook.new(self)
+        self.send(method)
+        return classname.new(self)
       rescue
-        begin
-          self.Copy
-          RobustExcelOle::Worksheet.new(self)
-        rescue          
-          begin
-            self.Address
-            RobustExcelOle::Range.new(self)        
-          rescue
-            self
-          end
-        end
+        next
       end
     end
   end
 end
+
 
 # @private
 class ::String 

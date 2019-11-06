@@ -75,11 +75,15 @@ module RobustExcelOle
   end
 
   # @private
-  class WorkbookConnectingNotAliveError < WorkbookREOError        
+  class WorkbookConnectingUnsavedError < WorkbookREOError        
   end
 
   # @private
   class WorkbookConnectingBlockingError < WorkbookREOError       
+  end
+
+  # @private
+  class WorkbookConnectingUnknownError < WorkbookREOError       
   end
 
   # @private

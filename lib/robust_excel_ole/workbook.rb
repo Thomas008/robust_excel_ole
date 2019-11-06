@@ -245,11 +245,13 @@ module RobustExcelOle
       if RUBY_PLATFORM =~ /java/ && (options[:force][:excel].nil? || options[:force][:excel] == :current)
         begin
           connect(filename,options)  
-        rescue WorkbookConnectingNotAliveError
+        rescue WorkbookConnectingUnsavedError
           raise WorkbookNotSaved, "workbook is already open but not saved: #{File.basename(filename).inspect}"
-        rescue WorkbookConnectingBlockingError # can't find moniker
+        rescue WorkbookConnectingBlockingError
           raise WorkbookBlocked, "can't open workbook #{filename}"+
             "\nbecause it is being blocked by a workbook with the same name in a different path."
+        rescue WorkbookConnectingUnknownError
+          raise WorkbookREOError, "can't connect to workbook #{filename}"
         end
       else
         workbooks = @excel.Workbooks
@@ -276,12 +278,20 @@ module RobustExcelOle
       @ole_workbook = begin
         WIN32OLE.connect(abs_filename)
       rescue
-        raise WorkbookConnectingBlockingError
+        if $!.message =~ /moniker/
+          raise WorkbookConnectingBlockingError
+        else
+          raise WorkbookConnectingUnknownError
+        end
       end
       ole_excel = begin
-        WIN32OLE.connect(@ole_workbook.Fullname).Application 
+        @ole_workbook.Application     
       rescue 
-        raise WorkbookConnectingNotAliveError
+        if $!.message =~ /dispid/
+          raise WorkbookConnectingUnsavedError
+        else
+          raise WorkbookConnectingUnknownError
+        end
       end
       @excel = excel_class.new(ole_excel)
     end

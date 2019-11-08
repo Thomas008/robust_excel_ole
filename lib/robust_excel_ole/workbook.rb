@@ -266,7 +266,7 @@ module RobustExcelOle
           end
         end       
       end
-      set_options(options)
+      set_options(filename, options)
     end
 
   private
@@ -369,6 +369,7 @@ module RobustExcelOle
         end
       when :new_excel
         @excel = excel_class.new(:reuse => false)
+        @ole_workbook = nil
         open_or_create_workbook(filename, options)
       else
         raise OptionInvalid, ":if_blocked: invalid option: #{options[:if_obstructed].inspect}" +
@@ -393,6 +394,7 @@ module RobustExcelOle
         @excel.with_displayalerts(true) { open_or_create_workbook(filename,options) }
       when :new_excel
         @excel = excel_class.new(:reuse => false)
+        @ole_workbook = nil
         open_or_create_workbook(filename, options)
       else
         raise OptionInvalid, ":if_unsaved: invalid option: #{options[:if_unsaved].inspect}" +
@@ -401,7 +403,7 @@ module RobustExcelOle
     end
 
     # @private
-    def open_or_create_workbook(filename, options)  
+    def open_or_create_workbook(filename, options)       
       if !@ole_workbook || (options[:if_unsaved] == :alert) || options[:if_obstructed]
         begin
           abs_filename = General.absolute_path(filename)
@@ -437,7 +439,12 @@ module RobustExcelOle
     end
 
     # @private
-    def set_options(options)
+    def set_options(filename, options)
+      if @ole_workbook.ReadOnly != options[:read_only]
+        @excel.with_displayalerts(false) { @ole_workbook.Close }
+        @ole_workbook = nil
+        open_or_create_workbook(filename, options)
+      end
       if options[:force][:visible].nil? && !options[:default][:visible].nil?
         if @excel.created
           self.visible = options[:default][:visible]

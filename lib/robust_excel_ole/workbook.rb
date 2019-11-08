@@ -40,7 +40,7 @@ module RobustExcelOle
     # @option opts [Hash] :default or :d
     # @option opts [Hash] :force or :f
     # @option opts [Symbol]  :if_unsaved     :raise (default), :forget, :accept, :alert, :excel, or :new_excel
-    # @option opts [Symbol]  :if_obstructed  :raise (default), :forget, :save, :close_if_saved, or _new_excel
+    # @option opts [Symbol]  :if_blocked     :raise (default), :forget, :save, :close_if_saved, or _new_excel
     # @option opts [Symbol]  :if_absent      :raise (default) or :create
     # @option opts [Boolean] :read_only      true (default) or false
     # @option opts [Boolean] :update_links   :never (default), :always, :alert
@@ -404,36 +404,35 @@ module RobustExcelOle
 
     # @private
     def open_or_create_workbook(filename, options)       
-      if !@ole_workbook || (options[:if_unsaved] == :alert) || options[:if_obstructed]
+      return if @ole_workbook && options[:if_unsaved] != :alert
+      begin
+        abs_filename = General.absolute_path(filename)
         begin
-          abs_filename = General.absolute_path(filename)
-          begin
-            workbooks = @excel.Workbooks
-          rescue WIN32OLERuntimeError => msg
-            raise UnexpectedREOError, "WIN32OLERuntimeError: #{msg.message} #{msg.backtrace}"
+          workbooks = @excel.Workbooks
+        rescue WIN32OLERuntimeError => msg
+          raise UnexpectedREOError, "WIN32OLERuntimeError: #{msg.message} #{msg.backtrace}"
+        end
+        begin
+          with_workaround_linked_workbooks_excel2007(options) do
+            # temporary workaround until jruby-win32ole implements named parameters (Java::JavaLang::RuntimeException (createVariant() not implemented for class org.jruby.RubyHash)
+            workbooks.Open(abs_filename, 
+                                      updatelinks_vba(options[:update_links]), 
+                                      options[:read_only] )
           end
+        rescue WIN32OLERuntimeError => msg
+          # for Excel2007: for option :if_unsaved => :alert and user cancels: this error appears?
+          # if yes: distinguish these events
+          raise UnexpectedREOError, "WIN32OLERuntimeError: #{msg.message} #{msg.backtrace}"
+        end
+        begin
+          # workaround for bug in Excel 2010: workbook.Open does not always return the workbook when given file name
           begin
-            with_workaround_linked_workbooks_excel2007(options) do
-              # temporary workaround until jruby-win32ole implements named parameters (Java::JavaLang::RuntimeException (createVariant() not implemented for class org.jruby.RubyHash)
-              workbooks.Open(abs_filename, 
-                                        updatelinks_vba(options[:update_links]), 
-                                        options[:read_only] )
-            end
+            @ole_workbook = workbooks.Item(File.basename(filename))
           rescue WIN32OLERuntimeError => msg
-            # for Excel2007: for option :if_unsaved => :alert and user cancels: this error appears?
-            # if yes: distinguish these events
-            raise UnexpectedREOError, "WIN32OLERuntimeError: #{msg.message} #{msg.backtrace}"
+            raise UnexpectedREOError, "WIN32OLERuntimeError: #{msg.message}"
           end
-          begin
-            # workaround for bug in Excel 2010: workbook.Open does not always return the workbook when given file name
-            begin
-              @ole_workbook = workbooks.Item(File.basename(filename))
-            rescue WIN32OLERuntimeError => msg
-              raise UnexpectedREOError, "WIN32OLERuntimeError: #{msg.message}"
-            end
-          rescue WIN32OLERuntimeError => msg
-            raise UnexpectedREOError, "WIN32OLERuntimeError: #{msg.message} #{msg.backtrace}"
-          end
+        rescue WIN32OLERuntimeError => msg
+          raise UnexpectedREOError, "WIN32OLERuntimeError: #{msg.message} #{msg.backtrace}"
         end
       end
     end
@@ -880,6 +879,7 @@ module RobustExcelOle
                 ole_workbook.Worksheets.Add(base_sheet.ole_worksheet) 
               end
               base_sheet.Move(ole_workbook.Worksheets.Item(ole_workbook.Worksheets.Count-1))
+              ole_workbook.Worksheets.Item(ole_workbook.Worksheets.Count).Activate
             end
           end
         end

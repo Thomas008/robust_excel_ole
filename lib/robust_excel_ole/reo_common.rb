@@ -176,9 +176,9 @@ module RobustExcelOle
           reo_log_dir = REO_LOG_DIR
           #reo_log_dir = "C:/Users/User"
         end
-        File.open(reo_log_dir + '/' + REO_LOG_FILE,'a') do |file|
-          file.puts text
-        end
+        #File.open(reo_log_dir + '/' + REO_LOG_FILE,'a') do |file|
+         # file.puts text
+        #end
       end
     end
 

@@ -509,10 +509,10 @@ module RobustExcelOle
           @book3.should be_alive
           @book3.excel.should == @excel3
           @excel1.close(:if_unsaved => :forget)
-          sleep 0.2
+          sleep 2
           @excel1.should_not be_alive
           @excel3.close
-          sleep 0.2
+          sleep 2
           @excel3.should_not be_alive
         end
       end    
@@ -1755,7 +1755,7 @@ module RobustExcelOle
 
       it "should do Calculation to manual with workbook" do
         @excel1 = Excel.new
-        b = Workbook.open(@simple_file)
+        b = Workbook.open(@simple_file, :visible => true)
         @excel1.Calculation = XlCalculationManual
         @excel1.calculation.should == :manual
         @excel1.Calculation.should == XlCalculationManual
@@ -1763,7 +1763,7 @@ module RobustExcelOle
 
       it "should do Calculation to automatic with workbook" do
         @excel1 = Excel.new
-        b = Workbook.open(@simple_file)
+        b = Workbook.open(@simple_file, :visible => true)
         @excel1.Calculation = XlCalculationAutomatic
         @excel1.calculation.should == :automatic
         @excel1.Calculation.should == XlCalculationAutomatic

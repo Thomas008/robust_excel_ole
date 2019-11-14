@@ -30,6 +30,10 @@ module RobustExcelOle
       :update_links => :never
     }.freeze
 
+    CORE_DEFAULT_OPTEN_OPTS = {
+      :default => {:excel => :current, :visible => true}, :force => {}, :update_links => :never
+    }.freeze
+
     ABBREVIATIONS = [[:default,:d], [:force, :f], [:excel, :e], [:visible, :v],
                      [:if_obstructed, :if_blocked]].freeze
 
@@ -100,7 +104,8 @@ module RobustExcelOle
         if book      
           book.ensure_excel(options)
           # reopens the book if it was closed
-          book.ensure_workbook(file,options) unless book.alive?
+          options = options.merge({:force => {:excel => book.excel}}) if book.excel && book.excel.alive?
+          book.ensure_workbook(file,options) #unless book.alive?
           return book
         end
       end
@@ -173,8 +178,7 @@ module RobustExcelOle
         erg
       end
       opts = translator.call(options)
-      default_open_opts = proc_opts[:use_defaults] ? DEFAULT_OPEN_OPTS :
-        {:default => {:excel => :current}, :force => {}, :update_links => :never }
+      default_open_opts = proc_opts[:use_defaults] ? DEFAULT_OPEN_OPTS : CORE_DEFAULT_OPTEN_OPTS        
       default_opts = translator.call(default_open_opts)
       opts = default_opts.merge(opts)
       opts[:default] = default_opts[:default].merge(opts[:default]) unless opts[:default].nil?
@@ -209,7 +213,7 @@ module RobustExcelOle
     # ensures an excel but not for jruby if current Excel shall be used
     def ensure_excel(options)
       excel_option = options[:force][:excel].nil? ? options[:default][:excel] : options[:force][:excel]
-      @excel = if excel_option == :new
+      @excel ||= if excel_option == :new
         excel_class.new(:reuse => false) 
       elsif excel_option.nil? || excel_option == :current
         excel_class.new(:reuse => true) unless RUBY_PLATFORM =~ /java/
@@ -424,10 +428,10 @@ module RobustExcelOle
     end
 
     # @private
-    def set_options(filename, options)
-      if @ole_workbook.ReadOnly != options[:read_only]
+    def set_options(filename, options)     
+      if options[:read_only] && options[:read_only] != @ole_workbook.ReadOnly
         @excel.with_displayalerts(false) { @ole_workbook.Close }
-        @ole_workbook = nil
+        @ole_workbook = nil        
         open_or_create_workbook(filename, options)
       end
       if options[:force][:visible].nil? && !options[:default][:visible].nil?

@@ -658,11 +658,6 @@ module RobustExcelOle
       ole_workbooks.each do |ow|
         wb = workbook_class.new(ow, opts)
         block_given? ? (yield wb) : wb
-        #if block_given? 
-        #  yield workbook_class.new(ow, opts)
-        #else
-        #  workbook_class.new(ow, opts)
-        #end
       end
     end
 

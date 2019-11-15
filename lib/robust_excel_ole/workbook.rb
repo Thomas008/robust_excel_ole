@@ -105,7 +105,7 @@ module RobustExcelOle
           book.ensure_excel(options)
           # reopens the book if it was closed
           options = options.merge({:force => {:excel => book.excel}}) if book.excel && book.excel.alive?
-          book.ensure_workbook(file,options) #unless book.alive?
+          book.ensure_workbook(file,options)
           return book
         end
       end
@@ -212,8 +212,9 @@ module RobustExcelOle
     # @private
     # ensures an excel but not for jruby if current Excel shall be used
     def ensure_excel(options)
+      return if @excel && @excel.alive?
       excel_option = options[:force][:excel].nil? ? options[:default][:excel] : options[:force][:excel]
-      @excel ||= if excel_option == :new
+      @excel = if excel_option == :new
         excel_class.new(:reuse => false) 
       elsif excel_option.nil? || excel_option == :current
         excel_class.new(:reuse => true) unless RUBY_PLATFORM =~ /java/

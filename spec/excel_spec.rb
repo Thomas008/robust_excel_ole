@@ -586,7 +586,7 @@ module RobustExcelOle
 
           it "should save the unsaved workbook" do
             result = Excel.close_all(:if_unsaved => :save)
-            sleep 0.2
+            sleep 0.5
             @excel1.should_not be_alive
             new_book1 = Workbook.open(@simple_file1)
             new_sheet1 = new_book1.sheet(1)
@@ -597,7 +597,7 @@ module RobustExcelOle
 
           it "should forget the unsaved workbook" do
             result = Excel.close_all(:if_unsaved => :forget)
-            sleep 0.2
+            sleep 0.5
             @excel1.should_not be_alive
             new_book1 = Workbook.open(@simple_file1)
             new_sheet1 = new_book1.sheet(1)

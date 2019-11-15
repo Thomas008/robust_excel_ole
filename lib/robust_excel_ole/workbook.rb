@@ -434,7 +434,9 @@ module RobustExcelOle
         @ole_workbook = nil        
         open_or_create_workbook(filename, options)
       end
-      if options[:force][:visible].nil? && !options[:default][:visible].nil?
+      #if options[:force][:visible].nil? && !options[:default][:visible].nil?
+      if options[:force][:visible].nil? && !options[:default][:visible].nil? && 
+        (options[:force][:excel].nil? || options[:force][:excel] == :current)
         if @excel.created
           self.visible = options[:default][:visible]
         else

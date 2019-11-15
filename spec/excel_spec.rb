@@ -205,9 +205,11 @@ module RobustExcelOle
 
     context "Illegal Refrence" do
 
+
       before do
         book1 = Workbook.open(@simple_file1)
         book2 = Workbook.open(@simple_file1, :force_excel => :new)
+        sleep 1
         a = book1.saved 
       end
 

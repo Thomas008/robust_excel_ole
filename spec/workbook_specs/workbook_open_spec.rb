@@ -32,7 +32,9 @@ describe Workbook do
     @simple_file_other_path1 = @simple_file_other_path
     @another_simple_file1 = @another_simple_file
     @simple_file_direct = File.join(File.dirname(__FILE__), 'data') + '/workbook.xls'
-    @simple_file_via_network = File.join('N:/', 'data') + '/workbook.xls'
+    #@simple_file_via_network = File.join('N:/', 'data') + '/workbook.xls'
+    @simple_file_network_path = "N:/data/workbook.xls"
+    @simple_file_hostname_share_path = "DESKTOP-A3C5CJ6/spec/workbook.xls"
 
   end
 
@@ -354,9 +356,9 @@ describe Workbook do
 
   describe "network paths" do
 
-    it "should open the workbokk via network path" do
-      book1 = Workbook.open(@simple_file)
-      book2 = Workbook.open(@simple_file_via_network)
+    it "should open the workbook via network path" do
+      book1 = Workbook.open(@simple_file_hostname_share_path)
+      book2 = Workbook.open(@simple_file_network_path)
       book1.should === book2
       book1.Fullname.should == book2.Fullname
     end

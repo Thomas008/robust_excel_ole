@@ -34,7 +34,7 @@ describe Workbook do
     @simple_file_direct = File.join(File.dirname(__FILE__), 'data') + '/workbook.xls'
     #@simple_file_via_network = File.join('N:/', 'data') + '/workbook.xls'
     @simple_file_network_path = "N:/data/workbook.xls"
-    @simple_file_hostname_share_path = "DESKTOP-A3C5CJ6/spec/workbook.xls"
+    @simple_file_hostname_share_path = '//DESKTOP-A3C5CJ6/spec/data/workbook.xls'
 
   end
 

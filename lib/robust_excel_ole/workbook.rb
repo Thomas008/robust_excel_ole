@@ -102,7 +102,7 @@ module RobustExcelOle
           trace "#{$!.message}"
         end
         if book      
-          book.ensure_excel(options)
+          book.ensure_excel(options) 
           # reopens the book if it was closed
           options = options.merge({:force => {:excel => book.excel}}) if book.excel && book.excel.alive?
           book.ensure_workbook(file,options)
@@ -231,7 +231,7 @@ module RobustExcelOle
     # @private
     # restriction for jruby: does not manage conflicts with blocking or unsaved workbooks
     def ensure_workbook(filename, options)  
-      return if @ole_workook && alive?
+      return if @ole_workbook && alive?
       filename = @stored_filename ? @stored_filename : filename 
       manage_nonexisting_file(filename,options)
       if RUBY_PLATFORM =~ /java/ && (options[:force][:excel].nil? || options[:force][:excel] == :current)

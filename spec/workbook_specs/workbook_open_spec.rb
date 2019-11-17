@@ -887,14 +887,14 @@ describe Workbook do
         book4.should be_alive
         book4.should be_a Workbook
         book4.excel.should == book2.excel
-        #book4.Readonly.should == true
+        book4.Readonly.should == true
         book4.should_not == book2 
         book4.close
         book5 = Workbook.open(@simple_file1, :force => {:excel => book2})
         book5.should be_alive
         book5.should be_a Workbook
         book5.excel.should == book2.excel
-        #book5.Readonly.should == true
+        book5.Readonly.should == true
         book5.should_not == book2 
         book5.close
         book3.close
@@ -1043,14 +1043,14 @@ describe Workbook do
         book4.should be_alive
         book4.should be_a Workbook
         book4.excel.should == book2.excel
-        #book4.Readonly.should == true
+        book4.Readonly.should == true
         book4.should_not == book2 
         book4.close
         book5 = Workbook.open(@simple_file1, :excel => book2)
         book5.should be_alive
         book5.should be_a Workbook
         book5.excel.should == book2.excel
-        #book5.Readonly.should == true
+        book5.Readonly.should == true
         book5.should_not == book2 
         book5.close
         book3.close
@@ -1201,14 +1201,14 @@ describe Workbook do
         book4.should be_alive
         book4.should be_a Workbook
         book4.excel.should == book2.excel
-        #book4.Readonly.should == false
+        book4.Readonly.should == true
         book4.should_not == book2 
         book4.close
         book5 = Workbook.open(@simple_file1, :force_excel => book2)
         book5.should be_alive
         book5.should be_a Workbook
         book5.excel.should == book2.excel
-        #book5.Readonly.should == false
+        book5.Readonly.should == true
         book5.should_not == book2 
         book5.close
         book3.close
@@ -1920,6 +1920,7 @@ describe Workbook do
         @book = Workbook.open(@simple_file)
         @sheet = @book.sheet(1)
         @book.add_sheet(@sheet, :as => 'a_name')
+        @book.visible = true
       end
 
       after do
@@ -1953,8 +1954,17 @@ describe Workbook do
 
         it "should open the new book and close the unsaved book, if user answers 'yes'" do
           # "Yes" is the  default. --> language independent
-          @key_sender.puts "{enter}"
+          #@key_sender.puts "{enter}"
           @new_book = Workbook.open(@simple_file1, :if_unsaved => :alert)
+          @new_book.should be_alive
+          @new_book.filename.downcase.should == @simple_file1.downcase
+          @book.should_not be_alive
+        end
+
+        it "should open the new book and close the unsaved book, if user answers 'yes'" do
+          # "Yes" is the  default. --> language independent
+          @key_sender.puts "{enter}"
+          @new_book = Workbook.open(@simple_file1, :if_unsaved => :excel)
           @new_book.should be_alive
           @new_book.filename.downcase.should == @simple_file1.downcase
           @book.should_not be_alive
@@ -1973,22 +1983,14 @@ describe Workbook do
           @book.should be_alive
         end
 
-        it "should open the new book and close the unsaved book, if user answers 'yes'" do
-          # "Yes" is the  default. --> language independent
-          @key_sender.puts "{enter}"
-          @new_book = Workbook.open(@simple_file1, :if_unsaved => :excel)
-          @new_book.should be_alive
-          @new_book.filename.downcase.should == @simple_file1.downcase
-          #@book.should_not be_alive
-        end
+        
 
         it "should not open the new book and not close the unsaved book, if user answers 'no'" do
           # "No" is right to "Yes" (the  default). --> language independent
-          # strangely, in the "no" case, the question will sometimes be repeated three times
-          #@book.excel.Visible = true
-          @key_sender.puts "{right}{enter}"
-          @key_sender.puts "{right}{enter}"
-          @key_sender.puts "{right}{enter}"
+          # strangely, in the "no" case, the question will sometimes be repeated three time
+          #@key_sender.puts "{right}{enter}"
+          #@key_sender.puts "{right}{enter}"
+          #@key_sender.puts "{right}{enter}"
           expect{
             Workbook.open(@simple_file, :if_unsaved => :excel)
           }.to raise_error(UnexpectedREOError)

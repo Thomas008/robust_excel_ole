@@ -4,10 +4,6 @@ module RobustExcelOle
 
   class Address < REOCommon
 
-    # hack
-    #@@row_letter = "Z"
-    #@@col_letter = "S"
-
     def self.new(r1c1_letters)
       @@row_letter = r1c1_letters[0..0]
       @@col_letter = r1c1_letters[1..1]

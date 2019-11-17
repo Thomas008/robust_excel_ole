@@ -102,11 +102,16 @@ module RobustExcelOle
           trace "#{$!.message}"
         end
         if book      
-          book.ensure_excel(options) 
-          # reopens the book if it was closed
-          options = options.merge({:force => {:excel => book.excel}}) if book.excel && book.excel.alive?
-          book.ensure_workbook(file,options)
-          return book
+          # drop the fetched workbook if it shall be opened in another Excel instance
+          # or the workbook is an unsaved workbook that should be accepted
+          if (!(options[:force][:excel]) || (forced_excel == book.excel)) &&
+            !(book.alive? && !book.saved && (options[:if_unsaved] != :accept))
+            book.ensure_excel(options) 
+            # reopen the book if it was closed, otherwise
+            options = options.merge({:force => {:excel => book.excel}}) if book.excel && book.excel.alive?
+            book.ensure_workbook(file,options)
+            return book
+          end
         end
       end
       new(file, options, &block)
@@ -227,7 +232,6 @@ module RobustExcelOle
       end
     end
 
-
     # @private
     # restriction for jruby: does not manage conflicts with blocking or unsaved workbooks
     def ensure_workbook(filename, options)  
@@ -251,7 +255,8 @@ module RobustExcelOle
         if @ole_workbook
           manage_blocking_or_unsaved_workbook(filename,options)
         else
-          if options[:force][:excel].nil? || options[:force][:excel] == :current
+          #if options[:force][:excel].nil? || options[:force][:excel] == :current
+          if options[:force][:excel] == :current || (options[:force][:excel].nil? && options[:default][:excel] == :current) 
             connect(filename,options)
           else 
             open_or_create_workbook(filename,options)
@@ -395,7 +400,7 @@ module RobustExcelOle
 
     # @private
     def open_or_create_workbook(filename, options)       
-      return if @ole_workbook && options[:if_unsaved] != :alert
+      return if @ole_workbook && options[:if_unsaved] != :alert && options[:if_unsaved] != :excel
       begin
         abs_filename = General.absolute_path(filename)
         begin

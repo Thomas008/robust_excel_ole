@@ -502,6 +502,8 @@ module RobustExcelOle
           @excel1.DisplayAlerts.should be true
           @book1.should be_alive
           @book2.should be_alive
+          @book1.visible == true
+          @book2.visible == true
           @excel3.recreate(:visible => true)
           @excel3.should be_alive
           @excel3.should be_a Excel

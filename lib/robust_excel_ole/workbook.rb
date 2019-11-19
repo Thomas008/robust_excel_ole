@@ -27,7 +27,8 @@ module RobustExcelOle
       :if_absent     => :raise,
       :read_only => false,
       :check_compatibility => false,
-      :update_links => :never
+      :update_links => :never,
+      :if_exists => :raise
     }.freeze
 
     CORE_DEFAULT_OPTEN_OPTS = {
@@ -681,8 +682,8 @@ module RobustExcelOle
     #               :overwrite -> writes the file, delete the old file
     #               :alert or :excel -> gives control to Excel
     #  :if_obstructed   if a workbook with the same name and different path is already open and blocks the saving, then
-    #                  :raise               -> raises an exception
-    #                  :forget              -> closes the blocking workbook
+    #  or              :raise               -> raises an exception
+    #  :if_blocked     :forget              -> closes the blocking workbook
     #                  :save                -> saves the blocking workbook and closes it
     #                  :close_if_saved      -> closes the blocking workbook, if it is saved,
     #                                          otherwise raises an exception
@@ -692,10 +693,8 @@ module RobustExcelOle
       raise FileNameNotGiven, 'filename is nil' if file.nil?
       raise ObjectNotAlive, 'workbook is not alive' unless alive?
       raise WorkbookReadOnly, 'Not opened for writing (opened with :read_only option)' if @ole_workbook.ReadOnly
-      options = {
-        :if_exists => :raise,
-        :if_obstructed => :raise
-      }.merge(opts)
+      raise(FileNotFound, "file #{General.absolute_path(file).inspect} is a directory") if File.directory?(file)
+      options = self.class.process_options(opts)      
       if File.exist?(file)
         case options[:if_exists]
         when :overwrite
@@ -727,7 +726,7 @@ module RobustExcelOle
         case options[:if_obstructed]
         when :raise
           raise WorkbookBlocked, "blocked by another workbook: #{other_workbook.Fullname.tr('\\','/')}" +
-          "\nHint: Use the option :if_obstructed with values :forget or :save to
+          "\nHint: Use the option :if_blocked with values :forget or :save to
            close or save and close the blocking workbook"
         when :forget
           # nothing
@@ -736,10 +735,10 @@ module RobustExcelOle
         when :close_if_saved
           unless other_workbook.Saved
             raise WorkbookBlocked, "blocking workbook is unsaved: #{File.basename(file).inspect}" +
-            "\nHint: Use option :if_obstructed => :save to save the blocking workbooks"
+            "\nHint: Use option :if_blocked => :save to save the blocking workbooks"
           end
         else
-          raise OptionInvalid, ":if_obstructed: invalid option: #{options[:if_obstructed].inspect}" +
+          raise OptionInvalid, ":if_blocked: invalid option: #{options[:if_obstructed].inspect}" +
           "\nHint: Valid values are :raise, :forget, :save, :close_if_saved"
         end
         other_workbook.Close

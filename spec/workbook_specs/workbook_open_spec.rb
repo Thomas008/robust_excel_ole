@@ -334,6 +334,14 @@ describe Workbook do
 
     context "with :force => {:excel}" do
 
+      it "should raise if excel is not alive" do
+        excel1 = Excel.create
+        excel1.close
+        expect{
+          book1 = Workbook.open(@simple_file1, :force => {:excel => excel1})
+          }.to raise_error(ExcelREOError, "excel is not alive")
+      end
+
       it "should open in a provided Excel" do
         book1 = Workbook.open(@simple_file1, :force => {:excel => :new})
         book2 = Workbook.open(@simple_file1, :force => {:excel => :new})

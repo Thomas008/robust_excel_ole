@@ -596,7 +596,7 @@ describe Worksheet do
       it "should raise an error of coordinates are given instead of a defined name" do
         expect {
           @sheet1.namevalue_glob("A1")
-        }.to raise_error(NameNotFound, /name "A1" not in #<Worksheet: Sheet1/)
+        }.to raise_error(NameNotFound, /name "A1" not in/)
       end
 
       it "should return default value for a range with empty contents" do
@@ -614,7 +614,7 @@ describe Worksheet do
       it "should raise an error if name cannot be evaluated" do
         expect{
           @sheet1.set_namevalue_glob("foo", 1)
-        }.to raise_error(NameNotFound, /name "foo" not in #<Worksheet: Sheet1/)
+        }.to raise_error(RangeNotEvaluatable, /cannot assign value/)
       end
 
       it "should color the cell" do
@@ -684,7 +684,7 @@ describe Worksheet do
       it "should raise an error if name cannot be evaluated" do
         expect{
           @sheet1.set_namevalue_glob("foo", 1)
-        }.to raise_error(NameNotFound, /name "foo" not in #<Worksheet: Sheet1/)
+        }.to raise_error(RangeNotEvaluatable, /cannot assign value/)
       end
 
       it "should raise an error if name not defined and default value is not provided" do

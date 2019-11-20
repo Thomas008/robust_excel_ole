@@ -191,42 +191,6 @@ describe Workbook do
     end
   end
 
-  describe "add_empty_sheet" do
-    
-    before do
-      @book = Workbook.open(@simple_file)
-      @sheet = @book.sheet(1)
-    end
-
-    after do
-      @book.close(:if_unsaved => :forget)
-    end
-
-    it "should add empty sheet" do
-      @book.ole_workbook.Worksheets.Count.should == 3
-      @book.add_empty_sheet
-      @book.ole_workbook.Worksheets.Count.should == 4
-    end
-
-    it "should add an empty sheet and return this added sheet" do
-      sheet = @book.add_empty_sheet
-      copyed_sheet = @book.ole_workbook.Worksheets.Item(@book.ole_workbook.Worksheets.Count)
-      sheet.name.should eq copyed_sheet.name
-    end
-
-    it "should return new sheet" do
-      @book.add_empty_sheet(:as => 'new sheet').name.should eq 'new sheet'
-    end
-
-    it "should add the first sheet" do
-      @book.add_empty_sheet(:before => @sheet).name.should eq @book.sheet(1).name
-    end
-
-    it "should add the second sheet" do
-      @book.add_empty_sheet(:after => @sheet).name.should eq @book.sheet(2).name
-    end
-  end  
-
   describe "copy_sheet" do
 
     before do

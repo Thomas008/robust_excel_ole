@@ -230,6 +230,8 @@ module RobustExcelOle
       if @excel && @excel.alive?
         @excel.visible = options[:force][:visible] unless options[:force][:visible].nil?
         @excel.calculation = options[:calculation] unless options[:calculation].nil?
+      else
+        raise ExcelREOError, "excel is not alive"
       end
     end
 

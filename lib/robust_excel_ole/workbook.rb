@@ -238,33 +238,33 @@ module RobustExcelOle
     # @private
     # restriction for jruby: does not manage conflicts with blocking or unsaved workbooks
     def ensure_workbook(filename, options)  
-      return if @ole_workbook && alive?
-      filename = @stored_filename ? @stored_filename : filename 
-      manage_nonexisting_file(filename,options)
-      if RUBY_PLATFORM =~ /java/ && (options[:force][:excel].nil? || options[:force][:excel] == :current)
-        begin
-          connect(filename,options)  
-        rescue WorkbookConnectingUnsavedError
-          raise WorkbookNotSaved, "workbook is already open but not saved: #{File.basename(filename).inspect}"
-        rescue WorkbookConnectingBlockingError
-          raise WorkbookBlocked, "can't open workbook #{filename}"+
-            "\nbecause it is being blocked by a workbook with the same name in a different path."
-        rescue WorkbookConnectingUnknownError
-          raise WorkbookREOError, "can't connect to workbook #{filename}"
-        end
-      else
-        workbooks = @excel.Workbooks
-        @ole_workbook = workbooks.Item(File.basename(filename)) rescue nil if @ole_workbook.nil?
-        if @ole_workbook
-          manage_blocking_or_unsaved_workbook(filename,options)
-        else
-          #if options[:force][:excel].nil? || options[:force][:excel] == :current
-          if options[:force][:excel] == :current || (options[:force][:excel].nil? && options[:default][:excel] == :current) 
-            connect(filename,options)
-          else 
-            open_or_create_workbook(filename,options)
+      unless @ole_workbook && alive?
+        filename = @stored_filename ? @stored_filename : filename 
+        manage_nonexisting_file(filename,options)
+        if RUBY_PLATFORM =~ /java/ && (options[:force][:excel].nil? || options[:force][:excel] == :current)
+          begin
+            connect(filename,options)  
+          rescue WorkbookConnectingUnsavedError
+            raise WorkbookNotSaved, "workbook is already open but not saved: #{File.basename(filename).inspect}"
+          rescue WorkbookConnectingBlockingError
+            raise WorkbookBlocked, "can't open workbook #{filename}"+
+              "\nbecause it is being blocked by a workbook with the same name in a different path."
+          rescue WorkbookConnectingUnknownError
+            raise WorkbookREOError, "can't connect to workbook #{filename}"
           end
-        end       
+        else
+          workbooks = @excel.Workbooks
+          @ole_workbook = workbooks.Item(File.basename(filename)) rescue nil if @ole_workbook.nil?
+          if @ole_workbook
+            manage_blocking_or_unsaved_workbook(filename,options)
+          else
+            if options[:force][:excel] == :current || (options[:force][:excel].nil? && options[:default][:excel] == :current) 
+              connect(filename,options)
+            else 
+              open_or_create_workbook(filename,options)
+            end
+          end       
+        end
       end
       set_options(filename, options)
     end

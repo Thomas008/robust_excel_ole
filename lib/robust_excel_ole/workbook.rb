@@ -437,13 +437,12 @@ module RobustExcelOle
     end
 
     # @private
-    def set_options(filename, options)     
-      if options[:read_only] && options[:read_only] != @ole_workbook.ReadOnly
+    def set_options(filename, options)
+      if (!options[:read_only].nil?) && options[:read_only] != @ole_workbook.ReadOnly
         @excel.with_displayalerts(false) { @ole_workbook.Close }
         @ole_workbook = nil        
         open_or_create_workbook(filename, options)
       end
-      #if options[:force][:visible].nil? && !options[:default][:visible].nil?
       if options[:force][:visible].nil? && !options[:default][:visible].nil? && 
         (options[:force][:excel].nil? || options[:force][:excel] == :current)
         if @excel.created
@@ -589,6 +588,7 @@ module RobustExcelOle
     # @option opts [Boolean] :keep_open whether the workbook shall be kept open after unobtrusively opening
     # @return [Workbook] a workbook
     def self.unobtrusively(file, opts = { })
+      opts = process_options(opts, :use_defaults => false)
       opts = {:if_closed => :current,
               :rw_change_excel => :current,
               :keep_open => false}.merge(opts)
@@ -615,12 +615,16 @@ module RobustExcelOle
         book =
           if was_open
             if change_rw_mode
-              open(file, :force => {:excel => opts[:rw_change_excel]}, :read_only => do_not_write)
+              opts = opts.merge({:force => {:excel => opts[:rw_change_excel]}, :read_only => do_not_write})
+              open(file, opts)
+              #open(file, :force => {:excel => opts[:rw_change_excel]}, :read_only => do_not_write)
             else
               book
             end
           else
-            open(file, :force => {:excel => opts[:if_closed]}, :read_only => do_not_write)
+            opts = opts.merge({:force => {:excel => opts[:if_closed]}, :read_only => do_not_write})
+            open(file, opts)
+            #open(file, :force => {:excel => opts[:if_closed]}, :read_only => do_not_write)
           end
         yield book
       ensure
@@ -629,7 +633,9 @@ module RobustExcelOle
           if was_open
             if opts[:rw_change_excel] == book.excel && change_rw_mode
               book.close
-              book = open(file, :force => {:excel => opts[:rw_change_excel]}, :read_only => !was_writable)
+              opts = opts.merge({:force => {:excel => opts[:rw_change_excel]}, :read_only => !was_writable})
+              book = open(file, opts)
+              #book = open(file, :force => {:excel => opts[:rw_change_excel]}, :read_only => !was_writable)
             end
             book.excel.calculation = was_calculation
             book.CheckCompatibility = was_check_compatibility

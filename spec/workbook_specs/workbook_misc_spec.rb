@@ -730,10 +730,10 @@ describe Workbook do
       @book1.namevalue_glob("foo", :default => 1).should == 1
       expect {
           @book1.set_namevalue_glob("foo","bar")
-      }.to raise_error(NameNotFound, /name "foo" not in #<Workbook: another_workbook/)
+      }.to raise_error(RangeNotEvaluatable, /cannot assign value to range named "foo"/)
       expect {
           @book1["foo"] = "bar"
-      }.to raise_error(NameNotFound, /name "foo" not in #<Workbook: another_workbook/)
+      }.to raise_error(RangeNotEvaluatable, /cannot assign value to range named "foo"/)
       @book1.namevalue_glob("empty", :default => 1).should be_nil
     end    
 

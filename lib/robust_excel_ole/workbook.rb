@@ -20,7 +20,8 @@ module RobustExcelOle
     alias ole_object ole_workbook
 
     DEFAULT_OPEN_OPTS = {
-      :default => {:excel => :current},
+      #:default => {:excel => :current},
+      :default => {:excel => :current, :visible => true},
       :force => {},
       :if_unsaved    => :raise,
       :if_obstructed => :raise,
@@ -54,7 +55,7 @@ module RobustExcelOle
     # :default : if the workbook was already open before, then use (unchange) its properties,
     #            otherwise, i.e. if the workbook cannot be reopened, use the properties stated in :default
     # :force   : no matter whether the workbook was already open before, use the properties stated in :force
-    # :default and :force contain: :excel, :visible
+    # :default and :force contain: :excel
     #  :excel   :current (or :active or :reuse)
     #                    -> connects to a running (the first opened) Excel instance,
     #                       excluding the hidden Excel instance, if it exists,
@@ -227,12 +228,7 @@ module RobustExcelOle
       else  #elsif excel_options.is_a?(WIN32OLE) || excel_option.is_a?(Excel) #excel_option.respond_to?(:Hwnd)
         self.class.excel_of(excel_option)
       end
-      if @excel && @excel.alive?
-        @excel.visible = options[:force][:visible] unless options[:force][:visible].nil?
-        @excel.calculation = options[:calculation] unless options[:calculation].nil?
-      else
-        raise ExcelREOError, "excel is not alive"
-      end
+      raise ExcelREOError, "excel is not alive" unless @excel && @excel.alive?
     end
 
     # @private
@@ -443,16 +439,8 @@ module RobustExcelOle
         @ole_workbook = nil        
         open_or_create_workbook(filename, options)
       end
-      if options[:force][:visible].nil? && !options[:default][:visible].nil? && 
-        (options[:force][:excel].nil? || options[:force][:excel] == :current)
-        if @excel.created
-          self.visible = options[:default][:visible]
-        else
-          self.window_visible = options[:default][:visible]
-        end
-      else
-        self.visible = options[:force][:visible] unless options[:force][:visible].nil?
-      end      
+      #options[:force][:visible] unless options[:force][:visible].nil?
+      self.visible = options[:force][:visible].nil? ? excel.Visible : options[:force][:visible]
       @excel.calculation = options[:calculation] unless options[:calculation].nil?
       @ole_workbook.CheckCompatibility = options[:check_compatibility] unless options[:check_compatibility].nil?
       @ole_workbook.Saved = true # unless self.Saved # ToDo: this is too hard
@@ -1004,7 +992,7 @@ module RobustExcelOle
     def visible= visible_value
       return if visible_value.nil?
       @excel.visible = true if visible_value
-      self.window_visible = visible_value
+      self.window_visible = @excel.Visible ? visible_value : true
     end
 
     # returns true, if the window of the workbook is set to visible, false otherwise

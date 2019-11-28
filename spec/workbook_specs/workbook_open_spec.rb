@@ -152,6 +152,18 @@ describe Workbook do
           }.to raise_error(WorkbookNotSaved, /workbook is already open but not saved: "workbook.xls"/)
       end
 
+      it "should let the workbook open, if :if_unsaved is :save" do        
+        @ole_wb.Worksheets.Add
+        sheet_num = @ole_wb.Worksheets.Count
+        new_book = Workbook.open(@simple_file1, :if_unsaved => :save)
+        new_book.should be_alive
+        new_book.should be_a Workbook
+        new_book.Worksheets.Count.should == sheet_num
+        new_book.close
+        new_book2 = Workbook.open(@simple_file1)
+        new_book2.Worksheets.Count.should == sheet_num
+      end
+
       it "should let the workbook open, if :if_unsaved is :accept" do        
         @ole_wb.Worksheets.Add
         sheet_num = @ole_wb.Worksheets.Count
@@ -159,6 +171,10 @@ describe Workbook do
         new_book.should be_alive
         new_book.should be_a Workbook
         new_book.Worksheets.Count.should == sheet_num
+        new_book.Saved.should be false
+        new_book.close(:if_unsaved => :forget)
+        new_book2 = Workbook.open(@simple_file1)
+        new_book2.Worksheets.Count.should == sheet_num - 1
       end
 
       it "should close the workbook, if :if_unsaved is :forget" do        

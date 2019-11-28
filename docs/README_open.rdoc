@@ -55,6 +55,7 @@ If a workbook contains unsaved changes and a new workbook with the same file nam
 +:raise+::   Raise an exeption. Don't open the workbook.
 +:accept+::  Let the unsaved workbook open.
 +:forget+::  Discard any changes and reopen the workbook.
++:save+::    Save any changes and reopen the workbook
 +:new_excel+:: Open the new workbook in a new Excel instance
 +:alert+::   Give control to Excel.
 

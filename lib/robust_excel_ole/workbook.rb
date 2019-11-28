@@ -44,7 +44,7 @@ module RobustExcelOle
     # @param [Hash] opts the options
     # @option opts [Hash] :default or :d
     # @option opts [Hash] :force or :f
-    # @option opts [Symbol]  :if_unsaved     :raise (default), :forget, :accept, :alert, :excel, or :new_excel
+    # @option opts [Symbol]  :if_unsaved     :raise (default), :forget, :save, :accept, :alert, :excel, or :new_excel
     # @option opts [Symbol]  :if_blocked     :raise (default), :forget, :save, :close_if_saved, or _new_excel
     # @option opts [Symbol]  :if_absent      :raise (default) or :create
     # @option opts [Boolean] :read_only      true (default) or false
@@ -313,16 +313,6 @@ module RobustExcelOle
     def manage_blocking_or_unsaved_workbook(filename,options)
       obstructed_by_other_book = if (File.basename(filename) == File.basename(@ole_workbook.Fullname)) 
         General.absolute_path(filename) != @ole_workbook.Fullname
-        #p1 = General.absolute_path(filename) 
-        #p2 = @ole_workbook.Fullname
-        #is_same_path = if p1[1..1] == ":" and p2[0..1] == '\\\\' # normal path starting with the drive letter and a path in network notation (starting with 2 backslashes)
-        #  # this is a Workaround for Excel2010 on WinXP: Network drives won't get translated to drive letters. So we'll do it manually:
-        #  p1_pure_path = p1[2..-1]
-        #  p2.end_with?(p1_pure_path)  and p2[0, p2.rindex(p1_pure_path)] =~ /^\\\\[\w\d_]+(\\[\w\d_]+)*$/  # e.g. "\\\\server\\folder\\subfolder"
-        #else
-        #  p1 == p2
-        #end
-        #not is_same_path
       end      
       if obstructed_by_other_book
         # workbook is being obstructed by a workbook with same name and different path
@@ -345,26 +335,17 @@ module RobustExcelOle
          to allow automatic closing of the old workbook (without or with saving before, respectively),
          before the new workbook is being opened."
       when :forget
-        @excel.with_displayalerts(false) { @ole_workbook.Close }
-        @ole_workbook = nil
-        open_or_create_workbook(filename, options)
+        manage_forgetting_workbook(filename, options)       
       when :save
-        save unless @ole_workbook.Saved
-        @ole_workbook.Close
-        @ole_workbook = nil
-        open_or_create_workbook(filename, options)
+        manage_saving_workbook(filename, options)        
       when :close_if_saved
         if !@ole_workbook.Saved
           raise WorkbookBlocked, "workbook with the same name in a different path is unsaved: #{@ole_workbook.Fullname.tr('\\','/')}"
         else
-          @ole_workbook.Close
-          @ole_workbook = nil
-          open_or_create_workbook(filename, options)
+          manage_forgetting_workbook(filename, options)
         end
       when :new_excel
-        @excel = excel_class.new(:reuse => false)
-        @ole_workbook = nil
-        open_or_create_workbook(filename, options)
+        manage_new_excel(filename, options)        
       else
         raise OptionInvalid, ":if_blocked: invalid option: #{options[:if_obstructed].inspect}" +
         "\nHint: Valid values are :raise, :forget, :save, :close_if_saved, :new_excel"
@@ -379,23 +360,41 @@ module RobustExcelOle
         "\nHint: Save the workbook or open the workbook using option :if_unsaved with values :forget and :accept to
          close the unsaved workbook and reopen it, or to let the unsaved workbook open, respectively"
       when :forget
-        @excel.with_displayalerts(false) { @ole_workbook.Close }
-        @ole_workbook = nil
-        open_or_create_workbook(filename, options)
+        manage_forgetting_workbook(filename,options)
       when :accept
         # do nothing
+      when :save
+        manage_saving_workbook(filename, options)
       when :alert, :excel
         @excel.with_displayalerts(true) { open_or_create_workbook(filename,options) }
       when :new_excel
-        @excel = excel_class.new(:reuse => false)
-        @ole_workbook = nil
-        open_or_create_workbook(filename, options)
+        manage_new_excel(filename, options)
       else
         raise OptionInvalid, ":if_unsaved: invalid option: #{options[:if_unsaved].inspect}" +
-        "\nHint: Valid values are :raise, :forget, :accept, :alert, :excel, :new_excel"
+        "\nHint: Valid values are :raise, :forget, :save, :accept, :alert, :excel, :new_excel"
       end
     end
 
+    # @private
+    def manage_forgetting_workbook(filename, options)
+      @excel.with_displayalerts(false) { @ole_workbook.Close }
+      @ole_workbook = nil
+      open_or_create_workbook(filename, options)
+    end
+
+    # @private
+    def manage_saving_workbook(filename, options)
+      save unless @ole_workbook.Saved
+      manage_forgetting_workbook(filename, options)
+    end
+
+    # @private
+    def manage_new_excel(filename, options)
+      @excel = excel_class.new(:reuse => false)
+      @ole_workbook = nil
+      open_or_create_workbook(filename, options)
+    end
+    
     # @private
     def open_or_create_workbook(filename, options)       
       return if @ole_workbook && options[:if_unsaved] != :alert && options[:if_unsaved] != :excel

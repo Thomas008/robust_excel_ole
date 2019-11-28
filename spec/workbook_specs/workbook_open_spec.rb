@@ -2281,7 +2281,7 @@ describe Workbook do
         new_cell_value.should == old_cell_value
       end
 
-      it "should not raise an error when trying to reopen the book as read_only while the writable book had unsaved changes" do
+      it "should raise an error when trying to reopen the book as read_only while the writable book had unsaved changes" do
         book = Workbook.open(@simple_file1, :read_only => false)
         book.ReadOnly.should be false
         book.should be_alive
@@ -2291,7 +2291,22 @@ describe Workbook do
         book.Saved.should be false
         expect{
           Workbook.open(@simple_file1, :read_only => true, :if_unsaved => :accept)
-        }.to raise_error
+        }.to raise_error(OptionInvalid)
+      end
+
+      it "should not raise an error when trying to reopen the book as read_only while the writable book had unsaved changes" do
+        book = Workbook.open(@simple_file1, :read_only => false)
+        book.ReadOnly.should be false
+        book.should be_alive
+        sheet = book.sheet(1)
+        old_cell_value = sheet[1,1].Value        
+        sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+        book.Saved.should be false
+        new_book = Workbook.open(@simple_file1, :read_only => true, :if_unsaved => :save)
+        new_book.ReadOnly.should be true
+        new_sheet = new_book.sheet(1)
+        new_cell_value = new_sheet[1,1].Value
+        new_cell_value.should_not == old_cell_value
       end
 
       it "should open the second book in another Excel as writable" do

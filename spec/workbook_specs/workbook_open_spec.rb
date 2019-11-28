@@ -2241,7 +2241,7 @@ describe Workbook do
         sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
         book.Saved.should be false
         new_book = Workbook.open(@simple_file1, :read_only => false, :if_unsaved => :accept)
-        new_book.ReadOnly.should be true 
+        new_book.ReadOnly.should be false 
         new_book.should be_alive
         book.should be_alive   
         new_book.should == book         
@@ -2273,45 +2273,9 @@ describe Workbook do
         old_cell_value = sheet[1,1].Value        
         sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
         book.Saved.should be false
-        new_book = Workbook.open(@simple_file1, :read_only => true, :if_unsaved => :accept)
-        new_book.ReadOnly.should be false
-        new_book.Saved.should be false
-        new_book.should == book
-      end
-
-      it "should reopen the book with writable in the same Excel instance (unsaved changes from readonly will not be saved)" do
-        book = Workbook.open(@simple_file1, :read_only => true)
-        book.ReadOnly.should be true
-        book.should be_alive
-        sheet = book.sheet(1)
-        old_cell_value = sheet[1,1].Value
-        sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
-        book.Saved.should be false
-        new_book = Workbook.open(@simple_file1, :if_unsaved => :accept, :force => {:excel => book.excel}, :read_only => false)
-        new_book.ReadOnly.should be true 
-        new_book.should be_alive
-        book.should be_alive   
-        new_book.should == book 
-        new_sheet = new_book.sheet(1)
-        new_cell_value = new_sheet[1,1].Value
-        new_cell_value.should_not == old_cell_value
-      end
-
-      it "should reopen the book with readonly (unsaved changes of the writable should be saved)" do
-        book = Workbook.open(@simple_file1, :force => {:excel => :new}, :read_only => false)
-        book.ReadOnly.should be false
-        book.should be_alive
-        sheet = book.sheet(1)
-        old_cell_value = sheet[1,1].Value        
-        sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
-        book.Saved.should be false
-        new_book = Workbook.open(@simple_file1, :force => {:excel => book.excel}, :read_only => true, :if_unsaved => :accept)
-        new_book.ReadOnly.should be false
-        new_book.Saved.should be false
-        new_book.should == book
-        new_sheet = new_book.sheet(1)
-        new_cell_value = new_sheet[1,1].Value
-        new_cell_value.should_not == old_cell_value
+        expect{
+          Workbook.open(@simple_file1, :read_only => true, :if_unsaved => :accept)
+        }.to raise_error
       end
 
       it "should open the second book in another Excel as writable" do

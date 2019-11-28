@@ -20,20 +20,19 @@ module RobustExcelOle
     alias ole_object ole_workbook
 
     DEFAULT_OPEN_OPTS = {
-      #:default => {:excel => :current},
-      :default => {:excel => :current, :visible => true},
+      :default => {:excel => :current},
       :force => {},
       :if_unsaved    => :raise,
       :if_obstructed => :raise,
       :if_absent     => :raise,
-      :read_only => false,
+      #:read_only => false,
       :check_compatibility => false,
       :update_links => :never,
       :if_exists => :raise
     }.freeze
 
     CORE_DEFAULT_OPTEN_OPTS = {
-      :default => {:excel => :current, :visible => true}, :force => {}, :update_links => :never
+      :default => {:excel => :current}, :force => {}, :update_links => :never
     }.freeze
 
     ABBREVIATIONS = [[:default,:d], [:force, :f], [:excel, :e], [:visible, :v],
@@ -110,7 +109,7 @@ module RobustExcelOle
             !(book.alive? && !book.saved && (options[:if_unsaved] != :accept))
             book.ensure_excel(options) 
             # reopen the book if it was closed, otherwise
-            options = options.merge({:force => {:excel => book.excel}}) if book.excel && book.excel.alive?
+            options[:force][:excel] = book.excel if book.excel && book.excel.alive?
             book.ensure_workbook(file,options)
             return book
           end
@@ -439,9 +438,8 @@ module RobustExcelOle
         @ole_workbook = nil        
         open_or_create_workbook(filename, options)
       end
-      #options[:force][:visible] unless options[:force][:visible].nil?
       retain_saved do
-        self.visible = options[:force][:visible].nil? ? excel.Visible : options[:force][:visible]
+        self.visible = options[:force][:visible].nil? ? @excel.Visible : options[:force][:visible]
         @excel.calculation = options[:calculation] unless options[:calculation].nil?
         @ole_workbook.CheckCompatibility = options[:check_compatibility] unless options[:check_compatibility].nil?
       end      

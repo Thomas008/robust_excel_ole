@@ -389,7 +389,7 @@ describe Workbook do
     it "should set :visible to false" do
       book1 = Workbook.open(@simple_file, :visible => false)
       book1.excel.Visible.should be false
-      book1.Windows(book1.Name).Visible.should be false
+      book1.Windows(book1.Name).Visible.should be true
       book1.visible.should be false
     end
 
@@ -421,7 +421,7 @@ describe Workbook do
       excel1 = Excel.create
       book1 = Workbook.open(@simple_file, :visible => false)
       book1.excel.Visible.should be false
-      book1.Windows(book1.Name).Visible.should be false
+      book1.Windows(book1.Name).Visible.should be true
       book1.visible.should be false
     end
 
@@ -472,7 +472,7 @@ describe Workbook do
       book1 = Workbook.open(@simple_file)
       book2 = Workbook.open(@different_file, :default_excel => :new, :visible => false)
       book2.excel.Visible.should be false
-      book2.Windows(book2.Name).Visible.should be false
+      book2.Windows(book2.Name).Visible.should be true
       book2.visible.should be false
     end
 
@@ -919,7 +919,7 @@ describe Workbook do
         excel1 = Excel.new(:reuse => false, :visible => false)
         book1 = Workbook.open(@simple_file, :visible => false)
         excel1.Visible.should be false
-        book1.Windows(book1.Name).Visible.should be false
+        book1.Windows(book1.Name).Visible.should be true
         book1.visible.should be false
       end
 
@@ -988,7 +988,7 @@ describe Workbook do
         excel1 = Excel.new(:reuse => false, :visible => false)
         book1 = Workbook.open(@simple_file, :visible => false)
         excel1.Visible.should be false
-        book1.Windows(book1.Name).Visible.should be false
+        book1.Windows(book1.Name).Visible.should be true
         book1.visible.should be false
         excel1.visible = true
         book2 = Workbook.open(@different_file)
@@ -1038,7 +1038,7 @@ describe Workbook do
         @book2.visible = false
         @book2.Saved.should be true
         @book2.excel.Visible.should be false
-        @book2.Windows(@book2.Name).Visible.should be false
+        @book2.Windows(@book2.Name).Visible.should be true
         @book2.visible.should be false
       end
 

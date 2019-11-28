@@ -1662,7 +1662,7 @@ module RobustExcelOle
         it "should set calculation mode (change from automatic to manual)" do
           excel1 = Excel.create(:calculation => :automatic)
           book1 = Workbook.open(@simple_file1, :visible => false)
-          expect( book1.Windows(1).Visible ).to be false
+          expect( book1.Windows(1).Visible ).to be true # false
           expect {       excel1.calculation = :manual 
             }.to change{ excel1.calculation 
           }.from(        :automatic
@@ -1672,7 +1672,7 @@ module RobustExcelOle
         it "should set calculation mode (change from manual to automatic)" do
           excel1 = Excel.create(:calculation => :manual)
           book1 = Workbook.open(@simple_file1, :visible => false)
-          expect( book1.Windows(1).Visible ).to be false
+          expect( book1.Windows(1).Visible ).to be true # false
           expect {       excel1.calculation = :automatic 
             }.to change{ excel1.calculation 
           }.from(        :manual

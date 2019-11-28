@@ -1996,9 +1996,9 @@ describe Workbook do
         it "should not open the new book and not close the unsaved book, if user answers 'no'" do
           # "No" is right to "Yes" (the  default). --> language independent
           # strangely, in the "no" case, the question will sometimes be repeated three time
-          #@key_sender.puts "{right}{enter}"
-          #@key_sender.puts "{right}{enter}"
-          #@key_sender.puts "{right}{enter}"
+          @key_sender.puts "{right}{enter}"
+          @key_sender.puts "{right}{enter}"
+          @key_sender.puts "{right}{enter}"
           expect{
             Workbook.open(@simple_file, :if_unsaved => :excel)
           }.to raise_error(UnexpectedREOError)

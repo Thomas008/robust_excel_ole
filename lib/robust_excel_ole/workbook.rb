@@ -440,10 +440,11 @@ module RobustExcelOle
         open_or_create_workbook(filename, options)
       end
       #options[:force][:visible] unless options[:force][:visible].nil?
-      self.visible = options[:force][:visible].nil? ? excel.Visible : options[:force][:visible]
-      @excel.calculation = options[:calculation] unless options[:calculation].nil?
-      @ole_workbook.CheckCompatibility = options[:check_compatibility] unless options[:check_compatibility].nil?
-      @ole_workbook.Saved = true # unless self.Saved # ToDo: this is too hard
+      retain_saved do
+        self.visible = options[:force][:visible].nil? ? excel.Visible : options[:force][:visible]
+        @excel.calculation = options[:calculation] unless options[:calculation].nil?
+        @ole_workbook.CheckCompatibility = options[:check_compatibility] unless options[:check_compatibility].nil?
+      end      
     end
            
     # @private

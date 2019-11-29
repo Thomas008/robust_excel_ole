@@ -362,7 +362,7 @@ module RobustExcelOle
       when :forget
         manage_forgetting_workbook(filename,options)
       when :accept
-        raise OptionInvalid, ":if_unsaved:accept and :read_only:true not possible" if option[:read_only]==true
+        raise OptionInvalid, ":if_unsaved:accept and :read_only:true not possible" if options[:read_only]==true
         # do nothing
       when :save
         manage_saving_workbook(filename, options)

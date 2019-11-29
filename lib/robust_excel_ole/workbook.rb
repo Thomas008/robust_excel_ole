@@ -104,7 +104,7 @@ module RobustExcelOle
         end
         if book      
           # drop the fetched workbook if it shall be opened in another Excel instance
-          # or the workbook is an unsaved workbook that should be accepted
+          # or the workbook is an unsaved workbook that should not be accepted
           if (!(options[:force][:excel]) || (forced_excel == book.excel)) &&
             !(book.alive? && !book.saved && (options[:if_unsaved] != :accept))
             book.ensure_excel(options) 
@@ -233,6 +233,7 @@ module RobustExcelOle
     # @private
     # restriction for jruby: does not manage conflicts with blocking or unsaved workbooks
     def ensure_workbook(filename, options)  
+      raise OptionInvalid, ":if_unsaved:accept and :read_only:true not possible" if options[:read_only]==true
       unless @ole_workbook && alive?
         filename = @stored_filename ? @stored_filename : filename 
         manage_nonexisting_file(filename,options)
@@ -362,7 +363,6 @@ module RobustExcelOle
       when :forget
         manage_forgetting_workbook(filename,options)
       when :accept
-        raise OptionInvalid, ":if_unsaved:accept and :read_only:true not possible" if options[:read_only]==true
         # do nothing
       when :save
         manage_saving_workbook(filename, options)

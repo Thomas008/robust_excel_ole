@@ -223,7 +223,7 @@ module RobustExcelOle
       @excel = if excel_option == :new
         excel_class.new(:reuse => false) 
       elsif excel_option.nil? || excel_option == :current
-        excel_class.new(:reuse => true) unless RUBY_PLATFORM =~ /java/
+        excel_class.new(:reuse => true) # unless RUBY_PLATFORM =~ /java/
       else  #elsif excel_options.is_a?(WIN32OLE) || excel_option.is_a?(Excel) #excel_option.respond_to?(:Hwnd)
         self.class.excel_of(excel_option)
       end

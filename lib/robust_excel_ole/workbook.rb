@@ -843,7 +843,7 @@ module RobustExcelOle
       after_or_before, base_sheet = opts.to_a.first || [:after, last_sheet_local]
       begin
         if RUBY_PLATFORM !~ /java/
-          if sheet 
+          if sheet
             sheet.Copy({ after_or_before.to_s => base_sheet.ole_worksheet })
           else
             @ole_workbook.Worksheets.Add({ after_or_before.to_s => base_sheet.ole_worksheet })
@@ -878,7 +878,7 @@ module RobustExcelOle
           end
         end
       rescue #WIN32OLERuntimeError 
-        trace "#{$!.message}"
+        #trace "#{$!.message}"
         raise WorksheetREOError, "could not add given worksheet #{sheet.inspect}"
       end
       #ole_sheet = @excel.Activesheet

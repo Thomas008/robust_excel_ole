@@ -194,8 +194,8 @@ describe Workbook do
   describe "copy_sheet" do
 
     before do
-      #@book = Workbook.open(@simple_file)
-      @book = Workbook.open(@file_with_references)
+      @book = Workbook.open(@simple_file)
+      @book2 = Workbook.open(@file_with_references)
       @sheet = @book.sheet(1)
       @another_book = Workbook.open(@another_simple_file)
     end
@@ -206,10 +206,10 @@ describe Workbook do
     end
 
     it "should copy the second sheet, append it and leave the references so far" do
-      @book.add_sheet(@book.sheet(2), :after => @book.sheet(3))
-      @book.sheet(1)[2,1].Value.should == "x"
-      @book.sheet(1)[2,2].Value.should == "y"
-      @book.sheet(1)[2,3].Value.should == "z"
+      @book2.add_sheet(@book2.sheet(2), :after => @book2.sheet(3))
+      @book2.sheet(1)[2,1].Value.should == "x"
+      @book2.sheet(1)[2,2].Value.should == "y"
+      @book2.sheet(1)[2,3].Value.should == "z"
     end
 
     it "should copy and append a given sheet" do

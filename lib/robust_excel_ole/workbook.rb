@@ -233,7 +233,9 @@ module RobustExcelOle
     # @private
     # restriction for jruby: does not manage conflicts with blocking or unsaved workbooks
     def ensure_workbook(filename, options)  
-      raise OptionInvalid, ":if_unsaved:accept and :read_only:true not possible" if options[:read_only]==true
+      if options[:if_unsaved]==:accept && options[:read_only]==true
+        raise OptionInvalid, ":if_unsaved:accept and :read_only:true not possible"
+      end
       unless @ole_workbook && alive?
         filename = @stored_filename ? @stored_filename : filename 
         manage_nonexisting_file(filename,options)

@@ -154,6 +154,7 @@ module RobustExcelOle
           absolute_path("C:/abc").should == "C:\\abc"
           absolute_path("C:\\abc").should == "C:\\abc"
           Dir.chdir "C:/windows"
+          # does not work under jruby
           absolute_path("C:abc").downcase.should == Dir.pwd.gsub("/","\\").downcase + "\\abc"
           absolute_path("C:abc").upcase.should   == File.expand_path("abc").gsub("/","\\").upcase
         end

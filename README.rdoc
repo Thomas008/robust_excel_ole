@@ -312,7 +312,13 @@ For more details about reading and writing contents of cells and ranges see {REA
 
 RobustExcelOle runs in jruby as well. You can call the console via the command +jreo+. However, note that, due to some restrictions of the library jruby-win32ole, there are some restrictions. So we had implemented some adaptions and workarounds. Some issues still remain when running under jruby:
 
-1. Excel.current or Excel.new(:reuse => true) does not connect to an already running Excel instance, unless some workbook has been opened via RobustExcelOle. This has the consequence that there is not conflict management for blocking or unsavbed workbooks, but an error message would be returned. That is, the only option value for +:if_blocked+ and +:if_unsaved+ is +:raise+ 2. Excel.close_all does not work yet, but at least +kill_all+ does work. 3. When providing an absolute path, you have to state the "/" ("C:/abc.xls" works, "C:abc" does not work).
+1. +Excel.current+ or +Excel.new(:reuse => true)+ does not connect to an already running Excel instance, unless some workbook has been opened via RobustExcelOle. This has the consequence that so far there is not conflict management for blocking or unsavbed workbooks, but an error message would be returned. That is, the only option value for +:if_blocked+ and +:if_unsaved+ is +:raise+
+
+2. Connecting to a hostname share path (e.g. "//DESKTOP-A3C5CJ6/spec/workbook.xls") does not work.
+
+3. +Excel.close_all+ does not work yet. It relies on stepping through all heap objects in ObjectSpace. In jruby ObjectSpace is disabled. Each_object will only work with Class. The command +Excel.kill_all+ does work.
+
+4. When providing an absolute path, you have to state the "/" ("C:/abc.xls" works, "C:abc" does not work).
 
 
 === More things

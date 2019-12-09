@@ -241,7 +241,7 @@ module RobustExcelOle
         manage_nonexisting_file(filename,options)
         if RUBY_PLATFORM =~ /java/ && (options[:force][:excel].nil? || options[:force][:excel] == :current)
           begin
-            connect(filename,options)  
+            connect(filename,options)
           rescue WorkbookConnectingUnsavedError
             raise WorkbookNotSaved, "workbook is already open but not saved: #{File.basename(filename).inspect}"
           rescue WorkbookConnectingBlockingError

@@ -246,8 +246,8 @@ module RobustExcelOle
       end
       begin
         @ole_excel.Workbooks.Close
-      rescue WIN32OLERuntimeError => msg
-        if msg.message =~ /800A03EC/
+      rescue
+        if $!.message =~ /kann nicht zugeordnet werden/ or $!.message =~ /800A03EC/
           raise ExcelREOError, 'user canceled or runtime error'
         else
           raise UnexpectedREOError, "unknown WIN32OLERuntimeError: #{msg.message}"

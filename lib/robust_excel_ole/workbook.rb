@@ -250,6 +250,7 @@ module RobustExcelOle
           rescue WorkbookConnectingUnknownError
             raise WorkbookREOError, "can't connect to workbook #{filename}"
           end
+          manage_unsaved_workbook(filename,options) unless @ole_workbook.Saved
         else
           workbooks = @excel.Workbooks
           @ole_workbook = workbooks.Item(File.basename(filename)) rescue nil if @ole_workbook.nil?

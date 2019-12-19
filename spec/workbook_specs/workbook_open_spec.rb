@@ -2081,7 +2081,7 @@ describe Workbook do
               if :if_obstructed is :close_if_saved" do
             expect{
               new_book = Workbook.open(@simple_file1, :if_obstructed => :close_if_saved)
-            }.to raise_error(WorkbookBlocked, /workbook with the same name in a different path is unsaved/)
+            }.to raise_error(WorkbookBlocked, /same name in a different path/)
             @book.save
             new_book = Workbook.open(@simple_file1, :if_obstructed => :close_if_saved)
             @book.should_not be_alive

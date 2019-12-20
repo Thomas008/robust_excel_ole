@@ -90,10 +90,9 @@ module RobustExcelOle
       book = nil
       if options[:force][:excel] != :new
         # if readonly is true, then prefer a book that is given in force_excel if this option is set       
-        forced_excel = if RUBY_PLATFORM !~ /java/ 
+        forced_excel = 
           (options[:force][:excel].nil? || options[:force][:excel] == :current) ? 
-            excel_class.new(:reuse => true) : excel_of(options[:force][:excel])
-        end
+            excel_class.new(:reuse => true) : excel_of(options[:force][:excel])        
         begin
           book = if File.exists?(file)
             bookstore.fetch(file, :prefer_writable => !(options[:read_only]),
@@ -107,7 +106,7 @@ module RobustExcelOle
           # or the workbook is an unsaved workbook that should not be accepted
           if (!(options[:force][:excel]) || (forced_excel == book.excel)) &&
             !(book.alive? && !book.saved && (options[:if_unsaved] != :accept))
-            book.ensure_excel(options) 
+            book.ensure_excel(options)
             # reopen the book if it was closed, otherwise
             options[:force][:excel] = book.excel if book.excel && book.excel.alive?
             book.ensure_workbook(file,options)
@@ -195,21 +194,11 @@ module RobustExcelOle
     # returns an Excel object when given Excel, Workbook or Win32ole object representing a Workbook or an Excel
     # @private
     def self.excel_of(object) 
-      if object.is_a? WIN32OLE
-        case object.ole_obj_help.name
-        when /Workbook/i
-          new(object).excel
-        when /Application/i
-          excel_class.new(object)
-        else
-          object.excel
-        end
-      else
-        begin
-          object.excel
-        rescue
-          raise TypeREOError, 'given object is neither an Excel, a Workbook, nor a Win32ole'
-        end
+      begin
+        object = object.to_reo if object.is_a? WIN32OLE
+        object.excel
+      rescue
+        raise TypeREOError, 'given object is neither an Excel, a Workbook, nor a Win32ole'
       end
     end
 

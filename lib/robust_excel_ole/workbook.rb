@@ -90,9 +90,12 @@ module RobustExcelOle
       book = nil
       if options[:force][:excel] != :new
         # if readonly is true, then prefer a book that is given in force_excel if this option is set       
+        #forced_excel = 
+        #  (options[:force][:excel].nil? || options[:force][:excel] == :current) ? 
+        #    excel_class.new(:reuse => true)  : excel_of(options[:force][:excel])  
         forced_excel = 
           (options[:force][:excel].nil? || options[:force][:excel] == :current) ? 
-            excel_class.new(:reuse => true) : excel_of(options[:force][:excel])        
+            (excel_class.new(:reuse => true) if RUBY_PLATFORM !~ /java/) : excel_of(options[:force][:excel])              
         begin
           book = if File.exists?(file)
             bookstore.fetch(file, :prefer_writable => !(options[:read_only]),
@@ -134,8 +137,8 @@ module RobustExcelOle
         filename = @ole_workbook.Fullname.tr('\\','/')
         set_options(filename, options)
       else
-        filename = file_or_workbook        
-        ensure_excel(options)
+        filename = file_or_workbook    
+        #ensure_excel(options) #unless RUBY_PLATFORM =~ /java/ && (options[:force][:excel].nil? || options[:force][:excel] == :current)            
         ensure_workbook(filename, options)
       end
       bookstore.store(self)
@@ -241,6 +244,7 @@ module RobustExcelOle
           end
           manage_unsaved_workbook(filename,options) unless @ole_workbook.Saved
         else
+          ensure_excel(options)
           workbooks = @excel.Workbooks
           @ole_workbook = workbooks.Item(File.basename(filename)) rescue nil if @ole_workbook.nil?
           if @ole_workbook

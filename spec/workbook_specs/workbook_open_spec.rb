@@ -126,6 +126,7 @@ describe Workbook do
           book.should be_alive
           book.should be_a Workbook
           book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
+          Excel.excels_number.should == 1
         end
       end
 
@@ -205,6 +206,7 @@ describe Workbook do
         Workbook.open(@simple_file1) do |book|
           book.filename.should == @simple_file1
           book.excel.ole_excel.Hwnd.should == @ole_wb1.Application.Hwnd
+          Excel.excels_number.should == 2
         end
       end
 
@@ -212,12 +214,11 @@ describe Workbook do
         Workbook.open(@different_file1) do |book|
           book.filename.should == @different_file1
           book.excel.ole_excel.Hwnd.should == @ole_wb2.Application.Hwnd
+          Excel.excels_number.should == 2
         end
       end
 
     end
-
-
 
   end
 

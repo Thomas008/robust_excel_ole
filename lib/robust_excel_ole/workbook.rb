@@ -295,6 +295,7 @@ module RobustExcelOle
       return if File.exist?(filename)
       abs_filename = General.absolute_path(filename)
       if options[:if_absent] == :create
+        ensure_excel(options) unless @excel && @excel.alive?
         @excel.Workbooks.Add
         empty_ole_workbook = excel.Workbooks.Item(excel.Workbooks.Count)
         begin

@@ -632,22 +632,22 @@ describe Workbook do
       end
 
       it "should fetch the workbook" do
-        workbook = @book.ole_workbook
-        new_book = Workbook.new(workbook)
+        ole_workbook = @book.ole_workbook
+        new_book = Workbook.new(ole_workbook)
         new_book.should be_a Workbook
         new_book.should be_alive
         new_book.should == @book
         new_book.filename.should == @book.filename
         new_book.excel.should == @book.excel
         new_book.excel.Visible.should be false
-        new_book.excel.DisplayAlerts.should be false
+        #new_book.excel.DisplayAlerts.should be false
         new_book.should === @book
         new_book.close
       end
 
       it "should fetch the workbook" do
-        workbook = @book.ole_workbook
-        new_book = Workbook.new(workbook, :visible => true)
+        ole_workbook = @book.ole_workbook
+        new_book = Workbook.new(ole_workbook, :visible => true)
         new_book.should be_a Workbook
         new_book.should be_alive
         new_book.should == @book
@@ -660,8 +660,8 @@ describe Workbook do
       end
 
       it "should yield an identical Workbook and set visible value" do
-        workbook = @book.ole_workbook
-        new_book = Workbook.new(workbook, :visible => true)
+        ole_workbook = @book.ole_workbook
+        new_book = Workbook.new(ole_workbook, :visible => true)
         new_book.excel.displayalerts = true
         new_book.should be_a Workbook
         new_book.should be_alive

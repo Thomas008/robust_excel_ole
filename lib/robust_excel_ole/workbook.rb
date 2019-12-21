@@ -89,10 +89,7 @@ module RobustExcelOle
       options = process_options(opts, :use_defaults => false)
       book = nil
       if options[:force][:excel] != :new
-        # if readonly is true, then prefer a book that is given in force_excel if this option is set       
-        #forced_excel = 
-        #  (options[:force][:excel].nil? || options[:force][:excel] == :current) ? 
-        #    excel_class.new(:reuse => true)  : excel_of(options[:force][:excel])  
+        # if readonly is true, then prefer a book that is given in force_excel if this option is set              
         forced_excel = 
           (options[:force][:excel].nil? || options[:force][:excel] == :current) ? 
             (excel_class.new(:reuse => true) if RUBY_PLATFORM !~ /java/) : excel_of(options[:force][:excel])              

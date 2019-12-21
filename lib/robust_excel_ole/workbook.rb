@@ -231,7 +231,8 @@ module RobustExcelOle
       unless @ole_workbook && alive?
         filename = @stored_filename ? @stored_filename : filename 
         manage_nonexisting_file(filename,options)
-        if RUBY_PLATFORM =~ /java/ && (options[:force][:excel].nil? || options[:force][:excel] == :current)
+        if RUBY_PLATFORM =~ /java/ && 
+          (options[:force][:excel].nil? || options[:force][:excel] == :current) && filename[0] != '/'
           begin
             connect(filename,options)
           rescue WorkbookConnectingUnsavedError
@@ -250,7 +251,8 @@ module RobustExcelOle
           if @ole_workbook
             manage_blocking_or_unsaved_workbook(filename,options)
           else
-            if options[:force][:excel] == :current || (options[:force][:excel].nil? && options[:default][:excel] == :current) 
+            if options[:force][:excel] == :current || (options[:force][:excel].nil? && options[:default][:excel] == :current) &&
+              (RUBY_PLATFORM !~ /java/ || filename[0] != '/')
               connect(filename,options)
             else 
               open_or_create_workbook(filename,options)

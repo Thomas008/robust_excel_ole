@@ -312,7 +312,7 @@ For more details about reading and writing contents of cells and ranges see {REA
 
 RobustExcelOle runs in jruby as well. You can call the console via the command +jreo+. We implemented workarounds to cope with some restrictions of the library jruby-win32ole. Some issues still remain when running under jruby. So you might consider the following points when running RobustExcelOle under jruby:
 
-1. +Excel.current+ or +Excel.new(:reuse => true)+ does not connect to an already running Excel instance, unless some workbook has been opened via RobustExcelOle. This has the consequence that so far there is not conflict management for blocking workbooks. That is, the only option value for +:if_blocked+ is +:raise+
+1. +Excel.current+ or +Excel.new(:reuse => true)+ does not connect to an already running Excel instance, unless some workbook has been opened via RobustExcelOle. 
 
 2. Use +Excel.kill_all+ instead of +Excel.close_all+. +Excel.close_all does not work yet. It relies on stepping through all heap objects in ObjectSpace. In jruby ObjectSpace is disabled. Each_object will only work with Class.
 

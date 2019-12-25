@@ -265,21 +265,28 @@ module RobustExcelOle
         @excel.should_not == excel
       end
 
-      context "lifting an Excel instance given as WIN32Ole object" do
-
-        before do
-          @book = Workbook.open(@simple_file)
-          @excel = @book.excel          
-        end
+      context "lifting an Excel instance given as WIN32Ole object" do       
 
         it "lifts an Excel instance given as WIN32OLE object and has same Hwnd" do
-          app = WIN32OLE.new('Excel.Application')
-          ole_excel = WIN32OLE.connect("Excel.Application")  
+          ole_excel = WIN32OLE.new("Excel.Application")  
           reo_excel = Excel.new(ole_excel)
-          ole_excel.Hwnd.should == reo_excel.Hwnd  
+          reo_excel.ole_excel.Hwnd.should == ole_excel.Hwnd  
+          reo_excel.visible.should == false
+          reo_excel.displayalerts.should == :if_visible
         end
 
+        it "lifts an Excel instance given as WIN32OLE object and set options" do
+          app = WIN32OLE.new('Excel.Application')
+          ole_excel = WIN32OLE.connect("Excel.Application")  
+          reo_excel = Excel.new(ole_excel, {:displayalerts => true, :visible => true})
+          ole_excel.visible.should == true
+          ole_excel.displayalerts.should == true
+        end
+
+
         it "lifts an Excel instance given as WIN32Ole object" do    
+          @book = Workbook.open(@simple_file)
+          @excel = @book.excel          
           win32ole_excel = WIN32OLE.connect(@book.ole_workbook.Fullname).Application
           excel = Excel.new(win32ole_excel)
           excel.should be_a Excel
@@ -288,6 +295,8 @@ module RobustExcelOle
         end
 
         it "lifts an Excel instance given as WIN32Ole object with options" do    
+          @book = Workbook.open(@simple_file)
+          @excel = @book.excel
           @excel.Visible = true
           @excel.DisplayAlerts = true
           win32ole_excel = WIN32OLE.connect(@book.ole_workbook.Fullname).Application

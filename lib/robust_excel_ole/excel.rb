@@ -84,7 +84,7 @@ module RobustExcelOle
           current_excel
         end
       end
-      connected = (not ole_xl.nil?)
+      connected = (not ole_xl.nil?) && win32ole_excel.nil?
       ole_xl ||= WIN32OLE.new('Excel.Application')
       hwnd = ole_xl.HWnd
       stored = hwnd2excel(hwnd)
@@ -97,10 +97,10 @@ module RobustExcelOle
         @@hwnd2excel[hwnd] = WeakRef.new(result)
       end
 
-      unless options.is_a? WIN32OLE
+      #unless options.is_a? WIN32OLE
         begin
           reused = options[:reuse] && stored && stored.alive? 
-          if (not reused) && (not connected)
+          unless reused || connected
             options = { :displayalerts => :if_visible, :visible => false, :screenupdating => true }.merge(options)
           end
           result.visible = options[:visible] unless options[:visible].nil? 
@@ -109,7 +109,7 @@ module RobustExcelOle
           result.screenupdating = options[:screenupdating] unless options[:screenupdating].nil?
           #result.created = !reused
         end
-      end
+      #end
       result
     end    
 

@@ -104,8 +104,10 @@ module RobustExcelOle
         if book      
           # drop the fetched workbook if it shall be opened in another Excel instance
           # or the workbook is an unsaved workbook that should not be accepted
-          if (!(options[:force][:excel]) || (forced_excel == book.excel)) &&
+          if (options[:force][:excel].nil? || options[:force][:excel] == :current || forced_excel == book.excel) &&
             !(book.alive? && !book.saved && (options[:if_unsaved] != :accept))
+          #if (!(options[:force][:excel]) || (forced_excel == book.excel)) &&
+          #  !(book.alive? && !book.saved && (options[:if_unsaved] != :accept))
             book.ensure_excel(options)
             # reopen the book if it was closed, otherwise
             options[:force][:excel] = book.excel if book.excel && book.excel.alive?
@@ -618,8 +620,7 @@ module RobustExcelOle
             if opts[:rw_change_excel] == book.excel && change_rw_mode
               book.close
               opts = opts.merge({:force => {:excel => opts[:rw_change_excel]}, :read_only => !was_writable})
-              book = open(file, opts)
-              #book = open(file, :force => {:excel => opts[:rw_change_excel]}, :read_only => !was_writable)
+              book = open(file, opts)           
             end
             book.excel.calculation = was_calculation
             book.CheckCompatibility = was_check_compatibility

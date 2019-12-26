@@ -728,6 +728,26 @@ describe Workbook do
         book2.close
       end
 
+      it "should yield identical Workbook objects for identical Excel books when reopening with current excel" do
+        @book.should be_alive
+        @book.close
+        @book.should_not be_alive
+        book2 = Workbook.open(@simple_file1, :default => {:excel => :current})
+        book2.should === @book
+        book2.should be_alive
+        book2.close
+      end
+
+      it "should yield identical Workbook objects for identical Excel books when reopening with current excel" do
+        @book.should be_alive
+        @book.close
+        @book.should_not be_alive
+        book2 = Workbook.open(@simple_file1, :force => {:excel => :current})
+        book2.should === @book
+        book2.should be_alive
+        book2.close
+      end
+
       it "should yield identical Workbook objects when reopening and the Excel is closed" do
         @book.should be_alive
         @book.close

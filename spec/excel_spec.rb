@@ -1871,7 +1871,7 @@ module RobustExcelOle
         excel.Visible.should be true
         book3 = Workbook.open(@simple_file1)
         book4 = Workbook.open(@different_file1)
-        book3.Windows(book3.Name).Visible.should be false
+        book3.Windows(book3.Name).Visible.should be true
         book3.visible.should be false
         book4.Windows(book4.Name).Visible.should be false
         book4.visible.should be false

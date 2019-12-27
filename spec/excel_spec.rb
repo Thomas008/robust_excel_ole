@@ -1763,7 +1763,7 @@ module RobustExcelOle
         @excel1 = Excel.new
         expect{
           @excel1.Calculation = XlCalculationManual
-        }.to raise_error(WIN32OLERuntimeError)
+        }.to raise_error # (WIN32OLERuntimeError)
       end
 
       it "should do Calculation to manual with workbook" do

@@ -4,7 +4,13 @@ All notable changes to this project will be documented in this file.
 ## [1.12]
 
 ### Added
-   - Workbook#open: option :if_unsaved => :save
+   - Workbook.open: option :if_unsaved => :save
+   - Workbook#color
+
+### Changed:
+   - Workbook#save, save_as: no parameter +discoloring
+   - RangeOwners#set_namevalue, set_namevalue_glob: no optional parameter for color 
+
 
 ## [1.11]
 

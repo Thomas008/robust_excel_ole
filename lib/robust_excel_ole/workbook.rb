@@ -15,6 +15,7 @@ module RobustExcelOle
     attr_accessor :ole_workbook
     attr_accessor :stored_filename
     attr_accessor :modified_cells
+    attr_accessor :colored_if_modified
     attr_reader :workbook
 
     alias ole_object ole_workbook
@@ -637,9 +638,8 @@ module RobustExcelOle
     end
 
     # simple save of a workbook.
-    # @option opts [Boolean] :discoloring  states, whether colored ranges shall be discolored
     # @return [Boolean] true, if successfully saved, nil otherwise
-    def save(opts = {:discoloring => false})
+    def save
       raise ObjectNotAlive, 'workbook is not alive' unless alive?
       raise WorkbookReadOnly, 'Not opened for writing (opened with :read_only option)' if @ole_workbook.ReadOnly   
       # if you have open the workbook with :read_only => true,
@@ -647,7 +647,6 @@ module RobustExcelOle
       # otherwise the workbook may already be open writable in an another Excel instance
       # then you could use this workbook or close the workbook there
       begin
-        discoloring if opts[:discoloring]
         @modified_cells = []
         @ole_workbook.Save
       rescue WIN32OLERuntimeError => msg
@@ -675,8 +674,7 @@ module RobustExcelOle
     #  :if_blocked     :forget              -> closes the blocking workbook
     #                  :save                -> saves the blocking workbook and closes it
     #                  :close_if_saved      -> closes the blocking workbook, if it is saved,
-    #                                          otherwise raises an exception
-    # :discoloring     states, whether colored ranges shall be discolored
+    #                                          otherwise raises an exception   
     # @return [Workbook], the book itself, if successfully saved, raises an exception otherwise
     def save_as(file, opts = { })
       raise FileNameNotGiven, 'filename is nil' if file.nil?
@@ -688,7 +686,7 @@ module RobustExcelOle
         case options[:if_exists]
         when :overwrite
           if file == self.filename
-            save({:discoloring => opts[:discoloring]})
+            save
             return self
           else
             begin
@@ -739,11 +737,6 @@ module RobustExcelOle
   private
 
     # @private
-    def discoloring
-      @modified_cells.each { |cell| cell.Interior.ColorIndex = XlNone }
-    end
-
-    # @private
     def save_as_workbook(file, options)  
       dirname, basename = File.split(file)
       file_format =
@@ -752,7 +745,6 @@ module RobustExcelOle
         when '.xlsx' then RobustExcelOle::XlOpenXMLWorkbook
         when '.xlsm' then RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
         end
-      discoloring if options[:discoloring]
       @modified_cells = []
       @ole_workbook.SaveAs(General.absolute_path(file), file_format)
       bookstore.store(self)

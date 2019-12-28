@@ -61,9 +61,7 @@ module RobustExcelOle
     # sets the contents of a range
     # @param [String]  name  the name of a range
     # @param [Variant] value the contents of the range
-    # @param [FixNum]  color the color when setting a value
-    # @param [Hash]    opts :color [FixNum]  the color when setting the contents
-    def set_namevalue_glob(name, value, opts = { :color => 0 })
+    def set_namevalue_glob(name, value)
       begin
         name_obj = begin
           name_object(name)
@@ -71,8 +69,7 @@ module RobustExcelOle
           raise
         end
         ole_range = name_object(name).RefersToRange
-        ole_range.Interior.ColorIndex = opts[:color]
-        workbook.modified_cells << ole_range if workbook # unless cell_modified?(cell)
+        ole_range.Interior.ColorIndex = workbook.color unless workbook.color.nil?
         if RUBY_PLATFORM !~ /java/
           ole_range.Value = value
         else
@@ -128,9 +125,8 @@ module RobustExcelOle
 
     # assigns a value to a range given a locally defined name
     # @param [String]  name   the name of a range
-    # @param [Variant] value  the assigned value
-    # @param [Hash]    opts :color [FixNum]  the color when setting the contents
-    def set_namevalue(name, value, opts = { :color => 0 })
+    # @param [Variant] value  the assigned value   
+    def set_namevalue(name, value)
       begin
         return set_namevalue_glob(name, value, opts) if self.is_a?(Workbook)
         ole_range = self.Range(name)
@@ -138,9 +134,7 @@ module RobustExcelOle
         raise NameNotFound, "name #{name.inspect} not in #{self.inspect}"
       end
       begin
-        ole_range.Interior.ColorIndex = opts[:color]
-        workbook.modified_cells << ole_range if workbook # unless cell_modified?(range)
-        #range.Value = value
+        ole_range.Interior.ColorIndex = workbook.color unless workbook.color.nil?
         if RUBY_PLATFORM !~ /java/
           ole_range.Value = value
         else
@@ -164,8 +158,8 @@ module RobustExcelOle
     end
 
     # @private
-    def set_nameval(name, value, opts = { :color => 0 })        # :deprecated: #
-      set_namevalue_glob(name, value, opts)
+    def set_nameval(name, value)        # :deprecated: #
+      set_namevalue_glob(name, value)
     end
 
     # @private
@@ -174,8 +168,8 @@ module RobustExcelOle
     end
 
     # @private
-    def set_rangeval(name, value, opts = { :color => 0 })       # :deprecated: #
-      set_namevalue(name, value, opts)
+    def set_rangeval(name, value)       # :deprecated: #
+      set_namevalue(name, value)
     end
 
     # creates a range from a given defined name or address

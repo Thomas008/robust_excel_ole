@@ -306,9 +306,10 @@ or
 
   book.set_namevalue_glob("name", "new_value")
 
-The method []= colors the written cell. You can specify the color of a changed range via the method +set_namevalue_glob+. 
-  
-  book.set_namevalue_glob("name", "new_value", :color => 4)
+The method []= colors the written cell, if you have specified the color of the changed range via the method Workbook#color before, e.g.
+
+  book.color = 4
+  book["name"] = "new_value"
 
 Similarly, the contents of a named range can be read and modified in a worksheet
 
@@ -328,13 +329,6 @@ or an Application object.
 
   excel["name"] = "new_value"
 
-When saving, the written cells get discolored when using the option :discoloring
-
-  book.save(:discoloring => true)
-
-or
-
-  book.save_as('spec/data/workbook.xls', :discoloring => true)
 
 === Reading and writing the contents of a range with a locally defined name
 
@@ -378,7 +372,7 @@ Similarly, you can write a cell.
 
 or
 
-  sheet.set_cellval(1,1,"new_value", :color => 42)
+  sheet.set_cellval(1,1,"new_value")
 
 === Accessing rows and columns
 

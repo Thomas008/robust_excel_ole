@@ -45,7 +45,7 @@ describe Workbook do
 
   describe "connecting to unknown workbooks" do
 
-     context "with none workbook" do
+    context "with none workbook" do
 
       it "should open one new Excel with the worbook" do
         book1 = Workbook.open(@simple_file1)

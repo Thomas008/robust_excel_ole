@@ -237,12 +237,12 @@ module RobustExcelOle
     def rename_range(name, new_name)
       begin
         item = self.Names.Item(name)
-      rescue WIN32OLERuntimeError
+      rescue # WIN32OLERuntimeError
         raise NameNotFound, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"
       end
       begin
         item.Name = new_name
-      rescue WIN32OLERuntimeError
+      rescue # WIN32OLERuntimeError
         raise UnexpectedREOError, "name error in #{File.basename(self.stored_filename).inspect}"
       end
     end

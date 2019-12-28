@@ -14,8 +14,7 @@ module RobustExcelOle
     attr_accessor :excel
     attr_accessor :ole_workbook
     attr_accessor :stored_filename
-    attr_accessor :modified_cells
-    attr_accessor :colored_if_modified
+    attr_accessor :color_if_modified
     attr_reader :workbook
 
     alias ole_object ole_workbook

@@ -97,19 +97,16 @@ module RobustExcelOle
         @@hwnd2excel[hwnd] = WeakRef.new(result)
       end
 
-      #unless options.is_a? WIN32OLE
-        begin
-          reused = options[:reuse] && stored && stored.alive? 
-          unless reused || connected
-            options = { :displayalerts => :if_visible, :visible => false, :screenupdating => true }.merge(options)
-          end
-          result.visible = options[:visible] unless options[:visible].nil? 
-          result.displayalerts = options[:displayalerts] unless options[:displayalerts].nil?
-          result.calculation = options[:calculation] unless options[:calculation].nil?
-          result.screenupdating = options[:screenupdating] unless options[:screenupdating].nil?
-          #result.created = !reused
+      begin
+        reused = options[:reuse] && stored && stored.alive? 
+        unless reused || connected
+          options = { :displayalerts => :if_visible, :visible => false, :screenupdating => true }.merge(options)
         end
-      #end
+        result.visible = options[:visible] unless options[:visible].nil? 
+        result.displayalerts = options[:displayalerts] unless options[:displayalerts].nil?
+        result.calculation = options[:calculation] unless options[:calculation].nil?
+        result.screenupdating = options[:screenupdating] unless options[:screenupdating].nil?
+      end
       result
     end    
 

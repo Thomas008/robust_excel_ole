@@ -1318,18 +1318,18 @@ describe Workbook do
           book.excel.displayalerts.should == :if_visible
           @another_excel = book.excel
         end
-        Workbook.unobtrusively(@simple_file1, :if_closed => :reuse) do |book|
-          book.excel.should == @book.excel
+        Workbook.unobtrusively(@simple_file1, :if_closed => :current) do |book|
+          book.excel.should_not == @book.excel
           book.excel.should_not == new_excel
+          book.excel.should == @another_excel
           book.excel.visible.should be false
           book.excel.displayalerts.should == :if_visible
-          book.excel.should_not == @another_excel 
         end
       end
 
       it "should reuse Excel" do
         new_excel = Excel.new(:reuse => false)
-        Workbook.unobtrusively(@simple_file1, :if_closed => :reuse) do |book|
+        Workbook.unobtrusively(@simple_file1, :if_closed => :current) do |book|
           book.excel.should == @book.excel
           book.excel.should_not == new_excel
         end
@@ -1626,8 +1626,8 @@ describe Workbook do
 
       it "should open unobtrusively the closed book in the most recent Excel where it was open before" do      
         Workbook.unobtrusively(@simple_file1) do |book| 
-          book.excel.should_not == @book2.excel
-          book.excel.should == @book1.excel
+          book.excel.should == @book2.excel
+          book.excel.should_not == @book1.excel
           book.ReadOnly.should == false
           sheet = book.sheet(1)
           cell = sheet[1,1]

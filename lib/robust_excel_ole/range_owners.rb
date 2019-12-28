@@ -153,6 +153,18 @@ module RobustExcelOle
     end
 
     # @private
+    def set_namevalue(name, value, opts = {:color => 0})  # :deprecated: #
+      workbook.color_if_modified = opts[:color]
+      set_namevalue(name,value)
+    end
+
+    # @private
+    def set_namevalue_glob(name, value, opts = {:color => 0})  # :deprecated: #
+      workbook.color_if_modified = opts[:color]
+      set_namevalue_glob(name,value)
+    end
+
+    # @private
     def nameval(name, opts = { :default => :__not_provided })   # :deprecated: #
       namevalue_glob(name, opts)
     end

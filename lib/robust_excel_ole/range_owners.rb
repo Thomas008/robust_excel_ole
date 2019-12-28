@@ -69,7 +69,7 @@ module RobustExcelOle
           raise
         end
         ole_range = name_object(name).RefersToRange
-        ole_range.Interior.ColorIndex = workbook.color unless workbook.color.nil?
+        ole_range.Interior.ColorIndex = workbook.color_if_modified unless workbook.color_if_modified.nil?
         if RUBY_PLATFORM !~ /java/
           ole_range.Value = value
         else
@@ -134,7 +134,7 @@ module RobustExcelOle
         raise NameNotFound, "name #{name.inspect} not in #{self.inspect}"
       end
       begin
-        ole_range.Interior.ColorIndex = workbook.color unless workbook.color.nil?
+        ole_range.Interior.ColorIndex = workbook.color_if_modified unless workbook.color_if_modified.nil?
         if RUBY_PLATFORM !~ /java/
           ole_range.Value = value
         else

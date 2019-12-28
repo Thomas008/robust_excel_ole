@@ -308,7 +308,7 @@ or
 
 The method []= colors the written cell, if you have specified the color of the changed range via the method Workbook#color before, e.g.
 
-  book.color = 4
+  book.color_if_modified = 4
   book["name"] = "new_value"
 
 Similarly, the contents of a named range can be read and modified in a worksheet

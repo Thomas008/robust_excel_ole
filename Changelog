@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
    - Workbook.open: option :if_unsaved => :save
-   - Workbook#color
+   - Workbook#color_if_modified
 
 ### Changed:
    - Workbook#save, save_as: no parameter +discoloring

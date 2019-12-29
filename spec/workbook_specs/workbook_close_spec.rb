@@ -71,7 +71,7 @@ describe Workbook do
 
     context "with unsaved book" do
       before do
-        @book = Workbook.open(@simple_file1)
+        @book = Workbook.open(@simple_file1, :visible => true)
         @sheet_count = @book.ole_workbook.Worksheets.Count
         @book.add_sheet(@sheet, :as => 'a_name')
         @sheet = @book.sheet(1)
@@ -193,6 +193,7 @@ describe Workbook do
               @book.excel.Workbooks.Count.should == 1
               @book.close(:if_unsaved => :alert)
               @book.excel.Workbooks.Count.should == 0
+ 
               @book.ole_workbook.should == nil
               @book.should_not be_alive
              # expect{ole_workbook.Name}.to raise_error(WIN32OLERuntimeError)

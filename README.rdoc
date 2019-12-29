@@ -1,12 +1,19 @@
 = RobustExcelOle
 
-RobustExcelOle helps controlling Excel. It is designed to manage simultaneously running Excel instances, even with simultanously happening user interactions.
+RobustExcelOle helps controlling Excel. 
 This obviously includes standard tasks like reading and writing Excel workbooks.
-RobustExcelOle deals with various cases of Excel (and user) behaviour,
-supplies workarounds for some Excel bugs, and supports referenced libraries.
-It runs on Windows only.
+It is designed to manage simultaneously running Excel instances, even with simultanously happening user interactions. 
 
-RobustExcelOle works by sending VBA methods via Win32OLE. It keeps track of Excel instances and Excel workbooks.
+RobustExcelOle deals with various cases of Excel (and user) behaviour, and
+supplies workarounds for some Excel and JRuby bugs. 
+
+It supports handling workbooks across Excel instances by keeping track of workbooks and instances. Conflicts are managed before Excel notices.
+
+Library references are supported.
+
+RobustExcelOle works by sending VBA methods via Win32OLE. 
+Therefore, it runs on Windows only.
+
 
 == Requirements
 

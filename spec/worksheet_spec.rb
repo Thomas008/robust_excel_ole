@@ -617,10 +617,18 @@ describe Worksheet do
         }.to raise_error(RangeNotEvaluatable, /cannot assign value/)
       end
 
-      it "should color the cell" do
+      it "should color the cell (deprecated)" do
         @sheet1.set_namevalue_glob("new", "bar")
         @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
         @sheet1.set_namevalue_glob("new", "bar", :color => 4)
+        @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
+      end
+
+      it "should color the cell" do
+        @sheet1.set_namevalue_glob("new", "bar")
+        @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
+        @book1.color_if_modified = 4
+        @sheet1.set_namevalue_glob("new", "bar")
         @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
       end
 
@@ -702,10 +710,18 @@ describe Worksheet do
         @sheet1.namevalue_glob("empty", :default => 1).should be_nil
       end
 
-      it "should color the cell" do
+      it "should color the cell (depracated)" do
         @sheet1.set_namevalue("new", "bar")
         @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
         @sheet1.set_namevalue("new", "bar", :color => 4)
+        @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
+      end
+
+      it "should color the cell" do
+        @sheet1.set_namevalue("new", "bar")
+        @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
+        @book1.color_if_modified = 4
+        @sheet1.set_namevalue("new", "bar")
         @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
       end
 

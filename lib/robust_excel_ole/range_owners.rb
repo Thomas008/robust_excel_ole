@@ -61,14 +61,15 @@ module RobustExcelOle
     # sets the contents of a range
     # @param [String]  name  the name of a range
     # @param [Variant] value the contents of the range
-    def set_namevalue_glob(name, value)
+    def set_namevalue_glob(name, value, opts = { })  # opts is deprecated
       begin
         name_obj = begin
           name_object(name)
         rescue NameNotFound => msg
           raise
-        end
+        end        
         ole_range = name_object(name).RefersToRange
+        workbook.color_if_modified = opts[:color] unless opts[:color].nil?
         ole_range.Interior.ColorIndex = workbook.color_if_modified unless workbook.color_if_modified.nil?
         if RUBY_PLATFORM !~ /java/
           ole_range.Value = value
@@ -126,14 +127,15 @@ module RobustExcelOle
     # assigns a value to a range given a locally defined name
     # @param [String]  name   the name of a range
     # @param [Variant] value  the assigned value   
-    def set_namevalue(name, value)
+    def set_namevalue(name, value, opts = { })  # opts is deprecated
       begin
-        return set_namevalue_glob(name, value, opts) if self.is_a?(Workbook)
+        return set_namevalue_glob(name, value, opts) if self.is_a?(Workbook)  # opts deprecated
         ole_range = self.Range(name)
       rescue # WIN32OLERuntimeError
         raise NameNotFound, "name #{name.inspect} not in #{self.inspect}"
       end
       begin
+        workbook.color_if_modified = opts[:color] unless opts[:color].nil?
         ole_range.Interior.ColorIndex = workbook.color_if_modified unless workbook.color_if_modified.nil?
         if RUBY_PLATFORM !~ /java/
           ole_range.Value = value
@@ -150,18 +152,6 @@ module RobustExcelOle
       rescue  # WIN32OLERuntimeError
         raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.inspect}"
       end
-    end
-
-    # @private
-    def set_namevalue(name, value, opts = {:color => 0})  # :deprecated: #
-      workbook.color_if_modified = opts[:color]
-      set_namevalue(name,value)
-    end
-
-    # @private
-    def set_namevalue_glob(name, value, opts = {:color => 0})  # :deprecated: #
-      workbook.color_if_modified = opts[:color]
-      set_namevalue_glob(name,value)
     end
 
     # @private

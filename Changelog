@@ -9,7 +9,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed:
    - Workbook#save, save_as: no parameter +discoloring
-   - RangeOwners#set_namevalue, set_namevalue_glob: no optional parameter for color 
+   - RangeOwners#set_namevalue, set_namevalue_glob, Worksheet#set_cellval: 
+     no optional parameter for color 
 
 
 ## [1.11]

@@ -670,7 +670,7 @@ describe Workbook do
     end
   end
 
-  describe "nameval, set_nameval, [], []=" do
+  describe "namevalue_glob, set_namevalue_glob, [], []=" do
   
     before do
       @book1 = Workbook.open(@another_simple_file)
@@ -757,7 +757,7 @@ describe Workbook do
       @book1.namevalue_glob("localname").should == "simple"
     end
 
-    it "should color the cell" do
+    it "should color the cell (deprecated)" do
       @book1.set_namevalue_glob("new", "bar")
       @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
       @book1.set_namevalue_glob("new", "bar", :color => 4)
@@ -771,7 +771,20 @@ describe Workbook do
       #book2.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 42
     end
 
-    it "should save without color" do
+    it "should color the cell" do
+      @book1.set_namevalue_glob("new", "bar")
+      @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
+      @book1.color_if_modified = 4
+      @book1.set_namevalue_glob("new", "bar")
+      @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
+      @book1["new"].should == "bar"
+      @book1["new"] = "bar"
+      @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 42
+      @book1.save
+      @book1.close
+    end
+
+    it "should save without color (deprecated)" do
       @book1.set_namevalue_glob("new", "bar", :color => 4)
       @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
       @book1.save(:discoloring => true)

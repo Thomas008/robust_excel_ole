@@ -2097,7 +2097,7 @@ module RobustExcelOle
     end
   
 
-    describe "nameval, set_nameval" do
+    describe "namevalue_glob, set_namevalue_glob" do
 
       before do
         @book1 = Workbook.open(@dir + '/another_workbook.xls')
@@ -2153,7 +2153,7 @@ module RobustExcelOle
           }.to raise_error(RangeNotEvaluatable, /cannot assign value to range named "foo"/)
       end
 
-      it "should color the cell" do
+      it "should color the cell (deprecated)" do
         @excel1.set_namevalue_glob("firstcell", "foo")
         @book1.Names.Item("firstcell").RefersToRange.Interior.ColorIndex.should == -4142 
         @excel1.set_namevalue_glob("firstcell", "foo", :color => 4)
@@ -2163,6 +2163,19 @@ module RobustExcelOle
         @excel1.Names.Item("firstcell").RefersToRange.Interior.ColorIndex.should == 42
         @book1.save
       end
+
+      it "should color the cell" do
+        @excel1.set_namevalue_glob("firstcell", "foo")
+        @book1.Names.Item("firstcell").RefersToRange.Interior.ColorIndex.should == -4142 
+        @book1.color_if_modified = 4
+        @excel1.set_namevalue_glob("firstcell", "foo")
+        @book1.Names.Item("firstcell").RefersToRange.Interior.ColorIndex.should == 4
+        @excel1["firstcell"].should == "foo"
+        @excel1["firstcell"] = "foo"
+        @excel1.Names.Item("firstcell").RefersToRange.Interior.ColorIndex.should == 42
+        @book1.save
+      end
+
 
     end
 
@@ -2219,12 +2232,21 @@ module RobustExcelOle
         }.to raise_error(RangeNotEvaluatable, /cannot assign value to range named "foo" in/)
       end
 
-      it "should color the cell" do
+      it "should color the cell (depracated)" do
         @excel1.set_namevalue("firstcell", "foo")
         @book1.Names.Item("firstcell").RefersToRange.Interior.ColorIndex.should == -4142 
         @excel1.set_namevalue("firstcell", "foo", :color => 4)
         @book1.Names.Item("firstcell").RefersToRange.Interior.ColorIndex.should == 4
       end
+
+      it "should color the cell" do
+        @excel1.set_namevalue("firstcell", "foo")
+        @book1.Names.Item("firstcell").RefersToRange.Interior.ColorIndex.should == -4142 
+        @book1.color_if_modified = 4
+        @excel1.set_namevalue("firstcell", "foo")
+        @book1.Names.Item("firstcell").RefersToRange.Interior.ColorIndex.should == 4
+      end
+
 
     end
 

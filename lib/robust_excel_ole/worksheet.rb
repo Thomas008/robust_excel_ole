@@ -87,7 +87,10 @@ module RobustExcelOle
       else
         name, value = p1, p2
         begin
-          set_namevalue_glob(name, value, :color => 42) # aqua-marin, 4-green
+          old_color_if_modified = workbook.color_if_modified
+          workbook.color_if_modified = 42  # aqua-marin
+          set_namevalue_glob(name, value)
+          workbook.color_if_modified = old_color_if_modified
         rescue REOError
           begin
             workbook.set_namevalue_glob(name, value)
@@ -115,10 +118,10 @@ module RobustExcelOle
     # sets the value of a cell, if row, column and color of the cell are given
     # @params [Integer] x,y row and column
     # @option opts [Symbol] :color the color of the cell when set
-    def set_cellval(x,y,value, opts = {:color => 0})
+    def set_cellval(x,y,value, opts = { }) # option opts is deprecated
       cell = @ole_worksheet.Cells.Item(x, y)
-      cell.Interior.ColorIndex = opts[:color] # 42 - aqua-marin, 4-green
-      @workbook.modified_cells << cell if @workbook
+      workbook.color_if_modified = opts[:color] unless opts[:color].nil?
+      cell.Interior.ColorIndex = workbook.color_if_modified unless workbook.color_if_modified.nil?
       cell.Value = value
     rescue WIN32OLERuntimeError
       raise RangeNotEvaluatable, "cannot assign value #{value.inspect} to cell (#{y.inspect},#{x.inspect})"

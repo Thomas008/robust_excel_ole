@@ -638,7 +638,7 @@ module RobustExcelOle
 
     # simple save of a workbook.
     # @return [Boolean] true, if successfully saved, nil otherwise
-    def save
+    def save(opts = { })  # option opts is deprecated #
       raise ObjectNotAlive, 'workbook is not alive' unless alive?
       raise WorkbookReadOnly, 'Not opened for writing (opened with :read_only option)' if @ole_workbook.ReadOnly   
       # if you have open the workbook with :read_only => true,
@@ -731,12 +731,7 @@ module RobustExcelOle
       end
       save_as_workbook(file, options)
       self
-    end
-
-    # @private
-    def save(opts = {:discoloring => false})        # :deprecated: #
-      save
-    end
+    end    
 
   private
 
@@ -906,7 +901,10 @@ module RobustExcelOle
     # @param [String]  name  the name of the range
     # @param [Variant] value the contents of the range
     def []= (name, value)
-      set_namevalue_glob(name,value, :color => 42)   # 42 - aqua-marin, 4-green
+      old_color_if_modified = @color_if_modified
+      workbook.color_if_modified = 42  # 42 - aqua-marin, 4-green
+      set_namevalue_glob(name,value)   
+      workbook.color_if_modified = old_color_if_modified
     end
 
     # sets options

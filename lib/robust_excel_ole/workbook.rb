@@ -399,7 +399,7 @@ module RobustExcelOle
         begin
           workbooks = @excel.Workbooks
         rescue WIN32OLERuntimeError => msg
-          raise UnexpectedREOError, "WIN32OLERuntimeError: #{msg.message} #{msg.backtrace}"
+          raise UnexpectedREOError, "cannot access workbooks: #{msg.message} #{msg.backtrace}"
         end
         begin
           with_workaround_linked_workbooks_excel2007(options) do
@@ -411,7 +411,7 @@ module RobustExcelOle
         rescue WIN32OLERuntimeError => msg
           # for Excel2007: for option :if_unsaved => :alert and user cancels: this error appears?
           # if yes: distinguish these events
-          raise UnexpectedREOError, "WIN32OLERuntimeError: #{msg.message} #{msg.backtrace}"
+          raise UnexpectedREOError, "cannot open workbook: #{msg.message} #{msg.backtrace}"
         end
         begin
           # workaround for bug in Excel 2010: workbook.Open does not always return the workbook when given file name
@@ -731,6 +731,11 @@ module RobustExcelOle
       end
       save_as_workbook(file, options)
       self
+    end
+
+    # @private
+    def save(opts = {:discoloring => false})        # :deprecated: #
+      save
     end
 
   private

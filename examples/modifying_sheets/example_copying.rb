@@ -1,10 +1,10 @@
 # example_copying.rb:
-# each named cell is to be copied into another sheet
+# each named cell is to be copied into another worksheet
 # unnamed cells shall not be copied
 # if a sheet does not contain any named cell, then the sheet shall not be copied
 
-require File.expand_path('../../lib/robust_excel_ole', File.dirname(__FILE__))
-require File.join(File.dirname(File.expand_path(__FILE__)), '../../spec/helpers/create_temporary_dir')
+require_relative '../../lib/robust_excel_ole'
+require_relative '../../spec/helpers/create_temporary_dir'
 require "fileutils"
 
 include RobustExcelOle

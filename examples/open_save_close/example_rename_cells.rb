@@ -1,8 +1,8 @@
 # example_simple.rb: 
 # open a book, simple save, save_as, close
 
-require File.expand_path('../../lib/robust_excel_ole', File.dirname(__FILE__))
-require File.join(File.dirname(File.expand_path(__FILE__)), '../../spec/helpers/create_temporary_dir')
+require_relative '../../lib/robust_excel_ole'
+require_relative '../../spec/helpers/create_temporary_dir'
 require "fileutils"
 
 include RobustExcelOle
@@ -11,8 +11,7 @@ Excel.kill_all
 begin
   dir = create_tmpdir
   file_name = dir + 'workbook.xls'
-  book = Workbook.open(file_name)                                # open a book.  default:  :read_only => false
-  book.excel.visible = true                                          # make current Excel visible
+  book = Workbook.open(file_name, :visible => true)       # open a workbook.  default:  :read_only => false
   sheet = book.sheet(1)
   workbook = book.ole_workbook
   fullname = workbook.Fullname
@@ -48,7 +47,7 @@ begin
   sleep 2
   new_name_object.Delete
   sleep 2
-  book.close(:if_unsaved => :forget)                        # close the book
+  book.close(:if_unsaved => :forget)                        # close the workbook
 
 ensure
 	  Excel.kill_all                                         # close workbooks, quit Excel application

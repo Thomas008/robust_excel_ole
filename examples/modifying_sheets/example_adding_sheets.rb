@@ -1,8 +1,8 @@
 # example_adding_sheets.rb: 
 # adding new and copied at various positions with various sheet names
 
-require File.expand_path('../../lib/robust_excel_ole', File.dirname(__FILE__))
-require File.join(File.dirname(File.expand_path(__FILE__)), '../../spec/helpers/create_temporary_dir')
+require_relative '../../lib/robust_excel_ole'
+require_relative '../../spec/helpers/create_temporary_dir'
 require "fileutils"
 
 include RobustExcelOle
@@ -13,11 +13,11 @@ begin
   simple_file = dir + 'workbook.xls'
   simple_save_file = dir + 'workbook_save.xls'
   File.delete simple_save_file rescue nil
-  @book = Workbook.open(simple_file)      # open a book
+  @book = Workbook.open(simple_file, :visible => true)      # open a workbook
 
   def show_sheets 
-    @book.each do |sheet|               # access each sheet
-      puts "sheet name: #{sheet.name}" #  put the sheet name
+    @book.each do |sheet|               # access each worksheet
+      puts "sheet name: #{sheet.name}" #  put the worksheet name
     end
   end
 
@@ -63,7 +63,8 @@ begin
   @book.close(:if_unsaved => :forget)   # close the book without saving it
   
 ensure
-  Excel.close_all(:if_unsaved => :forget)
+  Excel.kill_all
+  #Excel.close_all(:if_unsaved => :forget)
   rm_tmp(dir)
 end
 

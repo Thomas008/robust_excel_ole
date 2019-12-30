@@ -1,8 +1,8 @@
 # example_saving.rb: 
 # save the sheets of a book as separate workbooks
 
-require File.expand_path('../../lib/robust_excel_ole', File.dirname(__FILE__))
-require File.join(File.dirname(File.expand_path(__FILE__)), '../../spec/helpers/create_temporary_dir')
+require_relative '../../lib/robust_excel_ole'
+require_relative '../../spec/helpers/create_temporary_dir'
 require "fileutils"
 
 include RobustExcelOle
@@ -27,7 +27,7 @@ begin
         sheet.Delete unless sheet.name == sheet_orig.name 
       end
       book.close(:if_unsaved => :save)
-      # alternative: delete all other sheets
+      # alternative: delete all other worksheets
       #book = Workbook.open(file_sheet_name, :force => {:excel => :new}, :visible => true)
       #book.each do |sheet|
       #  book.sheet(sheet.Name).Delete() unless sheet.Name == sheet_orig.Name

@@ -1,8 +1,8 @@
 # example_access_sheets_and_cells.rb: 
 # access sheets, print cells, rows, and columns of a sheet
 
-require File.expand_path('../../lib/robust_excel_ole', File.dirname(__FILE__))
-require File.join(File.dirname(File.expand_path(__FILE__)), '../../spec/helpers/create_temporary_dir')
+require_relative '../../lib/robust_excel_ole'
+require_relative '../../spec/helpers/create_temporary_dir'
 require "fileutils"
 
 include RobustExcelOle
@@ -13,7 +13,7 @@ begin
   simple_file = dir + 'workbook.xls'
   simple_save_file = dir + 'workbook_save.xls'
   File.delete simple_save_file rescue nil
-  book = Workbook.open(simple_file)      # open a book
+  book = Workbook.open(simple_file, :visible => true)      # open a book
   sheet = book.sheet(1)                    # access a sheet via integer 
   cell = sheet[1,1]                  # access the first cell
   puts "1st cell: #{cell.Value}"     # put the value of the first cell
@@ -34,7 +34,7 @@ begin
         when :each_row    then "row"
         when :each_column then "column"
         end 
-      puts "#{item_name} #{i}: #{item.Value}" # put values of the item of the sheet
+      puts "#{item_name} #{i}: #{item.Value}" # put values of the item of the worksheet
     end
   end
 
@@ -42,11 +42,12 @@ begin
   sheet_enum[:each_row]    # put rows
   sheet_enum[:each_column] # put columns
 
-  book.save                # save the book
-  book.close               # close the book
+  book.save                # save the workbook
+  book.close               # close the workbook
   
 ensure
-  Excel.close_all(:if_unsaved => :forget)
+  #Excel.close_all(:if_unsaved => :forget)
+  Excel.kill_all
   rm_tmp(dir)
 end
 

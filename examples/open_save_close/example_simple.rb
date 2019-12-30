@@ -5,8 +5,8 @@ LOG_TO_STDOUT = false
 REO_LOG_FILE = "reo2.log"
 REO_LOG_DIR = "C:/"
 
-require File.expand_path('../../lib/robust_excel_ole', File.dirname(__FILE__))
-require File.join(File.dirname(File.expand_path(__FILE__)), '../../spec/helpers/create_temporary_dir')
+require_relative '../../lib/robust_excel_ole'
+require_relative '../../spec/helpers/create_temporary_dir'
 require "fileutils"
 
 include RobustExcelOle
@@ -16,9 +16,9 @@ begin
   dir = create_tmpdir
   file_name = dir + 'workbook.xls'
   other_file_name = dir + 'different_workbook.xls'
-  book = Workbook.open(file_name)                                # open a book.  default:  :read_only => false
+  book = Workbook.open(file_name, :visible => true)          # open a workbook.  default:  :read_only => false
   book.excel.visible = true                                  # make current Excel visible
-  sheet = book.sheet(1)                                            # access a sheet
+  sheet = book.sheet(1)                                      # access a worksheet
   sleep 1     
   sheet[1,1] = sheet[1,1].Value == "simple" ? "complex" : "simple"  # change a cell
   sleep 1
@@ -30,7 +30,7 @@ begin
   end
   book.save_as(other_file_name, :if_exists => :overwrite)    # save_as with :if_exists => :overwrite
   puts "save_as: saved successfully with option :if_exists => :overwrite"
-  book.close                                                 # close the book
+  book.close                                                 # close the workbook
 ensure
 	  Excel.kill_all                                         # close workbooks, quit Excel application
     #rm_tmp(dir)

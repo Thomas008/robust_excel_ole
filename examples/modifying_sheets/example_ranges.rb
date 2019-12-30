@@ -1,8 +1,8 @@
 # example_ranges.rb: 
 # access row and column ranges of a sheet. 
 
-require File.expand_path('../../lib/robust_excel_ole', File.dirname(__FILE__))
-require File.join(File.dirname(File.expand_path(__FILE__)), '../../spec/helpers/create_temporary_dir')
+require_relative '../../lib/robust_excel_ole'
+require_relative '../../spec/helpers/create_temporary_dir'
 require "fileutils"
 
 include RobustExcelOle
@@ -13,8 +13,8 @@ begin
   simple_file = dir + 'workbook.xls'
   simple_save_file = dir + 'workbook_save.xls'
   File.delete simple_save_file rescue nil
-  book = Workbook.open(simple_file)      # open a book
-  sheet = book.sheet('Sheet1')             # access a sheet via the name
+  book = Workbook.open(simple_file, :visible => true)      # open a workbook
+  sheet = book.sheet('Sheet1')             # access a worksheet via the name
   row_r = sheet.row_range(1)         # access the whole range of the first row
   col_r = sheet.col_range(1, 1..2)   # access the first two cells of the range of the first column
   cell = col_r[0]                    # access the first cell of these cells 

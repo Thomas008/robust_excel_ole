@@ -561,6 +561,7 @@ describe Workbook do
             new_book.close
             @book.excel.DisplayAlerts.should == displayalert_value
           end
+          
           it "should not save if user answers 'no'" do
             # Just give the "Enter" key, because "No" is the default. --> language independent
             # strangely, in the "no" case, the question will sometimes be repeated three times

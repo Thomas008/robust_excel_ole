@@ -11,11 +11,13 @@ Gem::Specification.new do |s|
   
   s.summary     = "RobustExcelOle automates processing Excel workbooks in Windows by using the win32ole library."
   s.description = "RobustExcelOle helps controlling Excel. 
-                   It is designed to manage simultaneously running
-                   Excel instances, even with simultanously happening user interactions.
                    This obviously includes standard tasks like reading and writing Excel workbooks.
-                   RobustExcelOle deals with various cases of Excel (and user) behaviour,
-                   supplies workarounds for some Excel bugs, and supports referenced libraries.
+                   The gem is designed to manage simultaneously running
+                   Excel instances, even with simultanously happening user interactions.
+                   
+                   RobustExcelOle deals with various cases of Excel (and user) behaviour, and
+                   supplies workarounds for some Excel and JRuby bugs.
+                   Library references are supported.
                    It runs on Windows and uses the win32ole library."                 
 
   s. licenses = ['MIT']

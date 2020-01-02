@@ -57,9 +57,10 @@ module RobustExcelOle
           end
           values
         end
-      rescue WIN32OLERuntimeError
+      rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
         raise RangeNotEvaluatable, 'cannot read value'
       end 
+
     end
 
     def v=(value)
@@ -76,7 +77,7 @@ module RobustExcelOle
           end
         end
         value
-      rescue # WIN32OLERuntimeError
+      rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg  
         raise RangeNotEvaluatable, "cannot assign value to range #{address_r1c1.inspect}"
       end
     end
@@ -156,7 +157,7 @@ module RobustExcelOle
             end
           end
         end
-      rescue WIN32OLERuntimeError
+      rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
         raise RangeNotCopied, 'cannot copy range'
       end
     end
@@ -208,7 +209,7 @@ module RobustExcelOle
             end
           end
         end
-      rescue WIN32OLERuntimeError
+      rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg 
         raise RangeNotCopied, 'cannot copy range'
       end
     end
@@ -241,7 +242,7 @@ module RobustExcelOle
       if name.to_s[0,1] =~ /[A-Z]/
         begin
           @ole_range.send(name, *args)
-        rescue WIN32OLERuntimeError => msg
+        rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
           if msg.message =~ /unknown property or method/
             raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
           else

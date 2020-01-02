@@ -47,7 +47,7 @@ module RobustExcelOle
     # @param [String] new_name the new name of the sheet
     def name= (new_name)
       @ole_worksheet.Name = new_name
-    rescue WIN32OLERuntimeError => msg
+    rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
       if msg.message =~ /800A03EC/
         raise NameAlreadyExists, "sheet name #{new_name.inspect} already exists"
       else
@@ -123,7 +123,7 @@ module RobustExcelOle
       workbook.color_if_modified = opts[:color] unless opts[:color].nil?
       cell.Interior.ColorIndex = workbook.color_if_modified unless workbook.color_if_modified.nil?
       cell.Value = value
-    rescue WIN32OLERuntimeError
+    rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException
       raise RangeNotEvaluatable, "cannot assign value #{value.inspect} to cell (#{y.inspect},#{x.inspect})"
     end
 
@@ -222,7 +222,7 @@ module RobustExcelOle
       if name.to_s[0,1] =~ /[A-Z]/
         begin
           @ole_worksheet.send(name, *args)
-        rescue WIN32OLERuntimeError => msg
+        rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
           if msg.message =~ /unknown property or method/
             raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
           else

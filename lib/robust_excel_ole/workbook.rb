@@ -296,9 +296,7 @@ module RobustExcelOle
         empty_ole_workbook = excel.Workbooks.Item(excel.Workbooks.Count)
         begin
           empty_ole_workbook.SaveAs(abs_filename)
-        rescue WIN32OLERuntimeError => msg
-          raise FileNotFound, "could not save workbook with filename #{filename.inspect}"
-        rescue Java::OrgRacobCom::ComFailException => msg
+        rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
           raise FileNotFound, "could not save workbook with filename #{filename.inspect}"
         end
       else
@@ -400,9 +398,7 @@ module RobustExcelOle
         abs_filename = General.absolute_path(filename)
         begin
           workbooks = @excel.Workbooks
-        rescue WIN32OLERuntimeError => msg
-          raise UnexpectedREOError, "cannot access workbooks: #{msg.message} #{msg.backtrace}"
-        rescue Java::OrgRacobCom::ComFailException => msg
+        rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
           raise UnexpectedREOError, "cannot access workbooks: #{msg.message} #{msg.backtrace}"
         end
         begin
@@ -651,17 +647,11 @@ module RobustExcelOle
       begin
         @modified_cells = []
         @ole_workbook.Save
-      rescue WIN32OLERuntimeError => msg
+      rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
         if msg.message =~ /SaveAs/ && msg.message =~ /Workbook/
           raise WorkbookNotSaved, 'workbook not saved'
         else
           raise UnexpectedREOError, "unknown WIN32OLERuntimeError:\n#{msg.message}"
-        end
-      rescue Java::OrgRacobCom::ComFailException => msg
-        if msg.message =~ /SaveAs/ && msg.message =~ /Workbook/
-        # trace "save: canceled by user"
-        else
-          raise UnexpectedREOError, "unknown WIN32OELERuntimeError:"
         end
       end
       true
@@ -756,18 +746,12 @@ module RobustExcelOle
       @modified_cells = []
       @ole_workbook.SaveAs(General.absolute_path(file), file_format)
       bookstore.store(self)
-    rescue WIN32OLERuntimeError => msg
+    rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
       if msg.message =~ /SaveAs/ && msg.message =~ /Workbook/
         # trace "save: canceled by user" if options[:if_exists] == :alert || options[:if_exists] == :excel
         # another possible semantics. raise WorkbookREOError, "could not save Workbook"
       else
         raise UnexpectedREOError, "unknown WIN32OELERuntimeError:\n#{msg.message}"
-      end
-    rescue Java::OrgRacobCom::ComFailException => msg
-      if msg.message =~ /SaveAs/ && msg.message =~ /Workbook/
-        # trace "save: canceled by user"
-      else
-        raise UnexpectedREOError, "unknown WIN32OELERuntimeError:"
       end
     end
 
@@ -805,9 +789,7 @@ module RobustExcelOle
     # @returns [Worksheet]
     def sheet(name)
       worksheet_class.new(@ole_workbook.Worksheets.Item(name))
-    rescue WIN32OLERuntimeError => msg
-      raise NameNotFound, "could not return a sheet with name #{name.inspect}"
-    rescue Java::OrgRacobCom::ComFailException => msg
+    rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
       raise NameNotFound, "could not return a sheet with name #{name.inspect}"
     end
 
@@ -1100,13 +1082,7 @@ module RobustExcelOle
         begin
           raise ObjectNotAlive, 'method missing: workbook not alive' unless alive?
           @ole_workbook.send(name, *args)
-        rescue WIN32OLERuntimeError => msg
-          if msg.message =~ /unknown property or method/
-            raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
-          else
-            raise msg
-          end
-        rescue Java::OrgRacobCom::ComFailException => msg
+        rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
           if msg.message =~ /unknown property or method/
             raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
           else

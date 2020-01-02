@@ -185,7 +185,7 @@ module RobustExcelOle
     def ole_workbooks
       ole_workbooks = begin
         @ole_excel.Workbooks
-      rescue WIN32OLERuntimeError => msg
+      rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
         if msg.message =~ /failed to get Dispatch Interface/
           raise ExcelDamaged, 'Excel instance not alive or damaged'
         else

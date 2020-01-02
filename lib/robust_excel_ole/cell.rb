@@ -27,6 +27,12 @@ module RobustExcelOle
           else
             raise msg
           end
+        rescue Java::OrgRacobCom::ComFailException => msg
+          if msg.message =~ /unknown property or method/
+            raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
+          else
+            raise msg
+          end
         end
      # else
      #   super

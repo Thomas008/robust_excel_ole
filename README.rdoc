@@ -330,17 +330,7 @@ You can run the examples included in the directory +examples+, e.g.
 
   ruby examples\open_save_close\example_unobtrusively.rb
 
-== Restritions in jruby
-
-There are some restrictions of the library jruby-win32ole. For most of these shortcomings, workarounds have been implemented. The following restrictions still remain:
-
-1. Connecting to Excel instances does work only to Excel instances opened via RobustExcelOle,
-not to interactively opened Excel instances. 
-
-2. +Excel.close_all+ uses ObectSpace. However, in jruby-win32ole ObjectSpace is disabled. In future versions the user can choose in the console +jreo+ , whether she wants to enable the ObjectSpace. So you might use +Excel.kill_all+ instead.
   
-3. Infinite Ranges cannot be created and processed.
-
 == Development
 
 This project RobustExcelOle is work in progress. We are happy to implement further features. So we invite you to send your pull requests. We then strive to realize them as soon as possible. If you have any feedback, or you find use cases that RobustExcelOle does not satisfy, please let us know.

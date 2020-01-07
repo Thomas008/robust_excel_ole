@@ -48,7 +48,7 @@ module RobustExcelOle
     def name= (new_name)
       @ole_worksheet.Name = new_name
     rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
-      if msg.message =~ /800A03EC/
+      if msg.message =~ /800A03EC/ || msg.message =~ /Visual Basic/
         raise NameAlreadyExists, "sheet name #{new_name.inspect} already exists"
       else
         raise UnexpectedREOError, "unexpected WIN32OLERuntimeError: #{msg.message}"

@@ -30,7 +30,7 @@ module RobustExcelOle
           values = RobustExcelOle::Range.new(ole_range).v
           (values.size==1 && values.first.size==1) ? values.first.first : values
         end
-      rescue WIN32OLERuntimeError
+      rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException 
         sheet = if self.is_a?(Worksheet) then self
                 elsif self.is_a?(Workbook) then self.sheet(1)
                 elsif self.is_a?(Excel) then self.workbook.sheet(1)
@@ -45,7 +45,7 @@ module RobustExcelOle
             values = RobustExcelOle::Range.new(ole_range).v
             (values.size==1 && values.first.size==1) ? values.first.first : values
           end
-        rescue # WIN32OLERuntimeError
+        rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException 
           return opts[:default] unless opts[:default] == :__not_provided
           raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{self}"
         end
@@ -100,7 +100,7 @@ module RobustExcelOle
       return namevalue_glob(name, opts) if self.is_a?(Workbook)
       begin
         ole_range = self.Range(name)
-      rescue # WIN32OLERuntimeError
+      rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException 
         return opts[:default] unless opts[:default] == :__not_provided
         raise NameNotFound, "name #{name.inspect} not in #{self.inspect}"
       end
@@ -112,7 +112,7 @@ module RobustExcelOle
           values = RobustExcelOle::Range.new(ole_range).v
           (values.size==1 && values.first.size==1) ? values.first.first : values
         end
-      rescue  #WIN32OLERuntimeError
+      rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException 
         return opts[:default] unless opts[:default] == :__not_provided
         raise RangeNotEvaluatable, "cannot determine value of range named #{name.inspect} in #{self.inspect}"
       end
@@ -266,7 +266,7 @@ module RobustExcelOle
     rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException
       begin
         self.Parent.Names.Item(name)
-      rescue WIN32OLERuntimeError
+      rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException
         raise RobustExcelOle::NameNotFound, "name #{name.inspect} not in #{self.inspect}"
       end
     end

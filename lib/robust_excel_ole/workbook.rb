@@ -859,9 +859,7 @@ module RobustExcelOle
             end
           end
         end
-      rescue WIN32OLERuntimeError 
-        raise WorksheetREOError, "could not add given worksheet #{sheet.inspect}"
-      raise NameNotFound, "could not return a sheet with name #{name.inspect}"
+      rescue WIN32OLERuntimeError, NameNotFound, Java::OrgRacobCom::ComFailException
         raise WorksheetREOError, "could not add given worksheet #{sheet.inspect}"
       end
       #ole_sheet = @excel.Activesheet

@@ -223,7 +223,7 @@ module RobustExcelOle
         begin
           @ole_worksheet.send(name, *args)
         rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
-          if msg.message =~ /unknown property or method/
+          if msg.message =~ /unknown property or method/ || msg.message =~ /map name/
             raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
           else
             raise msg

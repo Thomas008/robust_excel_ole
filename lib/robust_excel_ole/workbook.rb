@@ -1081,7 +1081,7 @@ module RobustExcelOle
           raise ObjectNotAlive, 'method missing: workbook not alive' unless alive?
           @ole_workbook.send(name, *args)
         rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
-          if msg.message =~ /unknown property or method/
+          if msg.message =~ /unknown property or method/ || msg.message =~ /map name/
             raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
           else
             raise msg

@@ -728,7 +728,7 @@ module RobustExcelOle
           raise ObjectNotAlive, 'method missing: Excel not alive' unless alive?
           @ole_excel.send(name, *args)
         rescue WIN32OLERuntimeError => msg
-          if msg.message =~ /unknown property or method/
+          if msg.message =~ /unknown property or method/ || msg.message =~ /map name/
             raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
           else
             raise msg

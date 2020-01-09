@@ -16,18 +16,25 @@ module RobustExcelOle
       self.Value = value
     end
 
+
+
+
     # @private
     def method_missing(name, *args) 
       #if name.to_s[0,1] =~ /[A-Z]/
+      if RUBY_PLATFORM =~ /java/  
         begin
           @cell.send(name, *args)
-        rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
-          if msg.message =~ /unknown property or method/ || msg.message =~ /map name/
-            raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
-          else
-            raise msg
-          end
+        rescue Java::OrgRacobCom::ComFailException 
+          raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
         end
+      else
+        begin
+          @cell.send(name, *args)
+        rescue NoMethodError 
+          raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
+        end
+      end
      # else
      #   super
      # end

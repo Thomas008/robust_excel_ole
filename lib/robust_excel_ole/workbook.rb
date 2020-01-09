@@ -137,7 +137,6 @@ module RobustExcelOle
         ensure_workbook(filename, options)
       end
       bookstore.store(self)
-      @modified_cells = []
       @workbook = @excel.workbook = self
       r1c1_letters = @ole_workbook.Worksheets.Item(1).Cells.Item(1,1).Address(true,true,XlR1C1).gsub(/[0-9]/,'') #('ReferenceStyle' => XlR1C1).gsub(/[0-9]/,'')
       address_class.new(r1c1_letters)
@@ -645,7 +644,6 @@ module RobustExcelOle
       # otherwise the workbook may already be open writable in an another Excel instance
       # then you could use this workbook or close the workbook there
       begin
-        @modified_cells = []
         @ole_workbook.Save
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
         if msg.message =~ /SaveAs/ && msg.message =~ /Workbook/
@@ -743,7 +741,6 @@ module RobustExcelOle
         when '.xlsx' then RobustExcelOle::XlOpenXMLWorkbook
         when '.xlsm' then RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
         end
-      @modified_cells = []
       @ole_workbook.SaveAs(General.absolute_path(file), file_format)
       bookstore.store(self)
     rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
@@ -1074,6 +1071,31 @@ module RobustExcelOle
 
   private
 
+    def method_missing(name, *args) 
+      if name.to_s[0,1] =~ /[A-Z]/
+        raise ObjectNotAlive, 'method missing: workbook not alive' unless alive?
+        if RUBY_PLATFORM =~ /java/  
+          begin
+            @ole_workbook.send(name, *args)
+          rescue Java::OrgRacobCom::ComFailException 
+            raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
+          end
+        else
+          begin
+            @ole_workbook.send(name, *args)
+          rescue NoMethodError 
+            raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
+          end
+        end
+      else
+        super
+      end
+    end
+
+  end
+
+
+=begin
     # @private
     def method_missing(name, *args)   
       if name.to_s[0,1] =~ /[A-Z]/
@@ -1092,6 +1114,7 @@ module RobustExcelOle
       end
     end
   end
+=end
 
 public
 

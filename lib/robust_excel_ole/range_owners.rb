@@ -83,7 +83,7 @@ module RobustExcelOle
           end
         end
         value
-      rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException
+      rescue #WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException
         raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.inspect}"
       end
     end
@@ -100,7 +100,7 @@ module RobustExcelOle
       return namevalue_glob(name, opts) if self.is_a?(Workbook)
       begin
         ole_range = self.Range(name)
-      rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException 
+      rescue # WIN32OLERuntimeError, VBAMethodMissingError, Java::OrgRacobCom::ComFailException 
         return opts[:default] unless opts[:default] == :__not_provided
         raise NameNotFound, "name #{name.inspect} not in #{self.inspect}"
       end

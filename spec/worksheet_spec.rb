@@ -160,12 +160,12 @@ describe Worksheet do
         end
       end
 
-      context "supplying nil as parameter" do
-        it "should access [1,1]" do
-          @sheet[1, nil].Value.should eq 'foo'
-          @sheet[nil, 1].Value.should eq 'foo'
-        end
-      end
+     # context "supplying nil as parameter" do
+     #   it "should access [1,1]" do
+     #     @sheet[1, nil].Value.should eq 'foo'
+     #     @sheet[nil, 1].Value.should eq 'foo'
+     #   end
+     # end
 
     end
 

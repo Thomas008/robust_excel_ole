@@ -65,7 +65,7 @@ Let's open a workbook.
 Now we have a Workbook object that wraps a win32ole object. That is, you can send any win32ole (VBA) method to it. See 
 https://docs.microsoft.com/en-us/office/vba/api/excel.workbook#methods.
 
-For example, you can determine the name and the saved-status of the workbook.
+For example, you can determine the name and the visible status of the workbook.
 
   workbook.Name 
   # => "workbook.xls"
@@ -198,12 +198,6 @@ For hard terminating all Excel processes we can use
 
 For more details about creating Excel instances see README_excel[https://github.com/Thomas008/robust_excel_ole/blob/master/README/README_excel_rdoc]
 
-=== Generating a new workbook
-
-You can creata a new, empty workbook by
-
-  Excel.generate_workbook('spec/data/new_workbook.xls')
-
 === Opening workbooks in several Excel instances
 
 RobustExcelOle enables opening and processing workbooks in several Excel instances. Using more than one Excel process allows, e.g., running a script that operates in one Excel instance, while a user (or another script) modifies workbooks in another Excel instance. 
@@ -320,7 +314,7 @@ For more details about reading and writing contents of cells and ranges see {REA
 
 === More things
 
-You can convert a win32ole object into a RobustExcelOle object.
+You can convert some win32ole objects into a RobustExcelOle object.
 
   range = sheet.Names.Item("firstcell").to_reo
 

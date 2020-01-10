@@ -75,9 +75,8 @@ module RobustExcelOle
       end
       ole_xl = win32ole_excel unless win32ole_excel.nil?
       options = { :reuse => true }.merge(options)
-      #ole_xl = current_excel if options[:reuse] == true
       if options[:reuse] == true && ole_xl.nil?
-        ole_xl = if RUBY_PLATFORM =~ /java/         
+        ole_xl = if JRUBY_BUG_CONNECTEXCEL
           excel_instance = known_excel_instance 
           excel_instance.ole_excel unless excel_instance.nil?
         else
@@ -725,7 +724,7 @@ module RobustExcelOle
     def method_missing(name, *args) 
       if name.to_s[0,1] =~ /[A-Z]/
         raise ObjectNotAlive, 'method missing: Excel not alive' unless alive?
-        if RUBY_PLATFORM =~ /java/  
+        if JRUBY_BUG_ERRORMESSAGE
           begin
             @ole_excel.send(name, *args)
           rescue Java::OrgRacobCom::ComFailException => msg

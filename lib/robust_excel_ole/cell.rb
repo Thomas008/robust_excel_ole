@@ -22,7 +22,7 @@ module RobustExcelOle
     # @private
     def method_missing(name, *args) 
       #if name.to_s[0,1] =~ /[A-Z]/
-      if RUBY_PLATFORM =~ /java/  
+      if JRUBY_BUG_ERRORMESSAGE
         begin
           @cell.send(name, *args)
         rescue Java::OrgRacobCom::ComFailException 

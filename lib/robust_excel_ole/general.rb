@@ -2,6 +2,14 @@
 
 module General
 
+  IS_JRUBY_PLATFORM = (RUBY_PLATFORM =~ /java/)
+  JRUBY_BUG_CONNECT      = IS_JRUBY_PLATFORM && true
+  JRUBY_BUG_COPYSHEETS   = IS_JRUBY_PLATFORM && true
+  JRUBY_BUG_ERRORMESSAGE = IS_JRUBY_PLATFORM && true
+  JRUBY_BUG_CONNECTEXCEL = IS_JRUBY_PLATFORM && true
+  JRUBY_BUG_RANGES       = IS_JRUBY_PLATFORM && true
+
+
   # @private
   def absolute_path(file) 
     file = File.expand_path(file)

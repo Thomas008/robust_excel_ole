@@ -92,7 +92,7 @@ module RobustExcelOle
         # if readonly is true, then prefer a book that is given in force_excel if this option is set              
         forced_excel = 
           (options[:force][:excel].nil? || options[:force][:excel] == :current) ? 
-            (excel_class.new(:reuse => true) if RUBY_PLATFORM !~ /java/) : excel_of(options[:force][:excel])              
+            (excel_class.new(:reuse => true) if !JRUBY_BUG_CONNECT) : excel_of(options[:force][:excel])              
         begin
           book = if File.exists?(file)
             bookstore.fetch(file, :prefer_writable => !(options[:read_only]),
@@ -132,8 +132,7 @@ module RobustExcelOle
         filename = @ole_workbook.Fullname.tr('\\','/')
         set_options(filename, options)
       else
-        filename = file_or_workbook    
-        #ensure_excel(options) #unless RUBY_PLATFORM =~ /java/ && (options[:force][:excel].nil? || options[:force][:excel] == :current)            
+        filename = file_or_workbook            
         ensure_workbook(filename, options)
       end
       bookstore.store(self)
@@ -209,8 +208,8 @@ module RobustExcelOle
       @excel = if excel_option == :new
         excel_class.new(:reuse => false) 
       elsif excel_option.nil? || excel_option == :current
-        excel_class.new(:reuse => true) # unless RUBY_PLATFORM =~ /java/
-      else  #elsif excel_options.is_a?(WIN32OLE) || excel_option.is_a?(Excel) #excel_option.respond_to?(:Hwnd)
+        excel_class.new(:reuse => true)
+      else
         self.class.excel_of(excel_option)
       end
       raise ExcelREOError, "excel is not alive" unless @excel && @excel.alive?
@@ -225,8 +224,8 @@ module RobustExcelOle
       unless @ole_workbook && alive?
         filename = @stored_filename ? @stored_filename : filename 
         manage_nonexisting_file(filename,options)
-        excel_option = options[:force][:excel].nil? ? options[:default][:excel] : options[:force][:excel]
-        if RUBY_PLATFORM =~ /java/ && 
+        excel_option = options[:force][:excel].nil? ? options[:default][:excel] : options[:force][:excel]        
+        if JRUBY_BUG_CONNECT
           (excel_option.nil? || excel_option == :current) && filename[0] != '/'
           begin
             connect(filename,options)
@@ -246,8 +245,8 @@ module RobustExcelOle
           if @ole_workbook
             manage_blocking_or_unsaved_workbook(filename,options)
           else
-            if excel_option.nil? || excel_option == :current && 
-              (RUBY_PLATFORM !~ /java/ || filename[0] != '/')
+            if excel_option.nil? || excel_option == :current &&             
+              (!JRUBY_BUG_CONNECT || filename[0] != '/')
               connect(filename,options)
             else 
               open_or_create_workbook(filename,options)
@@ -821,7 +820,7 @@ module RobustExcelOle
       last_sheet_local = last_sheet
       after_or_before, base_sheet = opts.to_a.first || [:after, last_sheet_local]
       begin
-        if RUBY_PLATFORM !~ /java/
+        if !JRUBY_BUG_COPYSHEETS
           if sheet
             sheet.Copy({ after_or_before.to_s => base_sheet.ole_worksheet })
           else
@@ -829,7 +828,6 @@ module RobustExcelOle
             #@ole_workbook.Worksheets.Item(ole_workbook.Worksheets.Count).Activate
           end
         else
-          # workaround for jruby      
           if after_or_before == :before 
             if sheet
               sheet.Copy(base_sheet.ole_worksheet)
@@ -1074,7 +1072,7 @@ module RobustExcelOle
     def method_missing(name, *args) 
       if name.to_s[0,1] =~ /[A-Z]/
         raise ObjectNotAlive, 'method missing: workbook not alive' unless alive?
-        if RUBY_PLATFORM =~ /java/  
+        if JRUBY_BUG_ERRORMESSAGE 
           begin
             @ole_workbook.send(name, *args)
           rescue Java::OrgRacobCom::ComFailException 
@@ -1093,28 +1091,6 @@ module RobustExcelOle
     end
 
   end
-
-
-=begin
-    # @private
-    def method_missing(name, *args)   
-      if name.to_s[0,1] =~ /[A-Z]/
-        begin
-          raise ObjectNotAlive, 'method missing: workbook not alive' unless alive?
-          @ole_workbook.send(name, *args)
-        rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
-          if msg.message =~ /unknown property or method/ || msg.message =~ /map name/
-            raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
-          else
-            raise msg
-          end
-        end
-      else
-        super
-      end
-    end
-  end
-=end
 
 public
 

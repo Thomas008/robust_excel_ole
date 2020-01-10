@@ -24,7 +24,7 @@ module RobustExcelOle
       ole_range = name_obj.RefersToRange
       value = begin
         #name_obj.RefersToRange.Value
-        if RUBY_PLATFORM !~ /java/         
+        if !JRUBY_BUG_RANGES       
           ole_range.Value
         else
           values = RobustExcelOle::Range.new(ole_range).v
@@ -39,7 +39,7 @@ module RobustExcelOle
           #sheet.Evaluate(name_obj.Name).Value
           # does it result in a range?
           ole_range = sheet.Evaluate(name_obj.Name)
-          if RUBY_PLATFORM !~ /java/
+          if !JRUBY_BUG_RANGES
             ole_range.Value
           else
             values = RobustExcelOle::Range.new(ole_range).v
@@ -71,7 +71,7 @@ module RobustExcelOle
         ole_range = name_object(name).RefersToRange
         workbook.color_if_modified = opts[:color] unless opts[:color].nil?
         ole_range.Interior.ColorIndex = workbook.color_if_modified unless workbook.color_if_modified.nil?
-        if RUBY_PLATFORM !~ /java/
+        if !JRUBY_BUG_RANGES
           ole_range.Value = value
         else
           address_r1c1 = ole_range.AddressLocal(true,true,XlR1C1)
@@ -106,7 +106,7 @@ module RobustExcelOle
       end
       begin
         #value = ole_range.Value
-        value = if RUBY_PLATFORM !~ /java/
+        value = if !JRUBY_BUG_RANGES
           ole_range.Value
         else
           values = RobustExcelOle::Range.new(ole_range).v
@@ -137,7 +137,7 @@ module RobustExcelOle
       begin
         workbook.color_if_modified = opts[:color] unless opts[:color].nil?
         ole_range.Interior.ColorIndex = workbook.color_if_modified unless workbook.color_if_modified.nil?
-        if RUBY_PLATFORM !~ /java/
+        if !JRUBY_BUG_RANGES
           ole_range.Value = value
         else
           address_r1c1 = ole_range.AddressLocal(true,true,XlR1C1)

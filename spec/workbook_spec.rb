@@ -67,6 +67,44 @@ describe Workbook do
 
   end
 
+  describe "open and new" do
+
+    context "with standard" do
+
+      it "should yield identical objects" do
+        book1 = Workbook.open(@simple_file1)
+        ole_workbook1 = book1.ole_workbook
+        book2 = Workbook.new(ole_workbook1)
+        book1.equal?(book2).should be true
+      end
+
+    end
+
+  end
+
+  describe "connecting to unknown workbooks" do
+
+    context "with one unknown workbook" do
+
+      before do
+        ole_e1 = WIN32OLE.new('Excel.Application')
+        ws = ole_e1.Workbooks
+        abs_filename = General.absolute_path(@simple_file1)
+        @ole_wb = ws.Open(abs_filename)
+      end
+
+      it "should connect to an unknown workbook" do
+        Workbook.open(@simple_file1) do |book|
+          book.filename.should == @simple_file1
+          book.should be_alive
+          book.should be_a Workbook
+          book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
+          Excel.excels_number.should == 1
+        end
+      end
+    end
+  end
+
   describe "Workbook::save" do
 
     it "should save a file, if it is open" do

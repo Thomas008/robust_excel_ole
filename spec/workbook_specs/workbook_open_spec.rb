@@ -43,6 +43,30 @@ describe Workbook do
     rm_tmp(@dir)
   end
 
+  describe "open and new" do
+
+    context "with standard" do
+
+      before do
+        @book1 = Workbook.new(@simple_file1)
+      end
+
+      it "should yield identical Workbook objects for a file name" do
+        book2 = Workbook.open(@simple_file1)
+        book2.equal?(@book1).should be true
+      end
+
+      it "should yield identical Workbook objects for a win32ole-workbook" do
+        ole_workbook1 = @book1.ole_workbook
+        book2 = Workbook.new(ole_workbook1)
+        book3 = Workbook.open(ole_workbook1)
+        book3.equal?(book2).should be true
+      end
+
+    end
+
+  end
+
   describe "connecting to unknown workbooks" do
 
     context "with none workbook" do

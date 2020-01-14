@@ -83,15 +83,67 @@ module RobustExcelOle
     # :check_compatibility  true -> check compatibility when saving
     # :update_links         true -> user is being asked how to update links, false -> links are never updated
     # @return [Workbook] a representation of a workbook
+
+# variant: object identity, but no setting options, when uplifting
+=begin
     def self.new(file_or_workbook, opts = { }, &block)
       #options = process_options(opts)
       if file_or_workbook.is_a? WIN32OLE
         options = process_options(opts)
+        @ole_workbook = file_or_workbook
+        ole_excel = begin
+          WIN32OLE.connect(@ole_workbook.Fullname).Application
+        rescue
+          raise ExcelREOError, 'could not determine the Excel instance'
+        end
+        @excel = excel_class.new(ole_excel)
+        @ole_workbook        
       else
         file = file_or_workbook
         raise(FileNameNotGiven, 'filename is nil') if file.nil?
         raise(FileNotFound, "file #{General.absolute_path(file).inspect} is a directory") if File.directory?(file)
         options = process_options(opts, :use_defaults => false)
+        book = nil
+        if options[:force][:excel] != :new
+          # if readonly is true, then prefer a book that is given in force_excel if this option is set              
+          forced_excel = 
+            (options[:force][:excel].nil? || options[:force][:excel] == :current) ? 
+              (excel_class.new(:reuse => true) if !JRUBY_BUG_CONNECT) : excel_of(options[:force][:excel])              
+          begin
+            book = if File.exists?(file)
+              bookstore.fetch(file, :prefer_writable => !(options[:read_only]),
+                                    :prefer_excel    => (options[:read_only] ? forced_excel : nil))
+            end
+          rescue
+            trace "#{$!.message}"
+          end
+          if book      
+            # drop the fetched workbook if it shall be opened in another Excel instance
+            # or the workbook is an unsaved workbook that should not be accepted
+            if (options[:force][:excel].nil? || options[:force][:excel] == :current || forced_excel == book.excel) &&
+              !(book.alive? && !book.saved && (options[:if_unsaved] != :accept))
+              options[:force][:excel] = book.excel if book.excel && book.excel.alive?
+              book.ensure_workbook(file,options)
+              return book
+            end
+          end
+        end
+        super(file_or_workbook, options, &block)
+      end
+      #super(file_or_workbook, options, &block)
+    end
+=end    
+
+# variant: setting options, but no object identitiy when uplifting
+   def self.new(file_or_workbook, opts = { }, &block)
+      options = process_options(opts)
+      if file_or_workbook.is_a? WIN32OLE
+        #options = process_options(opts)
+      else
+        file = file_or_workbook
+        raise(FileNameNotGiven, 'filename is nil') if file.nil?
+        raise(FileNotFound, "file #{General.absolute_path(file).inspect} is a directory") if File.directory?(file)
+        #options = process_options(opts, :use_defaults => false)
         book = nil
         if options[:force][:excel] != :new
           # if readonly is true, then prefer a book that is given in force_excel if this option is set              
@@ -165,8 +217,35 @@ module RobustExcelOle
     # @param [Hash]    opts             
     # @option opts [Symbol] see above
     # @return [Workbook] a workbook
+
+# variant: object identity but no setting options when uplifting
+=begin
     def initialize(file_or_workbook, options = { }, &block)
       options = self.class.process_options(options)
+      if file_or_workbook.is_a? WIN32OLE                       
+        filename = file_or_workbook.Fullname.tr('\\','/')
+      else
+        filename = file_or_workbook            
+        ensure_workbook(filename, options)
+      end
+      set_options(filename, options)
+      bookstore.store(self)
+      @workbook = @excel.workbook = self
+      r1c1_letters = @ole_workbook.Worksheets.Item(1).Cells.Item(1,1).Address(true,true,XlR1C1).gsub(/[0-9]/,'') #('ReferenceStyle' => XlR1C1).gsub(/[0-9]/,'')
+      address_class.new(r1c1_letters)
+      if block
+        begin
+          yield self
+        ensure
+          close
+        end
+      end
+    end
+=end
+
+# variant: setting options, but no object identity when uplifting
+    def initialize(file_or_workbook, options = { }, &block)
+      #options = self.class.process_options(options)
       if file_or_workbook.is_a? WIN32OLE                
         @ole_workbook = file_or_workbook        
         ole_excel = begin
@@ -294,8 +373,9 @@ module RobustExcelOle
     # @private
     # restriction for jruby: does not manage conflicts with blocking or unsaved workbooks
     def ensure_workbook(filename, options)  
-      if options[:if_unsaved]==:accept && options[:read_only]==true
-        raise OptionInvalid, ":if_unsaved:accept and :read_only:true not possible"
+      if options[:if_unsaved]==:accept && 
+        ((options[:read_only]==true && self.ReadOnly==false) || (options[:read_only]==false && self.ReadOnly==true))
+        raise OptionInvalid, ":if_unsaved:accept and change of read-only mode is not possible"
       end
       unless @ole_workbook && alive?
         filename = @stored_filename ? @stored_filename : filename 

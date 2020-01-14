@@ -2293,7 +2293,7 @@ describe Workbook do
 
     context "with :read_only" do
       
-      it "should not reopen the book with writable" do
+      it "should raise error, when :if_unsaved => :accept and change readonly to false" do
         book = Workbook.open(@simple_file1, :read_only => true)
         book.ReadOnly.should be true
         book.should be_alive
@@ -2301,11 +2301,22 @@ describe Workbook do
         old_cell_value = sheet[1,1].Value
         sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
         book.Saved.should be false
-        new_book = Workbook.open(@simple_file1, :read_only => false, :if_unsaved => :accept)
-        new_book.ReadOnly.should be false 
-        new_book.should be_alive
-        book.should be_alive   
-        new_book.should == book         
+        expect{
+          new_book = Workbook.open(@simple_file1, :read_only => false, :if_unsaved => :accept)
+        }.to raise_error(OptionInvalid)
+      end
+
+      it "should raise error, when :if_unsaved => :accept and change readonly to false" do
+        book = Workbook.open(@simple_file1, :read_only => false)
+        book.ReadOnly.should be false
+        book.should be_alive
+        sheet = book.sheet(1)
+        old_cell_value = sheet[1,1].Value
+        sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+        book.Saved.should be false
+        expect{
+          new_book = Workbook.open(@simple_file1, :read_only => true, :if_unsaved => :accept)
+        }.to raise_error(OptionInvalid)
       end
 
       it "should not reopen the book with writable" do

@@ -123,7 +123,7 @@ module RobustExcelOle
       workbook.color_if_modified = opts[:color] unless opts[:color].nil?
       cell.Interior.ColorIndex = workbook.color_if_modified unless workbook.color_if_modified.nil?
       cell.Value = value
-    rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException
+    rescue # WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException
       raise RangeNotEvaluatable, "cannot assign value #{value.inspect} to cell (#{y.inspect},#{x.inspect})"
     end
 

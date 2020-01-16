@@ -2023,7 +2023,7 @@ describe Workbook do
 
         it "should open the new book and close the unsaved book, if user answers 'yes'" do
           # "Yes" is the  default. --> language independent
-          #@key_sender.puts "{enter}"
+          @key_sender.puts "{enter}"
           @new_book = Workbook.open(@simple_file1, :if_unsaved => :alert)
           @new_book.should be_alive
           @new_book.filename.downcase.should == @simple_file1.downcase

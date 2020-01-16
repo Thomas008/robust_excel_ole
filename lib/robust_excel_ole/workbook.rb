@@ -84,12 +84,10 @@ module RobustExcelOle
     # @return [Workbook] a representation of a workbook
     def self.new(file_or_workbook, opts = { }, &block)
       options = process_options(opts)
-      #options = process_options(opts, :use_defaults => (file_or_workbook.is_a? WIN32OLE))
       unless file_or_workbook.is_a? WIN32OLE
         file = file_or_workbook
         raise(FileNameNotGiven, 'filename is nil') if file.nil?
         raise(FileNotFound, "file #{General.absolute_path(file).inspect} is a directory") if File.directory?(file)
-        #options = process_options(opts, :use_defaults => false)
         book = nil
         if options[:force][:excel] != :new
           # if readonly is true, then prefer a book that is given in force_excel if this option is set              
@@ -111,6 +109,7 @@ module RobustExcelOle
               !(book.alive? && !book.saved && (options[:if_unsaved] != :accept))
               options[:force][:excel] = book.excel if book.excel && book.excel.alive?
               book.ensure_workbook(file,options)
+              book.set_options(file,options)
               return book
             end
           end
@@ -130,7 +129,6 @@ module RobustExcelOle
     # @option opts [Symbol] see above
     # @return [Workbook] a workbook
     def initialize(file_or_workbook, options = { }, &block)
-      #options = self.class.process_options(options)
       if file_or_workbook.is_a? WIN32OLE
         @ole_workbook = file_or_workbook
         ole_excel = begin
@@ -265,7 +263,20 @@ module RobustExcelOle
           end       
         end
       end
-      #set_options(filename, options)
+    end
+
+    # @private
+    def set_options(filename, options)
+      if (!options[:read_only].nil?) && options[:read_only] != @ole_workbook.ReadOnly
+        @excel.with_displayalerts(false) { @ole_workbook.Close }
+        @ole_workbook = nil        
+        open_or_create_workbook(filename, options)
+      end
+      retain_saved do
+        self.visible = options[:force][:visible].nil? ? @excel.Visible : options[:force][:visible]
+        @excel.calculation = options[:calculation] unless options[:calculation].nil?
+        @ole_workbook.CheckCompatibility = options[:check_compatibility] unless options[:check_compatibility].nil?
+      end
     end
 
   private
@@ -433,21 +444,7 @@ module RobustExcelOle
           raise UnexpectedREOError, "WIN32OLERuntimeError: #{msg.message} #{msg.backtrace}"
         end
       end
-    end
-
-    # @private
-    def set_options(filename, options)
-      if (!options[:read_only].nil?) && options[:read_only] != @ole_workbook.ReadOnly
-        @excel.with_displayalerts(false) { @ole_workbook.Close }
-        @ole_workbook = nil        
-        open_or_create_workbook(filename, options)
-      end
-      retain_saved do
-        self.visible = options[:force][:visible].nil? ? @excel.Visible : options[:force][:visible]
-        @excel.calculation = options[:calculation] unless options[:calculation].nil?
-        @ole_workbook.CheckCompatibility = options[:check_compatibility] unless options[:check_compatibility].nil?
-      end
-    end
+    end    
            
     # @private
     # translating the option UpdateLinks from REO to VBA

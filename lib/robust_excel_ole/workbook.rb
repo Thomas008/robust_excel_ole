@@ -84,37 +84,40 @@ module RobustExcelOle
     # @return [Workbook] a representation of a workbook
     def self.new(file_or_workbook, opts = { }, &block)
       options = process_options(opts)
-      unless file_or_workbook.is_a? WIN32OLE
+      if file_or_workbook.is_a? WIN32OLE
+        file = file_or_workbook.Fullname.tr('\\','/') 
+      else
         file = file_or_workbook
         raise(FileNameNotGiven, 'filename is nil') if file.nil?
         raise(FileNotFound, "file #{General.absolute_path(file).inspect} is a directory") if File.directory?(file)
-        book = nil
-        if options[:force][:excel] != :new
-          # if readonly is true, then prefer a book that is given in force_excel if this option is set              
-          forced_excel = 
-            (options[:force][:excel].nil? || options[:force][:excel] == :current) ? 
-              (excel_class.new(:reuse => true) if !JRUBY_BUG_CONNECT) : excel_of(options[:force][:excel])              
-          begin
-            book = if File.exists?(file)
-              bookstore.fetch(file, :prefer_writable => !(options[:read_only]),
-                                    :prefer_excel    => (options[:read_only] ? forced_excel : nil))
-            end
-          rescue
-            trace "#{$!.message}"
-          end
-          if book      
-            # drop the fetched workbook if it shall be opened in another Excel instance
-            # or the workbook is an unsaved workbook that should not be accepted
-            if (options[:force][:excel].nil? || options[:force][:excel] == :current || forced_excel == book.excel) &&
-              !(book.alive? && !book.saved && (options[:if_unsaved] != :accept))
-              options[:force][:excel] = book.excel if book.excel && book.excel.alive?
-              book.ensure_workbook(file,options)
-              book.set_options(file,options)
-              return book
-            end
-          end
-        end        
       end
+      # try to fetch the workbook from the bookstore
+      book = nil
+      if options[:force][:excel] != :new
+        # if readonly is true, then prefer a book that is given in force_excel if this option is set              
+        forced_excel = 
+          (options[:force][:excel].nil? || options[:force][:excel] == :current) ? 
+            (excel_class.new(:reuse => true) if !JRUBY_BUG_CONNECT) : excel_of(options[:force][:excel])              
+        begin
+          book = if File.exists?(file)
+            bookstore.fetch(file, :prefer_writable => !(options[:read_only]),
+                                  :prefer_excel    => (options[:read_only] ? forced_excel : nil))
+          end
+        rescue
+          trace "#{$!.message}"
+        end
+        if book      
+          # drop the fetched workbook if it shall be opened in another Excel instance
+          # or the workbook is an unsaved workbook that should not be accepted
+          if (options[:force][:excel].nil? || options[:force][:excel] == :current || forced_excel == book.excel) &&
+            !(book.alive? && !book.saved && (options[:if_unsaved] != :accept))
+            options[:force][:excel] = book.excel if book.excel && book.excel.alive?
+            book.ensure_workbook(file,options)
+            book.set_options(file,options)
+            return book
+          end
+        end
+      end        
       super(file_or_workbook, options, &block)
     end
 

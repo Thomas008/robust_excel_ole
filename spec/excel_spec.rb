@@ -1839,44 +1839,45 @@ module RobustExcelOle
 
       it "should set options to true for a workbook" do
         book1 = Workbook.open(@simple_file1)
-        book1.excel.for_all_workbooks(:visible => true, :read_only => true, :check_compatibility => true)
-        #book1.excel.for_all_workbooks(:visible => true, :check_compatibility => true)
-        book2 = Workbook.open(@simple_file1)
-        book2.excel.Visible.should be true
-        book2.Windows(book2.Name).Visible.should be true
-        book2.visible.should be true
-        book2.ReadOnly.should be true
-        book2.CheckCompatibility.should be true
+        excel1 = book1.excel
+        excel1.for_all_workbooks(:visible => true, :read_only => true, :check_compatibility => true)
+        excel1.Visible.should be true
+        ole_workbook1 = book1.ole_workbook
+        ole_workbook1.Windows(ole_workbook1.Name).Visible.should be true
+        ole_workbook1.ReadOnly.should be true
+        ole_workbook1.CheckCompatibility.should be true
+        excel1.for_all_workbooks(:visible => false, :read_only => false, :check_compatibility => false)
+        excel1.Visible.should be true
+        ole_workbook1 = book1.ole_workbook
+        ole_workbook1.Windows(ole_workbook1.Name).Visible.should be false
+        ole_workbook1.ReadOnly.should be false
+        ole_workbook1.CheckCompatibility.should be false
       end
 
       it "should set options for two workbooks" do
         book1 = Workbook.open(@simple_file1)
         book2 = Workbook.open(@different_file1)
         excel = book1.excel
-        #excel.for_all_workbooks(:visible => true, :read_only => true, :check_compatibility => true)
-        excel.for_all_workbooks(:visible => true, :check_compatibility => true)
+        excel.for_all_workbooks(:visible => true, :check_compatibility => true, :read_only => true)
         excel.Visible.should be true
-        book3 = Workbook.open(@simple_file1)
-        book4 = Workbook.open(@different_file1)
-        book3.Windows(book3.Name).Visible.should be true
-        book3.visible.should be true
-        #book3.ReadOnly.should be true
-        book3.CheckCompatibility.should be true
-        book4.Windows(book4.Name).Visible.should be true
-        book4.visible.should be true
-        #book4.ReadOnly.should be true
-        book4.CheckCompatibility.should be true
-        #excel.for_all_workbooks(:visible => false, :read_only => false, :check_compatibility => false)
-        excel.for_all_workbooks(:visible => false, :check_compatibility => false)
+        ole_workbook1 = book1.ole_workbook
+        ole_workbook2 = book2.ole_workbook
+        ole_workbook1.Windows(ole_workbook1.Name).Visible.should be true
+        ole_workbook2.Windows(ole_workbook2.Name).Visible.should be true
+        ole_workbook1.CheckCompatibility.should be true
+        ole_workbook2.CheckCompatibility.should be true
+        ole_workbook1.ReadOnly.should be true
+        ole_workbook2.ReadOnly.should be true    
+        excel.for_all_workbooks(:visible => false, :check_compatibility => false, :read_only => false)
         excel.Visible.should be true
-        book3 = Workbook.open(@simple_file1)
-        book4 = Workbook.open(@different_file1)
-        book3.Windows(book3.Name).Visible.should be true
-        book3.visible.should be false
-        book4.Windows(book4.Name).Visible.should be false
-        book4.visible.should be false
-        #book4.ReadOnly.should be false
-        book4.CheckCompatibility.should be false
+        ole_workbook1 = book1.ole_workbook
+        ole_workbook2 = book2.ole_workbook
+        ole_workbook1.Windows(ole_workbook1.Name).Visible.should be false
+        ole_workbook2.Windows(ole_workbook2.Name).Visible.should be false
+        ole_workbook1.CheckCompatibility.should be false
+        ole_workbook2.CheckCompatibility.should be false
+        ole_workbook1.ReadOnly.should be false
+        ole_workbook2.ReadOnly.should be false    
       end
 
     end

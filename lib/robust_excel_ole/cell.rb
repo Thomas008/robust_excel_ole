@@ -16,9 +16,6 @@ module RobustExcelOle
       self.Value = value
     end
 
-
-
-
     # @private
     def method_missing(name, *args) 
       #if name.to_s[0,1] =~ /[A-Z]/

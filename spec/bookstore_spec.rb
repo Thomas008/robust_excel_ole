@@ -14,6 +14,7 @@ end
 $VERBOSE = nil
 
 include RobustExcelOle
+include General
 
 module RobustExcelOle
   # @private

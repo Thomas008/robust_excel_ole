@@ -76,12 +76,7 @@ module RobustExcelOle
       ole_xl = win32ole_excel unless win32ole_excel.nil?
       options = { :reuse => true }.merge(options)
       if options[:reuse] == true && ole_xl.nil?
-        ole_xl = if JRUBY_BUG_CONNECTEXCEL
-          excel_instance = known_excel_instance 
-          excel_instance.ole_excel unless excel_instance.nil?
-        else
-          current_excel
-        end
+        ole_xl = current_ole_excel
       end
       connected = (not ole_xl.nil?) && win32ole_excel.nil?
       ole_xl ||= WIN32OLE.new('Excel.Application')
@@ -141,33 +136,6 @@ module RobustExcelOle
     end
 
   private
-
-    # returns a Win32OLE object that represents a Excel instance to which Excel connects
-    # connects to the first opened Excel instance
-    # if this Excel instance is being closed, then Excel creates a new Excel instance
-    # @private
-    def self.current_excel      
-      result = if result.nil?
-        begin
-          WIN32OLE.connect('Excel.Application')
-        rescue
-          nil
-        end
-      end
-      if result
-        begin
-          result.Visible # send any method, just to see if it responds
-        rescue
-          trace 'dead excel ' + (begin
-                                   "Window-handle = #{result.HWnd}"
-                                 rescue
-                                   'without window handle'
-                                 end)
-          return nil
-        end
-      end
-      result
-    end
 
     # retain the saved status of all workbooks
     # @private
@@ -422,6 +390,41 @@ module RobustExcelOle
 
     def self.known_excels_number
       @@hwnd2excel.size
+    end
+
+  #private
+
+    # returns a Win32OLE object that represents a Excel instance to which Excel connects
+    # connects to the first opened Excel instance
+    # if this Excel instance is being closed, then Excel creates a new Excel instance
+    # @private
+    def self.current_ole_excel   
+      if JRUBY_BUG_CONNECT
+        result = known_excel_instance
+        if result.nil?
+          if excels_number > 0
+            dummy_ole_workbook = WIN32OLE.connect(General.absolute_path('___dummy_workbook.xls')) rescue nil
+            result = dummy_ole_workbook.Application
+            dummy_ole_workbook.Close
+            dummy_ole_workbook = nil
+          end
+        end
+      else
+        result = WIN32OLE.connect('Excel.Application') rescue nil
+      end
+      if result
+        begin
+          result.Visible # send any method, just to see if it responds
+        rescue
+          trace 'dead excel ' + (begin
+                                 "Window-handle = #{result.HWnd}"
+                                 rescue
+                                 'without window handle'
+                                 end)
+          return nil
+        end
+      end
+      result
     end
 
     # returns an Excel instance

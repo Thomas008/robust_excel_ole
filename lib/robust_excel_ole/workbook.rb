@@ -226,8 +226,7 @@ module RobustExcelOle
       raise ExcelREOError, "excel is not alive" unless @excel && @excel.alive?
     end
 
-    # @private
-    # restriction for jruby: does not manage conflicts with blocking or unsaved workbooks
+    # @private    
     def ensure_workbook(filename, options)  
       if options[:if_unsaved]==:accept && 
         ((options[:read_only]==true && self.ReadOnly==false) || (options[:read_only]==false && self.ReadOnly==true))
@@ -237,82 +236,21 @@ module RobustExcelOle
         filename = @stored_filename ? @stored_filename : filename 
         manage_nonexisting_file(filename,options)
         excel_option = options[:force][:excel].nil? ? options[:default][:excel] : options[:force][:excel]        
-        if JRUBY_BUG_CONNECT &&
-          (excel_option.nil? || excel_option == :current) && filename[0] != '/'
-          begin
-            #current_excel = excel_class.current
-            #puts "current_excel: #{current_excel.inspect}"
-            #if excel_class.excels_number > 1
-            #end
-            connect(filename,options)
-          rescue WorkbookConnectingUnsavedError
-            raise WorkbookNotSaved, "workbook is already open but not saved: #{File.basename(filename).inspect}"
-          rescue WorkbookConnectingBlockingError
-            raise WorkbookBlocked, "can't open workbook #{filename}"+
-              "\nbecause it is being blocked by a workbook with the same name in a different path."
-          rescue WorkbookConnectingUnknownError
-            raise WorkbookREOError, "can't connect to workbook #{filename}"
-          end
-          manage_unsaved_workbook(filename,options) unless @ole_workbook.Saved
+        ensure_excel(options)
+        workbooks = @excel.Workbooks
+        @ole_workbook = workbooks.Item(File.basename(filename)) rescue nil if @ole_workbook.nil?
+        if @ole_workbook
+          manage_blocking_or_unsaved_workbook(filename,options)
         else
-          ensure_excel(options)
-          workbooks = @excel.Workbooks
-          @ole_workbook = workbooks.Item(File.basename(filename)) rescue nil if @ole_workbook.nil?
-          if @ole_workbook
-            manage_blocking_or_unsaved_workbook(filename,options)
-          else
-            if excel_option.nil? || excel_option == :current &&             
-              (!JRUBY_BUG_CONNECT || filename[0] != '/')
-              connect(filename,options)
-            else 
-              open_or_create_workbook(filename,options)
-            end
-          end       
-        end
+          if excel_option.nil? || excel_option == :current &&  
+            (!JRUBY_BUG_CONNECT || filename[0] != '/')
+            connect(filename,options)
+          else 
+            open_or_create_workbook(filename,options)
+          end
+        end       
       end
     end
-
-=begin    
-    def ensure_workbook(filename, options)  
-      if options[:if_unsaved]==:accept && 
-        ((options[:read_only]==true && self.ReadOnly==false) || (options[:read_only]==false && self.ReadOnly==true))
-        raise OptionInvalid, ":if_unsaved:accept and change of read-only mode is not possible"
-      end
-      unless @ole_workbook && alive?
-        filename = @stored_filename ? @stored_filename : filename 
-        manage_nonexisting_file(filename,options)
-        excel_option = options[:force][:excel].nil? ? options[:default][:excel] : options[:force][:excel]        
-        if JRUBY_BUG_CONNECT &&
-          (excel_option.nil? || excel_option == :current) && filename[0] != '/'
-          begin
-            connect(filename,options)
-          rescue WorkbookConnectingUnsavedError
-            raise WorkbookNotSaved, "workbook is already open but not saved: #{File.basename(filename).inspect}"
-          rescue WorkbookConnectingBlockingError
-            raise WorkbookBlocked, "can't open workbook #{filename}"+
-              "\nbecause it is being blocked by a workbook with the same name in a different path."
-          rescue WorkbookConnectingUnknownError
-            raise WorkbookREOError, "can't connect to workbook #{filename}"
-          end
-          manage_unsaved_workbook(filename,options) unless @ole_workbook.Saved
-        else
-          ensure_excel(options)
-          workbooks = @excel.Workbooks
-          @ole_workbook = workbooks.Item(File.basename(filename)) rescue nil if @ole_workbook.nil?
-          if @ole_workbook
-            manage_blocking_or_unsaved_workbook(filename,options)
-          else
-            if excel_option.nil? || excel_option == :current &&             
-              (!JRUBY_BUG_CONNECT || filename[0] != '/')
-              connect(filename,options)
-            else 
-              open_or_create_workbook(filename,options)
-            end
-          end       
-        end
-      end
-    end
-=end    
 
     # @private
     def set_options(filename, options)
@@ -356,7 +294,7 @@ module RobustExcelOle
     end
 
     # @private
-    def manage_nonexisting_file(filename,options)      
+    def manage_nonexisting_file(filename,options)   
       return if File.exist?(filename)
       abs_filename = General.absolute_path(filename)
       if options[:if_absent] == :create

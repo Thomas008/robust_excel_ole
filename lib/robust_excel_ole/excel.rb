@@ -405,8 +405,10 @@ module RobustExcelOle
           if excels_number > 0
             dummy_ole_workbook = WIN32OLE.connect(General.absolute_path('___dummy_workbook.xls')) rescue nil
             result = dummy_ole_workbook.Application
+            visible_status = result.Visible
             dummy_ole_workbook.Close
             dummy_ole_workbook = nil
+            result.Visible = visible_status
           end
         end
       else

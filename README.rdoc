@@ -65,7 +65,7 @@ Let's open a workbook.
 Now we have a Workbook object that wraps a win32ole object. That is, you can send any win32ole (VBA) method to it. See 
 https://docs.microsoft.com/en-us/office/vba/api/excel.workbook#methods.
 
-For example, you can determine the name and the visible status of the workbook.
+For example, you can determine the name and whether the workbook is visible.
 
   workbook.Name 
   # => "workbook.xls"
@@ -94,19 +94,7 @@ Then we'll save the workbook.
 
   workbook.save
 
-Finally we want to close the workbook.
-
-  workbook.close
-
-One special feature of RobustExcelOle is that it enables reopening workbooks.
-
-  workbook.reopen
-
-The workbook is now open again and ready for applying further operations, e.g.
-
-  workbook['firstcell'] = "another_value"
-  workbook.save
-  workbook.close
+=== More features when opening, modifying, creating saving and closing workbooks
 
 RobustExcelOle allows unobtrusively reading and modifying workbooks, i.e. accessing workbooks without changing their "status". The status comprises whether the workbook is open or closed, saved or unsaved, read-only or writable, visible or invisible, whether the calculation mode is manual or automatic, and checking compatibility is done or not done (the Workbook object remembers its properties).
 
@@ -121,8 +109,6 @@ RobustExcelOle allows unobtrusively reading and modifying workbooks, i.e. access
 You can also create a new, empty workbook. 
 
   Workbook.create('spec/data/new_workbook.xls', :visible => true)
-
-=== More features when opening, modifying, creating saving and closing workbooks
 
 We can open the workbook using a block, similar to, e.g., +File.open+. 
 
@@ -154,7 +140,11 @@ or save the workbook under a different name.
 
   workbook.save_as('spec/data/new_workbook.xls')
 
-Finally we can save and close the workbook in one step.
+Finally we can close the workbook
+
+  workbook.save
+
+or save and close the workbook in one step.
 
   workbook.close(:if_unsaved => :save)
 

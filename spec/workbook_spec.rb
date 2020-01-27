@@ -669,7 +669,7 @@ describe Workbook do
     end
   end
 
-  describe "uplifting" do
+  describe "promoting" do
 
     context "with standard" do
 
@@ -681,7 +681,7 @@ describe Workbook do
         @book.close
       end
 
-      it "should uplift a workbook to a book with an open book" do
+      it "should promote a win32ole workbook object to a workbook object with an open workbook" do
         workbook = @book.ole_workbook
         book1 = Workbook.new(workbook)
         book1.should be_a Workbook

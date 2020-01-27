@@ -62,7 +62,7 @@ Let's open a workbook.
 
   workbook = Workbook.open 'spec/data/workbook.xls'
 
-Now we have a Workbook object that wraps a win32ole object. That is, you can send any win32ole (VBA) method to it. See 
+Now we have a Workbook object that wraps a WIN32OLE object. That is, you can send any WIN32OLE (VBA) method to it. See 
 https://docs.microsoft.com/en-us/office/vba/api/excel.workbook#methods.
 
 For example, you can determine the name and whether the workbook is visible.

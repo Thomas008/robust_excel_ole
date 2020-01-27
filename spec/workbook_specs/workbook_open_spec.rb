@@ -428,7 +428,7 @@ describe Workbook do
         @book.close
       end
 
-      it "should yield identical Workbook objects for identical Excel books after uplifting" do
+      it "should yield identical Workbook objects for identical Excel books after prmoting" do
         book2 = Workbook.new(@ole_book)
         book2.should === @book
         book2.close
@@ -486,7 +486,7 @@ describe Workbook do
       book2.excel.should_not == book.excel
     end
 
-    it "should uplift an open known workbook" do
+    it "should promote an open known workbook" do
       book = Workbook.open(@simple_file)
       ole_workbook = book.ole_workbook
       new_book = Workbook.new(ole_workbook)
@@ -495,7 +495,7 @@ describe Workbook do
       new_book.excel.should == book.excel
     end
 
-    it "should uplift an open known workbook and let it be visible" do
+    it "should promote an open known workbook and let it be visible" do
       book = Workbook.open(@simple_file, :visible => true)
       ole_workbook = book.ole_workbook
       new_book = Workbook.new(ole_workbook)
@@ -506,7 +506,7 @@ describe Workbook do
       new_book.Windows(new_book.ole_workbook.Name).Visible.should == true
     end
 
-    it "should uplift an open known workbook and let it be visible and readonly" do
+    it "should promote an open known workbook and let it be visible and readonly" do
       book = Workbook.open(@simple_file, :visible => true, :read_only => true)
       ole_workbook = book.ole_workbook
       new_book = Workbook.new(ole_workbook)
@@ -518,7 +518,7 @@ describe Workbook do
       new_book.ReadOnly.should == true
     end
 
-    it "should uplift an open known workbook and make it visible" do
+    it "should promote an open known workbook and make it visible" do
       book = Workbook.open(@simple_file)
       ole_workbook = book.ole_workbook
       new_book = Workbook.new(ole_workbook, :visible => true)
@@ -529,7 +529,7 @@ describe Workbook do
       new_book.Windows(new_book.ole_workbook.Name).Visible.should == true
     end
 
-    it "should uplift an open unknown workbook" do
+    it "should promote an open unknown workbook" do
       ole_excel = WIN32OLE.new('Excel.Application')
       ws = ole_excel.Workbooks
       abs_filename = General.absolute_path(@simple_file1)
@@ -539,7 +539,7 @@ describe Workbook do
       new_book.excel.Hwnd.should == ole_excel.Hwnd
     end
 
-    it "should uplift an open unknown workbook and make it visible" do
+    it "should promote an open unknown workbook and make it visible" do
       ole_excel = WIN32OLE.new('Excel.Application')
       ws = ole_excel.Workbooks
       abs_filename = General.absolute_path(@simple_file1)
@@ -551,7 +551,7 @@ describe Workbook do
       new_book.Windows(new_book.ole_workbook.Name).Visible.should == true
     end
 
-    it "should uplift an open unknown workbook and make it visible and readonly" do
+    it "should promote an open unknown workbook and make it visible and readonly" do
       ole_excel = WIN32OLE.new('Excel.Application')
       ws = ole_excel.Workbooks
       abs_filename = General.absolute_path(@simple_file1)

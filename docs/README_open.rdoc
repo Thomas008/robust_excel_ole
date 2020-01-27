@@ -2,7 +2,7 @@
 
 === Opening a workbook.
 
-If you want to open a workbook, use
+If you want to open a workbook, you can use the methods +open+ or +new+.
   
   book = Workbook.open('spec/data/workbook.xls')
 
@@ -144,17 +144,19 @@ A special feature of RobustExcelOle is that it allows to reopen workbooks after 
 
 The closed workbook is now alive again, i.e. is open and responds to Excel methods.
 
-Technically, this feature is implemented in such way, that a Workbook object is a proxy of an Excel workbook. A Workbook object is defined by the full workbook name and the Excel instance in which it is opened. RobustExcelOle ensures identity transparency which means that the same Workbook objects refer to the same workbooks, and vice versa.
+Technically, this feature is implemented in such way, that a Workbook object is a proxy of an Excel workbook. A Workbook object is defined by the full workbook name and the Excel instance in which it is opened. RobustExcelOle ensures identity transparency which means that the same Workbook objects refer to the same Excel wotrkbooks, and vice versa. 
 
-=== Promoting a workbook to a Workbook object
+=== Promoting a WIN32OLE workbook to a Workbook object
 
-A Workbook object can be created when giving an Excel workbook.
+Promoting means here: enriching an given object of a certain class by properties and methods of another class. RobustExcelOle enables promoting a WIN32OLE workbook to a Workbook object: A Workbook object can be created when giving an Excel workbook.
 
    book = Workbook.new(win32ole_workbook)
 
-Note that only a restricted number of options can be considered, e.g. +:visible+
+You can use options, e.g. +:visible+
 
    book = Workbook.new(win32ole_workbook, :visible => true)
+
+Identity transperence ensures that, no matter how a Workbook object was created - by filename or by promoting an Excel workbook - two Workbook objects are identical, if and only if the Excel workbooks, they are referring to, are identical.
 
 === Unobtrusively modifying a workbook
 

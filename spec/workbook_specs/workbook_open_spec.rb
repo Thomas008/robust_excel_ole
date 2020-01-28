@@ -428,9 +428,32 @@ describe Workbook do
         @book.close
       end
 
+      it "should yield identical Workbook objects referring to identical WIN32OLE objects" do
+        book2 = Workbook.new(@book.ole_workbook)
+        book2.equal?(@book).should be true
+      end
+
+      it "should yield identical Workbook objects referring to identical WIN32OLE objects with open" do
+        book2 = Workbook.open(@book.ole_workbook)
+        book2.equal?(@book).should be true
+      end
+
+      it "should yield identical Workbook objects created with help of their filenames" do
+        book2 = Workbook.open(@simple_file1)
+        book2.equal?(@book).should be true
+      end
+
+      it "should yield identical Workbook objects created with help of their WIN32OLE objects" do
+        book2 = Workbook.new(@book.ole_workbook)
+        book3 = Workbook.open(@book.ole_workbook)
+        book3.equal?(book2).should be true
+      end
+
+
       it "should yield identical Workbook objects for identical Excel books after prmoting" do
         book2 = Workbook.new(@ole_book)
         book2.should === @book
+        book2.equal?(@book).should be true
         book2.close
       end
 
@@ -440,6 +463,7 @@ describe Workbook do
         ole_book2 = WIN32OLE.connect(abs_filename2)
         book2 = Workbook.new(ole_book2)
         book2.should_not === @book
+        book2.equal?(@book).should be false
         book2.close
         book3.close
       end
@@ -491,6 +515,7 @@ describe Workbook do
       ole_workbook = book.ole_workbook
       new_book = Workbook.new(ole_workbook)
       new_book.should == book
+      new_book.equal?(book).should be true
       new_book.Fullname.should == book.Fullname
       new_book.excel.should == book.excel
     end
@@ -500,6 +525,7 @@ describe Workbook do
       ole_workbook = book.ole_workbook
       new_book = Workbook.new(ole_workbook)
       new_book.should == book
+      new_book.equal?(book).should be true
       new_book.Fullname.should == book.Fullname
       new_book.excel.should == book.excel
       new_book.excel.Visible.should == true
@@ -511,6 +537,7 @@ describe Workbook do
       ole_workbook = book.ole_workbook
       new_book = Workbook.new(ole_workbook)
       new_book.should == book
+      new_book.equal?(book).should be true
       new_book.Fullname.should == book.Fullname
       new_book.excel.should == book.excel
       new_book.excel.Visible.should == true
@@ -523,6 +550,7 @@ describe Workbook do
       ole_workbook = book.ole_workbook
       new_book = Workbook.new(ole_workbook, :visible => true)
       new_book.should == book
+      new_book.equal?(book).should be true
       new_book.Fullname.should == book.Fullname
       new_book.excel.should == book.excel
       new_book.excel.Visible.should == true

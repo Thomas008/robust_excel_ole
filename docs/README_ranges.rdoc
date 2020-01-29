@@ -8,39 +8,39 @@ RobustExcelOle enables to read and write the contents of ranges and cells in wor
 
 Suppose you have opened a workbook.
 
-  book = Workbook.open('spec/data/workbook.xls', :visible => true)
+  workbook = Workbook.open('spec/data/workbook.xls', :visible => true)
 
 We access the first worksheet:
   
-  sheet = book.sheet(1)
+  worksheet = workbook.sheet(1)
 
 Now we can access a range consisting of one cell by providing the row and and the column of a cell. With help of VBA methods you can put
 
-  sheet.Range(sheet.Cells(1,2))
+  worksheet.Range(sheet.Cells(1,2))
 
 or using RobustExcelOle
 
-  range = sheet.range([1,2])
+  range = worksheet.range([1,2])
 
 or, using the A1-format,
 
-  range = sheet.range("B1")
+  range = worksheet.range("B1")
 
 Similarly you can access a rectangular range. Using VBA methods we provide the row and column of the top left cell and the row and column of the bottum right cell. 
 
-  range = sheet.Range(sheet.Cells(1,1), sheet.Cells(3,4))
+  range = worksheet.Range(sheet.Cells(1,1), sheet.Cells(3,4))
 
 In RobustExcelOle we would supply the rows and columns as integer ranges.
 
-  range = sheet.range([1..3,1..4])
+  range = worksheet.range([1..3,1..4])
 
 or, using the A1-format
 
-  range = sheet.range([1..3,"A".."D"])
+  range = worksheet.range([1..3,"A".."D"])
 
 or
 
-  range = sheet.range(["A1:D3"])
+  range = worksheet.range(["A1:D3"])
 
 You can read the values by 
 
@@ -75,70 +75,70 @@ or with help of RobustExcelOle
 
 You can also copy a range into another worksheet in another workbook.
 
-  book2 = Workbook.open('spec/data/another_workbook.xls', :excel => :new, :visible => true)
+  workbook2 = Workbook.open('spec/data/another_workbook.xls', :excel => :new, :visible => true)
   range.copy([4,5],book2.sheet(3))
 
 Now we define a name that refers to a range consisting of only the first cell, i.e. the 1st row and 1st column. Using VBA methods, you can use
 
-  book.Names.Add("Name" => "name", "RefersToR1C1" => "=Z1S1")
+  workbook.Names.Add("Name" => "name", "RefersToR1C1" => "=Z1S1")
 
 RobustExcelOle provides the method +add_name+.
 
-  book.add_name("name",[1,1])
+  workbook.add_name("name",[1,1])
 
 We define a name of a rectangular range. With help of VBA methods this is done by supplying the row and column of the top left cell and the row and columns of the bottum right cell of the range.
 
-  book.Names.Add("Name" => "name", "RefersToR1C1" => "=Z1S3:Z2S4")
+  workbook.Names.Add("Name" => "name", "RefersToR1C1" => "=Z1S3:Z2S4")
 
 Using RobustExcelOle Defining a name referring to a rectangular range is done by providing the rows and columns as integer range.
 
-  book.add_name("name",[1..2,3..4])
+  workbook.add_name("name",[1..2,3..4])
 
 Now we can assign a value to that named range. With help of VBA methods this can be done by
 
-  book.Names.Item("name").RefersToRange.Value = [["foo", "bar"],[1.0, nil]]
+  workbook.Names.Item("name").RefersToRange.Value = [["foo", "bar"],[1.0, nil]]
 
 Now we can read value of that range.
 
-  book.Names.Item("rec_name").RefersToRange.Value
+  workbook.Names.Item("rec_name").RefersToRange.Value
   => [["foo", "bar"],[1.0, nil]]
 
 or
 
-  book["name"]
+  workbook["name"]
   => [["foo", "bar"],[1.0, nil]]
 
 Finally we can rename a range, and delete the name of a range. With help of VBA methods this can be achieved by
 
-  book.Names.Item("name").Name = "new_name"
-  book.Names.Item("new_name").Delete
+  workbook.Names.Item("name").Name = "new_name"
+  workbook.Names.Item("new_name").Delete
 
 Using RobustExcelOle, we write
 
-  book.rename_range("name", "new_name")
-  book.delete_name("name")
+  workbook.rename_range("name", "new_name")
+  workbook.delete_name("name")
 
 Now we can read the value of cell simply by providing the row and the column
 
-  sheet.Cells.Item(1,1).Value
+  worksheet.Cells.Item(1,1).Value
 
 or with RobustExcelOle
 
-  sheet[1,1].Value  
+  worksheet[1,1].Value  
   => "foo
 
 or
 
-  sheet[1,1].v
+  worksheet[1,1].v
   => "foo"
 
 Similarly, you can write a cell.
 
-  sheet.Cells.Item(1,1).Value = "new_value"
+  worksheet.Cells.Item(1,1).Value = "new_value"
 
 or using RobustExcelOle
 
-  sheet[1,1] = "new_value"
+  worksheet[1,1] = "new_value"
 
  In the following some details are being summarized. 
 
@@ -148,51 +148,51 @@ You can access a range via its address or defined name. RobustExcelOle allows th
 
 For example, you can access a range consisting of one cell by providing the row and and the column of a cell. 
 
-  range = sheet.range([1,1])
+  range = worksheet.range([1,1])
 
 Using the A1-format and R1C1-format you write
 
-  range = sheet.range("A1") 
+  range = worksheet.range("A1") 
 
 and
 
-  range = sheet.range("Z1S1")
+  range = worksheet.range("Z1S1")
 
 respectively.
 
 You can access a rectangular range by providing the row and column of the top left cell and the row and column of the bottum right cell. 
 
-  range = sheet.range([1..3,1..4])
+  range = worksheet.range([1..3,1..4])
 
 or using the A1-format.
 
-  range = sheet.range([1..3,"A".."D"])
+  range = worksheet.range([1..3,"A".."D"])
 
 or
 
-  range = sheet.range("A1:D3")
+  range = worksheet.range("A1:D3")
 
 or using the R1C1-format
 
-  range = sheet.range("Z1S1:Z3S4")
+  range = worksheet.range("Z1S1:Z3S4")
 
 Infinite ranges are defined, e.g., by setting the rows or columns to +nil+
 
-  range = sheet.range([1..3,nil])
-  range = sheet.range([nil,"A".."B"])
+  range = worksheet.range([1..3,nil])
+  range = worksheet.range([nil,"A".."B"])
 
 Using the A1-format you write
 
-  range = sheet.range("1:3")
-  range = sheet.range("A:B")
+  range = worksheet.range("1:3")
+  range = worksheet.range("A:B")
 
 You can also apply relative references by using brackets, e.g.
 
-  range = sheet.range("Z[1]S1:Z3S[4]")
+  range = worksheet.range("Z[1]S1:Z3S[4]")
 
 or
 
-  range = sheet.range([[1]..3,2..[4]])
+  range = worksheet.range([[1]..3,2..[4]])
 
 You get the values of the range as flat array with help of
 
@@ -200,17 +200,17 @@ You get the values of the range as flat array with help of
 
 You can access a range via its defined name with
 
-  range = sheet.range("name")
+  range = worksheet.range("name")
 
 === Copying a range
 
 Let's assume, you have a source range
 
-  range = sheet.range(1..2,3..5)
+  range = worksheet.range(1..2,3..5)
 
 or, in A1-format,
 
-  range = sheet.range("C1:E2")
+  range = worksheet.range("C1:E2")
 
 To copy it to the destination range (3..4,6..8), you can use 
 
@@ -234,47 +234,47 @@ Note that when you don't copy the values only but all formating as well, and you
 
 You can (re-) define a name referring to a range by stating its name, and the address. The address is given by integer-range-format, r1c1-format or a1-format. For example, you can define a name for a rectangular range by
 
-  book.add_name("name",[1..2,3..5])
+  workbook.add_name("name",[1..2,3..5])
 
 or
 
-  book.add_name("name","Z1S3:Z2S5")
+  workbook.add_name("name","Z1S3:Z2S5")
 
 or
 
-  book.add_name("name", "C1:E2")
+  workbook.add_name("name", "C1:E2")
 
 Similarly you can define a name referring to a cell
 
-  book.add_name("name",[1,1])
+  workbook.add_name("name",[1,1])
 
 or
 
-  book.add_name("name","Z1S1")
+  workbook.add_name("name","Z1S1")
 
 or
 
-  book.add_name("name","A1")
+  workbook.add_name("name","A1")
 
 and infinite ranges
 
-  book.add_name("name",[1..2,nil])
+  workbook.add_name("name",[1..2,nil])
 
 or
 
-  book.add_name("name", "Z1:Z2")
+  workbook.add_name("name", "Z1:Z2")
 
 or
 
-  book.add_name("name","1:2")
+  workbook.add_name("name","1:2")
 
 Furthermore, you can define a name using relative references with the r1c1-format.
 
-  book.add_name("name", "Z1S[1]:Z[2]S4")
+  workbook.add_name("name", "Z1S[1]:Z[2]S4")
 
 or
 
-  book.add_name("name", [1..[2],[1]..4])
+  workbook.add_name("name", [1..[2],[1]..4])
 
 You can do the same for an worksheet or Excel object.
 
@@ -282,43 +282,43 @@ You can do the same for an worksheet or Excel object.
 
 Assume you have opened a workbook:
  
-  book = Workbook.open('spec/data/workbook.xls', :visible => true)
+  workbook = Workbook.open('spec/data/workbook.xls', :visible => true)
 
 You can get the contents of a range with a defined name with help of the method [] or +namevalue_glob+.
 
-  book["name"] 
+  workbook["name"] 
   => "value"
 
 or
 
-  book.namevalue_glob("name")
+  workbook.namevalue_glob("name")
   => "value"
 
 Using +namevalue_glob+, via the option +:default+ you can provide a value that is returned when the name cannot be found or some other error would occur.
 
-  book.namvalue_glob("name", :default => "default_value")
+  workbook.namvalue_glob("name", :default => "default_value")
 
 You can set the contents of a range with
 
-  book["name"] = "new_value"
+  workbook["name"] = "new_value"
 
 or
 
-  book.set_namevalue_glob("name", "new_value")
+  workbook.set_namevalue_glob("name", "new_value")
 
 The method []= colors the written cell, if you have specified the color of the changed range via the method Workbook#color before, e.g.
 
-  book.color_if_modified = 4
-  book["name"] = "new_value"
+  workbook.color_if_modified = 4
+  workbook["name"] = "new_value"
 
 Similarly, the contents of a named range can be read and modified in a worksheet
 
-  sheet = book.sheet(1)
+  worksheet = workbook.sheet(1)
 
-  sheet["name"]
+  worksheet["name"]
   => value
 
-  sheet["name"] = "new_value" 
+  worksheet["name"] = "new_value" 
 
 or an Application object.
 
@@ -334,7 +334,7 @@ or an Application object.
 
 The contents of locally defined ranges can be read by
 
-  sheet.namevalue("name")
+  worksheet.namevalue("name")
   => "value"
 
 or
@@ -344,7 +344,7 @@ or
 
 and be modified by
 
-  sheet.set_namevalue("name", "value")
+  worksheet.set_namevalue("name", "value")
 
 or
 
@@ -352,54 +352,54 @@ or
 
 Similarly to namevalue, you can provide a default value that is returned when ocurring an error.
 
-  sheet.namevalue("name", :default => "default_value")
+  worksheet.namevalue("name", :default => "default_value")
 
 === Accessing a cell
 
 You can read a cell from a sheet object by providing the row and the column. For example, the following lines provide the value of the first cell (first row, first column):
 
-  sheet[1,1].Value  
+  worksheet[1,1].Value  
   => "foo
 
 or
 
-  sheet.cellval(1,1)
+  worksheet.cellval(1,1)
   => "foo"
 
 Similarly, you can write a cell.
 
-  sheet[1,1] = "new_value"
+  worksheet[1,1] = "new_value"
 
 or
 
-  sheet.set_cellval(1,1,"new_value")
+  worksheet.set_cellval(1,1,"new_value")
 
 === Accessing rows and columns
 
 The methods Worksheet#each, Worksheet#each_row and Worksheet#each_column enable to access each cell, row and column, respectively.
 
-  sheet.each do |cell|
+  worksheet.each do |cell|
     # do something with cell
     # read every row, every column
   end
 
-  sheet.each_row do |row|
+  worksheet.each_row do |row|
     # do something with row
   end
 
-  sheet.each_column do |column|
+  worksheet.each_column do |column|
     # do something with column
   end
 
 You access a range of a row by giving the number of the row, and optionally, the range of the cell numbers.
 
-  sheet.row_range(1)  # => first row
-  sheet.row_range(1, 1..3 )  # => first three cells of the first row  
+  worksheet.row_range(1)  # => first row
+  worksheet.row_range(1, 1..3 )  # => first three cells of the first row  
 
 Simarly you can access a range of a column.
 
-  sheet.col_range(3)  # => third column
-  sheet.col_range(3, 1..2)  # => first two cells of the third column
+  worksheet.col_range(3)  # => third column
+  worksheet.col_range(3, 1..2)  # => first two cells of the third column
 
 Within a row or column range you can access a certain cell.
 

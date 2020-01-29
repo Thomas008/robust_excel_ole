@@ -6,17 +6,17 @@
 
 Imagine, you have opened a workbook with
 
-  book = Workbook.open('spec/data/workbook.xls', :visible => true)
+  workbook = Workbook.open('spec/data/workbook.xls', :visible => true)
 
 and have modified it.
 
 You can save the workbook by
 
-  book.save
+  workbook.save
 
 If you want to save a workbook with a file name, then use
 
-  book.save_as('new_workbook.xls')
+  workbook.save_as('new_workbook.xls')
 
 The options and respective valid values are the following:
 
@@ -33,19 +33,19 @@ If a workbook with the file name already exists, then
   
 For example, you want to save a workbook and overwrite the file if it exists before, then use
 
-  book.save_as('another_workbook.xls', :if_exists => :overwrite) 
+  workbook.save_as('another_workbook.xls', :if_exists => :overwrite) 
 
 If a workbook blocks the workbook that should be saved, then the former one can be saved and closed before.
 
-  book = Workbook.open('spec/data/workbook.xls')
-  book2 = Workbook.open('spec/data/another_workbook.xls')
-  book2.save_as('dir/workbook.xls', :if_exists => :overwrite, :if_obstructed => :save)  
+  workbook = Workbook.open('spec/data/workbook.xls')
+  workbook2 = Workbook.open('spec/data/another_workbook.xls')
+  workbook2.save_as('dir/workbook.xls', :if_exists => :overwrite, :if_obstructed => :save)  
 
 === Closing a workbook.
 
 You can close the workbook with the command
 
-  book.close
+  workbook.close
 
 There is one option: +:if_unsaved+ . It can have one of the following values:
 
@@ -62,7 +62,7 @@ The option specifies: If the workbook is unsaved, then
 
 You can open a workbook with given file name.
 
-  book = Workbook.open('spec/data/workbook.xls')
+  workbook = Workbook.open('spec/data/workbook.xls')
 
 You can save a workbook with given file name, if it is open.
 

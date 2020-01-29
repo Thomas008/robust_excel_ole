@@ -44,11 +44,7 @@ and go into the path of the gem 'robust_excel_ole'. There you start the console 
 
   reo
 
-or
-
-  jreo
-
-depending on whether you are using ruby or jruby.
+If you don't want to use a version manager to switch between ruby and jruby, you can apply the command +reo+ when using ruby, and +jreo+ when using jruby.
 
 The call of the console will include RobustExcelOle for you.
 
@@ -79,7 +75,7 @@ First we want to make the workbook visible.
 
   workbook.visible = true
 
-This method makes both the Excel instance and the window of the Workbook-win32ole-object visible.
+This method makes both the Excel instance and the window of the Workbook WIN32OLE object visible.
 
 Let's read the value of a named cell.
 
@@ -110,7 +106,7 @@ You can also create a new, empty workbook.
 
   Workbook.create('spec/data/new_workbook.xls', :visible => true)
 
-We can open the workbook using a block, similar to, e.g., +File.open+. 
+Moreover, you can open the workbook using a block, similar to, e.g., +File.open+. 
 
   Workbook.open('spec/data/workbook.xls') do |workbook|
     # do something
@@ -128,7 +124,7 @@ or, using abbreviations,
 
   workbook = Workbook.open('spec/data/workbook.xls', :v => true)
 
-Note that Workbook.open can also connect to workbooks which were not opened via RobustExcelOle (but had been opened before by some user).
+Note that +Workbook.open+ can also connect to workbooks which were not opened via RobustExcelOle (but had been opened before by some user).
 
 For more details about opening workbooks see {README_open}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_open.rdoc]
  
@@ -186,7 +182,7 @@ For hard terminating all Excel processes we can use
 
   Excel.kill_all
 
-For more details about creating Excel instances see README_excel[https://github.com/Thomas008/robust_excel_ole/blob/master/README/README_excel_rdoc]
+For more details about creating Excel instances see README_excel[https://github.com/Thomas008/robust_excel_ole/blob/master/README/README_excel.rdoc]
 
 === Opening workbooks in several Excel instances
 
@@ -203,12 +199,12 @@ Now we want to open another workbook in a different Excel instance.
 We can also create a third Excel instance and open another workbook in this instance.
 
   excel1 = Excel.create
-  book3 = Workbook.open('spec/data/another_workbook.xls', :excel => excel1)
+  workbook3 = Workbook.open('spec/data/another_workbook.xls', :excel => excel1)
 
 A workbook is opened by default in the Excel instance where it was open before most recently.
 
-   book1.close
-   book1 = Workbook.open('spec/data/workbook.xls') 
+   workbook1.close
+   workbook1 = Workbook.open('spec/data/workbook.xls') 
 
 If this Excel instance is damaged or closed, then options control whether the workbook shall be opened in the current (active), a new or a given Excel instance.
 
@@ -242,22 +238,22 @@ Assume we have opened a workbook
 
 We access the first worksheet by
 
-  sheet = workbook.sheet(1)
+  worksheet = workbook.sheet(1)
 
 or 
 
-  sheet = workbook.sheet('Sheet1')
+  worksheet = workbook.sheet('Sheet1')
 
 or
   
-  sheet = workbook.first_sheet
+  worksheet = workbook.first_sheet
 
 We can read and change the worksheet name.
 
-  sheet.name
+  worksheet.name
   # => "Sheet1"
 
-  sheet.name = "new_sheet"
+  worksheet.name = "new_sheet"
 
 We can copy the first worksheet, name it and add it before the third worksheet.
 
@@ -269,35 +265,35 @@ For more details about processing worksheets see {README_sheet}[https://github.c
 
 We can define a rectangular range by providing the top left and the bottum down cell.
 
-  sheet.range([1..3,1..4])
+  worksheet.range([1..3,1..4])
 
 We can read the first three cells of the first row
 
-  sheet.row_range(1, 1..3).values   # => ["foo","workbook","sheet1"]
+  worksheet.row_range(1, 1..3).values   # => ["foo","workbook","sheet1"]
 
 and the third column
 
-  sheet.col_range(3).values   # => ["sheet1", 2.0, 4.0]
+  worksheet.col_range(3).values   # => ["sheet1", 2.0, 4.0]
 
 We can read the first cell, using
 
-  sheet[1,1].value    # => "foo"
+  worksheet[1,1].value    # => "foo"
 
 or
 
-  sheet.row_range(1)[0].value    # => "foo"
+  worksheet.row_range(1)[0].value    # => "foo"
 
 Then we modify it.
 
-  sheet[1,1] = "hello"
+  worksheet[1,1] = "hello"
 
 We get the value of a named range 
 
-  sheet["firstcell"]    # => "hello"
+  worksheet["firstcell"]    # => "hello"
 
 and set another value to that range.
 
-  sheet["firstcell"] = "new_value"
+  worksheet["firstcell"] = "new_value"
 
 For more details about reading and writing contents of cells and ranges see {README_ranges}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_ranges.rdoc]
 

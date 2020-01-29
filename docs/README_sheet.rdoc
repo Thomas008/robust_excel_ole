@@ -6,30 +6,30 @@ Worksheets are represented by Worksheet objects.
 
 Assume you have opened a workbook
 
-  book = Workbook.open('spec/data/workbook.xls', :visible => true)
+  workbook = Workbook.open('spec/data/workbook.xls', :visible => true)
 
 === Accessing a worksheet.
 
 You can access a worksheet by giving the number
 
-  sheet = book.sheet(1)
+  worksheet = book.sheet(1)
 
 or its name
 
-  sheet = book.sheet('Sheet1')
+  worksheet = book.sheet('Sheet1')
 
 You can get the first and last worksheet with
 
-  sheet = book.first_sheet  
+  worksheet = book.first_sheet  
 
 and
 
-  sheet = book.last_sheet  
+  worksheet = book.last_sheet  
 
-You can access all Sheet objects by using the methods Workbook#each.
+You can access all Worksheet objects by using the methods Workbook#each.
 
-  book.each do |sheet|               
-    # do something with sheet
+  workbook.each do |worksheet|               
+    # do something with worksheet
   end
 
 Once you have got a Sheet object (in RobustExcelOle), you can apply all VBA methods that you would apply to a VBA Worksheet object
@@ -40,38 +40,38 @@ For some common and complex tasks you can apply methods of RobustExcelOle.
 
 You can read and change the worksheet name.
 
-  sheet1.name
+  worksheet1.name
   # => "Sheet1"
 
-  sheet1.name = "new_sheet"
+  worksheet1.name = "new_sheet"
 
 === Adding and copying a worksheet.
 
 You can add (append) an empty worksheet using
 
-  book.add_empty_sheet
+  workbook.add_empty_sheet
 
 Additionally you can name it.
 
-  book.add_empty_sheet(:as => 'sheet_name')
+  workbook.add_empty_sheet(:as => 'sheet_name')
 
 You can specify the position of the added empty worksheet.
 
-  book.add_empty_sheet(:as => 'new_name', :before => another_sheet)
+  workbook.add_empty_sheet(:as => 'new_name', :before => another_sheet)
 
 You can copy a worksheet and add it.
 
-  book.copy_sheet sheet
+  workbook.copy_sheet sheet
 
 Additionally you can specify a name and a position.
 
-  book.copy_sheet(sheet, :as => 'new_name', :after => another_sheet)
+  workbook.copy_sheet(sheet, :as => 'new_name', :after => another_sheet)
 
 If you want to copy a worksheet, if a worksheet +sheet+ is given, and add an empty worksheet, if no worksheet is given, then use
 
-  book.add_or_copy_sheet
+  workbook.add_or_copy_sheet
 
-  book.add_or_copy_sheet(sheet, :as => 'new_name', :after => another_sheet)  
+  workbook.add_or_copy_sheet(sheet, :as => 'new_name', :after => another_sheet)  
 
 Note, that running in jruby, due to some restrictions of jruby, there is a workaround when adding or copy a worksheet at the end (appending): the last worksheet is being copied and deleted afterwards, in order to serve as a dummy worksheet. This may cause a different behaviour.
 

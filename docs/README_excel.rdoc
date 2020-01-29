@@ -110,7 +110,7 @@ You can yield an array of all Workbook objects of an Excel instance.
 
 You can access all Workbook objects by using the methods Excel#each_workbook and Excel#each_workbook_with_index. Here are some examples:
   
-  excel.each_workook {|w| puts w.filename}
+  excel.each_workbook {|w| puts w.filename}
 
 and
 
@@ -146,7 +146,7 @@ Closed Excel instances can also be reopened. This includes reopening all workboo
   excel.close
   excel.recreate
 
-The options are :reopen_workbooks, :visible and :displayalerts.
+The options are +:reopen_workbooks+, +:visible+ and +:displayalerts+.
 
   excel.recreate(:reopen_workbooks => true, :visible => true, :displayalerts => true)
 

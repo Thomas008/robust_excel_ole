@@ -90,7 +90,7 @@ We define a name of a rectangular range. With help of VBA methods this is done b
 
   workbook.Names.Add("Name" => "name", "RefersToR1C1" => "=Z1S3:Z2S4")
 
-Using RobustExcelOle Defining a name referring to a rectangular range is done by providing the rows and columns as integer range.
+Using RobustExcelOle defining a name referring to a rectangular range is done by providing the rows and columns as integer range.
 
   workbook.add_name("name",[1..2,3..4])
 
@@ -140,7 +140,7 @@ or using RobustExcelOle
 
   worksheet[1,1] = "new_value"
 
- In the following some details are being summarized. 
+In the following some details are being summarized. 
 
 === Accessing a range
 

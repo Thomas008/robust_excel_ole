@@ -144,19 +144,36 @@ A special feature of RobustExcelOle is that it allows to reopen workbooks after 
 
 The closed workbook is now alive again, i.e. is open and responds to Excel methods.
 
-Technically, this feature is implemented in such way, that a Workbook object is a proxy of an Excel workbook. A Workbook object is defined by the full workbook name and the Excel instance in which it is opened. RobustExcelOle ensures identity transparency which means that the same Workbook objects refer to the same Excel wotrkbooks, and vice versa. 
+=== Promoting WIN32OLE objects to RobustExcelOle objects
 
-=== Promoting a WIN32OLE workbook to a Workbook object
+Promoting means here: enriching a given object of a certain class by properties and methods of another class. 
+The method +General.to_reo+ enables promoting WIN32OLE objects to RobustExcelOle objects such that the attributes and methods of RobustExcelOle can be applied to these objects. For example, assume we have a WIN32OLE workbook +win32ole_workbook+:
 
-Promoting means here: enriching an given object of a certain class by properties and methods of another class. RobustExcelOle enables promoting a WIN32OLE workbook to a Workbook object: A Workbook object can be created when giving an Excel workbook.
+  win32ole_workbook.to_class
+  => WIN32OLE
 
-   book = Workbook.new(win32ole_workbook)
+This object can be promoted to a RobustExcelOle workbook.
 
-You can use options, e.g. +:visible+
+  workbook = win32ole_workbook.to_reo
+  workbook.to_class
+  => RobustExcelOle::Workbook
 
-   book = Workbook.new(win32ole_workbook, :visible => true)
+Similarly, Excel, Worksheet, and Range WIN32OLE objects can be promoted to corresponding RobustExcelOle objects. 
 
-Identity transperence ensures that, no matter how a Workbook object was created - by filename or by promoting an Excel workbook - two Workbook objects are identical, if and only if the Excel workbooks, they are referring to, are identical.
+The method +to_reo+ uses the method +new+. You can apply the method +new+ directly.
+
+  workbook = Workbook.new(win32ole_workbook)
+
+You can supply options, e.g. +:visible+.
+
+   workbook = Workbook.new(win32ole_workbook, :visible => true) 
+
+
+=== Identity transperence ===
+
+A RobustExcelOle Workbook object is a proxy of an Excel WIN32OLE workbook. A Workbook object is defined by the full workbook name and the Excel instance in which it is opened. RobustExcelOle ensures identity transparency which means that identical Workbook objects refer to identical Excel workbooks, and vice versa. Identity transperence ensures that, no matter how a Workbook object was created - by filename or by promoting an Excel workbook - two Workbook objects are identical, if and only if the Excel workbooks, they are referring to, are identical. 
+
+Similarly, each Excel, Worksheet and a Range object in RobustExcelOle is a proxy of a corresponding Excel, Worksheet and a Range object in WIN32OLE. For these objects identity transperence holds as well.
 
 === Unobtrusively modifying a workbook
 

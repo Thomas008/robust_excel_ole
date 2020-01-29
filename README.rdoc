@@ -182,7 +182,7 @@ For hard terminating all Excel processes we can use
 
   Excel.kill_all
 
-For more details about creating Excel instances see {README_excel}[https://github.com/Thomas008/robust_excel_ole/blob/master/README/README_excel.rdoc]
+For more details about opening Excel instances see {README_excel}[https://github.com/Thomas008/robust_excel_ole/blob/master/README/README_excel.rdoc]
 
 
 === Opening workbooks in several Excel instances

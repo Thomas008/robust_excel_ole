@@ -1672,6 +1672,30 @@ describe Workbook do
     end
   end
 
+  describe "promoting" do
+
+    context "with standard" do
+
+      before do
+        @book = Workbook.open(@simple_file1)
+        @ole_workbook = @book.ole_workbook 
+      end
+
+      after do
+        @book.close
+      end
+
+      it "should promote" do
+        Workbook.unobtrusively(@ole_workbook) do |book|
+          book.should === @book
+          book.equal?(@book).should be true
+        end
+      end
+    
+    end
+
+  end
+
   describe "for_reading, for_modifying" do
 
     context "open unobtrusively for reading and modifying" do

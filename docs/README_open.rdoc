@@ -126,6 +126,8 @@ If a workbook is open and a workbook with the same name but in different path sh
 
 Remarks:
 
+The methods +open+ and +new+ connect to workbooks opened outside of RobustExcelOle as well.
+
 Opening linked workbooks for EXCEL 2007 is supported
 
 Doing updating links seems to be dependent on calculation mode: updates happen, if the calcultion mode is automatic, and does not happen, if calculation mode is manual.
@@ -203,7 +205,7 @@ The methods +for_reading+ and +for_modifying+ indicate unobtrusively reading or 
     worksheet[1,1] = "c" 
   end
 
-Note, that the methods +unobtrusively+, +for_reading+ and +for_modifying+ work not only for workbooks opened via RobustExcelOle, but do also connect to workbooks opened outside RobustExcelOle.
+Note, that the methods +unobtrusively+, +for_reading+ and +for_modifying+ work not only for workbooks opened via RobustExcelOle, but connect to workbooks opened outside RobustExcelOle as well.
 
 === Retaining the saved-status
 

@@ -80,6 +80,41 @@ describe Workbook do
 
     end
 
+    describe "unknown workbooks" do
+
+      before do
+        @ole_e1 = WIN32OLE.new('Excel.Application')
+        ws = ole_e1.Workbooks
+        abs_filename = General.absolute_path(@simple_file1)
+        @ole_wb = ws.Open(abs_filename)
+      end
+
+      it "should connect to unknown workbooks" do
+        Workbooks.unobtrusively(@simple_file1) do |book|
+          book.excel.Workbook.Count.should == 1
+          Excel.excels_number.should == 1
+          book.FullName.should == General.absolute_path(@simple_file1)
+          book.saved.should be false
+          book.visible.should be false
+        end
+      end
+
+      it "should remain invisiblity" do
+        Workbooks.unobtrusively(@simple_file1) do |book|
+        end
+        @ole_e1.Visible.should be false
+      end
+
+      it "should remain visiblity" do
+        @ole_e1.Visible = true
+        Workbooks.unobtrusively(@simple_file1) do |book|
+        end
+        @ole_e1.Visible.should be true
+        @ole_wb.Windows(@ole_wb.Name).Visible.should be true
+      end
+
+    end
+
     describe "excels number" do
 
       it "should open one excel instance and workbook should be closed" do
@@ -330,6 +365,7 @@ describe Workbook do
             book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
             book.sheet(1)[1,1].Value.should_not == @old_value
           end
+          @book.ReadOnly.should be true
           @book.close
           Workbook.unobtrusively(@simple_file1, :writable => false) do |book|
             book.sheet(1)[1,1].Value.should == @old_value
@@ -347,6 +383,7 @@ describe Workbook do
             book.excel.should == @book.excel
             book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
           end
+          @book.ReadOnly.should be true
           @book.close
           book2 = Workbook.open(@simple_file1)
           book2.sheet(1)[1,1].Value.should == @old_value

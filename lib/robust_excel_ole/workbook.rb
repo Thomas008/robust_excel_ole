@@ -18,7 +18,6 @@ module RobustExcelOle
     attr_accessor :stored_filename
     attr_accessor :color_if_modified
     attr_accessor :was_open
-    attr_accessor :was_writable
     attr_reader :workbook
 
     alias ole_object ole_workbook
@@ -112,7 +111,6 @@ module RobustExcelOle
         end
         if book 
           book.was_open = book.alive?
-          book.was_writable = book.writable
           # drop the fetched workbook if it shall be opened in another Excel instance
           # or the workbook is an unsaved workbook that should not be accepted
           if (options[:force][:excel].nil? || options[:force][:excel] == :current || forced_excel == book.excel) &&
@@ -243,7 +241,6 @@ module RobustExcelOle
         @ole_workbook = workbooks.Item(File.basename(filename)) rescue nil if @ole_workbook.nil?
         if @ole_workbook
           @was_open = true
-          @was_writable = !@ole_workbook.ReadOnly
           manage_blocking_or_unsaved_workbook(filename,options)
         else
           if excel_option.nil? || excel_option == :current &&  
@@ -305,7 +302,6 @@ module RobustExcelOle
       excels_number_after = excel_class.excels_number
       workbooks_number_after = ole_excel.Workbooks.Count
       @was_open = (excels_number_after==excels_number) && (workbooks_number_after==workbooks_number)      
-      @was_writable = !@ole_workbook.ReadOnly
     end
 
     # @private
@@ -582,27 +578,28 @@ module RobustExcelOle
       opts = opts.merge({:read_only => opts[:read_only]}) unless opts[:read_only].nil?
       file = (file_or_workbook.is_a? WIN32OLE) ? file_or_workbook.Fullname.tr('\\','/') : file_or_workbook
       begin
-        book = open(file, opts)
+        book = open(file)
         was_visible = book.visible
+        was_writable = book.writable
         was_saved = book.saved
-        was_writable = book.was_writable
-        was_check_compatibility = book.CheckCompatibility
+        was_check_compatibility = book.check_compatibility
         was_calculation = book.excel.calculation
+        book.set_options(file,opts)
         if !was_saved && ((opts[:writable] && !was_writable) || (opts[:read_only] && was_writable))
           raise NotImplementedREOError, 'unsaved read-only workbook shall be written'
-        end        
+        end
         yield book
       ensure
         if book && book.alive?
           do_not_write = (opts[:read_only] || (opts[:read_only].nil? && opts[:writable] == false))
-          book.save unless book.saved || do_not_write || book.ReadOnly
+          book.save unless was_saved || do_not_write || book.ReadOnly
           # open and close if the read_only mode has changed
-          if (opts[:read_only] && was_writable) || (!opts[:read_only] && !was_writable)           
+          if (opts[:read_only] && was_writable) || (!opts[:read_only] && !was_writable)
             book = open(file, :read_only => !was_writable, :if_unsaved => :forget)
           end
           if book.was_open
-            book.visible = was_visible             
-            book.CheckCompatibility = was_check_compatibility            
+            book.visible = was_visible    
+            book.CheckCompatibility = was_check_compatibility
             book.excel.calculation = was_calculation
           end
           book.Saved = (was_saved || !book.was_open)
@@ -610,7 +607,6 @@ module RobustExcelOle
         end
       end
     end
-
 
     # allows to read or modify a workbook such that its state remains unchanged
     # state comprises: open, saved, writable, visible, calculation mode, check compatibility

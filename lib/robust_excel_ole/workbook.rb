@@ -11,7 +11,7 @@ module RobustExcelOle
 
   class Workbook < RangeOwners
 
-    include General 
+    #include General 
 
     attr_accessor :excel
     attr_accessor :ole_workbook

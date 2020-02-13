@@ -90,9 +90,13 @@ Then we'll save the workbook.
 
   workbook.save
 
-=== More features when opening, modifying, creating saving and closing workbooks
+=== More features when opening, modifying, creating, saving and closing workbooks
 
 RobustExcelOle allows unobtrusively reading and modifying workbooks, i.e. accessing workbooks without changing their "status". The status comprises whether the workbook is open or closed, saved or unsaved, read-only or writable, visible or invisible, whether the calculation mode is manual or automatic, and checking compatibility is done or not done (the Workbook object remembers its properties).
+
+  Workbook.unobtrusively('spec/data/workbook.xls') do |workbook|
+    # do something
+  end
 
   Workbook.for_modifying('spec/data/workbook.xls') do |workbook|
     # do something

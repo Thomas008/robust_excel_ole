@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.14]
+
+### Changed
+   - Workbook.unobtrusively: removed parameter :rw_change_excel
+   
+
 ## [1.13]
 
   - no interface change
@@ -12,9 +18,10 @@ All notable changes to this project will be documented in this file.
    - Workbook#color_if_modified
 
 ### Changed:
-   - Workbook#save, save_as: no parameter +discoloring
+   - Workbook#save, save_as: removed parameter :discoloring
    - RangeOwners#set_namevalue, set_namevalue_glob, Worksheet#set_cellval: 
-     no optional parameter for color 
+     removed optional parameter for color 
+   - Workbook#open: removed option :excel => :reserved_new  
 
 
 ## [1.11]
@@ -27,7 +34,6 @@ All notable changes to this project will be documented in this file.
 ## [1.10]
 
 ### Added
-  - workarounds for running in Jruby
   - Range,Cell#v
 
 ## [1.9]
@@ -78,7 +84,7 @@ All notable changes to this project will be documented in this file.
   - ReoCommon#namevalue, namevalue_glob, set_namevalue, set_namevalue_glob replace
     set_namevalue replaces set_rangeval, set_namevalue_glob, respectively
 
-## [1.2.1] 2018-9-2
+## [1.2.1] 2018-9-12
 
 ## [1.2] - 2018-11-8
 

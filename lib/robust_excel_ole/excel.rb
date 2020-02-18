@@ -399,7 +399,7 @@ module RobustExcelOle
     # if this Excel instance is being closed, then Excel creates a new Excel instance
     # @private
     def self.current_ole_excel   
-      if JRUBY_BUG_CONNECT
+      if ::JRUBY_BUG_CONNECT
         result = known_excel_instance
         if result.nil?
           if excels_number > 0
@@ -729,7 +729,7 @@ module RobustExcelOle
     def method_missing(name, *args) 
       if name.to_s[0,1] =~ /[A-Z]/
         raise ObjectNotAlive, 'method missing: Excel not alive' unless alive?
-        if JRUBY_BUG_ERRORMESSAGE
+        if ::JRUBY_BUG_ERRORMESSAGE
           begin
             @ole_excel.send(name, *args)
           rescue Java::OrgRacobCom::ComFailException => msg

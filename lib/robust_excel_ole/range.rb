@@ -27,7 +27,7 @@ module RobustExcelOle
     # @returns [Array] the values
     def values(range = nil)
       #result = map { |x| x.Value }.flatten
-      result_unflatten = if !JRUBY_BUG_RANGES
+      result_unflatten = if !::JRUBY_BUG_RANGES
         map { |x| x.v }
       else
         self.v
@@ -44,7 +44,7 @@ module RobustExcelOle
 
     def v
       begin
-        if !JRUBY_BUG_RANGES
+        if !::JRUBY_BUG_RANGES
           self.Value
         else
           address_r1c1 = self.AddressLocal(true,true,XlR1C1)
@@ -65,7 +65,7 @@ module RobustExcelOle
 
     def v=(value)
       begin
-        if !JRUBY_BUG_RANGES
+        if !::JRUBY_BUG_RANGES
           ole_range.Value = value
         else
           address_r1c1 = ole_range.AddressLocal(true,true,XlR1C1)
@@ -240,7 +240,7 @@ module RobustExcelOle
     # @private
     def method_missing(name, *args) 
       if name.to_s[0,1] =~ /[A-Z]/
-        if JRUBY_BUG_ERRORMESSAGE
+        if ::JRUBY_BUG_ERRORMESSAGE
           begin
             @ole_range.send(name, *args)
           rescue Java::OrgRacobCom::ComFailException 

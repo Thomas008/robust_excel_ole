@@ -179,16 +179,12 @@ The method +unobtrusively+ enables the user to read or modify a workbook, no mat
 
 Options are the following:
 
-+:if_closed+:: +:current+ (or +:active, or +:reuse+:): (default) : open a closed workbook in the Excel instance where it was opened most recently, if such an Excel instance exists, otherwise open it in the current (first opened) Excel instance
-               
++:if_closed+:: the Excel instance in which to open the workbook, if it was closed (default: +:current+). (Note: this option works workbooks opened via RobustExcelOle only.)
+
 +:read_only+:: Whether the workbook shall be forced to be open in ReadOnly mode
 +:writable+::  Whether changes in the workbook shall be saved
 
-+:rw_change_excel+::  Excel instance in which the workbook with the
-                      changed read-write permissions shall be opened  
-                      :current (default), :new or an Excel instance                   
-
-+:keep_open+::       Whether the workbook shall be open after unobtrusively opening (default: false)
++:keep_open+:: Whether the workbook shall be open after unobtrusively opening (default: false)
 
 
   Workbook.unobtrusively('spec/data/workbook.xls') do |book|

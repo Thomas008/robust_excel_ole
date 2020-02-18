@@ -100,7 +100,7 @@ module RobustExcelOle
         # if readonly is true, then prefer a book that is given in force_excel if this option is set              
         forced_excel = 
           (options[:force][:excel].nil? || options[:force][:excel] == :current) ? 
-            (excel_class.new(:reuse => true) if !JRUBY_BUG_CONNECT) : excel_of(options[:force][:excel])              
+            (excel_class.new(:reuse => true) if !::JRUBY_BUG_CONNECT) : excel_of(options[:force][:excel])              
         begin
           book = if File.exists?(file)
             bookstore.fetch(file, :prefer_writable => !(options[:read_only]),
@@ -244,7 +244,7 @@ module RobustExcelOle
           manage_blocking_or_unsaved_workbook(filename,options)
         else
           if excel_option.nil? || excel_option == :current &&  
-            (!JRUBY_BUG_CONNECT || filename[0] != '/')
+            (!::JRUBY_BUG_CONNECT || filename[0] != '/')
             connect(filename,options)
           else 
             open_or_create_workbook(filename,options)
@@ -857,7 +857,7 @@ module RobustExcelOle
       last_sheet_local = last_sheet
       after_or_before, base_sheet = opts.to_a.first || [:after, last_sheet_local]
       begin
-        if !JRUBY_BUG_COPYSHEETS
+        if !::JRUBY_BUG_COPYSHEETS
           if sheet
             sheet.Copy({ after_or_before.to_s => base_sheet.ole_worksheet })
           else
@@ -1109,7 +1109,7 @@ module RobustExcelOle
     def method_missing(name, *args) 
       if name.to_s[0,1] =~ /[A-Z]/
         raise ObjectNotAlive, 'method missing: workbook not alive' unless alive?
-        if JRUBY_BUG_ERRORMESSAGE 
+        if ::JRUBY_BUG_ERRORMESSAGE 
           begin
             @ole_workbook.send(name, *args)
           rescue Java::OrgRacobCom::ComFailException 

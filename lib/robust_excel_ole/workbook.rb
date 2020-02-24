@@ -232,34 +232,42 @@ module RobustExcelOle
 
     # @private    
     def ensure_workbook(filename, options)  
-      unless @ole_workbook && alive?
-        filename = @stored_filename ? @stored_filename : filename 
-        manage_nonexisting_file(filename,options)
-        excel_option = options[:force][:excel].nil? ? options[:default][:excel] : options[:force][:excel]        
-        ensure_excel(options)
-        workbooks = @excel.Workbooks
-        @ole_workbook = workbooks.Item(File.basename(filename)) rescue nil if @ole_workbook.nil?
-        if @ole_workbook
-          @was_open = true
-          manage_blocking_or_unsaved_workbook(filename,options)
-        else
-          if excel_option.nil? || excel_option == :current &&  
-            (!::JRUBY_BUG_CONNECT || filename[0] != '/')
-            connect(filename,options)
-          else 
-            open_or_create_workbook(filename,options)
-          end
-        end       
-      end
+      return if (@ole_workbook && alive? && (options[:read_only].nil? || @ole_workbook.ReadOnly == options[:read_only]))
+      filename = @stored_filename ? @stored_filename : filename 
+      manage_nonexisting_file(filename,options)
+      excel_option = options[:force][:excel].nil? ? options[:default][:excel] : options[:force][:excel]        
+      ensure_excel(options)
+      workbooks = @excel.Workbooks
+      @ole_workbook = workbooks.Item(File.basename(filename)) rescue nil if @ole_workbook.nil?
+      if @ole_workbook
+        @was_open = true if @was_open.nil? # necessary?
+        manage_blocking_or_unsaved_workbook(filename,options)
+        open_or_create_workbook(filename,options) if @ole_workbook.ReadOnly != options[:read_only]
+      else
+        if excel_option.nil? || excel_option == :current &&  
+          (!::JRUBY_BUG_CONNECT || filename[0] != '/')
+          workbooks_number_before_connect = @excel.Workbooks.Count
+          connect(filename,options)
+          @was_open = @excel.Workbooks.Count == workbooks_number_before_connect
+        else 
+          open_or_create_workbook(filename,options)
+        end
+      end       
     end
 
     # @private
     def set_options(filename, options)
+      # changing read-only mode
       if (!options[:read_only].nil?) && options[:read_only] != @ole_workbook.ReadOnly
-        #raise OptionInvalid, ":if_unsaved:accept and changing read-only mode is not possible" if options[:if_unsaved]==:accept
-        @excel.with_displayalerts(false) { @ole_workbook.Close }
-        @ole_workbook = nil        
-        open_or_create_workbook(filename, options)
+        ##raise OptionInvalid, ":if_unsaved:accept and changing read-only mode is not possible" if options[:if_unsaved]==:accept
+        #saved_status = @ole_workbook.Saved
+        #@ole_workbook.Save if !saved && writable #!saved_status && !@ole_workbook.ReadOnly 
+        #@excel.with_displayalerts(false) { @ole_workbook.Close }
+        #@ole_workbook = nil        
+        #open_or_create_workbook(filename, options)
+        #@ole_workbook.Saved = saved_status
+        options = {:if_unsaved => :save}.merge(options)
+        ensure_workbook(filename, options)
       end
       retain_saved do
         #self.visible = options[:force][:visible].nil? ? @excel.Visible : options[:force][:visible]
@@ -300,9 +308,9 @@ module RobustExcelOle
         end
       end
       @excel = excel_class.new(ole_excel)
-      excels_number_after = excel_class.excels_number
-      workbooks_number_after = ole_excel.Workbooks.Count
-      @was_open = (excels_number_after==excels_number) && (workbooks_number_after==workbooks_number)      
+      #excels_number_after = excel_class.excels_number
+      #workbooks_number_after = ole_excel.Workbooks.Count
+      #@was_open = (excels_number_after==excels_number) && (workbooks_number_after==workbooks_number)      
     end
 
     # @private
@@ -412,10 +420,12 @@ module RobustExcelOle
     
     # @private
     def open_or_create_workbook(filename, options)       
-      return if @ole_workbook && options[:if_unsaved] != :alert && options[:if_unsaved] != :excel
+      return if @ole_workbook && options[:if_unsaved] != :alert && options[:if_unsaved] != :excel &&
+        (options[:read_only].nil? || options[:read_only]==@ole_workbook.ReadOnly )
       begin
         abs_filename = General.absolute_path(filename)
         begin
+          @was_open = false if @was_open.nil?
           workbooks = @excel.Workbooks
         rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
           raise UnexpectedREOError, "cannot access workbooks: #{msg.message} #{msg.backtrace}"
@@ -591,17 +601,23 @@ module RobustExcelOle
         was_check_compatibility = book.check_compatibility
         was_calculation = book.excel.calculation
         book.set_options(file,opts)
-        if !was_saved && ((opts[:writable] && !was_writable) || (opts[:read_only] && was_writable))
-          raise NotImplementedREOError, 'unsaved read-only workbook shall be written'
-        end
+        #if !was_saved && ((opts[:writable] && !was_writable) || (opts[:read_only] && was_writable))
+        #if (opts[:writable] && !was_writable && !was_saved) ||
+        #   (opts[:read_only] && was_writable && !was_saved)
+        #if !was_saved && was_writable && opts[:read_only] && opts[:writable]==false
+        #  raise NotImplementedREOError, 'unsaved workbook shall be opened read-only but not written'
+        #  #raise NotImplementedREOError, 'unsaved read-only workbook shall be written'
+        #end
         yield book
       ensure
         if book && book.alive?
-          do_not_write = (opts[:read_only] || (opts[:read_only].nil? && opts[:writable] == false))
-          book.save unless was_saved || do_not_write || book.ReadOnly
+          #do_not_write = (opts[:read_only] || (opts[:read_only].nil? && opts[:writable] == false))
+          do_not_write = opts[:read_only] || opts[:writable]==false
+          book.save unless book.saved || do_not_write || book.ReadOnly
           # open and close if the read_only mode has changed
           if (opts[:read_only] && was_writable) || (!opts[:read_only] && !was_writable)
-            book = open(file, :read_only => !was_writable, :if_unsaved => :forget)
+            book.set_options(file, opts.merge({:read_only => !was_writable, 
+                                   :if_unsaved => (opts[:writable]==false ? :forget : :save)}))
           end
           if book.was_open
             book.visible = was_visible    

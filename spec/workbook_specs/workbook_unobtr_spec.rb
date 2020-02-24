@@ -124,7 +124,8 @@ describe Workbook do
           Workbook.unobtrusively(@simple_file1, :read_only => true) do |book|
             book.saved.should be true
             book.visible.should be false
-            book.writable.should be false
+            book.ReadOnly.should be true
+            book.writable.should be false            
           end
           ole_wb = WIN32OLE.connect(@abs_filename)
           ole_wb.Saved.should be true
@@ -136,6 +137,7 @@ describe Workbook do
           Workbook.unobtrusively(@simple_file1, :visible => true, :read_only => true) do |book|
             book.saved.should be true
             book.visible.should be true
+            book.ReadOnly.should be true
             book.writable.should be false
           end
           ole_wb = WIN32OLE.connect(@abs_filename)

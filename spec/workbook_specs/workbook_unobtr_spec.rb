@@ -251,8 +251,22 @@ describe Workbook do
           ole_wb.ReadOnly.should be false
         end
 
+        it "should raise error" do
+          expect{
+            Workbook.unobtrusively(@simple_file1, :read_only => true) do |book|
+              book.saved.should be false
+              book.visible.should be true
+              book.writable.should be false
+            end
+          }.to_raise_error(WorkbookNotSaved)
+          #ole_wb = WIN32OLE.connect(@abs_filename)
+          #ole_wb.Saved.should be false
+          #@ole_e1.Visible.should be true
+          #ole_wb.ReadOnly.should be false
+        end
+
         it "should remain writable" do
-          Workbook.unobtrusively(@simple_file1, :read_only => true) do |book|
+          Workbook.unobtrusively(@simple_file1, :read_only => true, :if_unsaved => :save) do |book|
             book.saved.should be false
             book.visible.should be true
             book.writable.should be false

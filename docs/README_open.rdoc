@@ -145,7 +145,7 @@ The closed workbook is now alive again, i.e. is open and responds to Excel metho
 === Promoting WIN32OLE objects to RobustExcelOle objects
 
 Promoting means here: enriching a given object of a certain class by properties and methods of another class. 
-The method +General.to_reo+ enables promoting WIN32OLE objects to RobustExcelOle objects such that the attributes and methods of RobustExcelOle can be applied to these objects. For example, assume we have a WIN32OLE workbook +win32ole_workbook+:
+The method +General.to_reo+ enables promoting (type-lifting) WIN32OLE objects to RobustExcelOle objects such that the attributes and methods of RobustExcelOle can be applied to these objects. For example, assume we have a WIN32OLE workbook +win32ole_workbook+:
 
   win32ole_workbook.to_class
   => WIN32OLE

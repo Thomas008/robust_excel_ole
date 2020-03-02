@@ -110,7 +110,8 @@ module RobustExcelOle
           trace "#{$!.message}"
         end
         if book 
-          book.was_open = book.alive?
+          # hack (unless condition): calling Worksheet[]= causes calling Worksheet#workbook which calls Workbook#new(ole_workbook)
+          book.was_open = book.alive? unless file_or_workbook.is_a? WIN32OLE 
           # drop the fetched workbook if it shall be opened in another Excel instance
           # or the workbook is an unsaved workbook that should not be accepted
           if (options[:force][:excel].nil? || options[:force][:excel] == :current || forced_excel == book.excel) &&
@@ -299,9 +300,6 @@ module RobustExcelOle
         end
       end
       @excel = excel_class.new(ole_excel)
-      #excels_number_after = excel_class.excels_number
-      #workbooks_number_after = ole_excel.Workbooks.Count
-      #@was_open = (excels_number_after==excels_number) && (workbooks_number_after==workbooks_number)      
     end
 
     # @private
@@ -410,7 +408,7 @@ module RobustExcelOle
     end
     
     # @private
-    def open_or_create_workbook(filename, options)       
+    def open_or_create_workbook(filename, options)
       return if @ole_workbook && options[:if_unsaved] != :alert && options[:if_unsaved] != :excel &&
         (options[:read_only].nil? || options[:read_only]==@ole_workbook.ReadOnly )
       begin

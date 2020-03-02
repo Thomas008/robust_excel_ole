@@ -40,7 +40,7 @@ module RobustExcelOle
     def name
       @ole_worksheet.Name
     rescue
-      raise WorksheetREOError, "name #{name.inspect} could not be determined"
+      raise WorksheetREOError, "name could not be determined"
     end
 
     # sets sheet name

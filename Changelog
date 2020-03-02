@@ -1,11 +1,17 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [1.14]
+## [1.15]
+
+### Added
+   - Workbook#unobtrusively, Workbook#for_reading, Workbook#for_modifying
 
 ### Changed
    - Workbook.unobtrusively: removed parameter :rw_change_excel
    
+## [1.14]
+
+  - no interface change
 
 ## [1.13]
 

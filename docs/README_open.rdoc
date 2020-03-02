@@ -186,21 +186,34 @@ Options are the following:
 
 +:keep_open+:: Whether the workbook shall be open after unobtrusively opening (default: false)
 
+There are the class method and the instance method of +unobtrusively+. Here is an example of the class method:
 
   Workbook.unobtrusively('spec/data/workbook.xls') do |book|
     # some modification
-    worksheet = book[0]
-    worksheet[1,1] = "c" 
+    book.sheet(1)[1,1] = "c" 
   end
-  
-The methods +for_reading+ and +for_modifying+ indicate unobtrusively reading or modifying.
+
+Here is an example of the instance method:
+
+  book.unobtrusively do
+    # some modification
+    book.sheet(1)[1,1] = "c" 
+  end
+       
+The methods +for_reading+ and +for_modifying+ indicate unobtrusively reading or modifying. 
 
   Workbook.for_modifying('spec/data/workbook.xls') do |book|
     # some modification
-    worksheet = book[0]
-    worksheet[1,1] = "c" 
+    book.sheet(1)[1,1] = "c"
   end
 
+An example of the instance method would be
+
+  book.for_modifying do
+    # some modification
+    book.sheet(1)[1,1] = "c"
+  end
+  
 Note, that the methods +unobtrusively+, +for_reading+ and +for_modifying+ work not only for workbooks opened via RobustExcelOle, but connect to workbooks opened outside RobustExcelOle as well.
 
 === Retaining the saved-status
@@ -214,7 +227,7 @@ This method ensures keeping the save status of the workbook
 
 === Checking whether the workbook is alive.
 
-This method finds out whether the Excel workbook that is referenced by the Workbook object responds to methods.
+The method +alive?+ finds out whether the Excel workbook that is referenced by the Workbook object responds to methods. For example
 
   workbook.alive?
   # => true

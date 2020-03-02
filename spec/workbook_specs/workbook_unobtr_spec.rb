@@ -35,8 +35,209 @@ describe Workbook do
     rm_tmp(@dir)
   end
 
+  describe "Workbook#for_reading, #for_modifying" do
+    
+    context "with standard" do
+
+      before do
+        @book = Workbook.open(@simple_file1, :visible => true)
+        @old_value = @book.sheet(1)[1,1].Value
+      end
+
+      after do
+        @book.close(:if_unsaved => :forget) if @book && @book.alive?
+      end
+
+      it "should not change the value" do
+        @book.for_reading(@simple_file1) do
+          @book.should be_a Workbook
+          @book.should be_alive
+          @book.Saved.should be true  
+          @book.sheet(1)[1,1] = cell.Value == "foo" ? "bar" : "foo"
+          @book.Saved.should be false
+        end
+        @book.close(:if_unsaved => :forget)
+        new_book = Workbook.open(@simple_file1)
+        new_book.sheet(1)[1,1].Value.should == @old_value
+      end
+
+      it "should not change the value" do
+        @book.for_modifying(@simple_file1) do
+          @book.should be_a Workbook
+          @book.should be_alive
+          @book.Saved.should be true  
+          @book.sheet(1)[1,1] = cell.Value == "foo" ? "bar" : "foo"
+          @book.Saved.should be false
+        end
+        @book.close(:if_unsaved => :forget)
+        new_book = Workbook.open(@simple_file1)
+        new_book.sheet(1)[1,1].Value.should_not == @old_value
+      end
+
+    end
+ 
+  end
+
+  describe "Workbook#unobtrusively" do
+
+    context "with a writable saved workbook" do
+
+      before do
+        @book = Workbook.open(@simple_file1, :visible => true)
+        @old_value = @book.sheet(1)[1,1].Value
+      end
+
+      after do
+        @book.close(:if_unsaved => :forget) if @book && @book.alive?
+      end
+
+      it "should unobtrusively open, modify, and retain the status" do
+        @book.unobtrusively do
+          @book.saved.should be true
+          @book.visible.should be true
+          @book.writable.should be true
+          sheet = @book.sheet(1)
+          sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+        end
+        @book.saved.should be true
+        @book.visible.should be true
+        @book.writable.should be true
+        @book.sheet(1)[1,1].Value.should_not == @old_value
+        @book.close
+        @book = Workbook.open(@simple_file1)
+        @book.sheet(1)[1,1].Value.should_not == @old_value
+      end
+
+      it "should unobtrusively open, modify, and not save the changes" do
+        @book.unobtrusively(:writable => false) do
+          book.sheet(1)[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+        end
+        @book.saved.should be true
+        @book.visible.should be true
+        @book.writable.should be true
+        @book.sheet(1)[1,1].Value.should_not == @old_value
+        @book.close
+        @book = Workbook.open(@simple_file1)
+        @book.sheet(1)[1,1].Value.should == @old_value
+      end
+
+      it "should unobtrusively open, modify, and save the changes" do
+        @book.unobtrusively(:writable => true) do
+          book.sheet(1)[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+        end
+        @book.saved.should be true
+        @book.visible.should be true
+        @book.writable.should be true
+        @book.sheet(1)[1,1].Value.should_not == @old_value
+        @book.close
+        @book = Workbook.open(@simple_file1)
+        @book.sheet(1)[1,1].Value.should_not == @old_value
+      end
+
+    end
+
+    context "with a closed workbook" do
+
+      before do
+        @book = Workbook.open(@simple_file1, :visible => true)
+        @old_value = @book.sheet(1)[1,1].Value
+        @book.close
+      end
+
+      it "should unobtrusively open and close the workbook" do
+        @book.unobtrusively do
+          @book.saved.should be true
+          @book.visible.should be true
+          @book.writable.should be true
+          sheet = @book.sheet(1)
+          sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+        end
+        @book.should_not be alive
+        @book = Workbook.open(@simple_file1)
+        @book.sheet(1)[1,1].Value.should_not == @old_value
+      end
+
+      it "should unobtrusively open, modify, and not save the changes" do
+        @book.unobtrusively(:writable => false) do
+          book.sheet(1)[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+        end
+        @book.should_not be alive
+        @book = Workbook.open(@simple_file1)
+        @book.sheet(1)[1,1].Value.should == @old_value
+      end
+
+      it "should unobtrusively open, modify, and save the changes" do
+        @book.unobtrusively(:writable => true) do
+          book.sheet(1)[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+        end
+        @book.should_not be alive
+        @book = Workbook.open(@simple_file1)
+        @book.sheet(1)[1,1].Value.should_not == @old_value
+      end
+
+    end
+
+     context "with an writable unsaved workbook" do
+
+      before do
+        @book = Workbook.open(@simple_file1, :visible => true)
+        @old_value = @book.sheet(1)[1,1].Value
+        sheet = @book.sheet(1)
+        sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+      end
+
+      after do
+        @book.close(:if_unsaved => :forget) if @book && @book.alive?
+      end
+
+      it "should unobtrusively open, modify, and retain the status" do
+        @book.unobtrusively do
+          @book.saved.should be false
+          @book.visible.should be true
+          @book.writable.should be true
+          sheet = @book.sheet(1)
+          sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+        end
+        @book.saved.should be false
+        @book.visible.should be true
+        @book.writable.should be true
+        @book.sheet(1)[1,1].Value.should == @old_value
+        @book.close(:if_unsaved => :forget)
+        @book = Workbook.open(@simple_file1)
+        @book.sheet(1)[1,1].Value.should == @old_value
+      end
+
+      it "should unobtrusively open, modify, and not save the changes" do
+        @book.unobtrusively(:writable => false) do
+          book.sheet(1)[1,1] = "bla"
+        end
+        @book.saved.should be false
+        @book.visible.should be true
+        @book.writable.should be true
+        @book.sheet(1)[1,1].Value.should = "bla"
+        @book.close
+        @book = Workbook.open(@simple_file1)
+        @book.sheet(1)[1,1].Value.should == @old_value
+      end
+
+      it "should unobtrusively open, modify, and save the changes" do
+        @book.unobtrusively(:writable => true) do
+          book.sheet(1)[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+        end
+        @book.saved.should be false
+        @book.visible.should be true
+        @book.writable.should be true
+        @book.sheet(1)[1,1].Value.should_not == @old_value
+        @book.close(:if_unsaved => :forget)
+        @book = Workbook.open(@simple_file1)
+        @book.sheet(1)[1,1].Value.should == @old_value
+      end
+
+    end
+
+  end
   
-  describe "unobtrusively" do
+  describe "Workbook.unobtrusively" do
 
     # @private
     def unobtrusively_ok?

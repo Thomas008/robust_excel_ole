@@ -545,6 +545,22 @@ module RobustExcelOle
       end
     end
 
+    def for_reading(*args, &block)
+      args = args.dup
+      opts = args.last.is_a?(Hash) ? args.pop : {}
+      opts = {:writable => false}.merge(opts)
+      args.push opts
+      unobtrusively(*args, &block)
+    end
+
+    def for_modifying(*args, &block)
+      args = args.dup
+      opts = args.last.is_a?(Hash) ? args.pop : {}
+      opts = {:writable => true}.merge(opts)
+      args.push opts
+      unobtrusively(*args, &block)
+    end
+
     def self.for_reading(*args, &block)
       args = args.dup
       opts = args.last.is_a?(Hash) ? args.pop : {}
@@ -644,7 +660,7 @@ module RobustExcelOle
       opts = self.class.process_options(opts)
       raise OptionInvalid, 'contradicting options' if opts[:writable] && opts[:read_only]       
       opts = {:if_closed => :current, :keep_open => false}.merge(opts)      
-      excel_opts = !book.alive? ? {:force => {:excel => opts[:if_closed]}} :
+      excel_opts = !alive? ? {:force => {:excel => opts[:if_closed]}} :
         {:force => {:excel => opts[:force][:excel]}, :default => {:excel => opts[:default][:excel]}}
       open_opts = excel_opts.merge({:if_unsaved => :accept})
       begin  

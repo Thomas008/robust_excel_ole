@@ -588,6 +588,7 @@ module RobustExcelOle
     # @option opts [Boolean] :writable  true (default)/false changes of the workbook shall be saved/not saved
     # @option opts [Boolean] :keep_open whether the workbook shall be kept open after unobtrusively opening (default: false)
     # @return [Workbook] a workbook
+=begin
     def self.unobtrusively(file_or_workbook, opts = { })
       file = (file_or_workbook.is_a? WIN32OLE) ? file_or_workbook.Fullname.tr('\\','/') : file_or_workbook
       opts = process_options(opts)
@@ -626,8 +627,7 @@ module RobustExcelOle
         end
       end
     end
-
-=begin
+=end
     # allows to read or modify a workbook such that its state remains unchanged
     # state comprises: open, saved, writable, visible, calculation mode, check compatibility
     # @param [String] file_or_workbook     a file name or WIN32OLE workbook
@@ -637,7 +637,7 @@ module RobustExcelOle
     # @option opts [Boolean] :writable  true (default)/false changes of the workbook shall be saved/not saved
     # @option opts [Boolean] :keep_open whether the workbook shall be kept open after unobtrusively opening (default: false)
     # @return [Workbook] a workbook
-    def self.unobtrusively(file_or_workbook, opts = { })
+    def self.unobtrusively(file_or_workbook, opts = { }, &block)
       file = (file_or_workbook.is_a? WIN32OLE) ? file_or_workbook.Fullname.tr('\\','/') : file_or_workbook
       opts = process_options(opts)
       raise OptionInvalid, 'contradicting options' if opts[:writable] && opts[:read_only]       
@@ -650,19 +650,15 @@ module RobustExcelOle
       open_opts = excel_opts.merge({:if_unsaved => :accept})
       begin  
         book = open(file, open_opts)
-        book.unobtrusively
+        book.unobtrusively(opts, &block)
       end
     end
-=end
 
     def unobtrusively(opts = { })
       file = stored_filename
       opts = self.class.process_options(opts)
       raise OptionInvalid, 'contradicting options' if opts[:writable] && opts[:read_only]       
-      opts = {:if_closed => :current, :keep_open => false}.merge(opts)      
-      excel_opts = !alive? ? {:force => {:excel => opts[:if_closed]}} :
-        {:force => {:excel => opts[:force][:excel]}, :default => {:excel => opts[:default][:excel]}}
-      open_opts = excel_opts.merge({:if_unsaved => :accept})
+      opts = {:keep_open => false}.merge(opts)      
       begin  
         was_open = alive?
         was_visible = visible
@@ -690,9 +686,6 @@ module RobustExcelOle
         end
       end
     end
-
-     
-
 
     # reopens a closed workbook
     # @options options

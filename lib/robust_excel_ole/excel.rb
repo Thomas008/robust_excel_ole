@@ -16,7 +16,6 @@ module RobustExcelOle
 
   class Excel < RangeOwners
     attr_accessor :ole_excel
-    #attr_accessor :created
     attr_accessor :workbook
 
     # setter methods are implemented below

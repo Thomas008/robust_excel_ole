@@ -643,8 +643,13 @@ module RobustExcelOle
       opts = {:if_closed => :current, :keep_open => false}.merge(opts) 
       raise OptionInvalid, 'contradicting options' if opts[:writable] && opts[:read_only] 
       begin
-        book = alive? ? self : open(stored_filename, {:force => {:excel => opts[:if_closed]}, 
-                                                      :if_unsaved => :accept})
+        #book = alive? ? self : open(stored_filename, {:force => {:excel => opts[:if_closed]}, 
+        #                                              :if_unsaved => :accept})
+        # we need to know whether it was already open
+        excel_opts = !alive? ? {:force => {:excel => opts[:if_closed]}} :
+                    {:force => {:excel => opts[:force][:excel]}, :default => {:excel => opts[:default][:excel]}}
+        open_opts = excel_opts.merge({:if_unsaved => :accept})
+        book = self.class.open(stored_filename, open_opts)
         was_visible = book.visible
         was_writable = book.writable
         was_saved = book.saved

@@ -606,7 +606,7 @@ module RobustExcelOle
         book.set_options(file,opts)       
         yield book
       ensure
-        if book.alive?
+        if book && book.alive?
           do_not_write = opts[:read_only] || opts[:writable]==false
           book.save unless book.saved || do_not_write || !book.writable
           if (opts[:read_only] && was_writable) || (!opts[:read_only] && !was_writable)

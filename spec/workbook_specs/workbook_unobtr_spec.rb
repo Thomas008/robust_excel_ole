@@ -234,26 +234,26 @@ describe Workbook do
 
       it "should unobtrusively open and close the workbook" do
         @book.unobtrusively do |book|
-          book.should be alive
+          book.should be_alive
           book.saved.should be true
-          book.visible.should be false
+          book.visible.should be true
           book.writable.should be true
           book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
         end
-        @book.should_not be alive
+        @book.should_not be_alive
         new_book = Workbook.open(@simple_file1)
         new_book.sheet(1)[1,1].Value.should_not == @old_value
       end
 
       it "should unobtrusively open and and not close the workbook" do
         @book.unobtrusively(:visible => true, :keep_open => true) do |book|
-          book.should be alive
+          book.should be_alive
           book.saved.should be true
           book.visible.should be true
           book.writable.should be true
           book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
         end
-        @book.should be alive
+        @book.should be_alive
         @book.saved.should be true
         @book.visible.should be true
         @book.writable.should be true

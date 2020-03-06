@@ -18,7 +18,6 @@ module RobustExcelOle
     attr_accessor :stored_filename
     attr_accessor :color_if_modified
     attr_accessor :was_open
-    attr_reader :workbook
 
     alias ole_object ole_workbook
 
@@ -1006,6 +1005,11 @@ module RobustExcelOle
     # @private
     def bookstore    
       self.class.bookstore
+    end
+
+    # @private
+    def workbook
+      self
     end
 
     # @private

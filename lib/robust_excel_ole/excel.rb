@@ -16,9 +16,7 @@ module RobustExcelOle
 
   class Excel < RangeOwners
     attr_accessor :ole_excel
-    attr_accessor :workbook
 
-    # setter methods are implemented below
     attr_reader :visible
     attr_reader :displayalerts
     attr_reader :calculation
@@ -693,6 +691,13 @@ module RobustExcelOle
       workbook.color_if_modified = 42  unless workbook.nil? # aqua-marin
       set_namevalue_glob(name,value)
       workbook.color_if_modified = old_color_if_modified
+    end
+
+    # @private
+    # returns active workbook
+    def workbook
+      return @workbook unless @workbook.nil?
+      @workbook = workbook_class.new(@ole_excel.ActiveWorkbook)
     end
 
     # @private

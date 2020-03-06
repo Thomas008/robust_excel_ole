@@ -2096,7 +2096,6 @@ module RobustExcelOle
       end
 
     end
-  
 
     describe "namevalue_glob, set_namevalue_glob" do
 

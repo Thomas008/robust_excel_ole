@@ -75,7 +75,7 @@ class WIN32OLE
 
   include RobustExcelOle
   
-  # promoting WIN32OLE objects to RobustExcelOle objects
+  # type-lifting WIN32OLE objects to RobustExcelOle objects
   def to_reo
     class2method = [{Excel => :Hwnd}, {Workbook => :FullName}, {Worksheet => :Copy}, {Range => :Address}]
     class2method.each do |element|

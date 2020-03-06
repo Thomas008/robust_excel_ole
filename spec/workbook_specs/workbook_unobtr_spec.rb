@@ -2336,7 +2336,7 @@ describe Workbook do
     end
   end
 
-  describe "promoting" do
+  describe "type-lifting" do
 
     context "with standard" do
 
@@ -2349,7 +2349,7 @@ describe Workbook do
         @book.close
       end
 
-      it "should promote" do
+      it "should type-lift" do
         Workbook.unobtrusively(@ole_workbook) do |book|
           book.should === @book
           book.equal?(@book).should be true

@@ -26,7 +26,7 @@ Options of the methods +create+ and +new+ are +:reuse+ (+true+, +false+), +:visi
 
 The option +:calculation+ specifies, whether the calculation mode is being forced to be manual (:manual), automatic (+:automatic+) or is not being forced (+nil+).
 
-You can also promote an Excel instance represented as WIN32OLE object to an Excel object.
+You can also type-lift an Excel instance represented as WIN32OLE object to an Excel object.
 
   excel = Excel.new(win32ole_object, :visible => true)
 

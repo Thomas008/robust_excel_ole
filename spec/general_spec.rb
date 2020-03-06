@@ -41,25 +41,25 @@ module RobustExcelOle
         @book1 = Workbook.open(@simple_file)
       end
 
-      it "should promote an Excel" do
+      it "should type-lift an Excel" do
         excel = @book1.excel.ole_excel.to_reo
         excel.class.should == RobustExcelOle::Excel
         excel.should be_alive
       end
 
-      it "should promote a workbook" do
+      it "should type-lift a workbook" do
         workbook = @book1.ole_workbook.to_reo
         workbook.should be_a Workbook
         workbook.should be_alive
       end
 
-      it "should promote a worksheet" do
+      it "should type-lift a worksheet" do
         worksheet = @book1.sheet(1).ole_worksheet.to_reo
         worksheet.should be_kind_of Worksheet
         worksheet.name.should == "Sheet1"
       end
 
-      it "should promote a range" do
+      it "should type-lift a range" do
         range = @book1.sheet(1).range([1,1]).ole_range.to_reo
         range.should be_kind_of Range
         range.Value.should == "foo"

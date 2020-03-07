@@ -103,22 +103,26 @@ module RobustExcelOle
 
     describe "misc" do
 
-      LOG_TO_STDOUT = true
-      REOCommon::trace "foo"
+      it "should" do
 
-      LOG_TO_STDOUT = false
-      REOCommon::trace "foo"
+        LOG_TO_STDOUT = true
+        REOCommon::trace "foo"
 
-      REO_LOG_DIR = ""
-      REOCommon::trace "foo"
+        LOG_TO_STDOUT = false
+        REOCommon::trace "foo"
 
-      REO_LOG_DIR = "C:"
-      REOCommon::trace "foo"
+        REO_LOG_DIR = ""
+        REOCommon::trace "foo"
 
-      REOCommon::tr1 "foo"
+        #REO_LOG_DIR = "C:"
+        #REOCommon::trace "foo"
 
-      h = {:a => {:c => 4}, :b => 2}
-      REOCommon::puts_hash(h)
+        REOCommon::tr1 "foo"
+
+        h = {:a => {:c => 4}, :b => 2}
+        REOCommon::puts_hash(h)
+
+      end
  
     end
   end

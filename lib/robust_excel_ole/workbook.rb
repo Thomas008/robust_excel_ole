@@ -232,6 +232,10 @@ module RobustExcelOle
     # @private    
     def ensure_workbook(filename, options)  
       return if (@ole_workbook && alive? && (options[:read_only].nil? || @ole_workbook.ReadOnly == options[:read_only]))
+      if options[:if_unsaved]==:accept && 
+        ((options[:read_only]==true && self.ReadOnly==false) || (options[:read_only]==false && self.ReadOnly==true))
+        raise OptionInvalid, ":if_unsaved:accept and change of read-only mode is not possible"
+      end
       filename = @stored_filename ? @stored_filename : filename 
       manage_nonexisting_file(filename,options)
       excel_option = options[:force][:excel].nil? ? options[:default][:excel] : options[:force][:excel]        

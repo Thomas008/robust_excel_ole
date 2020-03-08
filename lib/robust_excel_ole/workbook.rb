@@ -265,8 +265,7 @@ module RobustExcelOle
         ensure_workbook(filename, options)
       end
       retain_saved do
-        self.visible = options[:force][:visible].nil? ?
-          (@excel.Visible && @ole_workbook.Windows(@ole_workbook.Name).Visible) : options[:force][:visible]
+        self.visible = options[:force][:visible].nil? ? @excel.Visible : options[:force][:visible]
         @excel.calculation = options[:calculation] unless options[:calculation].nil?
         @ole_workbook.CheckCompatibility = options[:check_compatibility] unless options[:check_compatibility].nil?
       end      

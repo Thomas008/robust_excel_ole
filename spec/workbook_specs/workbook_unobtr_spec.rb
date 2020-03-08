@@ -1280,35 +1280,9 @@ describe Workbook do
         end
 
         it "should open as read-only" do
-          Workbook.unobtrusively(@simple_file1, :if_unsaved => :accept, :read_only => false) do |book|
-            book.Readonly.should be false
-            book.should == @book
-            book.filename.should == @book.filename
-            book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
-          end
-          @book.Saved.should be false
-          @book.ReadOnly.should be true
-          @book.sheet(1)[1,1].Value.should == @old_value
-          @book.close
-          book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should == @old_value
-        end
-
-        it "should open as read-only" do
-          Workbook.unobtrusively(@simple_file1, :if_unsaved => :accept, :read_only => false, :writable => false) do |book|
-            book.Readonly.should be false
-            book.should == @book
-            book.filename.should == @book.filename
-            book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
-          end
-          @book.Saved.should be false
-          @book.ReadOnly.should be true
-          @book.sheet(1)[1,1].Value.should_not == @old_value
-          @book.close
-          book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should_not == @old_value
+          expect{
+            Workbook.unobtrusively(@simple_file1, :if_unsaved => :accept, :read_only => false, :writable => false)
+          }.to raise_error(OptionInvalid)
         end
 
         it "should remain read-only and not write, even with :writable => true" do

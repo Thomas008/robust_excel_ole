@@ -28,8 +28,8 @@ module RobustExcelOle
       :if_unsaved    => :raise,
       :if_obstructed => :raise,
       :if_absent     => :raise,
-      :if_exists => :raise,
-      :check_compatibility => false
+      :if_exists => :raise
+      #:check_compatibility => false
     }.freeze
 
     CORE_DEFAULT_OPEN_OPTS = {
@@ -604,7 +604,7 @@ module RobustExcelOle
         was_saved = book.saved
         was_check_compatibility = book.check_compatibility
         was_calculation = book.excel.calculation
-        book.set_options(file,opts)       
+        book.set_options(file,opts) 
         yield book
       ensure
         if book && book.alive?

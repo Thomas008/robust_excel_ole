@@ -1562,6 +1562,7 @@ describe Workbook do
 
         it "should remain check-compatibility false" do
           book1 = Workbook.open(@simple_file1, :check_compatibility => false)
+          book1.CheckCompatibility.should be false
           Workbook.unobtrusively(@simple_file1) do |book|
           end
           book1.CheckCompatibility.should be false
@@ -1569,6 +1570,7 @@ describe Workbook do
 
         it "should remain check-compatibility true" do
           book1 = Workbook.open(@simple_file1, :check_compatibility => true)
+          book1.CheckCompatibility.should be true
           Workbook.unobtrusively(@simple_file1) do |book|
           end
           book1.CheckCompatibility.should be true

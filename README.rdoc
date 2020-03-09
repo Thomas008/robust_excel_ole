@@ -61,13 +61,10 @@ Let's open a workbook.
 Now we have a Workbook object that wraps a WIN32OLE object. That is, you can send any WIN32OLE (VBA) method to it. See 
 https://docs.microsoft.com/en-us/office/vba/api/excel.workbook#methods.
 
-For example, you can determine the name and whether the workbook is visible.
+For example, you can determine the name of the workbook.
 
   workbook.Name 
   # => "workbook.xls"
-
-  workbook.Visible
-  # => false
 
 For some common tasks and for considering various complex cases of Excel and user behaviour, more convenient methods are implemented. For example, RobustExcelOle provides methods for reading and writing the contents of ranges, for opening, saving, closing, reopening and unobtrusively opening workbooks, and for setting options.
 

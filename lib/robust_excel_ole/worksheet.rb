@@ -29,11 +29,15 @@ module RobustExcelOle
 
     def workbook
       return @workbook unless @workbook.nil?
-      ole_workbook = self.Parent
-      saved_status = ole_workbook.Saved
-      ole_workbook.Saved = true unless saved_status
-      @workbook = workbook_class.new(ole_workbook)
-      ole_workbook.Saved = saved_status
+      begin
+        ole_workbook = self.Parent
+        saved_status = ole_workbook.Saved
+        ole_workbook.Saved = true unless saved_status
+        @workbook = workbook_class.new(ole_workbook)
+        ole_workbook.Saved = saved_status
+      rescue
+        nil
+      end
       @workbook
     end
 
@@ -208,8 +212,7 @@ module RobustExcelOle
 
     # @private
     def to_s    
-      '#<Worksheet: ' + name.to_s + ">"
-      #'#<Worksheet: ' + ('not alive ' unless workbook.alive?).to_s + name.to_s + " #{File.basename(workbook.stored_filename)} >"
+      '#<Worksheet: ' + (workbook.nil? ? 'not alive ' : (name + ' ' + File.basename(workbook.stored_filename)).to_s) + ">"
     end
 
     # @private

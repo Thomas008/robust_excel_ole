@@ -537,7 +537,7 @@ module RobustExcelOle
 
     # sets DisplayAlerts in a block
     def with_displayalerts displayalerts_value
-      old_displayalerts = displayalerts
+      old_displayalerts = @properties[:displayalerts]
       self.displayalerts = displayalerts_value
       begin
         yield self
@@ -570,7 +570,7 @@ module RobustExcelOle
     # retains the saved-status of the workbooks when set to manual
     def calculation= calculation_mode
       return if calculation_mode.nil?
-      @calculation = calculation_mode
+      @properties[:calculation] = calculation_mode
       calc_mode_changable = @ole_excel.Workbooks.Count > 0 && @ole_excel.Calculation.is_a?(Integer)
       if calc_mode_changable
         retain_saved_workbooks do
@@ -610,9 +610,9 @@ module RobustExcelOle
     def Calculation= calculation_vba_mode
       case calculation_vba_mode
       when XlCalculationManual
-        @calculation = :manual
+        @properties[:calculation] = :manual
       when XlCalculationAutomatic
-        @calculation = :automatic
+        @properties[:calculation] = :automatic
       end
       @ole_excel.Calculation = calculation_vba_mode
     end

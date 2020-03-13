@@ -1952,16 +1952,16 @@ describe Workbook do
         Workbook.unobtrusively(@simple_file1, :if_closed => :new) do |book|
           book.excel.should_not == @book.excel
           book.excel.should_not == new_excel
-          book.excel.visible.should be false
-          book.excel.displayalerts.should == :if_visible
+          book.excel.properties[:visible].should be false
+          book.excel.properties[:displayalerts].should == :if_visible
           @another_excel = book.excel
         end
         Workbook.unobtrusively(@simple_file1, :if_closed => :current) do |book|
           book.excel.should_not == @book.excel
           book.excel.should_not == new_excel
           book.excel.should == @another_excel
-          book.excel.visible.should be false
-          book.excel.displayalerts.should == :if_visible
+          book.excel.properties[:visible].should be false
+          book.excel.properties[:displayalerts].should == :if_visible
         end
       end
 
@@ -2387,8 +2387,8 @@ describe Workbook do
           sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
           book.excel.should_not == @book.excel
           book.excel.should_not == new_excel
-          book.excel.visible.should be false
-          book.excel.displayalerts.should == :if_visible
+          book.excel.properties[:visible].should be false
+          book.excel.properties[:displayalerts].should == :if_visible
         end
         Excel.kill_all
         new_book = Workbook.open(@simple_file1)
@@ -2430,8 +2430,8 @@ describe Workbook do
           sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
           book.excel.should_not == @book.excel
           book.excel.should_not == new_excel
-          book.excel.visible.should be false
-          book.excel.displayalerts.should == :if_visible
+          book.excel.properties[:visible].should be false
+          book.excel.properties[:displayalerts].should == :if_visible
         end
         new_book = Workbook.open(@simple_file1, :visible => true)
         sheet = new_book.sheet(1)

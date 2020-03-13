@@ -1109,8 +1109,8 @@ describe Workbook do
           sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
           book.excel.should_not == @book.excel
           book.excel.should_not == new_excel
-          book.excel.visible.should be false
-          book.excel.displayalerts.should == :if_visible
+          book.excel.properties[:visible].should be false
+          book.excel.properties[:displayalerts].should == :if_visible
         end
         new_book = Workbook.open(@simple_file1, :visible => true)
         sheet = new_book.sheet(1)

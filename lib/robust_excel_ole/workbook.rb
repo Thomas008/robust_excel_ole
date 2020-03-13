@@ -468,7 +468,7 @@ module RobustExcelOle
       workaround_condition = @excel.Version.split('.').first.to_i == 12 && workbooks.Count == 0
       if workaround_condition
         workbooks.Add
-        @excel.calculation = options[:calculation].nil? ? @excel.calculation : options[:calculation]
+        @excel.calculation = options[:calculation].nil? ? @excel.properties[:calculation] : options[:calculation]
       end
       begin
         # @excel.with_displayalerts(update_links_opt == :alert ? true : @excel.displayalerts) do
@@ -603,7 +603,7 @@ module RobustExcelOle
         was_writable = book.writable
         was_saved = book.saved
         was_check_compatibility = book.check_compatibility
-        was_calculation = book.excel.calculation
+        was_calculation = book.excel.properties[:calculation]
         book.set_options(file,opts) 
         yield book
       ensure
@@ -953,7 +953,7 @@ module RobustExcelOle
     end
 
     def calculation
-      @excel.calculation if @ole_workbook
+      @excel.properties[:calculation] if @ole_workbook
     end
 
     # @private

@@ -81,8 +81,7 @@ module RobustExcelOle
           ["ActiveCell", "ActiveSheet", "ActiveWorkbook", "Application",  "Calculate", "Cells", "Columns",
             "DisplayAlerts", "Evaluate", "Hwnd", "Name", "Names", "Quit", "Range", "Ready", "Save", 
             "Sheets", "UserName", "Value", "Visible", "Workbooks", "Worksheets"]
-        @excel_methods = ["alive?", "workbook_class", "close", "displayalerts", "recreate", "visible", 
-          "with_displayalerts"] 
+        @excel_methods = ["alive?", "workbook_class", "close", "properties", "recreate", "with_displayalerts"] 
         @ole_sheet_methods = []
          # ["Activate", "Calculate", "Copy", "Name", "Select", "Evaluate", "Protect", "Unprotect"]
         @sheet_methods = ["workbook_class", "col_range", "each", "each_column", "each_column_with_index",
@@ -152,7 +151,7 @@ module RobustExcelOle
 
         it "should return the right absolute paths" do
           absolute_path("C:/abc").should == "C:\\abc"
-          absolute_path("C:\\abc").should == "C:\\abc"
+          #absolute_path("C:\\abc").should == "C:\\abc"
           Dir.chdir "C:/windows"
           # does not work under jruby
           absolute_path("C:abc").downcase.should == Dir.pwd.gsub("/","\\").downcase + "\\abc"

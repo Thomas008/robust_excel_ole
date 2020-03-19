@@ -85,7 +85,7 @@ describe Workbook do
           book.should be_a Workbook
           book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
           Excel.excels_number.should == 1
-          book.excel.Workbook.Count.should == 1
+          book.excel.Workbooks.Count.should == 1
         end
       end
 
@@ -107,13 +107,13 @@ describe Workbook do
       end
 
       it "should connect to an unknown hostname share path workbook" do
-        Workbook.open(@simple_file1) do |book|
-          book.filename.should == @simple_file_hostname_share_path1
+        Workbook.open(@simple_file_hostname_share_path1) do |book|
+          book.filename.should == @simple_file_hostname_share_path1.downcase
           book.should be_alive
           book.should be_a Workbook
           book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
           Excel.excels_number.should == 1
-          book.excel.Workbook.Count.should == 1
+          book.excel.Workbooks.Count.should == 1
         end
       end
 

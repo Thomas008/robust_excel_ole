@@ -10,7 +10,6 @@ module General
   ::JRUBY_BUG_CONNECTEXCEL = IS_JRUBY_PLATFORM && true
   ::JRUBY_BUG_RANGES       = IS_JRUBY_PLATFORM && true
 
-
   # @private
   def absolute_path(file)     
     file[0,2] = './' if ::JRUBY_BUG_EXPANDPATH && file[0,2] == "C:" && file[2] != '/'

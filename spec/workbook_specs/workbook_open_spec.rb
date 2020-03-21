@@ -35,7 +35,8 @@ describe Workbook do
     #@simple_file_via_network = File.join('N:/', 'data') + '/workbook.xls'
     @simple_file_network_path = "N:/data/workbook.xls"
     @simple_file_hostname_share_path = '//DESKTOP-A3C5CJ6/spec/data/workbook.xls'
-
+    @simple_file_network_path1 = @simple_file_network_path
+    @simple_file_hostname_share_path1 = @simple_file_hostname_share_path
   end
 
   after do
@@ -66,6 +67,59 @@ describe Workbook do
     end
 
   end
+
+  describe "fetching workbooks with network and hostname share paths" do
+
+    it "should fetch a network path file given a hostname share file" do
+      book1 = Workbook.open(@simple_file_hostname_share_path)
+      book2 = Workbook.open(@simple_file_network_path)
+      book2.should === book1
+      book2.Fullname.should == book1.Fullname
+      book1.excel.Workbooks.Count.should == 1
+    end
+
+    it "should fetch a hostname share file given a network path file" do
+      book1 = Workbook.open(@simple_file_network_path)
+      book2 = Workbook.open(@simple_file_hostname_share_path)
+      book2.should === book1
+      book2.Fullname.should == book1.Fullname
+      book1.excel.Workbooks.Count.should == 1
+    end
+
+    it "should fetch a usual path file given a hostname share file" do
+      book1 = Workbook.open(@simple_file_hostname_share_path)
+      book2 = Workbook.open(@simple_file)
+      book2.should === book1
+      book2.Fullname.should == book1.Fullname
+      book1.excel.Workbooks.Count.should == 1
+    end
+
+    it "should fetch a hostname share file given an usual path file" do
+      book1 = Workbook.open(@simple_file)
+      book2 = Workbook.open(@simple_file_hostname_share_path)
+      book2.should === book1
+      book2.Fullname.should == book1.Fullname
+      book1.excel.Workbooks.Count.should == 1
+    end
+
+    it "should fetch a usual path file given a network path file" do
+      book1 = Workbook.open(@simple_file_network_path)
+      book2 = Workbook.open(@simple_file)
+      book2.should === book1
+      book2.Fullname.should == book1.Fullname
+      book1.excel.Workbooks.Count.should == 1
+    end
+
+    it "should fetch a network path file given an usual path file" do
+      book1 = Workbook.open(@simple_file)
+      book2 = Workbook.open(@simple_file_network_path)
+      book2.should === book1
+      book2.Fullname.should == book1.Fullname
+      book1.excel.Workbooks.Count.should == 1
+    end
+
+  end
+
 
   describe "connecting to unknown workbooks" do
 
@@ -458,18 +512,7 @@ describe Workbook do
     end
 
   end
-
-  describe "network paths" do
-
-    it "should open the workbook via network path" do
-      book1 = Workbook.open(@simple_file_hostname_share_path)
-      book2 = Workbook.open(@simple_file_network_path)
-      book1.should === book2
-      book1.Fullname.should == book2.Fullname
-    end
-
-  end
-
+  
   describe "new" do
 
     context "with transparency identity" do

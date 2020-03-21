@@ -85,6 +85,8 @@ module RobustExcelOle
     # :update_links         true -> user is being asked how to update links, false -> links are never updated
     # @return [Workbook] a representation of a workbook
     def self.new(file_or_workbook, opts = { }, &block)
+      puts "new:"
+      puts "file_or_workbook: #{file_or_workbook.inspect}"
       options = process_options(opts)
       if file_or_workbook.is_a? WIN32OLE
         file = file_or_workbook.Fullname.tr('\\','/') 
@@ -94,6 +96,7 @@ module RobustExcelOle
         raise(FileNotFound, "file #{General.absolute_path(file).inspect} is a directory") if File.directory?(file)
       end
       # try to fetch the workbook from the bookstore
+      puts "try to fetch:"
       book = nil
       if options[:force][:excel] != :new
         # if readonly is true, then prefer a book that is given in force_excel if this option is set              
@@ -106,8 +109,11 @@ module RobustExcelOle
                                   :prefer_excel    => (options[:read_only] ? forced_excel : nil))
           end
         rescue
+          raise
+          #puts "error: #{$!.message}"
           trace "#{$!.message}"
         end
+        puts "fetched book: #{book.inspect}"
         if book 
           # hack (unless condition): calling Worksheet[]= causes calling Worksheet#workbook which calls Workbook#new(ole_workbook)
           book.was_open = book.alive? unless file_or_workbook.is_a? WIN32OLE 
@@ -136,6 +142,8 @@ module RobustExcelOle
     # @option opts [Symbol] see above
     # @return [Workbook] a workbook
     def initialize(file_or_workbook, options = { }, &block)
+      puts "initialize:"
+      puts "file_or_workbook: #{file_or_workbook}"
       if file_or_workbook.is_a? WIN32OLE
         @ole_workbook = file_or_workbook
         ole_excel = begin
@@ -231,6 +239,8 @@ module RobustExcelOle
 
     # @private    
     def ensure_workbook(filename, options)  
+      puts "ensure_workbook:"
+      puts "filename: #{filename.inspect}"
       return if (@ole_workbook && alive? && (options[:read_only].nil? || @ole_workbook.ReadOnly == options[:read_only]))
       if options[:if_unsaved]==:accept && 
         ((options[:read_only]==true && self.ReadOnly==false) || (options[:read_only]==false && self.ReadOnly==true))
@@ -324,9 +334,16 @@ module RobustExcelOle
 
     # @private
     def manage_blocking_or_unsaved_workbook(filename,options)
+      puts "manage_blocking_or_unsaved_workbook:"
+      puts "filename: #{filename.inspect}"
+      puts "File.basename(filename): #{File.basename(filename)}"
+      puts "File.basename(@ole_workbook.Fullname): #{File.basename(@ole_workbook.Fullname)}"
+      puts "General.absolute_path(filename): #{General.absolute_path(filename)}"
+      puts "@ole_workbook.Fullname: #{@ole_workbook.Fullname}"
       obstructed_by_other_book = if (File.basename(filename) == File.basename(@ole_workbook.Fullname)) 
         General.absolute_path(filename) != @ole_workbook.Fullname
       end      
+      puts "obstructed_by_other_book: #{obstructed_by_other_book.inspect}"
       if obstructed_by_other_book
         # workbook is being obstructed by a workbook with same name and different path
         manage_blocking_workbook(filename,options)        

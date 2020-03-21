@@ -142,9 +142,9 @@ A special feature of RobustExcelOle is that it allows to reopen workbooks after 
 
 The closed workbook is now alive again, i.e. is open and responds to Excel methods.
 
-=== Promoting WIN32OLE objects to RobustExcelOle objects
+=== Type-lifting WIN32OLE objects to RobustExcelOle objects
 
-Promoting means here: enriching a given object of a certain class by properties and methods of another class. 
+Type-lifting means here: enriching a given object of a certain class by properties and methods of another class. 
 The method +General.to_reo+ enables type-lifting WIN32OLE objects to RobustExcelOle objects, in the sense that the attributes and methods of RobustExcelOle can be applied to these objects. For example, assume we have a WIN32OLE workbook +win32ole_workbook+:
 
   win32ole_workbook.to_class
@@ -172,6 +172,18 @@ You can supply options, e.g. +:visible+.
 A RobustExcelOle Workbook object is a proxy of an Excel WIN32OLE workbook. A Workbook object is defined by the full workbook name and the Excel instance in which it is opened. RobustExcelOle ensures identity transparency which means that identical Workbook objects refer to identical Excel workbooks, and vice versa. Identity transperence ensures that, no matter how a Workbook object was created - by filename or by type-lifting an Excel workbook - two Workbook objects are identical, if and only if the Excel workbooks, they are referring to, are identical. 
 
 Similarly, each Excel, Worksheet and a Range object in RobustExcelOle is a proxy of a corresponding Excel, Worksheet and a Range object in WIN32OLE. For these objects identity transperence holds as well.
+
+=== Opening workbooks given a network path and a hostname share path ===
+
+RobustExcelOle allows opening workbooks via a network path starting with a drive letter different from the default drive (mostly 'C'), e.g. 
+
+  workbook = Workbook.open('N:/data workbook.xls')
+
+Likewise the corresponding hostname share path can be used, starting with '//', e.g.
+
+  workbook = Workbook.open("//DESKTOP-A5D5GJ5/spec/data/workbook.xls")
+
+where 'DESKTOP-A5D5GJ5' shall be the hostname, and 'data' be the share.
 
 === Unobtrusively modifying a workbook
 

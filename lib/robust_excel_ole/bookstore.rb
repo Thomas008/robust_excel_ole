@@ -108,7 +108,7 @@ module RobustExcelOle
   private
 
     # @private
-    def workbooks_considering_networkpaths(filename)   
+    def workbooks_considering_networkpaths(filename)  
       network = WIN32OLE.new('WScript.Network')
       drives = network.enumnetworkdrives
       drive_letter, filename_after_drive_letter = filename.split(':')   
@@ -180,13 +180,7 @@ module RobustExcelOle
         # a drive letter or a host name
         @filename2books.each do |stored_filename,_|
           if stored_filename
-            drive_letter, _ = stored_filename.split(':')   
-            #stored_filename_end = if drive_letter != stored_filename && drive_letter != 'c'
-            #  stored_filename[stored_filename.index(':')+1,stored_filename.length]
-            #elsif stored_filename[0] == '/'
-            #  index_after_hostname = stored_filename[1,stored_filename.length].index('/')
-            #  stored_filename[index_after_hostname+1, stored_filename.length]
-            #end
+            drive_letter, _ = stored_filename.split(':')               
             first_str = stored_filename[0,stored_filename.rindex('/')]
             stored_filename_end = stored_filename[first_str.rindex('/')+1,stored_filename.length]
             if stored_filename_end && filename.end_with?(stored_filename_end)
@@ -209,25 +203,25 @@ module RobustExcelOle
     # prints the book store
     # @private
     def print_filename2books
-      trace "@filename2books:"
+      #trace "@filename2books:"
       if @filename2books
         @filename2books.each do |filename,books|
-          trace " filename: #{filename}"
-          trace " books:"
+          #trace " filename: #{filename}"
+          #trace " books:"
           if books.empty?
-            trace " []"
+            #trace " []"
           else
             books.each do |book|
               if book.weakref_alive?
-                trace "#{book}"
+                #trace "#{book}"
               else # this should never happen
-                trace "weakref not alive"
+                #trace "weakref not alive"
               end
             end
           end
         end
       else
-        trace "nil"
+        #trace "nil"
       end
     end
   end

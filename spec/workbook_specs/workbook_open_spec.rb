@@ -70,6 +70,10 @@ describe Workbook do
 
   describe "fetching workbooks with network and hostname share paths" do
 
+    before do
+      bookstore = Bookstore.new
+    end
+
     it "should fetch a network path file given a hostname share file" do
       book1 = Workbook.open(@simple_file_hostname_share_path)
       book2 = Workbook.open(@simple_file_network_path)
@@ -123,31 +127,152 @@ describe Workbook do
 
   describe "connecting to unknown workbooks" do
 
-    context "with one unknown network path file" do
+    context "with one unknown network path or hostname share file" do
 
-      before do
+      it "should connect to an unknown network path workbook from a network path file" do
         ole_e1 = WIN32OLE.new('Excel.Application')
         ws = ole_e1.Workbooks
         abs_filename = General.absolute_path(@simple_file_network_path1)
         @ole_wb = ws.Open(abs_filename)
-      end
-
-      it "should connect to an unknown workbook" do
         Workbook.open(@simple_file_network_path1) do |book|
-          book.filename.should == @simple_file_network_path1
           book.should be_alive
           book.should be_a Workbook
+          book.filename.should == @simple_file_network_path1
+          book.Fullname.should == @ole_wb.Fullname
           book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
           Excel.excels_number.should == 1
           book.excel.Workbooks.Count.should == 1
         end
       end
 
-      it "should raise error because blocking" do
-        expect{
-          Workbook.open(@simple_file1)
-          }.to raise_error(WorkbookBlocked)
+      it "should connect to an unknown hostname share workbook from a network path file" do
+        ole_e1 = WIN32OLE.new('Excel.Application')
+        ws = ole_e1.Workbooks
+        abs_filename = General.absolute_path(@simple_file_hostname_share_path1)
+        @ole_wb = ws.Open(abs_filename)
+        Workbook.open(@simple_file_network_path1) do |book|
+          book.should be_alive
+          book.should be_a Workbook
+          book.filename.should == @simple_file_hostname_share_path1
+          book.Fullname.should == @ole_wb.Fullname
+          book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
+          Excel.excels_number.should == 1
+          book.excel.Workbooks.Count.should == 1
+        end
       end
+
+      it "should connect to an unknown usual default drive path workbook from a network path file" do
+        ole_e1 = WIN32OLE.new('Excel.Application')
+        ws = ole_e1.Workbooks
+        abs_filename = General.absolute_path(@simple_file1)
+        @ole_wb = ws.Open(abs_filename)
+        Workbook.open(@simple_file_network_path1) do |book|
+          book.should be_alive
+          book.should be_a Workbook
+          book.filename.should == @simple_file1
+          book.Fullname.should == @ole_wb.Fullname
+          book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
+          Excel.excels_number.should == 1
+          book.excel.Workbooks.Count.should == 1
+        end
+      end
+
+      it "should connect to an unknown network path workbook from a hostname share file" do
+        ole_e1 = WIN32OLE.new('Excel.Application')
+        ws = ole_e1.Workbooks
+        abs_filename = General.absolute_path(@simple_file_network_path1)
+        @ole_wb = ws.Open(abs_filename)
+        Workbook.open(@simple_file_hostname_share_path1) do |book|
+          book.should be_alive
+          book.should be_a Workbook
+          book.filename.should == @simple_file_network_path1
+          book.Fullname.should == @ole_wb.Fullname
+          book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
+          Excel.excels_number.should == 1
+          book.excel.Workbooks.Count.should == 1
+        end
+      end
+
+      it "should connect to an unknown hostname share workbook from a hostname share file" do
+        ole_e1 = WIN32OLE.new('Excel.Application')
+        ws = ole_e1.Workbooks
+        abs_filename = General.absolute_path(@simple_file_hostname_share_path1)
+        @ole_wb = ws.Open(abs_filename)
+        Workbook.open(@simple_file_hostname_share_path1) do |book|
+          book.should be_alive
+          book.should be_a Workbook
+          book.filename.should == @simple_file_hostname_share_path1.downcase
+          book.Fullname.should == @ole_wb.Fullname
+          book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
+          Excel.excels_number.should == 1
+          book.excel.Workbooks.Count.should == 1
+        end
+      end
+
+      it "should connect to an unknown default drive path workbook from a hostname share file" do
+        ole_e1 = WIN32OLE.new('Excel.Application')
+        ws = ole_e1.Workbooks
+        abs_filename = General.absolute_path(@simple_file1)
+        @ole_wb = ws.Open(abs_filename)
+        Workbook.open(@simple_file_hostname_share_path1) do |book|
+          book.should be_alive
+          book.should be_a Workbook
+          book.filename.should == @simple_file1
+          book.Fullname.should == @ole_wb.Fullname
+          book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
+          Excel.excels_number.should == 1
+          book.excel.Workbooks.Count.should == 1
+        end
+      end
+
+      it "should connect to an unknown network path workbook from a default drive path file" do
+        ole_e1 = WIN32OLE.new('Excel.Application')
+        ws = ole_e1.Workbooks
+        abs_filename = General.absolute_path(@simple_file_network_path1)
+        @ole_wb = ws.Open(abs_filename)
+        Workbook.open(@simple_file1) do |book|
+          book.should be_alive
+          book.should be_a Workbook
+          book.filename.should == @simple_file_network_path1
+          book.Fullname.should == @ole_wb.Fullname
+          book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
+          Excel.excels_number.should == 1
+          book.excel.Workbooks.Count.should == 1
+        end
+      end
+
+      it "should connect to an unknown hostname share workbook from a default drive path file" do
+        ole_e1 = WIN32OLE.new('Excel.Application')
+        ws = ole_e1.Workbooks
+        abs_filename = General.absolute_path(@simple_file_hostname_share_path1)
+        @ole_wb = ws.Open(abs_filename)
+        Workbook.open(@simple_file1) do |book|
+          book.should be_alive
+          book.should be_a Workbook
+          book.filename.should == @simple_file_hostname_share_path1
+          book.Fullname.should == @ole_wb.Fullname
+          book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
+          Excel.excels_number.should == 1
+          book.excel.Workbooks.Count.should == 1
+        end
+      end
+
+      it "should connect to an unknown default drive path workbook from a default drive path file" do
+        ole_e1 = WIN32OLE.new('Excel.Application')
+        ws = ole_e1.Workbooks
+        abs_filename = General.absolute_path(@simple_file1)
+        @ole_wb = ws.Open(abs_filename)
+        Workbook.open(@simple_file1) do |book|
+          book.should be_alive
+          book.should be_a Workbook
+          book.filename.should == @simple_file1
+          book.Fullname.should == @ole_wb.Fullname
+          book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
+          Excel.excels_number.should == 1
+          book.excel.Workbooks.Count.should == 1
+        end
+      end
+
 
     end
 

@@ -31,7 +31,6 @@ module RobustExcelOle
       return nil unless filename
       filename = General.absolute_path(filename)
       filename_key = General.canonize(filename)
-      print_filename2books
       weakref_books = @filename2books[filename_key]
       if weakref_books.empty? || weakref_books.nil?
         weakref_books = workbooks_considering_networkpaths(filename_key) 
@@ -210,25 +209,25 @@ module RobustExcelOle
     # prints the book store
     # @private
     def print_filename2books
-      puts "@filename2books:"
+      trace "@filename2books:"
       if @filename2books
         @filename2books.each do |filename,books|
-          puts " filename: #{filename}"
-          puts " books:"
+          trace " filename: #{filename}"
+          trace " books:"
           if books.empty?
-            puts " []"
+            trace " []"
           else
             books.each do |book|
               if book.weakref_alive?
-                puts "#{book}"
+                trace "#{book}"
               else # this should never happen
-                puts "weakref not alive"
+                trace "weakref not alive"
               end
             end
           end
         end
       else
-        puts "nil"
+        trace "nil"
       end
     end
   end

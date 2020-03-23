@@ -118,7 +118,9 @@ module RobustExcelOle
       # then take the corresponding workbooks      
       # otherwise (there is an usual file path) find in the bookstore the workbooks of which filenames 
       # ends with the latter part of the given filename (after the drive letter)
-      if drive_letter != 'c' && drive_letter != filename  
+      current_path = File.absolute_path(".")
+      default_hard_drive = current_path[0,current_path.index(':')].downcase
+      if drive_letter != default_hard_drive && drive_letter != filename  
         for i in 0 .. drives.Count-1
           next if i % 2 == 1
           if drives.Item(i).gsub(':','').downcase == drive_letter

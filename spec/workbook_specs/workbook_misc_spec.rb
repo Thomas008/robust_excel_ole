@@ -773,23 +773,14 @@ describe Workbook do
     it "should color the cell" do
       @book1.set_namevalue_glob("new", "bar")
       @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
-      @book1.color_if_modified = 4
-      @book1.set_namevalue_glob("new", "bar")
+      #@book1.color_if_modified = 4
+      @book1.set_namevalue_glob("new", "bar", :color => 4)
       @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
       @book1["new"].should == "bar"
       @book1["new"] = "bar"
       @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 42
       @book1.save
       @book1.close
-    end
-
-    it "should save without color (deprecated)" do
-      @book1.set_namevalue_glob("new", "bar", :color => 4)
-      @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
-      @book1.save(:discoloring => true)
-      @book1.close
-      #book2 = Workbook.open(@simple_file1, :visible =>  true)
-      #book2.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 0
     end
 
   end

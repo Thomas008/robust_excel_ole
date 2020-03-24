@@ -694,10 +694,7 @@ module RobustExcelOle
     # @param [String]  name  the name of the range
     # @param [Variant] value the contents of the range
     def []=(name, value)
-      old_color_if_modified = workbook.color_if_modified
-      workbook.color_if_modified = 42  unless workbook.nil? # aqua-marin
-      set_namevalue_glob(name,value)
-      workbook.color_if_modified = old_color_if_modified
+      set_namevalue_glob(name, value, :color => 42)
     end
 
     # @private

@@ -12,7 +12,7 @@ module RobustExcelOle
   class Worksheet < RangeOwners
 
     attr_reader :ole_worksheet
-    attr_reader :workbook
+    #attr_reader :workbook
 
     def initialize(win32_worksheet)
       @ole_worksheet = win32_worksheet
@@ -93,10 +93,7 @@ module RobustExcelOle
       else
         name, value = p1, p2
         begin
-          old_color_if_modified = workbook.color_if_modified
-          workbook.color_if_modified = 42  # aqua-marin
-          set_namevalue_glob(name, value)
-          workbook.color_if_modified = old_color_if_modified
+          set_namevalue_glob(name, value, :color => 42)
         rescue REOError
           begin
             workbook.set_namevalue_glob(name, value)
@@ -126,8 +123,7 @@ module RobustExcelOle
     # @option opts [Symbol] :color the color of the cell when set
     def set_cellval(x,y,value, opts = { }) # option opts is deprecated
       cell = @ole_worksheet.Cells.Item(x, y)
-      workbook.color_if_modified = opts[:color] unless opts[:color].nil?
-      cell.Interior.ColorIndex = workbook.color_if_modified unless workbook.color_if_modified.nil?
+      cell.Interior.ColorIndex = opts[:color] unless opts[:color].nil?
       cell.Value = value
     rescue # WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException
       raise RangeNotEvaluatable, "cannot assign value #{value.inspect} to cell (#{y.inspect},#{x.inspect})"

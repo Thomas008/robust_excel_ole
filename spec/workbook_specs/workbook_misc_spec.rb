@@ -773,7 +773,6 @@ describe Workbook do
     it "should color the cell" do
       @book1.set_namevalue_glob("new", "bar")
       @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
-      #@book1.color_if_modified = 4
       @book1.set_namevalue_glob("new", "bar", :color => 4)
       @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
       @book1["new"].should == "bar"

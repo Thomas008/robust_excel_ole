@@ -17,7 +17,6 @@ module RobustExcelOle
     attr_accessor :ole_workbook
     attr_accessor :stored_filename
     attr_accessor :color_if_modified
-    #attr_accessor :was_open
 
     alias ole_object ole_workbook
 
@@ -99,9 +98,7 @@ module RobustExcelOle
         raise(FileNotFound, "file #{General.absolute_path(file).inspect} is a directory") if File.directory?(file)
       end
       # try to fetch the workbook from the bookstore
-      #old_state[:open] = false if old_state.has_key(:open)
-      set_if_present options, :was_open, false
-      #options.if_present[:was_open] = false
+      set_was_open options, false
       book = nil
       if options[:force][:excel] != :new
         # if readonly is true, then prefer a book that is given in force_excel if this option is set              
@@ -119,9 +116,7 @@ module RobustExcelOle
         end
         if book 
           # hack (unless condition): calling Worksheet[]= causes calling Worksheet#workbook which calls Workbook#new(ole_workbook)
-          #book.was_open = book.alive? unless file_or_workbook.is_a? WIN32OLE 
-          #old_state[:open] = book.alive? #unless file_or_workbook.is_a? WIN32OLE 
-          set_if_present opts, :was_open, book.alive? #unless file_or_workbook.is_a? WIN32OLE 
+          set_was_open opts, book.alive? #unless file_or_workbook.is_a? WIN32OLE 
           # drop the fetched workbook if it shall be opened in another Excel instance
           # or the workbook is an unsaved workbook that should not be accepted
           if (options[:force][:excel].nil? || options[:force][:excel] == :current || forced_excel == book.excel) &&
@@ -171,8 +166,12 @@ module RobustExcelOle
  
   private    
 
-    def self.set_if_present(hash, key, value)
-      hash[key] = value if hash.has_key?(key)
+    def self.set_was_open(hash, value)
+      hash[:was_open] = value if hash.has_key?(:was_open)
+    end
+
+    def set_was_open(hash, value)
+      self.class.set_was_open(hash, value)
     end
 
     # translates abbreviations and synonyms and merges with default options
@@ -242,9 +241,9 @@ module RobustExcelOle
 
     # @private    
     def ensure_workbook(filename, options)  
-      self.class.set_if_present options, :was_open, true
+      set_was_open options, true
       return if (@ole_workbook && alive? && (options[:read_only].nil? || @ole_workbook.ReadOnly == options[:read_only]))
-      self.class.set_if_present options, :was_open, false
+      set_was_open options, false
       if options[:if_unsaved]==:accept && 
         ((options[:read_only]==true && self.ReadOnly==false) || (options[:read_only]==false && self.ReadOnly==true))
         raise OptionInvalid, ":if_unsaved:accept and change of read-only mode is not possible"
@@ -256,8 +255,7 @@ module RobustExcelOle
       workbooks = @excel.Workbooks
       @ole_workbook = workbooks.Item(File.basename(filename)) rescue nil if @ole_workbook.nil?
       if @ole_workbook && alive?
-        #@was_open = true if @was_open.nil? # necessary?
-        self.class.set_if_present options, :was_open, true #if @was_open.nil? # necessary?
+        set_was_open options, true #if @was_open.nil? # necessary?
         manage_blocking_or_unsaved_workbook(filename,options)
         open_or_create_workbook(filename,options) if @ole_workbook.ReadOnly != options[:read_only]
       else
@@ -265,8 +263,7 @@ module RobustExcelOle
           (!::JRUBY_BUG_CONNECT || filename[0] != '/')
           workbooks_number_before_connect = @excel.Workbooks.Count
           connect(filename,options)
-          #@was_open = @excel.Workbooks.Count == workbooks_number_before_connect
-          self.class.set_if_present options, :was_open, (@excel.Workbooks.Count == workbooks_number_before_connect)
+          set_was_open options, (@excel.Workbooks.Count == workbooks_number_before_connect)
         else 
           open_or_create_workbook(filename,options)
         end
@@ -443,7 +440,6 @@ module RobustExcelOle
       begin
         abs_filename = General.absolute_path(filename)
         begin
-          # @was_open = false if @was_open.nil?
           workbooks = @excel.Workbooks
         rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
           raise UnexpectedREOError, "cannot access workbooks: #{msg.message} #{msg.backtrace}"
@@ -626,7 +622,6 @@ module RobustExcelOle
       end
       open_opts = excel_opts.merge({:if_unsaved => :accept})
       begin
-        #book = open(file, open_opts)
         open_opts[:was_open] = nil
         book = open(file, open_opts)
         was_visible = book.visible

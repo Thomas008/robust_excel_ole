@@ -16,7 +16,6 @@ module RobustExcelOle
     attr_accessor :excel
     attr_accessor :ole_workbook
     attr_accessor :stored_filename
-    attr_accessor :color_if_modified
 
     alias ole_object ole_workbook
 
@@ -920,10 +919,7 @@ module RobustExcelOle
     # @param [String]  name  the name of the range
     # @param [Variant] value the contents of the range
     def []= (name, value)
-      old_color_if_modified = @color_if_modified
-      workbook.color_if_modified = 42  # 42 - aqua-marin, 4-green
-      set_namevalue_glob(name,value)   
-      workbook.color_if_modified = old_color_if_modified
+      set_namevalue_glob(name,value,:color => 42)   
     end
 
     # sets options

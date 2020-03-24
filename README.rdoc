@@ -17,7 +17,7 @@ Therefore, it runs on Windows only.
 
 == Requirements
 
-  Ruby 2.1 or higher. Most functions run on Ruby 1.8.6, too.
+  Ruby 2.1 or higher.
 
 == Installation
 

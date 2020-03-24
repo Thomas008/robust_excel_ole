@@ -35,8 +35,12 @@ describe Workbook do
     #@simple_file_via_network = File.join('N:/', 'data') + '/workbook.xls'
     @simple_file_network_path = "N:/data/workbook.xls"
     @simple_file_hostname_share_path = '//DESKTOP-A3C5CJ6/spec/data/workbook.xls'
+    @simple_file_network_path_other_path = "N:/data/more_data/workbook.xls"
+    @simple_file_hostname_share_path_other_path = '//DESKTOP-A3C5CJ6/spec/data/more_data/workbook.xls'
     @simple_file_network_path1 = @simple_file_network_path
     @simple_file_hostname_share_path1 = @simple_file_hostname_share_path
+    @simple_file_network_path_other_path1 = @simple_file_network_path_other_path
+    @simple_file_hostname_share_path_other_path2 = @simple_file_hostname_share_path_other_path
   end
 
   after do
@@ -98,28 +102,88 @@ describe Workbook do
       book1.excel.Workbooks.Count.should == 1
     end
 
-    it "should fetch a hostname share file given an usual path file" do
+    it "should raise an error fetching an hostname share file having opened a local path file" do
       book1 = Workbook.open(@simple_file)
-      book2 = Workbook.open(@simple_file_hostname_share_path)
-      book2.should === book1
-      book2.Fullname.should == book1.Fullname
-      book1.excel.Workbooks.Count.should == 1
+      expect{
+        Workbook.open(@simple_file_hostname_share_path)
+        }.to raise_error(WorkbookBlocked)
     end
 
-    it "should fetch a usual path file given a network path file" do
+    it "should raise an error fetching a local path file having opened a network path file" do
       book1 = Workbook.open(@simple_file_network_path)
-      book2 = Workbook.open(@simple_file)
-      book2.should === book1
-      book2.Fullname.should == book1.Fullname
-      book1.excel.Workbooks.Count.should == 1
+      expect{
+        Workbook.open(@simple_file)
+        }.to raise_error(WorkbookBlocked)
     end
 
-    it "should fetch a network path file given an usual path file" do
+    it "should raise an error fetching a network path file having opened a local path file" do
       book1 = Workbook.open(@simple_file)
-      book2 = Workbook.open(@simple_file_network_path)
-      book2.should === book1
-      book2.Fullname.should == book1.Fullname
-      book1.excel.Workbooks.Count.should == 1
+      expect{
+        Workbook.open(@simple_file_network_path)
+        }.to raise_error(WorkbookBlocked)
+    end
+
+    it "should raise an error fetching a local path file having opened a hostname share path file" do
+      book1 = Workbook.open(@simple_file_hostname_share_path)
+      expect{
+        Workbook.open(@simple_file)
+        }.to raise_error(WorkbookBlocked)
+    end
+
+    it "should raise an WorkbookBlockederror" do
+      book1 = Workbook.open(@simple_file_network_path1)
+      expect{
+        Workbook.open(@simple_file_network_path_other_path1)
+      }.to raise_error(WorkbookBlocked)
+    end
+
+    it "should raise an WorkbookBlockederror" do
+      book1 = Workbook.open(@simple_file_network_path_other_path1)
+      expect{
+        Workbook.open(@simple_file_network_path1)
+      }.to raise_error(WorkbookBlocked)
+    end
+
+    it "should raise an WorkbookBlockederror" do
+      book1 = Workbook.open(@simple_file_hostname_share_path1)
+      expect{
+        Workbook.open(@simple_file_hostname_share_path_other_path1)
+      }.to raise_error(WorkbookBlocked)
+    end
+
+    it "should raise an WorkbookBlockederror" do
+      book1 = Workbook.open(@simple_file_hostname_share_path_other_path1)
+      expect{
+        Workbook.open(@simple_file_hostname_share_path1)
+      }.to raise_error(WorkbookBlocked)
+    end
+
+    it "should raise an WorkbookBlockederror" do
+      book1 = Workbook.open(@simple_file_hostname_share_path1)
+      expect{
+        Workbook.open(@simple_file_network_path_other_path1)
+      }.to raise_error(WorkbookBlocked)
+    end
+
+    it "should raise an WorkbookBlockederror" do
+      book1 = Workbook.open(@simple_file_hostname_share_path_other_path1)
+      expect{
+        Workbook.open(@simple_file_network_path1)
+      }.to raise_error(WorkbookBlocked)
+    end
+
+    it "should raise an WorkbookBlockederror" do
+      book1 = Workbook.open(@simple_file_network_path1)
+      expect{
+        Workbook.open(@simple_file_hostname_share_path_other_path1)
+      }.to raise_error(WorkbookBlocked)
+    end
+
+    it "should raise an WorkbookBlockederror" do
+      book1 = Workbook.open(@simple_file_network_other_path1)
+      expect{
+        Workbook.open(@simple_file_hostname_share_path1)
+      }.to raise_error(WorkbookBlocked)
     end
 
   end
@@ -129,7 +193,7 @@ describe Workbook do
 
     context "with one unknown network path or hostname share file" do
 
-      it "should connect to an unknown network path workbook from a network path file" do
+      it "should connect to a network path workbook from a network path file" do
         ole_e1 = WIN32OLE.new('Excel.Application')
         ws = ole_e1.Workbooks
         abs_filename = General.absolute_path(@simple_file_network_path1)
@@ -145,7 +209,7 @@ describe Workbook do
         end
       end
 
-      it "should connect to an unknown hostname share workbook from a network path file" do
+      it "should connect to a hostname share workbook from a network path file" do
         ole_e1 = WIN32OLE.new('Excel.Application')
         ws = ole_e1.Workbooks
         abs_filename = General.absolute_path(@simple_file_hostname_share_path1)
@@ -161,23 +225,47 @@ describe Workbook do
         end
       end
 
-      it "should connect to an unknown usual default drive path workbook from a network path file" do
+      it "should raise WorkbookBlocked trying to connect to a local path file from a network path file" do
         ole_e1 = WIN32OLE.new('Excel.Application')
         ws = ole_e1.Workbooks
         abs_filename = General.absolute_path(@simple_file1)
         @ole_wb = ws.Open(abs_filename)
-        Workbook.open(@simple_file_network_path1) do |book|
-          book.should be_alive
-          book.should be_a Workbook
-          book.filename.should == @simple_file1
-          book.Fullname.should == @ole_wb.Fullname
-          book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
-          Excel.excels_number.should == 1
-          book.excel.Workbooks.Count.should == 1
-        end
+        expect{
+          Workbook.open(@simple_file_network_path1)
+          }.to raise_error(WorkbookBlocked)
       end
 
-      it "should connect to an unknown network path workbook from a hostname share file" do
+      it "should raise WorkbookBlocked trying to connect to a network path file from a local path file" do
+        ole_e1 = WIN32OLE.new('Excel.Application')
+        ws = ole_e1.Workbooks
+        abs_filename = General.absolute_path(@simple_file_network_path1)
+        @ole_wb = ws.Open(abs_filename)
+        expect{
+          Workbook.open(@simple_file1)
+          }.to raise_error(WorkbookBlocked)
+      end
+
+      it "should raise WorkbookBlocked trying to connect a hostname share file from a local path file" do
+        ole_e1 = WIN32OLE.new('Excel.Application')
+        ws = ole_e1.Workbooks
+        abs_filename = General.absolute_path(@simple_file_hostname_share_path1)
+        @ole_wb = ws.Open(abs_filename)
+        expect{
+          Workbook.open(@simple_file1)
+          }.to raise_error(WorkbookBlocked)
+      end
+
+      it "should raise WorkbookBlocked trying to connect to a local path workbook from a hostname share file" do
+        ole_e1 = WIN32OLE.new('Excel.Application')
+        ws = ole_e1.Workbooks
+        abs_filename = General.absolute_path(@simple_file1)
+        @ole_wb = ws.Open(abs_filename)
+        expect{
+          Workbook.open(@simple_file_hostname_share_path1)
+          }.to raise_error(WorkbookBlocked)
+      end
+
+      it "should connect to a network path workbook from a hostname share file" do
         ole_e1 = WIN32OLE.new('Excel.Application')
         ws = ole_e1.Workbooks
         abs_filename = General.absolute_path(@simple_file_network_path1)
@@ -193,7 +281,7 @@ describe Workbook do
         end
       end
 
-      it "should connect to an unknown hostname share workbook from a hostname share file" do
+      it "should connect to a hostname share workbook from a hostname share file" do
         ole_e1 = WIN32OLE.new('Excel.Application')
         ws = ole_e1.Workbooks
         abs_filename = General.absolute_path(@simple_file_hostname_share_path1)
@@ -207,72 +295,87 @@ describe Workbook do
           Excel.excels_number.should == 1
           book.excel.Workbooks.Count.should == 1
         end
-      end
+      end      
 
-      it "should connect to an unknown default drive path workbook from a hostname share file" do
-        ole_e1 = WIN32OLE.new('Excel.Application')
-        ws = ole_e1.Workbooks
-        abs_filename = General.absolute_path(@simple_file1)
-        @ole_wb = ws.Open(abs_filename)
-        Workbook.open(@simple_file_hostname_share_path1) do |book|
-          book.should be_alive
-          book.should be_a Workbook
-          book.filename.should == @simple_file1
-          book.Fullname.should == @ole_wb.Fullname
-          book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
-          Excel.excels_number.should == 1
-          book.excel.Workbooks.Count.should == 1
-        end
-      end
-
-      it "should connect to an unknown network path workbook from a default drive path file" do
+      it "should raise WorkbookBlocked error" do
         ole_e1 = WIN32OLE.new('Excel.Application')
         ws = ole_e1.Workbooks
         abs_filename = General.absolute_path(@simple_file_network_path1)
         @ole_wb = ws.Open(abs_filename)
-        Workbook.open(@simple_file1) do |book|
-          book.should be_alive
-          book.should be_a Workbook
-          book.filename.should == @simple_file_network_path1
-          book.Fullname.should == @ole_wb.Fullname
-          book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
-          Excel.excels_number.should == 1
-          book.excel.Workbooks.Count.should == 1
-        end
+        expect{
+          Workbook.open(@simple_file_network_path_other_path1)
+        }.to raise_error(WorkbookBlocked)
       end
 
-      it "should connect to an unknown hostname share workbook from a default drive path file" do
+      it "should raise WorkbookBlocked error" do
+        ole_e1 = WIN32OLE.new('Excel.Application')
+        ws = ole_e1.Workbooks
+        abs_filename = General.absolute_path(@simple_file_network_path_other_path1)
+        @ole_wb = ws.Open(abs_filename)
+        expect{
+          Workbook.open(@simple_file_network_path1)
+        }.to raise_error(WorkbookBlocked)
+      end
+
+      it "should raise WorkbookBlocked error" do
         ole_e1 = WIN32OLE.new('Excel.Application')
         ws = ole_e1.Workbooks
         abs_filename = General.absolute_path(@simple_file_hostname_share_path1)
         @ole_wb = ws.Open(abs_filename)
-        Workbook.open(@simple_file1) do |book|
-          book.should be_alive
-          book.should be_a Workbook
-          book.filename.should == @simple_file_hostname_share_path1
-          book.Fullname.should == @ole_wb.Fullname
-          book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
-          Excel.excels_number.should == 1
-          book.excel.Workbooks.Count.should == 1
-        end
+        expect{
+          Workbook.open(@simple_file_hostname_share_other_path1)
+        }.to raise_error(WorkbookBlocked)
       end
 
-      it "should connect to an unknown default drive path workbook from a default drive path file" do
+      it "should raise WorkbookBlocked error" do
         ole_e1 = WIN32OLE.new('Excel.Application')
         ws = ole_e1.Workbooks
-        abs_filename = General.absolute_path(@simple_file1)
+        abs_filename = General.absolute_path(@simple_file_hostname_share_other_path1)
         @ole_wb = ws.Open(abs_filename)
-        Workbook.open(@simple_file1) do |book|
-          book.should be_alive
-          book.should be_a Workbook
-          book.filename.should == @simple_file1
-          book.Fullname.should == @ole_wb.Fullname
-          book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
-          Excel.excels_number.should == 1
-          book.excel.Workbooks.Count.should == 1
-        end
+        expect{
+          Workbook.open(@simple_file_hostname_share_path1)
+        }.to raise_error(WorkbookBlocked)
       end
 
+      it "should raise WorkbookBlocked error" do
+        ole_e1 = WIN32OLE.new('Excel.Application')
+        ws = ole_e1.Workbooks
+        abs_filename = General.absolute_path(@simple_file_hostname_share_path1)
+        @ole_wb = ws.Open(abs_filename)
+        expect{
+          Workbook.open(@simple_file_network_other_path1)
+        }.to raise_error(WorkbookBlocked)
+      end
+
+      it "should raise WorkbookBlocked error" do
+        ole_e1 = WIN32OLE.new('Excel.Application')
+        ws = ole_e1.Workbooks
+        abs_filename = General.absolute_path(@simple_file_network_other_path1)
+        @ole_wb = ws.Open(abs_filename)
+        expect{
+          Workbook.open(@simple_file_hostname_share_path1)
+        }.to raise_error(WorkbookBlocked)
+      end
+
+      it "should raise WorkbookBlocked error" do
+        ole_e1 = WIN32OLE.new('Excel.Application')
+        ws = ole_e1.Workbooks
+        abs_filename = General.absolute_path(@simple_file_network_path1)
+        @ole_wb = ws.Open(abs_filename)
+        expect{
+          Workbook.open(@simple_file_hostname_share_other_path1)
+        }.to raise_error(WorkbookBlocked)
+      end
+
+      it "should raise WorkbookBlocked error" do
+        ole_e1 = WIN32OLE.new('Excel.Application')
+        ws = ole_e1.Workbooks
+        abs_filename = General.absolute_path(@simple_file_hostname_share_other_path1)
+        @ole_wb = ws.Open(abs_filename)
+        expect{
+          Workbook.open(@simple_file_network_path1)
+        }.to raise_error(WorkbookBlocked)
+      end
 
     end
 

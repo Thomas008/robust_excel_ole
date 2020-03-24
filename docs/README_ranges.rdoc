@@ -306,9 +306,12 @@ or
 
   workbook.set_namevalue_glob("name", "new_value")
 
-The method []= colors the written cell, if you have specified the color of the changed range via the method Workbook#color before, e.g.
+You can color the range when setting the contents of a range.
 
-  workbook.color_if_modified = 4
+  workbook.set_namevalue_glob("name", "new_value", :color => 4)
+
+The method []= sets the contents of a range and colors the range via some default color.
+
   workbook["name"] = "new_value"
 
 Similarly, the contents of a named range can be read and modified in a worksheet

@@ -1,6 +1,15 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.16]
+
+### Added
+   - RangeOwners#set_namevalue, set_namevalue_glob, Worksheet#set_cellval: 
+     optional parameter for color 
+   
+### Changed   
+   - Workbook#color_if_modified removed   
+
 ## [1.15]
 
 ### Added

@@ -61,7 +61,8 @@ module RobustExcelOle
     # sets the contents of a range
     # @param [String]  name  the name of a range
     # @param [Variant] value the contents of the range
-    def set_namevalue_glob(name, value, opts = { })  # opts is deprecated
+    # @option opts [Symbol] :color the color of the cell when set
+    def set_namevalue_glob(name, value, opts = { }) 
       begin
         name_obj = begin
           name_object(name)
@@ -69,8 +70,7 @@ module RobustExcelOle
           raise
         end        
         ole_range = name_object(name).RefersToRange
-        workbook.color_if_modified = opts[:color] unless opts[:color].nil?
-        ole_range.Interior.ColorIndex = workbook.color_if_modified unless workbook.color_if_modified.nil?
+        ole_range.Interior.ColorIndex = opts[:color] unless opts[:color].nil?
         if !::JRUBY_BUG_RANGES
           ole_range.Value = value
         else
@@ -127,16 +127,16 @@ module RobustExcelOle
     # assigns a value to a range given a locally defined name
     # @param [String]  name   the name of a range
     # @param [Variant] value  the assigned value   
-    def set_namevalue(name, value, opts = { })  # opts is deprecated
+    # @option opts [Symbol] :color the color of the cell when set
+    def set_namevalue(name, value, opts = { })  
       begin
-        return set_namevalue_glob(name, value, opts) if self.is_a?(Workbook)  # opts deprecated
+        return set_namevalue_glob(name, value, opts) if self.is_a?(Workbook) 
         ole_range = self.Range(name)
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException
         raise NameNotFound, "name #{name.inspect} not in #{self.inspect}"
       end
       begin
-        workbook.color_if_modified = opts[:color] unless opts[:color].nil?
-        ole_range.Interior.ColorIndex = workbook.color_if_modified unless workbook.color_if_modified.nil?
+        ole_range.Interior.ColorIndex = opts[:color] unless opts[:color].nil?
         if !::JRUBY_BUG_RANGES
           ole_range.Value = value
         else

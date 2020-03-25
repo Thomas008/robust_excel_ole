@@ -40,7 +40,7 @@ describe Workbook do
     @simple_file_network_path1 = @simple_file_network_path
     @simple_file_hostname_share_path1 = @simple_file_hostname_share_path
     @simple_file_network_path_other_path1 = @simple_file_network_path_other_path
-    @simple_file_hostname_share_path_other_path2 = @simple_file_hostname_share_path_other_path
+    @simple_file_hostname_share_path_other_path1 = @simple_file_hostname_share_path_other_path
   end
 
   after do
@@ -94,12 +94,11 @@ describe Workbook do
       book1.excel.Workbooks.Count.should == 1
     end
 
-    it "should fetch a usual path file given a hostname share file" do
+    it "should raise WorkbookBlocked" do
       book1 = Workbook.open(@simple_file_hostname_share_path)
-      book2 = Workbook.open(@simple_file)
-      book2.should === book1
-      book2.Fullname.should == book1.Fullname
-      book1.excel.Workbooks.Count.should == 1
+      expect{
+        book2 = Workbook.open(@simple_file)
+        }.to raise_error(WorkbookBlocked)
     end
 
     it "should raise an error fetching an hostname share file having opened a local path file" do
@@ -180,7 +179,7 @@ describe Workbook do
     end
 
     it "should raise an WorkbookBlockederror" do
-      book1 = Workbook.open(@simple_file_network_other_path1)
+      book1 = Workbook.open(@simple_file_network_path_other_path1)
       expect{
         Workbook.open(@simple_file_hostname_share_path1)
       }.to raise_error(WorkbookBlocked)
@@ -217,7 +216,7 @@ describe Workbook do
         Workbook.open(@simple_file_network_path1) do |book|
           book.should be_alive
           book.should be_a Workbook
-          book.filename.should == @simple_file_hostname_share_path1
+          book.filename.should == @simple_file_hostname_share_path1.downcase
           book.Fullname.should == @ole_wb.Fullname
           book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
           Excel.excels_number.should == 1
@@ -323,14 +322,14 @@ describe Workbook do
         abs_filename = General.absolute_path(@simple_file_hostname_share_path1)
         @ole_wb = ws.Open(abs_filename)
         expect{
-          Workbook.open(@simple_file_hostname_share_other_path1)
+          Workbook.open(@simple_file_hostname_share_path_other_path1)
         }.to raise_error(WorkbookBlocked)
       end
 
       it "should raise WorkbookBlocked error" do
         ole_e1 = WIN32OLE.new('Excel.Application')
         ws = ole_e1.Workbooks
-        abs_filename = General.absolute_path(@simple_file_hostname_share_other_path1)
+        abs_filename = General.absolute_path(@simple_file_hostname_share_path_other_path1)
         @ole_wb = ws.Open(abs_filename)
         expect{
           Workbook.open(@simple_file_hostname_share_path1)
@@ -343,14 +342,14 @@ describe Workbook do
         abs_filename = General.absolute_path(@simple_file_hostname_share_path1)
         @ole_wb = ws.Open(abs_filename)
         expect{
-          Workbook.open(@simple_file_network_other_path1)
+          Workbook.open(@simple_file_network_path_other_path1)
         }.to raise_error(WorkbookBlocked)
       end
 
       it "should raise WorkbookBlocked error" do
         ole_e1 = WIN32OLE.new('Excel.Application')
         ws = ole_e1.Workbooks
-        abs_filename = General.absolute_path(@simple_file_network_other_path1)
+        abs_filename = General.absolute_path(@simple_file_network_path_other_path1)
         @ole_wb = ws.Open(abs_filename)
         expect{
           Workbook.open(@simple_file_hostname_share_path1)
@@ -363,14 +362,14 @@ describe Workbook do
         abs_filename = General.absolute_path(@simple_file_network_path1)
         @ole_wb = ws.Open(abs_filename)
         expect{
-          Workbook.open(@simple_file_hostname_share_other_path1)
+          Workbook.open(@simple_file_hostname_share_path_other_path1)
         }.to raise_error(WorkbookBlocked)
       end
 
       it "should raise WorkbookBlocked error" do
         ole_e1 = WIN32OLE.new('Excel.Application')
         ws = ole_e1.Workbooks
-        abs_filename = General.absolute_path(@simple_file_hostname_share_other_path1)
+        abs_filename = General.absolute_path(@simple_file_hostname_share_path__other_path1)
         @ole_wb = ws.Open(abs_filename)
         expect{
           Workbook.open(@simple_file_network_path1)

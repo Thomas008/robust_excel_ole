@@ -10,6 +10,28 @@ module General
   ::JRUBY_BUG_CONNECTEXCEL = IS_JRUBY_PLATFORM && true
   ::JRUBY_BUG_RANGES       = IS_JRUBY_PLATFORM && true
 
+  @private
+  def network2hostnamesharepath(filename)
+    network = WIN32OLE.new('WScript.Network')
+    drives = network.enumnetworkdrives
+    drive_letter, filename_after_drive_letter = filename.split(':') 
+    # if filename starts with a drive letter not c and this drive exists,
+    # then determine the corresponding host_share_path
+    default_drive = File.absolute_path(".")[0]
+    if drive_letter != default_drive && drive_letter != filename  
+      for i in 0 .. drives.Count-1
+        next if i % 2 == 1
+        if drives.Item(i).gsub(':','') == drive_letter
+          hostname_share = drives.Item(i+1)  #.gsub('\\','/').gsub('//','')
+          break
+        end
+      end
+      hostname_share + filename_after_drive_letter if hostname_share
+    else
+      return filename
+    end
+  end
+
   # @private
   def absolute_path(file)     
     file[0,2] = './' if ::JRUBY_BUG_EXPANDPATH && file[0,2] == "C:" && file[2] != '/'
@@ -19,9 +41,9 @@ module General
   end
 
   # @private
-  def canonize(filename)   
+  def canonize(filename)
     raise TypeREOError, "No string given to canonize, but #{filename.inspect}" unless filename.is_a?(String)
-
+    filename = network2hostnamesharepath(filename)
     normalize(filename).downcase
   end
 

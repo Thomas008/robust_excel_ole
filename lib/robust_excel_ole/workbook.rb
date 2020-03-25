@@ -335,22 +335,11 @@ module RobustExcelOle
 
     # @private
     def manage_blocking_or_unsaved_workbook(filename,options)
-      #puts "manage_blocking_or_unsaved_workbook:"
-      #puts "filename: #{filename}"
-      #puts "@ole_workbook.Fullname #{@ole_workbook.Fullname}"
-      #previous_file = @ole_workbook.Fullname.tr('\\','/')
-      #puts "File.basename(filename): #{File.basename(filename)}"
-      #puts "File.basename(previous_file): #{File.basename(previous_file)}"
-      #puts "File.dirname(General.absolute_path(filename)): #{File.dirname(General.absolute_path(filename))}"
-      #puts "File.dirname(previous_file): #{File.dirname(previous_file)}"
-      obstructed_by_other_book = if (File.basename(filename) == File.basename(@ole_workbook.Fullname)) 
-        General.absolute_path(filename) != @ole_workbook.Fullname
-      end      
-      #obstructed_by_other_book = if (File.basename(filename) == File.basename(previous_file)) &&
-      #  (File.dirname(General.absolute_path(filename)) != File.dirname(previous_file) ||
-      #  false)
-      #end  
-      puts "obstructed_by_other_book: #{obstructed_by_other_book.inspect}"
+      filename = General.absolute_path(filename)
+      filename = General.canonize(filename)
+      previous_file = General.canonize(@ole_workbook.Fullname)
+      obstructed_by_other_book = (File.basename(filename) == File.basename(previous_file)) &&
+                                 (File.dirname(filename) != File.dirname(previous_file)) 
       if obstructed_by_other_book
         # workbook is being obstructed by a workbook with same name and different path
         manage_blocking_workbook(filename,options)        

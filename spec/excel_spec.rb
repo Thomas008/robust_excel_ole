@@ -2170,8 +2170,7 @@ module RobustExcelOle
       it "should color the cell" do
         @excel1.set_namevalue_glob("firstcell", "foo")
         @book1.Names.Item("firstcell").RefersToRange.Interior.ColorIndex.should == -4142 
-        @book1.color_if_modified = 4
-        @excel1.set_namevalue_glob("firstcell", "foo")
+        @excel1.set_namevalue_glob("firstcell", "foo", :color => 4)
         @book1.Names.Item("firstcell").RefersToRange.Interior.ColorIndex.should == 4
         @excel1["firstcell"].should == "foo"
         @excel1["firstcell"] = "foo"
@@ -2245,8 +2244,7 @@ module RobustExcelOle
       it "should color the cell" do
         @excel1.set_namevalue("firstcell", "foo")
         @book1.Names.Item("firstcell").RefersToRange.Interior.ColorIndex.should == -4142 
-        @book1.color_if_modified = 4
-        @excel1.set_namevalue("firstcell", "foo")
+        @excel1.set_namevalue("firstcell", "foo", :color => 4)
         @book1.Names.Item("firstcell").RefersToRange.Interior.ColorIndex.should == 4
       end
 

@@ -34,7 +34,7 @@ module General
 
   # @private
   def absolute_path(file)     
-    file[0,2] = './' if ::JRUBY_BUG_EXPANDPATH && file[0,2] == "C:" && file[2] != '/'
+    file[0,2] = './' if ::JRUBY_BUG_EXPANDPATH && file  =~ /[A-Z]:[^\/]/
     file = File.expand_path(file)
     file = RobustExcelOle::Cygwin.cygpath('-w', file) if RUBY_PLATFORM =~ /cygwin/
     WIN32OLE.new('Scripting.FileSystemObject').GetAbsolutePathName(file).tr('/','\\')

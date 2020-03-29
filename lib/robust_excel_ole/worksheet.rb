@@ -221,7 +221,7 @@ module RobustExcelOle
     # @private
     def method_missing(name, *args)
       if name.to_s[0,1] =~ /[A-Z]/
-        if ::JRUBY_BUG_ERRORMESSAGE 
+        if ::ERRORMESSAGE_JRUBY_BUG 
           begin
             @ole_worksheet.send(name, *args)
           rescue Java::OrgRacobCom::ComFailException 

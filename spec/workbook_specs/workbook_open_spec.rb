@@ -369,7 +369,7 @@ describe Workbook do
       it "should raise WorkbookBlocked error" do
         ole_e1 = WIN32OLE.new('Excel.Application')
         ws = ole_e1.Workbooks
-        abs_filename = General.absolute_path(@simple_file_hostname_share_path__other_path1)
+        abs_filename = General.absolute_path(@simple_file_hostname_share_path_other_path1)
         @ole_wb = ws.Open(abs_filename)
         expect{
           Workbook.open(@simple_file_network_path1)
@@ -938,20 +938,20 @@ describe Workbook do
 
       it "should not set the default value" do
         book1 = Workbook.open(@simple_file)
-        book1.excel.calculation.should == nil
+        book1.excel.properties[:calculation].should == nil
       end
 
       it "should set the calculation mode to automatic" do
         book1 = Workbook.open(@simple_file)
         book1.excel.calculation = :automatic
-        book1.excel.calculation.should == :automatic
+        book1.excel.properties[:calculation].should == :automatic
         book1.excel.Calculation.should == XlCalculationAutomatic
       end
 
       it "should set the calculation mode to manual" do
         book1 = Workbook.open(@simple_file)
         book1.excel.calculation = :manual
-        book1.excel.calculation.should == :manual
+        book1.excel.properties[:calculation].should == :manual
         book1.excel.Calculation.should == XlCalculationManual
       end
 

@@ -3,12 +3,12 @@
 module General
 
   IS_JRUBY_PLATFORM = (RUBY_PLATFORM =~ /java/)
-  ::JRUBY_BUG_EXPANDPATH   = IS_JRUBY_PLATFORM && true
-  ::JRUBY_BUG_CONNECT      = IS_JRUBY_PLATFORM && true
-  ::JRUBY_BUG_COPYSHEETS   = IS_JRUBY_PLATFORM && true
-  ::JRUBY_BUG_ERRORMESSAGE = IS_JRUBY_PLATFORM && true
-  ::JRUBY_BUG_CONNECTEXCEL = IS_JRUBY_PLATFORM && true
-  ::JRUBY_BUG_RANGES       = IS_JRUBY_PLATFORM && true
+  ::EXPANDPATH_JRUBY_BUG   = IS_JRUBY_PLATFORM && true
+  ::CONNECT_JRUBY_BUG      = IS_JRUBY_PLATFORM && true
+  ::COPYSHEETS_JRUBY_BUG   = IS_JRUBY_PLATFORM && true
+  ::ERRORMESSAGE_JRUBY_BUG = IS_JRUBY_PLATFORM && true
+  ::CONNECT_JRUBY_BUG      = IS_JRUBY_PLATFORM && true
+  ::RANGES_JRUBY_BUG       = IS_JRUBY_PLATFORM && true
 
   @private
   def network2hostnamesharepath(filename)
@@ -34,7 +34,7 @@ module General
 
   # @private
   def absolute_path(file)     
-    file[0,2] = './' if ::JRUBY_BUG_EXPANDPATH && file  =~ /[A-Z]:[^\/]/
+    file[0,2] = './' if ::EXPANDPATH_JRUBY_BUG && file  =~ /[A-Z]:[^\/]/
     file = File.expand_path(file)
     file = RobustExcelOle::Cygwin.cygpath('-w', file) if RUBY_PLATFORM =~ /cygwin/
     WIN32OLE.new('Scripting.FileSystemObject').GetAbsolutePathName(file).tr('/','\\')

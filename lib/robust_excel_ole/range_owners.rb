@@ -24,7 +24,7 @@ module RobustExcelOle
       ole_range = name_obj.RefersToRange
       value = begin
         #name_obj.RefersToRange.Value
-        if !::JRUBY_BUG_RANGES       
+        if !::RANGES_JRUBY_BUG       
           ole_range.Value
         else
           values = RobustExcelOle::Range.new(ole_range).v
@@ -39,7 +39,7 @@ module RobustExcelOle
           #sheet.Evaluate(name_obj.Name).Value
           # does it result in a range?
           ole_range = sheet.Evaluate(name_obj.Name)
-          if !::JRUBY_BUG_RANGES
+          if !::RANGES_JRUBY_BUG
             ole_range.Value
           else
             values = RobustExcelOle::Range.new(ole_range).v
@@ -71,7 +71,7 @@ module RobustExcelOle
         end        
         ole_range = name_object(name).RefersToRange
         ole_range.Interior.ColorIndex = opts[:color] unless opts[:color].nil?
-        if !::JRUBY_BUG_RANGES
+        if !::RANGES_JRUBY_BUG
           ole_range.Value = value
         else
           address_r1c1 = ole_range.AddressLocal(true,true,XlR1C1)
@@ -106,7 +106,7 @@ module RobustExcelOle
       end
       begin
         #value = ole_range.Value
-        value = if !::JRUBY_BUG_RANGES
+        value = if !::RANGES_JRUBY_BUG
           ole_range.Value
         else
           values = RobustExcelOle::Range.new(ole_range).v
@@ -137,7 +137,7 @@ module RobustExcelOle
       end
       begin
         ole_range.Interior.ColorIndex = opts[:color] unless opts[:color].nil?
-        if !::JRUBY_BUG_RANGES
+        if !::RANGES_JRUBY_BUG
           ole_range.Value = value
         else
           address_r1c1 = ole_range.AddressLocal(true,true,XlR1C1)

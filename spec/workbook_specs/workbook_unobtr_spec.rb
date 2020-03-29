@@ -1582,10 +1582,10 @@ describe Workbook do
 
         it "should remain the calculation mode" do
           book1 = Workbook.open(@simple_file1)
-          old_calculation = book1.excel.calculation
+          old_calculation = book1.excel.properties[:calculation]
           Workbook.unobtrusively(@simple_file1) do |book|
           end
-          book1.excel.calculation.should == old_calculation
+          book1.excel.properties[:calculation].should == old_calculation
         end
       
         it "should remain calculation manual" do

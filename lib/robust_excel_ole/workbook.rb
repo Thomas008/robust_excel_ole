@@ -84,11 +84,16 @@ module RobustExcelOle
     # @return [Workbook] a representation of a workbook
 
     def self.open(file_or_workbook, opts = { }, &block)
-      new(file_or_workbook, opts, &block)      
+      puts "self.open:"
+      puts "opts[:was_open]: #{opts[:was_open].inspect}" 
+      new(file_or_workbook, opts, &block)          
     end
 
     def self.new(file_or_workbook, opts = { }, &block)
+      puts "new:"
+      puts "opts: #{opts.inspect}"
       options = process_options(opts)
+      puts "options: #{options.inspect}"
       if file_or_workbook.is_a? WIN32OLE
         file = file_or_workbook.Fullname.tr('\\','/') 
       else
@@ -97,13 +102,15 @@ module RobustExcelOle
         raise(FileNotFound, "file #{General.absolute_path(file).inspect} is a directory") if File.directory?(file)
       end
       # try to fetch the workbook from the bookstore
+      puts "try to fetch workbook from bookstore"
       set_was_open options, false
+      puts "options: #{options.inspect}"
       book = nil
       if options[:force][:excel] != :new
         # if readonly is true, then prefer a book that is given in force_excel if this option is set              
         forced_excel = 
           (options[:force][:excel].nil? || options[:force][:excel] == :current) ? 
-            (excel_class.new(:reuse => true) if !::JRUBY_BUG_CONNECT) : excel_of(options[:force][:excel])              
+            (excel_class.new(:reuse => true) if !::CONNECT_JRUBY_BUG) : excel_of(options[:force][:excel])              
         begin
           book = if File.exists?(file)
             bookstore.fetch(file, :prefer_writable => !(options[:read_only]),
@@ -114,8 +121,9 @@ module RobustExcelOle
           trace "#{$!.message}"
         end
         if book 
-          # hack (unless condition): calling Worksheet[]= causes calling Worksheet#workbook which calls Workbook#new(ole_workbook)
+          puts "found book in bookstore"
           set_was_open opts, book.alive? #unless file_or_workbook.is_a? WIN32OLE 
+          puts "options: #{options.inspect}"
           # drop the fetched workbook if it shall be opened in another Excel instance
           # or the workbook is an unsaved workbook that should not be accepted
           if (options[:force][:excel].nil? || options[:force][:excel] == :current || forced_excel == book.excel) &&
@@ -127,6 +135,8 @@ module RobustExcelOle
           end
         end
       end        
+      puts "before super:"
+      puts "options[:was_open]: #{options[:was_open].inspect}" 
       super(file_or_workbook, options, &block)
     end
 
@@ -137,6 +147,7 @@ module RobustExcelOle
     # @option opts [Symbol] see above
     # @return [Workbook] a workbook
     def initialize(file_or_workbook, options, &block)
+      puts "initialize:"
       if file_or_workbook.is_a? WIN32OLE
         @ole_workbook = file_or_workbook
         ole_excel = begin
@@ -150,7 +161,10 @@ module RobustExcelOle
         filename = file_or_workbook            
         ensure_workbook(filename, options)        
       end      
+      puts "options: #{options.inspect}"
       set_options(filename, options)
+      puts "after set_options:"
+      puts "options: #{options.inspect}"
       bookstore.store(self)
       r1c1_letters = @ole_workbook.Worksheets.Item(1).Cells.Item(1,1).Address(true,true,XlR1C1).gsub(/[0-9]/,'') #('ReferenceStyle' => XlR1C1).gsub(/[0-9]/,'')
       address_class.new(r1c1_letters)
@@ -161,6 +175,8 @@ module RobustExcelOle
           close
         end
       end
+      puts "after block:"
+      puts "options: #{options.inspect}"
     end
  
   private    
@@ -240,9 +256,13 @@ module RobustExcelOle
 
     # @private    
     def ensure_workbook(filename, options)  
+      puts "ensure_workbook:"
+      puts "options1: #{options.inspect}"
       set_was_open options, true
+      puts "options2: #{options.inspect}"
       return if (@ole_workbook && alive? && (options[:read_only].nil? || @ole_workbook.ReadOnly == options[:read_only]))
       set_was_open options, false
+      puts "options3: #{options.inspect}"
       if options[:if_unsaved]==:accept && 
         ((options[:read_only]==true && self.ReadOnly==false) || (options[:read_only]==false && self.ReadOnly==true))
         raise OptionInvalid, ":if_unsaved:accept and change of read-only mode is not possible"
@@ -254,19 +274,25 @@ module RobustExcelOle
       workbooks = @excel.Workbooks
       @ole_workbook = workbooks.Item(File.basename(filename)) rescue nil if @ole_workbook.nil?
       if @ole_workbook && alive?
+        puts "there is a previous workbook"
         set_was_open options, true #if @was_open.nil? # necessary?
+        puts "options: #{options.inspect}"
         manage_blocking_or_unsaved_workbook(filename,options)
         open_or_create_workbook(filename,options) if @ole_workbook.ReadOnly != options[:read_only]
+        puts "options: #{options.inspect}"
       else
         if excel_option.nil? || excel_option == :current &&  
-          (!::JRUBY_BUG_CONNECT || filename[0] != '/')
+          (!::CONNECT_JRUBY_BUG || filename[0] != '/')
           workbooks_number_before_connect = @excel.Workbooks.Count
+          puts "do connect"
           connect(filename,options)
           set_was_open options, (@excel.Workbooks.Count == workbooks_number_before_connect)
+          puts "options: #{options.inspect}"
         else 
           open_or_create_workbook(filename,options)
         end
       end       
+      puts "options: #{options.inspect}"
     end
 
     # @private
@@ -595,6 +621,7 @@ module RobustExcelOle
 
     @private
     def self.unobtrusively_opening(file, opts, book_is_alive, &block)
+      puts "unobtrusively_opening:"
       opts = process_options(opts)
       opts = {:if_closed => :current, :keep_open => false}.merge(opts)    
       raise OptionInvalid, 'contradicting options' if opts[:writable] && opts[:read_only] 
@@ -611,7 +638,13 @@ module RobustExcelOle
       open_opts = excel_opts.merge({:if_unsaved => :accept})
       begin
         open_opts[:was_open] = nil
+        puts "before open:"
+        puts "open_opts[:was_open]: #{open_opts[:was_open].inspect}"
+        puts "open_opts: #{open_opts.inspect}"
         book = open(file, open_opts)
+        puts "after open:"
+        puts "open_opts[:was_open]: #{open_opts[:was_open].inspect}"
+        puts "open_opts: #{open_opts.inspect}"
         was_visible = book.visible
         was_writable = book.writable
         was_saved = book.saved
@@ -620,7 +653,10 @@ module RobustExcelOle
         book.set_options(file,opts) 
         yield book
       ensure
+        puts "ensure:"
+        puts "open_opts[:was_open]: #{open_opts[:was_open].inspect}"
         if book && book.alive?
+          puts "book && book.alive"
           do_not_write = opts[:read_only] || opts[:writable]==false
           book.save unless book.saved || do_not_write || !book.writable
           if (opts[:read_only] && was_writable) || (!opts[:read_only] && !was_writable)
@@ -628,6 +664,7 @@ module RobustExcelOle
                                                :if_unsaved => (opts[:writable]==false ? :forget : :save)}))
           end
           was_open = open_opts[:was_open]
+          puts "was_open: #{was_open.inspect}"
           if was_open
             book.visible = was_visible    
             book.CheckCompatibility = was_check_compatibility
@@ -834,7 +871,7 @@ module RobustExcelOle
       last_sheet_local = last_sheet
       after_or_before, base_sheet = opts.to_a.first || [:after, last_sheet_local]
       begin
-        if !::JRUBY_BUG_COPYSHEETS
+        if !::COPYSHEETS_JRUBY_BUG
           if sheet
             sheet.Copy({ after_or_before.to_s => base_sheet.ole_worksheet })
           else
@@ -1088,7 +1125,7 @@ module RobustExcelOle
     def method_missing(name, *args) 
       if name.to_s[0,1] =~ /[A-Z]/
         raise ObjectNotAlive, 'method missing: workbook not alive' unless alive?
-        if ::JRUBY_BUG_ERRORMESSAGE 
+        if ::ERRORMESSAGE_JRUBY_BUG 
           begin
             @ole_workbook.send(name, *args)
           rescue Java::OrgRacobCom::ComFailException 

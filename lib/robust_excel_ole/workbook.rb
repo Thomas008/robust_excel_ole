@@ -262,7 +262,7 @@ module RobustExcelOle
       puts "options2: #{options.inspect}"
       return if (@ole_workbook && alive? && (options[:read_only].nil? || @ole_workbook.ReadOnly == options[:read_only]))
       set_was_open options, false
-      puts "options3: #{options.inspect}"
+      puts "options3: #{options.inspect}"      
       if options[:if_unsaved]==:accept && 
         ((options[:read_only]==true && self.ReadOnly==false) || (options[:read_only]==false && self.ReadOnly==true))
         raise OptionInvalid, ":if_unsaved:accept and change of read-only mode is not possible"
@@ -276,23 +276,23 @@ module RobustExcelOle
       if @ole_workbook && alive?
         puts "there is a previous workbook"
         set_was_open options, true #if @was_open.nil? # necessary?
-        puts "options: #{options.inspect}"
+        puts "options4: #{options.inspect}"
         manage_blocking_or_unsaved_workbook(filename,options)
         open_or_create_workbook(filename,options) if @ole_workbook.ReadOnly != options[:read_only]
-        puts "options: #{options.inspect}"
+        puts "options5: #{options.inspect}"
       else
         if excel_option.nil? || excel_option == :current &&  
           (!::CONNECT_JRUBY_BUG || filename[0] != '/')
-          workbooks_number_before_connect = @excel.Workbooks.Count
-          puts "do connect"
+          puts "before connect:"
+          puts "options6: #{options.inspect}"
           connect(filename,options)
-          set_was_open options, (@excel.Workbooks.Count == workbooks_number_before_connect)
-          puts "options: #{options.inspect}"
+          puts "after connect:"
+          puts "options7: #{options.inspect}"
         else 
           open_or_create_workbook(filename,options)
         end
       end       
-      puts "options: #{options.inspect}"
+      puts "options8: #{options.inspect}"
     end
 
     # @private
@@ -313,6 +313,7 @@ module RobustExcelOle
     # @private
     # connects to an unknown workbook
     def connect(filename,options)
+      puts "connect:"
       excels_number = excel_class.excels_number
       workbooks_number = if excels_number>0 
         excel_class.current.Workbooks.Count 
@@ -337,6 +338,8 @@ module RobustExcelOle
           raise WorkbookConnectingUnknownError
         end
       end
+      puts "was_open: #{(ole_excel.Workbooks.Count == workbooks_number)}"
+      set_was_open options, (ole_excel.Workbooks.Count == workbooks_number)
       @excel = excel_class.new(ole_excel)
     end
 

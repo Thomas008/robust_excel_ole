@@ -112,7 +112,7 @@ module RobustExcelOle
     def recreate(opts = {})
       unless alive?
         opts = {:visible => false, :displayalerts => :if_visible}.merge(
-               {:visible => @properties[:visible], :displayalerts => @properties[:displayalerts}).merge(opts)        
+               {:visible => @properties[:visible], :displayalerts => @properties[:displayalerts]}).merge(opts)        
         @ole_excel = WIN32OLE.new('Excel.Application')
         set_options(opts)
         if opts[:reopen_workbooks]

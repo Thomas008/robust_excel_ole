@@ -63,7 +63,7 @@ module RobustExcelOle
           ["ActiveCell", "ActiveSheet", "ActiveWorkbook", "Application",  "Calculate", "Cells", "Columns",
             "DisplayAlerts", "Evaluate", "Hwnd", "Name", "Names", "Quit", "Range", "Ready", "Save", 
             "Sheets", "UserName", "Value", "Visible", "Workbooks", "Worksheets"]
-        @excel_methods = ["alive?", "workbook_class", "close", "displayalerts", "recreate", "visible", "with_displayalerts"] 
+        @excel_methods = ["alive?", "workbook_class", "close", "properties", "recreate", "with_displayalerts"] 
       end
 
       after do

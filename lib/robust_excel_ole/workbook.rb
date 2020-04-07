@@ -165,14 +165,17 @@ module RobustExcelOle
  
   private    
 
+    # @private
     def self.set_was_open(hash, value)
       hash[:was_open] = value if hash.has_key?(:was_open)
     end
 
+    # @private
     def set_was_open(hash, value)
       self.class.set_was_open(hash, value)
     end
 
+    # @private
     # translates abbreviations and synonyms and merges with default options
     def self.process_options(opts, proc_opts = {:use_defaults => true})
       translate(opts)
@@ -183,6 +186,7 @@ module RobustExcelOle
       opts[:force] = default_opts[:force].merge(opts[:force]) unless opts[:force].nil?
     end
 
+    # @private
     def self.translate(opts)
       erg = {}
       opts.each do |key,value|
@@ -684,12 +688,12 @@ module RobustExcelOle
     #                  :close_if_saved      -> closes the blocking workbook, if it is saved,
     #                                          otherwise raises an exception   
     # @return [Workbook], the book itself, if successfully saved, raises an exception otherwise
-    def save_as(file, opts = { })
+    def save_as(file, options = { })
       raise FileNameNotGiven, 'filename is nil' if file.nil?
       raise ObjectNotAlive, 'workbook is not alive' unless alive?
       raise WorkbookReadOnly, 'Not opened for writing (opened with :read_only option)' if @ole_workbook.ReadOnly
       raise(FileNotFound, "file #{General.absolute_path(file).inspect} is a directory") if File.directory?(file)
-      self.class.process_options(opts)      
+      self.class.process_options(options)      
       if File.exist?(file)
         case options[:if_exists]
         when :overwrite

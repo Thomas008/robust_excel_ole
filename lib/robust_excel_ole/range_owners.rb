@@ -263,7 +263,7 @@ module RobustExcelOle
 
     def name_object(name)
       self.Names.Item(name)
-    rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException
+    rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException, VBAMethodMissingError
       begin
         self.Parent.Names.Item(name)
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException

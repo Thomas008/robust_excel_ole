@@ -82,7 +82,6 @@ module RobustExcelOle
     # :check_compatibility  true -> check compatibility when saving
     # :update_links         true -> user is being asked how to update links, false -> links are never updated
     # @return [Workbook] a representation of a workbook
-
     def self.open(file_or_workbook, opts = { }, &block)
       new(file_or_workbook, opts, &block)          
     end
@@ -442,7 +441,7 @@ module RobustExcelOle
                                       updatelinks_vba(options[:update_links]), 
                                       options[:read_only] )
           end
-        rescue WIN32OLERuntimeError => msg
+        rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
           # for Excel2007: for option :if_unsaved => :alert and user cancels: this error appears?
           # if yes: distinguish these events
           raise UnexpectedREOError, "cannot open workbook: #{msg.message} #{msg.backtrace}"
@@ -451,10 +450,10 @@ module RobustExcelOle
           # workaround for bug in Excel 2010: workbook.Open does not always return the workbook when given file name
           begin
             @ole_workbook = workbooks.Item(File.basename(filename))
-          rescue WIN32OLERuntimeError => msg
+          rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
             raise UnexpectedREOError, "WIN32OLERuntimeError: #{msg.message}"
           end
-        rescue WIN32OLERuntimeError => msg
+        rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
           raise UnexpectedREOError, "WIN32OLERuntimeError: #{msg.message} #{msg.backtrace}"
         end
       end

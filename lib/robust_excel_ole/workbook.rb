@@ -15,7 +15,7 @@ module RobustExcelOle
     
     attr_reader :ole_workbook
     attr_reader :excel
-    attr_accessor :stored_filename
+    attr_reader :stored_filename
 
     alias ole_object ole_workbook
 
@@ -28,11 +28,11 @@ module RobustExcelOle
       :if_absent     => :raise,
       :if_exists => :raise
       #:check_compatibility => false
-    }#.freeze
+    }.freeze
 
     CORE_DEFAULT_OPEN_OPTS = {
       :default => {:excel => :current}, :force => {}, :update_links => :never
-    }#.freeze
+    }.freeze
 
     ABBREVIATIONS = [[:default,:d], [:force, :f], [:excel, :e], [:visible, :v],
                      [:if_obstructed, :if_blocked]].freeze
@@ -178,7 +178,7 @@ module RobustExcelOle
     # translates abbreviations and synonyms and merges with default options
     def self.process_options(opts, proc_opts = {:use_defaults => true})
       translate(opts)
-      default_opts = proc_opts[:use_defaults] ? DEFAULT_OPEN_OPTS : CORE_DEFAULT_OPEN_OPTS        
+      default_opts = (proc_opts[:use_defaults] ? DEFAULT_OPEN_OPTS : CORE_DEFAULT_OPEN_OPTS).dup
       translate(default_opts)
       opts.merge!(default_opts) {|key, v1, v2| v1 }
       opts[:default] = default_opts[:default].merge(opts[:default]) unless opts[:default].nil?

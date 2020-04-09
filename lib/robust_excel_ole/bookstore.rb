@@ -74,8 +74,7 @@ module RobustExcelOle
         # deletes the weak reference to the book
         @filename2books[old_filename_key].delete(book)
       end
-      @filename2books[filename_key] |= [WeakRef.new(book)]
-      book.stored_filename = book.filename
+      @filename2books[filename_key] |= [WeakRef.new(book)]      
     end
 
     # creates and returns a separate Excel instance with Visible and DisplayAlerts equal false

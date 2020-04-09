@@ -150,7 +150,7 @@ module RobustExcelOle
         ensure_workbook(filename, options)        
       end      
       set_options(filename, options)
-      bookstore.store(self)
+      store_myself
       r1c1_letters = @ole_workbook.Worksheets.Item(1).Cells.Item(1,1).Address(true,true,XlR1C1).gsub(/[0-9]/,'') #('ReferenceStyle' => XlR1C1).gsub(/[0-9]/,'')
       address_class.new(r1c1_letters)
       if block
@@ -747,6 +747,11 @@ module RobustExcelOle
 
   private
 
+    def store_myself
+      bookstore.store(self)
+      @stored_filename = filename
+    end
+
     # @private
     def save_as_workbook(file, options)  
       dirname, basename = File.split(file)
@@ -757,7 +762,7 @@ module RobustExcelOle
         when '.xlsm' then RobustExcelOle::XlOpenXMLWorkbookMacroEnabled
         end
       @ole_workbook.SaveAs(General.absolute_path(file), file_format)
-      bookstore.store(self)
+      store_myself
     rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
       if msg.message =~ /SaveAs/ && msg.message =~ /Workbook/
         # trace "save: canceled by user" if options[:if_exists] == :alert || options[:if_exists] == :excel

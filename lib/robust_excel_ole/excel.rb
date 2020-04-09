@@ -17,7 +17,7 @@ module RobustExcelOle
   # See https://docs.microsoft.com/en-us/office/vba/api/excel.application(object)#methods
 
   class Excel < RangeOwners
-    attr_accessor :ole_excel
+    attr_reader :ole_excel
     attr_reader :properties
 
     alias ole_object ole_excel

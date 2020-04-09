@@ -12,9 +12,9 @@ module RobustExcelOle
   class Workbook < RangeOwners
 
     #include General 
-
-    attr_accessor :excel
-    attr_accessor :ole_workbook
+    
+    attr_reader :ole_workbook
+    attr_reader :excel
     attr_accessor :stored_filename
 
     alias ole_object ole_workbook

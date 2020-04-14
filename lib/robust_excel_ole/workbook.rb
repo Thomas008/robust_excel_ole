@@ -19,23 +19,26 @@ module RobustExcelOle
 
     alias ole_object ole_workbook
 
-    DEFAULT_OPEN_OPTS = {
-      :default => {:excel => :current},
+    CORE_DEFAULT_OPEN_OPTS = {
+      :default => {:excel => :current}, 
       :force => {},
-      :update_links => :never,
+      :update_links => :never
+    }.freeze
+
+    DEFAULT_OPEN_OPTS = {
       :if_unsaved    => :raise,
       :if_obstructed => :raise,
       :if_absent     => :raise,
       :if_exists => :raise
-      #:check_compatibility => false
-    }.freeze
+    }.merge(CORE_DEFAULT_OPEN_OPTS).freeze  
 
-    CORE_DEFAULT_OPEN_OPTS = {
-      :default => {:excel => :current}, :force => {}, :update_links => :never
-    }.freeze
-
-    ABBREVIATIONS = [[:default,:d], [:force, :f], [:excel, :e], [:visible, :v],
-                     [:if_obstructed, :if_blocked]].freeze
+    ABBREVIATIONS = [
+      [:default,:d],
+      [:force, :f],
+      [:excel, :e],
+      [:visible, :v],
+      [:if_obstructed, :if_blocked]
+    ].freeze
 
 
     # opens a workbook.
@@ -88,12 +91,18 @@ module RobustExcelOle
 
     def self.new(file_or_workbook, opts = { }, &block)
       process_options(opts)
-      if file_or_workbook.is_a? WIN32OLE
+      case file_or_workbook
+      when NilClass
+        raise FileNameNotGiven, 'filename is nil' 
+      when WIN32OLE
         file = file_or_workbook.Fullname.tr('\\','/') 
-      else
+      when Workbook
+        return file_or_workbook
+      when String
         file = file_or_workbook
-        raise(FileNameNotGiven, 'filename is nil') if file.nil?
-        raise(FileNotFound, "file #{General.absolute_path(file).inspect} is a directory") if File.directory?(file)
+        raise FileNotFound, "file #{General.absolute_path(file).inspect} is a directory" if File.directory?(file)
+      else
+        raise TypeREOError, 'given object is neither a filename, a Win32ole, nor a Workbook object'
       end
       # try to fetch the workbook from the bookstore
       set_was_open opts, false
@@ -125,8 +134,7 @@ module RobustExcelOle
           end
         end
       end        
-      erg = super(file_or_workbook, opts, &block)
-      erg 
+      super(file_or_workbook, opts, &block)
     end
 
     # creates a new Workbook object, if a file name is given
@@ -465,10 +473,10 @@ module RobustExcelOle
     # parameter 'UpdateLinks' has no effect
     def updatelinks_vba(updatelinks_reo)
       case updatelinks_reo
-      when :alert then RobustExcelOle::XlUpdateLinksUserSetting
-      when :never then RobustExcelOle::XlUpdateLinksNever
+      when :alert  then RobustExcelOle::XlUpdateLinksUserSetting
+      when :never  then RobustExcelOle::XlUpdateLinksNever
       when :always then RobustExcelOle::XlUpdateLinksAlways
-      else RobustExcelOle::XlUpdateLinksNever
+      else              RobustExcelOle::XlUpdateLinksNever
       end
     end
 
@@ -878,9 +886,7 @@ module RobustExcelOle
       rescue WIN32OLERuntimeError, NameNotFound, Java::OrgRacobCom::ComFailException
         raise WorksheetREOError, "could not add given worksheet #{sheet.inspect}"
       end
-      #ole_sheet = @excel.Activesheet
       ole_sheet = ole_workbook.Activesheet
-      #ole_sheet = ole_sheet.nil? ? ole_workbook.Worksheets.Item(ole_workbook.Worksheets.Count) : ole_sheet
       new_sheet = worksheet_class.new(ole_sheet)
       new_sheet.name = new_sheet_name if new_sheet_name
       new_sheet

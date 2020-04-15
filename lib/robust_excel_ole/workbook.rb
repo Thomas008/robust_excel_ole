@@ -84,11 +84,7 @@ module RobustExcelOle
     # :visible              true -> makes the workbook visible
     # :check_compatibility  true -> check compatibility when saving
     # :update_links         true -> user is being asked how to update links, false -> links are never updated
-    # @return [Workbook] a representation of a workbook
-    def self.open(file_or_workbook, opts = { }, &block)
-      new(file_or_workbook, opts, &block)          
-    end
-
+    # @return [Workbook] a representation of a workbook   
     def self.new(file_or_workbook, opts = { }, &block)
       process_options(opts)
       case file_or_workbook
@@ -105,7 +101,7 @@ module RobustExcelOle
         raise TypeREOError, 'given object is neither a filename, a Win32ole, nor a Workbook object'
       end
       # try to fetch the workbook from the bookstore
-      set_was_open opts, false
+      set_was_open opts, file_or_workbook.is_a?(WIN32OLE)
       book = nil
       if opts[:force][:excel] != :new
         # if readonly is true, then prefer a book that is given in force_excel if this option is set              
@@ -136,6 +132,8 @@ module RobustExcelOle
       end        
       super(file_or_workbook, opts, &block)
     end
+
+    singleton_class.send :alias_method, :open, :new
 
     # creates a new Workbook object, if a file name is given
     # Promotes the win32ole workbook to a Workbook object, if a win32ole-workbook is given

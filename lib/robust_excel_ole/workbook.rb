@@ -295,15 +295,10 @@ module RobustExcelOle
 
     # @private
     # connects to an unknown workbook
-    def connect(filename,options)
-      excels_number = excel_class.excels_number
-      workbooks_number = if excels_number>0 
-        excel_class.current.Workbooks.Count 
-      else 0
-      end
-      abs_filename = General.absolute_path(filename)
+    def connect(filename,options)   
+      workbooks_number = excel_class.excels_number==0 ? 0 : excel_class.current.Workbooks.Count
       @ole_workbook = begin
-        WIN32OLE.connect(abs_filename)
+        WIN32OLE.connect(General.absolute_path(filename))
       rescue
         if $!.message =~ /moniker/
           raise WorkbookConnectingBlockingError

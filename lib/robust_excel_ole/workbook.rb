@@ -157,7 +157,7 @@ module RobustExcelOle
       end      
       set_options(filename, options)
       store_myself
-      r1c1_letters = @ole_workbook.Worksheets.Item(1).Cells.Item(1,1).Address(true,true,XlR1C1).gsub(/[0-9]/,'') #('ReferenceStyle' => XlR1C1).gsub(/[0-9]/,'')
+      r1c1_letters = @ole_workbook.Worksheets.Item(1).Cells.Item(1,1).Address(true,true,XlR1C1).gsub(/[0-9]/,'')
       address_class.new(r1c1_letters)
       if block
         begin

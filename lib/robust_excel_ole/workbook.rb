@@ -85,7 +85,7 @@ module RobustExcelOle
     # :check_compatibility  true -> check compatibility when saving
     # :update_links         true -> user is being asked how to update links, false -> links are never updated
     # @return [Workbook] a representation of a workbook   
-    def self.new(file_or_workbook, opts = { }, &block)
+    def self.new(file_or_workbook, opts = { })
       process_options(opts)
       case file_or_workbook
       when NilClass
@@ -130,7 +130,7 @@ module RobustExcelOle
           end
         end
       end        
-      super(file_or_workbook, opts, &block)
+      super(file_or_workbook, opts)
     end
 
     singleton_class.send :alias_method, :open, :new
@@ -141,7 +141,7 @@ module RobustExcelOle
     # @param [Hash]    opts             
     # @option opts [Symbol] see above
     # @return [Workbook] a workbook
-    def initialize(file_or_workbook, opts, &block)
+    def initialize(file_or_workbook, opts)
       if file_or_workbook.is_a? WIN32OLE
         @ole_workbook = file_or_workbook
         ole_excel = begin 
@@ -159,7 +159,7 @@ module RobustExcelOle
       store_myself
       r1c1_letters = @ole_workbook.Worksheets.Item(1).Cells.Item(1,1).Address(true,true,XlR1C1).gsub(/[0-9]/,'')
       address_class.new(r1c1_letters)
-      if block
+      if block_given?
         begin
           yield self
         ensure

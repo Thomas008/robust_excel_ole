@@ -79,7 +79,6 @@ module RobustExcelOle
       end
     end  
 
-    # @private
     def self.r1c1_string(letter,int_range,type)
       return "" if int_range.nil? || int_range.begin.nil?
       parameter = type == :min ? int_range.begin : int_range.end
@@ -88,7 +87,6 @@ module RobustExcelOle
       letter + (is_relative ? "(" : "") + parameter.to_s + (is_relative ? ")" : "")       
     end 
 
-    # @private
     def self.analyze(comp,format)
       row_comp, col_comp = if format==:a1 
         [comp.gsub(/[A-Z]/,''), comp.gsub(/[0-9]/,'')]
@@ -97,6 +95,7 @@ module RobustExcelOle
         c,d = b.split(@@col_letter)
         b.nil? ? ["",b] : (d.nil? ? [c,""] : [c,d])  
       end
+      # @private
       def self.s2n(s)
         s!="" ? (s[0] == "[" ? [s.gsub(/\[|\]/,'').to_i] : (s.to_i!=0 ? s.to_i : s)) : nil
       end
@@ -104,7 +103,6 @@ module RobustExcelOle
     end
 
 
-    # @private
     def self.str2num(str)
       str.tr("A-Z","0-9A-P").to_i(26) + (26**str.size-1)/25
     end

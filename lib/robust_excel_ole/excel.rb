@@ -128,7 +128,6 @@ module RobustExcelOle
   private
 
     # retain the saved status of all workbooks
-    # @private
     def retain_saved_workbooks
       saved_stati = @ole_excel.Workbooks.map { |w| w.Saved }
       begin
@@ -138,7 +137,6 @@ module RobustExcelOle
       end
     end
 
-    # @private
     def ole_workbooks
       ole_workbooks = begin
         @ole_excel.Workbooks
@@ -731,7 +729,6 @@ module RobustExcelOle
 
   private
 
-    # @private
     def method_missing(name, *args) 
       if name.to_s[0,1] =~ /[A-Z]/
         raise ObjectNotAlive, 'method missing: Excel not alive' unless alive?

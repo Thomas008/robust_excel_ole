@@ -237,7 +237,6 @@ module RobustExcelOle
 
   private
 
-    # @private
     def method_missing(name, *args) 
       if name.to_s[0,1] =~ /[A-Z]/
         if ::ERRORMESSAGE_JRUBY_BUG

@@ -153,6 +153,7 @@ The method +General.to_reo+ enables type-lifting WIN32OLE objects to RobustExcel
 This object can be type-lifted to a RobustExcelOle workbook.
 
   workbook = win32ole_workbook.to_reo
+
   workbook.to_class
   => RobustExcelOle::Workbook
 
@@ -166,6 +167,9 @@ You can supply options, e.g. +:visible+.
 
    workbook = Workbook.new(win32ole_workbook, :visible => true) 
 
+You can also supply a workbook and options, e.g.
+
+   new_workbook = Workbook.new(workbook, :visible => true)
 
 === Identity transperence ===
 

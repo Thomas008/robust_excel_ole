@@ -179,14 +179,11 @@ module RobustExcelOle
       self.class.set_was_open(hash, value)
     end
 
-    # translates abbreviations and synonyms and merges with default options
     def self.process_options(opts, proc_opts = {:use_defaults => true})
       translate(opts)
       default_opts = (proc_opts[:use_defaults] ? DEFAULT_OPEN_OPTS : CORE_DEFAULT_OPEN_OPTS).dup
       translate(default_opts)
-      opts.merge!(default_opts) {|key, v1, v2| v1 }
-      opts[:default] = default_opts[:default].merge(opts[:default]) unless opts[:default].nil?
-      opts[:force] = default_opts[:force].merge(opts[:force]) unless opts[:force].nil?
+      opts.merge!(default_opts) { |key, v1, v2| !v2.is_a?(Hash) ? v1 : v2.merge(v1 || {}) }
     end
 
     def self.translate(opts)

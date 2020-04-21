@@ -125,7 +125,7 @@ module RobustExcelOle
             !(book.alive? && !book.saved && (opts[:if_unsaved] != :accept))
             opts[:force][:excel] = book.excel if book.excel && book.excel.alive?
             book.ensure_workbook(file,opts)
-            book.set_options(file,opts)
+            book.send :apply_options, file, opts
             return book
           end
         end
@@ -141,21 +141,21 @@ module RobustExcelOle
     # @param [Hash]    opts             
     # @option opts [Symbol] see above
     # @return [Workbook] a workbook
-    def initialize(file_or_workbook, options, &block)
+    def initialize(file_or_workbook, opts, &block)
       if file_or_workbook.is_a? WIN32OLE
         @ole_workbook = file_or_workbook
-        ole_excel = begin
-          WIN32OLE.connect(@ole_workbook.Fullname).Application
+        ole_excel = begin 
+          @ole_workbook.Application
         rescue
           raise ExcelREOError, 'could not determine the Excel instance'
         end
         @excel = excel_class.new(ole_excel)
-        filename = file_or_workbook.Fullname.tr('\\','/') 
+        filename = @ole_workbook.Fullname.tr('\\','/') 
       else
         filename = file_or_workbook            
-        ensure_workbook(filename, options)        
+        ensure_workbook(filename, opts)        
       end      
-      set_options(filename, options)
+      apply_options(filename, opts)
       store_myself
       r1c1_letters = @ole_workbook.Worksheets.Item(1).Cells.Item(1,1).Address(true,true,XlR1C1).gsub(/[0-9]/,'')
       address_class.new(r1c1_letters)
@@ -170,17 +170,14 @@ module RobustExcelOle
  
   private    
 
-    # @private
     def self.set_was_open(hash, value)
       hash[:was_open] = value if hash.has_key?(:was_open)
     end
 
-    # @private
     def set_was_open(hash, value)
       self.class.set_was_open(hash, value)
     end
 
-    # @private
     # translates abbreviations and synonyms and merges with default options
     def self.process_options(opts, proc_opts = {:use_defaults => true})
       translate(opts)
@@ -191,7 +188,6 @@ module RobustExcelOle
       opts[:force] = default_opts[:force].merge(opts[:force]) unless opts[:force].nil?
     end
 
-    # @private
     def self.translate(opts)
       erg = {}
       opts.each do |key,value|
@@ -220,7 +216,6 @@ module RobustExcelOle
     end
 
     # returns an Excel object when given Excel, Workbook or Win32ole object representing a Workbook or an Excel
-    # @private
     def self.excel_of(object) 
       begin
         object = object.to_reo if object.is_a? WIN32OLE
@@ -276,8 +271,10 @@ module RobustExcelOle
       end       
     end
 
-    # @private
-    def set_options(filename, options)
+  private
+
+    # applies options to workbook named with filename
+    def apply_options(filename, options)
       # changing read-only mode
       if (!options[:read_only].nil?) && options[:read_only] != @ole_workbook.ReadOnly
         ensure_workbook(filename, options)
@@ -289,9 +286,6 @@ module RobustExcelOle
       end      
     end
 
-  private
-
-    # @private
     # connects to an unknown workbook
     def connect(filename,options)   
       workbooks_number = excel_class.excels_number==0 ? 0 : excel_class.current.Workbooks.Count
@@ -317,7 +311,6 @@ module RobustExcelOle
       @excel = excel_class.new(ole_excel)
     end
 
-    # @private
     def manage_nonexisting_file(filename,options)   
       return if File.exist?(filename)
       abs_filename = General.absolute_path(filename)
@@ -336,7 +329,6 @@ module RobustExcelOle
       end
     end
 
-    # @private
     def manage_blocking_or_unsaved_workbook(filename,options)
       filename = General.absolute_path(filename)
       filename = General.canonize(filename)
@@ -354,7 +346,6 @@ module RobustExcelOle
       end        
     end
 
-    # @private
     def manage_blocking_workbook(filename,options)
       case options[:if_obstructed]
       when :raise
@@ -381,7 +372,6 @@ module RobustExcelOle
       end
     end
 
-    # @private
     def manage_unsaved_workbook(filename,options)
       case options[:if_unsaved]
       when :raise
@@ -404,27 +394,23 @@ module RobustExcelOle
       end
     end
 
-    # @private
     def manage_forgetting_workbook(filename, options)
       @excel.with_displayalerts(false) { @ole_workbook.Close }
       @ole_workbook = nil
       open_or_create_workbook(filename, options)
     end
 
-    # @private
     def manage_saving_workbook(filename, options)
       save unless @ole_workbook.Saved
       manage_forgetting_workbook(filename, options)
     end
 
-    # @private
     def manage_new_excel(filename, options)
       @excel = excel_class.new(:reuse => false)
       @ole_workbook = nil
       open_or_create_workbook(filename, options)
     end
     
-    # @private
     def open_or_create_workbook(filename, options)
       return if @ole_workbook && options[:if_unsaved] != :alert && options[:if_unsaved] != :excel &&
         (options[:read_only].nil? || options[:read_only]==@ole_workbook.ReadOnly )
@@ -460,7 +446,6 @@ module RobustExcelOle
       end
     end    
            
-    # @private
     # translating the option UpdateLinks from REO to VBA
     # setting UpdateLinks works only if calculation mode is automatic,
     # parameter 'UpdateLinks' has no effect
@@ -473,7 +458,6 @@ module RobustExcelOle
       end
     end
 
-    # @private
     # workaround for linked workbooks for Excel 2007:
     # opening and closing a dummy workbook if Excel has no workbooks.
     # delay: with visible: 0.2 sec, without visible almost none
@@ -543,7 +527,6 @@ module RobustExcelOle
 
   private
 
-    # @private
     def close_workbook
       @ole_workbook.Close if alive?
       @ole_workbook = nil unless alive?
@@ -596,7 +579,8 @@ module RobustExcelOle
       self.class.unobtrusively_opening(file, opts, alive?, &block)
     end
 
-    @private
+  private
+
     def self.unobtrusively_opening(file, opts, book_is_alive, &block)
       process_options(opts)
       opts = {:if_closed => :current, :keep_open => false}.merge(opts)    
@@ -620,14 +604,14 @@ module RobustExcelOle
         was_saved = book.saved
         was_check_compatibility = book.check_compatibility
         was_calculation = book.excel.properties[:calculation]
-        book.set_options(file,opts) 
+        book.apply_options(file,opts) 
         yield book
       ensure
         if book && book.alive?
           do_not_write = opts[:read_only] || opts[:writable]==false
           book.save unless book.saved || do_not_write || !book.writable
           if (opts[:read_only] && was_writable) || (!opts[:read_only] && !was_writable)
-            book.set_options(file, opts.merge({:read_only => !was_writable, 
+            book.apply_options(file, opts.merge({:read_only => !was_writable, 
                                                :if_unsaved => (opts[:writable]==false ? :forget : :save)}))
           end
           was_open = open_opts[:was_open]
@@ -641,6 +625,8 @@ module RobustExcelOle
         end
       end
     end
+
+  public 
 
     # reopens a closed workbook
     # @options options
@@ -753,7 +739,6 @@ module RobustExcelOle
       @stored_filename = filename
     end
 
-    # @private
     def save_as_workbook(file, options)  
       dirname, basename = File.split(file)
       file_format =
@@ -1012,6 +997,7 @@ module RobustExcelOle
         self.filename == other_book.filename
     end
 
+    # @private
     def self.books
       bookstore.books
     end

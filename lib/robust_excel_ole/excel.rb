@@ -128,17 +128,13 @@ module RobustExcelOle
 
     def address_tool
       raise(ExcelREOError, "Excel contains no workbook") unless @ole_excel.Workbook.Count > 0
-      @address_tool = if @address_tool.nil? 
+      @address_tool ||= begin
         address_string = @ole_excel.Workbooks.Item(1).Worksheets.Item(1).Cells.Item(1,1).Address(true,true,XlR1C1)
         address_tool_class.new(address_string)
       end
     end
 
   private
-
-    def contains_some_workbook
-      @ole_excel.Workbook.Count > 0
-    end
 
     # retain the saved status of all workbooks
     def retain_saved_workbooks

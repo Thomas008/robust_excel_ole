@@ -108,7 +108,7 @@ module RobustExcelOle
         # if readonly is true, then prefer a book that is given in force_excel if this option is set              
         forced_excel = 
           (opts[:force][:excel].nil? || opts[:force][:excel] == :current) ? 
-            (excel_class.new(:reuse => true) if !::CONNECT_JRUBY_BUG) : excel_of(opts[:force][:excel])              
+            (excel_class.new(:reuse => true) if !::CONNECT_JRUBY_BUG) : opts[:force][:excel].to_reo.excel              
         begin
           book = if File.exists?(file)
             bookstore.fetch(file, :prefer_writable => !(opts[:read_only]),
@@ -214,32 +214,25 @@ module RobustExcelOle
       opts[:force][:excel] = :current if opts[:force][:excel] == :reuse || opts[:force][:excel] == :active
     end
 
-    # returns an Excel object when given Excel, Workbook or Win32ole object representing a Workbook or an Excel
-    def self.excel_of(object) 
-      begin
-        object = object.to_reo if object.is_a? WIN32OLE
-        object.excel
-      rescue
-        raise TypeREOError, 'given object is neither an Excel, a Workbook, nor a Win32ole'
-      end
-    end
-
   public
 
     # @private
     # ensures an excel but not for jruby if current Excel shall be used
     def ensure_excel(options)
       return if @excel && @excel.alive?
-      excel_option = options[:force][:excel].nil? ? options[:default][:excel] : options[:force][:excel]
+      excel_option = options[:force][:excel] || options[:default][:excel] || :current
       @excel = if excel_option == :new
         excel_class.new(:reuse => false) 
-      elsif excel_option.nil? || excel_option == :current
+      elsif excel_option == :current
         excel_class.new(:reuse => true)
+      elsif excel_option.respond_to?(:to_reo)
+        excel_option.to_reo.excel
       else
-        self.class.excel_of(excel_option)
+        raise ExcelREOError, "could not determine an Excel object"
       end
-      raise ExcelREOError, "excel is not alive" unless @excel && @excel.alive?
+      raise ExcelREOError, "Excel is not alive" unless @excel && @excel.alive?
     end
+
 
     # @private    
     def ensure_workbook(filename, options)  

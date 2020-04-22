@@ -106,7 +106,7 @@ describe Workbook do
 
   end
 
-  describe "excel_of" do
+  describe "to_reo.excel" do
 
     before do
       @book = Workbook.open(@simple_file)
@@ -118,19 +118,19 @@ describe Workbook do
 
     it "should access the excel" do
       workbook = @book.ole_workbook
-      excel = Workbook.excel_of(workbook)
+      excel = workbook.to_reo.excel
       excel.should be_a Excel
       excel.should == @book.excel
     end
 
     it "should access the Excel of the ole_excel" do
-      excel = Workbook.excel_of(@book.excel.ole_excel)
+      excel = @book.excel.ole_excel.to_reo.excel
       excel.should be_a Excel
       excel.should == @book.excel
     end
 
     it "should access the Excel of a Workbook" do
-      excel = Workbook.excel_of(@book)
+      excel = @book.to_reo.excel
       excel.should be_a Excel
       excel.should == @book.excel
     end

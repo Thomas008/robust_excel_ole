@@ -127,7 +127,7 @@ module RobustExcelOle
     end
 
     def address_tool
-      raise(ExcelREOError, "Excel contains no workbook") unless @ole_excel.Workbook.Count > 0
+      raise(ExcelREOError, "Excel contains no workbook") unless @ole_excel.Workbooks.Count > 0
       @address_tool ||= begin
         address_string = @ole_excel.Workbooks.Item(1).Worksheets.Item(1).Cells.Item(1,1).Address(true,true,XlR1C1)
         address_tool_class.new(address_string)
@@ -738,7 +738,7 @@ module RobustExcelOle
     def self.address_tool_class  
       @address_tool_class ||= begin
         module_name = parent_name
-        "#{module_name}::Workbook".constantize
+        "#{module_name}::AddressTool".constantize
       rescue NameError => e
         AddressTool
       end

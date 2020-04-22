@@ -65,6 +65,13 @@ module RobustExcelOle
         range.Value.should == "foo"
       end
 
+      it "should not do anything with a REO object" do
+        @book1.to_reo.should == @book1 
+        @book1.sheet(1).to_reo.should == @book1.sheet(1)
+        @book1.excel.to_reo.should == @book1.excel
+        @book1.sheet(1).range([1,1]).to_reo.should == @book1.sheet(1).range([1,1])
+      end
+
     end
 
     describe "methods, own_methods, respond_to?" do

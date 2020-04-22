@@ -143,7 +143,6 @@ module RobustExcelOle
     # @option opts [Symbol] see above
     # @return [Workbook] a workbook
     def initialize(file_or_workbook, opts)
-      puts "initialize:"
       if file_or_workbook.is_a? WIN32OLE
         @ole_workbook = file_or_workbook
         ole_excel = begin 

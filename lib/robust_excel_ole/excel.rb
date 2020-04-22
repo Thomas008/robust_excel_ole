@@ -19,7 +19,7 @@ module RobustExcelOle
   class Excel < RangeOwners
     attr_reader :ole_excel
     attr_reader :properties
-    attr_reader :address
+    attr_reader :address_tool
 
     alias ole_object ole_excel
 
@@ -126,13 +126,12 @@ module RobustExcelOle
       self
     end
 
-    def address
-      return unless contains_some_workbook
-      r1c1_letters = @ole_excel.Workbooks.Item(1).Worksheets.Item(1).Cells.Item(1,1).Address(true,true,XlR1C1).gsub(/[0-9]/,'')
-      #address_class.new(r1c1_letters)
-      row_letter = r1c1_letters[0..0]
-      col_letter = r1c1_letters[1..1]
-      @address = address_class.new
+    def address_tool
+      raise(ExcelREOError, "Excel contains no workbook") unless @ole_excel.Workbook.Count > 0
+      @address_tool = if @address_tool.nil? 
+        address_string = @ole_excel.Workbooks.Item(1).Worksheets.Item(1).Cells.Item(1,1).Address(true,true,XlR1C1)
+        address_tool_class.new(address_string)
+      end
     end
 
   private
@@ -738,6 +737,22 @@ module RobustExcelOle
     def workbook_class       
       self.class.workbook_class
     end
+
+    # @private
+    def self.address_tool_class  
+      @address_tool_class ||= begin
+        module_name = parent_name
+        "#{module_name}::Workbook".constantize
+      rescue NameError => e
+        AddressTool
+      end
+    end
+
+    # @private
+    def address_tool_class       
+      self.class.address_tool_class
+    end
+
 
     include MethodHelpers
 

@@ -41,6 +41,10 @@ module RobustExcelOle
       @workbook
     end
 
+    def excel
+      @workbook.excel
+    end
+
     # sheet name
     # @returns name of the sheet
     def name

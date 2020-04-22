@@ -143,6 +143,7 @@ module RobustExcelOle
     # @option opts [Symbol] see above
     # @return [Workbook] a workbook
     def initialize(file_or_workbook, opts)
+      puts "initialize:"
       if file_or_workbook.is_a? WIN32OLE
         @ole_workbook = file_or_workbook
         ole_excel = begin 
@@ -158,8 +159,8 @@ module RobustExcelOle
       end      
       apply_options(filename, opts)
       store_myself
-      r1c1_letters = @ole_workbook.Worksheets.Item(1).Cells.Item(1,1).Address(true,true,XlR1C1).gsub(/[0-9]/,'')
-      address_class.new(r1c1_letters)
+      #r1c1_letters = @ole_workbook.Worksheets.Item(1).Cells.Item(1,1).Address(true,true,XlR1C1).gsub(/[0-9]/,'')
+      #address_class.new(r1c1_letters)
       if block_given?
         begin
           yield self

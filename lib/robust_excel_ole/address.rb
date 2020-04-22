@@ -4,9 +4,9 @@ module RobustExcelOle
 
   class Address < REOCommon
 
-    def self.new(r1c1_letters)
-      @@row_letter = r1c1_letters[0..0]
-      @@col_letter = r1c1_letters[1..1]
+    def initialize(r1c1_letters)
+      @row_letter = r1c1_letters[0..0]
+      @col_letter = r1c1_letters[1..1]
     end
 
     # address formats that are valid:
@@ -16,23 +16,23 @@ module RobustExcelOle
     #                   [3..4, nil], [nil, 2..4], [2,nil], [nil,4]
     #   a1-format: e.g. "A3", "A3:B5", "A:B", "3:5", "A", "3"
 
-    def self.r1c1(address)
+    def r1c1(address)
       transform_address(address,:r1c1)
     end
 
-    def self.a1(address)
+    def a1(address)
       transform_address(address,:a1)
     end
 
     # valid address formats: e.g. [3,1], [3,"A"], [3..5,1..2], [3..5, "A".."B"], 
     #                             [3..4, nil], [nil, 2..4], [2,nil], [nil,4]
-    def self.int_range(address)
+    def int_range(address)
       transform_address(address,:int_range)
     end
 
   private
 
-    def self.transform_address(address, format)
+    def transform_address(address, format)
       address = address.is_a?(Array) ? address : [address]
       raise AddressInvalid, "address #{address.inspect} has more than two components" if address.size > 2
       begin
@@ -70,8 +70,8 @@ module RobustExcelOle
         raise AddressInvalid, "address (#{address.inspect}) format not correct"
       end
       if format==:r1c1
-        r1c1_string(@@row_letter,rows,:min) + r1c1_string(@@col_letter,columns,:min) + ":" + 
-        r1c1_string(@@row_letter,rows,:max) + r1c1_string(@@col_letter,columns,:max)
+        r1c1_string(@row_letter,rows,:min) + r1c1_string(@col_letter,columns,:min) + ":" + 
+        r1c1_string(@row_letter,rows,:max) + r1c1_string(@col_letter,columns,:max)
       elsif format==:int_range
         [rows,columns]
       else
@@ -79,7 +79,7 @@ module RobustExcelOle
       end
     end  
 
-    def self.r1c1_string(letter,int_range,type)
+    def r1c1_string(letter,int_range,type)
       return "" if int_range.nil? || int_range.begin.nil?
       parameter = type == :min ? int_range.begin : int_range.end
       is_relative = parameter.is_a?(Array)
@@ -87,23 +87,21 @@ module RobustExcelOle
       letter + (is_relative ? "(" : "") + parameter.to_s + (is_relative ? ")" : "")       
     end 
 
-    def self.analyze(comp,format)
+    def analyze(comp,format)
       row_comp, col_comp = if format==:a1 
         [comp.gsub(/[A-Z]/,''), comp.gsub(/[0-9]/,'')]
       else
-        a,b = comp.split(@@row_letter)
-        c,d = b.split(@@col_letter)
+        a,b = comp.split(@row_letter)
+        c,d = b.split(@col_letter)
         b.nil? ? ["",b] : (d.nil? ? [c,""] : [c,d])  
       end
-      # @private
-      def self.s2n(s)
+      def s2n(s)
         s!="" ? (s[0] == "[" ? [s.gsub(/\[|\]/,'').to_i] : (s.to_i!=0 ? s.to_i : s)) : nil
       end
       [s2n(row_comp), s2n(col_comp)]
     end
 
-
-    def self.str2num(str)
+    def str2num(str)
       str.tr("A-Z","0-9A-P").to_i(26) + (26**str.size-1)/25
     end
 

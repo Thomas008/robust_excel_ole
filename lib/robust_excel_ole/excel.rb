@@ -19,6 +19,7 @@ module RobustExcelOle
   class Excel < RangeOwners
     attr_reader :ole_excel
     attr_reader :properties
+    attr_reader :address
 
     alias ole_object ole_excel
 
@@ -125,7 +126,20 @@ module RobustExcelOle
       self
     end
 
+    def address
+      return unless contains_some_workbook
+      r1c1_letters = @ole_excel.Workbooks.Item(1).Worksheets.Item(1).Cells.Item(1,1).Address(true,true,XlR1C1).gsub(/[0-9]/,'')
+      #address_class.new(r1c1_letters)
+      row_letter = r1c1_letters[0..0]
+      col_letter = r1c1_letters[1..1]
+      @address = address_class.new
+    end
+
   private
+
+    def contains_some_workbook
+      @ole_excel.Workbook.Count > 0
+    end
 
     # retain the saved status of all workbooks
     def retain_saved_workbooks
@@ -380,12 +394,11 @@ module RobustExcelOle
       @@hwnd2excel.size
     end
 
-  #private
+  private
 
     # returns a Win32OLE object that represents a Excel instance to which Excel connects
     # connects to the first opened Excel instance
     # if this Excel instance is being closed, then Excel creates a new Excel instance
-    # @private
     def self.current_ole_excel   
       if ::CONNECT_EXCEL_JRUBY_BUG
         result = known_excel_instance
@@ -428,6 +441,25 @@ module RobustExcelOle
       nil
     end
 
+    def self.hwnd2excel(hwnd)
+      excel_weakref = @@hwnd2excel[hwnd]
+      if excel_weakref
+        if excel_weakref.weakref_alive?
+          excel_weakref.__getobj__
+        else
+          trace 'dead reference to an Excel'
+          begin
+            @@hwnd2excel.delete(hwnd)
+            nil
+          rescue
+            trace "Warning: deleting dead reference failed! (hwnd: #{hwnd.inspect})"
+          end
+        end
+      end
+    end
+
+  public
+
     # returns all Excel objects for all Excel instances opened with RobustExcelOle
     def self.known_excel_instances
       pid2excel = {}
@@ -460,24 +492,6 @@ module RobustExcelOle
     # @private
     def excel
       self
-    end
-
-    # @private
-    def self.hwnd2excel(hwnd)
-      excel_weakref = @@hwnd2excel[hwnd]
-      if excel_weakref
-        if excel_weakref.weakref_alive?
-          excel_weakref.__getobj__
-        else
-          trace 'dead reference to an Excel'
-          begin
-            @@hwnd2excel.delete(hwnd)
-            nil
-          rescue
-            trace "Warning: deleting dead reference failed! (hwnd: #{hwnd.inspect})"
-          end
-        end
-      end
     end
 
     # @private
@@ -698,7 +712,7 @@ module RobustExcelOle
     def workbook
       return @workbook unless @workbook.nil?
       @workbook = workbook_class.new(@ole_excel.ActiveWorkbook)
-    end
+    end    
 
     # @private
     def to_s            

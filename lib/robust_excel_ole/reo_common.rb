@@ -135,7 +135,7 @@ module RobustExcelOle
   end
 
   # @private
-  class AddressInvalid < REOError                  
+  class AddressToolInvalid < REOError                  
   end
 
   # @private

@@ -122,7 +122,7 @@ class Object
   # type-lifting WIN32OLE objects to RobustExcelOle objects
   def to_reo
     return self unless self.is_a?(WIN32OLE)
-    class2method = [{Excel => :Hwnd}, {Workbook => :FullName}, {Worksheet => :Copy}, {Range => :Address}]
+    class2method = [{Excel => :Hwnd}, {Workbook => :FullName}, {Worksheet => :Copy}, {RobustExcelOle::Range => :Row}]
     class2method.each do |element|
       classname = element.first.first
       method = element.first.last
@@ -133,6 +133,7 @@ class Object
         next
       end
     end
+    raise TypeREOError, "unknown win32ole objecet"
   end
 end
 

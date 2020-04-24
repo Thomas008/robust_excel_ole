@@ -229,22 +229,5 @@ module RobustExcelOle
       end
     end
 
-    describe "Object methods" do
-
-      before do
-        @book = Workbook.open(@simple_file)
-        @sheet = @book.sheet(1)
-      end
-
-      before do
-        @book.close
-      end
-
-      it "should raise an error when asking excel of a sheet" do
-        expect{
-          @sheet.excel
-          }.to raise_error(TypeREOError, "receiver instance is neither an Excel nor a Workbook")
-      end
-    end
   end
 end

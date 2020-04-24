@@ -48,7 +48,7 @@ module RobustExcelOle
           self.Value
         else
           address_r1c1 = self.AddressLocal(true,true,XlR1C1)
-          row, col = .int_range(address_r1c1)
+          row, col = int_range(address_r1c1)
           values = []
           row.each do |r|
             values_col = []

@@ -126,6 +126,7 @@ module RobustExcelOle
       self
     end
 
+    # @private
     def address_tool
       raise(ExcelREOError, "Excel contains no workbook") unless @ole_excel.Workbooks.Count > 0
       @address_tool ||= begin
@@ -160,11 +161,13 @@ module RobustExcelOle
 
   public
 
+    # @private
     def self.contains_unsaved_workbooks?
       !Excel.current.unsaved_workbooks.empty?
     end
 
     # returns unsaved workbooks (win32ole objects)
+    # @private
     def unsaved_workbooks
       unsaved_workbooks = []
       begin
@@ -182,6 +185,7 @@ module RobustExcelOle
     #                      :forget          -> closes the Excel instance without saving the workbooks
     #                      :save            -> saves the workbooks before closing
     #                      :alert           -> let Excel do it
+    # @private
     def close_workbooks(options = { :if_unsaved => :raise })
       return unless alive?
 

@@ -93,47 +93,29 @@ class Array
 end
 
 
-=begin
-# @private
-class WIN32OLE
-
-  include RobustExcelOle
-  
-  # type-lifting WIN32OLE objects to RobustExcelOle objects
-  def to_reo
-    class2method = [{Excel => :Hwnd}, {Workbook => :FullName}, {Worksheet => :Copy}, {Range => :Address}]
-    class2method.each do |element|
-      classname = element.first.first
-      method = element.first.last
-      begin
-        self.send(method)
-        return classname.new(self)
-      rescue
-        next
-      end
-    end
-  end
-end
-=end
-
 # @private
 class Object
   
   # type-lifting WIN32OLE objects to RobustExcelOle objects
   def to_reo
-    return self unless self.is_a?(WIN32OLE)
-    class2method = [{Excel => :Hwnd}, {Workbook => :FullName}, {Worksheet => :Copy}, {RobustExcelOle::Range => :Row}]
-    class2method.each do |element|
-      classname = element.first.first
-      method = element.first.last
-      begin
-        self.send(method)
-        return classname.new(self)
-      rescue
-        next
+    case self
+    when WIN32OLE
+      class2method = [{Excel => :Hwnd}, {Workbook => :FullName}, {Worksheet => :Copy}, {RobustExcelOle::Range => :Row}]
+      class2method.each do |element|
+        classname = element.first.first
+        method = element.first.last
+        begin
+          self.send(method)
+          return classname.new(self)
+        rescue
+          next
+        end
       end
+    when Workbook, Worksheet, Excel, RobustExcelOle::Range, Cell
+      self
+    else
+      raise TypeREOError, "given object is neither a WIN32OLE nor a RobustExcelOle object"
     end
-    raise TypeREOError, "unknown win32ole objecet"
   end
 end
 

@@ -93,7 +93,6 @@ module RobustExcelOle
       when WIN32OLE
         file = file_or_workbook.Fullname.tr('\\','/') 
       when Workbook
-        #return file_or_workbook
         file = file_or_workbook.Fullname.tr('\\','/')
       when String
         file = file_or_workbook

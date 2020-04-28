@@ -248,12 +248,12 @@ module RobustExcelOle
       workbooks = @excel.Workbooks
       @ole_workbook = workbooks.Item(File.basename(filename)) rescue nil if @ole_workbook.nil?
       if @ole_workbook && alive?
-        set_was_open options, true #if @was_open.nil? # necessary?
+        set_was_open options, true
         manage_blocking_or_unsaved_workbook(filename,options)
         open_or_create_workbook(filename,options) if @ole_workbook.ReadOnly != options[:read_only]
       else
-        if excel_option.nil? || excel_option == :current &&  
-          (!::CONNECT_JRUBY_BUG || filename[0] != '/')
+        if (excel_option.nil? || excel_option == :current) &&  
+          !(::CONNECT_JRUBY_BUG && filename[0] == '/')
           connect(filename,options)
         else 
           open_or_create_workbook(filename,options)
@@ -265,10 +265,8 @@ module RobustExcelOle
 
     # applies options to workbook named with filename
     def apply_options(filename, options)
-      # changing read-only mode
-      if (!options[:read_only].nil?) && options[:read_only] != @ole_workbook.ReadOnly
-        ensure_workbook(filename, options)
-      end
+      # changing read-only mode      
+      ensure_workbook(filename, options) if options[:read_only] && options[:read_only] != @ole_workbook.ReadOnly
       retain_saved do
         self.visible = options[:force][:visible].nil? ? @excel.Visible : options[:force][:visible]
         @excel.calculation = options[:calculation] unless options[:calculation].nil?
@@ -282,20 +280,12 @@ module RobustExcelOle
       @ole_workbook = begin
         WIN32OLE.connect(General.absolute_path(filename))
       rescue
-        if $!.message =~ /moniker/
-          raise WorkbookConnectingBlockingError
-        else
-          raise WorkbookConnectingUnknownError
-        end
+        raise($!.message =~ /moniker/ ? WorkbookConnectingBlockingError : WorkbookConnectingUnknownError) 
       end
       ole_excel = begin
         @ole_workbook.Application     
       rescue 
-        if $!.message =~ /dispid/
-          raise WorkbookConnectingUnsavedError
-        else
-          raise WorkbookConnectingUnknownError
-        end
+        raise($!.message =~ /dispid/ ? WorkbookConnectingUnsavedError : WorkbookConnectingUnknownError) 
       end
       set_was_open options, (ole_excel.Workbooks.Count == workbooks_number)
       @excel = excel_class.new(ole_excel)

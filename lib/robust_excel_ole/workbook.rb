@@ -157,8 +157,6 @@ module RobustExcelOle
       end      
       apply_options(filename, opts)
       store_myself
-      #r1c1_letters = @ole_workbook.Worksheets.Item(1).Cells.Item(1,1).Address(true,true,XlR1C1).gsub(/[0-9]/,'')
-      #address_class.new(r1c1_letters)
       if block_given?
         begin
           yield self
@@ -340,7 +338,8 @@ module RobustExcelOle
         manage_saving_workbook(filename, options)        
       when :close_if_saved
         if !@ole_workbook.Saved
-          raise WorkbookBlocked, "workbook with the same name in a different path is unsaved: #{@ole_workbook.Fullname.tr('\\','/')}"
+          raise WorkbookBlocked, "workbook with the same name in a different path is unsaved: #{@ole_workbook.Fullname.tr('\\','/')}" +
+          "\nHint: Use the option :if_blocked => :save to save the workbook"
         else
           manage_forgetting_workbook(filename, options)
         end
@@ -501,8 +500,6 @@ module RobustExcelOle
       else
         close_workbook
       end
-      # trace "close: canceled by user" if alive? &&
-      #  (opts[:if_unsaved] == :alert || opts[:if_unsaved] == :excel) && (not @ole_workbook.Saved)
     end
 
   private
@@ -621,10 +618,6 @@ module RobustExcelOle
     def save(opts = { })  # option opts is deprecated #
       raise ObjectNotAlive, 'workbook is not alive' unless alive?
       raise WorkbookReadOnly, 'Not opened for writing (opened with :read_only option)' if @ole_workbook.ReadOnly   
-      # if you have open the workbook with :read_only => true,
-      # then you could close the workbook and open it again with option :read_only => false
-      # otherwise the workbook may already be open writable in an another Excel instance
-      # then you could use this workbook or close the workbook there
       begin
         @ole_workbook.Save
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
@@ -714,11 +707,6 @@ module RobustExcelOle
 
   private
 
-    def store_myself
-      bookstore.store(self)
-      @stored_filename = filename
-    end
-
     def save_as_workbook(file, options)  
       dirname, basename = File.split(file)
       file_format =
@@ -736,6 +724,11 @@ module RobustExcelOle
       else
         raise UnexpectedREOError, "unknown WIN32OELERuntimeError:\n#{msg.message}"
       end
+    end
+
+    def store_myself
+      bookstore.store(self)
+      @stored_filename = filename
     end
 
   public
@@ -812,7 +805,6 @@ module RobustExcelOle
             sheet.Copy({ after_or_before.to_s => base_sheet.ole_worksheet })
           else
             @ole_workbook.Worksheets.Add({ after_or_before.to_s => base_sheet.ole_worksheet })
-            #@ole_workbook.Worksheets.Item(ole_workbook.Worksheets.Count).Activate
           end
         else
           if after_or_before == :before 
@@ -822,8 +814,6 @@ module RobustExcelOle
               ole_workbook.Worksheets.Add(base_sheet.ole_worksheet)
             end
           else
-            #not_given = WIN32OLE_VARIANT.new(nil, WIN32OLE::VARIANT::VT_NULL)
-            #ole_workbook.Worksheets.Add(not_given,base_sheet.ole_worksheet)          
             if base_sheet.name != last_sheet_local.name
               if sheet
                 sheet.Copy(base_sheet.Next)
@@ -915,7 +905,6 @@ module RobustExcelOle
       true
     rescue
       @ole_workbook = nil  # dead object won't be alive again
-      # t $!.message
       false
     end
 
@@ -1029,16 +1018,6 @@ module RobustExcelOle
     end
 
     # @private
-    def self.address_class    
-      @address_class ||= begin
-        module_name = self.parent_name
-        "#{module_name}::Address".constantize
-      rescue NameError => e
-        Address
-      end
-    end
-
-    # @private
     def excel_class        
       self.class.excel_class
     end
@@ -1046,11 +1025,6 @@ module RobustExcelOle
     # @private
     def worksheet_class        
       self.class.worksheet_class
-    end
-
-    # @private
-    def address_class        
-      self.class.address_class
     end
 
     include MethodHelpers

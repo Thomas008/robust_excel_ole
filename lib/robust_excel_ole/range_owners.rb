@@ -75,7 +75,7 @@ module RobustExcelOle
           ole_range.Value = value
         else
           address_r1c1 = ole_range.AddressLocal(true,true,XlR1C1)
-          row, col = int_range(address_r1c1)
+          row, col = address_tool.as_integer_ranges(address_r1c1)
           row.each_with_index do |r,i|
             col.each_with_index do |c,j|
               ole_range.Cells(i+1,j+1).Value = (value.respond_to?(:first) ? value[i][j] : value )
@@ -141,7 +141,7 @@ module RobustExcelOle
           ole_range.Value = value
         else
           address_r1c1 = ole_range.AddressLocal(true,true,XlR1C1)
-          row, col = int_range(address_r1c1)
+          row, col = address_tool.as_integer_ranges(address_r1c1)
           row.each_with_index do |r,i|
             col.each_with_index do |c,j|
               ole_range.Cells(i+1,j+1).Value = (value.respond_to?(:first) ? value[i][j] : value)
@@ -192,7 +192,7 @@ module RobustExcelOle
         if self.is_a?(Worksheet) && (range.nil? || (address2 != :__not_provided))
           address = name_or_address
           address = [name_or_address,address2] unless address2 == :__not_provided         
-          self.Names.Add('__dummy001',nil,true,nil,nil,nil,nil,nil,nil,'=' + r1c1(address))          
+          self.Names.Add('__dummy001',nil,true,nil,nil,nil,nil,nil,nil,'=' + address_tool.as_r1c1(address))          
           range = RobustExcelOle::Range.new(name_object('__dummy001').RefersToRange)
           self.Names.Item('__dummy001').Delete
           workbook = self.is_a?(Workbook) ? self : self.workbook
@@ -216,7 +216,7 @@ module RobustExcelOle
     def add_name(name, addr, addr_deprecated = :__not_provided)
       addr = [addr,addr_deprecated] unless addr_deprecated == :__not_provided
       begin       
-        self.Names.Add(name, nil, true, nil, nil, nil, nil, nil, nil, '=' + r1c1(addr))
+        self.Names.Add(name, nil, true, nil, nil, nil, nil, nil, nil, '=' + address_tool.as_r1c1(addr))
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException
         raise RangeNotEvaluatable, "cannot add name #{name.inspect} to range #{addr.inspect}"
       end
@@ -260,13 +260,8 @@ module RobustExcelOle
     end
 
     # @private
-    def int_range(address)
-      excel.address_tool.int_range(address)
-    end
-
-    # @private
-    def r1c1(address)
-      excel.address_tool.r1c1(address)
+    def address_tool
+      excel.address_tool
     end
 
   private

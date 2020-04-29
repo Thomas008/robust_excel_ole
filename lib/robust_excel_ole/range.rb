@@ -48,7 +48,7 @@ module RobustExcelOle
           self.Value
         else
           address_r1c1 = self.AddressLocal(true,true,XlR1C1)
-          row, col = int_range(address_r1c1)
+          row, col = address_tool.as_integer_ranges(address_r1c1)
           values = []
           row.each do |r|
             values_col = []
@@ -69,7 +69,7 @@ module RobustExcelOle
           ole_range.Value = value
         else
           address_r1c1 = ole_range.AddressLocal(true,true,XlR1C1)
-          row, col = int_range(address_r1c1)
+          row, col = address_tool.as_integer_ranges(address_r1c1)
           row.each_with_index do |r,i|
             col.each_with_index do |c,j|
               ole_range.Cells(i+1,j+1).Value = (value.respond_to?(:first) ? value[i][j] : value)
@@ -115,8 +115,7 @@ module RobustExcelOle
           { }
         end
       end
-      rows, columns = int_range(dest_address)
-      #dest_sheet = @worksheet if dest_sheet == :__not_provided
+      rows, columns = address_tool.integer_ranges(dest_address)
       dest_address_is_position = (rows.min == rows.max && columns.min == columns.max)
       dest_range_address = if (not dest_address_is_position) 
           [rows.min..rows.max,columns.min..columns.max]
@@ -168,7 +167,7 @@ module RobustExcelOle
     # @options [Worksheet] the destination worksheet
     # @options [Hash] options: :transpose, :values_only
     def copy_special(dest_address, dest_sheet = :__not_provided, options = { })
-      rows, columns = int_range(dest_address)
+      rows, columns = address_tool.integer_ranges(dest_address)
       dest_sheet = @worksheet if dest_sheet == :__not_provided
       dest_address_is_position = (rows.min == rows.max && columns.min == columns.max)
       dest_range_address = if (not dest_address_is_position) 
@@ -225,8 +224,9 @@ module RobustExcelOle
       @worksheet.workbook.excel
     end
 
-    def int_range(address)
-      excel.address_tool.int_range(address)
+    # @private
+    def address_tool
+      excel.address_tool
     end 
 
 

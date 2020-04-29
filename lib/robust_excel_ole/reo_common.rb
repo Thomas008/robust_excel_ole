@@ -51,6 +51,22 @@ module RobustExcelOle
   end
 
   # @private
+  class TypeREOError < REOError                    
+  end
+
+  # @private
+  class AddressInvalid < REOError                  
+  end
+
+  # @private
+  class UnexpectedREOError < REOError              
+  end
+
+  # @private
+  class NotImplementedREOError < REOError          
+  end
+
+  # @private
   class ExcelDamaged < ExcelREOError               
   end
 
@@ -126,32 +142,13 @@ module RobustExcelOle
   class ObjectNotAlive < MiscREOError              
   end
 
-  # @private
-  class TypeREOError < REOError                    
-  end
-
-  # @private
-  class TimeOut < REOError                         
-  end
-
-  # @private
-  class AddressToolInvalid < REOError                  
-  end
-
-  # @private
-  class UnexpectedREOError < REOError              
-  end
-
-  # @private
-  class NotImplementedREOError < REOError          
-  end
 
   class REOCommon
 
     # @private
-    def excel
-      raise TypeREOError, 'receiver instance is neither an Excel nor a Workbook'
-    end
+    #def excel
+    #  raise TypeREOError, 'receiver instance is neither an Excel nor a Workbook'
+    #end
 
     # @private
     def own_methods

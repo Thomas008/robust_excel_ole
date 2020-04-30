@@ -278,12 +278,20 @@ module RobustExcelOle
       @ole_workbook = begin
         WIN32OLE.connect(General.absolute_path(filename))
       rescue
-        raise($!.message =~ /moniker/ ? WorkbookConnectingBlockingError : WorkbookConnectingUnknownError) 
+        if $!.message =~ /moniker/
+          raise WorkbookConnectingBlockingError, "some workbook is blocking when connecting"
+        else 
+          raise WorkbookConnectingUnknownError, "unknown error when connecting to a workbook"
+        end
       end
       ole_excel = begin
         @ole_workbook.Application     
       rescue 
-        raise($!.message =~ /dispid/ ? WorkbookConnectingUnsavedError : WorkbookConnectingUnknownError) 
+        if $!.message =~ /dispid/
+          raise WorkbookConnectingUnsavedError, "workbook is unsaved when connecting"
+        else 
+          raise WorkbookConnectingUnknownError, "unknown error when connecting to a workbook"
+        end
       end
       set_was_open options, (ole_excel.Workbooks.Count == workbooks_number)
       @excel = excel_class.new(ole_excel)

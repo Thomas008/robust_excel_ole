@@ -257,12 +257,7 @@ module RobustExcelOle
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException
         raise UnexpectedREOError, "name error in #{File.basename(self.stored_filename).inspect}"
       end
-    end
-
-    # @private
-    def address_tool
-      excel.address_tool
-    end
+    end   
 
   private
 
@@ -279,11 +274,15 @@ module RobustExcelOle
   end
 
   # @private
-  class RangeNotCreated < MiscREOError             
+  class NameNotFound < NamesREOError               
   end
 
   # @private
-  class RangeNotCopied < MiscREOError              
+  class NameAlreadyExists < NamesREOError          
   end
+
+  # @private
+  class RangeNotCreated < MiscREOError             
+  end  
 
 end

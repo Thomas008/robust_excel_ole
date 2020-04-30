@@ -225,12 +225,6 @@ module RobustExcelOle
     end
 
     # @private
-    def address_tool
-      excel.address_tool
-    end 
-
-
-    # @private
     def self.worksheet_class   
       @worksheet_class ||= begin
         module_name = parent_name
@@ -267,4 +261,9 @@ module RobustExcelOle
       end
     end
   end
+
+  # @private
+  class RangeNotCopied < MiscREOError              
+  end
+
 end

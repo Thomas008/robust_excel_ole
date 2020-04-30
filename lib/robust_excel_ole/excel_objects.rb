@@ -8,22 +8,11 @@ module RobustExcelOle
       self
     end
 
-  end
+    # @private
+    def address_tool
+      excel.address_tool
+    end
 
-  # @private
-  class RangeNotCreated < MiscREOError             
-  end
-
-  # @private
-  class RangeNotCopied < MiscREOError              
-  end
-
-  # @private
-  class NameNotFound < NamesREOError               
-  end
-
-  # @private
-  class NameAlreadyExists < NamesREOError          
   end
 
   # @private

@@ -108,4 +108,8 @@ module RobustExcelOle
 
   end
 
+  # @private
+  class AddressInvalid < REOError                  
+  end
+
 end

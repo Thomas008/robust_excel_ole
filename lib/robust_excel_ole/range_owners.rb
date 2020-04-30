@@ -278,4 +278,12 @@ module RobustExcelOle
 
   end
 
+  # @private
+  class RangeNotCreated < MiscREOError             
+  end
+
+  # @private
+  class RangeNotCopied < MiscREOError              
+  end
+
 end

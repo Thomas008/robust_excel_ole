@@ -55,51 +55,11 @@ module RobustExcelOle
   end
 
   # @private
-  class AddressInvalid < REOError                  
-  end
-
-  # @private
   class UnexpectedREOError < REOError              
   end
 
   # @private
   class NotImplementedREOError < REOError          
-  end
-
-  # @private
-  class ExcelDamaged < ExcelREOError               
-  end
-
-  # @private
-  class UnsavedWorkbooks < ExcelREOError           
-  end
-
-  # @private
-  class WorkbookBlocked < WorkbookREOError         
-  end
-
-  # @private
-  class WorkbookNotSaved < WorkbookREOError        
-  end
-
-  # @private
-  class WorkbookReadOnly < WorkbookREOError        
-  end
-
-  # @private
-  class WorkbookBeingUsed < WorkbookREOError       
-  end
-
-  # @private
-  class WorkbookConnectingUnsavedError < WorkbookREOError        
-  end
-
-  # @private
-  class WorkbookConnectingBlockingError < WorkbookREOError       
-  end
-
-  # @private
-  class WorkbookConnectingUnknownError < WorkbookREOError       
   end
 
   # @private
@@ -109,11 +69,7 @@ module RobustExcelOle
   # @private
   class FileNameNotGiven < FileREOError            
   end
-
-  # @private
-  class FileAlreadyExists < FileREOError           
-  end
-
+  
   # @private
   class NameNotFound < NamesREOError               
   end
@@ -124,14 +80,6 @@ module RobustExcelOle
 
   # @private
   class RangeNotEvaluatable < MiscREOError         
-  end
-
-  # @private
-  class RangeNotCreated < MiscREOError             
-  end
-
-  # @private
-  class RangeNotCopied < MiscREOError              
   end
 
   # @private

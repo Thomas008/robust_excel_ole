@@ -1056,6 +1056,39 @@ module RobustExcelOle
 
 public
 
+  # @private
+  class WorkbookBlocked < WorkbookREOError         
+  end
+
+  # @private
+  class WorkbookNotSaved < WorkbookREOError        
+  end
+
+  # @private
+  class WorkbookReadOnly < WorkbookREOError        
+  end
+
+  # @private
+  class WorkbookBeingUsed < WorkbookREOError       
+  end
+
+  # @private
+  class WorkbookConnectingUnsavedError < WorkbookREOError        
+  end
+
+  # @private
+  class WorkbookConnectingBlockingError < WorkbookREOError       
+  end
+
+  # @private
+  class WorkbookConnectingUnknownError < WorkbookREOError       
+  end
+
+  # @private
+  class FileAlreadyExists < FileREOError           
+  end
+
+
   Book = Workbook
 
 end

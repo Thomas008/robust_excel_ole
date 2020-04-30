@@ -780,7 +780,16 @@ module RobustExcelOle
     end
   end
 
-  public
+public
+
+  # @private
+  class ExcelDamaged < ExcelREOError               
+  end
+
+  # @private
+  class UnsavedWorkbooks < ExcelREOError           
+  end
+
 
   Application = Excel
 
@@ -789,3 +798,4 @@ end
 class WIN32OLE
   include Enumerable
 end
+

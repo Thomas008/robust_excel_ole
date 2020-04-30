@@ -1096,7 +1096,15 @@ public
   class FileAlreadyExists < FileREOError           
   end
 
+  # @private
+  class FileNameNotGiven < FileREOError            
+  end
 
+  # @private
+  class FileNotFound < FileREOError                
+  end
+  
+  
   Book = Workbook
 
 end

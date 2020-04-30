@@ -61,35 +61,7 @@ module RobustExcelOle
   # @private
   class NotImplementedREOError < REOError          
   end
-
-  # @private
-  class FileNotFound < FileREOError                
-  end
-
-  # @private
-  class FileNameNotGiven < FileREOError            
-  end
-  
-  # @private
-  class NameNotFound < NamesREOError               
-  end
-
-  # @private
-  class NameAlreadyExists < NamesREOError          
-  end
-
-  # @private
-  class RangeNotEvaluatable < MiscREOError         
-  end
-
-  # @private
-  class OptionInvalid < MiscREOError               
-  end
-
-  # @private
-  class ObjectNotAlive < MiscREOError              
-  end
-
+    
 
   class REOCommon
 

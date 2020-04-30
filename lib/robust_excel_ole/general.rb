@@ -94,28 +94,22 @@ end
 
 
 # @private
-class Object
+class WIN32OLE
   
   # type-lifting WIN32OLE objects to RobustExcelOle objects
   def to_reo
-    case self
-    when WIN32OLE
-      class2method = [{Excel => :Hwnd}, {Workbook => :FullName}, {Worksheet => :Copy}, {RobustExcelOle::Range => :Row}]
-      class2method.each do |element|
-        classname = element.first.first
-        method = element.first.last
-        begin
-          self.send(method)
-          return classname.new(self)
-        rescue
-          next
-        end
+    class2method = [{Excel => :Hwnd}, {Workbook => :FullName}, {Worksheet => :Copy}, {RobustExcelOle::Range => :Row}]
+    class2method.each do |element|
+      classname = element.first.first
+      method = element.first.last
+      begin
+        self.send(method)
+        return classname.new(self)
+      rescue
+        next
       end
-    when Workbook, Worksheet, Excel, RobustExcelOle::Range, Cell
-      self
-    else
-      raise TypeREOError, "given object is neither a WIN32OLE nor a RobustExcelOle object"
     end
+    raise TypeREOError, "given object cannot be type-lifted to a RobustExcelOle object"
   end
 end
 

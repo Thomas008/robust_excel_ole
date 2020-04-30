@@ -4,6 +4,8 @@ else
   require 'win32ole'
 end
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/reo_common')
+require File.join(File.dirname(__FILE__), 'robust_excel_ole/excel_objects')
+require File.join(File.dirname(__FILE__), 'robust_excel_ole/range_likes')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/range_owners')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/address_tool')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/general')

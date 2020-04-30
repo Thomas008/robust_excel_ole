@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 module RobustExcelOle
-  class Cell < REOCommon
+  class Cell < RangeLikes
     attr_reader :ole_cell
 
     def initialize(win32_cell)

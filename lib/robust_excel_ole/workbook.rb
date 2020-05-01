@@ -885,19 +885,7 @@ module RobustExcelOle
     def for_this_workbook(opts)
       return unless alive?
       self.class.process_options(opts, :use_defaults => false)
-      visible_before = visible
-      check_compatibility_before = check_compatibility
-      unless opts[:read_only].nil?
-        # if the ReadOnly status shall be changed, then close and reopen it
-        if (!writable && !(opts[:read_only])) || (writable && opts[:read_only])
-          opts[:check_compatibility] = check_compatibility if opts[:check_compatibility].nil?
-          close(:if_unsaved => true)
-          open_or_create_workbook(@stored_filename, opts)
-        end
-      end
-      self.visible = opts[:force][:visible].nil? ? visible_before : opts[:force][:visible]
-      self.CheckCompatibility = opts[:check_compatibility].nil? ? check_compatibility_before : opts[:check_compatibility]
-      @excel.calculation = opts[:calculation] unless opts[:calculation].nil?
+      self.send :apply_options, @stored_filename, opts
     end
 
     # brings workbook to foreground, makes it available for heyboard inputs, makes the Excel instance visible

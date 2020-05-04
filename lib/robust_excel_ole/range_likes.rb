@@ -2,7 +2,7 @@
 
 module RobustExcelOle
 
-  class RangeLikes < REOCommon
+  class RangeLikes < ExcelObjects
 
     def to_reo
       self

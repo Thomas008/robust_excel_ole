@@ -596,8 +596,8 @@ module RobustExcelOle
           do_not_write = opts[:read_only] || opts[:writable]==false
           book.save unless book.saved || do_not_write || !book.writable
           if (opts[:read_only] && was_writable) || (!opts[:read_only] && !was_writable)
-            book.apply_options(file, opts.merge({:read_only => !was_writable, 
-                                               :if_unsaved => (opts[:writable]==false ? :forget : :save)}))
+            book.send :apply_options, file, opts.merge({:read_only => !was_writable, 
+                                            :if_unsaved => (opts[:writable]==false ? :forget : :save)})
           end
           was_open = open_opts[:was_open]
           if was_open

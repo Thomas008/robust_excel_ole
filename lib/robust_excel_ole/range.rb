@@ -115,7 +115,7 @@ module RobustExcelOle
           { }
         end
       end
-      rows, columns = address_tool.integer_ranges(dest_address)
+      rows, columns = address_tool.as_integer_ranges(dest_address)
       dest_address_is_position = (rows.min == rows.max && columns.min == columns.max)
       dest_range_address = if (not dest_address_is_position) 
           [rows.min..rows.max,columns.min..columns.max]
@@ -167,7 +167,7 @@ module RobustExcelOle
     # @options [Worksheet] the destination worksheet
     # @options [Hash] options: :transpose, :values_only
     def copy_special(dest_address, dest_sheet = :__not_provided, options = { })
-      rows, columns = address_tool.integer_ranges(dest_address)
+      rows, columns = address_tool.as_integer_ranges(dest_address)
       dest_sheet = @worksheet if dest_sheet == :__not_provided
       dest_address_is_position = (rows.min == rows.max && columns.min == columns.max)
       dest_range_address = if (not dest_address_is_position) 

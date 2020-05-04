@@ -589,7 +589,7 @@ module RobustExcelOle
         was_saved = book.saved
         was_check_compatibility = book.check_compatibility
         was_calculation = book.excel.properties[:calculation]
-        book.apply_options(file,opts) 
+        book.send :apply_options, file, opts
         yield book
       ensure
         if book && book.alive?

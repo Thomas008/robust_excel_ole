@@ -22,7 +22,8 @@ module RobustExcelOle
     CORE_DEFAULT_OPEN_OPTS = {
       :default => {:excel => :current}, 
       :force => {},
-      :update_links => :never
+      :update_links => :never,
+      :check_compatibility => false
     }.freeze
 
     DEFAULT_OPEN_OPTS = {

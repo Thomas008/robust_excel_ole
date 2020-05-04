@@ -68,8 +68,8 @@ describe Workbook do
       @book.CheckCompatibility.should be false
       @book.for_this_workbook(:read_only => true)
       @book.excel.Visible.should be true
-      @book.Windows(@book.Name).Visible.should be false
-      @book.visible.should be false
+      @book.Windows(@book.Name).Visible.should be true
+      @book.visible.should be true
       @book.ReadOnly.should be true
       @book.CheckCompatibility.should be false
       @book.for_this_workbook(:visible => true)

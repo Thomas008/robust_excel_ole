@@ -812,28 +812,16 @@ module RobustExcelOle
           if sheet
             sheet.Copy({ after_or_before.to_s => base_sheet.ole_worksheet })
           else
-            @ole_workbook.Worksheets.Add({ after_or_before.to_s => base_sheet.ole_worksheet })
+            ole_workbook.Worksheets.Add({ after_or_before.to_s => base_sheet.ole_worksheet })
           end
         else
           if after_or_before == :before 
-            if sheet
-              sheet.Copy(base_sheet.ole_worksheet)
-            else
-              ole_workbook.Worksheets.Add(base_sheet.ole_worksheet)
-            end
+            add_or_copy_sheet_simple(sheet,base_sheet)
           else
             if base_sheet.name != last_sheet_local.name
-              if sheet
-                sheet.Copy(base_sheet.Next)
-              else
-                ole_workbook.Worksheets.Add(base_sheet.Next)
-              end
+              add_or_copy_sheet_simple(sheet,base_sheet.Next)
             else
-              if sheet
-                sheet.Copy(base_sheet.ole_worksheet)  
-              else
-                ole_workbook.Worksheets.Add(base_sheet.ole_worksheet) 
-              end
+              add_or_copy_sheet_simple(sheet,base_sheet)
               base_sheet.Move(ole_workbook.Worksheets.Item(ole_workbook.Worksheets.Count-1))
               ole_workbook.Worksheets.Item(ole_workbook.Worksheets.Count).Activate
             end
@@ -842,11 +830,22 @@ module RobustExcelOle
       rescue WIN32OLERuntimeError, NameNotFound, Java::OrgRacobCom::ComFailException
         raise WorksheetREOError, "could not add given worksheet #{sheet.inspect}"
       end
-      ole_sheet = ole_workbook.Activesheet
-      new_sheet = worksheet_class.new(ole_sheet)
+      new_sheet = worksheet_class.new(ole_workbook.Activesheet)
       new_sheet.name = new_sheet_name if new_sheet_name
       new_sheet
     end
+
+  private
+  
+    def add_or_copy_sheet_simple(sheet,base_sheet)
+      if sheet
+        sheet.Copy(base_sheet.ole_worksheet)  
+      else
+        ole_workbook.Worksheets.Add(base_sheet.ole_worksheet) 
+      end
+    end  
+
+  public
 
     # for compatibility to older versions
     def add_sheet(sheet = nil, opts = { })

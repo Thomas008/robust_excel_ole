@@ -1579,7 +1579,7 @@ describe Workbook do
       it "should raise an error if no Excel or Workbook is given" do
         expect{
           Workbook.open(@simple_file1, :force => {:excel => :b})
-          }.to raise_error(TypeREOError, "given object is neither a WIN32OLE nor a RobustExcelOle object")
+          }.to raise_error(TypeREOError, "provided value for the Excel option is neither an Excel object nor a valid option")
       end
 
       it "should do force_excel even if both force_ and default_excel is given" do
@@ -1735,7 +1735,7 @@ describe Workbook do
       it "should raise an error if no Excel or Workbook is given" do
         expect{
           Workbook.open(@simple_file1, :excel => :b)
-          }.to raise_error(TypeREOError, "given object is neither a WIN32OLE nor a RobustExcelOle object")
+          }.to raise_error(TypeREOError, "provided value for the Excel option is neither an Excel object nor a valid option")
       end
 
       it "should do force_excel even if both force_ and default_excel is given" do
@@ -1893,7 +1893,7 @@ describe Workbook do
       it "should raise an error if no Excel or Workbook is given" do
         expect{
           Workbook.open(@simple_file1, :force_excel => :b)
-          }.to raise_error(TypeREOError, "given object is neither a WIN32OLE nor a RobustExcelOle object")
+          }.to raise_error(TypeREOError, "provided value for the Excel option is neither an Excel object nor a valid option")
       end
 
       it "should do force_excel even if both force_ and default_excel is given" do
@@ -2134,7 +2134,7 @@ describe Workbook do
       it "should raise an error if no Excel or Workbook is given" do
         expect{
           Workbook.open(@different_file, :default => {:excel => :a})
-          }.to raise_error(TypeREOError, "given object is neither a WIN32OLE nor a RobustExcelOle object")
+          }.to raise_error(TypeREOError, "provided value for the Excel option is neither an Excel object nor a valid option")
       end
       
     end
@@ -2316,7 +2316,7 @@ describe Workbook do
       it "should raise an error if no Excel or Workbook is given" do
         expect{
           Workbook.open(@different_file, :default_excel => :a)
-          }.to raise_error(TypeREOError, "given object is neither a WIN32OLE nor a RobustExcelOle object")
+          }.to raise_error(TypeREOError, "provided value for the Excel option is neither an Excel object nor a valid option")
       end
       
     end

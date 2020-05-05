@@ -106,9 +106,12 @@ module RobustExcelOle
       book = nil
       if opts[:force][:excel] != :new
         # if readonly is true, then prefer a book that is given in force_excel if this option is set              
-        forced_excel = 
+        forced_excel = begin
           (opts[:force][:excel].nil? || opts[:force][:excel] == :current) ? 
-            (excel_class.new(:reuse => true) if !::CONNECT_JRUBY_BUG) : opts[:force][:excel].to_reo.excel              
+            (excel_class.new(:reuse => true) if !::CONNECT_JRUBY_BUG) : opts[:force][:excel].to_reo.excel
+        rescue NoMethodError
+          raise TypeREOError, "provided value for the Excel option is neither an Excel object nor a valid option"
+        end
         begin
           book = if File.exists?(file)
             bookstore.fetch(file, :prefer_writable => !(opts[:read_only]),
@@ -116,7 +119,7 @@ module RobustExcelOle
           end
         rescue
           raise
-          trace "#{$!.message}"
+          #trace "#{$!.message}"
         end
         if book 
           set_was_open opts, book.alive?
@@ -147,7 +150,7 @@ module RobustExcelOle
         @ole_workbook = file_or_workbook
         ole_excel = begin 
           @ole_workbook.Application
-        rescue
+        rescue WIN32OLERuntimeError
           raise ExcelREOError, 'could not determine the Excel instance'
         end
         @excel = excel_class.new(ole_excel)
@@ -225,7 +228,7 @@ module RobustExcelOle
       elsif excel_option.respond_to?(:to_reo)
         excel_option.to_reo.excel
       else
-        raise ExcelREOError, "could not determine an Excel object"
+        raise TypeREOError, "provided value for the Excel option is neither an Excel object nor a valid option"
       end
       raise ExcelREOError, "Excel is not alive" unless @excel && @excel.alive?
     end

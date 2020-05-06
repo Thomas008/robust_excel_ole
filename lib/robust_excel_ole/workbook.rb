@@ -268,7 +268,10 @@ module RobustExcelOle
     # applies options to workbook named with filename
     def apply_options(filename, options)
       # changing read-only mode      
-      ensure_workbook(filename, options) if options[:read_only] && options[:read_only] != @ole_workbook.ReadOnly
+      #ensure_workbook(filename, options) if options[:read_only] && options[:read_only] != @ole_workbook.ReadOnly
+      if (!options[:read_only].nil?) && options[:read_only] != @ole_workbook.ReadOnly
+        ensure_workbook(filename, options) 
+      end
       retain_saved do
         self.visible = options[:force][:visible].nil? ? @excel.Visible : options[:force][:visible]
         @excel.calculation = options[:calculation] unless options[:calculation].nil?

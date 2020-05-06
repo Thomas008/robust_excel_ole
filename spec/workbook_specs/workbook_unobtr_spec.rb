@@ -1677,7 +1677,7 @@ describe Workbook do
         expect{
           Workbook.unobtrusively(@simple_file, :if_closed => :invalid_option) do |book|
           end
-        }.to raise_error(TypeREOError, "given object is neither an Excel, a Workbook, nor a Win32ole")
+        }.to raise_error(TypeREOError, "provided Excel option value is neither an Excel object nor a valid option")
       end
 
     end

@@ -110,7 +110,7 @@ module RobustExcelOle
           (opts[:force][:excel].nil? || opts[:force][:excel] == :current) ? 
             (excel_class.new(:reuse => true) if !::CONNECT_JRUBY_BUG) : opts[:force][:excel].to_reo.excel
         rescue NoMethodError
-          raise TypeREOError, "provided value for the Excel option is neither an Excel object nor a valid option"
+          raise TypeREOError, "provided Excel option value is neither an Excel object nor a valid option"
         end
         begin
           book = if File.exists?(file)
@@ -228,7 +228,7 @@ module RobustExcelOle
       elsif excel_option.respond_to?(:to_reo)
         excel_option.to_reo.excel
       else
-        raise TypeREOError, "provided value for the Excel option is neither an Excel object nor a valid option"
+        raise TypeREOError, "provided Excel option value is neither an Excel object nor a valid option"
       end
       raise ExcelREOError, "Excel is not alive" unless @excel && @excel.alive?
     end

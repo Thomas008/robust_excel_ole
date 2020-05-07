@@ -713,6 +713,8 @@ module RobustExcelOle
       @workbook = workbook_class.new(@ole_excel.ActiveWorkbook)
     end    
 
+    alias_method :active_workbook, :workbook
+
     # @private
     def to_s            
       '#<Excel: ' + hwnd.to_s + ('not alive' unless alive?).to_s + '>'

@@ -16,7 +16,7 @@ module RobustExcelOle
   # that you would apply for an Application object. 
   # See https://docs.microsoft.com/en-us/office/vba/api/excel.application(object)#methods
 
-  class Excel < RangeOwners
+  class Excel < VbaObjects
     attr_reader :ole_excel
     attr_reader :properties
     attr_reader :address_tool

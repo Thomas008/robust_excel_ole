@@ -6,7 +6,7 @@ module RobustExcelOle
   # that you would apply for a Range object. 
   # See https://docs.microsoft.com/en-us/office/vba/api/excel.worksheet#methods
 
-  class Range < RangeLikes
+  class Range < VbaObjects
     include Enumerable
     attr_reader :ole_range
     attr_reader :worksheet

@@ -2018,7 +2018,15 @@ module RobustExcelOle
 
       end
     end
+  end
+end
 
+# @private
+class TestError < RuntimeError 
+end
+
+
+=begin
     context "setting the name of a range" do
 
        before do
@@ -2250,10 +2258,4 @@ module RobustExcelOle
 
 
     end
-
-  end
-end
-
-# @private
-class TestError < RuntimeError 
-end
+=end

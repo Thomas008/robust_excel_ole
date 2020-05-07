@@ -280,7 +280,7 @@ module RobustExcelOle
     end
 
     # connects to an unknown workbook
-    def connect(filename,options)   
+    def connect(filename, options)   
       workbooks_number = excel_class.excels_number==0 ? 0 : excel_class.current.Workbooks.Count
       @ole_workbook = begin
         WIN32OLE.connect(General.absolute_path(filename))
@@ -304,7 +304,7 @@ module RobustExcelOle
       @excel = excel_class.new(ole_excel)
     end
 
-    def manage_nonexisting_file(filename,options)   
+    def manage_nonexisting_file(filename, options)   
       return if File.exist?(filename)
       abs_filename = General.absolute_path(filename)
       if options[:if_absent] == :create
@@ -322,7 +322,7 @@ module RobustExcelOle
       end
     end
 
-    def manage_blocking_or_unsaved_workbook(filename,options)
+    def manage_blocking_or_unsaved_workbook(filename, options)
       filename = General.absolute_path(filename)
       filename = General.canonize(filename)
       previous_file = General.canonize(@ole_workbook.Fullname)
@@ -339,7 +339,7 @@ module RobustExcelOle
       end        
     end
 
-    def manage_blocking_workbook(filename,options)
+    def manage_blocking_workbook(filename, options)
       case options[:if_obstructed]
       when :raise
         raise WorkbookBlocked, "can't open workbook #{filename},
@@ -366,14 +366,14 @@ module RobustExcelOle
       end
     end
 
-    def manage_unsaved_workbook(filename,options)
+    def manage_unsaved_workbook(filename, options)
       case options[:if_unsaved]
       when :raise
         raise WorkbookNotSaved, "workbook is already open but not saved: #{File.basename(filename).inspect}" +
         "\nHint: Save the workbook or open the workbook using option :if_unsaved with values :forget and :accept to
          close the unsaved workbook and reopen it, or to let the unsaved workbook open, respectively"
       when :forget
-        manage_forgetting_workbook(filename,options)
+        manage_forgetting_workbook(filename, options)
       when :accept
         # do nothing
       when :save
@@ -815,20 +815,23 @@ module RobustExcelOle
       last_sheet_local = last_sheet
       after_or_before, base_sheet = opts.to_a.first || [:after, last_sheet_local]
       begin
-        if !::COPYSHEETS_JRUBY_BUG
-          if sheet
-            sheet.Copy({ after_or_before.to_s => base_sheet.ole_worksheet })
-          else
-            ole_workbook.Worksheets.Add({ after_or_before.to_s => base_sheet.ole_worksheet })
-          end
+        if !::COPYSHEETS_JRUBY_BUG          
+          #if sheet
+          #  sheet.Copy({ after_or_before.to_s => base_sheet.ole_worksheet })
+          #else
+          #  ole_workbook.Worksheets.Add({ after_or_before.to_s => base_sheet.ole_worksheet })
+          #end
+          add_or_copy_sheet_simple(sheet, { after_or_before.to_s => base_sheet.ole_worksheet })
         else
           if after_or_before == :before 
-            add_or_copy_sheet_simple(sheet,base_sheet)
+            #add_or_copy_sheet_simple(sheet,base_sheet)
+            add_or_copy_sheet_simple(sheet, base_sheet.ole_worksheet)
           else
             if base_sheet.name != last_sheet_local.name
-              add_or_copy_sheet_simple(sheet,base_sheet.Next)
+              add_or_copy_sheet_simple(sheet, base_sheet.Next)
             else
-              add_or_copy_sheet_simple(sheet,base_sheet)
+              #add_or_copy_sheet_simple(sheet,base_sheet)
+              add_or_copy_sheet_simple(sheet, base_sheet.ole_worksheet)
               base_sheet.Move(ole_workbook.Worksheets.Item(ole_workbook.Worksheets.Count-1))
               ole_workbook.Worksheets.Item(ole_workbook.Worksheets.Count).Activate
             end
@@ -844,13 +847,21 @@ module RobustExcelOle
 
   private
   
-    def add_or_copy_sheet_simple(sheet,base_sheet)
+    #def add_or_copy_sheet_simple(sheet, base_sheet)
+    #  if sheet
+    #    sheet.Copy(base_sheet.ole_worksheet)  
+    #  else
+    #    ole_workbook.Worksheets.Add(base_sheet.ole_worksheet) 
+    #  end
+    #end  
+
+    def add_or_copy_sheet_simple(sheet, base_ole_worksheet)
       if sheet
-        sheet.Copy(base_sheet.ole_worksheet)  
+        sheet.Copy(base_ole_worksheet)  
       else
-        ole_workbook.Worksheets.Add(base_sheet.ole_worksheet) 
+        ole_workbook.Worksheets.Add(base_ole_worksheet) 
       end
-    end  
+    end 
 
   public
 
@@ -883,7 +894,7 @@ module RobustExcelOle
     # @param [String]  name  the name of the range
     # @param [Variant] value the contents of the range
     def []= (name, value)
-      set_namevalue_glob(name,value,:color => 42)   
+      set_namevalue_glob(name, value, :color => 42)   
     end
 
     # sets options

@@ -2,7 +2,7 @@
 
 module RobustExcelOle
 
-  class AddressTool < REOCommon
+  class AddressTool < Base
 
     def initialize(address_string)
       r1c1_letters = address_string.gsub(/[0-9]/,'')

@@ -2,7 +2,7 @@
 
 module RobustExcelOle
 
-  class RangeOwners < ExcelObjects
+  class RangeOwners < VbaObjects
 
     # returns the contents of a range with given name
     # if the name could not be found or the value could not be determined,

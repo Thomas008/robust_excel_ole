@@ -2,7 +2,7 @@
 
 module RobustExcelOle
 
-  class RangeLikes < ExcelObjects
+  class RangeLikes < VbaObjects
 
     def to_reo
       self

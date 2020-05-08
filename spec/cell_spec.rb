@@ -47,7 +47,7 @@ describe Cell do
 
     describe "#method_missing" do
       context "unknown method" do
-        it { expect { @cell.hogehogefoo }.to raise_error }
+        it { expect { @cell.hogehogefoo }.to raise_error(NoMethodError) }
       end
     end
 

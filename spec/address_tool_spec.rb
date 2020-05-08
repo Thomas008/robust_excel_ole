@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 require File.join(File.dirname(__FILE__), './spec_helper')
-require File.expand_path( '../../lib/robust_excel_ole/reo_common', __FILE__)
+require File.expand_path( '../../lib/robust_excel_ole/base', __FILE__)
 
 $VERBOSE = nil
 

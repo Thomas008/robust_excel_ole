@@ -335,7 +335,7 @@ describe RobustExcelOle::Range do
     #end
 
     context "unknown method" do
-      it { expect { @range.hogehogefoo}.to raise_error }
+      it { expect { @range.hogehogefoo}.to raise_error(NoMethodError) }
     end
   end
 end

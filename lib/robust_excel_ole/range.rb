@@ -241,11 +241,8 @@ module RobustExcelOle
 
   private
 
-    def method_missing(name, *args)
-      puts "method_missing:"
-      puts "name: #{name.inspect}" 
+    def method_missing(name, *args) 
       if name.to_s[0,1] =~ /[A-Z]/
-        puts "here!!!!"
         if ::ERRORMESSAGE_JRUBY_BUG
           begin
             @ole_range.send(name, *args)
@@ -256,12 +253,10 @@ module RobustExcelOle
           begin
             @ole_range.send(name, *args)
           rescue NoMethodError 
-            puts "here2!!!!"
             raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
           end
         end
       else
-        puts "here3!!!!!!!!!!!"
         super
       end
     end

@@ -60,9 +60,16 @@ module RobustExcelOle
       end
 
       it "should type-lift a range" do
-        range = @book1.sheet(1).range([1,1]).ole_range.to_reo
+        range = @book1.sheet(1).range([1..2,1]).ole_range.to_reo
         range.should be_kind_of Range
-        range.Value.should == "foo"
+        range.Value.should == [["foo"],["foo"]]
+      end
+
+      it "should type-lift a cell" do
+        #cell = @book1.sheet(1).range([1,1]).ole_range.to_reo
+        cell = @book1.sheet(1)[1,1]
+        cell.should be_kind_of Cell
+        cell.Value.should == "foo"
       end
 
       it "should not do anything with a REO object" do

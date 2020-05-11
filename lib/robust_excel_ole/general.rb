@@ -104,7 +104,7 @@ class WIN32OLE
       method = element.first.last
       begin
         self.send(method)
-        if classname == RobustExcelOle::Range && self.Rows.Count == 1 && self.Column.Count == 1
+        if classname == RobustExcelOle::Range && self.Rows.Count == 1 && self.Columns.Count == 1
           return Cell.new(self)
         else
           return classname.new(self)

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 module RobustExcelOle
+
   class Cell < Range
     attr_reader :ole_cell
 

@@ -32,13 +32,53 @@ describe Cell do
       @book.close
     end
 
-    describe "#value" do
+    describe "values" do
+
+      it "should yield one element values" do
+        @cell.values.should == ["simple"]
+      end
+
+    end
+
+    describe "#[]" do
+
+      it "should access to the cell itself" do
+        @cell[0].should be_kind_of RobustExcelOle::Cell
+        @cell[0].v.should == "simple"
+      end
+
+      it "should access to the cell itself" do
+        @cell[1].should be_kind_of RobustExcelOle::Cell
+        @cell[1].v.should be nil
+      end
+      
+    end
+
+    describe "#copy" do
+    
+      before do
+        @book1 = Workbook.open(@dir + '/workbook.xls')
+        @sheet1 = @book1.sheet(1)
+        @cell1 = @sheet1[1,1]
+      end
+
+      after do
+        @book1.close(:if_unsaved => :forget)
+      end
+
+      it "should copy range" do
+        @cell1.copy([2,3])
+        @sheet1.range([1..2,2..3]).v.should == [["foo", "workbook", "sheet1"],["foo", nil, "foo"]]
+      end
+    end
+
+    describe "#Value" do
       it "get cell's value" do
         @cell.Value.should eq 'simple'
       end
     end
 
-    describe "#value=" do
+    describe "#Value=" do
       it "change cell data to 'fooooo'" do
         @cell.Value = 'fooooo'
         @cell.Value.should eq 'fooooo'

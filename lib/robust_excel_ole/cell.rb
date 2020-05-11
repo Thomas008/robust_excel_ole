@@ -3,10 +3,12 @@
 module RobustExcelOle
 
   class Cell < Range
-    attr_reader :ole_cell
+    attr_reader :ole_cell    
 
     def initialize(win32_cell)
       @ole_cell = win32_cell.MergeCells ? win32_cell.MergeArea.Item(1,1) : win32_cell
+      #@ole_range = @ole_cell
+      super
     end
 
     def v

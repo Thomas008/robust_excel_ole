@@ -384,7 +384,7 @@ describe Workbook do
             book.visible.should be false
             book.writable.should be true
             book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
-            @new_value = book.sheet(1)[1,1].value
+            @new_value = book.sheet(1)[1,1].Value
             book.Saved.should be false
           end
           ole_wb = WIN32OLE.connect(@abs_filename)
@@ -393,8 +393,8 @@ describe Workbook do
           ole_wb.ReadOnly.should be false
           ole_wb.Close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].value.should_not == @old_value
-          book2.sheet(1)[1,1].value.should == @new_value
+          book2.sheet(1)[1,1].Value.should_not == @old_value
+          book2.sheet(1)[1,1].Value.should == @new_value
         end
 
         it "should modify and remain saved-status and not save the new value when writable => false" do
@@ -403,7 +403,7 @@ describe Workbook do
             book.visible.should be false
             book.writable.should be true
             book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
-            @new_value = book.sheet(1)[1,1].value
+            @new_value = book.sheet(1)[1,1].Value
             book.Saved.should be false
           end
           ole_wb = WIN32OLE.connect(@abs_filename)
@@ -412,8 +412,8 @@ describe Workbook do
           ole_wb.ReadOnly.should be false
           ole_wb.Close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].value.should == @old_value
-          book2.sheet(1)[1,1].value.should_not == @new_value
+          book2.sheet(1)[1,1].Value.should == @old_value
+          book2.sheet(1)[1,1].Value.should_not == @new_value
         end
 
       end
@@ -518,8 +518,8 @@ describe Workbook do
           ole_wb.ReadOnly.should be false
           Excel.kill_all
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].value.should_not == @old_value
-          book2.sheet(1)[1,1].value.should == @new_value
+          book2.sheet(1)[1,1].Value.should_not == @old_value
+          book2.sheet(1)[1,1].Value.should == @new_value
         end
 
         it "should not write with :writable => false" do
@@ -539,8 +539,8 @@ describe Workbook do
           ole_wb.ReadOnly.should be false
           Excel.kill_all
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].value.should == @old_value
-          book2.sheet(1)[1,1].value.should_not == @new_value
+          book2.sheet(1)[1,1].Value.should == @old_value
+          book2.sheet(1)[1,1].Value.should_not == @new_value
         end
 
       end
@@ -596,8 +596,8 @@ describe Workbook do
           ole_wb.ReadOnly.should be true
           ole_wb.Close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].value.should == @old_value
-          book2.sheet(1)[1,1].value.should_not == @new_value
+          book2.sheet(1)[1,1].Value.should == @old_value
+          book2.sheet(1)[1,1].Value.should_not == @new_value
         end
 
         it "should remain read-only when modifying" do
@@ -614,8 +614,8 @@ describe Workbook do
           ole_wb.ReadOnly.should be true
           ole_wb.Close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].value.should_not == @old_value
-          book2.sheet(1)[1,1].value.should == @new_value
+          book2.sheet(1)[1,1].Value.should_not == @old_value
+          book2.sheet(1)[1,1].Value.should == @new_value
         end
 
         it "should remain read-only when modifying" do
@@ -632,8 +632,8 @@ describe Workbook do
           ole_wb.ReadOnly.should be true
           ole_wb.Close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].value.should_not == @old_value
-          book2.sheet(1)[1,1].value.should == @new_value
+          book2.sheet(1)[1,1].Value.should_not == @old_value
+          book2.sheet(1)[1,1].Value.should == @new_value
         end
 
         it "should remain read-only when modifying and not save changes, when :writable => false" do
@@ -650,8 +650,8 @@ describe Workbook do
           ole_wb.ReadOnly.should be true
           ole_wb.Close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].value.should == @old_value
-          book2.sheet(1)[1,1].value.should_not == @new_value
+          book2.sheet(1)[1,1].Value.should == @old_value
+          book2.sheet(1)[1,1].Value.should_not == @new_value
         end
 
         it "should remain read-only when modifying and not save changes, when :writable => false" do
@@ -668,8 +668,8 @@ describe Workbook do
           ole_wb.ReadOnly.should be true
           ole_wb.Close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].value.should == @old_value
-          book2.sheet(1)[1,1].value.should_not == @new_value
+          book2.sheet(1)[1,1].Value.should == @old_value
+          book2.sheet(1)[1,1].Value.should_not == @new_value
         end
 
 
@@ -687,8 +687,8 @@ describe Workbook do
           ole_wb.ReadOnly.should be true
           ole_wb.Close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].value.should == @old_value
-          book2.sheet(1)[1,1].value.should_not == @new_value
+          book2.sheet(1)[1,1].Value.should == @old_value
+          book2.sheet(1)[1,1].Value.should_not == @new_value
         end
 
         it "should remain read-only when modifying and not save changes, even if :writable => true" do
@@ -705,8 +705,8 @@ describe Workbook do
           ole_wb.ReadOnly.should be true
           ole_wb.Close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].value.should == @old_value
-          book2.sheet(1)[1,1].value.should_not == @new_value
+          book2.sheet(1)[1,1].Value.should == @old_value
+          book2.sheet(1)[1,1].Value.should_not == @new_value
         end
 
         it "should remain read-only when modifying and not save changes, when :writable => false" do
@@ -723,8 +723,8 @@ describe Workbook do
           ole_wb.ReadOnly.should be true
           Excel.kill_all
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].value.should == @old_value
-          book2.sheet(1)[1,1].value.should_not == @new_value
+          book2.sheet(1)[1,1].Value.should == @old_value
+          book2.sheet(1)[1,1].Value.should_not == @new_value
         end
 
 

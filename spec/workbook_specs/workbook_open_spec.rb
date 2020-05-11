@@ -609,7 +609,7 @@ describe Workbook do
         Excel.excels_number.should == 1
         book1.ReadOnly.should be false
         book1.excel.Visible.should be false
-        book1.CheckCompatibility.should be false
+        book1.CheckCompatibility.should be true
         book1.Saved.should be true
       end
 

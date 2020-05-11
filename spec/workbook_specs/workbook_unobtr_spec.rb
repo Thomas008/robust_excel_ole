@@ -1612,7 +1612,7 @@ describe Workbook do
         Workbook.unobtrusively(@simple_file) do |book|
           book.should be_a Workbook
           book.excel.Visible.should be false
-          book.CheckCompatibility.should be false
+          book.CheckCompatibility.should be true
           book.ReadOnly.should be false
         end
       end

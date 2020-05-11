@@ -59,25 +59,25 @@ describe Workbook do
       @book.Windows(@book.Name).Visible.should be true
       @book.visible.should be true
       @book.ReadOnly.should be false
-      @book.CheckCompatibility.should be false
+      @book.CheckCompatibility.should be true
       @book.for_this_workbook(:visible => false)
       @book.excel.Visible.should be true
       @book.Windows(@book.Name).Visible.should be false
       @book.visible.should be false
       @book.ReadOnly.should be false
-      @book.CheckCompatibility.should be false
+      @book.CheckCompatibility.should be true
       @book.for_this_workbook(:read_only => true)
       @book.excel.Visible.should be true
       @book.Windows(@book.Name).Visible.should be true
       @book.visible.should be true
       @book.ReadOnly.should be true
-      @book.CheckCompatibility.should be false
+      @book.CheckCompatibility.should be true
       @book.for_this_workbook(:visible => true)
       @book.excel.Visible.should be true
       @book.Windows(@book.Name).Visible.should be true
       @book.visible.should be true
       @book.ReadOnly.should be true
-      @book.CheckCompatibility.should be false
+      @book.CheckCompatibility.should be true
       @book.for_this_workbook(:check_compatibility => true)
       @book.excel.Visible.should be true
       @book.Windows(@book.Name).Visible.should be true

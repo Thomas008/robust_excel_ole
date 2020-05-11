@@ -22,16 +22,14 @@ module RobustExcelOle
     CORE_DEFAULT_OPEN_OPTS = {
       :default => {:excel => :current}, 
       :force => {},
-      :update_links => :never #,
-      #:check_compatibility => true      
+      :update_links => :never 
     }.freeze
 
     DEFAULT_OPEN_OPTS = {
       :if_unsaved    => :raise,
       :if_obstructed => :raise,
       :if_absent     => :raise,
-      :if_exists => :raise #,
-      #:check_compatibility => true
+      :if_exists => :raise
     }.merge(CORE_DEFAULT_OPEN_OPTS).freeze  
 
     ABBREVIATIONS = [

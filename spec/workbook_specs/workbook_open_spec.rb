@@ -43,6 +43,7 @@ describe Workbook do
     @simple_file_hostname_share_path_other_path1 = @simple_file_hostname_share_path_other_path
     @simple_file_xlsm1 = @simple_file_xlsm
     @simple_file_xlsx1 = @simple_file_xlsx
+    @error_message_excel = "provided Excel option value is neither an Excel object nor a valid option"
   end
 
   after do
@@ -1579,7 +1580,7 @@ describe Workbook do
       it "should raise an error if no Excel or Workbook is given" do
         expect{
           Workbook.open(@simple_file1, :force => {:excel => :b})
-          }.to raise_error(TypeREOError, "provided Excel option value is neither an Excel object nor a valid option")
+          }.to raise_error(TypeREOError, @error_message_excel)
       end
 
       it "should do force_excel even if both force_ and default_excel is given" do
@@ -1735,7 +1736,7 @@ describe Workbook do
       it "should raise an error if no Excel or Workbook is given" do
         expect{
           Workbook.open(@simple_file1, :excel => :b)
-          }.to raise_error(TypeREOError, "provided Excel option value is neither an Excel object nor a valid option")
+          }.to raise_error(TypeREOError, @error_message_excel)
       end
 
       it "should do force_excel even if both force_ and default_excel is given" do
@@ -1893,7 +1894,7 @@ describe Workbook do
       it "should raise an error if no Excel or Workbook is given" do
         expect{
           Workbook.open(@simple_file1, :force_excel => :b)
-          }.to raise_error(TypeREOError, "provided Excel option value is neither an Excel object nor a valid option")
+          }.to raise_error(TypeREOError, @error_message_excel)
       end
 
       it "should do force_excel even if both force_ and default_excel is given" do
@@ -2134,7 +2135,7 @@ describe Workbook do
       it "should raise an error if no Excel or Workbook is given" do
         expect{
           Workbook.open(@different_file, :default => {:excel => :a})
-          }.to raise_error(TypeREOError, "provided Excel option value is neither an Excel object nor a valid option")
+          }.to raise_error(TypeREOError, @error_message_excel)
       end
       
     end
@@ -2316,7 +2317,7 @@ describe Workbook do
       it "should raise an error if no Excel or Workbook is given" do
         expect{
           Workbook.open(@different_file, :default_excel => :a)
-          }.to raise_error(TypeREOError, "provided Excel option value is neither an Excel object nor a valid option")
+          }.to raise_error(TypeREOError, @error_message_excel)
       end
       
     end

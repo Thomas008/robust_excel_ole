@@ -23,6 +23,11 @@ module RobustExcelOle
       @invalid_name_file = 'b/workbook.xls'
       @simple_file1 = @simple_file
       @different_file1 = @different_file
+      @error_unsaved_workbooks = "Excel contains unsaved workbooks" +
+              "\nHint: Use option :if_unsaved with values :forget and :save to close the 
+           Excel instance without or with saving the unsaved workbooks before, respectively"
+      @error_invalid_option = ":if_unsaved: invalid option: :invalid_option" +
+              "\nHint: Valid values are :raise, :forget, :save and :alert"
     end
 
     after do
@@ -627,15 +632,13 @@ module RobustExcelOle
             @excel2 = book2.excel
             sheet2 = book2.sheet(1)
             @old_cell_value2 = sheet2[1,1].Value
-            sheet2[1,1] = sheet2[1,1].Value == "foo" ? "bar" : "foo"
+            sheet2[1,1] = sheet2[1,1].Value == "foo" ? "bar" : "foo"            
           end
 
           it "should close the first Excel without unsaved workbooks and then raise an error" do
             expect{
               Excel.close_all(:if_unsaved => :raise)
-            }.to raise_error(UnsavedWorkbooks, "Excel contains unsaved workbooks" +
-              "\nHint: Use option :if_unsaved with values :forget and :save to close the 
-           Excel instance without or with saving the unsaved workbooks before, respectively")
+            }.to raise_error(UnsavedWorkbooks, @error_unsaved_workbooks)
             sleep 0.2
             @excel1.should_not be_alive
             @excel2.should be_alive
@@ -648,9 +651,7 @@ module RobustExcelOle
           it "should close the first Excel without unsaved workbooks and then raise an error" do
             expect{
               Excel.close_all
-            }.to raise_error(UnsavedWorkbooks, "Excel contains unsaved workbooks" +
-              "\nHint: Use option :if_unsaved with values :forget and :save to close the 
-           Excel instance without or with saving the unsaved workbooks before, respectively")
+            }.to raise_error(UnsavedWorkbooks, @error_unsaved_workbooks)
             sleep 0.2
             @excel1.should_not be_alive
             @excel2.should be_alive
@@ -687,8 +688,7 @@ module RobustExcelOle
           it "should raise an error for invalid option" do
             expect {
               Excel.close_all(:if_unsaved => :invalid_option)
-            }.to raise_error(OptionInvalid, ":if_unsaved: invalid option: :invalid_option" +
-              "\nHint: Valid values are :raise, :forget, :save and :alert") 
+            }.to raise_error(OptionInvalid, @error_invalid_option) 
           end
         end
 
@@ -705,9 +705,7 @@ module RobustExcelOle
           it "should close the 1st and 3rd Excel instances that have saved workbooks" do  
             expect{
               Excel.close_all(:if_unsaved => :raise)
-            }.to raise_error(UnsavedWorkbooks, "Excel contains unsaved workbooks" +
-              "\nHint: Use option :if_unsaved with values :forget and :save to close the 
-           Excel instance without or with saving the unsaved workbooks before, respectively")
+            }.to raise_error(UnsavedWorkbooks, @error_unsaved_workbooks)
             sleep 0.2
             @book1.excel.should_not be_alive
             @book2.excel.should be_alive
@@ -732,9 +730,7 @@ module RobustExcelOle
           it "should close three Excel instances that have saved workbooks" do  
             expect{
               Excel.close_all(:if_unsaved => :raise)
-            }.to raise_error(UnsavedWorkbooks, "Excel contains unsaved workbooks" +
-              "\nHint: Use option :if_unsaved with values :forget and :save to close the 
-           Excel instance without or with saving the unsaved workbooks before, respectively")
+            }.to raise_error(UnsavedWorkbooks, @error_unsaved_workbooks)
             sleep 0.2
             expect{
               @ole_xl.Name
@@ -812,17 +808,13 @@ module RobustExcelOle
         it "should raise an error" do
           expect{
             @excel.close(:if_unsaved => :raise)
-          }.to raise_error(UnsavedWorkbooks, "Excel contains unsaved workbooks" +
-            "\nHint: Use option :if_unsaved with values :forget and :save to close the 
-           Excel instance without or with saving the unsaved workbooks before, respectively")
+          }.to raise_error(UnsavedWorkbooks, @error_unsaved_workbooks)
         end        
 
         it "should raise an error per default" do
           expect{
             @excel.close(:if_unsaved => :raise)
-          }.to raise_error(UnsavedWorkbooks, "Excel contains unsaved workbooks" +
-            "\nHint: Use option :if_unsaved with values :forget and :save to close the 
-           Excel instance without or with saving the unsaved workbooks before, respectively")
+          }.to raise_error(UnsavedWorkbooks, @error_unsaved_workbooks)
         end        
 
         it "should close the Excel without saving the workbook" do
@@ -865,8 +857,7 @@ module RobustExcelOle
         it "should raise an error for invalid option" do
           expect {
             @excel.close(:if_unsaved => :invalid_option)
-          }.to raise_error(OptionInvalid, ":if_unsaved: invalid option: :invalid_option" +
-            "\nHint: Valid values are :raise, :forget, :save and :alert") 
+          }.to raise_error(OptionInvalid, @error_invalid_option) 
         end
       end
 
@@ -955,18 +946,13 @@ module RobustExcelOle
         it "should raise error" do
           expect{
             @excel.close_workbooks(:if_unsaved => :raise)
-          }.to raise_error(UnsavedWorkbooks, "Excel contains unsaved workbooks" +
-          "\nHint: Use option :if_unsaved with values :forget and :save to close the 
-           Excel instance without or with saving the unsaved workbooks before, respectively" )
-
+          }.to raise_error(UnsavedWorkbooks, @error_unsaved_workbooks)
         end
 
         it "should raise error per default" do
           expect{
             @excel.close_workbooks
-          }.to raise_error(UnsavedWorkbooks, "Excel contains unsaved workbooks" +
-            "\nHint: Use option :if_unsaved with values :forget and :save to close the 
-           Excel instance without or with saving the unsaved workbooks before, respectively")
+          }.to raise_error(UnsavedWorkbooks, @error_unsaved_workbooks)
         end
 
         it "should close the workbook with forgetting the workbook" do
@@ -994,8 +980,7 @@ module RobustExcelOle
         it "should raise an error for invalid option" do
           expect {
             @excel.close_workbooks(:if_unsaved => :invalid_option)
-          }.to raise_error(OptionInvalid, ":if_unsaved: invalid option: :invalid_option" +
-            "\nHint: Valid values are :raise, :forget, :save and :alert") 
+          }.to raise_error(OptionInvalid, @error_invalid_option) 
         end
       end
     end

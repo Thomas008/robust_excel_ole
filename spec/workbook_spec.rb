@@ -976,7 +976,7 @@ describe Workbook do
 
       before do
         @book1 = Workbook.open(@simple_file1)
-        @book2 = Workbook.open(@simple_file1, :force => {:excel => :new})
+        @book2 = Workbook.open(@simple_file1, :force_excel => :new)
         @book1.Readonly.should == false
         @book2.Readonly.should == true
         old_sheet = @book1.sheet(1)
@@ -988,7 +988,7 @@ describe Workbook do
       end
 
       it "should open unobtrusively the closed book in the most recent Excel where it was open before" do      
-        Workbook.unobtrusively(@simple_file) do |book| 
+        Workbook.unobtrusively(@simple_file1, :if_closed => :current) do |book| 
           book.excel.should == @book2.excel
           book.excel.should_not == @book1.excel
           book.ReadOnly.should == false
@@ -1002,23 +1002,9 @@ describe Workbook do
         sheet[1,1].Value.should_not == @old_cell_value
       end
 
-      it "should open unobtrusively the closed book in the new hidden Excel" do
-        Workbook.unobtrusively(@simple_file, :if_closed => :current) do |book| 
-          book.excel.should == @book2.excel
-          book.excel.should_not == @book1.excel
-          book.ReadOnly.should == false
-          sheet = book.sheet(1)
-          cell = sheet[1,1]
-          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
-          book.Saved.should be false
-        end
-        new_book = Workbook.open(@simple_file1)
-        sheet = new_book.sheet(1)
-        sheet[1,1].Value.should_not == @old_cell_value
-      end
     end
   end
-  
+    
   describe "for_reading, for_modifying" do
 
     context "open unobtrusively for reading and modifying" do

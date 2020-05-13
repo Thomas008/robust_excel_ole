@@ -935,7 +935,7 @@ describe Workbook do
               book.ReadOnly.should be true
               book.should == @book
               book.filename.should == @book.filename
-              book.excel.should == @book.excel
+              book.excel.should_not == @book.excel
               book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
             end
             }.to raise_error(WorkbookReadOnly)
@@ -1013,7 +1013,7 @@ describe Workbook do
             book.Readonly.should be false
             book.should == @book
             book.filename.should == @book.filename
-            book.excel.should == @book.excel
+            book.excel.should_not == @book.excel
             book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
           end
           @book.close
@@ -1026,7 +1026,7 @@ describe Workbook do
             book.Readonly.should be false
             book.should == @book
             book.filename.should == @book.filename
-            book.excel.should == @book.excel
+            book.excel.should_not == @book.excel
             book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
           end
           @book.close

@@ -17,10 +17,25 @@ module RobustExcelOle
     end
 
     def each
-      @ole_range.each do |row_or_column|
-        yield RobustExcelOle::Cell.new(row_or_column)
+      @ole_range.each_with_index do |ole_cell, index|
+        yield cell(index){ole_cell}
       end
     end
+
+    def [] index
+      cell(index) {
+        @ole_range.Cells.Item(index + 1)
+      }
+    end
+
+  private
+
+    def cell(index)
+      @cells ||= []
+      @cells[index + 1] ||= RobustExcelOle::Cell.new(yield)
+    end
+
+  public
 
     # returns flat array of the values of a given range
     # @params [Range] a range
@@ -80,11 +95,6 @@ module RobustExcelOle
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg  
         raise RangeNotEvaluatable, "cannot assign value to range #{address_r1c1.inspect}"
       end
-    end
-
-    def [] index
-      @cells = []
-      @cells[index + 1] = RobustExcelOle::Cell.new(@ole_range.Cells.Item(index + 1))
     end
 
     # copies a range

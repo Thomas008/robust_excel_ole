@@ -823,7 +823,6 @@ module RobustExcelOle
             if base_sheet.name != last_sheet_local.name
               add_or_copy_sheet_simple(sheet, base_sheet.Next)
             else
-              #add_or_copy_sheet_simple(sheet,base_sheet)
               add_or_copy_sheet_simple(sheet, base_sheet.ole_worksheet)
               base_sheet.Move(ole_workbook.Worksheets.Item(ole_workbook.Worksheets.Count-1))
               ole_workbook.Worksheets.Item(ole_workbook.Worksheets.Count).Activate

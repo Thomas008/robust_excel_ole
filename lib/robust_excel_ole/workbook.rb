@@ -815,15 +815,9 @@ module RobustExcelOle
       after_or_before, base_sheet = opts.to_a.first || [:after, last_sheet_local]
       begin
         if !::COPYSHEETS_JRUBY_BUG          
-          #if sheet
-          #  sheet.Copy({ after_or_before.to_s => base_sheet.ole_worksheet })
-          #else
-          #  ole_workbook.Worksheets.Add({ after_or_before.to_s => base_sheet.ole_worksheet })
-          #end
           add_or_copy_sheet_simple(sheet, { after_or_before.to_s => base_sheet.ole_worksheet })
         else
           if after_or_before == :before 
-            #add_or_copy_sheet_simple(sheet,base_sheet)
             add_or_copy_sheet_simple(sheet, base_sheet.ole_worksheet)
           else
             if base_sheet.name != last_sheet_local.name
@@ -846,14 +840,6 @@ module RobustExcelOle
 
   private
   
-    #def add_or_copy_sheet_simple(sheet, base_sheet)
-    #  if sheet
-    #    sheet.Copy(base_sheet.ole_worksheet)  
-    #  else
-    #    ole_workbook.Worksheets.Add(base_sheet.ole_worksheet) 
-    #  end
-    #end  
-
     def add_or_copy_sheet_simple(sheet, base_ole_worksheet)
       if sheet
         sheet.Copy(base_ole_worksheet)  

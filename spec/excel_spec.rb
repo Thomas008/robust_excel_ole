@@ -35,6 +35,22 @@ module RobustExcelOle
       rm_tmp(@dir)
     end
 
+    context "active_workbook" do
+
+      before do
+        @excel = Excel.create
+      end
+
+      it "should access the active workbook" do
+        @excel.active_workbook.should be nil
+        workbook = Workbook.open(@simple_file1)
+        active_workbook = @excel.active_workbook
+        active_workbook.Fullname.should == workbook.Fullname
+        active_workbook.should == workbook
+      end
+
+    end
+
     context "with connect and preserving options" do
 
       before do

@@ -14,6 +14,10 @@ Library references are supported.
 RobustExcelOle works by sending VBA methods via Win32OLE. 
 Therefore, it runs on Windows only.
 
+== Current Changes
+
+  We just want to inform that we dropped the possibility to operate on ranges directly from an Excel instance. However, you can use the method Excel.active_workbook to do so.
+  See ChangeLogs.
 
 == Requirements
 

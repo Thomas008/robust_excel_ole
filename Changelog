@@ -1,6 +1,14 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.17]
+
+### Added
+  - Excel#active_workbook
+
+### Changed
+  - Excel#namevalue, set_namevalue, namevalue_glob, set_namevalue_glob are being removed
+
 ## [1.16]
 
 ### Added

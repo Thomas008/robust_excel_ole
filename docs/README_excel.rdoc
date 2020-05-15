@@ -124,6 +124,12 @@ or, with a block,
 
   excel.each_workbook(:visible => true) {|w| puts w}
 
+=== Accessing the active workbook
+
+You can operate on the active workbook with help of the method Workbook#active_workbook, e.g.
+
+  workbook = excel.active_workbook
+
 === Bringing an Excel instance to the foreground
 
   excel1.focus

@@ -709,8 +709,7 @@ module RobustExcelOle
     # @private
     # returns active workbook
     def workbook
-      return @workbook unless @workbook.nil?
-      @workbook = workbook_class.new(@ole_excel.ActiveWorkbook)
+      @workbook ||= workbook_class.new(@ole_excel.ActiveWorkbook) if @ole_excel.Workbooks.Count > 0
     end    
 
     alias_method :active_workbook, :workbook

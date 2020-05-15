@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 module RobustExcelOle
 
   # This class essentially wraps a Win32Ole Range object. 

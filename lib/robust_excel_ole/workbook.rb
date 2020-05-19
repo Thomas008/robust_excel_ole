@@ -783,10 +783,20 @@ module RobustExcelOle
       raise NameNotFound, "could not return a sheet with name #{name.inspect}"
     end
 
+    def worksheets_count
+      @ole_workbook.Worksheets.Count
+    end
+
     def each
       @ole_workbook.Worksheets.each do |sheet|
         yield worksheet_class.new(sheet)
       end
+    end
+
+    def worksheets
+      result = []
+      each { |worksheet| result << worksheet }   
+      result
     end
 
     def each_with_index(offset = 0)

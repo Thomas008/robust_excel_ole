@@ -98,6 +98,9 @@ module RobustExcelOle
       end
     end
 
+    alias_method :value, :v
+    alias_method :value=, :v=
+
     # copies a range
     # @params [Address or Address-Array] address or upper left position of the destination range
     # @options [Worksheet] the destination worksheet

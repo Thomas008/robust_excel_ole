@@ -18,20 +18,44 @@ describe RobustExcelOle::Range do
     @book = Workbook.open(@dir + '/workbook.xls', :force_excel => :new)
     @sheet = @book.sheet(2)
     @range = RobustExcelOle::Range.new(@sheet.ole_worksheet.UsedRange.Rows(1))
+    @range2 = @sheet.range([1..2,1..3])
   end
 
   after do
-    @book.close
+    @book.close(:if_unsaved => :forget)
     Excel.kill_all
     rm_tmp(@dir)
   end
 
+  describe "#[]" do
+
+    it "should yield a cell" do
+      @range[0].should be_kind_of RobustExcelOle::Cell
+    end
+
+    it "should yield the value of the first cell" do
+      @range2[0].Value.should == 'simple'
+    end
+
+    it "should cash the cells in the range" do
+      cell = @range2[0]
+      cell.v.should == 'simple'
+      @range2.Cells.Item(1).Value = 'foo'
+      cell.v.should == 'foo'
+      #@range2[0].v = 'foo'
+      #cell = @range2[0]
+      #cell.v.should == 'foo'
+    end
+  end
+
   describe "#each" do
+  
     it "items is RobustExcelOle::Cell" do
       @range.each do |cell|
         cell.should be_kind_of RobustExcelOle::Cell
       end
     end
+
   end
 
   describe "#values" do

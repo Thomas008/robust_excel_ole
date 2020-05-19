@@ -67,7 +67,6 @@ module RobustExcelOle
 
       it "should type-lift a cell" do
         cell = @book1.sheet(1).range([1,1]).ole_range.to_reo
-        #cell = @book1.sheet(1)[1,1].ole_cell.to_reo
         cell.should be_kind_of Cell
         cell.Value.should == "foo"
       end

@@ -108,7 +108,6 @@ module RobustExcelOle
     # value of a cell, if row and column are given
     # @params row and column
     # @returns value of the cell
-=begin
     def cellval(x,y)
       xy = "#{x}_#{y}"
       begin
@@ -117,7 +116,8 @@ module RobustExcelOle
         raise RangeNotEvaluatable, "cannot read cell (#{p1.inspect},#{p2.inspect})"
       end
     end
-=end
+
+=begin
     def cellval(x,y)
       xy = "#{x}_#{y}"
       @cells = { }
@@ -128,6 +128,7 @@ module RobustExcelOle
         raise RangeNotEvaluatable, "cannot read cell (#{p1.inspect},#{p2.inspect})"
       end
     end
+=end
 
     # sets the value of a cell, if row, column and color of the cell are given
     # @params [Integer] x,y row and column

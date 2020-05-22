@@ -16,17 +16,17 @@ Therefore, it runs on Windows only.
 
 == Feature list
 
+- opening and processing workbooks across various Excel instances
+- reading and writing workbooks (cells and ranges)
+- reopening and unobtrusively opening workbooks
 - opening, reading, writing, closing, saving  Excel workbooks 
   reading, writing cells and ranges, naming, adding and copying ranges and worksheets
-  convenient methods for standard tasks
-- reopening, unobtrusively opening workbooks
-- managing simultanously running Excel instances (opening workbooks in various Excel instances)
-  supporting handling workbooks across various Excel instances 
-- dealing with various cases of Excel and user behaviour:
-  managing conflicts when opening workbooks (e.g. blocking or unsaved workbook),
+  convenient methods for standard tasks (like opening, reading, writing, closing, saving workbooks, naming, adding, and copying ranges and worksheets)
+- dealing with various cases of Excel and user behaviour, e.g. managing conflicts when opening workbooks (e.g. blocking or unsaved workbook),
   even with simultanously happening user interactions
 - workarounds for Excel bugs and JRuby bugs
-- Library references are supported
+- various workbook formats are supported, e.g. xlsx, xls, xlsm
+- library references are supported
 - console for convenient usage
 
 == What's new?

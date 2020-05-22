@@ -5,12 +5,11 @@ require File.join(File.dirname(__FILE__), './range')
 module RobustExcelOle
 
   class Cell < Range
-    attr_reader :ole_cell    
+    #attr_reader :ole_cell    
 
-    def initialize(win32_cell)
-      @ole_cell = win32_cell.MergeCells ? win32_cell.MergeArea.Item(1,1) : win32_cell
-      #ole_cell(win32_cell)
+    def initialize(win32_cell, worksheet)      
       super
+      ole_cell
     end
 
     def v
@@ -21,9 +20,9 @@ module RobustExcelOle
       self.Value = value
     end
 
-    #def ole_cell(win32_cell)
-    #  win32_cell.MergeArea.Item(1,1) if win32_cell.MergeCells
-    #end
+    def ole_cell
+      @ole_range = @ole_range.MergeArea.Item(1,1) if @ole_range.MergeCells
+    end
 
   private
 
@@ -32,13 +31,15 @@ module RobustExcelOle
       if name.to_s[0,1] =~ /[A-Z]/
         if ::ERRORMESSAGE_JRUBY_BUG
           begin
-            @ole_cell.send(name, *args)
+            #@ole_cell.send(name, *args)
+            @ole_range.send(name, *args)
           rescue Java::OrgRacobCom::ComFailException 
             raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
           end
         else
           begin
-            @ole_cell.send(name, *args)
+            #@ole_cell.send(name, *args)
+            @ole_range.send(name, *args)
           rescue NoMethodError 
             raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
           end

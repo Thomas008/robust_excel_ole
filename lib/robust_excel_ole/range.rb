@@ -12,9 +12,10 @@ module RobustExcelOle
     attr_reader :ole_range
     attr_reader :worksheet
 
-    def initialize(win32_range)
+    def initialize(win32_range, worksheet = nil)
       @ole_range = win32_range
-      @worksheet = worksheet_class.new(self.Parent)
+      @worksheet = worksheet ? worksheet : worksheet_class.new(self.Parent)
+      #@worksheet = worksheet_class.new(self.Parent)
     end
 
     def each
@@ -33,7 +34,7 @@ module RobustExcelOle
 
     def cell(index)
       @cells ||= []
-      @cells[index + 1] ||= RobustExcelOle::Cell.new(yield)
+      @cells[index + 1] ||= RobustExcelOle::Cell.new(yield,@worksheet)
     end
 
   public

@@ -22,12 +22,13 @@ module RobustExcelOle
         raise
       end
       ole_range = name_obj.RefersToRange
+      worksheet = self if self.is_a?(Worksheet)
       value = begin
         #name_obj.RefersToRange.Value
         if !::RANGES_JRUBY_BUG       
           ole_range.Value
         else
-          values = RobustExcelOle::Range.new(ole_range).v
+          values = RobustExcelOle::Range.new(ole_range, worksheet).v
           (values.size==1 && values.first.size==1) ? values.first.first : values
         end
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException 
@@ -42,7 +43,7 @@ module RobustExcelOle
           if !::RANGES_JRUBY_BUG
             ole_range.Value
           else
-            values = RobustExcelOle::Range.new(ole_range).v
+            values = RobustExcelOle::Range.new(ole_range, worksheet).v
             (values.size==1 && values.first.size==1) ? values.first.first : values
           end
         rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException 
@@ -105,11 +106,12 @@ module RobustExcelOle
         raise NameNotFound, "name #{name.inspect} not in #{self.inspect}"
       end
       begin
+        worksheet = self if self.is_a?(Worksheet)
         #value = ole_range.Value
         value = if !::RANGES_JRUBY_BUG
           ole_range.Value
         else
-          values = RobustExcelOle::Range.new(ole_range).v
+          values = RobustExcelOle::Range.new(ole_range, worksheet).v
           (values.size==1 && values.first.size==1) ? values.first.first : values
         end
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException 
@@ -180,10 +182,11 @@ module RobustExcelOle
     # @return [Range] a range
     def range(name_or_address, address2 = :__not_provided)
       begin
+        worksheet = self if self.is_a?(Worksheet)
         if address2 == :__not_provided
           range = if name_or_address.is_a?(String)
             begin
-              RobustExcelOle::Range.new(name_object(name_or_address).RefersToRange) 
+              RobustExcelOle::Range.new(name_object(name_or_address).RefersToRange, worksheet) 
             rescue NameNotFound
               nil
             end
@@ -193,7 +196,7 @@ module RobustExcelOle
           address = name_or_address
           address = [name_or_address,address2] unless address2 == :__not_provided         
           self.Names.Add('__dummy001',nil,true,nil,nil,nil,nil,nil,nil,'=' + address_tool.as_r1c1(address))          
-          range = RobustExcelOle::Range.new(name_object('__dummy001').RefersToRange)
+          range = RobustExcelOle::Range.new(name_object('__dummy001').RefersToRange, worksheet)
           self.Names.Item('__dummy001').Delete
           workbook = self.is_a?(Workbook) ? self : self.workbook
           workbook.save

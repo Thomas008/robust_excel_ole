@@ -71,7 +71,7 @@ module RobustExcelOle
         xy = "#{x}_#{y}"
         @cells = { }
         begin
-          @cells[xy] = RobustExcelOle::Cell.new(@ole_worksheet.Cells.Item(x, y))
+          @cells[xy] = RobustExcelOle::Cell.new(@ole_worksheet.Cells.Item(x, y), @worksheet)
         rescue
           raise RangeNotEvaluatable, "cannot read cell (#{x.inspect},#{y.inspect})"
         end
@@ -108,11 +108,21 @@ module RobustExcelOle
     # value of a cell, if row and column are given
     # @params row and column
     # @returns value of the cell
+=begin
+    def cellval(x,y)
+      xy = "#{x}_#{y}"
+      begin
+        @ole_worksheet.Cells.Item(x, y).Value
+      rescue
+        raise RangeNotEvaluatable, "cannot read cell (#{p1.inspect},#{p2.inspect})"
+      end
+    end
+=end
     def cellval(x,y)
       xy = "#{x}_#{y}"
       @cells = { }
       begin
-        @cells[xy] = RobustExcelOle::Cell.new(@ole_worksheet.Cells.Item(x, y))
+        @cells[xy] = RobustExcelOle::Cell.new(@ole_worksheet.Cells.Item(x, y), @worksheet)
         @cells[xy].Value
       rescue
         raise RangeNotEvaluatable, "cannot read cell (#{p1.inspect},#{p2.inspect})"
@@ -152,13 +162,13 @@ module RobustExcelOle
       offset += 1
       1.upto(@end_row) do |row|
         next if row < offset
-        yield RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(row, 1), @ole_worksheet.Cells(row, @end_column)))
+        yield RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(row, 1), @ole_worksheet.Cells(row, @end_column)), self)
       end
     end
 
     def each_row_with_index(offset = 0)
       each_row(offset) do |row_range|
-        yield RobustExcelOle::Range.new(row_range), (row_range.Row - 1 - offset)
+        yield RobustExcelOle::Range.new(row_range, self), (row_range.Row - 1 - offset)
       end
     end
 
@@ -166,24 +176,24 @@ module RobustExcelOle
       offset += 1
       1.upto(@end_column) do |column|
         next if column < offset
-        yield RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(1, column), @ole_worksheet.Cells(@end_row, column)))
+        yield RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(1, column), @ole_worksheet.Cells(@end_row, column)), self)
       end
     end
 
     def each_column_with_index(offset = 0)
       each_column(offset) do |column_range|
-        yield RobustExcelOle::Range.new(column_range), (column_range.Column - 1 - offset)
+        yield RobustExcelOle::Range.new(column_range, self), (column_range.Column - 1 - offset)
       end
     end
 
     def row_range(row, integer_range = nil)
       integer_range ||= 1..@end_column
-      RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(row, integer_range.min), @ole_worksheet.Cells(row, integer_range.max)))
+      RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(row, integer_range.min), @ole_worksheet.Cells(row, integer_range.max), self))
     end
 
     def col_range(col, integer_range = nil)
       integer_range ||= 1..@end_row
-      RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(integer_range.min, col), @ole_worksheet.Cells(integer_range.max, col)))
+      RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(integer_range.min, col), @ole_worksheet.Cells(integer_range.max, col), self))
     end
 
     def == other_worksheet

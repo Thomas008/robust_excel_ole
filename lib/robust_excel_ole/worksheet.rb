@@ -188,12 +188,12 @@ module RobustExcelOle
 
     def row_range(row, integer_range = nil)
       integer_range ||= 1..@end_column
-      RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(row, integer_range.min), @ole_worksheet.Cells(row, integer_range.max), self))
+      RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(row, integer_range.min), @ole_worksheet.Cells(row, integer_range.max)), self)
     end
 
     def col_range(col, integer_range = nil)
       integer_range ||= 1..@end_row
-      RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(integer_range.min, col), @ole_worksheet.Cells(integer_range.max, col), self))
+      RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(integer_range.min, col), @ole_worksheet.Cells(integer_range.max, col)), self)
     end
 
     def == other_worksheet

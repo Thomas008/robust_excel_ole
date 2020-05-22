@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file.
   - Workbook#worksheets
   - Range#value, value=
 
+### Changed
+  - Range#initialize: optional paramter worksheet
+
 ## [1.17]
 
 ### Added

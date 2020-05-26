@@ -394,6 +394,12 @@ The methods Worksheet#each, Worksheet#each_row and Worksheet#each_column enable 
     # do something with column
   end
 
+The method Worksheet#each_value accesses the values of each row.
+
+  worksheet.each_value do |row_values|
+    # do something with the row_values
+  end
+
 You access a range of a row by giving the number of the row, and optionally, the range of the cell numbers.
 
   worksheet.row_range(1)  # => first row

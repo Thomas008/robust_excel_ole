@@ -295,6 +295,40 @@ describe Worksheet do
 
     end
 
+    describe "#each_value" do
+
+      it "should yield arrays" do
+        @sheet.each_value do |row_value|
+          row_value.should be_kind_of Array
+        end
+      end
+
+      it "should read the rows" do
+        i = 0
+        @sheet.each_value do |row_values|
+          case i
+          when 0
+            row_values.should == ['foo', 'workbook', 'sheet1']
+          when 1
+            row_values.should == ['foo', nil, 'foobaaa']
+          end
+          i += 1
+        end
+      end
+
+      it "should read the rows with index" do
+        @sheet.each_value_with_index do |row_values, i|
+          case i
+          when 0
+            row_values.should == ['foo', 'workbook', 'sheet1']
+          when 1
+            row_values.should == ['foo', nil, 'foobaaa']
+          end
+        end
+      end
+
+    end
+
     describe "#each_row" do
       it "items should RobustExcelOle::Range" do
         @sheet.each_row do |rows|

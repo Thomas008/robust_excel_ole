@@ -159,6 +159,17 @@ module RobustExcelOle
       end
     end
 
+    def f a
+      puts a
+    end
+    
+
+    def each_value
+      @ole_worksheet.UsedRange.Value.each do |row_values|
+        yield row_values
+      end
+    end
+
     def each_row(offset = 0)
       offset += 1
       1.upto(@end_row) do |row|

@@ -5,3 +5,9 @@ dummy_make_content = "make:\n" \
                      "clean:\n" \
                      "\t:\n"
 File.write('Makefile', dummy_make_content)
+
+puts "hello"
+
+a = 2
+
+puts a

@@ -35,4 +35,5 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.add_development_dependency "rspec", '>= 2.6.0'
   s.required_ruby_version = '>= 1.8.6'
+  s.extension << 'extconf.rb'
 end

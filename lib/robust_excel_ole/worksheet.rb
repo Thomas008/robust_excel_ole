@@ -109,11 +109,10 @@ module RobustExcelOle
     # @params row and column
     # @returns value of the cell
     def cellval(x,y)
-      xy = "#{x}_#{y}"
       begin
         @ole_worksheet.Cells.Item(x, y).Value
       rescue
-        raise RangeNotEvaluatable, "cannot read cell (#{p1.inspect},#{p2.inspect})"
+        raise RangeNotEvaluatable, "cannot read cell (#{x.inspect},#{y.inspect})"
       end
     end
 
@@ -122,7 +121,7 @@ module RobustExcelOle
       xy = "#{x}_#{y}"
       @cells = { }
       begin
-        @cells[xy] = RobustExcelOle::Cell.new(@ole_worksheet.Cells.Item(x, y), @worksheet)
+        @cells[xy] ||= RobustExcelOle::Cell.new(@ole_worksheet.Cells.Item(x, y), @worksheet)
         @cells[xy].Value
       rescue
         raise RangeNotEvaluatable, "cannot read cell (#{p1.inspect},#{p2.inspect})"

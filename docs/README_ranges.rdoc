@@ -410,6 +410,10 @@ You access a range of a row by giving the number of the row, and optionally, the
   worksheet.row_range(1)  # => first row
   worksheet.row_range(1, 1..3 )  # => first three cells of the first row  
 
+Reading the values is enabled with help of #values:
+
+  worksheet.row_range(1).values  
+
 Simarly you can access a range of a column.
 
   worksheet.col_range(3)  # => third column

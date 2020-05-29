@@ -168,6 +168,10 @@ module RobustExcelOle
       end
     end
 
+    def each_value   # :deprecated: #
+      each_rowvalue
+    end
+
     def each_rowvalue_with_index(offset = 0)
       i = offset
       @ole_worksheet.UsedRange.Value.each do |row_values|

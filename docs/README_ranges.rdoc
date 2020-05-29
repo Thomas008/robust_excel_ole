@@ -394,7 +394,12 @@ The methods Worksheet#each, Worksheet#each_row and Worksheet#each_column enable 
     # do something with column
   end
 
-The method Worksheet#each_rowvalue accesses the values of each row, i.e. yields an array of cell values for each row.
+The method Worksheet#values yields all cell values of the used range of the worksheet into a 2-dimensional array. For example:
+
+  worksheet.values
+  => [["foo", "workbook", "sheet1"], ["foo", nil, "foobaaa"], ["matz", "is", "nice"]]
+
+The method Worksheet#each_rowvalue provides enable to access the values of each row.
 
   worksheet.each_rowvalue do |row_values|
     # do something with the row_values

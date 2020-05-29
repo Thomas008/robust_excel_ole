@@ -295,6 +295,14 @@ describe Worksheet do
 
     end
 
+    describe "#values" do
+
+      it "should yield cell values of the used range" do
+        @sheet.values.should == [["foo", "workbook", "sheet1"], ["foo", nil, "foobaaa"], ["matz", "is", "nice"]]
+      end
+
+    end
+
     describe "#each_rowvalue" do
 
       it "should yield arrays" do

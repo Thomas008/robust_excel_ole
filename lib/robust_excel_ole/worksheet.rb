@@ -140,6 +140,10 @@ module RobustExcelOle
       raise RangeNotEvaluatable, "cannot assign value #{value.inspect} to cell (#{y.inspect},#{x.inspect})"
     end
 
+    def values
+      @ole_worksheet.UsedRange.Value
+    end
+
     def each
       each_row do |row_range|
         row_range.each do |cell|

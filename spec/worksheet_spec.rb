@@ -295,17 +295,17 @@ describe Worksheet do
 
     end
 
-    describe "#each_value" do
+    describe "#each_rowvalue" do
 
       it "should yield arrays" do
-        @sheet.each_value do |row_value|
+        @sheet.each_rowvalue do |row_value|
           row_value.should be_kind_of Array
         end
       end
 
       it "should read the rows" do
         i = 0
-        @sheet.each_value do |row_values|
+        @sheet.each_rowvalue do |row_values|
           case i
           when 0
             row_values.should == ['foo', 'workbook', 'sheet1']
@@ -317,7 +317,7 @@ describe Worksheet do
       end
 
       it "should read the rows with index" do
-        @sheet.each_value_with_index do |row_values, i|
+        @sheet.each_rowvalue_with_index do |row_values, i|
           case i
           when 0
             row_values.should == ['foo', 'workbook', 'sheet1']

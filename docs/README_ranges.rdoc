@@ -394,9 +394,9 @@ The methods Worksheet#each, Worksheet#each_row and Worksheet#each_column enable 
     # do something with column
   end
 
-The method Worksheet#each_value accesses the values of each row.
+The method Worksheet#each_rowvalue accesses the values of each row, i.e. yields an array of cell values for each row.
 
-  worksheet.each_value do |row_values|
+  worksheet.each_rowvalue do |row_values|
     # do something with the row_values
   end
 

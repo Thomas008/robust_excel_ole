@@ -158,13 +158,13 @@ module RobustExcelOle
       end
     end
 
-    def each_value
+    def each_rowvalue
       @ole_worksheet.UsedRange.Value.each do |row_values|
         yield row_values
       end
     end
 
-    def each_value_with_index(offset = 0)
+    def each_rowvalue_with_index(offset = 0)
       i = offset
       @ole_worksheet.UsedRange.Value.each do |row_values|
         yield row_values, i

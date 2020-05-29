@@ -1,14 +1,19 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+
+## [1.19] 2020-30-5
+
+### Added
+  - Worksheet#each_rowvalue
+
+
 ## [1.18] 2020-30-4
 
 ### Added
   - Workbook#worksheets, worksheets_count
   - Worksheet#each_value
   - Range#value, value=
-
-### Changed
   - Range#initialize: optional paramter worksheet
 
 ## [1.17]

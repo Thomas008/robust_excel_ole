@@ -2,7 +2,7 @@ require File.join(File.dirname(__FILE__), '../lib/robust_excel_ole')
 
 start_time = Time.now 
 
-workbook = RobustExcelOle::Workbook.open './sample_excel_files/xlsx_50000_rows.xlsx'
+workbook = RobustExcelOle::Workbook.open './sample_excel_files/xlsx_500_rows.xlsx'
 
 puts "Found #{workbook.worksheets_count} worksheets"
 
@@ -10,7 +10,7 @@ workbook.each do |worksheet|
   puts "Reading: #{worksheet.name}"
   num_rows = 0
 
-  worksheet.each_value do |row_vals|
+  worksheet.each_rowvalue do |row_vals|
     row_cells = row_vals
     num_rows += 1
   end

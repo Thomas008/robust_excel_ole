@@ -6,7 +6,7 @@ require 'roo'
 
 start_time = Time.now
 
-workbook = Roo::Spreadsheet.open './sample_excel_files/xlsx_500000_rows.xlsx'
+workbook = Roo::Spreadsheet.open './sample_excel_files/xlsx_500_rows.xlsx'
 
 worksheets = workbook.sheets
 puts "Found #{worksheets.count} worksheets"

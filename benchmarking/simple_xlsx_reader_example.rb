@@ -7,7 +7,7 @@ start_time = Time.now
 # ===========   Read Example   ===============
 # ============================================
 
-workbook = SimpleXlsxReader.open './sample_excel_files/xlsx_500_rows.xlsx'
+workbook = SimpleXlsxReader.open './sample_excel_files/xlsx_500000_rows.xlsx'
 
 worksheets = workbook.sheets
 puts "Found #{worksheets.count} worksheets"
@@ -18,7 +18,6 @@ worksheets.each do |worksheet|
 
   worksheet.rows.each do |row|
     row_cells = row
-    puts row_cells
     num_rows += 1
 
     # uncomment to print out row values

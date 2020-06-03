@@ -31,7 +31,7 @@ Gem::Specification.new do |s|
   s.extra_rdoc_files = ['README.rdoc', 'LICENSE']
 
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
-  s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
+  s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) } << 'reo.bat'
   s.require_paths = ["lib"]
   s.add_development_dependency "rspec", '>= 2.6.0'
   s.required_ruby_version = '>= 2.1'

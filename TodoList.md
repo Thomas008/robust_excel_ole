@@ -1,23 +1,9 @@
 
 ### immediately
 
---- 2015-05-21 documentation: link to detailed, Book accessible in git hub
---- 2015-05-21 opening connected Excel files
---- 2015-04-17 acceptance tests
-
 ### quick
 
---- 2015-05-09 open with option :reuse_excel: 
-               choose the last opened Excel that is different to a certain Excel, if it exists,
-               open a new Excel, else
-               use this in unobtrusively
-
 ### short-term
-
---- 2015-04-17 excel managements system
---- 2015-04-02 if_unlocked
---- 2015-04-02 standard use cases
---- 2015-04-27 excel instances list
 
 ### mid-term
 
@@ -25,6 +11,9 @@
 
 ### done
 
+--- 2015-05-21 documentation: link to detailed, Book accessible in git hub
+--- 2015-05-21 opening connected Excel files
+--- 2015-04-17 acceptance tests
 --- 2015-04-02 set options: make it dry
 --- 2015.05-05 unobtrusively:  if_closed: hidden
 --- 2015-04-27 documentation: a crisp one and a detailed one, better examples

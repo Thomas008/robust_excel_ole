@@ -7,7 +7,7 @@ start_time = Time.now
 # ===========   Read Example   ===============
 # ============================================
 
-workbook = RubyXL::Parser.parse './sample_excel_files/xlsx_500_rows.xlsx'
+workbook = RubyXL::Parser.parse './sample_excel_files/xlsx_500000_rows.xlsx'
 
 worksheets = workbook.worksheets
 puts "Found #{worksheets.count} worksheets"

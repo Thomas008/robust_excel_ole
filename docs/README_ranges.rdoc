@@ -377,52 +377,7 @@ or
 
   worksheet.set_cellval(1,1,"new_value")
 
-=== Accessing rows and columns
 
-The methods Worksheet#each, Worksheet#each_row and Worksheet#each_column enable to access each cell, row and column, respectively.
-
-  worksheet.each do |cell|
-    # do something with cell
-    # read every row, every column
-  end
-
-  worksheet.each_row do |row|
-    # do something with row
-  end
-
-  worksheet.each_column do |column|
-    # do something with column
-  end
-
-The method Worksheet#values yields all cell values of the used range of the worksheet into a 2-dimensional array. For example:
-
-  worksheet.values
-  => [["foo", "workbook", "sheet1"], ["foo", nil, "foobaaa"], ["matz", "is", "nice"]]
-
-The method Worksheet#each_rowvalue provides enable to access the values of each row.
-
-  worksheet.each_rowvalue do |row_values|
-    # do something with the row_values
-  end
-
-You access a range of a row by giving the number of the row, and optionally, the range of the cell numbers.
-
-  worksheet.row_range(1)  # => first row
-  worksheet.row_range(1, 1..3 )  # => first three cells of the first row  
-
-Reading the values is enabled with help of #values:
-
-  worksheet.row_range(1).values  
-
-Simarly you can access a range of a column.
-
-  worksheet.col_range(3)  # => third column
-  worksheet.col_range(3, 1..2)  # => first two cells of the third column
-
-Within a row or column range you can access a certain cell.
-
-  row_range[1]  # => first cell in row_range
-  column_range[2] # => second cell in column_range
 
 == Code
 

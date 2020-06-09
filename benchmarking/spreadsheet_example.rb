@@ -8,7 +8,7 @@ start_time = Time.now
 # ============================================
 
 # Note: spreadsheet only supports .xls files (not .xlsx)
-workbook = Spreadsheet.open './sample_excel_files/xls_500_rows.xls'
+workbook = Spreadsheet.open './sample_excel_files/xls_25000_rows.xls'
 
 worksheets = workbook.worksheets
 puts "Found #{worksheets.count} worksheets"

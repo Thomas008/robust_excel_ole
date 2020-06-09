@@ -3,7 +3,7 @@ require File.join(File.dirname(__FILE__), '../lib/robust_excel_ole')
 
 start_time = Time.now 
 
-workbook = RobustExcelOle::Workbook.open './sample_excel_files/xlsx_50000_rows.xlsx'
+workbook = RobustExcelOle::Workbook.open './sample_excel_files/xlsx_500_rows.xlsx'
 
 puts "Found #{workbook.Worksheets.Count} worksheets"
 

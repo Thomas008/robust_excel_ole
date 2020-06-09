@@ -4,7 +4,7 @@ require 'simple_xlsx_reader'
 start_time = Time.now 
 
 # ============================================
-# ===========   Read Example   ===============
+# ===========   Read Example   ==============
 # ============================================
 
 workbook = SimpleXlsxReader.open './sample_excel_files/xlsx_500_rows.xlsx'

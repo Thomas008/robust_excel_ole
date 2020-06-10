@@ -1,5 +1,5 @@
-#!/usr/bin/env ruby
-# -*- mode: ruby -*-
+#!/usr/bin/env jruby
+# -*- mode: jruby -*-
 
 require 'robust_excel_ole'
 include REO
@@ -13,8 +13,8 @@ gem 'jruby-readline'
 
 ARGV.concat ['--readline',
              '--prompt-mode',
-             'simple',
-             '-rjruby-readline']
+             'simple']
+#             '-rjruby-readline']
 
 #IRB.conf[:PROMPT_MODE] = :SIMPLE
 #IRB.conf[:USE_READLINE] = true

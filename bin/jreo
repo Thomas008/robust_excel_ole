@@ -9,7 +9,7 @@ include General
 require 'irb'
 require 'irb/completion'
 require 'irb/ext/save-history'
-gem 'jruby-readline'
+#gem 'jruby-readline'
 
 ARGV.concat ['--readline',
              '--prompt-mode',
@@ -69,5 +69,6 @@ end
 
 Readline::Hist.start_session_log
 puts 'JREO console started'
+
 
 IRB.start

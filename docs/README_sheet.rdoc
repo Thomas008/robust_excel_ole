@@ -124,7 +124,8 @@ Within a row or column range you can access a certain cell.
 
 === Deleting and inserting rows and columns
 
-As mentioned above, VBA methods can be applied to the RobustExcelOle objects, e.g. when deleting or inserting rows and columns.
+For the following standard tasks no RobustExcelOle commands are provided, but VBA methods can be used.
+Here are some examples:
 
   row1 = worksheet.row_range(1)
   row1.Delete

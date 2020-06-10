@@ -14,23 +14,26 @@ Library references are supported.
 RobustExcelOle works by sending VBA methods via Win32OLE. 
 Therefore, it runs on Windows only.
 
-== Feature list
+== Features
+
+RobustExcelOle supports
 
 - opening and processing workbooks across various Excel instances
-- reading and writing workbooks (cells and ranges)
-- reopening and unobtrusively opening workbooks
-- convenient methods for standard tasks (like opening, reading, writing, closing, saving workbooks, naming, adding, and copying ranges and worksheets)
-- dealing with various cases of Excel and user behaviour, e.g. managing conflicts when opening workbooks (e.g. blocking or unsaved workbooks),
-  even with simultanously happening user interactions
+- standard tasks like opening, reading, writing, saving, closing workbooks
+- dealing with various cases of Excel and user behaviour
+- managing conflicts when opening workbooks (e.g. blocking or unsaved workbooks)
+- dealing with simultanously happening user interactions
 - workarounds for Excel bugs and JRuby bugs
-- various workbook formats, e.g. .xlsx, .xls, .xlsm are supported
-- library references are supported
-- console for convenient usage
-
-== What's new?
-
-  - removing methods to operate on ranges directly from an Excel instance. However, you can use the method Excel.active_workbook to do so.
-  See ChangeLogs.
+- availability of all VBA methods
+- availability of Excel constants (in form if Ruby constants: Excel constant.capitalize)
+- standard Excel file formats (.xlsx, .xls, .xlsm)
+- reopening workbooks after closing them
+- unobtrusively opening workbooks, i.e. opening and processing workbooks
+  while preserving their status, e.g. read-only mode, saved status
+- reading and writing workbooks, worksheets, cells, ranges, rows, columns
+- naming, adding, and copying ranges and worksheets
+- references to other Excel libraries
+- console for interactive mode
 
 == Requirements
 
@@ -53,17 +56,11 @@ RobustExcelOle can be used either for scripts
   require 'robust_excel_ole'
   include RobustExcelOle
 
-or as a console. If you want to use RobustExcelOle as a console, you go (using 'cd') into the gem path that you find with help of 
-
-  gem env
-
-and go into the path of the gem 'robust_excel_ole'. There you start the console via the command
+or as a console. You can start the console via the command 
 
   reo
 
-If you don't want to use a version manager to switch between ruby and jruby, you can apply the command +reo+ when using ruby, and +jreo+ when using jruby.
-
-The call of the console will include RobustExcelOle for you.
+You use the command +jreo+ if you want to start the console under jruby and if you don't want to use a version manager to switch between ruby and jruby. The call of the console will include RobustExcelOle for you.
 
 The following examples can be used for both scripts and console. If you have started the console in the gem path, you can just put these examples.
 

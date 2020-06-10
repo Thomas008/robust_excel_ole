@@ -67,7 +67,7 @@ or
 
 Now we copy the range. With help of VBA methods you would do
 
-  range.Copy(:destination => sheet.range([4..6,5..8]).ole_range)
+  range.Copy(:destination => sheet.range([4,5]).ole_range)
 
 or with help of RobustExcelOle
 

@@ -1,8 +1,9 @@
-# require '../robust_excel_ole/lib/robust_excel_ole'
+require '../robust_excel_ole/lib/robust_excel_ole'
 include REO
 # include RobustExcelOle
 include General
 
+require 'irb'
 require 'irb/completion'
 require 'irb/ext/save-history'
 
@@ -16,6 +17,10 @@ IRB.conf[:SAVE_HISTORY] = 250
 # Store results in home directory with specified file name
 # IRB.conf[:HISTORY_FILE] = "#{ENV['HOME']}/.irb-history"
 IRB.conf[:HISTORY_FILE] = "#{ENV['HOME']}/.reo-history"
+
+IRB.conf[:PROMPT_MODE] = 'ert' #:SIMPLE
+#IRB.conf[:USE_READLINE] = true
+#IRB.conf[:AUTO_INDENT]  = true
 
 # @private
 module Readline
@@ -54,3 +59,5 @@ end
 
 Readline::Hist.start_session_log
 puts 'REO console started'
+IRB.start
+

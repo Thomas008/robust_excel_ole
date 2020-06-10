@@ -29,7 +29,7 @@ RobustExcelOle supports
 - standard Excel file formats (.xlsx, .xls, .xlsm)
 - reopening workbooks after closing them
 - unobtrusively opening workbooks, i.e. opening and processing workbooks
-  while preserving their status, e.g. read-only mode, saved status
+  while preserving their status, e.g. saved status
 - reading and writing workbooks, worksheets, cells, ranges, rows, columns
 - naming, adding, and copying ranges and worksheets
 - references to other Excel libraries
@@ -60,7 +60,7 @@ or as a console. You can start the console via the command
 
   reo
 
-You use the command +jreo+ if you want to start the console under jruby and if you don't want to use a version manager to switch between ruby and jruby. The call of the console will include RobustExcelOle for you.
+You can use the command +jreo+ if you want to start the console under jruby and if you don't want to use a version manager to switch between ruby and jruby. The call of the console will include RobustExcelOle for you.
 
 The following examples can be used for both scripts and console. If you have started the console in the gem path, you can just put these examples.
 

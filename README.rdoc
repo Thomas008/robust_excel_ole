@@ -20,13 +20,13 @@ RobustExcelOle supports
 
 - opening and processing workbooks across various Excel instances
 - standard tasks like opening, reading, writing, saving, closing workbooks
+- dealing with simultanously happening user interactions
 - dealing with various cases of Excel and user behaviour
 - managing conflicts when opening workbooks (e.g. blocking or unsaved workbooks)
-- dealing with simultanously happening user interactions
 - workarounds for Excel bugs and JRuby bugs
 - availability of all VBA methods
-- availability of Excel constants (in form if Ruby constants: Excel constant.capitalize)
-- standard Excel file formats (.xlsx, .xls, .xlsm)
+- availability of the Excel constants (in form if Ruby constants: Excel constant.capitalize)
+- all standard Excel file formats (.xlsx, .xls, .xlsm)
 - reopening workbooks after closing them
 - unobtrusively opening workbooks, i.e. opening and processing workbooks
   while preserving their status, e.g. saved status

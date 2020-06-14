@@ -2,7 +2,9 @@
 All notable changes to this project will be documented in this file.
 
 
-## [1.19] 2020-30-5
+## [1.20]
+
+## [1.19] 2020-10-6
 
 ### Added
   - Workheet#values, each_rowvalue

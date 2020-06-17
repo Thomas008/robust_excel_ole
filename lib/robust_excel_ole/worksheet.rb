@@ -38,6 +38,15 @@ module RobustExcelOle
       end
     end
 
+    def table(rows_count = nil, columns_count_or_names = nil)
+      begin
+        listobjects = @ole_worksheet.listobjects
+        ole_table = listobjects.Add
+      rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
+        raise TableError, "error: #{msg.message}"
+      end
+    end
+
     def excel
       workbook.excel
     end

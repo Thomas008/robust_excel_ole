@@ -18,7 +18,7 @@ IRB.conf[:SAVE_HISTORY] = 250
 # IRB.conf[:HISTORY_FILE] = "#{ENV['HOME']}/.irb-history"
 IRB.conf[:HISTORY_FILE] = "#{ENV['HOME']}/.reo-history"
 
-IRB.conf[:PROMPT_MODE] = 'ert' #:SIMPLE
+IRB.conf[:PROMPT_MODE] = :SIMPLE
 #IRB.conf[:USE_READLINE] = true
 #IRB.conf[:AUTO_INDENT]  = true
 
@@ -60,4 +60,3 @@ end
 Readline::Hist.start_session_log
 puts 'REO console started'
 IRB.start
-

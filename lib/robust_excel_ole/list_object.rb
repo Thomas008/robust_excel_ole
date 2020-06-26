@@ -10,7 +10,7 @@ module RobustExcelOle
       @ole_row_range = ole_table.ListRows.Item(row_number)
       column_names = ole_table.HeaderRowRange.Value.first
       column_names.each_with_index do |column_name, i|
-        column_method_name = column_name.underscore #downcase
+        column_method_name = column_name.underscore
         define_singleton_method(column_method_name) do
           @ole_row_range.Range.Value.first[i]
         end

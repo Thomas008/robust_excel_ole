@@ -3,24 +3,6 @@
 module RobustExcelOle
 
   class ListRow
-
-    attr_reader :ole_row_range
-
-    def initialize(ole_table, row_number)
-      @ole_row_range = ole_table.ListRows.Item(row_number)
-      column_names = ole_table.HeaderRowRange.Value.first
-      column_names.each_with_index do |column_name, i|
-        column_method_name = column_name.underscore
-        define_singleton_method(column_method_name) do
-          @ole_row_range.Range.Value.first[i]
-        end
-        define_singleton_method(column_method_name + '=') do |value|
-          values_array = ole_row_range.Range.Value 
-          values_array.first[i] = value
-          @ole_row_range.Range.Value = values_array
-        end
-      end
-    end
   end
 
   # This class essentially wraps a Win32Ole ListObject. 
@@ -55,34 +37,28 @@ module RobustExcelOle
         raise TableError, "error #{$!.message}"
       end
       # reo representation
+      ole_table = @ole_table
       @table = []
-      # dynamic class construction
-      # variant 1
-      #row_class = Class.new(ListRow) do
-      #  def initialize(ole_table, row_number)
-      #    ole_row_range = ole_table.ListRows.Item(row_number)
-      #    column_names = ole_table.HeaderRowRange.Value.first
-      #    column_names.each_with_index do |column_name, i|
-      #      column_method_name = column_name.downcase
-      #      define_singleton_method(column_method_name) do
-      #        ole_row_range.Range.Value.first[i]
-      #      end
-      #      define_singleton_method(column_method_name + '=') do |value|
-      #        values_array = ole_row_range.Range.Value 
-      #        values_array.first[i] = value
-      #        ole_row_range.Range.Value = values_array
-      #      end
-      #    end
-      #  end
-      #end
-      #(1..rows_count).each do |row_number|
-      #  row_object = row_class.new(@ole_table, row_number)
-      #  @table << row_object
-      #end
-      # variant 2
-      row_class = Class.new(ListRow)  
+      row_class = Class.new(ListRow) do
+        @@ole_table = ole_table
+        def initialize(row_number)
+          ole_row_range = @@ole_table.ListRows.Item(row_number)
+          column_names = @@ole_table.HeaderRowRange.Value.first
+          column_names.each_with_index do |column_name, i|
+            column_method_name = column_name.downcase
+            define_singleton_method(column_method_name) do
+              ole_row_range.Range.Value.first[i]
+            end
+            define_singleton_method(column_method_name + '=') do |value|
+              values_array = ole_row_range.Range.Value 
+              values_array.first[i] = value
+              ole_row_range.Range.Value = values_array
+            end
+          end
+        end
+      end     
       (1..rows_count).each do |row_number|
-        row_object = row_class.new(@ole_table, row_number)
+        row_object = row_class.new(row_number)
         @table << row_object
       end
     end
@@ -115,5 +91,6 @@ module RobustExcelOle
   end
 
   Table = ListObject
+  TableRow = ListRow
 
 end

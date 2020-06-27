@@ -14,7 +14,7 @@ require File.join(File.dirname(__FILE__), 'robust_excel_ole/workbook')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/worksheet')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/cell')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/range')
-require File.join(File.dirname(__FILE__), 'robust_excel_ole/listobject')
+require File.join(File.dirname(__FILE__), 'robust_excel_ole/list_object')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/cygwin') if RUBY_PLATFORM =~ /cygwin/
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/version')
 

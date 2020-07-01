@@ -41,19 +41,32 @@ module RobustExcelOle
       @table = []
       row_class = Class.new(ListRow) do
         @@ole_table = ole_table
+
         def initialize(row_number)
-          ole_row_range = @@ole_table.ListRows.Item(row_number)
+          @row_number = row_number         
+        end
+        
+        def method_missing(name, *args)
+          ole_row_range = @@ole_table.ListRows.Item(@row_number)
           column_names = @@ole_table.HeaderRowRange.Value.first
-          column_names.each_with_index do |column_name, i|
-            column_method_name = column_name.downcase
-            define_singleton_method(column_method_name) do
-              ole_row_range.Range.Value.first[i]
+          name_before_last_equal = name.to_s.split('=').first
+          columns = column_names.map{|c| c.underscore}
+          if columns.include?(name_before_last_equal)
+            index = columns.index(name_before_last_equal)
+            if name.to_s[-1] != '='
+              self.send(:define_singleton_method, name) do
+                ole_row_range.Range.Value.first[index]
+              end
+            else
+              self.class.send(:define_singleton_method, name) do |value|
+                values_array = ole_row_range.Range.Value 
+                values_array.first[index] = value
+                ole_row_range.Range.Value = values_array
+              end
             end
-            define_singleton_method(column_method_name + '=') do |value|
-              values_array = ole_row_range.Range.Value 
-              values_array.first[i] = value
-              ole_row_range.Range.Value = values_array
-            end
+            self.send(name, *args)
+          else
+            super
           end
         end
       end     

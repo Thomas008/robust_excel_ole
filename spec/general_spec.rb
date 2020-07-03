@@ -44,11 +44,11 @@ module RobustExcelOle
       end
 
       it "should type-lift an ListObject" do
-        worksheet = @book1.sheet(3)
+        worksheet = @book2.sheet(3)
         ole_table = worksheet.ListObjects.Item(1)
         table = Table.new(ole_table)
         table.Name.should == "table3"
-        table.HeaHeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Date"]
+        table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Date"]
         table.ListRows.Count.should == 6
         worksheet[3,4].Value.should == "Number"
       end

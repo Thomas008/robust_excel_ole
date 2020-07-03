@@ -20,6 +20,7 @@ module RobustExcelOle
     # @param [Array]    position                     a position of the upper left corner
     # @param [Integer]  rows_count                   number of rows
     # @param [Variable] columns_count_or_names       number of columns or array of column names
+    # @return [ListObject] a ListObject object
     def initialize(worksheet_or_ole_listobject,
                    table_name_or_number = "",
                    position = [1,1],
@@ -87,6 +88,9 @@ module RobustExcelOle
         end
       end     
 
+      # accesses a table row object
+      # @param [Integer]  a row number (>= 1)
+      # @return [ListRow] a object of dynamically constructed class with superclass ListRow 
       def [] row_number
         @row_class.new(row_number)
       end

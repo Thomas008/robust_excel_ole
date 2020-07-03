@@ -11,7 +11,7 @@ It supports handling workbooks across Excel instances by keeping track of workbo
 
 Library references are supported.
 
-RobustExcelOle works by sending VBA methods via Win32OLE. 
+RobustExcelOle works by sending VBA methods via Win32OlE. 
 Therefore, it runs on Windows only.
 
 == Features
@@ -332,7 +332,7 @@ Now we can set and get the value of a cell of the table, e.g.
   table[1].person
   # => "John"
 
-Likewise we can get a table with help of an existing Win32Ole table.
+Likewise we can get a table with help of an existing Win32OlE table.
 
   ole_listobject = worksheet.ListObjects.Item("Table 1")
   table = ListObject.new(ole_listobject)
@@ -344,7 +344,7 @@ r.person = "John"
 
 === More things
 
-You can convert some win32ole objects into a RobustExcelOle object.
+You can convert some Win32Ole objects into a RobustExcelOle object.
 
   range = sheet.Names.Item("firstcell").to_reo
 

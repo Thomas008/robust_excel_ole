@@ -20,6 +20,7 @@ module RobustExcelOle
 
     before do
       @dir = create_tmpdir
+      @listobject_file = @dir + '/workbook_listobjects.xlsx'
       @simple_file = @dir + '/workbook.xls'
       @simple_save_file = @dir + '/workbook_save.xls'
       @different_file = @dir + '/different_workbook.xls'
@@ -39,6 +40,17 @@ module RobustExcelOle
 
       before do
         @book1 = Workbook.open(@simple_file)
+        @book2 = Workbook.open(@listobject_file)        
+      end
+
+      it "should type-lift an ListObject" do
+        worksheet = @book1.sheet(3)
+        ole_table = worksheet.ListObjects.Item(1)
+        table = Table.new(ole_table)
+        table.Name.should == "table3"
+        table.HeaHeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Date"]
+        table.ListRows.Count.should == 6
+        worksheet[3,4].Value.should == "Number"
       end
 
       it "should type-lift an Excel" do

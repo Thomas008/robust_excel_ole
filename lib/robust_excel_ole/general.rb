@@ -98,7 +98,13 @@ class WIN32OLE
   
   # type-lifting WIN32OLE objects to RobustExcelOle objects
   def to_reo
-    class2method = [{Excel => :Hwnd}, {Workbook => :FullName}, {Worksheet => :Copy}, {RobustExcelOle::Range => :Row}]
+    class2method = [
+      {Excel => :Hwnd},
+      {Workbook => :FullName},
+      {Worksheet => :Copy},
+      {RobustExcelOle::Range => :Row},
+      {ListObject => :ListRows}
+    ]
     class2method.each do |element|
       classname = element.first.first
       method = element.first.last

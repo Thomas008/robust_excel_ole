@@ -14,6 +14,12 @@ module RobustExcelOle
 
     attr_reader :ole_table
 
+    # constructs a list object (or table).
+    # @param [Variable] worksheet_or_ole_listobject  a worksheet or a Win32Ole list object
+    # @param [Variable] table_name_or_number         a table name or table number
+    # @param [Array]    position                     a position of the upper left corner
+    # @param [Integer]  rows_count                   number of rows
+    # @param [Variable] columns_count_or_names       number of columns or array of column names
     def initialize(worksheet_or_ole_listobject,
                    table_name_or_number = "",
                    position = [1,1],

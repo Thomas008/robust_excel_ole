@@ -314,6 +314,33 @@ and set another value to that range.
 
 For more details about reading and writing contents of cells and ranges see {README_ranges}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_ranges.rdoc]
 
+=== Reading and writing list objects
+
+We can define a list object (or table) from scratch.
+
+  table = ListObject.new(worksheet, "table 1", [1,1], 3,["Person","Amount"])
+
+This command creates a list object in worksheet named "table 1", with upper left corner at position [1,1] (first cell), with 3 rows and the columns "Person" and "Amount".
+
+A row in this table can be accessed with help of [], e.g.
+
+  table[1]
+
+Now we can set and get the value of a cell of the table, e.g.
+
+  table[1].person = "John"
+  table[1].person
+  # => "John"
+
+Likewise we can get a table with help of an existing Win32Ole table.
+
+  ole_listobject = worksheet.ListObjects.Item("Table 1")
+  table = ListObject.new(ole_listobject)
+
+   r4 = t4[1]
+r4.person
+# =>
+r.person = "John"
 
 === More things
 

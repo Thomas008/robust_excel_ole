@@ -14,28 +14,32 @@ module RobustExcelOle
 
     attr_reader :ole_table
 
-    def initialize(worksheet,
+    def initialize(worksheet_or_ole_listobject,
                    rows_count = 1, 
                    columns_count_or_names = 1, 
                    position = [1,1],
                    table_name = "")
       # vba representation
-      columns_count = 
-        columns_count_or_names.is_a?(Integer) ? columns_count_or_names : columns_count_or_names.length 
-      column_names = columns_count_or_names.respond_to?(:first) ? columns_count_or_names : []
-      @worksheet = worksheet                # ? worksheet : worksheet_class.new(self.Parent)
-      begin
-        listobjects = @worksheet.ListObjects
-        @ole_table = listobjects.Add(XlSrcRange, 
-                                     @worksheet.range([position[0]..position[0]+rows_count-1,
-                                                position[1]..position[1]+columns_count-1]).ole_range,
-                                     XlYes)
-        @ole_table.Name = table_name
-        @ole_table.HeaderRowRange.Value = [column_names] unless column_names.empty?
-      rescue WIN32OLERuntimeError => msg # , Java::OrgRacobCom::ComFailException => msg
-        raise TableError, "error #{$!.message}"
+      if worksheet_or_ole_listobject.is_a?(WIN32OLE)
+        @ole_table = worksheet_or_ole_listobject
+      else
+        @worksheet = worksheet_or_ole_listobject
+        columns_count = 
+          columns_count_or_names.is_a?(Integer) ? columns_count_or_names : columns_count_or_names.length 
+        column_names = columns_count_or_names.respond_to?(:first) ? columns_count_or_names : []
+        begin
+          listobjects = @worksheet.ListObjects
+          @ole_table = listobjects.Add(XlSrcRange, 
+                                       @worksheet.range([position[0]..position[0]+rows_count-1,
+                                                  position[1]..position[1]+columns_count-1]).ole_range,
+                                       XlYes)
+          @ole_table.Name = table_name
+          @ole_table.HeaderRowRange.Value = [column_names] unless column_names.empty?
+        rescue WIN32OLERuntimeError => msg # , Java::OrgRacobCom::ComFailException => msg
+          raise TableError, "error #{$!.message}"
+        end
       end
-      # reo representation
+      # reo-representation: dynamic on-demand adding getter and setter methods
       ole_table = @ole_table
       @row_class = Class.new(ListRow) do
 
@@ -52,20 +56,24 @@ module RobustExcelOle
           if columns.include?(name_before_last_equal)
             name_str = name.to_s
             column_name = name_str.capitalize.split('=').first
-            cell = @@ole_table.Application.Intersect(
+            ole_cell = @@ole_table.Application.Intersect(
               @ole_listrow.Range, @@ole_table.ListColumns(column_name).Range)
-            if name_str[-1] != '='
-              self.class.define_method(name_str) do
-                cell.Value
-              end
-            else
-              self.class.define_method(name_str) do |value|
-                cell.Value = value
-              end
-            end
+            define_getting_setting_method(ole_cell,name_str)            
             self.send(name, *args)
           else
             super
+          end
+        end
+
+        def define_getting_setting_method(ole_cell,name_str)
+          if name_str[-1] != '='
+            self.class.define_method(name_str) do
+              ole_cell.Value
+            end
+          else
+            self.class.define_method(name_str) do |value|
+              ole_cell.Value = value
+            end
           end
         end
       end     

@@ -13,7 +13,6 @@ module RobustExcelOle
   class ListObject < VbaObjects
 
     attr_reader :ole_table
-    attr_reader :table
 
     def initialize(worksheet,
                    rows_count = 1, 
@@ -38,30 +37,30 @@ module RobustExcelOle
       end
       # reo representation
       ole_table = @ole_table
-      @table = []
-      row_class = Class.new(ListRow) do
+      @row_class = Class.new(ListRow) do
+
         @@ole_table = ole_table
 
         def initialize(row_number)
-          @row_number = row_number         
+          @ole_listrow = @@ole_table.ListRows.Item(row_number)
         end
-        
+       
         def method_missing(name, *args)
-          ole_row_range = @@ole_table.ListRows.Item(@row_number)
           column_names = @@ole_table.HeaderRowRange.Value.first
           name_before_last_equal = name.to_s.split('=').first
           columns = column_names.map{|c| c.underscore}
           if columns.include?(name_before_last_equal)
-            index = columns.index(name_before_last_equal)
-            if name.to_s[-1] != '='
-              self.send(:define_singleton_method, name) do
-                ole_row_range.Range.Value.first[index]
+            name_str = name.to_s
+            column_name = name_str.capitalize.split('=').first
+            cell = @@ole_table.Application.Intersect(
+              @ole_listrow.Range, @@ole_table.ListColumns(column_name).Range)
+            if name_str[-1] != '='
+              self.class.define_method(name_str) do
+                cell.Value
               end
             else
-              self.class.send(:define_singleton_method, name) do |value|
-                values_array = ole_row_range.Range.Value 
-                values_array.first[index] = value
-                ole_row_range.Range.Value = values_array
+              self.class.define_method(name_str) do |value|
+                cell.Value = value
               end
             end
             self.send(name, *args)
@@ -70,12 +69,13 @@ module RobustExcelOle
           end
         end
       end     
-      (1..rows_count).each do |row_number|
-        row_object = row_class.new(row_number)
-        @table << row_object
+
+      def [] row_number
+        @row_class.new(row_number)
       end
+
     end
-    
+
   private
 
     def method_missing(name, *args) 

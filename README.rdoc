@@ -27,10 +27,11 @@ RobustExcelOle supports
 - availability of all VBA methods
 - availability of the Excel constants (in form if Ruby constants: Excel constant.capitalize)
 - all standard Excel file formats (.xlsx, .xls, .xlsm)
+- list objects
 - reopening workbooks after closing them
 - unobtrusively opening workbooks, i.e. opening and processing workbooks
-  while preserving their status, e.g. saved status
-- reading and writing workbooks, worksheets, cells, ranges, rows, columns
+  while preserving their status, e.g. saved, readonly
+- reading and writing workbooks, worksheets, list objects, ranges, rows, columns, cells
 - naming, adding, and copying ranges and worksheets
 - references to other Excel libraries
 - console for interactive mode

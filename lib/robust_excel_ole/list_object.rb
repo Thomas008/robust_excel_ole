@@ -15,15 +15,18 @@ module RobustExcelOle
     attr_reader :ole_table
 
     def initialize(worksheet_or_ole_listobject,
-                   rows_count = 1, 
-                   columns_count_or_names = 1, 
+                   table_name_or_number = "",
                    position = [1,1],
-                   table_name = "")
-      # vba representation
-      if worksheet_or_ole_listobject.is_a?(WIN32OLE)
+                   rows_count = 1, 
+                   columns_count_or_names = 1)
+                   
+      if (worksheet_or_ole_listobject.ListRows rescue nil)
         @ole_table = worksheet_or_ole_listobject
       else
-        @worksheet = worksheet_or_ole_listobject
+        @worksheet = worksheet_or_ole_listobject.to_reo
+        @ole_table = @worksheet.ListObjects.Item(table_name_or_number) rescue nil
+      end
+      unless @ole_table
         columns_count = 
           columns_count_or_names.is_a?(Integer) ? columns_count_or_names : columns_count_or_names.length 
         column_names = columns_count_or_names.respond_to?(:first) ? columns_count_or_names : []
@@ -33,13 +36,13 @@ module RobustExcelOle
                                        @worksheet.range([position[0]..position[0]+rows_count-1,
                                                   position[1]..position[1]+columns_count-1]).ole_range,
                                        XlYes)
-          @ole_table.Name = table_name
+          @ole_table.Name = table_name_or_number
           @ole_table.HeaderRowRange.Value = [column_names] unless column_names.empty?
         rescue WIN32OLERuntimeError => msg # , Java::OrgRacobCom::ComFailException => msg
           raise TableError, "error #{$!.message}"
         end
       end
-      # reo-representation: dynamic on-demand adding getter and setter methods
+
       ole_table = @ole_table
       @row_class = Class.new(ListRow) do
 

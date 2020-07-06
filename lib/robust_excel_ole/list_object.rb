@@ -62,7 +62,7 @@ module RobustExcelOle
         def method_missing(name, *args)
           column_names = @@ole_table.HeaderRowRange.Value.first
           name_before_last_equal = name.to_s.split('=').first
-          columns = column_names.map{|c| c.underscore}
+          columns = column_names.map{|c| c.underscore.gsub(/[^[A-Za-z\d]]/, '_')}
           if columns.include?(name_before_last_equal)
             name_str = name.to_s
             column_name = name_str.capitalize.split('=').first

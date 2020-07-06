@@ -68,6 +68,32 @@ describe ListObject do
         @sheet[3,4].Value.should == "Number"
       end
 
+      it "should simply create a new table from a ole-worksheet" do
+        table = Table.new(@sheet.ole_worksheet, "table_name", [1,1], 3, ["Person","Amount"])
+        table.Name.should == "table_name"
+        table.HeaderRowRange.Value.first.should == ["Person","Amount"]
+        table.ListRows.Count.should == 3
+        @sheet[1,1].Value.should == "Person"
+      end
+
+      it "should type-lift a Win32ole list object into a RobustExcelOle list object with table name" do
+        ole_table = @sheet.ListObjects.Item(1)
+        table = Table.new(@sheet.ole_worksheet, "table3")
+        table.Name.should == "table3"
+        table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Date"]
+        table.ListRows.Count.should == 6
+        @sheet[3,4].Value.should == "Number"
+      end
+
+      it "should type-lift a Win32ole list object into a RobustExcelOle list object with item number" do
+        ole_table = @sheet.ListObjects.Item(1)
+        table = Table.new(@sheet.ole_worksheet, 1)
+        table.Name.should == "table3"
+        table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Date"]
+        table.ListRows.Count.should == 6
+        @sheet[3,4].Value.should == "Number"
+      end
+
     end
 
   end

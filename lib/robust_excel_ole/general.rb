@@ -95,6 +95,8 @@ end
 
 # @private
 class WIN32OLE
+
+  include Enumerable
   
   # type-lifting WIN32OLE objects to RobustExcelOle objects
   def to_reo

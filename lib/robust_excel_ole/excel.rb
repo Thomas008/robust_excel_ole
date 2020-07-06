@@ -793,8 +793,3 @@ public
   Application = Excel
 
 end
-
-class WIN32OLE
-  include Enumerable
-end
-

@@ -141,9 +141,6 @@ class ::String
     end
   end
 
-  def string_to_methodname
-  end
-
   # taken from http://apidock.com/rails/ActiveSupport/Inflector/underscore
   def underscore
     word = gsub('::', '/')

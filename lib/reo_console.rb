@@ -1,4 +1,4 @@
-require '../robust_excel_ole/lib/robust_excel_ole'
+require '../../robust_excel_ole/lib/robust_excel_ole'
 include REO
 # include RobustExcelOle
 include General
@@ -58,5 +58,5 @@ module Readline
 end
 
 Readline::Hist.start_session_log
-puts 'REO console started'
-IRB.start
+puts 'REO console started: the changed one'
+#IRB.start

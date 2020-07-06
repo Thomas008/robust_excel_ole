@@ -62,7 +62,7 @@ module RobustExcelOle
         def method_missing(name, *args)
           name_before_last_equal = name.to_s.split('=').first
           column_names = @@ole_table.HeaderRowRange.Value.first
-          method_names = column_names.map{|c| c.underscore.gsub(/[^[A-Za-z\d]]/, '_')}
+          method_names = column_names.map{|c| c.underscore.gsub(/[^[\w\d]]/, '_')}
           column_name = column_names[method_names.index(name_before_last_equal)]
           if column_name
             ole_cell = @@ole_table.Application.Intersect(

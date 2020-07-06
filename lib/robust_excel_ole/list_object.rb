@@ -60,15 +60,14 @@ module RobustExcelOle
         end
        
         def method_missing(name, *args)
-          column_names = @@ole_table.HeaderRowRange.Value.first
           name_before_last_equal = name.to_s.split('=').first
-          columns = column_names.map{|c| c.underscore.gsub(/[^[A-Za-z\d]]/, '_')}
-          if columns.include?(name_before_last_equal)
-            name_str = name.to_s
-            column_name = name_str.capitalize.split('=').first
+          column_names = @@ole_table.HeaderRowRange.Value.first
+          method_names = column_names.map{|c| c.underscore.gsub(/[^[A-Za-z\d]]/, '_')}
+          column_name = column_names[method_names.index(name_before_last_equal)]
+          if column_name
             ole_cell = @@ole_table.Application.Intersect(
               @ole_listrow.Range, @@ole_table.ListColumns(column_name).Range)
-            define_getting_setting_method(ole_cell,name_str)            
+            define_getting_setting_method(ole_cell,name.to_s)            
             self.send(name, *args)
           else
             super

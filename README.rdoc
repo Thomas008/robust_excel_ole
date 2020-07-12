@@ -61,7 +61,11 @@ or as a console. You can start the console via the command
 
   reo
 
-You can use the command +jreo+ if you want to start the console under jruby and if you don't want to use a version manager to switch between ruby and jruby. The call of the console will include RobustExcelOle for you.
+If you want to start the console under jruby, and if you don't want to use a version manager to switch between ruby and jruby, then use the command 
+ 
+ jreo
+
+The call of the console will include RobustExcelOle for you.
 
 The following examples can be used for both scripts and console. If you have started the console in the gem path, you can just put these examples.
 

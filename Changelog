@@ -2,7 +2,10 @@
 All notable changes to this project will be documented in this file.
 
 
-## [1.20] 2020-31.-8
+## [1.20] 2020-12-07
+
+### Changed
+  - using pry in console
 
 ### Added
   - ListObject

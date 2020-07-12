@@ -74,6 +74,8 @@ module RobustExcelOle
           end
         end
 
+      private
+
         def define_getting_setting_method(ole_cell,name_str)
           if name_str[-1] != '='
             self.class.define_method(name_str) do
@@ -85,7 +87,7 @@ module RobustExcelOle
             end
           end
         end
-      end     
+      end
 
       # accesses a table row object
       # @param [Integer]  a row number (>= 1)
@@ -94,6 +96,10 @@ module RobustExcelOle
         @row_class.new(row_number)
       end
 
+    end
+
+    def column_names
+      @ole_table.HeaderRowRange.Value.first
     end
 
     # @private

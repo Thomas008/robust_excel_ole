@@ -123,6 +123,17 @@ class WIN32OLE
     end
     raise TypeREOError, "given object cannot be type-lifted to a RobustExcelOle object"
   end
+
+  alias method_missing_before_implicit_typelift method_missing 
+  def xx_method_missing(name, *args, &blk)
+    begin
+      reo_obj = self.to_reo
+    rescue
+      puts "$!.message: #{$!.message}"
+      method_missing_before_implicit_typelift(name, *args, &blk)
+    end
+    reo_obj.send(name, *args, &blk)
+  end
 end
 
 # @private

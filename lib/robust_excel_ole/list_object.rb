@@ -96,6 +96,17 @@ module RobustExcelOle
 
     end
 
+    # @private
+    def to_s    
+      @ole_table.Name.to_s
+    end
+
+    # @private
+    def inspect    
+      "#<ListObject: " + "#{@ole_table.Name}" + " worksheet:#{@ole_table.Parent.Name}" + " size:#{@ole_table.ListRows.Count}x#{@ole_table.ListColumns.Count}" + ">"
+      #{}"size:#{@ole_table.ListRows.Count}x#{@ole_table.ListColumns.Count}" + ">"
+    end
+
   private
 
     def method_missing(name, *args) 

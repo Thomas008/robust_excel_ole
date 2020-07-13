@@ -102,6 +102,27 @@ module RobustExcelOle
       @ole_table.HeaderRowRange.Value.first
     end
 
+    def insert_column(position = 1, column_name = "")
+      @ole_table.ListColumns.Add
+      column_names = @ole_table.HeaderRowRange.Value.first
+      column_names[position-1] = column_name
+      @ole_table.HeaderRowRange.Value = [column_names]
+      column_name
+    end
+
+    def delete_column(column_name_or_number)
+      @ole_table.ListColumns.Item(row_number).Delete
+    end
+
+    # insert row below row_number
+    def insert_row(position = 1)
+      @ole_table.ListRows.Add(position)
+    end
+
+    def delete_row(row_number)
+      @ole_table.ListRows.Item(row_number).Delete
+    end
+
     # @private
     def to_s    
       @ole_table.Name.to_s

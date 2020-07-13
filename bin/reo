@@ -1,5 +1,5 @@
-#!/usr/bin/env jruby
-# -*- jruby -*-
+#!/usr/bin/env ruby
+# -*- ruby -*-
 
 require 'pry'
 require '../lib/robust_excel_ole'

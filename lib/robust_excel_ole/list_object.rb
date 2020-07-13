@@ -104,10 +104,7 @@ module RobustExcelOle
 
     def insert_column(position = 1, column_name = "")
       @ole_table.ListColumns.Add
-      column_names = @ole_table.HeaderRowRange.Value.first
-      column_names[position-1] = column_name
-      @ole_table.HeaderRowRange.Value = [column_names]
-      column_name
+      rename_column(position,column_name)
     end
 
     def delete_column(column_name_or_number)
@@ -121,6 +118,14 @@ module RobustExcelOle
 
     def delete_row(row_number)
       @ole_table.ListRows.Item(row_number).Delete
+    end
+
+    def rename_column(name_or_number, new_name)
+      column_names = @ole_table.HeaderRowRange.Value.first
+      position = name_or_number.respond_to?(:abs) ? name_or_number : (column_names.index(name_or_number) + 1)
+      column_names[position-1] = new_name
+      @ole_table.HeaderRowRange.Value = [column_names]
+      new_name
     end
 
     # @private

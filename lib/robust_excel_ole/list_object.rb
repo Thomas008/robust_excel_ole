@@ -103,29 +103,49 @@ module RobustExcelOle
     end
 
     def insert_column(position = 1, column_name = "")
-      @ole_table.ListColumns.Add
-      rename_column(position,column_name)
+      begin
+        @ole_table.ListColumns.Add
+        rename_column(position,column_name)
+      rescue WIN32OLERuntimeError, TableError
+        raise TableError, "could not insert column at position #{position.inspect} with name #{column_name.inspect}"
+      end
     end
 
     def delete_column(column_name_or_number)
-      @ole_table.ListColumns.Item(row_number).Delete
+      begin
+        @ole_table.ListColumns.Item(column_name_or_number).Delete
+      rescue WIN32OLERuntimeError
+        raise TableError, "could not delete column #{column_name_or_number.inspect}"
+      end
     end
 
     # insert row below row_number
     def insert_row(position = 1)
-      @ole_table.ListRows.Add(position)
+      begin
+        @ole_table.ListRows.Add(position)
+      rescue WIN32OLERuntimeError
+        raise TableError, "could not insert row at position #{position.inspect}"
+      end
     end
 
     def delete_row(row_number)
-      @ole_table.ListRows.Item(row_number).Delete
+      begin
+        @ole_table.ListRows.Item(row_number).Delete
+      rescue WIN32OLERuntimeError
+        raise TableError, "could not delete row #{row_number.inspect}"
+      end
     end
 
     def rename_column(name_or_number, new_name)
-      column_names = @ole_table.HeaderRowRange.Value.first
-      position = name_or_number.respond_to?(:abs) ? name_or_number : (column_names.index(name_or_number) + 1)
-      column_names[position-1] = new_name
-      @ole_table.HeaderRowRange.Value = [column_names]
-      new_name
+      begin
+        column_names = @ole_table.HeaderRowRange.Value.first
+        position = name_or_number.respond_to?(:abs) ? name_or_number : (column_names.index(name_or_number) + 1)
+        column_names[position-1] = new_name
+        @ole_table.HeaderRowRange.Value = [column_names]
+        new_name
+      rescue
+        raise TableError, "could not rename column #{name_or_number.inspect} to #{new_name.inspect}"
+      end
     end
 
     # @private

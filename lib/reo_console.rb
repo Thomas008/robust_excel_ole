@@ -1,5 +1,5 @@
 require 'pry'
-require 'robust_excel_ole'
+require '../robust_excel_ole/lib/robust_excel_ole'
 
 include REO
 include General

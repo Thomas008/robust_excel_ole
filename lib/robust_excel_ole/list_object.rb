@@ -58,6 +58,36 @@ module RobustExcelOle
         def initialize(row_number)
           @ole_listrow = @@ole_table.ListRows.Item(row_number)
         end
+
+        # values of the row
+        # @return [Array] values of the row
+        def values
+          begin
+            @ole_listrow.Range.Value.first
+          rescue WIN32OLERuntimeError
+            raise TableError, "could not read values"
+          end
+        end
+
+        # sets the values of the row
+        # @param [Array] values of the row
+        def set_values values
+          begin
+            @ole_listrow.Range.Value = [values]
+          rescue WIN32OLERuntimeError
+            raise TableError, "could not set values #{values.inspect}"
+          end
+        end
+
+        # deletes the values of the row
+        def delete_values
+          begin
+            @listrows.Item(row_number).Range.Value = [[].fill(nil,0..@@ole_table.ListColumns.Count)-1]
+            nil
+          rescue WIN32OLERuntimeError
+            raise TableError, "could not delete values"
+          end
+        end
        
         def method_missing(name, *args)
           name_before_last_equal = name.to_s.split('=').first
@@ -98,36 +128,46 @@ module RobustExcelOle
 
     end
 
+    # @return [Array] a list of column names
     def column_names
       @ole_table.HeaderRowRange.Value.first
     end
 
+    # inserts a column
+    # @param [Integer] position of the new column
+    # @param [String]  name of the column
     def insert_column(position = 1, column_name = "")
       begin
-        @ole_table.ListColumns.Add
+        @ole_table.ListColumns.Add(position)
         rename_column(position,column_name)
       rescue WIN32OLERuntimeError, TableError
         raise TableError, "could not insert column at position #{position.inspect} with name #{column_name.inspect}"
       end
     end
 
-    def delete_column(column_name_or_number)
+    # deletes a column
+    # @param [Variant] column number or column name
+    def delete_column(column_number_or_name)
       begin
-        @ole_table.ListColumns.Item(column_name_or_number).Delete
+        @ole_table.ListColumns.Item(column_number_or_name).Delete
       rescue WIN32OLERuntimeError
-        raise TableError, "could not delete column #{column_name_or_number.inspect}"
+        raise TableError, "could not delete column #{column_number_or_name.inspect}"
       end
     end
 
-    # insert row below row_number
+    # inserts a row
+    # @param [Integer] position of the new row
     def insert_row(position = 1)
       begin
         @ole_table.ListRows.Add(position)
+        position
       rescue WIN32OLERuntimeError
         raise TableError, "could not insert row at position #{position.inspect}"
       end
     end
 
+    # deletes a row
+    # @param [Integer] position of the old row
     def delete_row(row_number)
       begin
         @ole_table.ListRows.Item(row_number).Delete
@@ -136,6 +176,29 @@ module RobustExcelOle
       end
     end
 
+    # deletes the contents of a column
+    # @param [Variant] column number or column name
+    def delete_column_values(column_number_or_name)
+      begin
+        @ole_table.ListColumn.Item(column_number_or_name).Range.Value = [].fill([nil],0..@ole_table.ListRows.Count-1)
+      rescue WIN32OLERuntimeError
+        raise TableError, "could not delete contents of column #{column_number_or_name.inspect}"
+      end
+    end
+
+    # deletes the contents of a row
+    # @param [Integer] row number
+    def delete_row_values(row_number)
+      begin
+        @ole_table.ListRows.Item(row_number).Range.Value = [[].fill(nil,0..@ole_table.ListColumns.Count)-1]
+      rescue WIN32OLERuntimeError
+        raise TableError, "could not delete contents of row #{row_number.inspect}"
+      end
+    end
+
+    # renames a row
+    # @param [String] previous name or number of the column
+    # @param [String] new name of the column   
     def rename_column(name_or_number, new_name)
       begin
         column_names = @ole_table.HeaderRowRange.Value.first
@@ -145,6 +208,48 @@ module RobustExcelOle
         new_name
       rescue
         raise TableError, "could not rename column #{name_or_number.inspect} to #{new_name.inspect}"
+      end
+    end
+
+    # contents of a row
+    # @param [Integer] row number
+    # @return [Array] contents of a row
+    def row_values(row_number)
+      begin
+        @ole_table.ListRows.Item(row_number).Range.Value.first
+      rescue WIN32OLERuntimeError
+        raise TableError, "could not read the values of row #{row_number.inspect}"
+      end
+    end
+
+    # sets the contents of a row
+    # @param [Integer] row number
+    # @param [Array]   values of the row
+    def set_row_values(row_number, values)
+      begin
+        @ole_table.ListRows.Item(row_number).Range.Value = [values]
+      rescue WIN32OLERuntimeError
+        raise TableError, "could not set the values of row #{row_number.inspect}"
+      end
+    end
+
+    # @return [Array] contents of a column
+    def column_values(column_number_or_name)
+      begin
+        @ole_table.ListColumns.Item(row_number).Range.Value
+      rescue WIN32OLERuntimeError
+        raise TableError, "could not read the values of column #{column_number_or_name.inspect}"
+      end
+    end
+
+    # sets the contents of a column
+    # @param [Integer] column name or column number
+    # @param [Array]   contents of the column
+    def set_column_values(column_number_or_name, values)
+      begin
+        @ole_table.ListColumns.Item(row_number).Range.Value
+      rescue WIN32OLERuntimeError
+        raise TableError, "could not read the values of column #{column_number_or_name.inspect}"
       end
     end
 

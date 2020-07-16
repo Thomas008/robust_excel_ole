@@ -45,7 +45,7 @@ describe ListObject do
         ole_table = @sheet.ListObjects.Item(1)
         table = Table.new(ole_table)
         table.Name.should == "table3"
-        table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Date"]
+        table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Price"]
         table.ListRows.Count.should == 6
         @sheet[3,4].Value.should == "Number"
       end
@@ -54,7 +54,7 @@ describe ListObject do
         ole_table = @sheet.ListObjects.Item(1)
         table = Table.new(@sheet, "table3")
         table.Name.should == "table3"
-        table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Date"]
+        table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Price"]
         table.ListRows.Count.should == 6
         @sheet[3,4].Value.should == "Number"
       end
@@ -63,7 +63,7 @@ describe ListObject do
         ole_table = @sheet.ListObjects.Item(1)
         table = Table.new(@sheet, 1)
         table.Name.should == "table3"
-        table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Date"]
+        table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Price"]
         table.ListRows.Count.should == 6
         @sheet[3,4].Value.should == "Number"
       end
@@ -80,7 +80,7 @@ describe ListObject do
         ole_table = @sheet.ListObjects.Item(1)
         table = Table.new(@sheet.ole_worksheet, "table3")
         table.Name.should == "table3"
-        table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Date"]
+        table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Price"]
         table.ListRows.Count.should == 6
         @sheet[3,4].Value.should == "Number"
       end
@@ -89,7 +89,7 @@ describe ListObject do
         ole_table = @sheet.ListObjects.Item(1)
         table = Table.new(@sheet.ole_worksheet, 1)
         table.Name.should == "table3"
-        table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Date"]
+        table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Price"]
         table.ListRows.Count.should == 6
         @sheet[3,4].Value.should == "Number"
       end
@@ -132,11 +132,66 @@ describe ListObject do
         @table_row1.number = 1
         @table_row1.number.should == 1
         @sheet[4,4].Value.should == 1
-        @table_row1.person.should == "Herbert"
-        @table_row1.person = "John"
         @table_row1.person.should == "John"
-        @sheet[4,5].Value.should == "John"
+        @table_row1.person = "Herbert"
+        @table_row1.person.should == "Herbert"
+        @sheet[4,5].Value.should == "Herbert"
       end
+    end
+
+  end
+
+  describe "columns and rows" do
+
+    before do
+      ole_table = @sheet.ListObjects.Item(1)
+      @table = Table.new(ole_table)
+    end
+
+    it "should list column names" do
+      @table.column_names.should == @table.HeaderRowRange.Value.first
+    end
+
+    it "should rename a column name" do
+      @table.rename_column("Person", "P")
+      @table.HeaderRowRange.Value.first.should == ["Number","P","Amount","Time","Price"]
+    end
+
+    it "should insert a column" do
+      @table.insert_column(3, "column_name")
+      column_names = @table.HeaderRowRange.Value.first.should == ["Number","Person","column_name","Amount","Time","Price"]
+      expect{
+        @table.insert_column(8, "column_name")
+      }.to raise_error(TableError)
+    end
+
+    it "should delete a column" do
+      @table.delete_column(4)
+      @table.HeaderRowRange.Value.first.should == ["Number","Person", "Amount","Price"]
+      expect{
+        @table.delete_column(6)
+      }.to raise_error(TableError)
+    end
+
+    it "should insert a row" do
+      @table.insert_row(2)
+      listrows = @table.ListRows
+      listrows.Item(1).Range.Value.first.should == [3.0, "John", 50.0, 0.5, 30]
+      listrows.Item(2).Range.Value.first.should == [nil,nil,nil,nil,nil]
+      listrows.Item(3).Range.Value.first.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
+      expect{
+        @table.insert_row(9)
+      }.to raise_error(TableError)
+    end
+
+    it "should delete a row" do
+      @table.delete_row(4)
+      listrows = @table.ListRows
+      listrows.Item(5).Range.Value.first.should == [1,"Werner",40,0.5, 80]
+      listrows.Item(4).Range.Value.first.should == [nil,nil,nil,nil,nil]
+      expect{
+        @table.delete_row(8)
+      }.to raise_error(TableError)
     end
 
   end

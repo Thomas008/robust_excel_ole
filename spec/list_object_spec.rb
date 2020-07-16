@@ -117,6 +117,7 @@ describe ListObject do
         @table_row1.amount.should == 42
         @sheet[2,2].Value.should == 42
       end
+
     end
 
     context "with type-lifted ole list object" do
@@ -141,7 +142,49 @@ describe ListObject do
 
   end
 
-  describe "columns and rows" do
+  describe "reading and setting contents of rows and columns" do
+
+    before do
+      ole_table = @sheet.ListObjects.Item(1)
+      @table = Table.new(ole_table)
+    end
+
+    it "should read contents of a column" do
+      @table.column_values("Person").should == [["John"],["Fred"],[nil],["Angel"],[nil],["Werner"]]
+      expect{
+        @table.columns_values("P")
+      }.to raise_error(TableError)
+    end
+
+    it "should set contents of a column" do
+      @table.column_values("Person",[["H"],[nil],[nil],[nil],["G"],["W"]])
+      @table.ListColumns.Item(1).Range.Value.should == [["H"],[nil],[nil],[nil],["G"],["W"]]
+      expect{
+        @table.column_values("P",[["H"],[nil],[nil],[nil],["G"],["W"]])
+      }.to raise_error(TableError)
+    end
+
+    it "should read contents of a row" do
+      @table.row_values(1).should == [3.0, "John", 50.0, 0.5, 30]
+      @table[1].values.should == [3.0, "John", 50.0, 0.5, 30]
+      expect{
+        @table.row_values(9)
+      }.to raise_error(TableError)
+    end
+
+    it "should set contents of a row" do
+      @table.set_row_values(1, [5, "George", 30.0, 0.2, 50])
+      @table.ListRows.Item(1).Range.Value.first.should == [5, "George", 30.0, 0.2, 50]
+      @table[1].set_values([2, "Merlin", 20.0, 0.1, 40])
+      @table.ListRows.Item(1).Range.Value.first.should == [2, "Merlin", 20.0, 0.1, 40]
+      expect{
+        @table.set_row_values(9, [5, "George", 30.0, 0.2, 50])
+      }.to raise_error(TableError)
+    end
+
+  end
+
+  describe "renaming, inserting and deleting columns and rows" do
 
     before do
       ole_table = @sheet.ListObjects.Item(1)
@@ -191,6 +234,31 @@ describe ListObject do
       listrows.Item(4).Range.Value.first.should == [nil,nil,nil,nil,nil]
       expect{
         @table.delete_row(8)
+      }.to raise_error(TableError)
+    end
+
+    it "should delete the contents of a column" do
+      @table.ListColumns.Item(3).Range.Value.should == [[50],[nil],[nil],[100],[nil],[40]]
+      @table.delete_column_values(3)
+      @table.HeaderRowRange.Value.first.should == ["Number","Person", "Amount", "Time","Price"]
+      @table.ListColumns.Item(3).Range.Value.should == [[nil],[nil],[nil],[nil],[nil],[nil]]
+      @table.ListColumns.Item(3).Range.Value.should == [[3],[2],[nil],[3],[nil],[1]]
+      @table.delete_column_values("Number")
+      @table.ListColumns.Item(3).Range.Value.should == [[nil],[nil],[nil],[nil],[nil],[nil]]
+      expect{
+        @table.delete_column_values("N")
+      }.to raise_error(TableError)
+    end
+
+    it "should delete the contents of a row" do
+      @table.ListRows.Item(3).Range.Value.first.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
+      @table.delete_row_values(2)
+      @table.ListRows.Item(3).Range.Value.first.should == [nil,nil,nil,nil,nil]
+      @table.ListRows.Item(1).Range.Value.first.should == [3.0, "John", 50.0, 0.5, 30]
+      @table[1].delete_values
+      @table.ListRows.Item(1).Range.Value.first.should == [nil,nil,nil,nil,nil]
+      expect{
+        @table.delete_row_values(9)
       }.to raise_error(TableError)
     end
 

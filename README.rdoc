@@ -370,11 +370,11 @@ or
 Similarly, we can read and set the values in a whole column, e.g.
 
   table.column_values("Person")
-  # => [["John"], ["Peter"]]
+  # => ["John", "Peter"]
 
 and 
 
-  table.set_column_values(1, [["Herbert"],["Paul"]])
+  table.set_column_values(1, ["Herbert","Paul"])
 
 The column names we can get with help of
 
@@ -407,6 +407,9 @@ Similarly we can delete the contents of a column.
 
   table.delete_column_values(2)
 
+Finally you can delete empty rows
+
+  table.delete_empty_rows
 
 === More things
 

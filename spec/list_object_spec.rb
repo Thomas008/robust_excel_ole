@@ -150,17 +150,17 @@ describe ListObject do
     end
 
     it "should read contents of a column" do
-      @table.column_values("Person").should == [["John"],["Fred"],[nil],["Angel"],[nil],["Werner"]]
+      @table.column_values("Person").should == ["John","Fred",nil,"Angel",nil,"Werner"]
       expect{
-        @table.columns_values("P")
+        @table.column_values("P")
       }.to raise_error(TableError)
     end
 
     it "should set contents of a column" do
-      @table.column_values("Person",[["H"],[nil],[nil],[nil],["G"],["W"]])
-      @table.ListColumns.Item(1).Range.Value.should == [["H"],[nil],[nil],[nil],["G"],["W"]]
+      @table.set_column_values("Person",["H",nil,nil,nil,"G","W"])
+      @table.ListColumns.Item(2).Range.Value.should == [["Person"],["H"],[nil],[nil],[nil],["G"],["W"]]
       expect{
-        @table.column_values("P",[["H"],[nil],[nil],[nil],["G"],["W"]])
+        @table.set_column_values("P",["H",nil,nil,nil,"G","W"])
       }.to raise_error(TableError)
     end
 
@@ -238,22 +238,22 @@ describe ListObject do
     end
 
     it "should delete the contents of a column" do
-      @table.ListColumns.Item(3).Range.Value.should == [[50],[nil],[nil],[100],[nil],[40]]
+      @table.ListColumns.Item(3).Range.Value.should == [["Amount"],[50],[nil],[nil],[100],[nil],[40]]
       @table.delete_column_values(3)
       @table.HeaderRowRange.Value.first.should == ["Number","Person", "Amount", "Time","Price"]
-      @table.ListColumns.Item(3).Range.Value.should == [[nil],[nil],[nil],[nil],[nil],[nil]]
-      @table.ListColumns.Item(3).Range.Value.should == [[3],[2],[nil],[3],[nil],[1]]
+      @table.ListColumns.Item(3).Range.Value.should == [["Amount"],[nil],[nil],[nil],[nil],[nil],[nil]]
+      @table.ListColumns.Item(1).Range.Value.should == [["Number"],[3],[2],[nil],[3],[nil],[1]]
       @table.delete_column_values("Number")
-      @table.ListColumns.Item(3).Range.Value.should == [[nil],[nil],[nil],[nil],[nil],[nil]]
+      @table.ListColumns.Item(1).Range.Value.should == [["Number"],[nil],[nil],[nil],[nil],[nil],[nil]]
       expect{
         @table.delete_column_values("N")
       }.to raise_error(TableError)
     end
 
     it "should delete the contents of a row" do
-      @table.ListRows.Item(3).Range.Value.first.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
+      @table.ListRows.Item(2).Range.Value.first.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
       @table.delete_row_values(2)
-      @table.ListRows.Item(3).Range.Value.first.should == [nil,nil,nil,nil,nil]
+      @table.ListRows.Item(2).Range.Value.first.should == [nil,nil,nil,nil,nil]
       @table.ListRows.Item(1).Range.Value.first.should == [3.0, "John", 50.0, 0.5, 30]
       @table[1].delete_values
       @table.ListRows.Item(1).Range.Value.first.should == [nil,nil,nil,nil,nil]

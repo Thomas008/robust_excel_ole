@@ -239,7 +239,7 @@ module RobustExcelOle
     # @return [Array] contents of a column
     def column_values(column_number_or_name)
       begin
-        @ole_table.ListColumns.Item(column_number_or_name).Range.Value
+        @ole_table.ListColumns.Item(column_number_or_name).Range.Value[1,@ole_table.ListRows.Count].flatten
       rescue WIN32OLERuntimeError
         raise TableError, "could not read the values of column #{column_number_or_name.inspect}"
       end

@@ -82,7 +82,7 @@ module RobustExcelOle
         # deletes the values of the row
         def delete_values
           begin
-            @listrows.Item(row_number).Range.Value = [[].fill(nil,0..@@ole_table.ListColumns.Count)-1]
+            @ole_listrow.Range.Value = [[].fill(nil,0..(@@ole_table.ListColumns.Count)-1)]
             nil
           rescue WIN32OLERuntimeError
             raise TableError, "could not delete values"
@@ -180,7 +180,9 @@ module RobustExcelOle
     # @param [Variant] column number or column name
     def delete_column_values(column_number_or_name)
       begin
-        @ole_table.ListColumn.Item(column_number_or_name).Range.Value = [].fill([nil],0..@ole_table.ListRows.Count-1)
+        column_name = @ole_table.ListColumns.Item(column_number_or_name).Range.Value.first
+        @ole_table.ListColumns.Item(column_number_or_name).Range.Value = [column_name] + [].fill([nil],0..(@ole_table.ListRows.Count-1))
+        nil
       rescue WIN32OLERuntimeError
         raise TableError, "could not delete contents of column #{column_number_or_name.inspect}"
       end
@@ -190,7 +192,8 @@ module RobustExcelOle
     # @param [Integer] row number
     def delete_row_values(row_number)
       begin
-        @ole_table.ListRows.Item(row_number).Range.Value = [[].fill(nil,0..@ole_table.ListColumns.Count)-1]
+        @ole_table.ListRows.Item(row_number).Range.Value = [[].fill(nil,0..(@ole_table.ListColumns.Count-1))]
+        nil
       rescue WIN32OLERuntimeError
         raise TableError, "could not delete contents of row #{row_number.inspect}"
       end
@@ -236,7 +239,7 @@ module RobustExcelOle
     # @return [Array] contents of a column
     def column_values(column_number_or_name)
       begin
-        @ole_table.ListColumns.Item(row_number).Range.Value
+        @ole_table.ListColumns.Item(column_number_or_name).Range.Value
       rescue WIN32OLERuntimeError
         raise TableError, "could not read the values of column #{column_number_or_name.inspect}"
       end
@@ -247,9 +250,26 @@ module RobustExcelOle
     # @param [Array]   contents of the column
     def set_column_values(column_number_or_name, values)
       begin
-        @ole_table.ListColumns.Item(row_number).Range.Value
+        column_name = @ole_table.ListColumns.Item(column_number_or_name).Range.Value.first
+        @ole_table.ListColumns.Item(column_number_or_name).Range.Value = column_name + values.map{|v| [v]}
+        values
       rescue WIN32OLERuntimeError
         raise TableError, "could not read the values of column #{column_number_or_name.inspect}"
+      end
+    end
+
+    # deletes rows that have an empty contents
+    def delete_empty_rows
+      listrows = @ole_table.ListRows
+      nil_array = [[].fill(nil,0..(@ole_table.ListColumns.Count-1))]
+      i = 1
+      while i <= listrows.Count do 
+        row = listrows.Item(i)
+        if row.Range.Value == nil_array
+          row.Delete
+        else
+          i = i+1
+        end
       end
     end
 

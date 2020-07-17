@@ -262,5 +262,14 @@ describe ListObject do
       }.to raise_error(TableError)
     end
 
+    it "should delete empty rows" do
+      @table.delete_empty_rows
+      @table.ListRows.Count.should == 4
+      @table.ListRows.Item(1).Range.Value.first.should == [3.0, "John", 50.0, 0.5, 30]
+      @table.ListRows.Item(2).Range.Value.first.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
+      @table.ListRows.Item(3).Range.Value.first.should == [3, "Angel", 100, 0.6666666666666666, 60]
+      @table.ListRows.Item(4).Range.Value.first.should == [1,"Werner",40,0.5, 80]
+    end
+
   end
 end

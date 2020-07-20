@@ -10,27 +10,36 @@ module General
   ::CONNECT_EXCEL_JRUBY_BUG      = IS_JRUBY_PLATFORM && true
   ::RANGES_JRUBY_BUG       = IS_JRUBY_PLATFORM && true
 
+  NetworkDrive = Struct.new(:drive_letter, :network_name)
+
+
   @private
   def network2hostnamesharepath(filename)
     network = WIN32OLE.new('WScript.Network')
     drives = network.enumnetworkdrives
-    drive_letter, filename_after_drive_letter = filename.split(':') 
-    # if filename starts with a drive letter not c and this drive exists,
-    # then determine the corresponding host_share_path
-    default_drive = File.absolute_path(".")[0]
-    if drive_letter != default_drive && drive_letter != filename  
-      for i in 0 .. drives.Count-1
-        next if i % 2 == 1
-        if drives.Item(i).gsub(':','') == drive_letter
-          hostname_share = drives.Item(i+1)  #.gsub('\\','/').gsub('//','')
-          break
-        end
-      end
-      hostname_share + filename_after_drive_letter if hostname_share
-    else
-      return filename
-    end
+    drive_letter, filename_after_drive_letter = filename.split(':')
+    drive_letter = normalize_drive_letter(drive_letter)
+    network_drives = get_network_drives
+    network_drive = network_drives.find{ |d| d.drive_letter == drive_letter }
+    return filename unless network_drive
+    return network_drive.network_name + filename_after_drive_letter
   end
+
+  def get_network_drives
+    network = WIN32OLE.new('WScript.Network')
+    drives = network.enumnetworkdrives
+    ndrives = []
+    count = drives.Count
+    (0..(count - 1)).step(2) do |i|
+      ndrives << NetworkDrive.new( drives.Item(i), drives.Item(i + 1))
+    end
+    ndrives
+  end
+
+  def normalize_drive_letter(drive)
+    drive.upcase.end_with?(':') ? drive : "#{drive}:"
+  end
+
 
   # @private
   def absolute_path(file)     

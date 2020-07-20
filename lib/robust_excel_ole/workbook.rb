@@ -97,6 +97,9 @@ module RobustExcelOle
       when String
         file = file_or_workbook
         raise FileNotFound, "file #{General.absolute_path(file).inspect} is a directory" if File.directory?(file)
+      when ->(n){ n.respond_to? :to_path }
+        file = file_or_workbook.to_path
+        raise FileNotFound, "file #{General.absolute_path(file).inspect} is a directory" if File.directory?(file)
       else
         raise TypeREOError, 'given object is neither a filename, a Win32ole, nor a Workbook object'
       end

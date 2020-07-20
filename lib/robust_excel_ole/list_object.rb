@@ -73,6 +73,7 @@ module RobustExcelOle
         # @param [Array] values of the row
         def set_values values
           begin
+            values = values + [].fill(nil,0..(@@ole_table.ListColumns.Count-values.length))
             @ole_listrow.Range.Value = [values]
           rescue WIN32OLERuntimeError
             raise TableError, "could not set values #{values.inspect}"
@@ -133,15 +134,17 @@ module RobustExcelOle
       @ole_table.HeaderRowRange.Value.first
     end
 
-    # inserts a column
-    # @param [Integer] position of the new column
+    # adds a column    
     # @param [String]  name of the column
-    def insert_column(position = 1, column_name = "")
+    # @param [Integer] position of the new column
+    # @param [Array]   values of the column
+    def add_column(column_name = nil, position = nil, contents = nil)
       begin
-        @ole_table.ListColumns.Add(position)
-        rename_column(position,column_name)
+        new_column = @ole_table.ListColumns.Add(position)
+        new_column.Name = column_name if column_name
+        set_column_values(column_name, contents) if contents
       rescue WIN32OLERuntimeError, TableError
-        raise TableError, "could not insert column at position #{position.inspect} with name #{column_name.inspect}"
+        raise TableError, ("could not add column"+ ("at position #{position.inspect} with name #{column_name.inspect}" if position))
       end
     end
 
@@ -155,14 +158,15 @@ module RobustExcelOle
       end
     end
 
-    # inserts a row
+    # adds a row
     # @param [Integer] position of the new row
-    def insert_row(position = 1)
+    # @param [Array]   values of the column
+    def add_row(position = nil, contents = nil)
       begin
         @ole_table.ListRows.Add(position)
-        position
+        set_row_values(position, contents) if contents
       rescue WIN32OLERuntimeError
-        raise TableError, "could not insert row at position #{position.inspect}"
+        raise TableError, ("could not add row" + (" at position #{position.inspect}" if position))
       end
     end
 
@@ -204,11 +208,7 @@ module RobustExcelOle
     # @param [String] new name of the column   
     def rename_column(name_or_number, new_name)
       begin
-        column_names = @ole_table.HeaderRowRange.Value.first
-        position = name_or_number.respond_to?(:abs) ? name_or_number : (column_names.index(name_or_number) + 1)
-        column_names[position-1] = new_name
-        @ole_table.HeaderRowRange.Value = [column_names]
-        new_name
+        @ole_table.ListColumns.Item(name_or_number).Name = new_name
       rescue
         raise TableError, "could not rename column #{name_or_number.inspect} to #{new_name.inspect}"
       end
@@ -230,6 +230,10 @@ module RobustExcelOle
     # @param [Array]   values of the row
     def set_row_values(row_number, values)
       begin
+        #values = values + [].fill(nil,0..(@ole_table.ListColumns.Count-values.length))
+        old_values = row_values(row_number)
+        # values overwrites old_values from left to right. is there an array method?
+        values = overwrite(old_values,values)          
         @ole_table.ListRows.Item(row_number).Range.Value = [values]
       rescue WIN32OLERuntimeError
         raise TableError, "could not set the values of row #{row_number.inspect}"
@@ -250,6 +254,10 @@ module RobustExcelOle
     # @param [Array]   contents of the column
     def set_column_values(column_number_or_name, values)
       begin
+        #values = values + [].fill(nil,0..(@ole_table.ListRows.Count-values.length))
+        old_values = column_values(column_number_or_name)
+        # values overwrites old_values from left to right. is there an array method?
+        values = overwrite(old_values,values)
         column_name = @ole_table.ListColumns.Item(column_number_or_name).Range.Value.first
         @ole_table.ListColumns.Item(column_number_or_name).Range.Value = column_name + values.map{|v| [v]}
         values
@@ -267,6 +275,21 @@ module RobustExcelOle
         row = listrows.Item(i)
         if row.Range.Value == nil_array
           row.Delete
+        else
+          i = i+1
+        end
+      end
+    end
+
+    # deletes columns that have an empty contents
+    def delete_empty_columns
+      listcolumns = @ole_table.ListColumns
+      nil_array = [].fill([nil],0..(@ole_table.ListRows.Count-1))
+      i = 1
+      while i <= listcolumns.Count do 
+        column = listcolumns.Item(i)
+        if column.Range.Value[1..-1] == nil_array
+          column.Delete
         else
           i = i+1
         end

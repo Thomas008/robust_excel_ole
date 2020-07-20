@@ -184,7 +184,7 @@ describe ListObject do
 
   end
 
-  describe "renaming, inserting and deleting columns and rows" do
+  describe "renaming, adding and deleting columns and rows" do
 
     before do
       ole_table = @sheet.ListObjects.Item(1)
@@ -200,12 +200,23 @@ describe ListObject do
       @table.HeaderRowRange.Value.first.should == ["Number","P","Amount","Time","Price"]
     end
 
-    it "should insert a column" do
-      @table.insert_column(3, "column_name")
+    it "should append a column" do
+      @table.add_column("column_name")
+      column_names = @table.HeaderRowRange.Value.first.should == ["Number","Person", "Amount","Time","Price", "column_name"]
+    end
+
+    it "should add a column" do
+      @table.add_column("column_name", 3)
       column_names = @table.HeaderRowRange.Value.first.should == ["Number","Person","column_name","Amount","Time","Price"]
       expect{
-        @table.insert_column(8, "column_name")
+        @table.add_column(8, "column_name")
       }.to raise_error(TableError)
+    end
+
+    it "should add a column with contents" do
+      @table.add_column("column_name", 3, ["a","b","c","d","e","f","g"])
+      column_names = @table.HeaderRowRange.Value.first.should == ["Number","Person","column_name","Amount","Time","Price"]
+      @table.ListColumns.Item(3).Range.Value.should == [["column_name"],["a"],["b"],["c"],["d"],["e"],["f"],["g"]]
     end
 
     it "should delete a column" do
@@ -216,15 +227,29 @@ describe ListObject do
       }.to raise_error(TableError)
     end
 
-    it "should insert a row" do
-      @table.insert_row(2)
+    it "should append a row" do
+      @table.add_row
+      listrows = @table.ListRows
+      listrows.Item(listrows.Count).Range.Value.first.should == [nil,nil,nil,nil,nil]
+    end
+
+    it "should add a row" do
+      @table.add_row(2)
       listrows = @table.ListRows
       listrows.Item(1).Range.Value.first.should == [3.0, "John", 50.0, 0.5, 30]
       listrows.Item(2).Range.Value.first.should == [nil,nil,nil,nil,nil]
       listrows.Item(3).Range.Value.first.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
       expect{
-        @table.insert_row(9)
+        @table.add_row(9)
       }.to raise_error(TableError)
+    end
+
+    it "should add a row with contents" do
+      @table.add_row(2, [2.0, "Herbert", 30.0, 0.25, 40])
+      listrows = @table.ListRows
+      listrows.Item(1).Range.Value.first.should == [3.0, "John", 50.0, 0.5, 30]
+      listrows.Item(2).Range.Value.first.should == [2.0, "Herbert", 30.0, 0.25, 40]
+      listrows.Item(3).Range.Value.first.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
     end
 
     it "should delete a row" do
@@ -269,6 +294,15 @@ describe ListObject do
       @table.ListRows.Item(2).Range.Value.first.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
       @table.ListRows.Item(3).Range.Value.first.should == [3, "Angel", 100, 0.6666666666666666, 60]
       @table.ListRows.Item(4).Range.Value.first.should == [1,"Werner",40,0.5, 80]
+    end
+
+    it "should delete empty columns" do
+      @table.delete_columns_values(4)
+      @table.ListColumns.Count.should == 5
+      @table.HeaderRowRange.Value.first.should == ["Number","Person", "Amount", "Time","Price"]
+      @table.delete_empty_columns
+      @table.ListColumns.Count.should == 4
+      @table.HeaderRowRange.Value.first.should == ["Number","Person", "Amount","Price"]
     end
 
   end

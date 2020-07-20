@@ -388,14 +388,25 @@ or
 
   table.rename_column(1, "Enterprise")
 
-We can delete and insert rows and columns.
+We can add rows and columns, supplying optionally their name, the position and contents. 
 
-  table.insert_column(2, "column_name")
-  table.delete_column("Enerprise")
-  table.insert_row(3)
-  table.delete_row(2)
+  table.add_column("column_name")
+  table.add_column("column_name", 3)
+  table.add_column("column_name", 3, ["John", "Paul"])
+  
+  table.add_row(3)
+  table.add_row(3, ["John", 40, 2, 2004])
 
-We can also delete only the contents of a row.
+Deleting columns and rows is done by
+
+  table.delete_column("column_name")
+  table.delete_row(3)
+
+We can delete only the contents of a column
+
+  table.delete_column_values("column_name")
+
+Similarly can delete only the contents of a row.
 
   table.delete_row_values(2)
 
@@ -403,13 +414,10 @@ or
 
   table[2].delete_values
 
-Similarly we can delete the contents of a column.
-
-  table.delete_column_values(2)
-
-Finally you can delete empty rows
+Finally we can delete empty rows and columns.
 
   table.delete_empty_rows
+  table.delete_empty_columns
 
 === More things
 

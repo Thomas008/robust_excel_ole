@@ -73,8 +73,10 @@ module RobustExcelOle
         # @param [Array] values of the row
         def set_values values
           begin
-            values = values + [].fill(nil,0..(@@ole_table.ListColumns.Count-values.length))
-            @ole_listrow.Range.Value = [values]
+            updated_values = self.values
+            updated_values[0,values.length] = values
+            @ole_listrow.Range.Value = [updated_values]
+            values
           rescue WIN32OLERuntimeError
             raise TableError, "could not set values #{values.inspect}"
           end
@@ -134,6 +136,18 @@ module RobustExcelOle
       @ole_table.HeaderRowRange.Value.first
     end
 
+    # adds a row
+    # @param [Integer] position of the new row
+    # @param [Array]   values of the column
+    def add_row(position = nil, contents = nil)
+      begin
+        @ole_table.ListRows.Add(position)
+        set_row_values(position, contents) if contents
+      rescue WIN32OLERuntimeError
+        raise TableError, ("could not add row" + (" at position #{position.inspect}" if position))
+      end
+    end
+
     # adds a column    
     # @param [String]  name of the column
     # @param [Integer] position of the new column
@@ -148,6 +162,16 @@ module RobustExcelOle
       end
     end
 
+    # deletes a row
+    # @param [Integer] position of the old row
+    def delete_row(row_number)
+      begin
+        @ole_table.ListRows.Item(row_number).Delete
+      rescue WIN32OLERuntimeError
+        raise TableError, "could not delete row #{row_number.inspect}"
+      end
+    end
+
     # deletes a column
     # @param [Variant] column number or column name
     def delete_column(column_number_or_name)
@@ -158,25 +182,14 @@ module RobustExcelOle
       end
     end
 
-    # adds a row
-    # @param [Integer] position of the new row
-    # @param [Array]   values of the column
-    def add_row(position = nil, contents = nil)
+    # deletes the contents of a row
+    # @param [Integer] row number
+    def delete_row_values(row_number)
       begin
-        @ole_table.ListRows.Add(position)
-        set_row_values(position, contents) if contents
+        @ole_table.ListRows.Item(row_number).Range.Value = [[].fill(nil,0..(@ole_table.ListColumns.Count-1))]
+        nil
       rescue WIN32OLERuntimeError
-        raise TableError, ("could not add row" + (" at position #{position.inspect}" if position))
-      end
-    end
-
-    # deletes a row
-    # @param [Integer] position of the old row
-    def delete_row(row_number)
-      begin
-        @ole_table.ListRows.Item(row_number).Delete
-      rescue WIN32OLERuntimeError
-        raise TableError, "could not delete row #{row_number.inspect}"
+        raise TableError, "could not delete contents of row #{row_number.inspect}"
       end
     end
 
@@ -189,17 +202,6 @@ module RobustExcelOle
         nil
       rescue WIN32OLERuntimeError
         raise TableError, "could not delete contents of column #{column_number_or_name.inspect}"
-      end
-    end
-
-    # deletes the contents of a row
-    # @param [Integer] row number
-    def delete_row_values(row_number)
-      begin
-        @ole_table.ListRows.Item(row_number).Range.Value = [[].fill(nil,0..(@ole_table.ListColumns.Count-1))]
-        nil
-      rescue WIN32OLERuntimeError
-        raise TableError, "could not delete contents of row #{row_number.inspect}"
       end
     end
 
@@ -230,11 +232,10 @@ module RobustExcelOle
     # @param [Array]   values of the row
     def set_row_values(row_number, values)
       begin
-        #values = values + [].fill(nil,0..(@ole_table.ListColumns.Count-values.length))
-        old_values = row_values(row_number)
-        # values overwrites old_values from left to right. is there an array method?
-        values = overwrite(old_values,values)          
-        @ole_table.ListRows.Item(row_number).Range.Value = [values]
+        updated_values = row_values(row_number)
+        updated_values[0,values.length] = values
+        @ole_table.ListRows.Item(row_number).Range.Value = [updated_values]
+        values
       rescue WIN32OLERuntimeError
         raise TableError, "could not set the values of row #{row_number.inspect}"
       end
@@ -254,12 +255,10 @@ module RobustExcelOle
     # @param [Array]   contents of the column
     def set_column_values(column_number_or_name, values)
       begin
-        #values = values + [].fill(nil,0..(@ole_table.ListRows.Count-values.length))
-        old_values = column_values(column_number_or_name)
-        # values overwrites old_values from left to right. is there an array method?
-        values = overwrite(old_values,values)
+        updated_values = column_values(column_number_or_name)
+        updated_values[0,values.length] = values
         column_name = @ole_table.ListColumns.Item(column_number_or_name).Range.Value.first
-        @ole_table.ListColumns.Item(column_number_or_name).Range.Value = column_name + values.map{|v| [v]}
+        @ole_table.ListColumns.Item(column_number_or_name).Range.Value = column_name + updated_values.map{|v| [v]}
         values
       rescue WIN32OLERuntimeError
         raise TableError, "could not read the values of column #{column_number_or_name.inspect}"
@@ -294,6 +293,18 @@ module RobustExcelOle
           i = i+1
         end
       end
+    end
+
+    # finds all orrurrences in the list object
+    # @param[Variant] value to find
+    # @return [Array] pairs of [row,column] of the cells containing the given value
+    def find(value)
+      listrows = @ole_table.ListRows      
+      result = []
+      (1..listrows.Count).each do |row_number|
+        row_values(row_number).find_each_index(value).map{ |col_number| result << [row_number,col_number+1]}
+      end
+      result
     end
 
     # @private

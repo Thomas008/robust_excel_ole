@@ -159,6 +159,8 @@ describe ListObject do
     it "should set contents of a column" do
       @table.set_column_values("Person",["H",nil,nil,nil,"G","W"])
       @table.ListColumns.Item(2).Range.Value.should == [["Person"],["H"],[nil],[nil],[nil],["G"],["W"]]
+      @table.set_column_values("Person",["T","Z"])
+      @table.ListColumns.Item(2).Range.Value.should == [["Person"],["T"],["Z"],[nil],[nil],["G"],["W"]]
       expect{
         @table.set_column_values("P",["H",nil,nil,nil,"G","W"])
       }.to raise_error(TableError)
@@ -175,8 +177,11 @@ describe ListObject do
     it "should set contents of a row" do
       @table.set_row_values(1, [5, "George", 30.0, 0.2, 50])
       @table.ListRows.Item(1).Range.Value.first.should == [5, "George", 30.0, 0.2, 50]
+      @table.set_row_values(1, [6, "Martin"])
+      @table.ListRows.Item(1).Range.Value.first.should == [6, "Martin", 30.0, 0.2, 50]
       @table[1].set_values([2, "Merlin", 20.0, 0.1, 40])
-      @table.ListRows.Item(1).Range.Value.first.should == [2, "Merlin", 20.0, 0.1, 40]
+      @table[1].set_values([4, "John"])
+      @table.ListRows.Item(1).Range.Value.first.should == [4, "John", 20.0, 0.1, 40]
       expect{
         @table.set_row_values(9, [5, "George", 30.0, 0.2, 50])
       }.to raise_error(TableError)
@@ -304,6 +309,15 @@ describe ListObject do
       @table.ListColumns.Count.should == 4
       @table.HeaderRowRange.Value.first.should == ["Number","Person", "Amount","Price"]
     end
-
   end
+
+  describe "find all occurrences of a value" do
+
+    it "finds all occurrences" do
+      @table.find(40).should == [[2,5],[6,3]]
+      @table.find("Herbert").should == []
+    end
+  
+  end
+
 end

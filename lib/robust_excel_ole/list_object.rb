@@ -59,6 +59,30 @@ module RobustExcelOle
           @ole_listrow = @@ole_table.ListRows.Item(row_number)
         end
 
+        # returns the value of the cell with given column name or number
+        # @param [Variant]  column number or column name
+        # @return [Variant] value of the cell 
+        def [] column_number_or_name
+          begin
+            ole_cell = @@ole_table.Application.Intersect(
+              @ole_listrow.Range, @@ole_table.ListColumns.Item(column_number_or_name).Range)
+            ole_cell.Value
+          rescue WIN32OLERuntimeError
+            raise TableRowError, "could not determine the value at column #{column_number_or_name}"
+          end
+        end
+
+
+        def []=(column_number_or_name, value)
+          begin
+            ole_cell = @@ole_table.Application.Intersect(
+              @ole_listrow.Range, @@ole_table.ListColumns.Item(column_number_or_name).Range)
+            ole_cell.Value = value
+          rescue WIN32OLERuntimeError
+            raise TableRowError, "could not assign value #{value.inspect} to cell at column #{column_number_or_name}"
+          end
+        end
+
         # values of the row
         # @return [Array] values of the row
         def values
@@ -99,7 +123,7 @@ module RobustExcelOle
           column_name = column_names[method_names.index(name_before_last_equal)]
           if column_name
             ole_cell = @@ole_table.Application.Intersect(
-              @ole_listrow.Range, @@ole_table.ListColumns(column_name).Range)
+              @ole_listrow.Range, @@ole_table.ListColumns.Item(column_name).Range)
             define_getting_setting_method(ole_cell,name.to_s)            
             self.send(name, *args)
           else
@@ -133,7 +157,11 @@ module RobustExcelOle
 
     # @return [Array] a list of column names
     def column_names
-      @ole_table.HeaderRowRange.Value.first
+      begin
+        @ole_table.HeaderRowRange.Value.first
+      rescue WIN32OLERuntimeError
+        raise TableError, "could not determine column names"
+      end
     end
 
     # adds a row
@@ -307,6 +335,17 @@ module RobustExcelOle
       result
     end
 
+    # sorts the rows of the list object according to the given column
+    # @param [Variant] column number or name
+    # @option opts [Symbol]   sort order
+    def sort(column_number_or_name, sort_order = :ascending)
+      key_range = @ole_table.ListColumns.Item(column_number_or_name).Range
+      @ole_table.Sort.SortFields.Clear
+      sort_order_option = sort_order == :ascending ? XlAscending : XlDescending
+      @ole_table.Sort.SortFields.Add(key_range, XlSortOnValues,sort_order_option,XlSortNormal)
+      @ole_table.Sort.Apply
+    end
+
     # @private
     def to_s    
       @ole_table.Name.to_s
@@ -344,6 +383,10 @@ module RobustExcelOle
 
   # @private
   class TableError < WorksheetREOError
+  end
+
+  # @private
+  class TableRowError < WorksheetREOError
   end
 
   Table = ListObject

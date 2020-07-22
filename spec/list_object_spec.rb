@@ -313,11 +313,23 @@ describe ListObject do
 
   describe "find all occurrences of a value" do
 
-    it "finds all occurrences" do
+    it "should find all occurrences" do
       @table.find(40).should == [[2,5],[6,3]]
       @table.find("Herbert").should == []
     end
   
+  end
+
+  describe "sort the table" do
+
+    it "should sort the table according to first table" do
+      @table.sort("Number")
+      @table.ListRows.Item(1).Range.Value.first.should == [1,"Werner",40,0.5, 80]
+      @table.ListRows.Item(2).Range.Value.first.should == [2, "Fred", nil, 0.5416666666666666, 40]     
+      @table.ListRows.Item(1).Range.Value.first.should == [3, "John", 50.0, 0.5, 30]
+      @table.ListRows.Item(3).Range.Value.first.should == [3, "Angel", 100, 0.6666666666666666, 60]
+    end
+
   end
 
 end

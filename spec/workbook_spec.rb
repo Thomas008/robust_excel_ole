@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 require File.join(File.dirname(__FILE__), './spec_helper')
+require 'pathname'
 
 $VERBOSE = nil
 
@@ -20,6 +21,7 @@ describe Workbook do
   before do
     @dir = create_tmpdir
     @simple_file = @dir + '/workbook.xls'
+    @pathame_file = Pathname(@dir) + 'workbook.xls'
     @simple_save_file = @dir + '/workbook_save.xls'
     @different_file = @dir + '/different_workbook.xls'
     @simple_file_other_path = @dir + '/more_data/workbook.xls'
@@ -42,6 +44,16 @@ describe Workbook do
       it "open an existing file" do
         expect {
           @book = Workbook.open(@simple_file)
+        }.to_not raise_error
+        @book.should be_a Workbook
+        @book.close
+      end
+    end
+
+    context "with pathname" do
+      it "open an existing file" do
+        expect {
+          @book = Workbook.open(@pathame_file)
         }.to_not raise_error
         @book.should be_a Workbook
         @book.close

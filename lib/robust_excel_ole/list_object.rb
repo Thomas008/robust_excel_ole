@@ -354,8 +354,8 @@ module RobustExcelOle
     # @private
     def inspect    
       "#<ListObject:" + "#{@ole_table.Name}" + 
-      " size:#{@ole_table.ListRows.Count}x#{@ole_table.ListColumns.Count}" +
-      " worksheet:#{@ole_table.Parent.Name}" + " workbook:#{@ole_table.Parent.Parent.Name}" + ">"
+      " #{@ole_table.ListRows.Count}x#{@ole_table.ListColumns.Count}" +
+      " #{@ole_table.Parent.Name}" + " #{@ole_table.Parent.Parent.Name}" + ">"
     end
 
   private

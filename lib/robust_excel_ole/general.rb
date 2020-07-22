@@ -132,7 +132,7 @@ class WIN32OLE
       begin
         self.send(method)
         if classname == RobustExcelOle::Range && self.Rows.Count == 1 && self.Columns.Count == 1
-          return Cell.new(self)
+          return Cell.new(self, self.Parent)
         else
           return classname.new(self)
         end

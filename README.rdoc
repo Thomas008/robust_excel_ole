@@ -429,10 +429,10 @@ Finally we can delete empty rows and columns.
 
 === Finding values and sorting 
 
-You can find all occurrences of a value, i.e. the row number and column number of the cell containing the given value, e.g.
+You can find all cells containing a given value, e.g.
 
-  table.find(value)
-  # => [[2,5], [6,3]]
+  table.find_value(value)
+  #=> [#<Cell: (5,8)>#, #<Cell: (9,6)>#]
 
 You can sort a table according to a given column and sort order, e.g.
 

@@ -323,14 +323,17 @@ module RobustExcelOle
       end
     end
 
-    # finds all orrurrences in the list object
+    # finds all cells containing a given value
     # @param[Variant] value to find
-    # @return [Array] pairs of [row,column] of the cells containing the given value
-    def find(value)
+    # @return [Array] win32ole cells containing the given value
+    def find_cells(value)
       listrows = @ole_table.ListRows      
       result = []
       (1..listrows.Count).each do |row_number|
-        row_values(row_number).find_each_index(value).map{ |col_number| result << [row_number,col_number+1]}
+        row_values(row_number).find_each_index(value).each do |col_number|
+          result << @ole_table.Application.Intersect(listrows.Item(row_number).Range, 
+                                                     @ole_table.ListColumns.Item(col_number+1).Range).to_reo
+        end
       end
       result
     end

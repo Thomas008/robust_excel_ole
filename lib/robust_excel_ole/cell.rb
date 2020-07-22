@@ -24,6 +24,16 @@ module RobustExcelOle
       @ole_range = @ole_range.MergeArea.Item(1,1) if @ole_range.MergeCells
     end
 
+    # @private
+    def to_s    
+      @ole_table.Name.to_s
+    end
+
+    # @private
+    def inspect    
+      "#<Cell:" + " (#{@ole_range.Row},#{@ole_range.Column})" + ">#" 
+    end
+
   private
 
     # @private

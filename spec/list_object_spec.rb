@@ -219,9 +219,9 @@ describe ListObject do
     end
 
     it "should add a column with contents" do
-      @table.add_column("column_name", 3, ["a","b","c","d","e","f","g"])
+      @table.add_column("column_name", 3, ["a","b","c","d","e","f"])
       column_names = @table.HeaderRowRange.Value.first.should == ["Number","Person","column_name","Amount","Time","Price"]
-      @table.ListColumns.Item(3).Range.Value.should == [["column_name"],["a"],["b"],["c"],["d"],["e"],["f"],["g"]]
+      @table.ListColumns.Item(3).Range.Value.should == [["column_name"],["a"],["b"],["c"],["d"],["e"],["f"]]
     end
 
     it "should delete a column" do
@@ -302,7 +302,7 @@ describe ListObject do
     end
 
     it "should delete empty columns" do
-      @table.delete_columns_values(4)
+      @table.delete_column_values(4)
       @table.ListColumns.Count.should == 5
       @table.HeaderRowRange.Value.first.should == ["Number","Person", "Amount", "Time","Price"]
       @table.delete_empty_columns
@@ -311,23 +311,36 @@ describe ListObject do
     end
   end
 
-  describe "find all occurrences of a value" do
+  describe "find all cells of a given value" do
 
-    it "should find all occurrences" do
-      @table.find(40).should == [[2,5],[6,3]]
-      @table.find("Herbert").should == []
+    before do
+      ole_table = @sheet.ListObjects.Item(1)
+      @table = Table.new(ole_table)
+    end
+
+    it "should find all cells" do
+      cells = @table.find_cells(40)
+      cells[0].Row.should == 5
+      cells[0].Column.should == 8
+      cells[1].Row.should == 9
+      cells[1].Column.should == 6
     end
   
   end
 
   describe "sort the table" do
 
+    before do
+      ole_table = @sheet.ListObjects.Item(1)
+      @table = Table.new(ole_table)
+    end
+
     it "should sort the table according to first table" do
       @table.sort("Number")
       @table.ListRows.Item(1).Range.Value.first.should == [1,"Werner",40,0.5, 80]
       @table.ListRows.Item(2).Range.Value.first.should == [2, "Fred", nil, 0.5416666666666666, 40]     
-      @table.ListRows.Item(1).Range.Value.first.should == [3, "John", 50.0, 0.5, 30]
-      @table.ListRows.Item(3).Range.Value.first.should == [3, "Angel", 100, 0.6666666666666666, 60]
+      @table.ListRows.Item(3).Range.Value.first.should == [3, "John", 50.0, 0.5, 30]
+      @table.ListRows.Item(4).Range.Value.first.should == [3, "Angel", 100, 0.6666666666666666, 60]
     end
 
   end

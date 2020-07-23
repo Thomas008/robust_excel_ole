@@ -21,7 +21,7 @@ describe Workbook do
   before do
     @dir = create_tmpdir
     @simple_file = @dir + '/workbook.xls'
-    @pathame_file = Pathname(@dir) + 'workbook.xls'
+    @pathname_file = Pathname(@dir) + 'workbook.xls'
     @simple_save_file = @dir + '/workbook_save.xls'
     @different_file = @dir + '/different_workbook.xls'
     @simple_file_other_path = @dir + '/more_data/workbook.xls'
@@ -53,7 +53,7 @@ describe Workbook do
     context "with pathname" do
       it "open an existing file" do
         expect {
-          @book = Workbook.open(@pathame_file)
+          @book = Workbook.open(@pathname_file)
         }.to_not raise_error
         @book.should be_a Workbook
         @book.close

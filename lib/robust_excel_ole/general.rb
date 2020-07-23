@@ -10,8 +10,18 @@ module General
   ::CONNECT_EXCEL_JRUBY_BUG      = IS_JRUBY_PLATFORM && true
   ::RANGES_JRUBY_BUG       = IS_JRUBY_PLATFORM && true
 
-  NetworkDrive = Struct.new(:drive_letter, :network_name)
+  NetworkDrive = Struct.new(:drive_letter, :network_name) do
 
+    def self.get_all(drives)
+      ndrives = []
+      count = drives.Count
+      (0..(count - 1)).step(2) do |i|
+        ndrives << NetworkDrive.new( drives.Item(i), drives.Item(i + 1))
+      end
+      ndrives
+    end
+
+  end
 
   @private
   def network2hostnamesharepath(filename)
@@ -19,9 +29,38 @@ module General
     drives = network.enumnetworkdrives
     drive_letter, filename_after_drive_letter = filename.split(':')
     drive_letter = normalize_drive_letter(drive_letter)
-    network_drives = get_network_drives
+    network_drives = NetworkDrive.get_all(drives)
     network_drive = network_drives.find{ |d| d.drive_letter == drive_letter }
     return filename unless network_drive
+    return network_drive.network_name + filename_after_drive_letter
+  end
+
+  def self.normalize_drive_letter(drive)
+    drive.upcase.end_with?(':') ? drive : "#{drive}:"
+  end
+
+  
+=begin
+  NetworkDrive = Struct.new(:drive_letter, :network_name)
+
+  @private
+  def network2hostnamesharepath(filename)
+    puts "network2hostnamesharepath:"
+    puts "filename: #{filename}"
+    network = WIN32OLE.new('WScript.Network')
+    drives = network.enumnetworkdrives
+    puts "drives: #{drives.inspect}"
+    drive_letter, filename_after_drive_letter = filename.split(':')
+    puts "drive_letter: #{drive_letter.inspect}"
+    puts "filename_after_drive_letter: #{filename_after_drive_letter.inspect}"
+    drive_letter = normalize_drive_letter(drive_letter)
+    puts "drive_letter: #{drive_letter.inspect}"
+    network_drives = get_network_drives
+    puts "network_drives: #{network_drives.inspect}"
+    network_drive = network_drives.find{ |d| d.drive_letter == drive_letter }
+    puts "network_drive: #{network_drive.inspect}"
+    return filename unless network_drive
+    #return (File.exists?(filename) ? filename : nil) unless network_drive 
     return network_drive.network_name + filename_after_drive_letter
   end
 
@@ -40,6 +79,7 @@ module General
     drive.upcase.end_with?(':') ? drive : "#{drive}:"
   end
 
+=end
 
   # @private
   def absolute_path(file)     
@@ -53,11 +93,12 @@ module General
   def canonize(filename)
     raise TypeREOError, "No string given to canonize, but #{filename.inspect}" unless filename.is_a?(String)
     filename = network2hostnamesharepath(filename)
-    normalize(filename).downcase
+    normalize(filename).downcase if filename
   end
 
   # @private
-  def normalize(path)      
+  def normalize(path)  
+    return unless path    
     path = path.gsub('/./', '/') + '/'
     path = path.gsub(/[\/\\]+/, '/')
     nil while path.gsub!(/(\/|^)(?!\.\.?)([^\/]+)\/\.\.\//, '\1')

@@ -59,7 +59,7 @@ describe Bookstore do
     @file_path = "spec/data/workbook.xls"
     @absolute_file_path = "C:/gim/ats/aSrc/gems/robust_excel_ole/spec/data/workbook.xls"
     @network_path = "N:/data/workbook.xls"
-    @hostname_share_path = "DESKTOP-A3C5CJ6/spec/workbook.xls"
+    @hostname_share_path = "DESKTOP-A3C5CJ6/spec/data/workbook.xls"
   end
 
   after do

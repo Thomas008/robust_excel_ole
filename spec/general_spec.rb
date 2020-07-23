@@ -29,6 +29,10 @@ module RobustExcelOle
       @linked_file = @dir + '/workbook_linked.xlsm'
       @simple_file_xlsm = @dir + '/workbook.xls'
       @simple_file_xlsx = @dir + '/workbook.xlsx'
+      @network_path = "N:/data/workbook.xls"
+      @hostname_share_path = "//DESKTOP-A3C5CJ6/spec/data/workbook.xls"
+      @simple_file_extern = "D:/data/workbook.xls"
+      @hostname_share_path = "//DESKTOP-A3C5CJ6/spec/data/workbook.xls"
     end
 
     after do
@@ -186,7 +190,7 @@ module RobustExcelOle
           filename = 'C:/Dokumente und Einstellungen/Zauberthomas/Eigene Dateien/robust_excel_ole/spec/book_spec.rb'
           absolute_path(filename).gsub("\\","/").should == filename
         end
-      end
+      end      
     end
 
     describe "canonize" do
@@ -229,6 +233,14 @@ module RobustExcelOle
             canonize(1)
           }.to raise_error(TypeREOError, "No string given to canonize, but 1")
         end
+
+        it "should yield the hostname share path" do
+          General.canonize(@network_path).should == normalize(@hostname_share_path).downcase
+          General.canonize(@hostname_share_path).should == normalize(@hostname_share_path).downcase
+          General.canonize(@simple_file).should == normalize(@simple_file).downcase
+          General.canonize(@simple_file_extern).should == normalize(@simple_file_extern).downcase
+        end
+
 
       end
     end

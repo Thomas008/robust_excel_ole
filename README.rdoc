@@ -320,7 +320,7 @@ For more details about reading and writing contents of cells and ranges see {REA
 
 === List Objects
 
-=== Creating list objects
+=== Creating List Objects
 
 We can define a list object (or table) from scratch.
 

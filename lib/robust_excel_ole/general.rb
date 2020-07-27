@@ -38,49 +38,7 @@ module General
   def self.normalize_drive_letter(drive)
     drive.upcase.end_with?(':') ? drive : "#{drive}:"
   end
-
   
-=begin
-  NetworkDrive = Struct.new(:drive_letter, :network_name)
-
-  @private
-  def network2hostnamesharepath(filename)
-    puts "network2hostnamesharepath:"
-    puts "filename: #{filename}"
-    network = WIN32OLE.new('WScript.Network')
-    drives = network.enumnetworkdrives
-    puts "drives: #{drives.inspect}"
-    drive_letter, filename_after_drive_letter = filename.split(':')
-    puts "drive_letter: #{drive_letter.inspect}"
-    puts "filename_after_drive_letter: #{filename_after_drive_letter.inspect}"
-    drive_letter = normalize_drive_letter(drive_letter)
-    puts "drive_letter: #{drive_letter.inspect}"
-    network_drives = get_network_drives
-    puts "network_drives: #{network_drives.inspect}"
-    network_drive = network_drives.find{ |d| d.drive_letter == drive_letter }
-    puts "network_drive: #{network_drive.inspect}"
-    return filename unless network_drive
-    #return (File.exists?(filename) ? filename : nil) unless network_drive 
-    return network_drive.network_name + filename_after_drive_letter
-  end
-
-  def get_network_drives
-    network = WIN32OLE.new('WScript.Network')
-    drives = network.enumnetworkdrives
-    ndrives = []
-    count = drives.Count
-    (0..(count - 1)).step(2) do |i|
-      ndrives << NetworkDrive.new( drives.Item(i), drives.Item(i + 1))
-    end
-    ndrives
-  end
-
-  def normalize_drive_letter(drive)
-    drive.upcase.end_with?(':') ? drive : "#{drive}:"
-  end
-
-=end
-
   # @private
   def absolute_path(file)     
     file[0,2] = './' if ::EXPANDPATH_JRUBY_BUG && file  =~ /[A-Z]:[^\/]/
@@ -221,6 +179,25 @@ class ::String
     word.gsub!(/([a-z\d])([A-Z])/,'\1_\2')
     word.tr!('-', '_')
     word.downcase!
+    word
+  end
+
+  def delete_multiple_underscores
+    word = self
+    while word.index('__') do
+      word.gsub!('__','_')
+    end    
+    word
+  end
+
+  def replace_german_chars
+    word = self
+    word.gsub!(/\x84/,'ae')
+    word.gsub!(/\x8E/,"Ae")
+    word.gsub!(/\x94/,'oe')
+    word.gsub!(/\x99/,'Oe')
+    word.gsub!(/\x81/,'ue')
+    word.gsub!(/\x9A/,'Ue')
     word
   end
 

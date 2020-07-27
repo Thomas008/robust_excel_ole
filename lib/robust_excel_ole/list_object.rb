@@ -115,22 +115,30 @@ module RobustExcelOle
             raise TableError, "could not delete values"
           end
         end
-       
+
         def method_missing(name, *args)
-          name_before_last_equal = name.to_s.split('=').first
+          core_name = name.to_s.split('=').first
           column_names = @@ole_table.HeaderRowRange.Value.first
-          method_names = column_names.map{|c| c.underscore.gsub(/[^[\w\d]]/, '_')}
-          column_name = column_names[method_names.index(name_before_last_equal)]
+          column_name = column_names.find do 
+            c == core_name ||  
+            c.gsub(/\W/,'') == core_name ||
+            c.replace_german_characters == core_name ||
+            c.gsub(/\W/,'').replace_german_characters == core_name
+            c.gsub(/\W/,'').replace_german_characters.underscore.gsub(/[^[\w\d]]/, '_').delete_multiple_underscores == core_name           
+          }
           if column_name
-            ole_cell = @@ole_table.Application.Intersect(
-              @ole_listrow.Range, @@ole_table.ListColumns.Item(column_name).Range)
-            define_getting_setting_method(ole_cell,name.to_s)            
-            self.send(name, *args)
+            define_and_call_method(method_name,column_name)
           else
             super
           end
         end
 
+        def define_and_call_method(method_name,column_name)
+          ole_cell = @@ole_table.Application.Intersect(
+              @ole_listrow.Range, @@ole_table.ListColumns.Item(column_name).Range)
+          define_getting_setting_method(ole_cell,name.to_s)            
+          self.send(name, *args)
+       
       private
 
         def define_getting_setting_method(ole_cell,name_str)

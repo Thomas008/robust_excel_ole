@@ -117,37 +117,40 @@ module RobustExcelOle
         end
 
         def method_missing(name, *args)
-          core_name = name.to_s.split('=').first
+          name_str = name.to_s
+          core_name = name_str[-1]!='=' ? name_str : name_str[0..-2]
           column_names = @@ole_table.HeaderRowRange.Value.first
-          column_name = column_names.find do 
+          column_name = column_names.find do |c|
             c == core_name ||  
             c.gsub(/\W/,'') == core_name ||
-            c.replace_german_characters == core_name ||
-            c.gsub(/\W/,'').replace_german_characters == core_name
-            c.gsub(/\W/,'').replace_german_characters.underscore.gsub(/[^[\w\d]]/, '_').delete_multiple_underscores == core_name           
-          }
+            c.replace_umlauts == core_name ||
+            c.gsub(/\W/,'').replace_umlauts == core_name ||
+            c.gsub(/\W/,'').replace_umlauts.underscore.gsub(/[^[\w\d]]/, '_').delete_multiple_underscores == core_name           
+          end
           if column_name
-            define_and_call_method(method_name,column_name)
+            method_name = core_name.gsub(/\W/,'') + (name_str[-1]!='=' ? "" : "=")
+            define_and_call_method(column_name,method_name,*args)
           else
-            super
+            super(name, *args)
           end
         end
 
-        def define_and_call_method(method_name,column_name)
-          ole_cell = @@ole_table.Application.Intersect(
-              @ole_listrow.Range, @@ole_table.ListColumns.Item(column_name).Range)
-          define_getting_setting_method(ole_cell,name.to_s)            
-          self.send(name, *args)
-       
       private
 
-        def define_getting_setting_method(ole_cell,name_str)
-          if name_str[-1] != '='
-            self.class.define_method(name_str) do
+        def define_and_call_method(column_name,method_name,*args)
+          ole_cell = @@ole_table.Application.Intersect(
+              @ole_listrow.Range, @@ole_table.ListColumns.Item(column_name).Range)
+          define_getting_setting_method(ole_cell,method_name)            
+          self.send(method_name, *args)
+        end
+       
+        def define_getting_setting_method(ole_cell,name)
+          if name[-1] != '='
+            self.class.define_method(name) do
               ole_cell.Value
             end
           else
-            self.class.define_method(name_str) do |value|
+            self.class.define_method(name) do |value|
               ole_cell.Value = value
             end
           end

@@ -190,14 +190,20 @@ class ::String
     word
   end
 
-  def replace_german_chars
+  def replace_umlauts
     word = self
-    word.gsub!(/\x84/,'ae')
-    word.gsub!(/\x8E/,"Ae")
-    word.gsub!(/\x94/,'oe')
-    word.gsub!(/\x99/,'Oe')
-    word.gsub!(/\x81/,'ue')
-    word.gsub!(/\x9A/,'Ue')
+    word.gsub!('ä','ae')
+    word.gsub!('Ä','Ae')
+    word.gsub!('ö','oe')
+    word.gsub!('Ö','Oe')
+    word.gsub!('ü','ue')
+    word.gsub!('Ü','Ue')
+    #word.gsub!(/\x84/,'ae')
+    #word.gsub!(/\x8E/,'Ae')
+    #word.gsub!(/\x94/,'oe')
+    #word.gsub!(/\x99/,'Oe')
+    #word.gsub!(/\x81/,'ue')
+    #word.gsub!(/\x9A/,'Ue')
     word
   end
 

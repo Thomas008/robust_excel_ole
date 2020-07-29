@@ -324,9 +324,9 @@ For more details about reading and writing contents of cells and ranges see {REA
 
 We can define a list object (or table) from scratch.
 
-  table = ListObject.new(worksheet, "table 1", [1,1], 3,["Person","Amount"])
+  table = ListObject.new(worksheet, "table 1", [1,1], 3,["Person","AmountSales"])
 
-This command creates a list object in worksheet named "table 1", with upper left corner at position [1,1] (first cell), with 3 rows and the columns "Person" and "Amount".
+This command creates a list object in worksheet named "table 1", with upper left corner at position [1,1] (first cell), with 3 rows and the columns "Person" and "Amoun%tSales".
 
 Likewise we can get a RobustExcelOle list object with help of an existing WIN32OlE list object.
 
@@ -346,11 +346,25 @@ A row in this table can be accessed with help of #[], e.g.
 
 === Reading and setting values
 
-Now we can set and get the value of a cell of the table with help of methods that are underscored versions of the column names, e.g.
+Now we can set and get the value of a cell of the table with help of methods that are equal to or are underscored variants of the column names, e.g.
 
-  row1.person = "John"
-  row1.person
-  # => "John"
+  row1.AmountSales = 40
+
+or
+
+  row1.amount_sales = 40
+  
+and
+
+  row1.AmountSales
+  # => 40
+
+or 
+
+  row1.amount_sales
+  # => 40
+
+Special characters in the colare being ignored.
 
 We can also read and set values in a whole row, e.g.
 

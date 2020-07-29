@@ -103,19 +103,25 @@ describe ListObject do
     context "with new table" do
 
       before do
-        @table = Table.new(@sheet, "table_name", [1,1], 3, ["Person","Amount"])
+        @table = Table.new(@sheet, "table_name", [1,1], 3, ["Person","Amo%untSales"])
         @table_row1 = @table[1]
       end
 
-      it "should set and read values" do
+      it "should read and set values via alternative column names" do
         @table_row1.person.should be nil
         @table_row1.person = "John"
         @table_row1.person.should == "John"
         @sheet[2,1].Value.should == "John"
-        @table_row1.amount.should be nil
-        @table_row1.amount = 42
-        @table_row1.amount.should == 42
+        @table_row1.amount_sales.should be nil
+        @table_row1.amount_sales = 42
+        @table_row1.amount_sales.should == 42
         @sheet[2,2].Value.should == 42
+        @table_row1.Person = "Herbert"
+        @table_row1.Person.should == "Herbert"
+        @sheet[2,1].Value.should == "Herbert"
+        @table_row1.AmountSales = 80
+        @table_row1.AmountSales.should == 80
+        @sheet[2,2].Value.should == 80
       end
 
     end
@@ -324,6 +330,8 @@ describe ListObject do
       cells[0].Column.should == 8
       cells[1].Row.should == 9
       cells[1].Column.should == 6
+      puts "cells[0]: #{[cells[0]]}"
+      p "cells[0]: #{[cells[0]]}"
     end
   
   end

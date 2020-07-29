@@ -26,7 +26,7 @@ module RobustExcelOle
 
     # @private
     def to_s    
-      @ole_table.Name.to_s
+      @ole_range.Name.to_s
     end
 
     # @private

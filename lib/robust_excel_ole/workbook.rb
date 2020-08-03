@@ -1004,7 +1004,7 @@ module RobustExcelOle
 
     # @private
     def inspect    
-      '#<Workbook: ' + ('not alive ' unless alive?).to_s + (File.basename(self.filename) if alive?).to_s + " #{@ole_workbook} #{@excel}" + '>'
+      '#<Workbook: ' + ('not alive ' unless alive?).to_s + (File.basename(self.filename) if alive?).to_s + " #{@excel}" + '>'
     end
 
     # @private

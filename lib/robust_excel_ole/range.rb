@@ -14,8 +14,7 @@ module RobustExcelOle
 
     def initialize(win32_range, worksheet = nil)
       @ole_range = win32_range
-      @worksheet = worksheet ? worksheet : worksheet_class.new(self.Parent)
-      #@worksheet = worksheet_class.new(self.Parent)
+      @worksheet = worksheet ? worksheet.to_reo : worksheet_class.new(self.Parent)
     end
 
     def each

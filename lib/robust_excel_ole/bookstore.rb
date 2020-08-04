@@ -2,6 +2,7 @@
 
 module RobustExcelOle
 
+  # @private
   class Bookstore < Base
     
     def initialize

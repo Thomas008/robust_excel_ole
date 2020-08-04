@@ -121,7 +121,7 @@ class WIN32OLE
     class2method = [
       {Excel => :Hwnd},
       {Workbook => :FullName},
-      {Worksheet => :Copy},
+      {Worksheet => :UsedRange},
       {RobustExcelOle::Range => :Row},
       {ListObject => :ListRows}
     ]

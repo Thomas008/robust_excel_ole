@@ -8,9 +8,14 @@ module RobustExcelOle
   # See https://docs.microsoft.com/en-us/office/vba/api/excel.worksheet#methods
 
   class Range < VbaObjects
+
     include Enumerable
+    
     attr_reader :ole_range
     attr_reader :worksheet
+
+    alias ole_object ole_range
+
 
     def initialize(win32_range, worksheet = nil)
       @ole_range = win32_range
@@ -233,6 +238,16 @@ module RobustExcelOle
     end
 
     # @private
+    # returns true, if the Range object responds to VBA methods, false otherwise
+    def alive?
+      @ole_range.Row
+      true
+    rescue
+      # trace $!.message
+      false
+    end
+
+    # @private
     def to_s
       "#<REO::Range: " + "[#{@rows},#{@columns}] " + "#{worksheet.Name} " + ">"
     end
@@ -256,6 +271,8 @@ module RobustExcelOle
     def worksheet_class 
       self.class.worksheet_class
     end
+
+    include MethodHelpers
 
   private
 

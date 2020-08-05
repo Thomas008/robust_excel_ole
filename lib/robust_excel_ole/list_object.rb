@@ -363,6 +363,16 @@ module RobustExcelOle
     end
 
     # @private
+    # returns true, if the list object responds to VBA methods, false otherwise
+    def alive?
+      @ole_table.ListRows
+      true
+    rescue
+      # trace $!.message
+      false
+    end
+
+    # @private
     def to_s    
       @ole_table.Name.to_s
     end
@@ -373,6 +383,8 @@ module RobustExcelOle
       " #{@ole_table.ListRows.Count}x#{@ole_table.ListColumns.Count}" +
       " #{@ole_table.Parent.Name}" + " #{@ole_table.Parent.Parent.Name}" + ">"
     end
+
+    include MethodHelpers
 
   private
 

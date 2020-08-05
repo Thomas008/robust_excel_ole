@@ -227,6 +227,16 @@ module RobustExcelOle
     end
 
     # @private
+    # returns true, if the worksheet object responds to VBA methods, false otherwise
+    def alive?
+      @ole_worksheet.UsedRange
+      true
+    rescue
+      # trace $!.message
+      false
+    end
+
+    # @private
     def self.workbook_class  
       @workbook_class ||= begin
         module_name = self.parent_name
@@ -250,6 +260,8 @@ module RobustExcelOle
     def inspect  
       self.to_s
     end
+
+    include MethodHelpers
 
   private
 

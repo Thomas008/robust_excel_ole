@@ -104,54 +104,52 @@ module RobustExcelOle
     # @options [Worksheet] the destination worksheet
     # @options [Hash] options: :transpose, :values_only
     def copy(dest_address1, sheet_or_dest_address2 = :__not_provided, options_or_sheet = :__not_provided, not_provided_or_options = :__not_provided)
-      dest_address = if sheet_or_dest_address2.is_a?(Object::Range) or sheet_or_dest_address2.is_a?(Integer)
-        [dest_address1,sheet_or_dest_address2] 
-      else
-        dest_address1
-      end
-      dest_sheet = if sheet_or_dest_address2.respond_to?(:UsedRange)
-        sheet_or_dest_address2.to_reo
-      else
-        if options_or_sheet.respond_to?(:UsedRange)
-          options_or_sheet.tO_reo
+      begin
+        dest_address = if sheet_or_dest_address2.is_a?(Object::Range) or sheet_or_dest_address2.is_a?(Integer)
+          [dest_address1,sheet_or_dest_address2] 
         else
-          @worksheet
+          dest_address1
         end
-      end
-      options = if options_or_sheet.is_a?(Hash)
-        options_or_sheet 
-      else
-        if not_provided_or_options.is_a?(Hash)
-          not_provided_or_options
+        dest_sheet = if sheet_or_dest_address2.is_a?(Worksheet) or sheet_or_dest_address2.is_a?(WIN32OLE)
+          sheet_or_dest_address2.to_reo
         else
-          { }
-        end
-      end
-      dest_address_is_position = (@rows.min == @rows.max && @columns.min == @columns.max)
-      dest_range_address = if (not dest_address_is_position) 
-          [@rows.min..@rows.max,@columns.min..@columns.max]
-        else
-          if (not options[:transpose])
-            [@rows.min..@rows.min+self.Rows.Count-1,
-             @columns.min..@columns.min+self.Columns.Count-1]
+          if options_or_sheet.is_a?(Worksheet) or options_or_sheet.is_a?(WIN32OLE)
+            options_or_sheet.to_reo
           else
-            [@rows.min..@rows.min+self.Columns.Count-1,
-             @columns.min..@columns.min+self.Rows.Count-1]
+            @worksheet
           end
         end
-      dest_range = dest_sheet.range(dest_range_address)
-      begin
+        options = if options_or_sheet.is_a?(Hash)
+          options_or_sheet 
+        else
+          if not_provided_or_options.is_a?(Hash)
+            not_provided_or_options
+          else
+            { }
+          end
+        end
+        rows, columns = address_tool.as_integer_ranges(dest_address)
+        dest_address_is_position = (rows.min == rows.max && columns.min == columns.max)
+        dest_range_address = if (not dest_address_is_position) 
+            [rows.min..rows.max,columns.min..columns.max]
+          else
+            if (not options[:transpose])
+              [rows.min..rows.min+self.Rows.Count-1,
+               columns.min..columns.min+self.Columns.Count-1]
+            else
+              [rows.min..rows.min+self.Columns.Count-1,
+               columns.min..columns.min+self.Rows.Count-1]
+            end
+          end
+        dest_range = dest_sheet.range(dest_range_address)
         if options[:values_only]
-          # dest_range.Value = options[:transpose] ? self.Value.transpose : self.Value
           dest_range.v = options[:transpose] ? self.v.transpose : self.v
         else
           if dest_range.worksheet.workbook.excel == @worksheet.workbook.excel 
             if options[:transpose]
               self.Copy              
-              #dest_range.PasteSpecial('transpose' => true) 
               dest_range.PasteSpecial(XlPasteAll,XlPasteSpecialOperationNone,false,true)
             else
-              #self.Copy('destination' => dest_range.ole_range)
               self.Copy(dest_range.ole_range)
             end            
           else
@@ -162,7 +160,6 @@ module RobustExcelOle
               @worksheet.workbook.excel.with_displayalerts(false) {added_sheet.Delete}
             else
               self.Copy
-              #dest_sheet.Paste('destination' => dest_range.ole_range)
               dest_sheet.Paste(dest_range.ole_range)
             end
           end
@@ -178,17 +175,18 @@ module RobustExcelOle
     # @options [Worksheet] the destination worksheet
     # @options [Hash] options: :transpose, :values_only
     def copy_special(dest_address, dest_sheet = :__not_provided, options = { })
+      rows, columns = address_tool.as_integer_ranges(dest_address)
       dest_sheet = @worksheet if dest_sheet == :__not_provided
-      dest_address_is_position = (@rows.min == @rows.max && @columns.min == @columns.max)
+      dest_address_is_position = (rows.min == rows.max && @columns.min == @columns.max)
       dest_range_address = if (not dest_address_is_position) 
-          [@rows.min..@rows.max,@columns.min..@columns.max]
+          [rows.min..rows.max,columns.min..columns.max]
         else
           if (not options[:transpose])
-            [@rows.min..@rows.min+self.Rows.Count-1,
-             @columns.min..@columns.min+self.Columns.Count-1]
+            [rows.min..rows.min+self.Rows.Count-1,
+             columns.min..columns.min+self.Columns.Count-1]
           else
-            [@rows.min..@rows.min+self.Columns.Count-1,
-             @columns.min..@columns.min+self.Rows.Count-1]
+            [rows.min..rows.min+self.Columns.Count-1,
+             columns.min..columns.min+self.Rows.Count-1]
           end
         end
       dest_range = dest_sheet.range(dest_range_address)

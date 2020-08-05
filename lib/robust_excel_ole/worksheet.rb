@@ -14,6 +14,8 @@ module RobustExcelOle
     attr_reader :ole_worksheet
     attr_reader :workbook
 
+    alias ole_object ole_worksheet
+
     def initialize(win32_worksheet)
       @ole_worksheet = win32_worksheet
       if @ole_worksheet.ProtectContents

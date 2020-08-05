@@ -234,7 +234,7 @@ module RobustExcelOle
 
     # @private
     def to_s
-      "#<Range: " + "[#{@rows},#{@columns}] " + "#{worksheet.Name} " + ">"
+      "#<REO::Range: " + "[#{@rows},#{@columns}] " + "#{worksheet.Name} " + ">"
     end
 
     # @private

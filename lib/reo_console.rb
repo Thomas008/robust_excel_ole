@@ -21,5 +21,4 @@ hooks.add_hook :when_started, :hook12 do
 puts 'REO console started'
 puts
 end
-#{when_started: -> {puts 'Hello'} }
 Pry.start(nil, hooks: hooks)

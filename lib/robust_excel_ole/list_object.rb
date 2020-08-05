@@ -14,6 +14,8 @@ module RobustExcelOle
 
     attr_reader :ole_table
 
+    alias ole_object ole_table
+
     # constructs a list object (or table).
     # @param [Variable] worksheet_or_ole_listobject  a worksheet or a Win32Ole list object
     # @param [Variable] table_name_or_number         a table name or table number

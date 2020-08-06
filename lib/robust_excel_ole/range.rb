@@ -20,8 +20,14 @@ module RobustExcelOle
     def initialize(win32_range, worksheet = nil)
       @ole_range = win32_range
       @worksheet = worksheet ? worksheet.to_reo : worksheet_class.new(self.Parent)
-      address_r1c1 = @ole_range.AddressLocal(true,true,XlR1C1)
-      @rows, @columns = address_tool.as_integer_ranges(address_r1c1)
+    end
+
+    def rows
+      @rows ||= (1..@ole_range.Rows.Count)
+    end
+
+    def columns
+      @columns ||= (1..@ole_range.Columns.Count)
     end
 
     def each
@@ -49,7 +55,6 @@ module RobustExcelOle
     # @params [Range] a range
     # @returns [Array] the values
     def values(range = nil)
-      #result = map { |x| x.Value }.flatten
       result_unflatten = if !::RANGES_JRUBY_BUG
         map { |x| x.v }
       else
@@ -71,9 +76,9 @@ module RobustExcelOle
           self.Value
         else
           values = []
-          @rows.each do |r|
+          rows.each do |r|
             values_col = []
-            @columns.each{ |c| values_col << worksheet.Cells(r,c).Value}
+            columns.each{ |c| values_col << worksheet.Cells(r,c).Value}
             values << values_col
           end
           values
@@ -89,8 +94,8 @@ module RobustExcelOle
         if !::RANGES_JRUBY_BUG
           ole_range.Value = value
         else
-          @rows.each_with_index do |r,i|
-            @columns.each_with_index do |c,j|
+          rows.each_with_index do |r,i|
+            columns.each_with_index do |c,j|
               ole_range.Cells(i+1,j+1).Value = (value.respond_to?(:first) ? value[i][j] : value)
             end
           end
@@ -182,7 +187,7 @@ module RobustExcelOle
     def copy_special(dest_address, dest_sheet = :__not_provided, options = { })
       rows, columns = address_tool.as_integer_ranges(dest_address)
       dest_sheet = @worksheet if dest_sheet == :__not_provided
-      dest_address_is_position = (rows.min == rows.max && @columns.min == @columns.max)
+      dest_address_is_position = (rows.min == rows.max && columns.min == columns.max)
       dest_range_address = if (not dest_address_is_position) 
           [rows.min..rows.max,columns.min..columns.max]
         else
@@ -249,7 +254,6 @@ module RobustExcelOle
 
     # @private
     def to_s
-      # "#<REO::Range: " + "[#{@rows},#{@columns}] " + "#{worksheet.Name} " + ">"
       "#<REO::Range: " + "#{@ole_range.Address.gsub(/\$/,'')} " + "#{worksheet.Name} " + ">"
     end
 

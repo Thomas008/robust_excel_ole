@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.21] 2020-30-08
+  
+### Added
+  - Range#rows, columns
+
 ## [1.20] 2020-23-07
 
 ### Changed

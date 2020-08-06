@@ -258,7 +258,7 @@ module RobustExcelOle
 
     # @private
     def inspect  
-      self.to_s
+      self.to_s[0..-2] + "#{workbook.Name} " + ">"
     end
 
     include MethodHelpers

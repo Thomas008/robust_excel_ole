@@ -20,18 +20,19 @@ module RobustExcelOle
       self.Value = value
     end
 
+    # @private
     def ole_cell
       @ole_range = @ole_range.MergeArea.Item(1,1) if @ole_range.MergeCells
     end
 
     # @private
     def to_s    
-      @ole_range.Name.to_s
+      "#<Cell:" + " (#{@ole_range.Row},#{@ole_range.Column})" + ">"
     end
 
     # @private
-    def inspect    
-      "#<Cell:" + " (#{@ole_range.Row},#{@ole_range.Column})" + ">#" 
+    def inspect 
+      self.to_s[0..-2] + " #{@ole_range.Parent.Name}" + ">" 
     end
 
   private

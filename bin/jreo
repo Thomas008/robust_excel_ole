@@ -2,23 +2,26 @@
 # -*- jruby -*-
 
 require 'pry'
-require 'robust_excel_ole'
+require '../robust_excel_ole/lib/robust_excel_ole'
 
 include REO
 include General
 
-puts 'REO console started'
-puts 
-
 # some pry configuration
 Pry.config.windows_console_warning = false
-Pry.config.history.should_save = true
+#Pry.config.history_save = true
 Pry.config.color = false
 #Pry.editor = 'notepad'  # 'subl', 'vi'
 #Pry.config.prompt =
-#  [
-#    ->(_obj, _nest_level, _) { ">> " },
-#    ->(*) { "  " }
-#  ]
+#[
+#->(_obj, _nest_level, _) { ">> " },
+#->(*) { "  " }
+#]
 
-pry
+hooks = Pry::Hooks.new
+
+hooks.add_hook :when_started, :hook12 do
+puts 'REO console started'
+puts
+end
+Pry.start(nil, hooks: hooks)

@@ -823,6 +823,41 @@ module RobustExcelOle
         opts = sheet
         sheet = nil
       end
+      begin
+        sheet = sheet.to_reo unless sheet.nil?
+        new_sheet_name = opts.delete(:as)
+        last_sheet_local = last_sheet
+        after_or_before, base_sheet = opts.to_a.first || [:after, last_sheet_local]
+        base_sheet_ole = base_sheet.to_reo.ole_worksheet
+        if !::COPYSHEETS_JRUBY_BUG          
+          add_or_copy_sheet_simple(sheet, { after_or_before.to_s => base_sheet_ole })
+        else
+          if after_or_before == :before 
+            add_or_copy_sheet_simple(sheet, base_sheet_ole)
+          else
+            if base_sheet.name != last_sheet_local.name
+              add_or_copy_sheet_simple(sheet, base_sheet.Next)
+            else
+              add_or_copy_sheet_simple(sheet, base_sheet_ole)
+              base_sheet.Move(ole_workbook.Worksheets.Item(ole_workbook.Worksheets.Count-1))
+              ole_workbook.Worksheets.Item(ole_workbook.Worksheets.Count).Activate
+            end
+          end
+        end
+      rescue # WIN32OLERuntimeError, NameNotFound, Java::OrgRacobCom::ComFailException
+        raise WorksheetREOError, "could not add given worksheet #{sheet.inspect}"
+      end
+      new_sheet = worksheet_class.new(ole_workbook.Activesheet)
+      new_sheet.name = new_sheet_name if new_sheet_name
+      new_sheet
+    end
+
+=begin
+    def add_or_copy_sheet(sheet = nil, opts = { })
+      if sheet.is_a? Hash
+        opts = sheet
+        sheet = nil
+      end
       new_sheet_name = opts.delete(:as)
       last_sheet_local = last_sheet
       after_or_before, base_sheet = opts.to_a.first || [:after, last_sheet_local]
@@ -850,6 +885,7 @@ module RobustExcelOle
       new_sheet.name = new_sheet_name if new_sheet_name
       new_sheet
     end
+=end
 
   private
   

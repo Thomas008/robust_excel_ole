@@ -188,12 +188,13 @@ module RobustExcelOle
 
     # @private
     def to_s
-      "#<REO::Range: " + "#{@ole_range.Address.gsub(/\$/,'')} " + "#{worksheet.Name} " + ">"
+      "#<REO::Range: " + "#{@ole_range.Address('External' => true).gsub(/\$/,'')} " + ">"
+      # "#<REO::Range: " + "#{@ole_range.Address.gsub(/\$/,'')} " + "#{worksheet.Name} " + ">"
     end
 
     # @private
     def inspect
-      to_s[0..-2] + "#{worksheet.workbook.Name} " + ">"
+      to_s # [0..-2] + "#{worksheet.workbook.Name} " + ">"
     end
 
     # @private

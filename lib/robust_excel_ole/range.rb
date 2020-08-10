@@ -159,6 +159,7 @@ module RobustExcelOle
             end
           end
         end
+        dest_range
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
         raise RangeNotCopied, 'cannot copy range'
       end

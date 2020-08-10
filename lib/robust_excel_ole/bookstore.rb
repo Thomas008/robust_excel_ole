@@ -32,7 +32,7 @@ module RobustExcelOle
     def fetch(filename, options = { :prefer_writable => true })
       return nil unless filename
       filename = General.absolute_path(filename)
-      filename_key = General.canonize(filename)
+      filename_key = General.canonize(filename).downcase
       weakref_books = @filename2books[filename_key]
       return nil if weakref_books.nil? || weakref_books.empty?
 
@@ -70,9 +70,9 @@ module RobustExcelOle
     # stores a workbook
     # @param [Workbook] book a given book
     def store(book)
-      filename_key = General.canonize(book.filename)
+      filename_key = General.canonize(book.filename).downcase
       if book.stored_filename
-        old_filename_key = General.canonize(book.stored_filename)
+        old_filename_key = General.canonize(book.stored_filename).downcase
         # deletes the weak reference to the book
         @filename2books[old_filename_key].delete(book)
       end

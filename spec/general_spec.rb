@@ -52,7 +52,7 @@ module RobustExcelOle
         ole_table = worksheet.ListObjects.Item(1)
         table = Table.new(ole_table)
         table.Name.should == "table3"
-        table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Date"]
+        table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Price"]
         table.ListRows.Count.should == 6
         worksheet[3,4].Value.should == "Number"
       end
@@ -151,13 +151,11 @@ module RobustExcelOle
       end
 
       it "should do methods for sheet" do
-        # ((@ole_sheet_methods + @sheet_methods) - @book1.sheet(1).methods).should be_empty
-        (Object.instance_methods.select{|m| m =~ /^(?!\_)/}  - @book1.sheet(1).methods).sort.should be_empty       
+        ((@ole_sheet_methods + @sheet_methods) - @book1.sheet(1).methods).should be_empty
       end
 
       it "should do own_methods with popular ole_excel and excel methods" do
-        # ((@ole_sheet_methods + @sheet_methods) - @book1.sheet(1).own_methods).should == [] #be_empty
-         (Object.instance_methods - @book1.sheet(1).own_methods).should == Object.instance_methods
+        ((@ole_sheet_methods + @sheet_methods) - @book1.sheet(1).own_methods).should == [] #be_empty
       end
 
       it "should respond to popular sheet methods" do
@@ -223,10 +221,12 @@ module RobustExcelOle
           canonize("this../.i.s/.../..the/..../pa.th/").should == "this../.i.s/.../..the/..../pa.th"
         end
 
+=begin
         it "should downcase" do
           canonize("/This/IS/tHe/path").should == "/this/is/the/path"
           canonize("///THIS/.///./////iS//the/../PatH/////").should == "/this/is/path"
         end
+=end
 
         it "should raise an error for no strings" do
           expect{
@@ -234,13 +234,12 @@ module RobustExcelOle
           }.to raise_error(TypeREOError, "No string given to canonize, but 1")
         end
 
-        it "should yield the hostname share path" do
-          General.canonize(@network_path).should == normalize(@hostname_share_path).downcase
-          General.canonize(@hostname_share_path).should == normalize(@hostname_share_path).downcase
-          General.canonize(@simple_file).should == normalize(@simple_file).downcase
-          General.canonize(@simple_file_extern).should == normalize(@simple_file_extern).downcase
+        it "should yield the network path" do
+          General.canonize(@hostname_share_path).should == @network_path
+          General.canonize(@network_path).should == @network_path
+          General.canonize(@simple_file).should == @simple_file
+          General.canonize(@simple_file_extern).should == @simple_file_extern
         end
-
 
       end
     end

@@ -17,7 +17,7 @@ module General
       ndrives = []
       count = drives.Count
       (0..(count - 1)).step(2) do |i|
-        ndrives << NetworkDrive.new( drives.Item(i), drives.Item(i + 1))
+        ndrives << NetworkDrive.new( drives.Item(i), drives.Item(i + 1).tr('\\','/'))
       end
       ndrives
     end
@@ -30,16 +30,17 @@ module General
     network = WIN32OLE.new('WScript.Network')
     drives = network.enumnetworkdrives
     network_drives = NetworkDrive.get_all(drives)
-    index_hostname_share = filename[2,filename.length].index('/')
-    hostname_share = filename[2,index_hostname_share]
-    filename_after_hostname_share = filename[index_hostname_share+3,filename.length]
+    f_c = filename.dup
     network_drive = network_drives.find do |d| 
-      return d.drive_letter  + filename[d.network_name.length,filename.length] if filename.index(d.network_name.tr('\\','/')) == 0
-    end     
+      e = f_c.sub!(d.network_name,d.drive_letter)
+      return e if e
+    end    
+    filename 
   end  
 
   # @private
-  def absolute_path(file)     
+  def absolute_path(file)    
+    return file if file[0,2] == "//" 
     file[0,2] = './' if ::EXPANDPATH_JRUBY_BUG && file  =~ /[A-Z]:[^\/]/
     file = File.expand_path(file)
     file = RobustExcelOle::Cygwin.cygpath('-w', file) if RUBY_PLATFORM =~ /cygwin/

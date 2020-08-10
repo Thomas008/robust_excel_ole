@@ -96,7 +96,7 @@ module RobustExcelOle
       else
         name, value = p1, p2
         begin
-          set_namevalue_glob(name, value, :color => 42)
+          set_namevalue_glob(name, value)
         rescue REOError
           begin
             workbook.set_namevalue_glob(name, value)

@@ -763,7 +763,7 @@ describe Workbook do
       @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
       @book1["new"].should == "bar"
       @book1["new"] = "bar"
-      @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 42
+      @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
       @book1.save
       @book1.close
       #book2 = Workbook.open(@simple_file1, :visible =>  true)
@@ -777,7 +777,7 @@ describe Workbook do
       @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
       @book1["new"].should == "bar"
       @book1["new"] = "bar"
-      @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 42
+      @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
       @book1.save
       @book1.close
     end

@@ -1,8 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.22] 2020-10-08
 
-## [1.21] 2020-30-08
+## [1.21] 2020-05-08
   
 ### Added
   - Range#rows, columns

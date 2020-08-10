@@ -2,7 +2,7 @@
 # -*- jruby -*-
 
 require 'pry'
-require '../lib/robust_excel_ole'
+require 'robust_excel_ole'
 
 include REO
 include General

@@ -922,7 +922,7 @@ module RobustExcelOle
 
     # returns the full file name of the workbook
     def filename
-      @ole_workbook.Fullname.tr('\\','/') rescue nil
+      General.canonize(@ole_workbook.Fullname.tr('\\','/')) rescue nil
     end
 
     # @private

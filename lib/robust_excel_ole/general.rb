@@ -10,6 +10,7 @@ module General
   ::CONNECT_EXCEL_JRUBY_BUG      = IS_JRUBY_PLATFORM && true
   ::RANGES_JRUBY_BUG       = IS_JRUBY_PLATFORM && true
 
+  @private
   NetworkDrive = Struct.new(:drive_letter, :network_name) do
 
     def self.get_all(drives)
@@ -24,21 +25,19 @@ module General
   end
 
   @private
-  def network2hostnamesharepath(filename)
+  def hostnameshare2networkpath(filename)
+    return filename unless filename[0,2] == "//"
     network = WIN32OLE.new('WScript.Network')
     drives = network.enumnetworkdrives
-    drive_letter, filename_after_drive_letter = filename.split(':')
-    drive_letter = normalize_drive_letter(drive_letter)
     network_drives = NetworkDrive.get_all(drives)
-    network_drive = network_drives.find{ |d| d.drive_letter == drive_letter }
-    return filename unless network_drive
-    return network_drive.network_name + filename_after_drive_letter
-  end
+    index_hostname_share = filename[2,filename.length].index('/')
+    hostname_share = filename[2,index_hostname_share]
+    filename_after_hostname_share = filename[index_hostname_share+3,filename.length]
+    network_drive = network_drives.find do |d| 
+      return d.drive_letter  + filename[d.network_name.length,filename.length] if filename.index(d.network_name.tr('\\','/')) == 0
+    end     
+  end  
 
-  def self.normalize_drive_letter(drive)
-    drive.upcase.end_with?(':') ? drive : "#{drive}:"
-  end
-  
   # @private
   def absolute_path(file)     
     file[0,2] = './' if ::EXPANDPATH_JRUBY_BUG && file  =~ /[A-Z]:[^\/]/
@@ -50,8 +49,8 @@ module General
   # @private
   def canonize(filename)
     raise TypeREOError, "No string given to canonize, but #{filename.inspect}" unless filename.is_a?(String)
-    filename = network2hostnamesharepath(filename)
-    normalize(filename).downcase if filename
+    filename = hostnameshare2networkpath(filename)
+    normalize(filename) if filename
   end
 
   # @private

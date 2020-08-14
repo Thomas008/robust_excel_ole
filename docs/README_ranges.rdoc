@@ -49,7 +49,7 @@ You can read the values by
 
 or
 
-  range.v
+  range.value or range.v
   => [["foo", "workbook", "sheet1", nil], ["foo", nil, "foobaaa", nil], ["matz", "is", "nice", nil]]
 
 or as flat array
@@ -63,7 +63,19 @@ You can set values with help of range#Value or range#v, e.g.
 
 or 
 
+  range.value = [[1,2,3,4],[5,6,7,8],[9,10,11,12]]
+
+or
+
   range.v = [[1,2,3,4],[5,6,7,8],[9,10,11,12]]
+
+or
+
+  range.set_value([[1,2,3,4],[5,6,7,8],[9,10,11,12]])
+
+You can color the range when setting the contents of a range.
+
+  range.set_value([[1,2,3,4],[5,6,7,8],[9,10,11,12]], :color => 42)
 
 Now we copy the range. With help of VBA methods you would do
 
@@ -309,10 +321,6 @@ or
 You can color the range when setting the contents of a range.
 
   workbook.set_namevalue_glob("name", "new_value", :color => 4)
-
-The method []= sets the contents of a range and colors the range via some default color.
-
-  workbook["name"] = "new_value"
 
 Similarly, the contents of a named range can be read and modified in a worksheet
 

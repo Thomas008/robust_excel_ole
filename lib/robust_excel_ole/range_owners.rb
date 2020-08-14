@@ -62,7 +62,7 @@ module RobustExcelOle
     # sets the contents of a range
     # @param [String]  name  the name of a range
     # @param [Variant] value the contents of the range
-    # @option opts [Symbol] :color the color of the cell when set
+    # @option opts [Symbol] :color the color of the range when set
     def set_namevalue_glob(name, value, opts = { }) 
       begin
         name_obj = begin

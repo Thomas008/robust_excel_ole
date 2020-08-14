@@ -177,9 +177,9 @@ describe RobustExcelOle::Range do
     end
   end
 
-  describe "#v" do
+  describe "#value" do
 
-    context "v, v=" do
+    context "value, value=" do
 
       before do
         @sheet1 = @book.sheet(1)
@@ -207,6 +207,12 @@ describe RobustExcelOle::Range do
         @sheet1.range([1..2,3..5]).v = [[1,2,3],[4,5,6]]
         @sheet1.range([1..2,3..5]).v.should == [[1,2,3],[4,5,6]]
       end
+
+      it "should color the range" do
+        @sheet1.range([1..2,3..5]).set_value([[1,2,3],[4,5,6]],:color => 42)
+        @sheet1.range([1..2,3..5]).Interior.ColorIndex.should == 42
+      end
+
     end
   end
 

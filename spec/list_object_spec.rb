@@ -330,8 +330,6 @@ describe ListObject do
       cells[0].Column.should == 8
       cells[1].Row.should == 9
       cells[1].Column.should == 6
-      puts "cells[0]: #{[cells[0]]}"
-      p "cells[0]: #{[cells[0]]}"
     end
   
   end

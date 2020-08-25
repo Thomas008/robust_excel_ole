@@ -64,7 +64,7 @@ module RobustExcelOle
       end
     end
 
-    # a cell given the defined name or row and column
+    # returns a cell given the defined name or row and column
     # @params row, column, or name
     # @returns cell, if row and column are given
     def [] p1, p2 = :__not_provided
@@ -117,19 +117,6 @@ module RobustExcelOle
         raise RangeNotEvaluatable, "cannot read cell (#{x.inspect},#{y.inspect})"
       end
     end
-
-=begin
-    def cellval(x,y)
-      xy = "#{x}_#{y}"
-      @cells = { }
-      begin
-        @cells[xy] ||= RobustExcelOle::Cell.new(@ole_worksheet.Cells.Item(x, y), @worksheet)
-        @cells[xy].Value
-      rescue
-        raise RangeNotEvaluatable, "cannot read cell (#{p1.inspect},#{p2.inspect})"
-      end
-    end
-=end
 
     # sets the value of a cell, if row, column and color of the cell are given
     # @params [Integer] x,y row and column
@@ -258,7 +245,7 @@ module RobustExcelOle
 
     # @private
     def inspect  
-      self.to_s[0..-2] + "#{workbook.Name} " + ">"
+      to_s
     end
 
     include MethodHelpers

@@ -5,7 +5,7 @@ module RobustExcelOle
   # This class essentially wraps a Win32Ole Range object. 
   # You can apply all VBA methods (starting with a capital letter) 
   # that you would apply for a Range object. 
-  # See https://docs.microsoft.com/en-us/office/vba/api/excel.worksheet#methods
+  # See https://docs.microsoft.com/en-us/office/vba/api/excel.range#methods
 
   class Range < VbaObjects
 
@@ -214,12 +214,11 @@ module RobustExcelOle
     # @private
     def to_s
       "#<REO::Range: " + "#{@ole_range.Address('External' => true).gsub(/\$/,'')} " + ">"
-      # "#<REO::Range: " + "#{@ole_range.Address.gsub(/\$/,'')} " + "#{worksheet.Name} " + ">"
     end
 
     # @private
     def inspect
-      to_s # [0..-2] + "#{worksheet.workbook.Name} " + ">"
+      to_s
     end
 
     # @private

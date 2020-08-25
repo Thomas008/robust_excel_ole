@@ -97,7 +97,7 @@ The method Worksheet#values yields all cell values of the used range of the work
   worksheet.values
   => [["foo", "workbook", "sheet1"], ["foo", nil, "foobaaa"], ["matz", "is", "nice"]]
 
-The method Worksheet#each_rowvalue provides enable to access the values of each row.
+The method Worksheet#each_rowvalue enables to access the values of each row.
 
   worksheet.each_rowvalue do |row_values|
     # do something with the row_values

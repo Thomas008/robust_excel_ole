@@ -12,13 +12,16 @@ module RobustExcelOle
       ole_cell
     end
 
-    def v
+    def value
       self.Value
     end
 
-    def v=(value)
+    def value=(value)
       self.Value = value
     end
+
+    alias_method :v, :value
+    alias_method :v=, :value=
 
     # @private
     def ole_cell

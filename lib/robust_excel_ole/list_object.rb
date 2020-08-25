@@ -28,13 +28,13 @@ module RobustExcelOle
                    position = [1,1],
                    rows_count = 1, 
                    columns_count_or_names = 1)
-                   
-      if (worksheet_or_ole_listobject.ListRows rescue nil)
-        @ole_table = worksheet_or_ole_listobject
+  
+      @ole_table = if (worksheet_or_ole_listobject.ListRows rescue nil)
+        worksheet_or_ole_listobject
       else
         @worksheet = worksheet_or_ole_listobject.to_reo
-        @ole_table = @worksheet.ListObjects.Item(table_name_or_number) rescue nil
-      end
+        @worksheet.ListObjects.Item(table_name_or_number) rescue nil
+      end     
       unless @ole_table
         columns_count = 
           columns_count_or_names.is_a?(Integer) ? columns_count_or_names : columns_count_or_names.length 

@@ -640,12 +640,7 @@ module RobustExcelOle
     # set options in this Excel instance
     def for_this_instance(options)
       set_options(options)
-      #self.class.new(@ole_excel, options)
     end
-
-    #def set_options(options)
-    #  for_this_instance(options)
-    #end  
 
     def set_options(options)      
       @properties ||= { }

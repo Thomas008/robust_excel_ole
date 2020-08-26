@@ -1,0 +1,63 @@
+# -*- coding: utf-8 -*-
+
+LOG_TO_STDOUT: Boolean = false        
+REO_LOG_DIR: String   
+REO_LOG_FILE: String  
+
+class String 
+  
+  def end_with? : (suffixes: Array[String]) -> String
+
+end
+
+module RobustExcelOle
+
+  class VBAMethodMissingError < RuntimeError 
+  end
+
+  class REOError < RuntimeError                    
+  end
+
+  class ExcelREOError < REOError                   
+  end
+
+  class WorkbookREOError < REOError                
+  end
+
+  class WorksheetREOError < REOError                   
+  end
+
+  class FileREOError < REOError                    
+  end
+
+  class NamesREOError < REOError                   
+  end
+
+  class MiscREOError < REOError                    
+  end
+
+  class TypeREOError < REOError                    
+  end
+
+  # @private
+  class UnexpectedREOError < REOError              
+  end
+
+  # @private
+  class NotImplementedREOError < REOError          
+  end
+    
+
+  class Base
+
+    def own_methods -> Array[Symbol]
+
+    def self.tr1: (_text1: String) -> void
+
+    def self.trace: (text: String) -> void
+
+    def self.puts_hash: (hash: Hash) -> void
+
+  end
+
+end

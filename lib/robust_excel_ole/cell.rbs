@@ -1,0 +1,25 @@
+# -*- coding: utf-8 -*-
+
+module RobustExcelOle
+
+  class Cell < Range
+
+    def initialize: (win32_cell: WIN32OLE, worksheet: Worksheet) -> void     
+
+    def value -> String
+
+    def value= (value: Variant) -> Variant
+
+    def v -> String
+    
+    def v= (value: Variant) -> Variant
+
+    def ole_cell -> WIN32OLE | void
+
+    def to_s -> String   
+
+    def inspect -> String 
+
+  end
+
+end

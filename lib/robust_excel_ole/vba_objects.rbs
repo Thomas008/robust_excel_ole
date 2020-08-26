@@ -1,0 +1,22 @@
+# -*- coding: utf-8 -*-
+
+module RobustExcelOle
+
+  class VbaObjects < Base
+
+    def to_reo -> VbaObjects
+
+    def address_tool -> AddressTool
+
+  end
+
+  class RangeNotEvaluatable < MiscREOError         
+  end
+
+  class OptionInvalid < MiscREOError               
+  end
+
+  class ObjectNotAlive < MiscREOError              
+  end
+
+end

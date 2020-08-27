@@ -64,7 +64,7 @@ If you want to start the console under jruby, and if you don't want to use a ver
  
  jreo
 
-The call of the console will include RobustExcelOle for you.
+The call of the console will include RobustExcelOle for you. The consoles require the ruby gem 'pry'. If you want to use the nice feature of filename and string completion, you may install pry-bond as well.
 
 The following examples can be used for both scripts and console. If you have started the console in the gem path, you can just put these examples.
 

@@ -19,6 +19,7 @@ describe Worksheet do
   before do
     @dir = create_tmpdir
     @simple_file = @dir + '/workbook.xls'
+    @another_workbook = @dir + '/another_workbook.xls'
     @protected_file = @dir + '/protected_sheet.xls'
     @blank_file = @dir + '/book_with_blank.xls'
     @merge_file = @dir + '/merge_cells.xls'
@@ -207,11 +208,13 @@ describe Worksheet do
     describe "range" do
 
       it "should a range with relative r1c1-reference" do
+        @sheet.range([1,1]).Select
         @sheet.range(["Z1S[3]:Z[2]S8"]).Address.should == "$D$1:$H$3"
         @sheet.range(["Z1S3:Z2S8"]).Address.should == "$C$1:$H$2"
       end
 
       it "should a range with relative integer-range-reference" do
+        @sheet.range([1,1]).Select
         @sheet.range([1..[2],[3]..8]).Address.should == "$D$1:$H$3"
       end
 
@@ -248,6 +251,12 @@ describe Worksheet do
         expect{
           @sheet.range([0,0])
           }.to raise_error(RangeNotCreated, /cannot create/)
+      end
+
+      it "should raise an error" do
+        expect{
+          @book.range([1..2,3..4])
+          }.to raise_error(RangeNotCreated, /argument/)
       end
 
     end

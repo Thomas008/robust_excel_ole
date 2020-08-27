@@ -1096,6 +1096,12 @@ describe Workbook do
         range.Address.should == "$A$1:$D$3"
       end
 
+      it "should raise error when given integer range" do
+        expect{
+          @book1.range([1..2,3..4])
+        }.to raise_error(RangeNotCreated, /argument/)
+      end
+
     end
 
     context "adding and deleting the name of a range" do

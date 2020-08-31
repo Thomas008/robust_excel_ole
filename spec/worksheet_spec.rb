@@ -253,12 +253,6 @@ describe Worksheet do
           }.to raise_error(RangeNotCreated, /cannot create/)
       end
 
-      it "should raise an error" do
-        expect{
-          @book.range([1..2,3..4])
-          }.to raise_error(RangeNotCreated, /argument/)
-      end
-
     end
 
     describe '#each' do

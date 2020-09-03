@@ -17,24 +17,31 @@ module RobustExcelOle
     alias ole_object ole_table
 
     # constructs a list object (or table).
-    # @param [Variable] worksheet_or_ole_listobject  a worksheet or a Win32Ole list object
+    # @param [Variable] worksheet_or_listobject      a worksheet or a list object
     # @param [Variable] table_name_or_number         a table name or table number
     # @param [Array]    position                     a position of the upper left corner
     # @param [Integer]  rows_count                   number of rows
     # @param [Variable] columns_count_or_names       number of columns or array of column names
     # @return [ListObject] a ListObject object
-    def initialize(worksheet_or_ole_listobject,
-                   table_name_or_number = "",
+    def initialize(worksheet_or_listobject,
+                   table_name_or_number = "_table_name",
                    position = [1,1],
                    rows_count = 1, 
                    columns_count_or_names = 1)
-  
-      @ole_table = if (worksheet_or_ole_listobject.ListRows rescue nil)
-        worksheet_or_ole_listobject
+
+      # ole_table is being assigned to the first parameter, if this parameter is a ListObject
+      # otherwise the first parameter could be a worksheet, and get the ole_table via the ListObject name or number
+      @ole_table = if worksheet_or_listobject.respond_to?(:ListRows)
+        worksheet_or_listobject.ole_table
       else
-        @worksheet = worksheet_or_ole_listobject.to_reo
-        @worksheet.ListObjects.Item(table_name_or_number) rescue nil
-      end     
+        begin
+          worksheet_or_listobject.send(:ListRows)
+          worksheet_or_listobject
+        rescue
+          @worksheet = worksheet_or_listobject.to_reo
+          @worksheet.ListObjects.Item(table_name_or_number) rescue nil
+        end
+      end
       unless @ole_table
         columns_count = 
           columns_count_or_names.is_a?(Integer) ? columns_count_or_names : columns_count_or_names.length 
@@ -51,6 +58,7 @@ module RobustExcelOle
           raise TableError, "error #{$!.message}"
         end
       end
+
 
       ole_table = @ole_table
       @row_class = Class.new(ListRow) do

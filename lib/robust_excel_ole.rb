@@ -18,5 +18,5 @@ require File.join(File.dirname(__FILE__), 'robust_excel_ole/list_object')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/cygwin') if RUBY_PLATFORM =~ /cygwin/
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/version')
 
-include RobustExcelOle
+#include RobustExcelOle
 include General

@@ -41,6 +41,13 @@ describe ListObject do
         @sheet[1,1].Value.should == "Person"
       end
 
+      it "should do the idempotence" do
+        ole_table = @sheet.ListObjects.Item(1)
+        table = Table.new(ole_table)
+        table2 = Table.new(table)
+        table2.ole_table.should be_a WIN32OLE
+      end
+
       it "should type-lift a Win32ole list object into a RobustExcelOle list object" do
         ole_table = @sheet.ListObjects.Item(1)
         table = Table.new(ole_table)

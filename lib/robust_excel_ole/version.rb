@@ -1,3 +1,3 @@
 module RobustExcelOle
-  VERSION = "1.22.2"
+  VERSION = "1.23"
 end

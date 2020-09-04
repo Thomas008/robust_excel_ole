@@ -1102,6 +1102,10 @@ describe Workbook do
         }.to raise_error(RangeNotCreated, /argument/)
       end
 
+      it "should accept an integer range when given a worksheet" do
+        @book1.range(@book1.sheet(1),[4..5,1..2]).Address.should == "$A$4:$B$5"
+      end
+
     end
 
     context "adding and deleting the name of a range" do

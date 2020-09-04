@@ -42,7 +42,11 @@ or
 
   range = worksheet.range(["A1:D3"])
 
-You can read the values by 
+You can also access a range from a workbook by providing the worksheet
+
+  range = workbook(workbook.sheet(1), [1..3,1..4])
+
+Now you can read the values by 
 
   range.Value
   => [["foo", "workbook", "sheet1", nil], ["foo", nil, "foobaaa", nil], ["matz", "is", "nice", nil]]
@@ -206,6 +210,10 @@ or
 
   range = worksheet.range([[1]..3,2..[4]])
 
+You can access a range also from a workbook by providing the respective worksheet
+
+  range = workbook(worksheet, [[1..3],2..[4]])
+
 You get the values of the range as flat array with help of
 
   range.values
@@ -213,6 +221,10 @@ You get the values of the range as flat array with help of
 You can access a range via its defined name with
 
   range = worksheet.range("name")
+
+or
+
+  range = workbook(worksheet, "name")
 
 === Copying a range
 

@@ -886,27 +886,19 @@ module RobustExcelOle
     # @params [Variant] defined name or a worksheet
     # @params [Address] address
     # @return [Range] a range
-    def range(*args)
-      first_arg = *args[0]
-      if first_arg.respond_to?(:gsub)
+    def range(name_or_worksheet, name_or_address = :__not_provided, address2 = :__not_provided)
+      if name_or_worksheet.respond_to?(:gsub)
+        name = name_or_worksheet
         RobustExcelOle::Range.new(name_object(name).RefersToRange)
-      elsif first_arg.to_reo.respond_to?(:Range)
-        worksheet = first_arg[0]
-        worksheet.range(*args[1..-1])
-      else
-        raise RangeNotCreated, "argument error: argument must be a defined name or a worksheet and an address"
+      else 
+        begin 
+          worksheet = name_or_worksheet.to_reo
+          worksheet.range(name_or_address, address2)
+        rescue
+          raise RangeNotCreated, "argument error: a defined name or a worksheet and an address must be provided"
+        end          
       end
     end
-=begin    
-    def range(name, address2 = :__not_provided)
-      if !name.respond_to?(:gsub) || address2 != :__not_provided
-        raise RangeNotCreated, "argument error: #{name.inspect} is not a defined name"
-      end 
-      RobustExcelOle::Range.new(name_object(name).RefersToRange)
-    end
-=end
-
-
 
     # returns the value of a range
     # @param [String] name the name of a range

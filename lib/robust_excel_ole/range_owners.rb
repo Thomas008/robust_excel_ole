@@ -177,9 +177,9 @@ module RobustExcelOle
     end
 
     # creates a range from a given defined name or address
-    # @params [Variant] defined name or address
+    # @params [Variant] defined name or address, and optional a worksheet
     # @return [Range] a range
-    def range(name_or_address, address2 = :__not_provided)
+    def range(*args)
       raise RangeNotCreated, "not yet implemented"
     end
 

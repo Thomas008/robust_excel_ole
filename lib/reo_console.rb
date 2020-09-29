@@ -9,8 +9,7 @@ include General
 class Object
 
   def pry(object = nil, hash = {})
-  	puts "pry!!!"
-    @local_vars = { }
+    @local_vars ||= { }
     if object.nil? || Hash === object # rubocop:disable Style/CaseEquality
       Pry.start(self, object || {})
     else

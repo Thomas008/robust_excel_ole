@@ -72,7 +72,7 @@ or
 
   cd object
 
-to assign self to this object.
+to assign self to this object. The original pry console is adapted to preserve local variables.
 
 The following examples can be used for both scripts and console. If you have started the console in the gem path, you can just put these examples.
 

@@ -78,11 +78,11 @@ Pry.config.prompt = Pry::Prompt.new(
   "The RobustExcelOle Prompt. Besides the standard information it puts the current object",
   [
    proc { |target_self, nest_level, pry|
-  "[#{pry.input_ring.count}] #{pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}> "
+   "[#{pry.input_ring.count}] #{pry.config.prompt_name}(#{Pry.view_clip(target_self.inspect)})#{":#{nest_level}" unless nest_level.zero?}> "
  },
 
  proc { |target_self, nest_level, pry|
-  "[#{pry.input_ring.count}] #{pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}* "
+  "[#{pry.input_ring.count}] #{pry.config.prompt_name}(#{Pry.view_clip(target_self.inspect)})#{":#{nest_level}" unless nest_level.zero?}* "
  }
 ]
 )

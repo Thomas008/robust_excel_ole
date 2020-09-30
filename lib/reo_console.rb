@@ -6,37 +6,7 @@ include General
 
 # pry mit behalten lokaler Variablen
 
-class Object
-
-  def pry(object = nil, hash = {})
-    @local_vars ||= { }
-    if object.nil? || Hash === object # rubocop:disable Style/CaseEquality
-      Pry.start(self, object || {})
-    else
-      Pry.start(object, hash)
-    end
-  end
-
-end
-
 class Pry
-
-  def self.set_local_vars local_vars
-    @local_vars = local_vars
-  end
-  
-  def self.get_local_vars
-    @local_vars
-  end  
-
-  def self.binding_for(target)
-    return target if Binding === target # rubocop:disable Style/CaseEquality
-    return TOPLEVEL_BINDING if Pry.main == target
-    __bnd = target.instance_eval{ target.__binding__ }
-    @local_vars.each{ |var,value| __bnd.local_variable_set(var, value) }
-    #target.__binding__
-    __bnd
-  end
 
   class REPL
 
@@ -55,8 +25,13 @@ class Pry
           bnd = pry.binding_stack.first
           exclude_vars = [:__, :_, :_dir, :_dir_, :_file, :_file_, :_in_, :_out_, :_ex, :_ex_, :pry_instance]
           local_vars = Pry.get_local_vars
-          bnd.local_variables.each{ |var| local_vars[var] = bnd.local_variable_get(var) unless exclude_vars.include?(var) }
-          Pry.set_local_vars(local_vars)
+          bnd.local_variables.each do |var|
+            unless exclude_vars.include?(var) 
+              pry.add_sticky_local(var) do
+                bnd.local_variable_get(var)
+              end
+            end
+          end
           return pry.exit_value unless pry.eval(val)
         end
       end

@@ -4,7 +4,7 @@ require '../robust_excel_ole/lib/robust_excel_ole'
 include REO
 include General
 
-# pry mit behalten lokaler Variablen
+# pry with preserving local variables
 
 class Pry
 
@@ -24,7 +24,6 @@ class Pry
           # determine the local variables in the binding before evaluation
           bnd = pry.binding_stack.first
           exclude_vars = [:__, :_, :_dir, :_dir_, :_file, :_file_, :_in_, :_out_, :_ex, :_ex_, :pry_instance]
-          local_vars = Pry.get_local_vars
           bnd.local_variables.each do |var|
             unless exclude_vars.include?(var) 
               pry.add_sticky_local(var) do

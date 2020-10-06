@@ -47,20 +47,23 @@ Pry.config.prompt_name = "REO "
 #Pry.config.history_save = true
 #Pry.editor = 'notepad'  # 'subl', 'vi'
 
-Pry.config.prompt = Pry::Prompt.new(
-  "REO",
-  "The RobustExcelOle Prompt. Besides the standard information it puts the current object",
-  [
-   proc { |target_self, nest_level, pry|
+prompt_proc1 = proc { |target_self, nest_level, pry|
    "[#{pry.input_ring.count}] #{pry.config.prompt_name}(#{Pry.view_clip(target_self.inspect)})#{":#{nest_level}" unless nest_level.zero?}> "
- },
+ }
 
- proc { |target_self, nest_level, pry|
+prompt_proc2 =  proc { |target_self, nest_level, pry|
   "[#{pry.input_ring.count}] #{pry.config.prompt_name}(#{Pry.view_clip(target_self.inspect)})#{":#{nest_level}" unless nest_level.zero?}* "
  }
-]
-)
 
+Pry.config.prompt = if RUBY_PLATFORM =~ /java/
+  [prompt_proc1, prompt_proc2]
+else
+  Pry::Prompt.new(
+    "REO",
+    "The RobustExcelOle Prompt. Besides the standard information it puts the current object",
+    [prompt_proc1, prompt_proc2]
+    )
+end
 
 hooks = Pry::Hooks.new
 

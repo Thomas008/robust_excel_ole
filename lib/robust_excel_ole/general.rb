@@ -40,11 +40,19 @@ module General
 
   # @private
   def absolute_path(file)    
+    puts "absolute_path:"
+    puts "file: #{file.inspect}"
     return file if file[0,2] == "//" 
     file[0,2] = './' if ::EXPANDPATH_JRUBY_BUG && file  =~ /[A-Z]:[^\/]/
+    puts "file1: #{file.inspect}"
     file = File.expand_path(file)
+    puts "file2: #{file.inspect}"
     file = RobustExcelOle::Cygwin.cygpath('-w', file) if RUBY_PLATFORM =~ /cygwin/
-    WIN32OLE.new('Scripting.FileSystemObject').GetAbsolutePathName(file).tr('/','\\')
+    puts "file3: #{file.inspect}"
+    a = WIN32OLE.new('Scripting.FileSystemObject')
+    puts "a: #{a.inspect}"
+
+    WIN32OLE.new('Scripting.FileSystemObject').GetAbsolutePathName(file) #.tr('/','\\')
   end
 
   # @private
@@ -142,16 +150,20 @@ class WIN32OLE
     raise TypeREOError, "given object cannot be type-lifted to a RobustExcelOle object"
   end
 
-  alias method_missing_before_implicit_typelift method_missing 
-  def xx_method_missing(name, *args, &blk)
+=begin
+  def method_missing(name, *args, &blk)
+    #super if name.to_s[0,1] =~ /[A-Z]/
+    super if name == "Hwnd" or name =="FullName" or name == "UsedRange" or name == "Row" or name == "ListRows"
     begin
       reo_obj = self.to_reo
     rescue
-      puts "$!.message: #{$!.message}"
-      method_missing_before_implicit_typelift(name, *args, &blk)
+      puts "error: #{$!.message}"
+      raise # NoMethodError, "undefined method #{name.inspect} for #{self.inspect}"
     end
     reo_obj.send(name, *args, &blk)
   end
+=end
+
 end
 
 # @private

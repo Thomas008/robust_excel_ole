@@ -76,7 +76,7 @@ module RobustExcelOle
       end
       connected = (not ole_xl.nil?) && win32ole_excel.nil?
       ole_xl ||= WIN32OLE.new('Excel.Application')
-      hwnd = ole_xl.HWnd
+      hwnd = ole_xl.Hwnd
       stored = hwnd2excel(hwnd)
       if stored && stored.alive?
         result = stored
@@ -297,7 +297,7 @@ module RobustExcelOle
       finishing_living_excel = alive?
       if finishing_living_excel
         hwnd = (begin
-                  @ole_excel.HWnd
+                  @ole_excel.Hwnd
                 rescue
                   nil
                 end)

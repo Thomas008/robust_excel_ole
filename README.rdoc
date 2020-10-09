@@ -64,15 +64,7 @@ If you want to start the console under jruby, and if you don't want to use a ver
  
  jreo
 
-The call of the console will include RobustExcelOle for you. The consoles require the ruby gem 'pry' and 'pry-bond' to enable the ruby shell 'pry' with filename and string completion. The ruby shell 'pry' allows, among other useful things, to change the value of 'self' in the console: Let 'object' be an (almost) arbitrary object, e.g. a workbook, then you can put
-
-  object.pry
-
-or
-
-  cd object
-
-to assign self to this object. The original pry console is adapted to preserve local variables.
+The call of the console will include RobustExcelOle for you. The consoles require the ruby gem 'pry' and 'pry-bond' to enable the ruby shell 'pry' with filename and string completion. 
 
 The following examples can be used for both scripts and console. If you have started the console in the gem path, you can just put these examples.
 
@@ -326,7 +318,21 @@ and set another value to that range.
 For more details about reading and writing contents of cells and ranges see {README_ranges}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_ranges.rdoc]
 
 
-=== More things
+=== More features
+
+The ruby shell 'pry' allows, among other useful things, to change the value of 'self' in the console. For example,
+
+  object.pry
+
+or
+
+  cd object
+
+will set +object+ to self. However, this command also starts another pry repl (with another binding). Moreover, local variables in the previous binding are forgotten.
+
+The method +General.change_current_binding+ allows to change the value of self within the current binding, while preserving the local variables, without starting another repl. 
+
+  General.change_current_binding
 
 You can convert some Win32Ole objects into a RobustExcelOle object.
 

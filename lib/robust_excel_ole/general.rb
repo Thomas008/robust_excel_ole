@@ -64,7 +64,11 @@ module General
     path
   end
 
-  module_function :absolute_path, :canonize, :normalize
+  def change_current_binding(current_object)
+    Pry.change_current_binding(current_object)
+  end
+
+  module_function :absolute_path, :canonize, :normalize, :change_current_binding
 
 end
 
@@ -297,7 +301,6 @@ module MethodHelpers
       super
     end
   end
-
 end
 
 REO = RobustExcelOle

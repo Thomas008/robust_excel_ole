@@ -65,4 +65,7 @@ hooks.add_hook :when_started, :hook12 do
 puts 'REO console started'
 puts
 end
+
+#WIN32OLE.uplift_to_reo
+
 Pry.start(nil, hooks: hooks)

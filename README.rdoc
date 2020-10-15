@@ -320,7 +320,11 @@ For more details about reading and writing contents of cells and ranges see {REA
 
 === More features
 
-1. The ruby shell 'pry' allows, among other useful things, to change the value of 'self' in the console. For example,
+1. The method +General.change_current_binding+ allows to change the value of self within the current binding, while preserving the local variables, without starting another repl. Assume, +object+ shall be the self, then you would put
+
+  General.change_current_binding(object)
+
+Without this method, the ruby shell 'pry' allows to change the value of 'self' in the console as well, e.g. 
 
   object.pry
 
@@ -328,19 +332,16 @@ or
 
   cd object
 
-will set +object+ to self. However, this command also starts another pry repl (with another binding). Moreover, local variables in the previous binding are forgotten.
+However, this command also starts another pry repl (with another binding). Moreover, local variables in the previous binding are forgotten.
 
-The method +General.change_current_binding+ allows to change the value of self within the current binding, while preserving the local variables, without starting another repl. 
 
-  General.change_current_binding
-
-2. As mentioned above, the RobustExcelOle objects are wrapper of corresponding WIN32OLE objects. The connection between RobustExcelOle and Win32ole was strenghened such that you can convert Win32Ole objects into the corresponding RobustExcelOle object.
-
-  range = sheet.Names.Item("firstcell").to_reo
-
-Likewise, the Win32ole class is being extended such that you can apply RobustExcelOle instance methods to the corresponding Win32ole objects
+2. The class Win32Ole is extended such that RobustExcelOle methods can be applied on Win32Ole objects. As mentioned above, the RobustExcelOle objects are wrapper of corresponding WIN32OLE objects. That is, the RobustExcelOle objects and their wrapped Win32Ole objects are interchangeable. One example would be
 
   range.ole_range.copy([4,3])
+
+Likewise it is possible to convert ("type-lift") Win32Ole objects into the corresponding RobustExcelOle object, using General#to_reo.
+
+  range = sheet.Names.Item("firstcell").to_reo
 
 === Examples
 

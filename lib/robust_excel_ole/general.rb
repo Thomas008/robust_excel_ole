@@ -112,8 +112,8 @@ class Pry
           output.puts "" if output.tty?
           break
         else
-          # overwrite repeating line
-          output.puts "                                                  "
+          # overwrite repeating line (clear the line)
+          output.puts "                                                                        "
           output.puts "" if val.nil? && output.tty?                              
           return pry.exit_value unless pry.eval(val)
         end

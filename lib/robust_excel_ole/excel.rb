@@ -370,7 +370,7 @@ module RobustExcelOle
       number = 0
       WIN32OLE.connect('winmgmts:\\\\.').InstancesOf('win32_process').each do |p|
         begin
-          if p.name == 'EXCEL.EXE'
+          if p.Name == 'EXCEL.EXE'
             Process.kill('KILL', p.processid)
             number += 1
           end
@@ -384,7 +384,7 @@ module RobustExcelOle
 
     def self.excels_number
       processes = WIN32OLE.connect('winmgmts:\\\\.').InstancesOf('win32_process')
-      processes.select { |p| p.name == 'EXCEL.EXE' }.size
+      processes.select { |p| p.Name == 'EXCEL.EXE' }.size
     end
 
     def self.known_excels_number
@@ -417,7 +417,7 @@ module RobustExcelOle
           result.Visible # send any method, just to see if it responds
         rescue
           trace 'dead excel ' + (begin
-                                 "Window-handle = #{result.HWnd}"
+                                 "Window-handle = #{result.Hwnd}"
                                  rescue
                                  'without window handle'
                                  end)
@@ -471,13 +471,13 @@ module RobustExcelOle
         pid2excel[pid] = excel
       end
       processes = WIN32OLE.connect('winmgmts:\\\\.').InstancesOf('win32_process')
-      processes.select { |p| Excel.new(pid2excel[p.processid]) if p.name == 'EXCEL.EXE' && pid2excel.include?(p.processid) }
+      processes.select { |p| Excel.new(pid2excel[p.ProcessId]) if p.Name == 'EXCEL.EXE' && pid2excel.include?(p.ProcessId) }
       result = []
       processes.each do |p|
-        next unless p.name == 'EXCEL.EXE'
+        next unless p.Name == 'EXCEL.EXE'
 
-        if pid2excel.include?(p.processid)
-          excel = pid2excel[p.processid]
+        if pid2excel.include?(p.ProcessId)
+          excel = pid2excel[p.ProcessId]
           result << excel
         end
         # how to connect to an (interactively opened) Excel instance and get a WIN32OLE object?

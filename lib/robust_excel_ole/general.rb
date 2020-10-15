@@ -122,10 +122,10 @@ class WIN32OLE
 
   def self.class2method
     [{Excel => :Hwnd},
-      {Workbook => :FullName},
-      {Worksheet => :UsedRange},
-      {RobustExcelOle::Range => :Row},
-      {ListObject => :ListRows}]
+     {Workbook => :FullName},
+     {Worksheet => :UsedRange},
+     {RobustExcelOle::Range => :Row},
+     {ListObject => :ListRows}]
   end
 
   # type-lifting WIN32OLE objects to RobustExcelOle objects
@@ -147,14 +147,19 @@ class WIN32OLE
     raise TypeREOError, "given object cannot be type-lifted to a RobustExcelOle object"
   end
 
+  # enable RobustExcelOle methods to Win32Ole objects
   def self.uplift_to_reo
+    exclude_list = [:each, :inspect]
     class2method.each do |element|
       classname = element.first.first
       method = element.first.last
       classname.instance_methods(false).each do |inst_method|
-        self.send(:define_method, inst_method) { |*args| self.to_reo.send(inst_method, *args) }
+        if !exclude_list.include?(inst_method)
+          self.send(:define_method, inst_method){ |*args| self.to_reo.send(inst_method, *args) }
+        end
       end
     end
+    nil
   end
 
 =begin

@@ -119,7 +119,7 @@ module RobustExcelOle
         excel1 = @book1.excel
         ole_excel1 = excel1.ole_excel
         ole_excel1.close(:if_unsaved => :forget)
-        #@book1.Saved.should be_false
+        Excel.kill_all
       end
 
     end

@@ -320,7 +320,7 @@ For more details about reading and writing contents of cells and ranges see {REA
 
 === More features
 
-The ruby shell 'pry' allows, among other useful things, to change the value of 'self' in the console. For example,
+1. The ruby shell 'pry' allows, among other useful things, to change the value of 'self' in the console. For example,
 
   object.pry
 
@@ -334,9 +334,13 @@ The method +General.change_current_binding+ allows to change the value of self w
 
   General.change_current_binding
 
-You can convert some Win32Ole objects into a RobustExcelOle object.
+2. As mentioned above, the RobustExcelOle objects are wrapper of corresponding WIN32OLE objects. The connection between RobustExcelOle and Win32ole was strenghened such that you can convert Win32Ole objects into the corresponding RobustExcelOle object.
 
   range = sheet.Names.Item("firstcell").to_reo
+
+Likewise, the Win32ole class is being extended such that you can apply RobustExcelOle instance methods to the corresponding Win32ole objects
+
+  range.ole_range.copy([4,3])
 
 === Examples
 

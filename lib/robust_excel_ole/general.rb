@@ -120,25 +120,17 @@ class WIN32OLE
 
   include Enumerable
 
-#  Class2method = [
-#      {RobustExcelOle::Excel => :Hwnd},
-#      {RobustExcelOle::Workbook => :FullName},
-#      {RobustExcelOle::Worksheet => :UsedRange},
-#      {RobustExcelOle::Range => :Row},
-#      {RobustExcelOle::ListObject => :ListRows}
-#    ]
-  
-  # type-lifting WIN32OLE objects to RobustExcelOle objects
-  def to_reo
-    class2method = [
-      {Excel => :Hwnd},
+  def self.class2method
+    [{Excel => :Hwnd},
       {Workbook => :FullName},
       {Worksheet => :UsedRange},
       {RobustExcelOle::Range => :Row},
-      {ListObject => :ListRows}
-    ]
-    class2method.each do |element|
-    #Class2method.each do |element|
+      {ListObject => :ListRows}]
+  end
+
+  # type-lifting WIN32OLE objects to RobustExcelOle objects
+  def to_reo
+    self.class.class2method.each do |element|
       classname = element.first.first
       method = element.first.last
       begin
@@ -156,26 +148,11 @@ class WIN32OLE
   end
 
   def self.uplift_to_reo
-    #Class2method.each do |element|
-    class2method = [
-      {Excel => :Hwnd},
-      {Workbook => :FullName},
-      {Worksheet => :UsedRange},
-      {RobustExcelOle::Range => :Row},
-      {ListObject => :ListRows}
-    ]
     class2method.each do |element|
       classname = element.first.first
       method = element.first.last
       classname.instance_methods(false).each do |inst_method|
-        self.send(:define_method, inst_method) do |*args|
-          begin
-            self.send(method)
-          rescue
-            raise TypeREOError, "this RobustExcelOle method cannot be applied to this win32ole object"
-          end
-          self.to_reo.send(inst_method, *args)
-        end
+        self.send(:define_method, inst_method) { |*args| self.to_reo.send(inst_method, *args) }
       end
     end
   end

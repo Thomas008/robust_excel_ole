@@ -96,6 +96,34 @@ module RobustExcelOle
 
     end
 
+    describe "Win32Ole.uplift_to_reo" do
+
+      before do
+        @book1 = Workbook.open(@simple_file, :visible => true)
+      end
+
+      it "should apply reo-methods to win32ole objects" do
+        WIN32OLE.uplift_to_reo  
+        ole_book1 = @book1.ole_workbook
+        sheet1 = ole_book1.sheet(1)
+        sheet1.should be_a Worksheet
+        sheet1.name.should == "Sheet1"
+        ole_sheet1 = sheet1.ole_worksheet
+        range1 = ole_sheet1.range([1..2,3..4])
+        range1.should be_a RobustExcelOle::Range
+        range1.value.should == [["sheet1",nil],["foobaaa",nil]]
+        ole_range1 = range1.ole_range
+        ole_range1.copy([6,6])
+        range2 = sheet1.range([6..7,6..7])
+        range2.value.should == [["sheet1",nil],["foobaaa",nil]]
+        excel1 = @book1.excel
+        ole_excel1 = excel1.ole_excel
+        ole_excel1.close(:if_unsaved => :forget)
+        #@book1.Saved.should be_false
+      end
+
+    end
+
     describe "methods, own_methods, respond_to?" do
 
       before do

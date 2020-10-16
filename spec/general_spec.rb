@@ -96,14 +96,14 @@ module RobustExcelOle
 
     end
 
-    describe "Win32Ole.uplift_to_reo" do
+    describe "General.uplift_to_reo" do
 
       before do
         @book1 = Workbook.open(@simple_file, :visible => true)
       end
 
       it "should apply reo-methods to win32ole objects" do
-        WIN32OLE.uplift_to_reo  
+        General.uplift_to_reo  
         ole_book1 = @book1.ole_workbook
         sheet1 = ole_book1.sheet(1)
         sheet1.should be_a Worksheet

@@ -68,7 +68,31 @@ module General
     Pry.change_current_binding(current_object)
   end
 
-  module_function :absolute_path, :canonize, :normalize, :change_current_binding
+  def class2method
+    [{Excel => :Hwnd},
+     {Workbook => :FullName},
+     {Worksheet => :UsedRange},
+     {RobustExcelOle::Range => :Row},
+     {ListObject => :ListRows}]
+  end
+
+
+  # enable RobustExcelOle methods to Win32Ole objects
+  def uplift_to_reo
+    exclude_list = [:each, :inspect]
+    class2method.each do |element|
+      classname = element.first.first
+      method = element.first.last
+      classname.instance_methods(false).each do |inst_method|
+        if !exclude_list.include?(inst_method)
+          WIN32OLE.send(:define_method, inst_method){ |*args| self.to_reo.send(inst_method, *args) }
+        end
+      end
+    end
+    nil
+  end
+
+  module_function :absolute_path, :canonize, :normalize, :change_current_binding, :class2method, :uplift_to_reo
 
 end
 
@@ -171,18 +195,10 @@ end
 class WIN32OLE
 
   include Enumerable
-
-  def self.class2method
-    [{Excel => :Hwnd},
-     {Workbook => :FullName},
-     {Worksheet => :UsedRange},
-     {RobustExcelOle::Range => :Row},
-     {ListObject => :ListRows}]
-  end
-
+  
   # type-lifting WIN32OLE objects to RobustExcelOle objects
   def to_reo
-    self.class.class2method.each do |element|
+    General.class2method.each do |element|
       classname = element.first.first
       method = element.first.last
       begin
@@ -197,21 +213,6 @@ class WIN32OLE
       end
     end
     raise TypeREOError, "given object cannot be type-lifted to a RobustExcelOle object"
-  end
-
-  # enable RobustExcelOle methods to Win32Ole objects
-  def self.uplift_to_reo
-    exclude_list = [:each, :inspect]
-    class2method.each do |element|
-      classname = element.first.first
-      method = element.first.last
-      classname.instance_methods(false).each do |inst_method|
-        if !exclude_list.include?(inst_method)
-          self.send(:define_method, inst_method){ |*args| self.to_reo.send(inst_method, *args) }
-        end
-      end
-    end
-    nil
   end
 
 =begin

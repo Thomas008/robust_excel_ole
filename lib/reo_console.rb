@@ -37,6 +37,6 @@ puts 'REO console started'
 puts
 end
 
-WIN32OLE.uplift_to_reo
+General.uplift_to_reo
 
 Pry.start(nil, hooks: hooks)

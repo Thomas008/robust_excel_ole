@@ -3,14 +3,14 @@
 module General
 
   IS_JRUBY_PLATFORM = (RUBY_PLATFORM =~ /java/)
-  ::EXPANDPATH_JRUBY_BUG   = IS_JRUBY_PLATFORM && true
-  ::CONNECT_JRUBY_BUG      = IS_JRUBY_PLATFORM && true
-  ::COPYSHEETS_JRUBY_BUG   = IS_JRUBY_PLATFORM && true
-  ::ERRORMESSAGE_JRUBY_BUG = IS_JRUBY_PLATFORM && true
-  ::CONNECT_EXCEL_JRUBY_BUG      = IS_JRUBY_PLATFORM && true
-  ::RANGES_JRUBY_BUG       = IS_JRUBY_PLATFORM && true
+  ::EXPANDPATH_JRUBY_BUG    = IS_JRUBY_PLATFORM && true
+  ::CONNECT_JRUBY_BUG       = IS_JRUBY_PLATFORM && true
+  ::COPYSHEETS_JRUBY_BUG    = IS_JRUBY_PLATFORM && true
+  ::ERRORMESSAGE_JRUBY_BUG  = IS_JRUBY_PLATFORM && true
+  ::CONNECT_EXCEL_JRUBY_BUG = IS_JRUBY_PLATFORM && true
+  ::RANGES_JRUBY_BUG        = IS_JRUBY_PLATFORM && true
 
-  @private
+  # @private
   NetworkDrive = Struct.new(:drive_letter, :network_name) do
 
     def self.get_all(drives)
@@ -24,7 +24,7 @@ module General
 
   end
 
-  @private
+  # @private
   def hostnameshare2networkpath(filename)
     return filename unless filename[0,2] == "//"
     network = WIN32OLE.new('WScript.Network')
@@ -85,7 +85,9 @@ module General
       method = element.first.last
       classname.instance_methods(false).each do |inst_method|
         if !exclude_list.include?(inst_method)
-          WIN32OLE.send(:define_method, inst_method){ |*args| self.to_reo.send(inst_method, *args) }
+          WIN32OLE.send(:define_method, inst_method) do |*args, &blk|  
+            self.to_reo.send(inst_method, *args, &blk) 
+          end
         end
       end
     end

@@ -128,26 +128,35 @@ class Pry
 
   class REPL
 
-    def repl
-      loop do
-        case val = read
-        when :control_c
-          output.puts ""
-          pry.reset_eval_string
-        when :no_more_input
-          output.puts "" if output.tty?
-          break
-        else
-          # overwrite repeating line (clear the line)
-          output.puts "                                                                        "
-          output.puts "" if val.nil? && output.tty?                              
-          return pry.exit_value unless pry.eval(val)
+    def read
+      @indent.reset if pry.eval_string.empty?
+      current_prompt = pry.select_prompt
+      indentation = pry.config.auto_indent ? @indent.current_prefix : ''
+      val = read_line("#{current_prompt}#{indentation}")
+      # Return nil for EOF, :no_more_input for error, or :control_c for <Ctrl-C>
+      return val unless val.is_a?(String)
+      if pry.config.auto_indent
+        original_val = "#{indentation}#{val}"
+        indented_val = @indent.indent(val)
+
+        if output.tty? &&
+           pry.config.correct_indent &&
+           Pry::Helpers::BaseHelpers.use_ansi_codes?
+          # avoid repeating read line
+
+          #output.print @indent.correct_indentation(
+          #  current_prompt,
+          #  indented_val,
+          #  calculate_overhang(current_prompt, original_val, indented_val)
+          #)
+          output.flush
         end
+      else
+        indented_val = val
       end
+      indented_val
     end
-
   end
-
 end
 
 # @private

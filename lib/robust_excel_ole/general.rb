@@ -226,37 +226,6 @@ class WIN32OLE
     raise TypeREOError, "given object cannot be type-lifted to a RobustExcelOle object"
   end
 
-=begin
-  def to_reo
-    case ole_type.name
-    when 'Range' then RobustExcelOle::Range.new(self)
-    when '_Worksheet' then RobustExcelOle::Worksheet.new(self)
-    when '_Workbook' then RobustExcelOle::Workbook.new(self)
-    when '_Application' then RobustExcelOle::Excel.new(self)
-    else
-      self
-    end
-  end
-=end
-
-=begin
-  alias method_missing_before_implicit_typelift method_missing 
-  
-  def method_missing(name, *args, &blk)
-    puts "method_missing:"
-    puts "name: #{name.inspect}"
-    #raise NoMethodError if name.to_s == "Hwnd" or name.to_s == "FullName" or name.to_s == "UsedRange" or name.to_s == "Row" or name.to_s == "ListRows"
-    begin
-      reo_obj = self.to_reo
-      puts "reo_obj: #{reo_obj.inspect}"
-    rescue
-      puts "$!.message: #{$!.message}"
-      method_missing_before_implicit_typelift(name, *args, &blk)
-    end
-    reo_obj.send(name, *args, &blk)
-  end
-=end
-
 end
 
 # @private

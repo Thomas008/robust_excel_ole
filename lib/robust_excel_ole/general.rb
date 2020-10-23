@@ -351,5 +351,3 @@ module MethodHelpers
     end
   end
 end
-
-REO = RobustExcelOle

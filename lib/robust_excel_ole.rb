@@ -3,8 +3,8 @@ if RUBY_PLATFORM =~ /java/
 else
   require 'win32ole'
 end
-require File.join(File.dirname(__FILE__), 'robust_excel_ole/base')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/general')
+require File.join(File.dirname(__FILE__), 'robust_excel_ole/base')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/vba_objects')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/range_owners')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/address_tool')
@@ -17,8 +17,5 @@ require File.join(File.dirname(__FILE__), 'robust_excel_ole/range')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/list_object')
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/cygwin') if RUBY_PLATFORM =~ /cygwin/
 require File.join(File.dirname(__FILE__), 'robust_excel_ole/version')
-
-#include RobustExcelOle
-include General
 
 General.init_reo_for_win32ole

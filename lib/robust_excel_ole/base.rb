@@ -65,6 +65,8 @@ module RobustExcelOle
 
   class Base
 
+    include General
+
     # @private
     def own_methods
       (self.methods - Object.methods).sort
@@ -110,3 +112,6 @@ module RobustExcelOle
   end
 
 end
+
+REO = RobustExcelOle
+

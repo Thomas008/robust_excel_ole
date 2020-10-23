@@ -78,7 +78,7 @@ module General
 
 
   # enable RobustExcelOle methods to Win32Ole objects
-  def uplift_to_reo
+  def init_reo_for_win32ole
     exclude_list = [:each, :inspect]
     class2method.each do |element|
       classname = element.first.first
@@ -94,7 +94,7 @@ module General
     nil
   end
 
-  module_function :absolute_path, :canonize, :normalize, :change_current_binding, :class2method, :uplift_to_reo
+  module_function :absolute_path, :canonize, :normalize, :change_current_binding, :class2method, :init_reo_for_win32ole
 
 end
 

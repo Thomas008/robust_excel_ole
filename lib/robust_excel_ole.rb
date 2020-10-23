@@ -21,4 +21,4 @@ require File.join(File.dirname(__FILE__), 'robust_excel_ole/version')
 #include RobustExcelOle
 include General
 
-#General.init_reo_for_win32ole
+General.init_reo_for_win32ole

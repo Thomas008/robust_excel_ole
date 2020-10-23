@@ -103,7 +103,6 @@ module RobustExcelOle
       end
 
       it "should apply reo-methods to win32ole objects" do
-        General.init_reo_for_win32ole  
         ole_book1 = @book1.ole_workbook
         sheet1 = ole_book1.sheet(1)
         sheet1.should be_a Worksheet

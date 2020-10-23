@@ -69,11 +69,11 @@ module General
   end
 
   def class2method
-    [{Excel => :Hwnd},
-     {Workbook => :FullName},
-     {Worksheet => :UsedRange},
+    [{RobustExcelOle::Excel => :Hwnd},
+     {RobustExcelOle::Workbook => :FullName},
+     {RobustExcelOle::Worksheet => :UsedRange},
      {RobustExcelOle::Range => :Row},
-     {ListObject => :ListRows}]
+     {RobustExcelOle::ListObject => :ListRows}]
   end
 
 

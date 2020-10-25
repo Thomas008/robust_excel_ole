@@ -98,6 +98,7 @@ module General
 
 end
 
+
 # @private
 class Pry
 
@@ -159,7 +160,7 @@ class Pry
   end
 end
 
-# @private
+=begin
 class Integer
 
   alias old_spaceship <=>
@@ -188,6 +189,55 @@ class Array
       old_spaceship other
     end
   end
+
+  def find_each_index find
+    found, index, q = -1, -1, []
+    while found
+      found = self[index+1..-1].index(find)
+      if found
+        index = index + found + 1
+        q << index
+      end
+    end
+    q
+  end
+end
+=end
+
+# @private
+module RefinedSpaceship
+
+  refine Integer do
+
+    alias old_spaceship <=>
+
+    def <=> other
+      # p other
+      if other.is_a? Array
+        self <=> other.first
+      else
+        old_spaceship other
+      end
+    end
+  end
+
+  refine Array do
+
+    alias old_spaceship <=>
+
+    def <=> other
+      # p other
+      if other.is_a? Integer
+        self <=> [other]
+      else
+        old_spaceship other
+      end
+    end
+  end
+end
+
+# @private
+class Array
 
   def find_each_index find
     found, index, q = -1, -1, []

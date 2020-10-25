@@ -16,11 +16,11 @@ Pry.config.prompt_name = "REO "
 #Pry.editor = 'notepad'  # 'subl', 'vi'
 
 prompt_proc1 = proc { |target_self, nest_level, pry|
-   "[#{pry.input_ring.count}] #{pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}> "
+  "[#{pry.input_ring.count}] #{pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}> "
  }
 
 prompt_proc2 =  proc { |target_self, nest_level, pry|
-  "[#{pry.input_ring.count}] #{pry.config.prompt_name}(#{Pry.view_clip(target_self.inspect.gsub(/\"/, ''))})})#{":#{nest_level}" unless nest_level.zero?}* "
+  "[#{pry.input_ring.count}] #{pry.config.prompt_name}(#{Pry.view_clip(target_self)})#{":#{nest_level}" unless nest_level.zero?}* "
  }
 
 Pry.config.prompt = if RUBY_PLATFORM =~ /java/

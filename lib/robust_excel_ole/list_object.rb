@@ -351,7 +351,7 @@ module RobustExcelOle
       listrows = @ole_table.ListRows      
       result = []
       (1..listrows.Count).each do |row_number|
-        row_values(row_number).find_each_index(value).each do |col_number|
+        row_values(row_number).find_all_indices(value).each do |col_number|
           result << @ole_table.Application.Intersect(listrows.Item(row_number).Range, 
                                                      @ole_table.ListColumns.Item(col_number+1).Range).to_reo
         end

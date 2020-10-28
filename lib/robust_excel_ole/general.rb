@@ -239,17 +239,18 @@ end
 # @private
 class Array
 
-  def find_each_index find
-    found, index, q = -1, -1, []
+  def find_all_indices elem
+    found, index, result = -1, -1, []
     while found
-      found = self[index+1..-1].index(find)
+      found = self[index+1..-1].index(elem)
       if found
         index = index + found + 1
-        q << index
+        result << index
       end
     end
-    q
+    result
   end
+
 end
 
 # @private

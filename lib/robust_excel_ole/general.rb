@@ -94,7 +94,8 @@ module General
     nil
   end
 
-  module_function :absolute_path, :canonize, :normalize, :change_current_binding, :class2method, :init_reo_for_win32ole
+  module_function :absolute_path, :canonize, :normalize, :change_current_binding, :class2method, 
+                  :init_reo_for_win32ole, :hostnameshare2networkpath
 
 end
 
@@ -160,7 +161,6 @@ class Pry
   end
 end
 
-=begin
 class Integer
 
   alias old_spaceship <=>
@@ -202,8 +202,8 @@ class Array
     q
   end
 end
-=end
 
+=begin
 # @private
 module RefinedSpaceship
 
@@ -235,6 +235,7 @@ module RefinedSpaceship
     end
   end
 end
+=end
 
 # @private
 class Array

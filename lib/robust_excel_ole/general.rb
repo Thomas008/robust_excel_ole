@@ -79,7 +79,7 @@ module General
 
   # enable RobustExcelOle methods to Win32Ole objects
   def init_reo_for_win32ole
-    exclude_list = [:each, :inspect]
+    exclude_list = [:each, :each_with_index, :inspect]
     class2method.each do |element|
       classname = element.first.first
       method = element.first.last

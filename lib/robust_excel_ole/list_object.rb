@@ -16,6 +16,8 @@ module RobustExcelOle
 
     alias ole_object ole_table
 
+    using RefinedArray
+
     # constructs a list object (or table).
     # @param [Variable] worksheet_or_listobject      a worksheet or a list object
     # @param [Variable] table_name_or_number         a table name or table number
@@ -39,6 +41,7 @@ module RobustExcelOle
           worksheet_or_listobject
         rescue
           @worksheet = worksheet_or_listobject.to_reo
+          puts "@worksheet: #{@worksheet.inspect}"
           @worksheet.ListObjects.Item(table_name_or_number) rescue nil
         end
       end

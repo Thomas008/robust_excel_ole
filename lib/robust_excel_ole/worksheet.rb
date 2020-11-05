@@ -248,6 +248,8 @@ module RobustExcelOle
       false
     end
 
+    using RefinementModule
+
     # @private
     def self.workbook_class  
       @workbook_class ||= begin

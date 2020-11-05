@@ -1026,6 +1026,8 @@ module RobustExcelOle
       '#<Workbook: ' + ('not alive ' unless alive?).to_s + (File.basename(self.filename) if alive?).to_s + " #{@excel}" + '>'
     end
 
+    using RefinementModule
+
     # @private
     def self.excel_class    
       @excel_class ||= begin

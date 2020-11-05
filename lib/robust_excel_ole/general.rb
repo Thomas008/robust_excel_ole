@@ -78,6 +78,7 @@ module General
      {RobustExcelOle::ListObject => :ListRows}]
   end
 
+  #using RefinedWIN32OLE
 
   # enable RobustExcelOle methods to Win32Ole objects
   def init_reo_for_win32ole
@@ -191,17 +192,6 @@ class Array
     end
   end
 
-  def find_each_index find
-    found, index, q = -1, -1, []
-    while found
-      found = self[index+1..-1].index(find)
-      if found
-        index = index + found + 1
-        q << index
-      end
-    end
-    q
-  end
 end
 
 =begin
@@ -239,18 +229,23 @@ end
 =end
 
 # @private
-class Array
 
-  def find_all_indices elem
-    found, index, result = -1, -1, []
-    while found
-      found = self[index+1..-1].index(elem)
-      if found
-        index = index + found + 1
-        result << index
+module RefinedArray
+
+  refine Array do
+
+    def find_all_indices elem
+      found, index, result = -1, -1, []
+      while found
+        found = self[index+1..-1].index(elem)
+        if found
+          index = index + found + 1
+          result << index
+        end
       end
+      result
     end
-    result
+
   end
 
 end
@@ -259,27 +254,39 @@ end
 class WIN32OLE
 
   include Enumerable
-  
-  # type-lifting WIN32OLE objects to RobustExcelOle objects
-  def to_reo
-    General.class2method.each do |element|
-      classname = element.first.first
-      method = element.first.last
-      begin
-        self.send(method)
-        if classname == RobustExcelOle::Range && self.Rows.Count == 1 && self.Columns.Count == 1
-          return Cell.new(self, self.Parent)
-        else
-          return classname.new(self)
-        end
-      rescue
-        next
-      end
-    end
-    raise TypeREOError, "given object cannot be type-lifted to a RobustExcelOle object"
-  end
 
 end
+
+
+#module RefinedWIN32OLE
+
+ # refine WIN32OLE do
+
+  class WIN32OLE
+  
+    # type-lifting WIN32OLE objects to RobustExcelOle objects
+    def to_reo
+      General.class2method.each do |element|
+        classname = element.first.first
+        method = element.first.last
+        begin
+          self.send(method)
+          if classname == RobustExcelOle::Range && self.Rows.Count == 1 && self.Columns.Count == 1
+            return Cell.new(self, self.Parent)
+          else
+            return classname.new(self)
+          end
+        rescue
+          next
+        end
+      end
+      raise TypeREOError, "given object cannot be type-lifted to a RobustExcelOle object"
+    end
+
+  end
+
+#end
+
 
 # @private
 class ::String 
@@ -371,16 +378,20 @@ end
 
 # taken from http://api.rubyonrails.org/v2.3.8/classes/ActiveSupport/CoreExtensions/Module.html#M000806
 # @private
-class Module
-  def parent_name
-    unless defined? @parent_name
-      @parent_name = name =~ /::[^:]+\Z/ ? $`.freeze : nil
-    end
-    @parent_name
-  end
+module RefinementModule
 
-  def parent
-    parent_name ? parent_name.constantize : Object
+  refine Module do
+
+    def parent_name
+      unless defined? @parent_name
+        @parent_name = name =~ /::[^:]+\Z/ ? $`.freeze : nil
+      end
+      @parent_name
+    end
+
+    def parent
+      parent_name ? parent_name.constantize : Object
+    end
   end
 end
 

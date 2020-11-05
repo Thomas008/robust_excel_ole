@@ -20,6 +20,7 @@ module RobustExcelOle
     def initialize(win32_range, worksheet = nil)
       @ole_range = win32_range
       @worksheet = worksheet ? worksheet.to_reo : worksheet_class.new(self.Parent)
+      puts "@worksheet: #{@worksheet.inspect}"
     end
 
     def rows
@@ -220,6 +221,8 @@ module RobustExcelOle
     def inspect
       to_s
     end
+
+    using RefinementModule
 
     # @private
     def self.worksheet_class   

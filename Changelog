@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
   - Workbook.open can also take a Pathname object
+  - General#init_reo_for_win32ole
 
 ## [1.28] 2020-23-10
 

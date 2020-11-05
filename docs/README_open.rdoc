@@ -17,6 +17,11 @@ The semantics is similar to, e.g.,  +File.open+.
     # do something
   end
 
+You can provide the filename as a string (as above) or as Pathname object.
+
+  pathname = Pathname('spec/data/workbook.xls')
+  workbook = Workbook.open(pathname)
+
 The options are the following:
 
 +:default+:: if the workbook was already open, then use the properties of this workbook.otherwise use the properties stated in +:default+

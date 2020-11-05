@@ -42,7 +42,7 @@ module RobustExcelOle
 
 
     # opens a workbook.
-    # @param [String] file_or_workbook a file name or WIN32OLE workbook
+    # @param [String,Pathname] file_or_workbook a file name (string or pathname) or WIN32OLE workbook
     # @param [Hash] opts the options
     # @option opts [Hash] :default or :d
     # @option opts [Hash] :force or :f

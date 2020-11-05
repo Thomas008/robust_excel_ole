@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.29] 2020-05-11
+
+### Added
+  - Workbook.open can also take a Pathname object
+
 ## [1.28] 2020-23-10
 
 ## [1.27] 2020-16-10

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+require 'pathname'
 
 module General
 
@@ -39,7 +40,8 @@ module General
   end  
 
   # @private
-  def absolute_path(file)    
+  def absolute_path(file)
+    file = file.to_path if file.respond_to?(:to_path)
     return file if file[0,2] == "//" 
     file[0,2] = './' if ::EXPANDPATH_JRUBY_BUG && file  =~ /[A-Z]:[^\/]/
     file = File.expand_path(file)

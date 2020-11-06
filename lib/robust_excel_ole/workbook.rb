@@ -1026,13 +1026,14 @@ module RobustExcelOle
       '#<Workbook: ' + ('not alive ' unless alive?).to_s + (File.basename(self.filename) if alive?).to_s + " #{@excel}" + '>'
     end
 
-    using RefinementModule
+    using ModuleRefinement
+    using StringRefinement
 
     # @private
     def self.excel_class    
       @excel_class ||= begin
         module_name = self.parent_name
-        "#{module_name}::Excel".constantize
+        "#{module_name}::Excel".constantize        
       rescue NameError => e
         # trace "excel_class: NameError: #{e}"
         Excel
@@ -1043,7 +1044,7 @@ module RobustExcelOle
     def self.worksheet_class    
       @worksheet_class ||= begin
         module_name = self.parent_name
-        "#{module_name}::Worksheet".constantize
+        "#{module_name}::Worksheet".constantize        
       rescue NameError => e
         Worksheet
       end

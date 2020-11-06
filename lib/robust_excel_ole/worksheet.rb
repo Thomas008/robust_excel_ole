@@ -248,13 +248,14 @@ module RobustExcelOle
       false
     end
 
-    using RefinementModule
+    using ModuleRefinement
+    using StringRefinement
 
     # @private
     def self.workbook_class  
       @workbook_class ||= begin
         module_name = self.parent_name
-        "#{module_name}::Workbook".constantize
+        "#{module_name}::Workbook".constantize        
       rescue NameError => e
         Workbook
       end

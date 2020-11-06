@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#using RefinedSpaceship
+#using SpaceshipRefinement
 
 module RobustExcelOle
 

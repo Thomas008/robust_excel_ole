@@ -717,7 +717,8 @@ module RobustExcelOle
       to_s
     end
 
-    using RefinementModule
+    using ModuleRefinement
+    using StringRefinement
 
     # @private
     def self.workbook_class  

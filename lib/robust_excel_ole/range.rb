@@ -20,7 +20,6 @@ module RobustExcelOle
     def initialize(win32_range, worksheet = nil)
       @ole_range = win32_range
       @worksheet = worksheet ? worksheet.to_reo : worksheet_class.new(self.Parent)
-      puts "@worksheet: #{@worksheet.inspect}"
     end
 
     def rows
@@ -222,13 +221,14 @@ module RobustExcelOle
       to_s
     end
 
-    using RefinementModule
+    using ModuleRefinement
+    using StringRefinement
 
     # @private
     def self.worksheet_class   
       @worksheet_class ||= begin
         module_name = parent_name
-        "#{module_name}::Worksheet".constantize
+        "#{module_name}::Worksheet".constantize        
       rescue NameError => e
         Worksheet
       end

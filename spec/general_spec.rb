@@ -9,6 +9,8 @@ include RobustExcelOle
 
 module RobustExcelOle
 
+  using StringRefinement
+
   describe General do
 
     before(:all) do

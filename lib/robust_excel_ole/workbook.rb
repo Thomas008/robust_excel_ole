@@ -10,14 +10,14 @@ module RobustExcelOle
   # See https://docs.microsoft.com/en-us/office/vba/api/excel.workbook#methods
 
   class Workbook < RangeOwners
-
-    #include General 
-    
+ 
     attr_reader :ole_workbook
     attr_reader :excel
     attr_reader :stored_filename
 
     alias ole_object ole_workbook
+
+    using WIN32OLERefinement
 
     CORE_DEFAULT_OPEN_OPTS = {
       :default => {:excel => :current}, 

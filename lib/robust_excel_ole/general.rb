@@ -1,6 +1,175 @@
 # -*- coding: utf-8 -*-
 require 'pathname'
 
+# @private
+module WIN32OLERefinement
+
+  refine WIN32OLE do
+
+    # type-lifting WIN32OLE objects to RobustExcelOle objects
+    def to_reo
+      General.class2method.each do |element|
+        classname = element.first.first
+        method = element.first.last
+        begin
+          self.send(method)
+          if classname == RobustExcelOle::Range && self.Rows.Count == 1 && self.Columns.Count == 1
+            return Cell.new(self, self.Parent)
+          else
+            return classname.new(self)
+          end
+        rescue
+          next
+        end
+      end
+      raise TypeREOError, "given object cannot be type-lifted to a RobustExcelOle object"
+    end
+
+  end
+
+end
+
+# @private
+class WIN32OLE
+
+  include Enumerable
+
+end
+
+# @private
+module ArrayRefinement
+
+  refine Array do
+
+    def find_all_indices elem
+      found, index, result = -1, -1, []
+      while found
+        found = self[index+1..-1].index(elem)
+        if found
+          index = index + found + 1
+          result << index
+        end
+      end
+      result
+    end
+
+  end
+
+end
+
+# @private
+module StringRefinement
+
+  refine String do
+   
+    def / path_part
+      if empty?
+        path_part
+      else
+        if path_part.nil? || path_part.empty?
+          self
+        else
+          begin
+            File.join self, path_part
+          rescue TypeError
+            raise TypeError, "Only strings can be parts of paths (given: #{path_part.inspect} of class #{path_part.class})"
+          end
+        end
+      end
+    end
+
+    # taken from http://apidock.com/rails/ActiveSupport/Inflector/underscore
+    def underscore
+      word = gsub('::', '/')
+      word.gsub!(/([A-Z\d]+)([A-Z][a-z])/,'\1_\2')
+      word.gsub!(/([a-z\d])([A-Z])/,'\1_\2')
+      word.tr!('-', '_')
+      word.downcase!
+      word
+    end
+
+    def delete_multiple_underscores
+      word = self
+      while word.index('__') do
+        word.gsub!('__','_')
+      end    
+      word
+    end
+
+    def replace_umlauts
+      word = self
+      word.gsub!('ä','ae')
+      word.gsub!('Ä','Ae')
+      word.gsub!('ö','oe')
+      word.gsub!('Ö','Oe')
+      word.gsub!('ü','ue')
+      word.gsub!('Ü','Ue')
+      #word.gsub!(/\x84/,'ae')
+      #word.gsub!(/\x8E/,'Ae')
+      #word.gsub!(/\x94/,'oe')
+      #word.gsub!(/\x99/,'Oe')
+      #word.gsub!(/\x81/,'ue')
+      #word.gsub!(/\x9A/,'Ue')
+      word
+    end
+
+    # taken from http://apidock.com/rails/ActiveSupport/Inflector/constantize
+    # File activesupport/lib/active_support/inflector/methods.rb, line 226
+    def constantize # (camel_cased_word)
+      names = split('::')
+
+      # Trigger a builtin NameError exception including the ill-formed constant in the message.
+      Object.const_get(self) if names.empty?
+
+      # Remove the first blank element in case of '::ClassName' notation.
+      names.shift if names.size > 1 && names.first.empty?
+
+      names.inject(Object) do |constant, name|
+        if constant == Object
+          constant.const_get(name)
+        else
+          candidate = constant.const_get(name)
+          next candidate if constant.const_defined?(name)
+          next candidate unless Object.const_defined?(name)
+
+          # Go down the ancestors to check it it's owned
+          # directly before we reach Object or the end of ancestors.
+          constant = constant.ancestors.inject do |const, ancestor|
+            break const    if ancestor == Object
+            break ancestor if ancestor.const_defined?(name)
+
+            const
+          end
+
+          # owner is in Object, so raise
+          constant.const_get(name)
+        end
+      end
+    end
+  end
+end
+
+# @private
+module ModuleRefinement
+
+  using StringRefinement
+
+  # taken from http://api.rubyonrails.org/v2.3.8/classes/ActiveSupport/CoreExtensions/Module.html#M000806
+  refine Module do
+
+    def parent_name
+      unless defined? @parent_name
+        @parent_name = name =~ /::[^:]+\Z/ ? $`.freeze : nil
+      end
+      @parent_name
+    end
+
+    def parent
+      parent_name ? parent_name.constantize : Object
+    end
+  end
+end
+
 module General
 
   IS_JRUBY_PLATFORM = (RUBY_PLATFORM =~ /java/)
@@ -78,7 +247,7 @@ module General
      {RobustExcelOle::ListObject => :ListRows}]
   end
 
-  #using WIN32OLERefinement
+  using WIN32OLERefinement
 
   # enable RobustExcelOle methods to Win32Ole objects
   def init_reo_for_win32ole
@@ -228,179 +397,7 @@ module RefinedSpaceship
 end
 =end
 
-# @private
 
-module ArrayRefinement
-
-  refine Array do
-
-    def find_all_indices elem
-      found, index, result = -1, -1, []
-      while found
-        found = self[index+1..-1].index(elem)
-        if found
-          index = index + found + 1
-          result << index
-        end
-      end
-      result
-    end
-
-  end
-
-end
-
-# @private
-class WIN32OLE
-
-  include Enumerable
-
-end
-
-
-#module WIN32OLERefinement
-
- # refine WIN32OLE do
-
-  class WIN32OLE
-  
-    # type-lifting WIN32OLE objects to RobustExcelOle objects
-    def to_reo
-      General.class2method.each do |element|
-        classname = element.first.first
-        method = element.first.last
-        begin
-          self.send(method)
-          if classname == RobustExcelOle::Range && self.Rows.Count == 1 && self.Columns.Count == 1
-            return Cell.new(self, self.Parent)
-          else
-            return classname.new(self)
-          end
-        rescue
-          next
-        end
-      end
-      raise TypeREOError, "given object cannot be type-lifted to a RobustExcelOle object"
-    end
-
-  end
-
-#end
-
-
-# @private
-module StringRefinement
-
-  refine String do
-  #class String 
-   
-    def / path_part
-      if empty?
-        path_part
-      else
-        if path_part.nil? || path_part.empty?
-          self
-        else
-          begin
-            File.join self, path_part
-          rescue TypeError
-            raise TypeError, "Only strings can be parts of paths (given: #{path_part.inspect} of class #{path_part.class})"
-          end
-        end
-      end
-    end
-
-    # taken from http://apidock.com/rails/ActiveSupport/Inflector/underscore
-    def underscore
-      word = gsub('::', '/')
-      word.gsub!(/([A-Z\d]+)([A-Z][a-z])/,'\1_\2')
-      word.gsub!(/([a-z\d])([A-Z])/,'\1_\2')
-      word.tr!('-', '_')
-      word.downcase!
-      word
-    end
-
-    def delete_multiple_underscores
-      word = self
-      while word.index('__') do
-        word.gsub!('__','_')
-      end    
-      word
-    end
-
-    def replace_umlauts
-      word = self
-      word.gsub!('ä','ae')
-      word.gsub!('Ä','Ae')
-      word.gsub!('ö','oe')
-      word.gsub!('Ö','Oe')
-      word.gsub!('ü','ue')
-      word.gsub!('Ü','Ue')
-      #word.gsub!(/\x84/,'ae')
-      #word.gsub!(/\x8E/,'Ae')
-      #word.gsub!(/\x94/,'oe')
-      #word.gsub!(/\x99/,'Oe')
-      #word.gsub!(/\x81/,'ue')
-      #word.gsub!(/\x9A/,'Ue')
-      word
-    end
-
-    # taken from http://apidock.com/rails/ActiveSupport/Inflector/constantize
-    # File activesupport/lib/active_support/inflector/methods.rb, line 226
-    def constantize # (camel_cased_word)
-      names = split('::')
-
-      # Trigger a builtin NameError exception including the ill-formed constant in the message.
-      Object.const_get(self) if names.empty?
-
-      # Remove the first blank element in case of '::ClassName' notation.
-      names.shift if names.size > 1 && names.first.empty?
-
-      names.inject(Object) do |constant, name|
-        if constant == Object
-          constant.const_get(name)
-        else
-          candidate = constant.const_get(name)
-          next candidate if constant.const_defined?(name)
-          next candidate unless Object.const_defined?(name)
-
-          # Go down the ancestors to check it it's owned
-          # directly before we reach Object or the end of ancestors.
-          constant = constant.ancestors.inject do |const, ancestor|
-            break const    if ancestor == Object
-            break ancestor if ancestor.const_defined?(name)
-
-            const
-          end
-
-          # owner is in Object, so raise
-          constant.const_get(name)
-        end
-      end
-    end
-  end
-end
-
-# @private
-module ModuleRefinement
-
-  using StringRefinement
-
-  # taken from http://api.rubyonrails.org/v2.3.8/classes/ActiveSupport/CoreExtensions/Module.html#M000806
-  refine Module do
-
-    def parent_name
-      unless defined? @parent_name
-        @parent_name = name =~ /::[^:]+\Z/ ? $`.freeze : nil
-      end
-      @parent_name
-    end
-
-    def parent
-      parent_name ? parent_name.constantize : Object
-    end
-  end
-end
 
 module MethodHelpers
 

@@ -25,6 +25,7 @@ describe Workbook do
     @simple_file_other_path = @dir + '/more_data/workbook.xls'
     @another_simple_file = @dir + '/another_workbook.xls'
     @linked_file = @dir + '/workbook_linked.xlsm'
+    @linked_sub_file = @dir + '/workbook_linked_sub.xlsm'
     @simple_file_xlsm = @dir + '/workbook.xlsm'
     @simple_file_xlsx = @dir + '/workbook.xlsx'
     @simple_file1 = @simple_file
@@ -35,9 +36,91 @@ describe Workbook do
     rm_tmp(@dir)
   end
 
+  describe "default read-only" do
+
+    context "with no book" do
+
+      it "should open in read-only mode" do
+        Workbook.unobtrusively(@simple_file1, :read_only_default => true) do |book|            
+          book.ReadOnly.should be true
+        end
+      end
+
+      it "should open in writable mode" do
+        Workbook.unobtrusively(@simple_file1, :read_only_default => false) do |book|            
+          book.ReadOnly.should be false
+        end
+      end
+
+    end
+
+    context "with open writable book" do
+
+      before do
+        @book = Workbook.open(@simple_file1)
+      end
+
+      it "should keep the read-only mode" do
+        Workbook.unobtrusively(@simple_file1, :read_only_default => true) do |book|            
+          book.ReadOnly.should be false
+        end
+      end
+
+    end
+
+    context "with open read-only book" do
+
+      before do
+        @book = Workbook.open(@simple_file1)
+      end
+
+      it "should keep the read-only mode" do
+        Workbook.unobtrusively(@simple_file1, :read_only_default => false) do |book|            
+          book.ReadOnly.should be true
+        end
+      end
+
+    end
+
+  end
+
   describe "Workbook#for_reading, #for_modifying" do
+
+    context "with no open book" do
+
+      it "should not change the value" do
+        @book.for_reading do |book|
+          book.should be_a Workbook
+          book.should be_alive
+          book.ReadOnly.should be true
+          book.Saved.should be true  
+          book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          @new_value = book.sheet(1)[1,1].Value
+          book.Saved.should be false
+        end
+        @book.close(:if_unsaved => :forget)
+        new_book = Workbook.open(@simple_file1)
+        new_book.sheet(1)[1,1].Value.should_not == @new_value
+      end
+
+      it "should change the value" do
+        @book.for_modifying do |book|
+          book.should be_a Workbook
+          book.should be_alive
+          book.ReadOnly.should be false
+          book.Saved.should be true  
+          book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          @new_value = book.sheet(1)[1,1].Value
+          book.Saved.should be false
+        end
+        @book.close(:if_unsaved => :forget)
+        new_book = Workbook.open(@simple_file1)
+        new_book.sheet(1)[1,1].Value.should == @new_value
+      end
+
+    end
     
-    context "with standard" do
+    context "with open writable book" do
 
       before do
         @book = Workbook.open(@simple_file1)
@@ -52,6 +135,7 @@ describe Workbook do
         @book.for_reading do |book|
           book.should be_a Workbook
           book.should be_alive
+          book.ReadOnly.should be false
           book.Saved.should be true  
           book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
           book.Saved.should be false
@@ -104,6 +188,60 @@ describe Workbook do
 
     end
  
+  end
+
+  describe "with referenced book" do
+
+    context "with no books" do
+
+      it "should open in read-only" do
+        Workbook.unobtrusively(@linked_sub_file, :default_read_only => true) do |book|            
+          book.ReadOnly.should be true
+          book.filename.should == @linked_sub_file
+        end
+      end
+
+      it "should raise error when trying to change" do
+
+        expect{
+          Workbook.unobtrusively(@linked_sub_file, :default_read_only => true) do |book|            
+            book.ReadOnly.should be true
+            book.filename.should == @linked_sub_file
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+          end
+        }.to raise_error(WorkbookReadOnly)
+
+      end
+    end
+
+    context "with open books" do
+
+      before do
+        @book_main = Workbook.open(@linked_file)
+        @book_sub = Workbook.open(@linked_sub_file)
+      end
+
+      it "should leave the read-only mode" do
+        Workbook.unobtrusively(@linked_sub_file, :read_only_default => true) do |book|            
+          book.ReadOnly.should be false
+          book.should == @book_sub
+          book.filename.should == @book_sub.filename
+          book.excel.should == @book_sub.excel
+        end
+      end
+      
+      it "should force to read-only" do
+        expect{
+          Workbook.unobtrusively(@linked_sub_file, :if_unsaved => :forget, :read_only => true) do |book|            
+            book.ReadOnly.should be true
+            book.should == @book_sub
+            book.filename.should == @book_sub.filename
+            book.excel.should == @book_sub.excel
+            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+          end
+          }.to raise_error(WorkbookReadOnly)
+      end
+    end
   end
 
   describe "Workbook#unobtrusively" do

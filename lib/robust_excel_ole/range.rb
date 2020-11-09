@@ -16,6 +16,7 @@ module RobustExcelOle
 
     alias ole_object ole_range
 
+    using WIN32OLERefinement
 
     def initialize(win32_range, worksheet = nil)
       @ole_range = win32_range

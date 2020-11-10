@@ -71,7 +71,7 @@ describe Workbook do
     context "with open read-only book" do
 
       before do
-        @book = Workbook.open(@simple_file1)
+        @book = Workbook.open(@simple_file1, :read_only => true)
       end
 
       it "should keep the read-only mode" do

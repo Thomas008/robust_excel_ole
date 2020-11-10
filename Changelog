@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.30] 2020-15-11
+
+### Added
+  - Workbook.unobtrusively: option default_reading
+
+
 ## [1.29] 2020-05-11
 
 ### Added

@@ -200,12 +200,12 @@ The method +unobtrusively+ enables the user to read or modify a workbook, no mat
 
 Options are the following:
 
-+:if_closed+:: the Excel instance in which to open the workbook, if it was closed (default: +:current+). (Note: this option works workbooks opened via RobustExcelOle only.)
-
++:default_read_only+:: Whether the workbook shall be opened in ReadOnly mode, if it was not open before
 +:read_only+:: Whether the workbook shall be forced to be open in ReadOnly mode
 +:writable+::  Whether changes in the workbook shall be saved
-
 +:keep_open+:: Whether the workbook shall be open after unobtrusively opening (default: false)
++:if_closed+:: the Excel instance in which to open the workbook, if it was closed (default: +:current+). 
+(Note: this option works workbooks opened via RobustExcelOle only.)
 
 There are the class method and the instance method of +unobtrusively+. Here is an example of the class method:
 

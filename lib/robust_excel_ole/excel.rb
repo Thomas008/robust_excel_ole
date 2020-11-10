@@ -717,7 +717,7 @@ module RobustExcelOle
       to_s
     end
 
-    using ModuleRefinement
+    using ParentRefinement
     using StringRefinement
 
     # @private

@@ -17,7 +17,7 @@ module RobustExcelOle
 
     alias ole_object ole_workbook
 
-    using WIN32OLERefinement
+    using ToReoRefinement
 
     CORE_DEFAULT_OPEN_OPTS = {
       :default => {:excel => :current}, 
@@ -1026,7 +1026,7 @@ module RobustExcelOle
       '#<Workbook: ' + ('not alive ' unless alive?).to_s + (File.basename(self.filename) if alive?).to_s + " #{@excel}" + '>'
     end
 
-    using ModuleRefinement
+    using ParentRefinement
     using StringRefinement
 
     # @private

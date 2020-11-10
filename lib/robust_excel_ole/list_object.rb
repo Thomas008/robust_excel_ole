@@ -16,9 +16,9 @@ module RobustExcelOle
 
     alias ole_object ole_table
 
-    using ArrayRefinement
+    using FindAllIndicesRefinement
     using StringRefinement
-    using WIN32OLERefinement
+    using ToReoRefinement
 
     # constructs a list object (or table).
     # @param [Variable] worksheet_or_listobject      a worksheet or a list object

@@ -18,7 +18,7 @@ end
 
 module RobustExcelOle
 
-  #using WIN32OLERefinement
+  #using ToReoRefinement
 
   # @private
   class VBAMethodMissingError < RuntimeError 

@@ -16,7 +16,7 @@ module RobustExcelOle
 
     alias ole_object ole_range
 
-    using WIN32OLERefinement
+    using ToReoRefinement
 
     def initialize(win32_range, worksheet = nil)
       @ole_range = win32_range
@@ -222,7 +222,7 @@ module RobustExcelOle
       to_s
     end
 
-    using ModuleRefinement
+    using ParentRefinement
     using StringRefinement
 
     # @private

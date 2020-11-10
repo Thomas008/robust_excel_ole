@@ -2,7 +2,7 @@
 require 'pathname'
 
 # @private
-module WIN32OLERefinement
+module ToReoRefinement
 
   refine WIN32OLE do
 
@@ -37,7 +37,7 @@ class WIN32OLE
 end
 
 # @private
-module ArrayRefinement
+module FindAllIndicesRefinement
 
   refine Array do
 
@@ -150,7 +150,7 @@ module StringRefinement
 end
 
 # @private
-module ModuleRefinement
+module ParentRefinement
 
   using StringRefinement
 
@@ -247,7 +247,7 @@ module General
      {RobustExcelOle::ListObject => :ListRows}]
   end
 
-  using WIN32OLERefinement
+  using ToReoRefinement
 
   # enable RobustExcelOle methods to Win32Ole objects
   def init_reo_for_win32ole

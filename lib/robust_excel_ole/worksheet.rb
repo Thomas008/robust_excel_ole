@@ -248,7 +248,7 @@ module RobustExcelOle
       false
     end
 
-    using ModuleRefinement
+    using ParentRefinement
     using StringRefinement
 
     # @private

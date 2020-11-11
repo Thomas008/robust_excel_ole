@@ -36,18 +36,18 @@ describe Workbook do
     rm_tmp(@dir)
   end
 
-  describe "default read-only" do
+  describe "writable" do
 
     context "with no book" do
 
       it "should open in read-only mode" do
-        Workbook.unobtrusively(@simple_file1, :read_only_default => true) do |book|            
+        Workbook.unobtrusively(@simple_file1, :writable => false) do |book|            
           book.ReadOnly.should be true
         end
       end
 
       it "should open in writable mode" do
-        Workbook.unobtrusively(@simple_file1, :read_only_default => false) do |book|            
+        Workbook.unobtrusively(@simple_file1, :writable => true) do |book|            
           book.ReadOnly.should be false
         end
       end
@@ -61,7 +61,7 @@ describe Workbook do
       end
 
       it "should keep the read-only mode" do
-        Workbook.unobtrusively(@simple_file1, :read_only_default => true) do |book|            
+        Workbook.unobtrusively(@simple_file1, :writable => false) do |book|            
           book.ReadOnly.should be false
         end
       end
@@ -75,7 +75,7 @@ describe Workbook do
       end
 
       it "should keep the read-only mode" do
-        Workbook.unobtrusively(@simple_file1, :read_only_default => false) do |book|            
+        Workbook.unobtrusively(@simple_file1, :writable => true) do |book|            
           book.ReadOnly.should be true
         end
       end
@@ -84,41 +84,187 @@ describe Workbook do
 
   end
 
-  describe "Workbook#for_reading, #for_modifying" do
+  describe "for_reading, for_modifying" do
 
-    context "with no open book" do
+    context "with no workbook" do
 
-      it "should not change the value" do
-        @book.for_reading do |book|
+      it "should open with read-only" do
+        Workbook.for_reading(@simple_file1) do |book|
           book.should be_a Workbook
           book.should be_alive
           book.ReadOnly.should be true
           book.Saved.should be true  
-          book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
-          @new_value = book.sheet(1)[1,1].Value
+          sheet = book.sheet(1)
+          cell = sheet[1,1]
+          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
+          @new_cell_value = sheet[1,1].Value
           book.Saved.should be false
         end
-        @book.close(:if_unsaved => :forget)
+        Excel.kill_all
         new_book = Workbook.open(@simple_file1)
-        new_book.sheet(1)[1,1].Value.should_not == @new_value
+        sheet = new_book.sheet(1)
+        sheet[1,1].Value.should_not == @new_cell_value
       end
 
       it "should change the value" do
-        @book.for_modifying do |book|
+        Workbook.for_modifying(@simple_file1) do |book|
           book.should be_a Workbook
           book.should be_alive
           book.ReadOnly.should be false
           book.Saved.should be true  
-          book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
-          @new_value = book.sheet(1)[1,1].Value
+          sheet = book.sheet(1)
+          cell = sheet[1,1]
+          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
+          @new_cell_value = sheet[1,1].Value
           book.Saved.should be false
         end
-        @book.close(:if_unsaved => :forget)
+        Excel.kill_all
         new_book = Workbook.open(@simple_file1)
-        new_book.sheet(1)[1,1].Value.should == @new_value
+        sheet = new_book.sheet(1)
+        sheet[1,1].Value.should == @new_cell_value
       end
 
     end
+
+    context "with closed writable workbook" do
+
+      before do
+        @book = Workbook.open(@simple_file1)
+        sheet = @book.sheet(1)
+        @old_cell_value = sheet[1,1].Value
+        @book.close
+      end
+
+      it "should not change the value" do
+        Workbook.for_reading(@simple_file1) do |book|
+          book.should be_a Workbook
+          book.should be_alive
+          book.ReadOnly.should be true
+          book.Saved.should be true  
+          sheet = book.sheet(1)
+          cell = sheet[1,1]
+          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
+          book.Saved.should be false
+          book.excel.should == @book.excel
+        end
+        Excel.kill_all
+        new_book = Workbook.open(@simple_file1)
+        sheet = new_book.sheet(1)
+        sheet[1,1].Value.should == @old_cell_value
+      end
+
+      it "should not change the value and use a given Excel" do
+        new_excel = Excel.new(:reuse => false)
+        another_excel = Excel.new(:reuse => false)
+        Workbook.for_reading(@simple_file1, :if_closed => another_excel) do |book|
+          sheet = book.sheet(1)
+          cell = sheet[1,1]
+          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
+          book.excel.should == another_excel
+        end
+        Excel.kill_all
+        new_book = Workbook.open(@simple_file1)
+        sheet = new_book.sheet(1)
+        sheet[1,1].Value.should == @old_cell_value
+      end
+
+      it "should not change the value and use the new Excel instance" do
+        new_excel = Excel.new(:reuse => false)
+        Workbook.for_reading(@simple_file1, :if_closed => :new) do |book|
+          sheet = book.sheet(1)
+          cell = sheet[1,1]
+          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
+          book.excel.should_not == @book.excel
+          book.excel.should_not == new_excel
+          book.excel.properties[:visible].should be false
+          book.excel.properties[:displayalerts].should == :if_visible
+        end
+        Excel.kill_all
+        new_book = Workbook.open(@simple_file1)
+        sheet = new_book.sheet(1)
+        sheet[1,1].Value.should == @old_cell_value
+      end
+
+      it "should change the value" do
+        Workbook.for_modifying(@simple_file1) do |book|
+          sheet = book.sheet(1)
+          cell = sheet[1,1]
+          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
+          book.excel.should == @book.excel
+        end
+        new_book = Workbook.open(@simple_file, :visible => true)
+        sheet = new_book.sheet(1)
+        sheet[1,1].Value.should_not == @old_cell_value
+      end
+
+      it "should change the value and use a given Excel" do
+        @book.close
+        new_excel = Excel.new(:reuse => false)
+        another_excel = Excel.new(:reuse => false)
+        Workbook.for_modifying(@simple_file1, :if_closed => another_excel) do |book|
+          sheet = book.sheet(1)
+          cell = sheet[1,1]
+          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
+          book.excel.should == another_excel
+        end
+        new_book = Workbook.open(@simple_file1, :visible => true)
+        sheet = new_book.sheet(1)
+        sheet[1,1].Value.should_not == @old_cell_value
+      end
+
+      it "should change the value and use the new Excel instance" do
+        new_excel = Excel.new(:reuse => false)
+        Workbook.for_modifying(@simple_file1, :if_closed => :new) do |book|
+          sheet = book.sheet(1)
+          cell = sheet[1,1]
+          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
+          book.excel.should_not == @book.excel
+          book.excel.should_not == new_excel
+          book.excel.properties[:visible].should be false
+          book.excel.properties[:displayalerts].should == :if_visible
+        end
+        new_book = Workbook.open(@simple_file1, :visible => true)
+        sheet = new_book.sheet(1)
+        sheet[1,1].Value.should_not == @old_cell_value
+      end
+    end
+  end
+
+  describe "Workbook.for_reading, for_modifying" do
+
+  
+
+    
+      
+        
+        
+      
+      
+        
+      
+          
+        
+        
+      
+        
+      
+
+      
+        
+
+      
+    
+      
+      
+          
+      
+        
+      
+  
+  
+      
+
+    
     
     context "with open writable book" do
 
@@ -195,7 +341,7 @@ describe Workbook do
     context "with no books" do
 
       it "should open in read-only" do
-        Workbook.unobtrusively(@linked_sub_file, :default_read_only => true) do |book|            
+        Workbook.unobtrusively(@linked_sub_file, :writable => false) do |book|            
           book.ReadOnly.should be true
           book.filename.should == @linked_sub_file
         end
@@ -204,7 +350,7 @@ describe Workbook do
       it "should raise error when trying to change" do
 
         expect{
-          Workbook.unobtrusively(@linked_sub_file, :default_read_only => true) do |book|            
+          Workbook.unobtrusively(@linked_sub_file, :writable => false) do |book|            
             book.ReadOnly.should be true
             book.filename.should == @linked_sub_file
             book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
@@ -916,7 +1062,7 @@ describe Workbook do
           b1.sheet(1)[1,1].Value.should_not == @old_value
         end
 
-        it "should open as read-write" do
+        it "should open as read-write but not save changes" do
           Workbook.unobtrusively(@simple_file, :read_only => false, :writable => false) do |book|
             book.ReadOnly.should be false
             @old_value = book.sheet(1)[1,1].Value
@@ -976,9 +1122,9 @@ describe Workbook do
           b1.sheet(1)[1,1].Value.should == @old_value
         end
 
-        it "should open not writable" do
+        it "should open not writable and read-only" do
           Workbook.unobtrusively(@simple_file, :writable => false) do |book|
-            #
+            book.ReadOnly.should be true
             @old_value = book.sheet(1)[1,1].Value
             book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
             book.Saved.should be false            
@@ -2474,108 +2620,4 @@ describe Workbook do
 
   end
 
-  describe "for_reading, for_modifying" do
-
-    context "open unobtrusively for reading and modifying" do
-
-      before do
-        @book = Workbook.open(@simple_file1)
-        sheet = @book.sheet(1)
-        @old_cell_value = sheet[1,1].Value
-        @book.close
-      end
-
-      it "should not change the value" do
-        Workbook.for_reading(@simple_file1) do |book|
-          book.should be_a Workbook
-          book.should be_alive
-          book.Saved.should be true  
-          sheet = book.sheet(1)
-          cell = sheet[1,1]
-          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
-          book.Saved.should be false
-          book.excel.should == @book.excel
-        end
-        Excel.kill_all
-        new_book = Workbook.open(@simple_file1)
-        sheet = new_book.sheet(1)
-        sheet[1,1].Value.should == @old_cell_value
-      end
-
-      it "should not change the value and use a given Excel" do
-        new_excel = Excel.new(:reuse => false)
-        another_excel = Excel.new(:reuse => false)
-        Workbook.for_reading(@simple_file1, :if_closed => another_excel) do |book|
-          sheet = book.sheet(1)
-          cell = sheet[1,1]
-          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
-          book.excel.should == another_excel
-        end
-        Excel.kill_all
-        new_book = Workbook.open(@simple_file1)
-        sheet = new_book.sheet(1)
-        sheet[1,1].Value.should == @old_cell_value
-      end
-
-      it "should not change the value and use the new Excel instance" do
-        new_excel = Excel.new(:reuse => false)
-        Workbook.for_reading(@simple_file1, :if_closed => :new) do |book|
-          sheet = book.sheet(1)
-          cell = sheet[1,1]
-          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
-          book.excel.should_not == @book.excel
-          book.excel.should_not == new_excel
-          book.excel.properties[:visible].should be false
-          book.excel.properties[:displayalerts].should == :if_visible
-        end
-        Excel.kill_all
-        new_book = Workbook.open(@simple_file1)
-        sheet = new_book.sheet(1)
-        sheet[1,1].Value.should == @old_cell_value
-      end
-
-      it "should change the value" do
-        Workbook.for_modifying(@simple_file1) do |book|
-          sheet = book.sheet(1)
-          cell = sheet[1,1]
-          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
-          book.excel.should == @book.excel
-        end
-        new_book = Workbook.open(@simple_file, :visible => true)
-        sheet = new_book.sheet(1)
-        sheet[1,1].Value.should_not == @old_cell_value
-      end
-
-      it "should change the value and use a given Excel" do
-        new_excel = Excel.new(:reuse => false)
-        another_excel = Excel.new(:reuse => false)
-        Workbook.for_modifying(@simple_file1, :if_closed => another_excel) do |book|
-          sheet = book.sheet(1)
-          cell = sheet[1,1]
-          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
-          book.excel.should == another_excel
-        end
-        new_book = Workbook.open(@simple_file1, :visible => true)
-        sheet = new_book.sheet(1)
-        sheet[1,1].Value.should_not == @old_cell_value
-      end
-
-      it "should change the value and use the new Excel instance" do
-        new_excel = Excel.new(:reuse => false)
-        Workbook.for_modifying(@simple_file1, :if_closed => :new) do |book|
-          sheet = book.sheet(1)
-          cell = sheet[1,1]
-          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
-          book.excel.should_not == @book.excel
-          book.excel.should_not == new_excel
-          book.excel.properties[:visible].should be false
-          book.excel.properties[:displayalerts].should == :if_visible
-        end
-        new_book = Workbook.open(@simple_file1, :visible => true)
-        sheet = new_book.sheet(1)
-        sheet[1,1].Value.should_not == @old_cell_value
-      end
-    end
-  end
-  
 end

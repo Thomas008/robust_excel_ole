@@ -200,9 +200,8 @@ The method +unobtrusively+ enables the user to read or modify a workbook, no mat
 
 Options are the following:
 
-+:default_read_only+:: Whether the workbook shall be opened in ReadOnly mode, if it was not open before
 +:read_only+:: Whether the workbook shall be forced to be open in ReadOnly mode
-+:writable+::  Whether changes in the workbook shall be saved
++:writable+::  Whether changes in the workbook shall be saved and the workbook shall be opened in ReadOnly mode by default (i.e., when the workbook was not open before) (default: true)
 +:keep_open+:: Whether the workbook shall be open after unobtrusively opening (default: false)
 +:if_closed+:: the Excel instance in which to open the workbook, if it was closed (default: +:current+). 
 (Note: this option works workbooks opened via RobustExcelOle only.)

@@ -18,8 +18,6 @@ end
 
 module RobustExcelOle
 
-  #using ToReoRefinement
-
   # @private
   class VBAMethodMissingError < RuntimeError 
   end

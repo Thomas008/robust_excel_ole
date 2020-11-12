@@ -613,7 +613,7 @@ describe Worksheet do
       end
     end
 
-    describe "namevalue_glob, set_namevalue_glob" do
+    describe "namevalue_global, set_namevalue_global" do
 
       before do
         @book1 = Workbook.open(@dir + '/another_workbook.xls')
@@ -625,54 +625,54 @@ describe Worksheet do
       end   
 
       it "should return value of a defined name" do
-        @sheet1.namevalue_glob("firstcell").should == "foo"
+        @sheet1.namevalue_global("firstcell").should == "foo"
       end
 
       #it "should evaluate a formula" do
-      #  @sheet1.namevalue_glob("another_formula").should == 5
+      #  @sheet1.namevalue_global("another_formula").should == 5
       #end      
 
       it "should raise an error if name not defined" do
         expect {
-          @sheet1.namevalue_glob("foo")
+          @sheet1.namevalue_global("foo")
         }.to raise_error(NameNotFound, /name "foo" not in/)
       end
 
       it "should raise an error of coordinates are given instead of a defined name" do
         expect {
-          @sheet1.namevalue_glob("A1")
+          @sheet1.namevalue_global("A1")
         }.to raise_error(NameNotFound, /name "A1" not in/)
       end
 
       it "should return default value for a range with empty contents" do
-        @sheet1.namevalue_glob("another", :default => 2) == 2
+        @sheet1.namevalue_global("another", :default => 2) == 2
       end 
 
       it "should set a range to a value" do
-        @sheet1.namevalue_glob("firstcell").should == "foo"
+        @sheet1.namevalue_global("firstcell").should == "foo"
         @sheet1[1,1].Value.should == "foo"
-        @sheet1.set_namevalue_glob("firstcell","bar")
-        @sheet1.namevalue_glob("firstcell").should == "bar"
+        @sheet1.set_namevalue_global("firstcell","bar")
+        @sheet1.namevalue_global("firstcell").should == "bar"
         @sheet1[1,1].Value.should == "bar"
       end
 
       it "should raise an error if name cannot be evaluated" do
         expect{
-          @sheet1.set_namevalue_glob("foo", 1)
+          @sheet1.set_namevalue_global("foo", 1)
         }.to raise_error(RangeNotEvaluatable, /cannot assign value/)
       end
 
       it "should color the cell (deprecated)" do
-        @sheet1.set_namevalue_glob("new", "bar")
+        @sheet1.set_namevalue_global("new", "bar")
         @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
-        @sheet1.set_namevalue_glob("new", "bar", :color => 4)
+        @sheet1.set_namevalue_global("new", "bar", :color => 4)
         @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
       end
 
       it "should color the cell" do
-        @sheet1.set_namevalue_glob("new", "bar")
+        @sheet1.set_namevalue_global("new", "bar")
         @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
-        @sheet1.set_namevalue_glob("new", "bar", :color => 4)
+        @sheet1.set_namevalue_global("new", "bar", :color => 4)
         @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
       end
 
@@ -735,7 +735,7 @@ describe Worksheet do
 
       it "should raise an error if name cannot be evaluated" do
         expect{
-          @sheet1.set_namevalue_glob("foo", 1)
+          @sheet1.set_namevalue_global("foo", 1)
         }.to raise_error(RangeNotEvaluatable, /cannot assign value/)
       end
 
@@ -751,7 +751,7 @@ describe Worksheet do
         }.to raise_error(NameNotFound, /name "foo" not in #<Worksheet: Sheet1/)
         @sheet1.namevalue("foo", :default => nil).should be_nil
         @sheet1.namevalue("foo", :default => 1).should == 1
-        @sheet1.namevalue_glob("empty", :default => 1).should be_nil
+        @sheet1.namevalue_global("empty", :default => 1).should be_nil
       end
 
       it "should color the cell (depracated)" do
@@ -815,14 +815,14 @@ describe Worksheet do
         it "should rename a range" do
           @sheet1.add_name("foo",[1,1])
           @sheet1.rename_range("foo","bar")
-          @sheet1.namevalue_glob("bar").should == "foo"
+          @sheet1.namevalue_global("bar").should == "foo"
         end
 
         it "should delete a name of a range" do
           @sheet1.add_name("foo",[1,1])
           @sheet1.delete_name("foo")
           expect{
-            @sheet1.namevalue_glob("foo")
+            @sheet1.namevalue_global("foo")
          }.to raise_error(NameNotFound, /name "foo"/)
         end
 

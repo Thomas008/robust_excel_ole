@@ -684,21 +684,7 @@ module RobustExcelOle
       # Win32API.new("user32","SetForegroundWindow","","I").call
       # end
     end
-
-    # returns the value of a range
-    # @param [String] name the name of a range
-    # @returns [Variant] the value of the range
-    def [] name
-      namevalue_glob(name)
-    end
-
-    # sets the value of a range
-    # @param [String]  name  the name of the range
-    # @param [Variant] value the contents of the range
-    def []=(name, value)
-      set_namevalue_glob(name, value)
-    end
-
+    
     # @private
     # returns active workbook
     def workbook

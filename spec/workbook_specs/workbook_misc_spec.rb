@@ -669,7 +669,7 @@ describe Workbook do
     end
   end
 
-  describe "namevalue_glob, set_namevalue_glob, [], []=" do
+  describe "namevalue_global, set_namevalue_global, [], []=" do
   
     before do
       @book1 = Workbook.open(@another_simple_file)
@@ -680,12 +680,12 @@ describe Workbook do
     end   
 
     it "should return value of a range" do
-      @book1.namevalue_glob("new").should == "foo"
-      @book1.namevalue_glob("one").should == 1
-      @book1.namevalue_glob("firstrow").should == [[1,2]]        
-      @book1.namevalue_glob("four").should == [[1,2],[3,4]]
-      @book1.namevalue_glob("firstrow").should_not == "12"
-      @book1.namevalue_glob("firstcell").should == "foo"        
+      @book1.namevalue_global("new").should == "foo"
+      @book1.namevalue_global("one").should == 1
+      @book1.namevalue_global("firstrow").should == [[1,2]]        
+      @book1.namevalue_global("four").should == [[1,2],[3,4]]
+      @book1.namevalue_global("firstrow").should_not == "12"
+      @book1.namevalue_global("firstcell").should == "foo"        
     end
 
     it "should return value of a range via []" do
@@ -698,17 +698,17 @@ describe Workbook do
     end
 
     it "should set value of a range" do
-      @book1.set_namevalue_glob("new", "bar")
-      @book1.namevalue_glob("new").should == "bar"
+      @book1.set_namevalue_global("new", "bar")
+      @book1.namevalue_global("new").should == "bar"
     end
 
     it "should set value of a range via []=" do
       @book1["new"] = "bar"
-      @book1.namevalue_glob("new").should == "bar"
+      @book1.namevalue_global("new").should == "bar"
     end
 
     #it "should evaluate a formula" do
-    #  @book1.namevalue_glob("named_formula").should == 4      
+    #  @book1.namevalue_global("named_formula").should == 4      
     #end
 
     #it "should evaluate a formula via []" do
@@ -717,28 +717,28 @@ describe Workbook do
 
     it "should raise an error if name not defined and default value is not provided" do
       expect {
-        @book1.namevalue_glob("foo", :default => nil)
+        @book1.namevalue_global("foo", :default => nil)
       }.to_not raise_error
       expect {
-        @book1.namevalue_glob("foo", :default => :__not_provided)
+        @book1.namevalue_global("foo", :default => :__not_provided)
       }.to raise_error(NameNotFound, /name "foo" not in #<Workbook: another_workbook/)
       expect {
-        @book1.namevalue_glob("foo")
+        @book1.namevalue_global("foo")
       }.to raise_error(NameNotFound, /name "foo" not in #<Workbook: another_workbook/)
-      @book1.namevalue_glob("foo", :default => nil).should be_nil
-      @book1.namevalue_glob("foo", :default => 1).should == 1
+      @book1.namevalue_global("foo", :default => nil).should be_nil
+      @book1.namevalue_global("foo", :default => 1).should == 1
       expect {
-          @book1.set_namevalue_glob("foo","bar")
+          @book1.set_namevalue_global("foo","bar")
       }.to raise_error(RangeNotEvaluatable, /cannot assign value to range named "foo"/)
       expect {
           @book1["foo"] = "bar"
       }.to raise_error(RangeNotEvaluatable, /cannot assign value to range named "foo"/)
-      @book1.namevalue_glob("empty", :default => 1).should be_nil
+      @book1.namevalue_global("empty", :default => 1).should be_nil
     end    
 
     it "should raise an error if name was defined but contents is calcuated" do
       expect {
-        @book1.set_namevalue_glob("named_formula","bar")
+        @book1.set_namevalue_global("named_formula","bar")
       }.to raise_error(RangeNotEvaluatable, /cannot assign value to range named "named_formula" in #<Workbook: another_workbook/)
       expect {
         @book1["named_formula"] = "bar"
@@ -747,19 +747,19 @@ describe Workbook do
 
     # Excel Bug: for local names without uqifier: takes the first sheet as default even if another sheet is activated
     it "should take the first sheet as default even if the second sheet is activated" do
-      @book1.namevalue_glob("Sheet1!localname").should == "bar"
-      @book1.namevalue_glob("Sheet2!localname").should == "simple"
-      @book1.namevalue_glob("localname").should == "bar"
+      @book1.namevalue_global("Sheet1!localname").should == "bar"
+      @book1.namevalue_global("Sheet2!localname").should == "simple"
+      @book1.namevalue_global("localname").should == "bar"
       @book1.Worksheets.Item(2).Activate
-      @book1.namevalue_glob("localname").should == "bar"
+      @book1.namevalue_global("localname").should == "bar"
       @book1.Worksheets.Item(1).Delete
-      @book1.namevalue_glob("localname").should == "simple"
+      @book1.namevalue_global("localname").should == "simple"
     end
 
     it "should color the cell (deprecated)" do
-      @book1.set_namevalue_glob("new", "bar")
+      @book1.set_namevalue_global("new", "bar")
       @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
-      @book1.set_namevalue_glob("new", "bar", :color => 4)
+      @book1.set_namevalue_global("new", "bar", :color => 4)
       @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
       @book1["new"].should == "bar"
       @book1["new"] = "bar"
@@ -771,9 +771,9 @@ describe Workbook do
     end
 
     it "should color the cell" do
-      @book1.set_namevalue_glob("new", "bar")
+      @book1.set_namevalue_global("new", "bar")
       @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
-      @book1.set_namevalue_glob("new", "bar", :color => 4)
+      @book1.set_namevalue_global("new", "bar", :color => 4)
       @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
       @book1["new"].should == "bar"
       @book1["new"] = "bar"
@@ -796,7 +796,7 @@ describe Workbook do
 
     it "should rename a range" do
       @book1.rename_range("four","five")
-      @book1.namevalue_glob("five").should == [[1,2],[3,4]]
+      @book1.namevalue_global("five").should == [[1,2],[3,4]]
       expect {
         @book1.rename_range("four","five")
       }.to raise_error(NameNotFound, /name "four" not in "another_workbook.xls"/)
@@ -1165,7 +1165,7 @@ describe Workbook do
         @book1.add_name("foo",[1,1])
         @book1.delete_name("foo")
         expect{
-          @book1.namevalue_glob("foo")
+          @book1.namevalue_global("foo")
         }.to raise_error(NameNotFound, /name "foo"/)
       end
 

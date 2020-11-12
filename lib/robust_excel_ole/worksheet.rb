@@ -80,7 +80,7 @@ module RobustExcelOle
       else
         name = p1
         begin
-          namevalue_glob(name)
+          namevalue_global(name)
         rescue REOError
           namevalue(name)
         end
@@ -96,14 +96,79 @@ module RobustExcelOle
       else
         name, value = p1, p2
         begin
-          set_namevalue_glob(name, value)
+          set_namevalue_global(name, value)
         rescue REOError
           begin
-            workbook.set_namevalue_glob(name, value)
+            workbook.set_namevalue_global(name, value)
           rescue REOError
             set_namevalue(name, value)
           end
         end
+      end
+    end
+
+    # returns the contents of a range with a locally defined name
+    # evaluates the formula if the contents is a formula
+    # if the name could not be found or the range or value could not be determined,
+    # then return default value, if provided, raise error otherwise
+    # @param  [String]      name      the name of a range
+    # @param  [Hash]        opts      the options
+    # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
+    # @return [Variant] the contents of a range with given name
+    def namevalue(name, opts = { :default => :__not_provided })
+      begin
+        ole_range = self.Range(name)
+      rescue # WIN32OLERuntimeError, VBAMethodMissingError, Java::OrgRacobCom::ComFailException 
+        return opts[:default] unless opts[:default] == :__not_provided
+        raise NameNotFound, "name #{name.inspect} not in #{self.inspect}"
+      end
+      begin
+        worksheet = self if self.is_a?(Worksheet)
+        #value = ole_range.Value
+        value = if !::RANGES_JRUBY_BUG
+          ole_range.Value
+        else
+          values = RobustExcelOle::Range.new(ole_range, worksheet).v
+          (values.size==1 && values.first.size==1) ? values.first.first : values
+        end
+      rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException 
+        return opts[:default] unless opts[:default] == :__not_provided
+        raise RangeNotEvaluatable, "cannot determine value of range named #{name.inspect} in #{self.inspect}"
+      end
+      if value == -2146828288 + RobustExcelOle::XlErrName
+        return opts[:default] unless opts[:default] == __not_provided
+        raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{File.basename(workbook.stored_filename).inspect rescue nil}"
+      end
+      return opts[:default] unless (opts[:default] == :__not_provided) || value.nil?
+      value
+    end
+
+    # assigns a value to a range given a locally defined name
+    # @param [String]  name   the name of a range
+    # @param [Variant] value  the assigned value   
+    # @option opts [Symbol] :color the color of the cell when set
+    def set_namevalue(name, value, opts = { })  
+      begin
+        ole_range = self.Range(name)
+      rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException, VBAMethodMissingError
+        raise NameNotFound, "name #{name.inspect} not in #{self.inspect}"
+      end
+      begin
+        ole_range.Interior.ColorIndex = opts[:color] unless opts[:color].nil?
+        if !::RANGES_JRUBY_BUG
+          ole_range.Value = value
+        else
+          address_r1c1 = ole_range.AddressLocal(true,true,XlR1C1)
+          row, col = address_tool.as_integer_ranges(address_r1c1)
+          row.each_with_index do |r,i|
+            col.each_with_index do |c,j|
+              ole_range.Cells(i+1,j+1).Value = (value.respond_to?(:first) ? value[i][j] : value)
+            end
+          end
+        end
+        value
+      rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException
+        raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.inspect}"
       end
     end
 

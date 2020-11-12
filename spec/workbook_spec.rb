@@ -1103,12 +1103,12 @@ describe Workbook do
     end   
 
     it "should return value of a range" do
-      @book1.namevalue_glob("new").should == "foo"
-      @book1.namevalue_glob("one").should == 1
-      @book1.namevalue_glob("firstrow").should == [[1,2]]        
-      @book1.namevalue_glob("four").should == [[1,2],[3,4]]
-      @book1.namevalue_glob("firstrow").should_not == "12"
-      @book1.namevalue_glob("firstcell").should == "foo"        
+      @book1.namevalue_global("new").should == "foo"
+      @book1.namevalue_global("one").should == 1
+      @book1.namevalue_global("firstrow").should == [[1,2]]        
+      @book1.namevalue_global("four").should == [[1,2],[3,4]]
+      @book1.namevalue_global("firstrow").should_not == "12"
+      @book1.namevalue_global("firstcell").should == "foo"        
     end
 
     it "should return value of a range via []" do
@@ -1121,17 +1121,17 @@ describe Workbook do
     end
 
     it "should set value of a range" do
-      @book1.set_namevalue_glob("new", "bar")
-      @book1.namevalue_glob("new").should == "bar"
+      @book1.set_namevalue_global("new", "bar")
+      @book1.namevalue_global("new").should == "bar"
     end
 
     it "should set value of a range via []=" do
       @book1["new"] = "bar"
-      @book1.namevalue_glob("new").should == "bar"
+      @book1.namevalue_global("new").should == "bar"
     end
 
     #it "should evaluate a formula" do
-    #  @book1.namevalue_glob("named_formula").should == 4      
+    #  @book1.namevalue_global("named_formula").should == 4      
     #end
 
     #it "should evaluate a formula via []" do
@@ -1139,7 +1139,7 @@ describe Workbook do
     #end
 
     #it "should return default value if name not defined" do
-    #  @book1.namevalue_glob("foo", :default => 2).should == 2
+    #  @book1.namevalue_global("foo", :default => 2).should == 2
     #end
 
   end

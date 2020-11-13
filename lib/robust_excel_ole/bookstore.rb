@@ -4,7 +4,7 @@ module RobustExcelOle
 
   # @private
   class Bookstore < Base
-    
+
     def initialize
       @filename2books ||= Hash.new { |hash, key| hash[key] = [] }
       @hidden_excel_instance = nil

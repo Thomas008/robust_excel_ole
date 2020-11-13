@@ -36,19 +36,6 @@ module RobustExcelOle
       rm_tmp(@dir)
     end
 
-    describe "trace" do
-
-      it "should put some number" do
-        a = 4
-        Base::trace "some text #{a}"
-      end
-
-      it "should put another text" do
-        b = Workbook.open(@simple_file)
-        Base::trace "book: #{b}"
-      end
-    end
-
     describe "own_methods" do
 
       before do
@@ -57,8 +44,8 @@ module RobustExcelOle
           ["Activate", "ActiveSheet", "Application", "Close", "FullName", "HasPassword", "Name", "Names", 
             "Password", "Protect", "ProtectSharing", "ProtectStructure", "Protect", "ReadOnly", "Save", 
             "SaveAs", "Saved", "Sheets", "Unprotect"]
-        @book_methods = ["focus", "add_sheet", "alive?", "close", "filename", "namevalue", "ole_object", 
-                         "ole_workbook", "reopen", "save", "save_as", "saved", "set_namevalue"]
+        @book_methods = ["focus", "add_sheet", "alive?", "close", "filename", "ole_object", 
+                         "ole_workbook", "reopen", "save", "save_as", "saved"]
         @ole_excel_methods = 
           ["ActiveCell", "ActiveSheet", "ActiveWorkbook", "Application",  "Calculate", "Cells", "Columns",
             "DisplayAlerts", "Evaluate", "Hwnd", "Name", "Names", "Quit", "Range", "Ready", "Save", 
@@ -81,6 +68,21 @@ module RobustExcelOle
       end
 
     end
+
+    describe "trace" do
+
+      it "should put some number" do
+        a = 4
+        Base::trace "some text #{a}"
+      end
+
+      it "should put another text" do
+        b = Workbook.open(@simple_file)
+        Base::trace "book: #{b}"
+      end
+    end
+
+    
 
     describe "misc" do
 

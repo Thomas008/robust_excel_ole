@@ -10,7 +10,7 @@ module RobustExcelOle
   # See https://docs.microsoft.com/en-us/office/vba/api/excel.workbook#methods
 
   class Workbook < RangeOwners
- 
+
     attr_reader :ole_workbook
     attr_reader :excel
     attr_reader :stored_filename

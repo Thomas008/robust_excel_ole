@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-#using SpaceshipRefinement
-
 module RobustExcelOle
 
   class AddressTool < Base

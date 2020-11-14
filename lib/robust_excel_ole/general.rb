@@ -170,6 +170,72 @@ module ParentRefinement
   end
 end
 
+class Integer
+
+  alias old_spaceship <=>
+
+  def <=> other
+    # p other
+    if other.is_a? Array
+      self <=> other.first
+    else
+      old_spaceship other
+    end
+  end
+
+end
+
+# @private
+class Array
+
+  alias old_spaceship <=>
+
+  def <=> other
+    # p other
+    if other.is_a? Integer
+      self <=> [other]
+    else
+      old_spaceship other
+    end
+  end
+
+end
+
+
+=begin
+# @private
+module SpaceshipRefinement
+
+  refine Integer do
+
+    alias old_spaceship <=>
+
+    def <=> other
+      # p other
+      if other.is_a? Array
+        self <=> other.first
+      else
+        old_spaceship other
+      end
+    end
+  end
+
+  refine Array do
+
+    alias old_spaceship <=>
+
+    def <=> other
+      # p other
+      if other.is_a? Integer
+        self <=> [other]
+      else
+        old_spaceship other
+      end
+    end
+  end
+end
+=end
+
 module General
 
   IS_JRUBY_PLATFORM = (RUBY_PLATFORM =~ /java/)
@@ -331,73 +397,6 @@ class Pry
     end
   end
 end
-
-class Integer
-
-  alias old_spaceship <=>
-
-  def <=> other
-    # p other
-    if other.is_a? Array
-      self <=> other.first
-    else
-      old_spaceship other
-    end
-  end
-
-end
-
-# @private
-class Array
-
-  alias old_spaceship <=>
-
-  def <=> other
-    # p other
-    if other.is_a? Integer
-      self <=> [other]
-    else
-      old_spaceship other
-    end
-  end
-
-end
-
-=begin
-# @private
-module RefinedSpaceship
-
-  refine Integer do
-
-    alias old_spaceship <=>
-
-    def <=> other
-      # p other
-      if other.is_a? Array
-        self <=> other.first
-      else
-        old_spaceship other
-      end
-    end
-  end
-
-  refine Array do
-
-    alias old_spaceship <=>
-
-    def <=> other
-      # p other
-      if other.is_a? Integer
-        self <=> [other]
-      else
-        old_spaceship other
-      end
-    end
-  end
-end
-=end
-
-
 
 module MethodHelpers
 

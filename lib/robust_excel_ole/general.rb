@@ -292,12 +292,13 @@ module General
   end
 
   # @private
-  def normalize(path)  
-    return unless path    
-    path = path.gsub('/./', '/') + '/'
+  def normalize(given_path)  
+    return unless given_path    
+    path = given_path.gsub('/./', '/') + '/'
     path = path.gsub(/[\/\\]+/, '/')
     nil while path.gsub!(/(\/|^)(?!\.\.?)([^\/]+)\/\.\.\//, '\1')
     path = path.chomp('/')
+    path = '/' + path if given_path[0,2] == "\\\\"  
     path
   end
 

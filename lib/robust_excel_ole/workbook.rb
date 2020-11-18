@@ -235,7 +235,6 @@ module RobustExcelOle
       raise ExcelREOError, "Excel is not alive" unless @excel && @excel.alive?
     end
 
-
     # @private    
     def ensure_workbook(filename, options)  
       set_was_open options, true

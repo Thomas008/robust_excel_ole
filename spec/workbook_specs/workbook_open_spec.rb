@@ -273,6 +273,17 @@ describe Workbook do
       bookstore = Bookstore.new
     end
 
+    it "should fetch a network path file given a not via Reo opened hostname share file" do
+      ole_e1 = WIN32OLE.new('Excel.Application')
+      ws = ole_e1.Workbooks
+      abs_filename = General.absolute_path(@simple_file_hostname_share_path)
+      @ole_wb = ws.Open(abs_filename)
+      book2 = Workbook.open(@simple_file_network_path)
+      #book2.should === @ole_wb.to_reo
+      book2.Fullname.should == @ole_wb.Fullname
+      book2.excel.Workbooks.Count.should == 1
+    end
+
     it "should fetch a network path file given a hostname share file" do
       book1 = Workbook.open(@simple_file_hostname_share_path)
       book2 = Workbook.open(@simple_file_network_path)

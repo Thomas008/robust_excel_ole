@@ -327,7 +327,7 @@ module RobustExcelOle
     def manage_blocking_or_unsaved_workbook(filename, options)
       filename = General.absolute_path(filename)
       filename = General.canonize(filename)
-      previous_file = General.canonize(@ole_workbook.Fullname)
+      previous_file = General.canonize(@ole_workbook.Fullname.gsub('\\','/'))
       obstructed_by_other_book = (File.basename(filename) == File.basename(previous_file)) &&
                                  (File.dirname(filename) != File.dirname(previous_file)) 
       if obstructed_by_other_book

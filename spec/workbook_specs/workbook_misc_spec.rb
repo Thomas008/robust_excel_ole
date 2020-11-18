@@ -8,6 +8,8 @@ $VERBOSE = nil
 include RobustExcelOle
 include General
 
+using ToReoRefinement
+
 describe Workbook do
 
   before(:all) do

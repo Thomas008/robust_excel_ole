@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), '../lib/robust_excel_ole')
+require_relative '../lib/robust_excel_ole'
 
 start_time = Time.now 
 

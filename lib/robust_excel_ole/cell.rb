@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-require File.join(File.dirname(__FILE__), './range')
+require_relative 'range'
 
 module RobustExcelOle
 

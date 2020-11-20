@@ -2,7 +2,7 @@
 require 'rspec'
 require 'tmpdir'
 require 'fileutils'
-require File.join(File.dirname(__FILE__), '../lib/robust_excel_ole')
+require_relative '../lib/robust_excel_ole'
 
 # @private
 module RobustExcelOle::SpecHelpers

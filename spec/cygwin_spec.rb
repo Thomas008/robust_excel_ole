@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-require File.join(File.dirname(__FILE__), './spec_helper')
+require_relative 'spec_helper'
 
 describe "on cygwin",  :if => RUBY_PLATFORM =~ /cygwin/ do
   describe ".cygpath" do

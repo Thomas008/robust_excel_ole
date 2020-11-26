@@ -302,10 +302,12 @@ module General
     path
   end
 
+  # @private
   def change_current_binding(current_object)
     Pry.change_current_binding(current_object)
   end
 
+  # @private
   def class2method
     [{RobustExcelOle::Excel => :Hwnd},
      {RobustExcelOle::Workbook => :FullName},
@@ -316,16 +318,15 @@ module General
 
   #using ToReoRefinement
 
+  # @private
   # enable RobustExcelOle methods to Win32Ole objects
   def init_reo_for_win32ole
-    exclude_list = [:each, :each_with_index, :inspect, :Calculation=, :==]
     class2method.each do |element|
       classname = element.first.first
-      classname.instance_methods(false).each do |inst_method|
-        if !exclude_list.include?(inst_method)
-          WIN32OLE.send(:define_method, inst_method) do |*args, &blk|  
-            self.to_reo.send(inst_method, *args, &blk) 
-          end
+      meths = (classname.instance_methods(false) - WIN32OLE.instance_methods(false) - Object.methods - [:Calculation=])
+      meths.each do |inst_method|
+        WIN32OLE.send(:define_method, inst_method) do |*args, &blk|  
+          self.to_reo.send(inst_method, *args, &blk) 
         end
       end
     end

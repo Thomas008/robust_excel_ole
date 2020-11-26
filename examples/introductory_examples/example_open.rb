@@ -13,12 +13,18 @@ another_simple_file = dir + 'another_workbook.xls'
 
 Excel.kill_all
 
+#using ToReoRefinement
+
 # open a workbook
 puts "open a workbook"
 book = Workbook.open(simple_file) 
 puts "make it visible"
 book.visible = true
 puts "book: #{book}"
+ole_workbook = book.ole_workbook
+puts "ole_workbook: #{ole_workbook.inspect}"
+upliftet_ole_workbook = ole_workbook.to_reo
+puts "upliftet_ole_workbook: #{upliftet_ole_workbook.inspect}"
 # open a workbook in a new Excel instance
 puts "open the workbook in a new Excel instance and make it visible"
 book2 = Workbook.open(another_simple_file, :default => {:excel => :new}, :visible => true)

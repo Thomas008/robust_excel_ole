@@ -10,7 +10,7 @@ include RobustExcelOle
 module RobustExcelOle
 
   using StringRefinement
-  using ToReoRefinement
+  #using ToReoRefinement
 
   describe General do
 

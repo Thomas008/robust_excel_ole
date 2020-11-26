@@ -24,7 +24,9 @@ describe Workbook do
     @different_file = @dir + '/different_workbook.xls'
     @simple_file_other_path = @dir + '/more_data/workbook.xls'
     @another_simple_file = @dir + '/another_workbook.xls'
-    @linked_file = @dir + '/workbook_linked.xlsm'
+    #@linked_file = @dir + '/workbook_linked.xlsm'
+    #@linked_sub_file = @dir + '/workbook_sub.xlsm'
+    @linked_file = @dir + '/workbook_linked3.xlsm'
     @linked_sub_file = @dir + '/workbook_linked_sub.xlsm'
     @simple_file_xlsm = @dir + '/workbook.xlsm'
     @simple_file_xlsx = @dir + '/workbook.xlsx'
@@ -336,35 +338,53 @@ describe Workbook do
  
   end
 
-  describe "with referenced book" do
+  describe "with referenced workbooks" do
 
     context "with no books" do
 
-      it "should open in read-only" do
+      it "should open the linked workbook in read-only" do
         Workbook.unobtrusively(@linked_sub_file, :writable => false) do |book|            
           book.ReadOnly.should be true
           book.filename.should == @linked_sub_file
         end
+        Excel.current.workbooks.should == [] 
       end
 
-      it "should raise error when trying to change" do
-
-        expect{
-          Workbook.unobtrusively(@linked_sub_file, :writable => false) do |book|            
-            book.ReadOnly.should be true
-            book.filename.should == @linked_sub_file
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
-          end
-        }.to raise_error(WorkbookReadOnly)
-
+      it "should open the workbook and its linked workbook in read-only" do
+        Workbook.unobtrusively(@linked_file, :writable => false) do |book|            
+          book.ReadOnly.should be true
+          book.filename.should == @linked_file
+          book.excel.workbooks.map{|b| b.filename}.should == [@linked_sub_file, @linked_file]
+        end
+        Excel.current.workbooks.should == [] 
       end
+
+      it "should not write the linked workbook and close it" do
+        Workbook.unobtrusively(@linked_sub_file, :writable => false) do |book|            
+          book.ReadOnly.should be true
+          book.filename.should == @linked_sub_file
+          @old_value = book.sheet(1)[1,1].Value
+          book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+        end
+        Excel.current.workbooks.should == [] 
+      end
+
+      it "should not write the main workbook and close the linked file as well" do
+        Workbook.unobtrusively(@linked_file, :writable => false) do |book|            
+          book.ReadOnly.should be true
+          book.filename.should == @linked_file
+          @old_value = book.sheet(1)[1,1].Value
+          book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+        end
+        Excel.current.workbooks.should == [] 
+      end
+
     end
 
     context "with open books" do
 
       before do
         @book_main = Workbook.open(@linked_file)
-        @book_sub = Workbook.open(@linked_sub_file)
       end
 
       it "should leave the read-only mode" do

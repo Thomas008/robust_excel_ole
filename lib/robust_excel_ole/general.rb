@@ -2,9 +2,10 @@
 require 'pathname'
 
 # @private
-module ToReoRefinement
+class WIN32OLE
+#module ToReoRefinement
 
-  refine WIN32OLE do
+  #refine WIN32OLE do
 
     # type-lifting WIN32OLE objects to RobustExcelOle objects
     def to_reo
@@ -25,7 +26,7 @@ module ToReoRefinement
       raise TypeREOError, "given object cannot be type-lifted to a RobustExcelOle object"
     end
 
-  end
+  #end
 
 end
 
@@ -313,7 +314,7 @@ module General
      {RobustExcelOle::ListObject => :ListRows}]
   end
 
-  using ToReoRefinement
+  #using ToReoRefinement
 
   # enable RobustExcelOle methods to Win32Ole objects
   def init_reo_for_win32ole

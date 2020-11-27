@@ -24,7 +24,6 @@ describe Workbook do
     @different_file = @dir + '/different_workbook.xls'
     @simple_file_other_path = @dir + '/more_data/workbook.xls'
     @another_simple_file = @dir + '/another_workbook.xls'
-    @linked_file = @dir + '/workbook_linked.xlsm'
     @simple_file_xlsm = @dir + '/workbook.xlsm'
     @simple_file_xlsx = @dir + '/workbook.xlsx'
     @simple_file1 = @simple_file
@@ -43,12 +42,55 @@ describe Workbook do
     @simple_file_hostname_share_path_other_path1 = @simple_file_hostname_share_path_other_path
     @simple_file_xlsm1 = @simple_file_xlsm
     @simple_file_xlsx1 = @simple_file_xlsx
+    #@linked_file = @dir + '/workbook_linked.xlsm'
+    #@sub_file = @dir + '/workbook_sub.xlsm'
+    @main_file = @dir + '/workbook_linked3.xlsm'
+    @sub_file = @dir + '/workbook_linked_sub.xlsm'
     @error_message_excel = "provided Excel option value is neither an Excel object nor a valid option"
   end
 
   after do
     Excel.kill_all
     rm_tmp(@dir)
+  end
+
+  describe "linked workbooks" do
+
+    context "standard" do
+
+      before do
+        @book1 = Workbook.open(@main_file)
+      end
+
+      it "should open the main workbook and the linked workbook" do
+        @book1.should be_alive
+        @book1.should be_a Workbook
+        @book1.filename.should == @main_file
+        Excel.current.workbooks.map{|b| b.filename}.should == [@main_file, @sub_file]
+        book2 = Workbook.open(@sub_file)
+        book2.should be_alive
+        book2.should be_a Workbook
+        book2.filename.should == @sub_file
+      end
+
+      it "should close the main workbook" do
+        @book1.close
+        Excel.current.workbooks.map{|b| b.filename}.should == [@sub_file]
+      end
+
+      it "should raise error when trying to close the linked workbook" do
+        book2 = Workbook.open(@sub_file)
+        expect{
+         book2.close
+         }.to raise_error
+      end
+
+      it "should raise error when trying to change the read-only mode of the linked workbook" do
+        expect{
+          book2 = Workbook.open(@sub_file, :read_only => true)
+        }.to raise_error
+      end
+    end
   end
 
   describe "basic tests with xlsx-workbooks" do
@@ -2984,7 +3026,7 @@ describe Workbook do
     context "with various file formats" do
 
       it "should open linked workbook" do
-        book = Workbook.open(@linked_file, :visible => true)
+        book = Workbook.open(@main_file, :visible => true)
         book.close
       end
 

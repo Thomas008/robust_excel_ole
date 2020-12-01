@@ -82,13 +82,13 @@ describe Workbook do
         book2 = Workbook.open(@sub_file)
         expect{
          book2.close
-         }.to raise_error
+         }.to raise_error(WorkbookLinked)
       end
 
       it "should raise error when trying to change the read-only mode of the linked workbook" do
         expect{
           book2 = Workbook.open(@sub_file, :read_only => true)
-        }.to raise_error
+        }.to raise_error(WorkbookLinked)
       end
     end
   end

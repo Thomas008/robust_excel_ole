@@ -253,9 +253,7 @@ module RobustExcelOle
       if @ole_workbook && alive?
         set_was_open options, true
         manage_blocking_or_unsaved_workbook(filename,options)
-        if @ole_workbook.ReadOnly != options[:read_only]
-        end
-        open_or_create_workbook(filename,options) if @ole_workbook.ReadOnly != options[:read_only]
+        open_or_create_workbook(filename,options) if (!options[:read_only].nil?) && options[:read_only] != @ole_workbook.ReadOnly
       else
         if (excel_option.nil? || excel_option == :current) &&  
           !(::CONNECT_JRUBY_BUG && filename[0] == '/')
@@ -371,9 +369,14 @@ module RobustExcelOle
     def manage_unsaved_workbook(filename, options)
       case options[:if_unsaved]
       when :raise
-        raise WorkbookNotSaved, "workbook is already open but not saved: #{File.basename(filename).inspect}" +
-        "\nHint: Save the workbook or open the workbook using option :if_unsaved with values :forget and :accept to
-         close the unsaved workbook and reopen it, or to let the unsaved workbook open, respectively"
+        msg = if !options[:read_only].nil? && @ole_workbook.ReadOnly != options[:read_only]
+          "cannot change read-only mode of the workbook #{File.basename(filename).inspect}, because it contains unsaved changes"
+        else
+          "workbook is already open but not saved: #{File.basename(filename).inspect}"
+        end
+        raise WorkbookNotSaved, msg +
+        "\nHint: Use the option :if_unsaved with values :forget to close the unsaved workbook, 
+         :accept to let it open, or :save to save it, respectivly"
       when :forget
         manage_forgetting_workbook(filename, options)
       when :accept
@@ -427,7 +430,12 @@ module RobustExcelOle
         rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
           # for Excel2007: for option :if_unsaved => :alert and user cancels: this error appears?
           # if yes: distinguish these events
-          raise UnexpectedREOError, "cannot open workbook: #{msg.message} #{msg.backtrace}"
+          if (!options[:read_only].nil?) && options[:read_only] != @ole_workbook.ReadOnly &&
+            msg.message =~ /800A03EC/ && msg.message =~ /0x80020009/
+            raise WorkbookLinked, "read-only mode of this workbook cannot be changed, because it is being used by another workbook"
+          else
+            raise UnexpectedREOError, "unknown WIN32OLERuntimeError:\n#{msg.message}"
+          end
         end
         begin
           # workaround for bug in Excel 2010: workbook.Open does not always return the workbook when given file name
@@ -522,7 +530,18 @@ module RobustExcelOle
   private
 
     def close_workbook
-      @ole_workbook.Close if alive?
+      #@ole_workbook.Close if alive?
+      if alive?
+        begin
+          @ole_workbook.Close 
+        rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
+          if msg.message =~ /800A03EC/ && msg.message =~ /0x80020009/
+            raise WorkbookLinked, 'workbook is being used by another workbook'
+          else
+            raise UnexpectedREOError, "unknown WIN32OLERuntimeError:\n#{msg.message}"
+          end
+        end
+      end      
       @ole_workbook = nil unless alive?
     end
 
@@ -1101,6 +1120,10 @@ public
 
   # @private
   class WorkbookNotSaved < WorkbookREOError        
+  end
+
+  # @private
+  class WorkbookLinked < WorkbookREOError        
   end
 
   # @private

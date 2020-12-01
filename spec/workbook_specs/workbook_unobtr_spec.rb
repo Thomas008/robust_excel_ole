@@ -233,41 +233,7 @@ describe Workbook do
   end
 
   describe "Workbook.for_reading, for_modifying" do
-
-  
-
-    
       
-        
-        
-      
-      
-        
-      
-          
-        
-        
-      
-        
-      
-
-      
-        
-
-      
-    
-      
-      
-          
-      
-        
-      
-  
-  
-      
-
-    
-    
     context "with open writable book" do
 
       before do
@@ -397,7 +363,7 @@ describe Workbook do
         expect{
           Workbook.unobtrusively(@sub_file, :read_only => true) do
           end
-        }.to raise_error
+        }.to raise_error(WorkbookLinked)
       end
     end
   end

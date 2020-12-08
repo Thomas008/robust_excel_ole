@@ -158,7 +158,7 @@ module RobustExcelOle
         @excel = excel_class.new(ole_excel)
         filename = @ole_workbook.Fullname.tr('\\','/') 
       else
-        filename = file_or_workbook            
+        filename = file_or_workbook
         ensure_workbook(filename, opts)        
       end      
       apply_options(filename, opts)
@@ -236,7 +236,7 @@ module RobustExcelOle
     end
 
     # @private    
-    def ensure_workbook(filename, options)  
+    def ensure_workbook(filename, options)
       set_was_open options, true
       return if (@ole_workbook && alive? && (options[:read_only].nil? || @ole_workbook.ReadOnly == options[:read_only]))
       set_was_open options, false

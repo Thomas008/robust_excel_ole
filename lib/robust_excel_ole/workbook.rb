@@ -432,6 +432,9 @@ module RobustExcelOle
           # if yes: distinguish these events
           if (!options[:read_only].nil?) && options[:read_only] != @ole_workbook.ReadOnly &&
             msg.message =~ /800A03EC/ && msg.message =~ /0x80020009/
+            # error message: 
+            # 'This workbook is currently referenced by another workbook and cannot be closed'
+            # 'Diese Arbeitsmappe wird momentan von einer anderen Arbeitsmappe verwendet und kann nicht geschlossen werden.'
             raise WorkbookLinked, "read-only mode of this workbook cannot be changed, because it is being used by another workbook"
           else
             raise UnexpectedREOError, "unknown WIN32OLERuntimeError:\n#{msg.message}"
@@ -536,6 +539,9 @@ module RobustExcelOle
           @ole_workbook.Close 
         rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
           if msg.message =~ /800A03EC/ && msg.message =~ /0x80020009/
+            # error message: 
+            # 'This workbook is currently referenced by another workbook and cannot be closed'
+            # 'Diese Arbeitsmappe wird momentan von einer anderen Arbeitsmappe verwendet und kann nicht geschlossen werden.'
             raise WorkbookLinked, 'workbook is being used by another workbook'
           else
             raise UnexpectedREOError, "unknown WIN32OLERuntimeError:\n#{msg.message}"

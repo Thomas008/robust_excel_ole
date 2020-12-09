@@ -335,11 +335,13 @@ or
 However, this command also starts another pry repl (with another binding). Moreover, local variables in the previous binding are forgotten.
 
 
-2. The class Win32Ole is being extended such that RobustExcelOle methods can be applied to Win32Ole objects. As mentioned above, the RobustExcelOle objects are wrapper of corresponding WIN32OLE objects. With help of +update_to_reo+ the RobustExcelOle objects and their wrapped Win32Ole objects are interchangeable. One example would be
+2. The class Win32Ole is being extended such that RobustExcelOle methods can be applied to Win32Ole objects. As mentioned above, the RobustExcelOle objects are wrapper of corresponding WIN32OLE objects. So the RobustExcelOle objects and their wrapped Win32Ole objects are interchangeable. One example would be
 
   range.ole_range.copy([4,3])
 
-Likewise it is possible to convert ("type-lift") Win32Ole objects into the corresponding RobustExcelOle object, using General.to_reo.
+Likewise it is possible to convert ("type-lift") Win32Ole objects into the corresponding RobustExcelOle object, using the method +to_reo+. It is a refinement of the class WIN32OLE. So you can write
+
+  using ToReoRefinement
 
   range = sheet.Names.Item("firstcell").to_reo
 

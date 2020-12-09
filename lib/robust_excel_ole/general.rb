@@ -2,10 +2,10 @@
 require 'pathname'
 
 # @private
-class WIN32OLE
-#module ToReoRefinement
+#class WIN32OLE
+module ToReoRefinement
 
-  #refine WIN32OLE do
+  refine WIN32OLE do
 
     # type-lifting WIN32OLE objects to RobustExcelOle objects
     def to_reo
@@ -26,7 +26,7 @@ class WIN32OLE
       raise TypeREOError, "given object cannot be type-lifted to a RobustExcelOle object"
     end
 
-  #end
+  end
 
 end
 

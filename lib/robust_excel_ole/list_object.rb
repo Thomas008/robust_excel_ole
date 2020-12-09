@@ -18,7 +18,7 @@ module RobustExcelOle
 
     using FindAllIndicesRefinement
     using StringRefinement
-    #using ToReoRefinement
+    using ToReoRefinement
    
     # constructs a list object (or table).
     # @param [Variable] worksheet_or_listobject      a worksheet or a list object

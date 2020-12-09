@@ -7,7 +7,7 @@ $VERBOSE = nil
 include RobustExcelOle
 include General
 
-#using ToReoRefinement
+using ToReoRefinement
 
 describe Workbook do
 

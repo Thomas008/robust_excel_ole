@@ -16,7 +16,7 @@ module RobustExcelOle
 
     alias ole_object ole_range
 
-    #using ToReoRefinement
+    using ToReoRefinement
 
     def initialize(win32_range, worksheet = nil)
       @ole_range = win32_range

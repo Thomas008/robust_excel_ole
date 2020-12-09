@@ -13,7 +13,7 @@ another_simple_file = dir + 'another_workbook.xls'
 
 Excel.kill_all
 
-#using ToReoRefinement
+using ToReoRefinement
 
 # open a workbook
 puts "open a workbook"

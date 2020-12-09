@@ -17,7 +17,7 @@ module RobustExcelOle
 
     alias ole_object ole_workbook
 
-    #using ToReoRefinement
+    using ToReoRefinement
 
     CORE_DEFAULT_OPEN_OPTS = {
       :default => {:excel => :current}, 

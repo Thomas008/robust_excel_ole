@@ -62,7 +62,7 @@ end
 module StringRefinement
 
   refine String do
-   
+
     def / path_part
       if empty?
         path_part
@@ -71,7 +71,8 @@ module StringRefinement
           self
         else
           begin
-            File.join self, path_part
+            path_part = path_part.strip
+            (path_part  =~ /^(\/|([A-Z]:\/))/) ? path_part : (self + '/' + path_part).gsub('//', '/')
           rescue TypeError
             raise TypeError, "Only strings can be parts of paths (given: #{path_part.inspect} of class #{path_part.class})"
           end

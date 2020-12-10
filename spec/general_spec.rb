@@ -279,12 +279,14 @@ module RobustExcelOle
       it "should create a path" do
         path1 = "this" / "is" / "a" / "path"
         path1.should == "this/is/a/path"
-        path2 = "this" / "is" / "a" / "path" / 
-        #path2.should == "this/is/a/path/"
-        path3 = "this" / 
-        #path3.should == "this/"
-        path4 = "this" / nil
-        path4.should == "this"
+        path2 = "this" / nil
+        path2.should == "this"
+        path3 = "N:/E2" / "C:/gim/E2/workbook.xls"
+        path3.should == "C:/gim/E2/workbook.xls"
+        path4 = "N:/E2/" / "/gim/E2/workbook.xls"
+        path4.should == "/gim/E2/workbook.xls"
+        path5 = "N:/E2" / "spec/data/workbook.xls"
+        path5.should == "N:/E2/spec/data/workbook.xls"
       end
     end
 

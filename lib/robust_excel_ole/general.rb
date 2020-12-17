@@ -72,7 +72,7 @@ module StringRefinement
         else
           begin
             path_part = path_part.strip
-            (path_part  =~ /^(\/|([A-Z]:\/))/) ? path_part : (self + '/' + path_part).gsub('//', '/')
+            (path_part  =~ /^(\/|([A-Z]:\/))/i) ? path_part : (self + '/' + path_part).gsub('//', '/')
           rescue TypeError
             raise TypeError, "Only strings can be parts of paths (given: #{path_part.inspect} of class #{path_part.class})"
           end

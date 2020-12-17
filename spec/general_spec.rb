@@ -287,6 +287,8 @@ module RobustExcelOle
         path4.should == "/gim/E2/workbook.xls"
         path5 = "N:/E2" / "spec/data/workbook.xls"
         path5.should == "N:/E2/spec/data/workbook.xls"
+        path6 = "N:/E2" / "c:/gim/E2/workbook.xls"
+        path6.should == "c:/gim/E2/workbook.xls"
       end
     end
 

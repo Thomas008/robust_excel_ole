@@ -80,24 +80,6 @@ module StringRefinement
       end
     end
 
-    # taken from http://apidock.com/rails/ActiveSupport/Inflector/underscore
-    def underscore
-      word = gsub('::', '/')
-      word.gsub!(/([A-Z\d]+)([A-Z][a-z])/,'\1_\2')
-      word.gsub!(/([a-z\d])([A-Z])/,'\1_\2')
-      word.tr!('-', '_')
-      word.downcase!
-      word
-    end
-
-    def delete_multiple_underscores
-      word = self
-      while word.index('__') do
-        word.gsub!('__','_')
-      end    
-      word
-    end
-
     def replace_umlauts
       word = self
       word.gsub!('ä','ae')
@@ -112,6 +94,16 @@ module StringRefinement
       #word.gsub!(/\x99/,'Oe')
       #word.gsub!(/\x81/,'ue')
       #word.gsub!(/\x9A/,'Ue')
+      word
+    end
+
+    # taken from http://apidock.com/rails/ActiveSupport/Inflector/underscore
+    def underscore
+      word = gsub('::', '/')
+      word.gsub!(/([A-Z\d]+)([A-Z][a-z])/,'\1_\2')
+      word.gsub!(/([a-z\d])([A-Z])/,'\1_\2')
+      word.tr!('-', '_')
+      word.downcase!
       word
     end
 

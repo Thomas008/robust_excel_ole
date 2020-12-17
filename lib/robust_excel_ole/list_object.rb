@@ -139,7 +139,7 @@ module RobustExcelOle
             c.gsub(/\W/,'') == core_name ||
             c.replace_umlauts == core_name ||
             c.gsub(/\W/,'').replace_umlauts == core_name ||
-            c.gsub(/\W/,'').replace_umlauts.underscore.gsub(/[^[\w\d]]/, '_').delete_multiple_underscores == core_name           
+            c.gsub(/\W/,'').replace_umlauts.underscore.gsub(/[^[\w\d]]/, '_').gsub(/\_+/,'_') == core_name           
           end
           if column_name
             method_name = core_name.gsub(/\W/,'') + (name_str[-1]!='=' ? "" : "=")

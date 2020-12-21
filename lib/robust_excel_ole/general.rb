@@ -243,7 +243,9 @@ module General
   # @private
   NetworkDrive = Struct.new(:drive_letter, :network_name) do
 
-    def self.get_all(drives)
+    def self.get_all_drives
+      network = WIN32OLE.new('WScript.Network')
+      drives = network.enumnetworkdrives
       ndrives = []
       count = drives.Count
       (0..(count - 1)).step(2) do |i|
@@ -257,16 +259,14 @@ module General
   # @private
   def hostnameshare2networkpath(filename)
     return filename unless filename[0,2] == "//"
-    network = WIN32OLE.new('WScript.Network')
-    drives = network.enumnetworkdrives
-    network_drives = NetworkDrive.get_all(drives)
     f_c = filename.dup
-    network_drive = network_drives.find do |d| 
+    network_drive = NetworkDrive.get_all_drives.find do |d| 
       e = f_c.sub!(d.network_name,d.drive_letter)
       return e if e
     end    
     filename 
   end  
+
 
   # @private
   def absolute_path(file)

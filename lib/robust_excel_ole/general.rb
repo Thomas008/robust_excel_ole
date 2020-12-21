@@ -253,18 +253,19 @@ module General
       end
       ndrives
     end
-
   end
 
   # @private
   def hostnameshare2networkpath(filename)
     return filename unless filename[0,2] == "//"
+    ind = filename[2,filename.length].index('/')
+    filename = filename[0,ind+2].upcase + filename[ind+2,filename.length]
     f_c = filename.dup
     network_drive = NetworkDrive.get_all_drives.find do |d| 
       e = f_c.sub!(d.network_name,d.drive_letter)
       return e if e
     end    
-    filename 
+    filename
   end  
 
 
@@ -327,7 +328,7 @@ module General
   end
 
   module_function :absolute_path, :canonize, :normalize, :change_current_binding, :class2method, 
-                  :init_reo_for_win32ole, :hostnameshare2networkpath
+                  :init_reo_for_win32ole, :hostnameshare2networkpath, :test
 
 end
 

@@ -34,6 +34,8 @@ module RobustExcelOle
       @simple_file_xlsx = @dir + '/workbook.xlsx'
       @network_path = "N:/data/workbook.xls"
       @hostname_share_path = "//DESKTOP-A3C5CJ6/spec/data/workbook.xls"
+      @network_path_downcase = "n:/data/workbook.xls"
+      @hostname_share_path_downcase = "//desktop-a3c5cj6/spec/data/workbook.xls"
       @simple_file_extern = "D:/data/workbook.xls"
       @hostname_share_path = "//DESKTOP-A3C5CJ6/spec/data/workbook.xls"
     end
@@ -269,6 +271,8 @@ module RobustExcelOle
           General.canonize(@network_path).should == @network_path
           General.canonize(@simple_file).should == @simple_file
           General.canonize(@simple_file_extern).should == @simple_file_extern
+          General.canonize(@hostname_share_path_downcase).should == @network_path
+          General.canonize(@network_path_downcase).should == @network_path_downcase
         end
 
       end

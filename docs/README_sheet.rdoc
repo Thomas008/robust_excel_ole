@@ -92,7 +92,7 @@ The methods Worksheet#each, Worksheet#each_row and Worksheet#each_column enable 
     # do something with column
   end
 
-The method Worksheet#values yields all cell values of the used range of the worksheet into a 2-dimensional array. For example:
+The method Worksheet#values yields a 2-dimensional array that contains the values in each row, e.g.
 
   worksheet.values
   => [["foo", "workbook", "sheet1"], ["foo", nil, "foobaaa"], ["matz", "is", "nice"]]

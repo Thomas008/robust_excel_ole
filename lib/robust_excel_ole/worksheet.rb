@@ -194,10 +194,12 @@ module RobustExcelOle
       raise RangeNotEvaluatable, "cannot assign value #{value.inspect} to cell (#{y.inspect},#{x.inspect})"
     end
 
+    # provides a 2-dimensional array that contains the values in each row
     def values
       @ole_worksheet.UsedRange.Value
     end
 
+    # enumerator for accessing cells
     def each
       each_row do |row_range|
         row_range.each do |cell|
@@ -216,24 +218,7 @@ module RobustExcelOle
       end
     end
 
-    def each_rowvalue
-      @ole_worksheet.UsedRange.Value.each do |row_values|
-        yield row_values
-      end
-    end
-
-    def each_value   # :deprecated: #
-      each_rowvalue
-    end
-
-    def each_rowvalue_with_index(offset = 0)
-      i = offset
-      @ole_worksheet.UsedRange.Value.each do |row_values|
-        yield row_values, i
-        i += 1
-      end
-    end
-
+    # enumerator for accessing rows
     def each_row(offset = 0)
       offset += 1
       1.upto(@end_row) do |row|
@@ -248,6 +233,7 @@ module RobustExcelOle
       end
     end
 
+    # enumerator for accessing columns
     def each_column(offset = 0)
       offset += 1
       1.upto(@end_column) do |column|
@@ -259,6 +245,24 @@ module RobustExcelOle
     def each_column_with_index(offset = 0)
       each_column(offset) do |column_range|
         yield RobustExcelOle::Range.new(column_range, self), (column_range.Column - 1 - offset)
+      end
+    end
+
+    def each_rowvalue  # :deprecated: #
+      @ole_worksheet.UsedRange.Value.each do |row_values|
+        yield row_values
+      end
+    end
+
+    def each_value   # :deprecated: #
+      each_rowvalue
+    end
+
+    def each_rowvalue_with_index(offset = 0)    # :deprecated: #
+      i = offset
+      @ole_worksheet.UsedRange.Value.each do |row_values|
+        yield row_values, i
+        i += 1
       end
     end
 

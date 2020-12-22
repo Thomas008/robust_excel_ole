@@ -82,7 +82,7 @@ describe Workbook do
         book2 = Workbook.open(@sub_file)
         expect{
          book2.close
-         }.to raise_error(WorkbookLinked)
+        }.to raise_error(WorkbookLinked)
       end
 
       it "should raise error when trying to change the read-only mode of the linked workbook" do

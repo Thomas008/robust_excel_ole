@@ -409,6 +409,22 @@ module RobustExcelOle
       @ole_workbook = nil
       open_or_create_workbook(filename, options)
     end
+
+    def explore_workbook_error(msg, want_change_readonly = false)
+      if msg.message =~ /800A03EC/ && msg.message =~ /0x80020009/
+        # error message: 
+        # 'This workbook is currently referenced by another workbook and cannot be closed'
+        # 'Diese Arbeitsmappe wird momentan von einer anderen Arbeitsmappe verwendet und kann nicht geschlossen werden.'
+        error_message = if want_change_readonly
+          "read-only mode of this workbook cannot be changed, because it is being used by another workbook"
+        else
+          "workbook is being used by another workbook"
+        end
+        raise WorkbookLinked, error_message
+      else
+        raise UnexpectedREOError, "unknown WIN32OLERuntimeError:\n#{msg.message}"
+      end
+    end
     
     def open_or_create_workbook(filename, options)
       return if @ole_workbook && options[:if_unsaved] != :alert && options[:if_unsaved] != :excel &&
@@ -430,15 +446,8 @@ module RobustExcelOle
         rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
           # for Excel2007: for option :if_unsaved => :alert and user cancels: this error appears?
           # if yes: distinguish these events
-          if (!options[:read_only].nil?) && options[:read_only] != @ole_workbook.ReadOnly &&
-            msg.message =~ /800A03EC/ && msg.message =~ /0x80020009/
-            # error message: 
-            # 'This workbook is currently referenced by another workbook and cannot be closed'
-            # 'Diese Arbeitsmappe wird momentan von einer anderen Arbeitsmappe verwendet und kann nicht geschlossen werden.'
-            raise WorkbookLinked, "read-only mode of this workbook cannot be changed, because it is being used by another workbook"
-          else
-            raise UnexpectedREOError, "unknown WIN32OLERuntimeError:\n#{msg.message}"
-          end
+          want_change_readonly = !options[:read_only].nil? && (options[:read_only] != @ole_workbook.ReadOnly)
+          explore_workbook_error(msg, want_change_readonly)
         end
         begin
           # workaround for bug in Excel 2010: workbook.Open does not always return the workbook when given file name
@@ -538,14 +547,7 @@ module RobustExcelOle
         begin
           @ole_workbook.Close 
         rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
-          if msg.message =~ /800A03EC/ && msg.message =~ /0x80020009/
-            # error message: 
-            # 'This workbook is currently referenced by another workbook and cannot be closed'
-            # 'Diese Arbeitsmappe wird momentan von einer anderen Arbeitsmappe verwendet und kann nicht geschlossen werden.'
-            raise WorkbookLinked, 'workbook is being used by another workbook'
-          else
-            raise UnexpectedREOError, "unknown WIN32OLERuntimeError:\n#{msg.message}"
-          end
+          explore_workbook_error(msg)          
         end
       end      
       @ole_workbook = nil unless alive?

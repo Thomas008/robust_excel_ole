@@ -97,12 +97,6 @@ The method Worksheet#values yields a 2-dimensional array that contains the value
   worksheet.values
   => [["foo", "workbook", "sheet1"], ["foo", nil, "foobaaa"], ["matz", "is", "nice"]]
 
-The method Worksheet#each_rowvalue enables to access the values of each row.
-
-  worksheet.each_rowvalue do |row_values|
-    # do something with the row_values
-  end
-
 You access a range of a row by giving the number of the row, and optionally, the range of the cell numbers.
 
   worksheet.row_range(1)  # => first row

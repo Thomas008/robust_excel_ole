@@ -410,22 +410,23 @@ module RobustExcelOle
       open_or_create_workbook(filename, options)
     end
 
-    def explore_workbook_error(msg, want_change_readonly = false)
+    def explore_workbook_error(msg, want_change_readonly = nil)
       if msg.message =~ /800A03EC/ && msg.message =~ /0x80020009/
         # error message: 
         # 'This workbook is currently referenced by another workbook and cannot be closed'
         # 'Diese Arbeitsmappe wird momentan von einer anderen Arbeitsmappe verwendet und kann nicht geschlossen werden.'
-        error_message = if want_change_readonly
-          "read-only mode of this workbook cannot be changed, because it is being used by another workbook"
+        if want_change_readonly==true
+          raise WorkbookLinked, "read-only mode of this workbook cannot be changed, because it is being used by another workbook"
+        elsif want_change_readonly.nil?
+          raise WorkbookLinked, "workbook is being used by another workbook"
         else
-          "workbook is being used by another workbook"
+          raise UnexpectedREOError, "unknown WIN32OLERuntimeError:\n#{msg.message}"
         end
-        raise WorkbookLinked, error_message
       else
         raise UnexpectedREOError, "unknown WIN32OLERuntimeError:\n#{msg.message}"
       end
     end
-    
+
     def open_or_create_workbook(filename, options)
       return if @ole_workbook && options[:if_unsaved] != :alert && options[:if_unsaved] != :excel &&
         (options[:read_only].nil? || options[:read_only]==@ole_workbook.ReadOnly )

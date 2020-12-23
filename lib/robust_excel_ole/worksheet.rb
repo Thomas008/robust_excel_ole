@@ -249,7 +249,7 @@ module RobustExcelOle
     end
 
     def each_rowvalue  # :deprecated: #
-      @ole_worksheet.UsedRange.Value.each do |row_values|
+      values.each do |row_values|
         yield row_values
       end
     end
@@ -260,7 +260,7 @@ module RobustExcelOle
 
     def each_rowvalue_with_index(offset = 0)    # :deprecated: #
       i = offset
-      @ole_worksheet.UsedRange.Value.each do |row_values|
+      values.each do |row_values|
         yield row_values, i
         i += 1
       end

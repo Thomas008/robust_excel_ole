@@ -2673,8 +2673,6 @@ describe Workbook do
           @book.should be_alive
         end
 
-        
-
         it "should not open the new book and not close the unsaved book, if user answers 'no'" do
           # "No" is right to "Yes" (the  default). --> language independent
           # strangely, in the "no" case, the question will sometimes be repeated three time

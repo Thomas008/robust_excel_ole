@@ -31,9 +31,18 @@ module RobustExcelOle
       @columns ||= (1..@ole_range.Columns.Count)
     end
 
+=begin
     def each
       @ole_range.each_with_index do |ole_cell, index|
         yield cell(index){ole_cell}
+      end
+    end
+=end
+
+    def each
+      ole_cells = @ole_range.Cells
+      (1..ole_cells.Count).each do |index|
+        yield cell(index){ole_cells.Item(index)}
       end
     end
 

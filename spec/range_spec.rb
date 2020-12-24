@@ -61,27 +61,14 @@ describe RobustExcelOle::Range do
         cell.v.should == 'sheet2' if i == 2
         i += 1
       end
-      @range2[0].Value = 'foo'
-      @range2[1].Value = 'bar'
-      @range2[2].Value = 'simple'
+      @range2[1].Value = 'foo'
+      @range2[2].Value = 'bar'
+      @range2[3].Value = 'simple'
       i = 0
       @range2.each do |cell|
         cell.v.should == 'foo' if i == 0
         cell.v.should == 'bar' if i == 1
         cell.v.should == 'simple' if i == 2
-        i += 1
-      end
-    end
-
-    it "should work with [] doing cashing synchonized, from #each to #[]" do
-      @range2[0].Value.should == 'simple'
-      @range2[1].Value.should == 'file'
-      @range2[2].Value.should == 'sheet2'
-      i = 0
-      @range2.each do |cell|
-        cell.Value = 'foo' if i == 0
-        cell.Value = 'bar' if i == 1
-        cell.Value = 'simple' if i == 2
         i += 1
       end
     end

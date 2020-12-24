@@ -137,9 +137,8 @@ module RobustExcelOle
           column_name = column_names.find do |c|
             c == core_name ||  
             c.gsub(/\W/,'') == core_name ||
-            c.replace_umlauts == core_name ||
-            c.gsub(/\W/,'').underscore.gsub(/[\W_]+/, '_') == core_name ||
-            c.replace_umlauts.gsub(/\W/,'').underscore.gsub(/[\W_]+/, '_') == core_name
+            c.replace_umlauts! == core_name ||
+            c.gsub(/\W/,'').underscore.gsub(/[\W_]+/, '_') == core_name
           end         
           if column_name
             method_name = core_name.gsub(/\W/,'') + (name_str[-1]!='=' ? "" : "=")

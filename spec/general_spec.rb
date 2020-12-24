@@ -45,6 +45,19 @@ module RobustExcelOle
       rm_tmp(@dir)
     end
 
+    describe "relace_umlauts, underscore" do
+
+      it "should replace umlauts" do
+        new_word = "BeforeÄÖÜäöüßAfter".replace_umlauts!
+        new_word.should == "BeforeAeOeUeaeoeuessAfter"
+      end
+
+      it "should underscore" do
+        "BeforeAfter".underscore.should == "before_after"
+      end
+
+    end
+
     describe "to_reo" do
 
       before do

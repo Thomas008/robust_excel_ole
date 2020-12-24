@@ -80,21 +80,14 @@ module StringRefinement
       end
     end
 
-    def replace_umlauts
-      word = self
-      word.gsub!('ä','ae')
-      word.gsub!('Ä','Ae')
-      word.gsub!('ö','oe')
-      word.gsub!('Ö','Oe')
-      word.gsub!('ü','ue')
-      word.gsub!('Ü','Ue')
-      #word.gsub!(/\x84/,'ae')
-      #word.gsub!(/\x8E/,'Ae')
-      #word.gsub!(/\x94/,'oe')
-      #word.gsub!(/\x99/,'Oe')
-      #word.gsub!(/\x81/,'ue')
-      #word.gsub!(/\x9A/,'Ue')
-      word
+    def replace_umlauts!
+      gsub!('ä','ae')
+      gsub!('Ä','Ae')
+      gsub!('ö','oe')
+      gsub!('Ö','Oe')
+      gsub!('ü','ue')
+      gsub!('Ü','Ue')
+      gsub!('ß','ss')
     end
 
     # taken from http://apidock.com/rails/ActiveSupport/Inflector/underscore
@@ -195,40 +188,6 @@ class Array
 
 end
 
-
-=begin
-# @private
-module SpaceshipRefinement
-
-  refine Integer do
-
-    alias old_spaceship <=>
-
-    def <=> other
-      # p other
-      if other.is_a? Array
-        self <=> other.first
-      else
-        old_spaceship other
-      end
-    end
-  end
-
-  refine Array do
-
-    alias old_spaceship <=>
-
-    def <=> other
-      # p other
-      if other.is_a? Integer
-        self <=> [other]
-      else
-        old_spaceship other
-      end
-    end
-  end
-end
-=end
 
 module General
 

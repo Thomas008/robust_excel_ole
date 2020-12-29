@@ -131,17 +131,30 @@ module RobustExcelOle
         end        
 
         def method_missing(name, *args)
+          puts "method_missing:"
+          puts "name: #{name.inspect}"
           name_str = name.to_s
           core_name = name_str[-1]!='=' ? name_str : name_str[0..-2]
+          puts "core_name: #{core_name.inspect}"
           column_names = @@ole_table.HeaderRowRange.Value.first
+          puts "column_names: #{column_names.inspect}"
           column_name = column_names.find do |c|
-            c == core_name ||  
-            c.gsub(/\W/,'') == core_name ||
-            c.replace_umlauts! == core_name ||
-            c.gsub(/\W/,'').underscore.gsub(/[\W_]+/, '_') == core_name
+            puts "c: #{c.inspect}"            
+            c = c.gsub(/\W/,'_')
+            puts "c: #{c.inspect}"
+            puts "c.underscore: #{c.underscore.inspect}"
+            c == core_name ||
+            c.underscore == core_name ||
+            c.replace_umlauts == core_name ||
+            c.replace_umlauts.underscore == core_name ||
+            (core_name[0] == '_' && core_name[1..-1].to_i == c.to_i)
           end         
           if column_name
-            method_name = core_name.gsub(/\W/,'') + (name_str[-1]!='=' ? "" : "=")
+            puts "found column_name: #{column_name.inspect}"
+            appended_eq = (name_str[-1]!='=' ? "" : "=")
+            puts "core_name: #{core_name.inspect}"
+            method_name = core_name.replace_umlauts.underscore + appended_eq 
+            puts "method_name: #{method_name.inspect}"
             define_and_call_method(column_name,method_name,*args)
           else
             super(name, *args)
@@ -151,6 +164,9 @@ module RobustExcelOle
       private
 
         def define_and_call_method(column_name,method_name,*args)
+          puts "define_and_call_method:"
+          puts "column_name: #{column_name.inspect}"
+          puts "method_name: #{method_name.inspect}"
           ole_cell = @@ole_table.Application.Intersect(
               @ole_listrow.Range, @@ole_table.ListColumns.Item(column_name).Range)
           define_getting_setting_method(ole_cell,method_name)            
@@ -158,6 +174,8 @@ module RobustExcelOle
         end
        
         def define_getting_setting_method(ole_cell,name)
+          puts "define_getting_setting_method:"
+          puts "name: #{name.inspect}"
           if name[-1] != '='
             self.class.define_method(name) do
               ole_cell.Value

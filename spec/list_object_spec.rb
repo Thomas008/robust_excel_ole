@@ -221,7 +221,7 @@ describe ListObject do
       context "with umlauts" do
 
         before do
-          @table = Table.new(@sheet, "table_name", [1,1], 3, ["Verkäufer", "Straße", "area in m³"])
+          @table = Table.new(@sheet, "table_name", [1,1], 3, ["Verkäufer", "Straße", "area in m²"])
           @table_row1 = @table[1]
         end
 

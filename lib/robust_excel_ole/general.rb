@@ -226,11 +226,9 @@ module General
   # @private
   def hostnameshare2networkpath(filename)
     return filename unless filename[0,2] == "//"
-    ind = filename[2,filename.length].index('/')
-    filename = filename[0,ind+2].upcase + filename[ind+2,filename.length]
     f_c = filename.dup
     network_drive = NetworkDrive.get_all_drives.find do |d| 
-      e = f_c.sub!(d.network_name,d.drive_letter)
+      e = f_c.sub!(Regexpr(/d.network_name/i,d.drive_letter)
       return e if e
     end    
     filename
@@ -285,7 +283,7 @@ module General
   def init_reo_for_win32ole
     class2method.each do |element|
       classname = element.first.first
-      meths = (classname.instance_methods(false) - WIN32OLE.instance_methods(false) - Object.methods - [:Calculation=])
+      meths = (classname.instance_methods(false) - WIN32OLE.instance_methods(false) - Object.methods - Enumerable.instance_methods(false) - [:Calculation=])
       meths.each do |inst_method|
         WIN32OLE.send(:define_method, inst_method) do |*args, &blk|  
           self.to_reo.send(inst_method, *args, &blk) 

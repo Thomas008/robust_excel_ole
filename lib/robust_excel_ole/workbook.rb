@@ -340,10 +340,11 @@ module RobustExcelOle
     end
 
     def manage_blocking_workbook(filename, options)
+      blocked_file_name = General.canonize(@ole_workbook.Fullname.tr('\\','/'))
       case options[:if_obstructed]
       when :raise
         raise WorkbookBlocked, "can't open workbook #{filename},
-        because it is being blocked by #{@ole_workbook.Fullname.tr('\\','/')} with the same name in a different path." +
+        because it is being blocked by #{blocked_file_name} with the same name in a different path." +
         "\nHint: Use the option :if_blocked with values :forget or :save,
          to allow automatic closing of the old workbook (without or with saving before, respectively),
          before the new workbook is being opened."
@@ -353,7 +354,7 @@ module RobustExcelOle
         manage_saving_workbook(filename, options)        
       when :close_if_saved
         if !@ole_workbook.Saved
-          raise WorkbookBlocked, "workbook with the same name in a different path is unsaved: #{@ole_workbook.Fullname.tr('\\','/')}" +
+          raise WorkbookBlocked, "workbook with the same name in a different path is unsaved: #{blocked_file_name}" +
           "\nHint: Use the option :if_blocked => :save to save the workbook"
         else
           manage_forgetting_workbook(filename, options)

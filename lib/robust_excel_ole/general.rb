@@ -228,12 +228,11 @@ module General
     return filename unless filename[0,2] == "//"
     f_c = filename.dup
     network_drive = NetworkDrive.get_all_drives.find do |d| 
-      e = f_c.sub!(Regexpr(/d.network_name/i,d.drive_letter)
+      e = f_c.sub!(/#{(Regexp.escape(d.network_name))}/i,d.drive_letter)
       return e if e
     end    
     filename
   end  
-
 
   # @private
   def absolute_path(file)

@@ -248,22 +248,6 @@ describe ListObject do
 
       end
 
-      context "with further column names" do
-
-        before do
-          @table = Table.new(@sheet, "table_name", [1,1], 3, ["2013", "dummy"])
-          @table_row1 = @table[1]
-        end
-
-        it "should read and set values via alternative column names" do
-          @table_row1._2013.should be nil
-          @table_row1._2013 = 2
-          @table_row1._2013.should == 2
-          @sheet[2,1].Value.should == 2
-        end
-
-      end
-
     end
 
     context "with type-lifted ole list object" do

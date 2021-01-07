@@ -11,6 +11,8 @@ module RobustExcelOle
   # worksheet: see https://github.com/Thomas008/robust_excel_ole/blob/master/lib/robust_excel_ole/worksheet.rb
   class Worksheet < RangeOwners
 
+    using ToReoRefinement
+
     attr_reader :ole_worksheet
     attr_reader :workbook
 
@@ -305,6 +307,16 @@ module RobustExcelOle
         end
       end
       range
+    end
+
+    # @params [Variant] table (listobject) name or number 
+    # @return [ListObject] a table (listobject)
+    def table(number_or_name)
+      begin
+        @ole_worksheet.ListObjects.Item(number_or_name).to_reo
+      rescue
+        raise WorksheetREOError, "table #{number_or_name} not found"
+      end
     end
 
     # @private

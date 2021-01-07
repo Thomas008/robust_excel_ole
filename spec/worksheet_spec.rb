@@ -23,6 +23,7 @@ describe Worksheet do
     @protected_file = @dir + '/protected_sheet.xls'
     @blank_file = @dir + '/book_with_blank.xls'
     @merge_file = @dir + '/merge_cells.xls'
+    @listobject_file = @dir + '/workbook_listobjects.xlsx'    
     @book = Workbook.open(@simple_file)
     @sheet = @book.sheet(1)
   end
@@ -251,6 +252,37 @@ describe Worksheet do
         expect{
           @sheet.range([0,0])
           }.to raise_error(RangeNotCreated, /cannot create/)
+      end
+
+    end
+
+    describe "table" do
+
+      before do
+        @book = Workbook.open(@listobject_file, :visible => true)
+        @sheet = @book.sheet(3)
+      end
+
+      it "should yield table given number" do
+        table = @sheet.table(1)
+        table.Name.should == "table3"
+        table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Price"]
+        table.ListRows.Count.should == 6
+        @sheet[3,4].Value.should == "Number"
+      end
+
+      it "should yield table given name" do
+        table = @sheet.table("table3")
+        table.Name.should == "table3"
+        table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Price"]
+        table.ListRows.Count.should == 6
+        @sheet[3,4].Value.should == "Number"
+      end
+
+      it "should raise error" do
+        expect{
+          @sheet.table("table4")
+          }.to raise_error(WorksheetREOError)
       end
 
     end

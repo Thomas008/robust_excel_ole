@@ -2,7 +2,8 @@
 
 module RobustExcelOle
 
-  class ListRow
+  class ListRow    
+
   end
 
   # This class essentially wraps a Win32Ole ListObject. 
@@ -149,6 +150,15 @@ module RobustExcelOle
           else
             super(name, *args)
           end
+        end
+
+        def to_s    
+          "#<ListRow: " + "index:#{@ole_listrow.Index}" + " size:#{@@ole_table.ListColumns.Count}" + " #{@@ole_table.Name}" + ">"
+        end
+
+        # @private
+        def inspect    
+          to_s          
         end
 
       private

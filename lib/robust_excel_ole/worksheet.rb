@@ -313,10 +313,11 @@ module RobustExcelOle
     # @return [ListObject] a table (listobject)
     def table(number_or_name)
       begin
-        @ole_worksheet.ListObjects.Item(number_or_name).to_reo
+        ole_listobject = @ole_worksheet.ListObjects.Item(number_or_name)
       rescue
         raise WorksheetREOError, "table #{number_or_name} not found"
       end
+      ListObject.new(ole_listobject)
     end
 
     # @private

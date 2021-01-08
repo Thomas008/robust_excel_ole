@@ -330,6 +330,5 @@ module RobustExcelOle
   end
 
   Table = ListObject
-  TableRow = ListRow
 
 end

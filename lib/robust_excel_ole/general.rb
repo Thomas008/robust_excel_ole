@@ -226,12 +226,9 @@ module General
   # @private
   def hostnameshare2networkpath(filename)
     return filename unless filename[0,2] == "//"
-    f_c = filename.dup
-    network_drive = NetworkDrive.get_all_drives.find do |d| 
-      e = f_c.sub!(/#{(Regexp.escape(d.network_name))}/i,d.drive_letter)
-      return e if e
+    NetworkDrive.get_all_drives.inject(filename) do |fn_modified, d| 
+      fn_modified.sub(/#{(Regexp.escape(d.network_name))}/i,d.drive_letter)
     end    
-    filename
   end  
 
   # @private

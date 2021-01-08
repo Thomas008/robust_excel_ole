@@ -2,6 +2,10 @@
 
 module RobustExcelOle
 
+  using FindAllIndicesRefinement
+  using StringRefinement
+  using ToReoRefinement
+
   class ListRow    
 
     def initialize(row_number)
@@ -90,12 +94,12 @@ module RobustExcelOle
 
     # @private
     def to_s    
-      "#<ListRow: " + "index:#{@ole_listrow.Index}" + " size:#{ole_table.ListColumns.Count}" + " #{ole_table.Name}" + ">"
+      inspect  
     end
 
     # @private
     def inspect    
-      to_s          
+      "#<ListRow: " + "index:#{@ole_listrow.Index}" + " size:#{ole_table.ListColumns.Count}" + " #{ole_table.Name}" + ">"
     end
 
   private
@@ -132,10 +136,6 @@ module RobustExcelOle
 
     alias ole_object ole_table
 
-    using FindAllIndicesRefinement
-    using StringRefinement
-    using ToReoRefinement
-   
     # constructs a list object (or table).
     # @param [Variable] worksheet_or_listobject      a worksheet or a list object
     # @param [Variable] table_name_or_number         a table name or table number
@@ -189,15 +189,15 @@ module RobustExcelOle
           @@ole_table
         end
       
-      end
+      end      
 
-      # accesses a table row object
-      # @param [Integer]  a row number (>= 1)
-      # @return [ListRow] a object of dynamically constructed class with superclass ListRow 
-      def [] row_number
-        @row_class.new(row_number)
-      end
+    end
 
+    # accesses a table row object
+    # @param [Integer]  a row number (>= 1)
+    # @return [ListRow] a object of dynamically constructed class with superclass ListRow 
+    def [] row_number
+      @row_class.new(row_number)
     end
 
     # @return [Array] a list of column names

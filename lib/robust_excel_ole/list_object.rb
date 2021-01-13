@@ -117,7 +117,7 @@ module RobustExcelOle
 
     # deletes a row
     # @param [Integer] position of the old row
-    def delete_row(row_number)
+    def delete_row(row_number)                          # :nodoc: #
       begin
         @ole_table.ListRows.Item(row_number).Delete
       rescue WIN32OLERuntimeError
@@ -127,7 +127,7 @@ module RobustExcelOle
 
     # deletes a column
     # @param [Variant] column number or column name
-    def delete_column(column_number_or_name)
+    def delete_column(column_number_or_name)              # :nodoc: #
       begin
         @ole_table.ListColumns.Item(column_number_or_name).Delete
       rescue WIN32OLERuntimeError
@@ -161,7 +161,7 @@ module RobustExcelOle
     # renames a row
     # @param [String] previous name or number of the column
     # @param [String] new name of the column   
-    def rename_column(name_or_number, new_name)
+    def rename_column(name_or_number, new_name)              # :nodoc: #
       begin
         @ole_table.ListColumns.Item(name_or_number).Name = new_name
       rescue

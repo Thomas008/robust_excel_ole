@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 module RobustExcelOle
   module Cygwin
     require 'Win32API'

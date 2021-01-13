@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 if RUBY_PLATFORM =~ /java/
   require 'jruby-win32ole'
 else

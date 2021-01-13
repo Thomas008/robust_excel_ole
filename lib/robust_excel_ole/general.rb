@@ -80,23 +80,14 @@ module StringRefinement
       end
     end
 
-=begin
-    def replace_umlauts!
-      gsub!('ä','ae')
-      gsub!('Ä','Ae')
-      gsub!('ö','oe')
-      gsub!('Ö','Oe')
-      gsub!('ü','ue')
-      gsub!('Ü','Ue')
-      gsub!('ß','ss')
-      gsub!('²','2')
-      gsub!('³','3')
-    end
-=end
-
     def replace_umlauts
-      word = self.gsub('ä','ae').gsub('Ä','Ae').gsub('ö','oe').gsub('Ö','Oe').gsub('ü','ue').gsub('Ü','Ue')
-      word.gsub('ß','ss').gsub('²','2').gsub('³','3')
+      word = self.force_encoding('iso-8859-1').encode('utf-8')
+      #word = self.encode("UTF-8", "Windows-1252")    
+      word.gsub('ä','ae').gsub('Ä','Ae').gsub('ö','oe').gsub('Ö','Oe').gsub('ü','ue').gsub('Ü','Ue')
+      word.gsub('ß','ss').gsub('²','2').gsub('³','3')      
+      #word.gsub("\x84",'ae').gsub("\x8E",'Ae').gsub("\x94",'oe').gsub("\x99",'Oe').gsub("\x81",'ue').gsub("\x9A",'Ue')
+      #word.gsub("\xE1",'ss').gsub("\xFD",'2').gsub("\xFC",'3')
+      word
     end
 
     # taken from http://apidock.com/rails/ActiveSupport/Inflector/underscore

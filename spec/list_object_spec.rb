@@ -111,7 +111,6 @@ describe ListObject do
 
       context "with standard" do
 
-=begin
       before do
         @table = Table.new(@sheet, "table_name", [1,1], 3, ["Person1","Amo%untSal___es"])
         @table_row1 = @table[1]
@@ -134,7 +133,6 @@ describe ListObject do
         #@table_row1.AmountSalEs.should == 80
         #@sheet[2,2].Value.should == 80
       end
-=end
 
 =begin
         before do

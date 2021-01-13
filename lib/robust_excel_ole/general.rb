@@ -82,6 +82,7 @@ module StringRefinement
 
     def replace_umlauts
       word = self.force_encoding('iso-8859-1').encode('utf-8')
+      #word = self.encode("UTF-8")
       #word = self.encode("UTF-8", "Windows-1252")    
       word.gsub('ä','ae').gsub('Ä','Ae').gsub('ö','oe').gsub('Ö','Oe').gsub('ü','ue').gsub('Ü','Ue')
       word.gsub('ß','ss').gsub('²','2').gsub('³','3')      

@@ -13,13 +13,18 @@ another_simple_file = dir + 'another_workbook.xls'
 
 Excel.kill_all
 
-using ToReoRefinement
-
 # open a workbook
 puts "open a workbook"
 book = Workbook.open(simple_file) 
 puts "make it visible"
 book.visible = true
+
+ole_workbook = book.ole_workbook
+puts "ole_workbook: #{ole_workbook}"
+sheet = ole_workbook.sheet(1)
+puts "sheet: #{sheet}"
+
+using ToReoRefinement
 puts "book: #{book}"
 ole_workbook = book.ole_workbook
 puts "ole_workbook: #{ole_workbook.inspect}"

@@ -61,9 +61,9 @@ describe RobustExcelOle::Range do
         cell.v.should == 'sheet2' if i == 2
         i += 1
       end
-      @range2[1].Value = 'foo'
-      @range2[2].Value = 'bar'
-      @range2[3].Value = 'simple'
+      @range2[0].Value = 'foo'
+      @range2[1].Value = 'bar'
+      @range2[2].Value = 'simple'
       i = 0
       @range2.each do |cell|
         cell.v.should == 'foo' if i == 0

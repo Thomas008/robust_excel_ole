@@ -73,11 +73,28 @@ module RobustExcelOle
 
     end
 
+
     # accesses a table row object
-    # @param [Integer]  a row number (>= 1)
+    # @param [Variant]  a hash of key (key column: value) row number (>= 1) 
     # @return [ListRow] a object of dynamically constructed class with superclass ListRow 
-    def [] row_number
-      @row_class.new(row_number)
+    def [] keys_or_number
+      return @row_class.new(keys_or_number) if keys_or_number.respond_to?(:succ)
+      keys = keys_or_number      
+      begin      
+        listrows = @ole_table.ListRows
+        (1..listrows.Count).each do |row_number|
+          row_item = listrows.Item(row_number)
+          keys_satisfied = true
+          keys.each do |key,val|
+            keys_satisfied &&= row_item.Range.Value.first[column_names.index(key)] == val
+            break unless keys_satisfied
+          end          
+          return @row_class.new(row_number) if keys_satisfied
+        end
+        nil
+      rescue
+        raise(TableError, "cannot find row with key #{keys_or_number}")
+      end
     end
 
     # @return [Array] a list of column names

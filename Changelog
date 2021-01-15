@@ -1,6 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.32] 2021-14-02
+
+### Added
+  - ListObject#[]
+    accessing a list row given a key
+
 ## [1.31] 2021-14-01
 
 ### Added

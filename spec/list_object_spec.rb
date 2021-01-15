@@ -29,6 +29,20 @@ describe ListObject do
     rm_tmp(@dir)
   end
 
+  describe "accessing a table" do
+
+    it "should access a table via its number" do
+      table = @sheet.table(1)
+      table.Name.should == "table_name"
+    end
+
+    it "should access a table via its number" do
+      table = @sheet.table("table_name")
+      table.Name.should == "table_name"
+    end
+
+  end
+
   describe "creating" do
 
     context "with standard" do
@@ -101,6 +115,41 @@ describe ListObject do
         @sheet[3,4].Value.should == "Number"
       end
 
+    end
+
+  end
+
+  describe "accessing a listrow" do
+
+    before do
+      @table1 = @sheet.table(1)
+    end
+
+    it "should access a listrow given its number" do
+      list_row = @table[2]
+      list_row.values.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
+    end
+
+    it "should access the listrow given a one-column key" do
+      @table[{"Number" => 2}].values.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
+    end
+
+    it "should access the first suitable listrow that matches a given one-column key" do      
+      @table[{"Number" => 3}].values.should == [3.0, "John", 50.0, 0.5, 30]
+    end
+
+    it "should access a listrow via a multiple-column key" do
+      @table[{"Number" => 3, "Person" => "Angel"}].should == [3.0, "Angel", 100, 0.6666666666666666, 60]
+    end
+
+    it "should yield nil if there is no match" do
+      @table[{"Number" => 3, "Person" => "Ang"}].should be nil
+    end
+
+    it "should raise an error if the key contains no existing columns" do
+      expect{
+        @table[{"Number" => 3, "Persona" => "Angel"}]
+        }.to raise_error(TableError)
     end
 
   end

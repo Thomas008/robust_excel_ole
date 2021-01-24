@@ -76,21 +76,91 @@ module RobustExcelOle
 
     # accesses a table row object
     # @param [Variant]  a hash of key (key column: value) or a row number (>= 1) 
-    # @return [ListRow] a object of dynamically constructed class with superclass ListRow 
-    def [] keys_or_number
+    # @param [Integer]  maximal number of matching list rows to return
+    # @return [Variant] a list row object of dynamically constructed class with class ListRow,
+    #                                     if one matching list row was found 
+    #                   an array of listrows, if several list rows were found
+    #                   nil, if no list object was found
+    def [] (keys_or_number, limit = 1)
       return @row_class.new(keys_or_number) if keys_or_number.respond_to?(:succ)
       keys = keys_or_number      
       begin      
-        listrows = @ole_table.ListRows       
-        row = (1..listrows.Count).find do |row_number|
-          keys.map{|k| listrows.Item(row_number).Range.Value.first[column_names.index(k[0])]==k[1]}.inject(true,:&)
+        matching_listrows = []
+        @ole_table.ListRows.each do |ole_listrow|
+          if keys.map{|key,val| ole_listrow.Range.Value.first[column_names.index(key)]==val}.inject(true,:&)
+            matching_listrows << @row_class.new(ole_listrow) 
+          end
+          break if matching_listrows.count == limit
         end
-        return @row_class.new(row) if row
+        case matching_listrows.count
+        when 0 then nil
+        when 1 then matching_listrows.first
+        else matching_listrows
+        end
       rescue
         raise(TableError, "cannot find row with key #{keys_or_number}")
       end
     end
 
+     # variant: find
+=begin
+    def [] keys_or_number
+      return @row_class.new(keys_or_number) if keys_or_number.respond_to?(:succ)
+      keys = keys_or_number      
+      begin      
+        matching_listrow = @ole_table.ListRows.find do |listrow|
+          keys.map{|key,val| listrow.Range.Value.first[column_names.index(key)]==val}.inject(true,:&)
+        end
+        return @row_class.new(matching_listrow) if matching_listrow
+      rescue
+        raise(TableError, "cannot find row with key #{keys_or_number}")
+      end
+    end
+=end
+
+    # values of the listrow in the table that match the given key
+    # @param [Hash]  a hash of key (key column: value)
+    # @return [Hash] all (column name:value)-pairs of the matching row 
+
+    # variant: criteria and copyto range in addedd worksheet
+    def values(key)
+      ole_workbook = self.Parent.Parent
+      saved_status = ole_workbook.Saved
+      added_ole_worksheet = ole_workbook.Worksheets.Add
+      criteria = Table.new(added_ole_worksheet, "criteria", [1,1], 2, key.keys)
+      criteria[1].values = key.values
+      self.Range.AdvancedFilter({
+        'Action' => XlFilterCopy, 
+        'CriteriaRange' => added_ole_worksheet.range([1..2,1..key.length]).ole_range, 
+        'CopyToRange' => added_ole_worksheet.range([4,1]).ole_range, 'Unique' => false})
+      target_range = added_ole_worksheet.range([5,1..column_names.length])
+      values = target_range.value.first
+      ole_workbook.Parent.with_displayalerts(false){added_ole_worksheet.Delete}
+      ole_workbook.Saved = saved_status
+      column_names.zip(values).to_h
+    end
+
+    # variant: criteria and copyto range in same worksheet, under UsedRange
+=begin    
+    def values(key)
+      ole_worksheet = self.Parent
+      ole_workbook = ole_worksheet.Parent
+      saved_status = ole_workbook.Saved     
+      used_rows = ole_worksheet.UsedRange.Rows.Count
+      criteria = Table.new(ole_worksheet, "criteria", [used_rows+2,1], 2, key.keys)
+      criteria[1].values = key.values
+      self.Range.AdvancedFilter({
+        'Action' => XlFilterCopy, 
+        'CriteriaRange' => ole_worksheet.range([used_rows+2..used_rows+3,1..key.length]).ole_range, 
+        'CopyToRange' => ole_worksheet.range([used_rows+5,1]).ole_range, 'Unique' => false})
+      target_range = ole_worksheet.range([used_rows+6,1..column_names.length])
+      values = target_range.value.first
+      criteria.Delete
+      ole_worksheet.range([used_rows+5..used_rows+6,1..column_names.length]).Delete
+      ole_workbook.Saved = saved_status
+      column_names.zip(values).to_h
+    end
+=end
     # @return [Array] a list of column names
     def column_names
       begin

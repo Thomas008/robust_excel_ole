@@ -119,6 +119,67 @@ describe ListObject do
 
   end
 
+  describe "benchmarking for accessing a listrow" do
+
+    it "should access the last row" do
+      rows = 10
+      table = Table.new(@sheet.ole_worksheet, "table_name", [12,1], rows, ["Index","Person", "Time", "Price", "Sales", "Length", "Size", "Width", "Weight", "Income", "Outcome", "Holiday", "Gender", "Sex", "Tallness", "Kindness", "Music", "Activity", "Goal", "Need"])
+      (1..rows).each do |row|
+        table[row].values = [12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason"]
+      end
+      table[rows].values = [12345123, "Peterson", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason"]
+      sleep 1
+      start_time = Time.now
+      listrow = table[{"Index" => 12345123, "Person" => "Peterson"}]
+      end_time = Time.now
+      duration = end_time - start_time
+      puts "duration: #{duration}"
+    end
+
+  end
+
+  describe "benchmarking for values" do
+
+    it "should access the last row" do
+      rows = 10000
+      table = Table.new(@sheet.ole_worksheet, "table_name", [12,1], rows, ["Index","Person", "Time", "Price", "Sales", "Length", "Size", "Width", "Weight", "Income", "Outcome", "Holiday", "Gender", "Sex", "Tallness", "Kindness", "Music", "Activity", "Goal", "Need"])
+      (1..rows).each do |row|
+        table[row].values = [12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason"]
+      end
+      table[rows].values = [12345123, "Peterson", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason"]
+      sleep 1
+      start_time = Time.now
+      values = table.values({"Index" => 12345123, "Person" => "Peterson"})
+      end_time = Time.now
+      duration = end_time - start_time
+      puts "duration: #{duration}"
+      puts "values: #{values}"
+    end
+
+  end
+
+  describe "accressing the values of a listrow matching a key using advanced filter" do
+
+    before do
+      @table1 = @sheet.table(1)
+    end
+
+    it "should yield the values of the listrow given a one-column key" do
+      @table1.values({"Number" => 2}).should == {"Number" => 2.0, "Person" => "Fred", "Amount" => nil, "Time" => 0.5416666666666666, "Price" => 40}
+    end
+
+    it "should yield the values of the first listrow matching a given one-column key" do      
+      @table1.values({"Number" => 3}).should == {"Number" => 3.0, "Person" => "John", "Amount" => 50.0, "Time" => 0.5, "Price" => 30}
+    end
+
+    it "should yield a ´key-value hash given a multiple-column key" do
+      @table1.values({"Number" => 3, "Person" => "Angel"}).should ==  {"Number" => 3.0, "Person" => "Angel", "Amount" => 100, "Time" => 0.6666666666666666, "Price" => 60}
+    end
+
+  end
+
+
+
   describe "accessing a listrow" do
 
     before do
@@ -129,11 +190,16 @@ describe ListObject do
       @table1[2].values.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
     end
 
+    it "should promote a win32ole tablerow" do
+      ole_tablerow = @table1[2].ole_tablerow
+      ListRow.new(ole_tablerow).values.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
+    end    
+
     it "should access the listrow given a one-column key" do
       @table1[{"Number" => 2}].values.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
     end
 
-    it "should access the first suitable listrow that matches a given one-column key" do      
+    it "should access the first matching listrow that matches a given one-column key" do      
       @table1[{"Number" => 3}].values.should == [3.0, "John", 50.0, 0.5, 30]
     end
 
@@ -149,6 +215,14 @@ describe ListObject do
       expect{
         @table1[{"Number" => 3, "Persona" => "Angel"}]
         }.to raise_error(TableError)
+    end
+
+    it "should access two listrows via a multiple-column key" do
+      @table1[{"Number" => 3}, 2].map{|l| l.values}.should == [[3.0, "John", 50.0, 0.5, 30],[3.0, "Angel", 100, 0.6666666666666666, 60]]
+    end
+
+    it "should access all listrows via a multiple-column key" do
+      @table1[{"Number" => 3}, nil].map{|l| l.values}.should == [[3.0, "John", 50.0, 0.5, 30],[3.0, "Angel", 100, 0.6666666666666666, 60]]
     end
 
   end
@@ -311,6 +385,12 @@ describe ListObject do
       expect{
         @table.set_row_values(9, [5, "George", 30.0, 0.2, 50])
       }.to raise_error(TableError)
+    end
+
+    it "should set contents of a row" do
+      @table[1].values = [2, "Merlin", 20.0, 0.1, 40]
+      @table[1].values = [4, "John"]
+      @table.ListRows.Item(1).Range.Value.first.should == [4, "John", 20.0, 0.1, 40]
     end
 
   end

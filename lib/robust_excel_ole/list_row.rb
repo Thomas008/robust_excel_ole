@@ -6,8 +6,14 @@ module RobustExcelOle
 
   class ListRow    
 
-    def initialize(row_number)
-      @ole_listrow = ole_table.ListRows.Item(row_number)
+    attr_reader :ole_tablerow
+
+    def initialize(rownumber_or_oletablerow)
+      @ole_tablerow = if !rownumber_or_oletablerow.respond_to?(:succ)
+        rownumber_or_oletablerow       
+      else
+        ole_table.ListRows.Item(rownumber_or_oletablerow)
+      end
     end
 
     # returns the value of the cell with given column name or number
@@ -16,7 +22,7 @@ module RobustExcelOle
     def [] column_number_or_name
       begin
         ole_cell = ole_table.Application.Intersect(
-          @ole_listrow.Range, ole_table.ListColumns.Item(column_number_or_name).Range)
+          @ole_tablerow.Range, ole_table.ListColumns.Item(column_number_or_name).Range)
         ole_cell.Value
       rescue WIN32OLERuntimeError
         raise TableRowError, "could not determine the value at column #{column_number_or_name}"
@@ -29,7 +35,7 @@ module RobustExcelOle
     def []=(column_number_or_name, value)
       begin
         ole_cell = ole_table.Application.Intersect(
-          @ole_listrow.Range, ole_table.ListColumns.Item(column_number_or_name).Range)
+          @ole_tablerow.Range, ole_table.ListColumns.Item(column_number_or_name).Range)
         ole_cell.Value = value
       rescue WIN32OLERuntimeError
         raise TableRowError, "could not assign value #{value.inspect} to cell at column #{column_number_or_name}"
@@ -40,10 +46,14 @@ module RobustExcelOle
     # @return [Array] values of the row
     def values
       begin
-        @ole_listrow.Range.Value.first
+        @ole_tablerow.Range.Value.first
       rescue WIN32OLERuntimeError
         raise TableError, "could not read values"
       end
+    end
+
+    def values= values
+      set_values values
     end
 
     # sets the values of the row
@@ -52,7 +62,7 @@ module RobustExcelOle
       begin
         updated_values = self.values
         updated_values[0,values.length] = values
-        @ole_listrow.Range.Value = [updated_values]
+        @ole_tablerow.Range.Value = [updated_values]
         values
       rescue WIN32OLERuntimeError
         raise TableError, "could not set values #{values.inspect}"
@@ -62,7 +72,7 @@ module RobustExcelOle
     # deletes the values of the row
     def delete_values
       begin
-        @ole_listrow.Range.Value = [[].fill(nil,0..(ole_table.ListColumns.Count)-1)]
+        @ole_tablerow.Range.Value = [[].fill(nil,0..(ole_table.ListColumns.Count)-1)]
         nil
       rescue WIN32OLERuntimeError
         raise TableError, "could not delete values"
@@ -97,14 +107,14 @@ module RobustExcelOle
 
     # @private
     def inspect    
-      "#<ListRow: " + "index:#{@ole_listrow.Index}" + " size:#{ole_table.ListColumns.Count}" + " #{ole_table.Name}" + ">"
+      "#<ListRow: " + "index:#{@ole_tablerow.Index}" + " size:#{ole_table.ListColumns.Count}" + " #{ole_table.Name}" + ">"
     end
 
   private
 
     def define_and_call_method(column_name,method_name,*args)
       ole_cell = ole_table.Application.Intersect(
-          @ole_listrow.Range, ole_table.ListColumns.Item(column_name).Range)
+          @ole_tablerow.Range, ole_table.ListColumns.Item(column_name).Range)
       define_getting_setting_method(ole_cell,method_name)            
       self.send(method_name, *args)
     end

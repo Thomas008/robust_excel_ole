@@ -69,6 +69,18 @@ module RobustExcelOle
         @book2 = Workbook.open(@listobject_file)        
       end
 
+      it "should type-lift an ListRow" do
+        worksheet = @book2.sheet(3)
+        ole_table = worksheet.ListObjects.Item(1)
+        table = Table.new(ole_table)
+        listrow = table[1]
+        listrow.values.should == [3.0, "John", 50.0, 0.5, 30.0]
+        type_lifted_listrow = listrow.ole_tablerow.to_reo
+        type_lifted_listrow.should be_a ListRow
+        type_lifted_listrow.values.should == [3.0, "John", 50.0, 0.5, 30.0]
+
+      end
+
       it "should type-lift an ListObject" do
         worksheet = @book2.sheet(3)
         ole_table = worksheet.ListObjects.Item(1)

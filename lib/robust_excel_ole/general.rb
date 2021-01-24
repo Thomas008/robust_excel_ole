@@ -291,7 +291,8 @@ module General
      {RobustExcelOle::Workbook => :FullName},
      {RobustExcelOle::Worksheet => :UsedRange},
      {RobustExcelOle::Range => :Row},
-     {RobustExcelOle::ListObject => :ListRows}]
+     {RobustExcelOle::ListObject => :ListRows},
+     {RobustExcelOle::ListRow => :Creator}]
   end
 
   # @private

@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 ### Added
   - ListObject#[]
     accessing a list row given a key
+  - ListRow#values=
 
 ## [1.31] 2021-14-01
 

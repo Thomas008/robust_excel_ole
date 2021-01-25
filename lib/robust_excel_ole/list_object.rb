@@ -123,6 +123,7 @@ module RobustExcelOle
     # @return [Hash] all (column name:value)-pairs of the matching row 
 
     # variant: criteria and copyto range in addedd worksheet
+=begin    
     def values(key)
       ole_workbook = self.Parent.Parent
       saved_status = ole_workbook.Saved
@@ -139,28 +140,27 @@ module RobustExcelOle
       ole_workbook.Saved = saved_status
       column_names.zip(values).to_h
     end
-
+=end
     # variant: criteria and copyto range in same worksheet, under UsedRange
-=begin    
     def values(key)
       ole_worksheet = self.Parent
       ole_workbook = ole_worksheet.Parent
       saved_status = ole_workbook.Saved     
       used_rows = ole_worksheet.UsedRange.Rows.Count
-      criteria = Table.new(ole_worksheet, "criteria", [used_rows+2,1], 2, key.keys)
+      criteria = Table.new(ole_worksheet, "criteria", [used_rows+4,1], 2, key.keys)
       criteria[1].values = key.values
       self.Range.AdvancedFilter({
         'Action' => XlFilterCopy, 
-        'CriteriaRange' => ole_worksheet.range([used_rows+2..used_rows+3,1..key.length]).ole_range, 
-        'CopyToRange' => ole_worksheet.range([used_rows+5,1]).ole_range, 'Unique' => false})
-      target_range = ole_worksheet.range([used_rows+6,1..column_names.length])
+        'CriteriaRange' => ole_worksheet.range([used_rows+4..used_rows+5,1..key.length]).ole_range, 
+        'CopyToRange' => ole_worksheet.range([used_rows+7,1]).ole_range, 'Unique' => false})
+      target_range = ole_worksheet.range([used_rows+8,1..column_names.length])
       values = target_range.value.first
       criteria.Delete
-      ole_worksheet.range([used_rows+5..used_rows+6,1..column_names.length]).Delete
+      ole_worksheet.range([used_rows+7..used_rows+8,1..column_names.length]).Delete
       ole_workbook.Saved = saved_status
       column_names.zip(values).to_h
     end
-=end
+
     # @return [Array] a list of column names
     def column_names
       begin

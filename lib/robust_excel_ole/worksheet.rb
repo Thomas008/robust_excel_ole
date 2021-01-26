@@ -383,10 +383,15 @@ module RobustExcelOle
     end
 
     def last_row
-      special_last_row = @ole_worksheet.UsedRange.SpecialCells(RobustExcelOle::XlLastCell).Row
+      special_last_row = begin 
+        @ole_worksheet.UsedRange.SpecialCells(RobustExcelOle::XlLastCell).Row
+      rescue 
+        nil
+      end
       used_last_row = @ole_worksheet.UsedRange.Rows.Count
 
-      special_last_row >= used_last_row ? special_last_row : used_last_row
+      special_last_row && special_last_row >= used_last_row ? special_last_row : used_last_row
+
     end
 
     def last_column

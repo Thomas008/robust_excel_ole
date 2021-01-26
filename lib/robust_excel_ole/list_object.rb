@@ -83,7 +83,17 @@ module RobustExcelOle
     #                   nil, if no list object was found
     def [] (keys_or_number, limit = 1)
       return @row_class.new(keys_or_number) if keys_or_number.respond_to?(:succ)
-      keys = keys_or_number      
+      keys = keys_or_number
+      if @ole_table.ListRows.Count < 40
+        find_listrow_via_rownumbers(keys, limit)
+      else
+        find_listrow_via_advanced_filter(keys, limit)
+      end
+    end
+
+  private
+
+    def find_listrow_via_rownumbers(keys, limit)
       begin      
         matching_listrows = []
         @ole_table.ListRows.each do |ole_listrow|
@@ -98,68 +108,35 @@ module RobustExcelOle
         else matching_listrows
         end
       rescue
-        raise(TableError, "cannot find row with key #{keys_or_number}")
+        raise(TableError, "cannot find row with key #{keys}")
       end
     end
 
-     # variant: find
-=begin
-    def [] keys_or_number
-      return @row_class.new(keys_or_number) if keys_or_number.respond_to?(:succ)
-      keys = keys_or_number      
+    def find_listrow_via_advanced_filter(keys, limit)
       begin      
-        matching_listrow = @ole_table.ListRows.find do |listrow|
-          keys.map{|key,val| listrow.Range.Value.first[column_names.index(key)]==val}.inject(true,:&)
-        end
-        return @row_class.new(matching_listrow) if matching_listrow
+        ole_worksheet = self.Parent
+        ole_workbook =  ole_worksheet.Parent
+        saved_status = ole_workbook.Saved
+        added_ole_worksheet = ole_workbook.Worksheets.Add
+        criteria = Table.new(added_ole_worksheet, "criteria", [1,1], 2, keys.keys)
+        criteria[1].values = keys.values
+        self.Range.AdvancedFilter({
+          'Action' => XlFilterInPlace, 
+          'CriteriaRange' => added_ole_worksheet.range([1..2,1..keys.length]).ole_range, 'Unique' => false})
+        ole_workbook.Parent.with_displayalerts(false){added_ole_worksheet.Delete}
+        filtered_ole_range = ole_worksheet.UsedRange.Offset(position.first+1,0).SpecialCells(XlCellTypeVisible)
+        row_number = filtered_ole_range.Cells(1,1).Row - position.first
+        ole_worksheet.ShowAllData
+        @ole_table = ole_worksheet.table(self.Name)
+        listrow = self[row_number]
+        ole_workbook.Saved = saved_status
+        listrow
       rescue
-        raise(TableError, "cannot find row with key #{keys_or_number}")
+        raise(TableError, "cannot find row with keys #{keys}")
       end
     end
-=end
 
-    # values of the listrow in the table that match the given key
-    # @param [Hash]  a hash of key (key column: value)
-    # @return [Hash] all (column name:value)-pairs of the matching row 
-
-    # variant: criteria and copyto range in addedd worksheet
-=begin    
-    def values(key)
-      ole_workbook = self.Parent.Parent
-      saved_status = ole_workbook.Saved
-      added_ole_worksheet = ole_workbook.Worksheets.Add
-      criteria = Table.new(added_ole_worksheet, "criteria", [1,1], 2, key.keys)
-      criteria[1].values = key.values
-      self.Range.AdvancedFilter({
-        'Action' => XlFilterCopy, 
-        'CriteriaRange' => added_ole_worksheet.range([1..2,1..key.length]).ole_range, 
-        'CopyToRange' => added_ole_worksheet.range([4,1]).ole_range, 'Unique' => false})
-      target_range = added_ole_worksheet.range([5,1..column_names.length])
-      values = target_range.value.first
-      ole_workbook.Parent.with_displayalerts(false){added_ole_worksheet.Delete}
-      ole_workbook.Saved = saved_status
-      column_names.zip(values).to_h
-    end
-=end
-    # variant: criteria and copyto range in same worksheet, under UsedRange
-    def values(key)
-      ole_worksheet = self.Parent
-      ole_workbook = ole_worksheet.Parent
-      saved_status = ole_workbook.Saved     
-      used_rows = ole_worksheet.UsedRange.Rows.Count
-      criteria = Table.new(ole_worksheet, "criteria", [used_rows+4,1], 2, key.keys)
-      criteria[1].values = key.values
-      self.Range.AdvancedFilter({
-        'Action' => XlFilterCopy, 
-        'CriteriaRange' => ole_worksheet.range([used_rows+4..used_rows+5,1..key.length]).ole_range, 
-        'CopyToRange' => ole_worksheet.range([used_rows+7,1]).ole_range, 'Unique' => false})
-      target_range = ole_worksheet.range([used_rows+8,1..column_names.length])
-      values = target_range.value.first
-      criteria.Delete
-      ole_worksheet.range([used_rows+7..used_rows+8,1..column_names.length]).Delete
-      ole_workbook.Saved = saved_status
-      column_names.zip(values).to_h
-    end
+  public
 
     # @return [Array] a list of column names
     def column_names
@@ -354,6 +331,13 @@ module RobustExcelOle
       @ole_table.Sort.SortFields.Add(key_range, XlSortOnValues,sort_order_option,XlSortNormal)
       @ole_table.Sort.Apply
     end
+
+    # @return [Array] position of the first cell of the table
+    def position
+      first_cell = self.Range.Cells(1,1)
+      @position = [first_cell.Row, first_cell.Column]
+    end
+
 
     # @private
     # returns true, if the list object responds to VBA methods, false otherwise

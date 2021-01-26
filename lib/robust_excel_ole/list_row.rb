@@ -69,6 +69,12 @@ module RobustExcelOle
       end
     end
 
+    # values of the row
+    # @return [Hash] key-value pairs of the row
+    def key_values
+      ole_table.column_names.zip(values).to_h
+    end
+
     # deletes the values of the row
     def delete_values
       begin

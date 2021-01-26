@@ -4,9 +4,10 @@ All notable changes to this project will be documented in this file.
 ## [1.32] 2021-14-02
 
 ### Added
-  - ListObject#[]
-    accessing a list row given a key
+  - ListObject#[]: accessing a list row given a key or a row number
+  - ListObject#position
   - ListRow#values=
+  - ListRow#key_values
 
 ## [1.31] 2021-14-01
 

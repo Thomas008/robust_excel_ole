@@ -69,6 +69,7 @@ describe ListObject do
         table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Price"]
         table.ListRows.Count.should == 6
         @sheet[3,4].Value.should == "Number"
+        table.position.should == [3,4]
       end
 
       it "should type-lift a Win32ole list object into a RobustExcelOle list object with table name" do
@@ -122,7 +123,7 @@ describe ListObject do
   describe "benchmarking for accessing a listrow" do
 
     it "should access the last row" do
-      rows = 10
+      rows = 41
       table = Table.new(@sheet.ole_worksheet, "table_name", [12,1], rows, ["Index","Person", "Time", "Price", "Sales", "Length", "Size", "Width", "Weight", "Income", "Outcome", "Holiday", "Gender", "Sex", "Tallness", "Kindness", "Music", "Activity", "Goal", "Need"])
       (1..rows).each do |row|
         table[row].values = [12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason"]
@@ -134,51 +135,11 @@ describe ListObject do
       end_time = Time.now
       duration = end_time - start_time
       puts "duration: #{duration}"
+      puts "listrow: #{listrow}"
+      puts "listrow.values: #{listrow.values}"
     end
 
   end
-
-  describe "benchmarking for values" do
-
-    it "should access the last row" do
-      rows = 10000
-      table = Table.new(@sheet.ole_worksheet, "table_name", [12,1], rows, ["Index","Person", "Time", "Price", "Sales", "Length", "Size", "Width", "Weight", "Income", "Outcome", "Holiday", "Gender", "Sex", "Tallness", "Kindness", "Music", "Activity", "Goal", "Need"])
-      (1..rows).each do |row|
-        table[row].values = [12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason"]
-      end
-      table[rows].values = [12345123, "Peterson", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason"]
-      sleep 1
-      start_time = Time.now
-      values = table.values({"Index" => 12345123, "Person" => "Peterson"})
-      end_time = Time.now
-      duration = end_time - start_time
-      puts "duration: #{duration}"
-      puts "values: #{values}"
-    end
-
-  end
-
-  describe "accressing the values of a listrow matching a key using advanced filter" do
-
-    before do
-      @table1 = @sheet.table(1)
-    end
-
-    it "should yield the values of the listrow given a one-column key" do
-      @table1.values({"Number" => 2}).should == {"Number" => 2.0, "Person" => "Fred", "Amount" => nil, "Time" => 0.5416666666666666, "Price" => 40}
-    end
-
-    it "should yield the values of the first listrow matching a given one-column key" do      
-      @table1.values({"Number" => 3}).should == {"Number" => 3.0, "Person" => "John", "Amount" => 50.0, "Time" => 0.5, "Price" => 30}
-    end
-
-    it "should yield a ´key-value hash given a multiple-column key" do
-      @table1.values({"Number" => 3, "Person" => "Angel"}).should ==  {"Number" => 3.0, "Person" => "Angel", "Amount" => 100, "Time" => 0.6666666666666666, "Price" => 60}
-    end
-
-  end
-
-
 
   describe "accessing a listrow" do
 

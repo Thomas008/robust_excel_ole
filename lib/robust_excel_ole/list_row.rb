@@ -71,7 +71,7 @@ module RobustExcelOle
 
     # values of the row
     # @return [Hash] key-value pairs of the row
-    def key_values
+    def values
       ole_table.column_names.zip(values).to_h
     end
 

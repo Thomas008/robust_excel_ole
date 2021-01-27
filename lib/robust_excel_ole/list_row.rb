@@ -46,7 +46,8 @@ module RobustExcelOle
     # @return [Array] values of the row
     def values
       begin
-        @ole_tablerow.Range.Value.first
+        value = @ole_tablerow.Range.Value
+        value.respond_to?(:index) ? value : [value]
       rescue WIN32OLERuntimeError
         raise TableError, "could not read values"
       end
@@ -69,7 +70,7 @@ module RobustExcelOle
       end
     end
 
-    # values of the row
+    # value of the row
     # @return [Hash] key-value pairs of the row
     def value
       ole_table.column_names.zip(values).to_h

@@ -73,7 +73,7 @@ module RobustExcelOle
     # value of the row
     # @return [Hash] key-value pairs of the row
     def value
-      ole_table.column_names.zip(values).to_h
+      ole_table.column_names.zip(values.first).to_h
     end
 
     # deletes the values of the row

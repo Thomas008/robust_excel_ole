@@ -123,13 +123,14 @@ module RobustExcelOle
         self.Range.AdvancedFilter({
           'Action' => XlFilterInPlace, 
           'CriteriaRange' => added_ole_worksheet.range([1..2,1..keys.length]).ole_range, 'Unique' => false})
-        ole_workbook.Parent.with_displayalerts(false){added_ole_worksheet.Delete}
         filtered_ole_range = ole_worksheet.UsedRange.Offset(position.first+1,0).SpecialCells(XlCellTypeVisible)
         row_number = filtered_ole_range.Cells(1,1).Row - position.first
+        ole_workbook.Parent.with_displayalerts(false){added_ole_worksheet.Delete}
         ole_worksheet.ShowAllData
         @ole_table = ole_worksheet.table(self.Name)
-        listrow = self[row_number]
         ole_workbook.Saved = saved_status
+        return nil if row_number > @ole_table.ListColumns.Count
+        listrow = self[row_number]
         listrow
       rescue
         raise(TableError, "cannot find row with keys #{keys}")

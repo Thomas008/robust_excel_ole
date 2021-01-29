@@ -47,7 +47,10 @@ module RobustExcelOle
     def values
       begin
         value = @ole_tablerow.Range.Value
-        value.respond_to?(:index) ? value : [value]
+        if value==[nil] then value
+        elsif value.respond_to?(:first) then value.first
+        else [value]
+        end
       rescue WIN32OLERuntimeError
         raise TableError, "could not read values"
       end
@@ -70,10 +73,18 @@ module RobustExcelOle
       end
     end
 
-    # value of the row
+    # key-value pairs of the row
     # @return [Hash] key-value pairs of the row
-    def value
-      ole_table.column_names.zip(values.first).to_h
+    def keys_values
+      ole_table.column_names.zip(values).to_h
+    end
+
+    def to_a
+      values
+    end
+
+    def to_h
+      keys_values
     end
 
     # deletes the values of the row

@@ -29,6 +29,24 @@ describe ListRow do
     rm_tmp(@dir)
   end
 
+  describe "to_a, to_h" do
+
+    before do
+      @table1 = @sheet.table(1)
+    end
+
+    it "should yield values of a row" do
+      @table1[2].to_a.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
+      @table1[2].values.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
+    end
+
+    it "should yield key-value pairs of a row" do
+      @table[2].to_h.should == {"Number" => 2.0, "Person" => "Fred", "Amount" => nil, "Time" => 0.5416666666666666, "Price" => 40}
+      @table[2].keys_values.should == {"Number" => 2.0, "Person" => "Fred", "Amount" => nil, "Time" => 0.5416666666666666, "Price" => 40}
+    end
+
+  end
+
   describe "getting and setting values" do
 
     context "with various column names" do

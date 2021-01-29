@@ -4,10 +4,8 @@ All notable changes to this project will be documented in this file.
 ## [1.32] 2021-14-02
 
 ### Added
-  - ListObject#[]: accessing a list row given a key or a row number
-  - ListObject#position
-  - ListRow#values=
-  - ListRow#value
+  - ListObject#[], position
+  - ListRow#to_h, to_a, values=, keys_values
 
 ## [1.31] 2021-14-01
 
@@ -200,7 +198,7 @@ All notable changes to this project will be documented in this file.
 ## [1.1.4] - 2018-10-6
 
 ### Added
-  - Book#open: for the options: simplifiaction: :force can be left out
+  - Book#open: for the options: simplifiction: :force can be left out
   - Excel#for_this_instance
   - Excel#for_all_workbooks
   - Book#for_this_workbooks

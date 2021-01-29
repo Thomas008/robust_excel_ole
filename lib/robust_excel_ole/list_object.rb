@@ -81,11 +81,13 @@ module RobustExcelOle
     #                                     if one matching list row was found 
     #                   an array of listrows, if several list rows were found
     #                   nil, if no list object was found
+    # note: when applying the advanced filter (for long tables), then
+    #       if there are more than one match, then only the last match is being returned
     def [] (keys_or_number, limit = 1)
       return @row_class.new(keys_or_number) if keys_or_number.respond_to?(:succ)
       keys = keys_or_number
       if @ole_table.ListRows.Count < 40
-        find_listrow_via_rownumbers(keys, limit)
+        find_listrow_via_listrows(keys, limit)
       else
         find_listrow_via_advanced_filter(keys, limit)
       end
@@ -93,7 +95,7 @@ module RobustExcelOle
 
   private
 
-    def find_listrow_via_rownumbers(keys, limit)
+    def find_listrow_via_listrows(keys, limit)
       begin      
         matching_listrows = []
         @ole_table.ListRows.each do |ole_listrow|

@@ -86,16 +86,22 @@ module RobustExcelOle
     def [] (keys_or_number, limit = 1)
       return @row_class.new(keys_or_number) if keys_or_number.respond_to?(:succ)
       keys = keys_or_number
-      if @ole_table.ListRows.Count < 40
-        find_listrow_via_listrows(keys, limit)
+      # if @ole_table.ListRows.Count < 40
+      matching_listrows = if @ole_table.ListRows.Count < 4
+        listrows_via_listrows(keys, limit)
       else
-        find_listrow_via_advanced_filter(keys, limit)
+        listrows_via_advanced_filter(keys, limit)
+      end
+      case matching_listrows.count
+      when 0 then nil
+      when 1 then matching_listrows.first
+      else matching_listrows
       end
     end
 
   private
 
-    def find_listrow_via_listrows(keys, limit)
+    def listrows_via_listrows(keys, limit)
       begin      
         matching_listrows = []
         @ole_table.ListRows.each do |ole_listrow|
@@ -104,17 +110,13 @@ module RobustExcelOle
           end
           break if matching_listrows.count == limit
         end
-        case matching_listrows.count
-        when 0 then nil
-        when 1 then matching_listrows.first
-        else matching_listrows
-        end
+        matching_listrows
       rescue
         raise(TableError, "cannot find row with key #{keys}")
       end
     end
 
-    def find_listrow_via_advanced_filter(keys, limit)
+        def listrows_via_advanced_filter(keys, limit)
       begin      
         ole_worksheet = self.Parent
         ole_workbook =  ole_worksheet.Parent
@@ -125,20 +127,55 @@ module RobustExcelOle
         self.Range.AdvancedFilter({
           'Action' => XlFilterInPlace, 
           'CriteriaRange' => added_ole_worksheet.range([1..2,1..keys.length]).ole_range, 'Unique' => false})
-        filtered_ole_range = ole_worksheet.UsedRange.Offset(position.first+1,0).SpecialCells(XlCellTypeVisible)
-        row_number = filtered_ole_range.Cells(1,1).Row - position.first
         ole_workbook.Parent.with_displayalerts(false){added_ole_worksheet.Delete}
+        filtered_ole_range = self.DataBodyRange.SpecialCells(XlCellTypeVisible)
+        row_numbers = []
+        filtered_ole_range.Areas.each do |area|
+          area.Rows.each do |row|
+            row_numbers << row.Row-position.first if row.value != [[].fill(nil,1..(@ole_table.ListColumns.Count))] 
+          end
+        end
         ole_worksheet.ShowAllData
         @ole_table = ole_worksheet.table(self.Name)
         ole_workbook.Saved = saved_status
-        return nil if row_number > @ole_table.ListColumns.Count
-        listrow = self[row_number]
-        listrow
+        row_numbers.map{|r| self[r]}        
       rescue
         raise(TableError, "cannot find row with keys #{keys}")
       end
     end
 
+=begin
+    def listrows_via_advanced_filter(keys, limit)
+      begin      
+        ole_worksheet = self.Parent
+        ole_workbook =  ole_worksheet.Parent
+        saved_status = ole_workbook.Saved
+        added_ole_worksheet = ole_workbook.Worksheets.Add
+        criteria = Table.new(added_ole_worksheet, "criteria", [1,1], 2, keys.keys)
+        criteria[1].values = keys.values
+        self.Range.AdvancedFilter({
+          'Action' => XlFilterInPlace, 
+          'CriteriaRange' => added_ole_worksheet.range([1..2,1..keys.length]).ole_range, 'Unique' => false})
+        ole_workbook.Parent.with_displayalerts(false){added_ole_worksheet.Delete}
+        filtered_ole_range = self.DataBodyRange.SpecialCells(XlCellTypeVisible)
+        row_numbers = []
+        filtered_ole_range.Areas.each do |area|
+          area.Rows.each do |row|
+            if row.value != [[].fill(nil,1..(@ole_table.ListColumns.Count))] 
+              row_number = row.Row - position.first 
+              row_numbers << row_number
+            end
+          end
+        end
+        ole_worksheet.ShowAllData
+        @ole_table = ole_worksheet.table(self.Name)
+        ole_workbook.Saved = saved_status
+        row_numbers.map{|r| self[r]}        
+      rescue
+        raise(TableError, "cannot find row with keys #{keys}")
+      end
+    end
+=end
   public
 
     # @return [Array] a list of column names

@@ -29,6 +29,15 @@ describe ListRow do
     rm_tmp(@dir)
   end
 
+  describe "promote" do
+
+     it "should promote a win32ole tablerow" do
+      table1 = @sheet.table(1)
+      ole_tablerow = table1[2].ole_tablerow
+      ListRow.new(ole_tablerow).values.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
+    end 
+  end
+
   describe "to_a, to_h" do
 
     before do

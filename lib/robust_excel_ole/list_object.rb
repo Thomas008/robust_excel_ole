@@ -88,7 +88,7 @@ module RobustExcelOle
       keys = keys_or_number
       # if @ole_table.ListRows.Count < 40
       matching_listrows = if @ole_table.ListRows.Count < 4
-        listrows_via_listrows(keys, limit)
+        listrows_via_traversing_listrows(keys, limit)
       else
         listrows_via_advanced_filter(keys, limit)
       end
@@ -101,7 +101,7 @@ module RobustExcelOle
 
   private
 
-    def listrows_via_listrows(keys, limit)
+    def listrows_via_traversing_listrows(keys, limit)
       begin      
         matching_listrows = []
         @ole_table.ListRows.each do |ole_listrow|
@@ -116,7 +116,7 @@ module RobustExcelOle
       end
     end
 
-        def listrows_via_advanced_filter(keys, limit)
+    def listrows_via_advanced_filter(keys, limit)
       begin      
         ole_worksheet = self.Parent
         ole_workbook =  ole_worksheet.Parent
@@ -129,10 +129,12 @@ module RobustExcelOle
           'CriteriaRange' => added_ole_worksheet.range([1..2,1..keys.length]).ole_range, 'Unique' => false})
         ole_workbook.Parent.with_displayalerts(false){added_ole_worksheet.Delete}
         filtered_ole_range = self.DataBodyRange.SpecialCells(XlCellTypeVisible)
+        puts "filtered_ole_range.Adress: #{filtered_ole_range.Address}"
         row_numbers = []
         filtered_ole_range.Areas.each do |area|
-          area.Rows.each do |row|
+          break if area.Rows.each do |row|
             row_numbers << row.Row-position.first if row.value != [[].fill(nil,1..(@ole_table.ListColumns.Count))] 
+            break true if row_numbers.count == limit
           end
         end
         ole_worksheet.ShowAllData

@@ -123,8 +123,8 @@ describe ListObject do
   describe "benchmarking for accessing a listrow" do
 
     it "should access the last row" do
-      rows = 41
-      table = Table.new(@sheet.ole_worksheet, "table_name", [12,1], rows, ["Index","Person", "Time", "Price", "Sales", "Length", "Size", "Width", "Weight", "Income", "Outcome", "Holiday", "Gender", "Sex", "Tallness", "Kindness", "Music", "Activity", "Goal", "Need"])
+      rows = 10
+      table = Table.new(@sheet.ole_worksheet, "table_name", [20,1], rows, ["Index","Person", "Time", "Price", "Sales", "Length", "Size", "Width", "Weight", "Income", "Outcome", "Holiday", "Gender", "Sex", "Tallness", "Kindness", "Music", "Activity", "Goal", "Need"])
       (1..rows).each do |row|
         table[row].values = [12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason"]
       end
@@ -149,20 +149,7 @@ describe ListObject do
 
     it "should access a listrow given its number" do
       @table1[2].values.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
-    end
-
-    it "should promote a win32ole tablerow" do
-      ole_tablerow = @table1[2].ole_tablerow
-      ListRow.new(ole_tablerow).values.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
-    end    
-
-    it "should access the listrow given a one-column key" do
-      @table1[{"Number" => 2}].values.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
-    end
-
-    it "should access the first matching listrow that matches a given one-column key" do      
-      @table1[{"Number" => 3}].values.should == [3.0, "John", 50.0, 0.5, 30]
-    end
+    end   
 
     it "should access a listrow via a multiple-column key" do
       @table1[{"Number" => 3, "Person" => "Angel"}].values.should == [3.0, "Angel", 100, 0.6666666666666666, 60]
@@ -177,13 +164,23 @@ describe ListObject do
         @table1[{"Number" => 3, "Persona" => "Angel"}]
         }.to raise_error(TableError)
     end
-
-    it "should access two listrows via a multiple-column key" do
+ 
+    it "should access two matching listrows" do
       @table1[{"Number" => 3}, 2].map{|l| l.values}.should == [[3.0, "John", 50.0, 0.5, 30],[3.0, "Angel", 100, 0.6666666666666666, 60]]
     end
 
-    it "should access all listrows via a multiple-column key" do
-      @table1[{"Number" => 3}, nil].map{|l| l.values}.should == [[3.0, "John", 50.0, 0.5, 30],[3.0, "Angel", 100, 0.6666666666666666, 60]]
+    it "should access four matching listrows" do
+      @table1[{"Number" => 3}, 4].map{|l| l.values}.should == [[3.0, "John", 50.0, 0.5, 30],[3.0, "Angel", 100, 0.6666666666666666, 60],
+                                                               [3.0, "Eiffel", 50.0, 0.5, 30], [3.0, "Berta", nil, 0.5416666666666666, 40]]
+    end
+
+    it "should access all matchinglistrows" do
+      @table1[{"Number" => 3}, nil].map{|l| l.values}.should == [[3.0, "John", 50.0, 0.5, 30],
+                                                                 [3.0, "Angel", 100, 0.6666666666666666, 60],
+                                                                 [3.0, "Eiffel", 50.0, 0.5, 30], 
+                                                                 [3.0, "Berta", nil, 0.5416666666666666, 40],
+                                                                 [3.0, "Martha", nil, nil, nil],
+                                                                 [3.0, "Paul", 40. 0.5, 80]]
     end
 
   end
@@ -196,17 +193,17 @@ describe ListObject do
     end
 
     it "should read contents of a column" do
-      @table.column_values("Person").should == ["John","Fred",nil,"Angel",nil,"Werner"]
+      @table.column_values("Person").should == ["John","Fred",nil,"Angel",nil,"Werner","Eiffel","Berta",nil,nil,"Martha","Paul","Napoli"]
       expect{
         @table.column_values("P")
       }.to raise_error(TableError)
     end
 
     it "should set contents of a column" do
-      @table.set_column_values("Person",["H",nil,nil,nil,"G","W"])
-      @table.ListColumns.Item(2).Range.Value.should == [["Person"],["H"],[nil],[nil],[nil],["G"],["W"]]
+      @table.set_column_values("Person",["H",nil,nil,nil,"G","W",nil,nil,nil,nil,nil,nil,nil])
+      @table.ListColumns.Item(2).Range.Value.should == [["Person"],["H"],[nil],[nil],[nil],["G"],["W"],[nil],[nil],[nil],[nil],[nil],[nil],[nil]]
       @table.set_column_values("Person",["T","Z"])
-      @table.ListColumns.Item(2).Range.Value.should == [["Person"],["T"],["Z"],[nil],[nil],["G"],["W"]]
+      @table.ListColumns.Item(2).Range.Value.should == [["Person"],["T"],["Z"],[nil],[nil],["G"],["W"],[nil],[nil],[nil],[nil],[nil],[nil],[nil]]
       expect{
         @table.set_column_values("P",["H",nil,nil,nil,"G","W"])
       }.to raise_error(TableError)
@@ -271,9 +268,9 @@ describe ListObject do
     end
 
     it "should add a column with contents" do
-      @table.add_column("column_name", 3, ["a","b","c","d","e","f"])
+      @table.add_column("column_name", 3, ["a","b","c","d","e","f","g","h","i","j","k","l","m"])
       column_names = @table.HeaderRowRange.Value.first.should == ["Number","Person","column_name","Amount","Time","Price"]
-      @table.ListColumns.Item(3).Range.Value.should == [["column_name"],["a"],["b"],["c"],["d"],["e"],["f"]]
+      @table.ListColumns.Item(3).Range.Value.should == [["column_name"],["a"],["b"],["c"],["d"],["e"],["f"],["g"],["h"],["i"],["j"],["k"],["l"],["m"]]
     end
 
     it "should delete a column" do
@@ -320,13 +317,13 @@ describe ListObject do
     end
 
     it "should delete the contents of a column" do
-      @table.ListColumns.Item(3).Range.Value.should == [["Amount"],[50],[nil],[nil],[100],[nil],[40]]
+      @table.ListColumns.Item(3).Range.Value.should == [["Amount"],[50],[nil],[nil],[100],[nil],[40],[50],[nil],[nil],[nil],[nil],[40],[20]]
       @table.delete_column_values(3)
       @table.HeaderRowRange.Value.first.should == ["Number","Person", "Amount", "Time","Price"]
-      @table.ListColumns.Item(3).Range.Value.should == [["Amount"],[nil],[nil],[nil],[nil],[nil],[nil]]
-      @table.ListColumns.Item(1).Range.Value.should == [["Number"],[3],[2],[nil],[3],[nil],[1]]
+      @table.ListColumns.Item(3).Range.Value.should == [["Amount"],[nil],[nil],[nil],[nil],[nil],[nil],[nil],[nil],[nil],[nil],[nil],[nil],[nil]]
+      @table.ListColumns.Item(1).Range.Value.should == [["Number"],[3],[2],[nil],[3],[nil],[1],[3],[3],[nil],[nil],[3],[3],[1]]
       @table.delete_column_values("Number")
-      @table.ListColumns.Item(1).Range.Value.should == [["Number"],[nil],[nil],[nil],[nil],[nil],[nil]]
+      @table.ListColumns.Item(1).Range.Value.should == [["Number"],[nil],[nil],[nil],[nil],[nil],[nil],[nil],[nil],[nil],[nil],[nil],[nil],[nil]]
       expect{
         @table.delete_column_values("N")
       }.to raise_error(TableError)

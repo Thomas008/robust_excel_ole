@@ -76,25 +76,22 @@ module RobustExcelOle
 
     # accesses a table row object
     # @param [Variant]  a hash of key (key column: value) or a row number (>= 1) 
-    # @param [Integer]  maximal number of matching list rows to return
-    # @return [Variant] a list row object of dynamically constructed class with class ListRow,
-    #                                     if one matching list row was found 
-    #                   an array of listrows, if several list rows were found
+    # @param [Variant]  maximal number of matching list rows to return
+    # @return [Variant] a list row object, if limit == :first
+    #                   an array of listrows, with maximal number=limit, if list rows were found and limit is not :first
     #                   nil, if no list object was found
     # note: when applying the advanced filter (for long tables), then
     #       if there are more than one match, then only the last match is being returned
-    def [] (keys_or_number, limit = 1)
+    def [] (keys_or_number, limit = :first)
       return @row_class.new(keys_or_number) if keys_or_number.respond_to?(:succ)
       keys = keys_or_number
-      # if @ole_table.ListRows.Count < 40
-      matching_listrows = if @ole_table.ListRows.Count < 4
+      matching_listrows = if @ole_table.ListRows.Count < 40
         listrows_via_traversing_listrows(keys, limit)
       else
         listrows_via_advanced_filter(keys, limit)
       end
-      case matching_listrows.count
-      when 0 then nil
-      when 1 then matching_listrows.first
+      if matching_listrows.count==0 then nil
+      elsif limit==:first then matching_listrows.first
       else matching_listrows
       end
     end
@@ -129,7 +126,6 @@ module RobustExcelOle
           'CriteriaRange' => added_ole_worksheet.range([1..2,1..keys.length]).ole_range, 'Unique' => false})
         ole_workbook.Parent.with_displayalerts(false){added_ole_worksheet.Delete}
         filtered_ole_range = self.DataBodyRange.SpecialCells(XlCellTypeVisible)
-        puts "filtered_ole_range.Adress: #{filtered_ole_range.Address}"
         row_numbers = []
         filtered_ole_range.Areas.each do |area|
           break if area.Rows.each do |row|
@@ -146,38 +142,6 @@ module RobustExcelOle
       end
     end
 
-=begin
-    def listrows_via_advanced_filter(keys, limit)
-      begin      
-        ole_worksheet = self.Parent
-        ole_workbook =  ole_worksheet.Parent
-        saved_status = ole_workbook.Saved
-        added_ole_worksheet = ole_workbook.Worksheets.Add
-        criteria = Table.new(added_ole_worksheet, "criteria", [1,1], 2, keys.keys)
-        criteria[1].values = keys.values
-        self.Range.AdvancedFilter({
-          'Action' => XlFilterInPlace, 
-          'CriteriaRange' => added_ole_worksheet.range([1..2,1..keys.length]).ole_range, 'Unique' => false})
-        ole_workbook.Parent.with_displayalerts(false){added_ole_worksheet.Delete}
-        filtered_ole_range = self.DataBodyRange.SpecialCells(XlCellTypeVisible)
-        row_numbers = []
-        filtered_ole_range.Areas.each do |area|
-          area.Rows.each do |row|
-            if row.value != [[].fill(nil,1..(@ole_table.ListColumns.Count))] 
-              row_number = row.Row - position.first 
-              row_numbers << row_number
-            end
-          end
-        end
-        ole_worksheet.ShowAllData
-        @ole_table = ole_worksheet.table(self.Name)
-        ole_workbook.Saved = saved_status
-        row_numbers.map{|r| self[r]}        
-      rescue
-        raise(TableError, "cannot find row with keys #{keys}")
-      end
-    end
-=end
   public
 
     # @return [Array] a list of column names

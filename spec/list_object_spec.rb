@@ -67,7 +67,7 @@ describe ListObject do
         table = Table.new(ole_table)
         table.Name.should == "table3"
         table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Price"]
-        table.ListRows.Count.should == 6
+        table.ListRows.Count.should == 13
         @sheet[3,4].Value.should == "Number"
         table.position.should == [3,4]
       end
@@ -77,7 +77,7 @@ describe ListObject do
         table = Table.new(@sheet, "table3")
         table.Name.should == "table3"
         table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Price"]
-        table.ListRows.Count.should == 6
+        table.ListRows.Count.should == 13
         @sheet[3,4].Value.should == "Number"
       end
 
@@ -86,7 +86,7 @@ describe ListObject do
         table = Table.new(@sheet, 1)
         table.Name.should == "table3"
         table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Price"]
-        table.ListRows.Count.should == 6
+        table.ListRows.Count.should == 13
         @sheet[3,4].Value.should == "Number"
       end
 
@@ -103,7 +103,7 @@ describe ListObject do
         table = Table.new(@sheet.ole_worksheet, "table3")
         table.Name.should == "table3"
         table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Price"]
-        table.ListRows.Count.should == 6
+        table.ListRows.Count.should == 13
         @sheet[3,4].Value.should == "Number"
       end
 
@@ -112,7 +112,7 @@ describe ListObject do
         table = Table.new(@sheet.ole_worksheet, 1)
         table.Name.should == "table3"
         table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Price"]
-        table.ListRows.Count.should == 6
+        table.ListRows.Count.should == 13
         @sheet[3,4].Value.should == "Number"
       end
 
@@ -135,8 +135,8 @@ describe ListObject do
       end_time = Time.now
       duration = end_time - start_time
       puts "duration: #{duration}"
-      puts "listrow: #{listrow}"
-      puts "listrow.values: #{listrow.values}"
+      #puts "listrow: #{listrow}"
+      #puts "listrow.values: #{listrow.values}"
     end
 
   end
@@ -164,6 +164,14 @@ describe ListObject do
         @table1[{"Number" => 3, "Persona" => "Angel"}]
         }.to raise_error(TableError)
     end
+
+    it "should access one matching listrow" do
+      @table1[{"Number" => 3}, :first].values.should == [3.0, "John", 50.0, 0.5, 30]
+    end
+
+    it "should access one matching listrow" do
+      @table1[{"Number" => 3}, 1].map{|l| l.values}.should == [[3.0, "John", 50.0, 0.5, 30]]
+    end
  
     it "should access two matching listrows" do
       @table1[{"Number" => 3}, 2].map{|l| l.values}.should == [[3.0, "John", 50.0, 0.5, 30],[3.0, "Angel", 100, 0.6666666666666666, 60]]
@@ -180,7 +188,7 @@ describe ListObject do
                                                                  [3.0, "Eiffel", 50.0, 0.5, 30], 
                                                                  [3.0, "Berta", nil, 0.5416666666666666, 40],
                                                                  [3.0, "Martha", nil, nil, nil],
-                                                                 [3.0, "Paul", 40. 0.5, 80]]
+                                                                 [3.0, "Paul", 40.0, 0.5, 80]]
     end
 
   end
@@ -213,7 +221,7 @@ describe ListObject do
       @table.row_values(1).should == [3.0, "John", 50.0, 0.5, 30]
       @table[1].values.should == [3.0, "John", 50.0, 0.5, 30]
       expect{
-        @table.row_values(9)
+        @table.row_values(14)
       }.to raise_error(TableError)
     end
 
@@ -226,7 +234,7 @@ describe ListObject do
       @table[1].set_values([4, "John"])
       @table.ListRows.Item(1).Range.Value.first.should == [4, "John", 20.0, 0.1, 40]
       expect{
-        @table.set_row_values(9, [5, "George", 30.0, 0.2, 50])
+        @table.set_row_values(14, [5, "George", 30.0, 0.2, 50])
       }.to raise_error(TableError)
     end
 
@@ -294,7 +302,7 @@ describe ListObject do
       listrows.Item(2).Range.Value.first.should == [nil,nil,nil,nil,nil]
       listrows.Item(3).Range.Value.first.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
       expect{
-        @table.add_row(9)
+        @table.add_row(16)
       }.to raise_error(TableError)
     end
 
@@ -312,7 +320,7 @@ describe ListObject do
       listrows.Item(5).Range.Value.first.should == [1,"Werner",40,0.5, 80]
       listrows.Item(4).Range.Value.first.should == [nil,nil,nil,nil,nil]
       expect{
-        @table.delete_row(8)
+        @table.delete_row(15)
       }.to raise_error(TableError)
     end
 
@@ -337,13 +345,13 @@ describe ListObject do
       @table[1].delete_values
       @table.ListRows.Item(1).Range.Value.first.should == [nil,nil,nil,nil,nil]
       expect{
-        @table.delete_row_values(9)
+        @table.delete_row_values(14)
       }.to raise_error(TableError)
     end
 
     it "should delete empty rows" do
       @table.delete_empty_rows
-      @table.ListRows.Count.should == 4
+      @table.ListRows.Count.should == 9
       @table.ListRows.Item(1).Range.Value.first.should == [3.0, "John", 50.0, 0.5, 30]
       @table.ListRows.Item(2).Range.Value.first.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
       @table.ListRows.Item(3).Range.Value.first.should == [3, "Angel", 100, 0.6666666666666666, 60]
@@ -387,9 +395,14 @@ describe ListObject do
     it "should sort the table according to first table" do
       @table.sort("Number")
       @table.ListRows.Item(1).Range.Value.first.should == [1,"Werner",40,0.5, 80]
-      @table.ListRows.Item(2).Range.Value.first.should == [2, "Fred", nil, 0.5416666666666666, 40]     
-      @table.ListRows.Item(3).Range.Value.first.should == [3, "John", 50.0, 0.5, 30]
-      @table.ListRows.Item(4).Range.Value.first.should == [3, "Angel", 100, 0.6666666666666666, 60]
+      @table.ListRows.Item(2).Range.Value.first.should == [1, "Napoli", 20.0, 0.4166666666666667, 70.0]
+      @table.ListRows.Item(3).Range.Value.first.should == [2, "Fred", nil, 0.5416666666666666, 40]     
+      @table.ListRows.Item(4).Range.Value.first.should == [3, "John", 50.0, 0.5, 30]
+      @table.ListRows.Item(5).Range.Value.first.should == [3, "Angel", 100, 0.6666666666666666, 60]
+      @table.ListRows.Item(6).Range.Value.first.should == [3, "Eiffel", 50.0, 0.5, 30]
+      @table.ListRows.Item(7).Range.Value.first.should == [3, "Berta", nil, 0.5416666666666666, 40]
+      @table.ListRows.Item(8).Range.Value.first.should == [3, "Martha", nil, nil, nil]
+      @table.ListRows.Item(9).Range.Value.first.should == [3, "Paul", 40.0, 0.5, 80]
     end
 
   end

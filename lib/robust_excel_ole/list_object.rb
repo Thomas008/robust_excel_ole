@@ -90,10 +90,7 @@ module RobustExcelOle
       else
         listrows_via_advanced_filter(keys, limit)
       end
-      if matching_listrows.count==0 then nil
-      elsif limit==:first then matching_listrows.first
-      else matching_listrows
-      end
+      limit != :first ? matching_listrows : ((matching_listrows.count==0) ? nil : matching_listrows.first)
     end
 
   private

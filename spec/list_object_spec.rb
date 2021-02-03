@@ -156,7 +156,12 @@ describe ListObject do
     end
 
     it "should yield nil if there is no match" do
-      @table1[{"Number" => 3, "Person" => "Ang"}].should be nil
+      @table1[{"Number" => 5, "Person" => "Angel"}].should == nil
+      @table1[{"Number" => 5, "Person" => "Angel"}, :first].should == nil
+    end
+
+    it "should yield nil if there is no match" do
+      @table1[{"Number" => 5, "Person" => "Angel"},1].should == []
     end
 
     it "should raise an error if the key contains no existing columns" do

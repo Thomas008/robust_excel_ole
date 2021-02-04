@@ -47,13 +47,8 @@ module RobustExcelOle
 
     describe "relace_umlauts, underscore" do
 
-      it "should" do
-        "ä".replace_umlauts.should == "ae"
-      end
-
       it "should replace umlauts" do
-        new_word = "BeforeÄÖÜäöüßAfter".replace_umlauts
-        new_word.should == "BeforeAeOeUeaeoeuessAfter"
+        "BeforeÄÖÜäöüß²³After".replace_umlauts.should == "BeforeAeOeUeaeoeuess23After"
       end
 
       it "should underscore" do

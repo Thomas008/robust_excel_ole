@@ -82,59 +82,62 @@ module RobustExcelOle
     #                   nil, if no list object was found
     # note: when applying the advanced filter (for long tables), then
     #       if there are more than one match, then only the last match is being returned
-    def [] (keys_or_number, limit = :first)
-      return @row_class.new(keys_or_number) if keys_or_number.respond_to?(:succ)
-      keys = keys_or_number
-      matching_listrows = if @ole_table.ListRows.Count < 40
-        listrows_via_traversing_listrows(keys, limit)
+    def [] (key_hash_or_number, limit = :first)
+      return @row_class.new(key_hash_or_number) if key_hash_or_number.respond_to?(:succ)
+      key_hash = key_hash_or_number
+      matching_listrows = if @ole_table.ListRows.Count < 28
+        listrows_via_traversing_listrows(key_hash, limit)
       else
-        listrows_via_advanced_filter(keys, limit)
+        listrows_via_advanced_filter(key_hash, limit)
       end
-      limit != :first ? matching_listrows : ((matching_listrows.count==0) ? nil : matching_listrows.first)
+      limit == :first ? matching_listrows.first : matching_listrows
     end
 
   private
 
-    def listrows_via_traversing_listrows(keys, limit)
+    def listrows_via_traversing_listrows(key_hash, limit)
       begin      
         matching_listrows = []
         @ole_table.ListRows.each do |ole_listrow|
-          if keys.map{|key,val| ole_listrow.Range.Value.first[column_names.index(key)]==val}.inject(true,:&)
+          if key_hash.map{|key,val| ole_listrow.Range.Value.first[column_names.index(key)]==val}.inject(true,:&)
             matching_listrows << @row_class.new(ole_listrow) 
           end
           break if matching_listrows.count == limit
         end
         matching_listrows
       rescue
-        raise(TableError, "cannot find row with key #{keys}")
+        raise(TableError, "cannot find row with key #{key_hash}")
       end
     end
 
-    def listrows_via_advanced_filter(keys, limit)
+    def listrows_via_advanced_filter(key_hash, limit)
       begin      
         ole_worksheet = self.Parent
         ole_workbook =  ole_worksheet.Parent
-        saved_status = ole_workbook.Saved
-        added_ole_worksheet = ole_workbook.Worksheets.Add
-        criteria = Table.new(added_ole_worksheet, "criteria", [1,1], 2, keys.keys)
-        criteria[1].values = keys.values
-        self.Range.AdvancedFilter({
-          'Action' => XlFilterInPlace, 
-          'CriteriaRange' => added_ole_worksheet.range([1..2,1..keys.length]).ole_range, 'Unique' => false})
-        ole_workbook.Parent.with_displayalerts(false){added_ole_worksheet.Delete}
-        filtered_ole_range = self.DataBodyRange.SpecialCells(XlCellTypeVisible)
         row_numbers = []
-        filtered_ole_range.Areas.each do |area|
-          break if area.Rows.each do |row|
-            row_numbers << row.Row-position.first #if row.value != [[].fill(nil,1..(@ole_table.ListColumns.Count))] 
-            break true if row_numbers.count == limit
+        ole_workbook.retain_saved do
+          added_ole_worksheet = ole_workbook.Worksheets.Add
+          criteria = Table.new(added_ole_worksheet, "criteria", [1,1], 2, key_hash.keys)
+          criteria[1].values = key_hash.values
+          self.Range.AdvancedFilter({
+            'Action' => XlFilterInPlace, 
+            'CriteriaRange' => added_ole_worksheet.range([1..2,1..key_hash.length]).ole_range, 'Unique' => false})
+          ole_workbook.Parent.with_displayalerts(false){added_ole_worksheet.Delete}
+          filtered_ole_range = self.DataBodyRange.SpecialCells(XlCellTypeVisible) rescue nil
+          if filtered_ole_range
+            filtered_ole_range.Areas.each do |area|
+              break if area.Rows.each do |row|
+                row_numbers << row.Row-position.first
+                break true if row_numbers.count == limit
+              end
+            end
           end
+          ole_worksheet.ShowAllData
+          @ole_table = ole_worksheet.table(self.Name)
         end
-        ole_worksheet.ShowAllData
-        ole_workbook.Saved = saved_status
         row_numbers.map{|r| self[r]}        
       rescue
-        raise(TableError, "cannot find row with keys #{keys}")
+        raise(TableError, "cannot find row with key #{key_hash}")
       end
     end
 

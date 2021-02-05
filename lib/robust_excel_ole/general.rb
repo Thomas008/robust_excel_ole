@@ -91,7 +91,7 @@ module StringRefinement
 
     def replace_umlauts
       word = self
-      if word.encoding != Encoding.list[1]
+      if word.encoding != Encoding.find("UTF-8")
         word = self.force_encoding('iso-8859-1').encode('utf-8')
         translation_table = {
           /[\u0084]/ => 'ae', /[\u0094]/ => 'oe', /\u0081/ => 'ue', /[\u008E]/ => 'Ae', /[\u0099]/ => 'Oe', /[\u009A]/ => 'Ue',

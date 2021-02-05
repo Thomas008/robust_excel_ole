@@ -131,6 +131,7 @@ module RobustExcelOle
   private
 
     def define_and_call_method(column_name,method_name,*args)
+      column_name = column_name.force_encoding('cp850')
       ole_cell = ole_table.Application.Intersect(
           @ole_tablerow.Range, ole_table.ListColumns.Item(column_name).Range)
       define_getting_setting_method(ole_cell,method_name)            

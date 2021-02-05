@@ -121,7 +121,7 @@ describe ListRow do
 
         before do
           @table = Table.new(@sheet, "table_name", [1,1], 3, ["Verkäufer", "Straße", "area in m²"])
-          @table_row1 = @table[1]
+          @table_row1 = @table[1]         
         end
 
         it "should read and set values via alternative column names" do
@@ -139,9 +139,9 @@ describe ListRow do
           @table_row1.Strasse = 80
           @table_row1.Strasse.should == 80
           @sheet[2,2].Value.should == 80
-          @table_row1.area_in_m3.should be nil
-          @table_row1.area_in_m3 = 10
-          @table_row1.area_in_m3.should == 10
+          @table_row1.area_in_m2.should be nil
+          @table_row1.area_in_m2 = 10
+          @table_row1.area_in_m2.should == 10
           @sheet[2,3].Value.should == 10
         end
 

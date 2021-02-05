@@ -126,12 +126,11 @@ module RobustExcelOle
         row_numbers = []
         filtered_ole_range.Areas.each do |area|
           break if area.Rows.each do |row|
-            row_numbers << row.Row-position.first if row.value != [[].fill(nil,1..(@ole_table.ListColumns.Count))] 
+            row_numbers << row.Row-position.first #if row.value != [[].fill(nil,1..(@ole_table.ListColumns.Count))] 
             break true if row_numbers.count == limit
           end
         end
         ole_worksheet.ShowAllData
-        @ole_table = ole_worksheet.table(self.Name)
         ole_workbook.Saved = saved_status
         row_numbers.map{|r| self[r]}        
       rescue

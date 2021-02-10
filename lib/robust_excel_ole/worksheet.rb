@@ -49,7 +49,7 @@ module RobustExcelOle
     # sheet name
     # @returns name of the sheet
     def name
-      @ole_worksheet.Name
+      @ole_worksheet.Name.encode('utf-8')
     rescue
       raise WorksheetREOError, "name could not be determined"
     end

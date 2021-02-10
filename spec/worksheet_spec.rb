@@ -119,29 +119,36 @@ describe Worksheet do
 
   end
     
-  describe "access sheet name" do
-    describe "#name" do
-      it 'get sheet1 name' do
-        @sheet.name.should eq 'Sheet1'
-      end
+  describe "get and access sheet name" do
+    
+    it 'get sheet1 name' do
+      @sheet.name.should eq 'Sheet1'
+    end
+    
+    it 'change sheet1 name to foo' do
+      @sheet.name = 'foo'
+      @sheet.name.should eq 'foo'
     end
 
-    describe "#name=" do
-      
-      it 'change sheet1 name to foo' do
-        @sheet.name = 'foo'
-        @sheet.name.should eq 'foo'
-      end
-
-      it "should raise error when adding the same name" do
-        @sheet.name = 'foo'
-        @sheet.name.should eq 'foo'
-        new_sheet = @book.add_sheet @sheet
-        expect{
-          new_sheet.name = 'foo'
-        }.to raise_error(NameAlreadyExists, /sheet name "foo" already exists/)
-      end
+    it "should raise error when adding the same name" do
+      @sheet.name = 'foo'
+      @sheet.name.should eq 'foo'
+      new_sheet = @book.add_sheet @sheet
+      expect{
+        new_sheet.name = 'foo'
+      }.to raise_error(NameAlreadyExists, /sheet name "foo" already exists/)
     end
+
+    it "should get and set name with umlaut" do
+      @sheet.name = "Straße"
+      @sheet.name.should == "Straße"
+    end
+
+    it "should set and get numbers as name" do
+      @sheet.name = 1
+      @sheet.name.should == "1"
+    end
+
   end
 
   describe 'access cell' do
@@ -277,6 +284,13 @@ describe Worksheet do
         table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Price"]
         table.ListRows.Count.should == 6
         @sheet[3,4].Value.should == "Number"
+      end
+
+      it "should yield table given name with umlauts" do
+        table = Table.new(@sheet, "lösung", [1,1], 3, ["Verkäufer","Straße"])
+        table2 = @sheet.table("lösung")
+        table2.Name.encode_value.should == "lösung"
+        table2.HeaderRowRange.Value.first.encode_value.should == ["Verkäufer","Straße"]
       end
 
       it "should raise error" do
@@ -763,6 +777,15 @@ describe Worksheet do
         @sheet1.set_namevalue("firstcell","bar")
         @sheet1.namevalue("firstcell").should == "bar"
         @sheet1[1,1].Value.should == "bar"          
+      end
+
+      it "should set a range to a value with umlauts" do
+        @sheet1.add_name("lösung", [1,1])
+        @sheet1.namevalue("lösung").should == "foo"
+        @sheet1[1,1].Value.should == "foo"
+        @sheet1.set_namevalue("lösung","bar")
+        @sheet1.namevalue("lösung").should == "bar"
+        @sheet1[1,1].Value.should == "bar"  
       end
 
       it "should raise an error if name cannot be evaluated" do

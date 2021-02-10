@@ -7,12 +7,6 @@ $VERBOSE = nil
 include RobustExcelOle
 include General
 
-class Array
-  def encode_values
-    map{|v| v.respond_to?(:gsub) ? v.encode('utf-8') : v}
-  end
-end
-
 describe ListObject do
  
   before(:all) do
@@ -62,11 +56,11 @@ describe ListObject do
       end
 
       it "should create a new table with umlauts" do
-        table = Table.new(@sheet, "table_name", [1,1], 3, ["Verkäufer","Straße"])
-        table.Name.should == "table_name"
-        table.HeaderRowRange.Value.first.encode_values.should == ["Verkäufer","Straße"]
+        table = Table.new(@sheet, "lösung", [1,1], 3, ["Verkäufer","Straße"])
+        table.Name.encode_value.should == "lösung"
+        table.HeaderRowRange.Value.first.encode_value.should == ["Verkäufer","Straße"]
         table.ListRows.Count.should == 3
-        @sheet[1,1].Value.encode('utf-8').should == "Verkäufer"
+        @sheet[1,1].Value.encode_value.should == "Verkäufer"
       end
 
       it "should do the idempotence" do
@@ -213,7 +207,7 @@ describe ListObject do
     it "should access listrows containing umlauts" do
       @table1[1].values = [1, "Sören", 20.0, 0.1, 40]
       sleep 5
-      @table1[{"Number" => 1, "Person" => "Sören"}].values.encode_values.should == [1, "Sören", 20.0, 0.1, 40]
+      @table1[{"Number" => 1, "Person" => "Sören"}].values.encode_value.should == [1, "Sören", 20.0, 0.1, 40]
       #@table1[1].values = [1, "Sören", 20.0, 0.1, 40]
       #@table1[{"Number" => 1, "Person" => "Sören"}].map{|l| l.values}.encode_values.should == [1, "Sören", 20.0, 0.1, 40]
     end
@@ -273,7 +267,7 @@ describe ListObject do
 
     it "should set contents of a row with umlauts" do
       @table[1].values = [1, "Sören", 20.0, 0.1, 40]
-      @table.ListRows.Item(1).Range.Value.first.encode_values.should == [1, "Sören", 20.0, 0.1, 40]
+      @table.ListRows.Item(1).Range.Value.first.encode_value.should == [1, "Sören", 20.0, 0.1, 40]
     end
 
   end
@@ -314,9 +308,9 @@ describe ListObject do
     end
 
     it "should add a column with umlauts" do
-      @table.add_column("column_name", 3, ["ä","ö","ü","ß","²","³","g","h","i","j","k","l","m"])
-      column_names = @table.HeaderRowRange.Value.first.should == ["Number","Person","column_name","Amount","Time","Price"]
-      @table.ListColumns.Item(3).Range.Value.map{|v| v.encode_values}.should == [["column_name"],["ä"],["ö"],["ü"],["ß"],["²"],["³"],["g"],["h"],["i"],["j"],["k"],["l"],["m"]]
+      @table.add_column("Sören", 3, ["ä","ö","ü","ß","²","³","g","h","i","j","k","l","m"])
+      column_names = @table.HeaderRowRange.Value.first.encode_value.should == ["Number","Person","Sören","Amount","Time","Price"]
+      @table.ListColumns.Item(3).Range.Value.map{|v| v.encode_value}.should == [["Sören"],["ä"],["ö"],["ü"],["ß"],["²"],["³"],["g"],["h"],["i"],["j"],["k"],["l"],["m"]]
     end
 
     it "should delete a column" do
@@ -354,7 +348,7 @@ describe ListObject do
 
     it "should add a row with contents with umlauts" do
       @table.add_row(1, [2.0, "Sören", 30.0, 0.25, 40])
-      @table.ListRows.Item(1).Range.Value.first.encode_values.should == [2.0, "Sören", 30.0, 0.25, 40]
+      @table.ListRows.Item(1).Range.Value.first.encode_value.should == [2.0, "Sören", 30.0, 0.25, 40]
     end
 
     it "should delete a row" do

@@ -50,8 +50,36 @@ describe ListRow do
     end
 
     it "should yield key-value pairs of a row" do
-      @table[2].to_h.should == {"Number" => 2.0, "Person" => "Fred", "Amount" => nil, "Time" => 0.5416666666666666, "Price" => 40}
-      @table[2].keys_values.should == {"Number" => 2.0, "Person" => "Fred", "Amount" => nil, "Time" => 0.5416666666666666, "Price" => 40}
+      @table1[2].to_h.should == {"Number" => 2.0, "Person" => "Fred", "Amount" => nil, "Time" => 0.5416666666666666, "Price" => 40}
+      @table1[2].keys_values.should == {"Number" => 2.0, "Person" => "Fred", "Amount" => nil, "Time" => 0.5416666666666666, "Price" => 40}
+    end
+
+    it "should yield values and key-value pairs of a row with umlauts" do
+      @table1[1].values = [1, "Sören", 20.0, 0.1, 40]
+      @table1[1].values.should == [1.0, "Sören", 20.0, 0.1, 40]
+      @table1[1].to_a.should == [1.0, "Sören", 20.0, 0.1, 40]
+      @table1[1].to_h.should == {"Number" => 1.0, "Person" => "Sören", "Amount" => 20.0, "Time" => 0.1, "Price" => 40}
+    end
+
+  end
+
+  describe "[], []=" do
+
+    before do
+      @table1 = @sheet.table(1)
+      @table_row1 = @table1[1]
+    end
+
+    it "should read value in column" do
+      @table_row1[2].should == "John"
+      @table_row1["Person"].should == "John"
+    end
+
+    it "should read value in column with umlauts" do
+      @table1.add_column("Straße", 1, ["Sören","ö","ü","ß","²","³","g","h","i","j","k","l","m"])
+      table_row2 = @table1[1]
+      @table_row1[1].should == "Sören"
+      @table_row1["Straße"].should == "Sören"
     end
 
   end

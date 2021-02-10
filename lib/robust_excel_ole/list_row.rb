@@ -23,7 +23,8 @@ module RobustExcelOle
       begin
         ole_cell = ole_table.Application.Intersect(
           @ole_tablerow.Range, ole_table.ListColumns.Item(column_number_or_name).Range)
-        ole_cell.Value
+        value = ole_cell.Value
+        value.respond_to?(:gsub) ? value.encode('utf-8') : value
       rescue WIN32OLERuntimeError
         raise TableRowError, "could not determine the value at column #{column_number_or_name}"
       end
@@ -47,10 +48,13 @@ module RobustExcelOle
     def values
       begin
         value = @ole_tablerow.Range.Value
-        if value==[nil] then value
-        elsif value.respond_to?(:first) then value.first
-        else [value]
+        return value if value==[nil]
+        value = if !value.respond_to?(:first)
+          [value]
+        elsif value.first.respond_to?(:first)
+          value.first
         end
+        value.map{|v| v.respond_to?(:gsub) ? v.encode('utf-8') : v}
       rescue WIN32OLERuntimeError
         raise TableError, "could not read values"
       end

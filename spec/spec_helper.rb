@@ -4,8 +4,22 @@ require 'tmpdir'
 require "fileutils"
 require_relative '../lib/robust_excel_ole'
 
+class Object
+
+  def encode_value
+    if self.respond_to?(:gsub)
+      encode('utf-8')
+    elsif self.respond_to?(:keys)
+      transform_values!{ |value| value.respond_to?(:gsub) ? value.encode('utf-8') : value}
+    elsif self.respond_to?(:first)
+      map{|v| v.respond_to?(:gsub) ? v.encode('utf-8') : v}
+    end
+  end
+
+end
+
 # @private
-module RobustExcelOle::SpecHelpers
+module RobustExcelOle::SpecHelpers  
 
   def create_tmpdir     
     tmpdir = Dir.mktmpdir

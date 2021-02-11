@@ -722,6 +722,15 @@ describe Worksheet do
         @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
       end
 
+      it "should set a range to a value with umlauts" do
+        @sheet1.add_name("lösung", [1,1])
+        @sheet1.namevalue_global("lösung").should == "foo"
+        @sheet1[1,1].Value.should == "foo"
+        @sheet1.set_namevalue_global("lösung","bar")
+        @sheet1.namevalue_global("lösung").should == "bar"
+        @sheet1[1,1].Value.should == "bar"  
+      end
+
     end
 
     describe "namevalue, set_namevalue" do
@@ -873,12 +882,27 @@ describe Worksheet do
           @sheet1.namevalue_global("bar").should == "foo"
         end
 
+        it "should rename a range with umlauts" do
+          @sheet1.add_name("lösung",[1,1])
+          @sheet1.rename_range("lösung","bär")
+          @sheet1.namevalue_global("bär").should == "foo"
+        end
+
+
         it "should delete a name of a range" do
           @sheet1.add_name("foo",[1,1])
           @sheet1.delete_name("foo")
           expect{
             @sheet1.namevalue_global("foo")
          }.to raise_error(NameNotFound, /name "foo"/)
+        end
+
+        it "should delete a name of a range with umlauts" do
+          @sheet1.add_name("lösung",[1,1])
+          @sheet1.delete_name("lösung")
+          expect{
+            @sheet1.namevalue_global("lösung")
+         }.to raise_error(NameNotFound, /name/)
         end
 
         it "should add a name of a rectangular range" do

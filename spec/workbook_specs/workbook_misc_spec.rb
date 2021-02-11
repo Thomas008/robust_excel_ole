@@ -702,6 +702,13 @@ describe Workbook do
       @book1.namevalue_global("new").should == "bar"
     end
 
+    it "should set a range to a value with umlauts" do
+      @book1.sheet(1).add_name("lösung", [1,1])
+      @book1.namevalue_global("lösung").should == "foo"
+      @book1.set_namevalue_global("lösung","bar")
+      @book1.namevalue_global("lösung").should == "bar"
+    end
+
     it "should set value of a range via []=" do
       @book1["new"] = "bar"
       @book1.namevalue_global("new").should == "bar"

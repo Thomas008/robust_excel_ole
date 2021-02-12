@@ -318,6 +318,73 @@ and set another value to that range.
 For more details about reading and writing contents of cells and ranges see {README_ranges}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_ranges.rdoc]
 
 
+=== List Objects (Tables)
+
+We can define a list object (or table) from scratch
+
+  table = ListObject.new(worksheet, "table 1", [1,1], 3, ["Person","AmountSales"])
+
+or get a given list object in a worksheet given its table number or name.
+
+  table = worksheet.table(1) 
+
+or
+
+  table = worksheet.table("table1")
+
+A list row can be accessed by providing either the row number or a key, i.e. hash of column name - value pairs, e.g.
+
+  row1 = table[1]
+
+  row1 = table[{"Number" => 1, "Person" => "John"}]
+
+You can get all or a maximal number of list rows matching the key.
+
+  rows = table[{"Number" => 1}, 2]
+  rows = table[{"Number" => 1}, nil]
+
+Now we can set value of a cell of the table with help of methods that are equal to or are underscored variants of the column names, e.g.
+
+  row1.person = "John"
+
+or
+
+  row1["Person"] = "John"
+
+Similarly you can get the values. We can also read all values in a row.
+
+  table[1].to_a
+  # => ["John", 40]
+
+  table[1].to_h
+  # => {"Person" => "John", "AmountSales" => 40}
+
+We can set the values in a whole row.
+
+  table[1].values = ["Herber", 80]
+
+Similarly, we can read and set the values in a whole column, e.g.
+
+  table.column_values("Person")
+  # => ["John", "Peter"]
+
+and 
+
+  table.set_column_values(1, ["Herbert","Paul"])
+
+We can add and delete rows and columns, supplying optionally their name, the position and contents. 
+
+  table.add_column("column_name", 3, ["John", "Paul"])
+  table.add_row(3, ["John", 40, 2, 2004])
+
+  table.delete_column_values("column_name")
+  table[2].delete_values
+
+ Finally we can delete empty rows and columns.
+
+  table.delete_empty_rows
+  table.delete_empty_columns
+
 === More features
 
 1. The method +General.change_current_binding+ allows to change the value of self within the current binding, while preserving the local variables, without starting another repl. Assume, +object+ shall be the self, then you would put

@@ -143,6 +143,17 @@ module RobustExcelOle
 
   public
 
+    # resets filter such that the original highlighting is visible
+    def reset_filter
+      ole_workbook = self.Parent.Parent
+      added_ole_worksheet = ole_workbook.Worksheets.Add
+      ole_workbook.retain_saved do
+        self.Range.AdvancedFilter({'Action' => XlFilterInPlace, 
+                                   'CriteriaRange' => added_ole_worksheet.range([1,1]).ole_range})
+        ole_workbook.Parent.with_displayalerts(false){added_ole_worksheet.Delete}
+      end      
+    end
+
     # @return [Array] a list of column names
     def column_names
       begin

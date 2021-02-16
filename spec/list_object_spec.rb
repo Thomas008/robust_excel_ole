@@ -433,7 +433,7 @@ describe ListObject do
 
     it "should sort the table according to first table" do
       @table.sort("Number")
-      @table.ListRows.Item(1).Range.Value.first.should == [1,"Werner",40,0.5, 80]
+      @table.ListRows.Item(1).Range.Value.first.should == [1, "Werner",40,0.5, 80]
       @table.ListRows.Item(2).Range.Value.first.should == [1, "Napoli", 20.0, 0.4166666666666667, 70.0]
       @table.ListRows.Item(3).Range.Value.first.should == [2, "Fred", nil, 0.5416666666666666, 40]     
       @table.ListRows.Item(4).Range.Value.first.should == [3, "John", 50.0, 0.5, 30]

@@ -87,7 +87,7 @@ module RobustExcelOle
           values
         end
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
-        raise RangeNotEvaluatable, 'cannot read value'
+        raise RangeNotEvaluatable, "cannot read value\n#{$!.message}"
       end 
 
     end
@@ -107,7 +107,7 @@ module RobustExcelOle
         end
         value
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg  
-        raise RangeNotEvaluatable, "cannot assign value to range #{self.inspect}"
+        raise RangeNotEvaluatable, "cannot assign value to range #{self.inspect}\n#{$!.message}"
       end
     end
 
@@ -131,7 +131,7 @@ module RobustExcelOle
         ole_range.Interior.ColorIndex = opts[:color] unless opts[:color].nil?
         value
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg  
-        raise RangeNotEvaluatable, "cannot assign value to range #{self.inspect}"
+        raise RangeNotEvaluatable, "cannot assign value to range #{self.inspect}\n#{$!.message}"
       end
     end
 
@@ -187,7 +187,7 @@ module RobustExcelOle
         end
         dest_range
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
-        raise RangeNotCopied, 'cannot copy range'
+        raise RangeNotCopied, "cannot copy range\n#{$!.message}"
       end
     end
 

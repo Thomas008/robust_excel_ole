@@ -153,7 +153,7 @@ module RobustExcelOle
         ole_excel = begin 
           @ole_workbook.Application
         rescue WIN32OLERuntimeError
-          raise ExcelREOError, 'could not determine the Excel instance'
+          raise ExcelREOError, "could not determine the Excel instance\n#{$!.message}"
         end
         @excel = excel_class.new(ole_excel)
         filename = @ole_workbook.Fullname.tr('\\','/') 
@@ -286,18 +286,18 @@ module RobustExcelOle
         WIN32OLE.connect(General.absolute_path(filename))
       rescue
         if $!.message =~ /moniker/
-          raise WorkbookConnectingBlockingError, "some workbook is blocking when connecting"
+          raise WorkbookConnectingBlockingError, "some workbook is blocking when connecting\n#{$!.message}"
         else 
-          raise WorkbookConnectingUnknownError, "unknown error when connecting to a workbook"
+          raise WorkbookConnectingUnknownError, "unknown error when connecting to a workbook\n#{$!.message}"
         end
       end
       ole_excel = begin
         @ole_workbook.Application     
       rescue 
         if $!.message =~ /dispid/
-          raise WorkbookConnectingUnsavedError, "workbook is unsaved when connecting"
+          raise WorkbookConnectingUnsavedError, "workbook is unsaved when connecting\n#{$!.message}"
         else 
-          raise WorkbookConnectingUnknownError, "unknown error when connecting to a workbook"
+          raise WorkbookConnectingUnknownError, "unknown error when connecting to a workbook\n#{$!.message}"
         end
       end
       set_was_open options, (ole_excel.Workbooks.Count == workbooks_number)
@@ -314,7 +314,7 @@ module RobustExcelOle
         begin
           empty_ole_workbook.SaveAs(abs_filename)
         rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
-          raise FileNotFound, "could not save workbook with filename #{filename.inspect}"
+          raise FileNotFound, "could not save workbook with filename #{filename.inspect}\n#{$!.message}"
         end
       else
         raise FileNotFound, "file #{abs_filename.inspect} not found" +
@@ -417,9 +417,9 @@ module RobustExcelOle
         # 'This workbook is currently referenced by another workbook and cannot be closed'
         # 'Diese Arbeitsmappe wird momentan von einer anderen Arbeitsmappe verwendet und kann nicht geschlossen werden.'
         if want_change_readonly==true
-          raise WorkbookLinked, "read-only mode of this workbook cannot be changed, because it is being used by another workbook"
+          raise WorkbookLinked, "read-only mode of this workbook cannot be changed, because it is being used by another workbook\n#{$!.message}"
         elsif want_change_readonly.nil?
-          raise WorkbookLinked, "workbook is being used by another workbook"
+          raise WorkbookLinked, "workbook is being used by another workbook\n#{$!.message}"
         else
           raise UnexpectedREOError, "unknown WIN32OLERuntimeError:\n#{msg.message}"
         end
@@ -661,7 +661,7 @@ module RobustExcelOle
     # @options options
     def reopen(options = { })
       book = self.class.open(@stored_filename, options)
-      raise WorkbookREOError('cannot reopen book') unless book && book.alive?
+      raise WorkbookREOError("cannot reopen book\n#{$!.message}") unless book && book.alive?
       book
     end
 
@@ -818,7 +818,7 @@ module RobustExcelOle
     def sheet(name)
       worksheet_class.new(@ole_workbook.Worksheets.Item(name))
     rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
-      raise NameNotFound, "could not return a sheet with name #{name.inspect}"
+      raise NameNotFound, "could not return a sheet with name #{name.inspect}\n#{$!.message}"
     end
 
     def worksheets_count
@@ -880,7 +880,7 @@ module RobustExcelOle
           end
         end
       rescue # WIN32OLERuntimeError, NameNotFound, Java::OrgRacobCom::ComFailException
-        raise WorksheetREOError, "could not add given worksheet #{sheet.inspect}"
+        raise WorksheetREOError, "could not add given worksheet #{sheet.inspect}\n#{$!.message}"
       end
       new_sheet = worksheet_class.new(ole_workbook.Activesheet)
       new_sheet.name = new_sheet_name if new_sheet_name

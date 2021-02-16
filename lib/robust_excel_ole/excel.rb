@@ -151,9 +151,9 @@ module RobustExcelOle
         @ole_excel.Workbooks
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
         if msg.message =~ /failed to get Dispatch Interface/
-          raise ExcelDamaged, 'Excel instance not alive or damaged'
+          raise ExcelDamaged, "Excel instance not alive or damaged\n#{$!.message}"
         else
-          raise ExcelREOError, 'workbooks could not be determined'
+          raise ExcelREOError, "workbooks could not be determined\n#{$!.message}"
         end
       end
     end
@@ -172,7 +172,7 @@ module RobustExcelOle
       begin
         @ole_excel.Workbooks.each { |w| unsaved_workbooks << w unless w.Saved || w.ReadOnly }
       rescue RuntimeError => msg
-        raise ExcelDamaged, 'Excel instance not alive or damaged' if msg.message =~ /failed to get Dispatch Interface/
+        raise ExcelDamaged, "Excel instance not alive or damaged\n#{$!.message}" if msg.message =~ /failed to get Dispatch Interface/
       end
       unsaved_workbooks
     end

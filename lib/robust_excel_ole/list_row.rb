@@ -26,7 +26,7 @@ module RobustExcelOle
         value = ole_cell.Value
         value.respond_to?(:gsub) ? value.encode('utf-8') : value
       rescue WIN32OLERuntimeError
-        raise TableRowError, "could not determine the value at column #{column_number_or_name}"
+        raise TableRowError, "could not determine the value at column #{column_number_or_name}\n#{$!.message}"
       end
     end
 
@@ -39,7 +39,7 @@ module RobustExcelOle
           @ole_tablerow.Range, ole_table.ListColumns.Item(column_number_or_name).Range)
         ole_cell.Value = value
       rescue WIN32OLERuntimeError
-        raise TableRowError, "could not assign value #{value.inspect} to cell at column #{column_number_or_name}"
+        raise TableRowError, "could not assign value #{value.inspect} to cell at column #{column_number_or_name}\n#{$!.message}"
       end
     end
 
@@ -56,7 +56,7 @@ module RobustExcelOle
         end
         value.map{|v| v.respond_to?(:gsub) ? v.encode('utf-8') : v}
       rescue WIN32OLERuntimeError
-        raise TableError, "could not read values"
+        raise TableError, "could not read values\n#{$!.message}"
       end
     end
 
@@ -73,7 +73,7 @@ module RobustExcelOle
         @ole_tablerow.Range.Value = [updated_values]
         values
       rescue WIN32OLERuntimeError
-        raise TableError, "could not set values #{values.inspect}"
+        raise TableError, "could not set values #{values.inspect}\n#{$!.message}"
       end
     end
 
@@ -97,7 +97,7 @@ module RobustExcelOle
         @ole_tablerow.Range.Value = [[].fill(nil,0..(ole_table.ListColumns.Count)-1)]
         nil
       rescue WIN32OLERuntimeError
-        raise TableError, "could not delete values"
+        raise TableError, "could not delete values\n#{$!.message}"
       end
     end        
 

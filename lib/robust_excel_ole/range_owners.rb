@@ -48,12 +48,12 @@ module RobustExcelOle
           end
         rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException 
           return opts[:default] unless opts[:default] == :__not_provided
-          raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{self}"
+          raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{self}\n#{$!.message}"
         end
       end
       if value == -2146828288 + RobustExcelOle::XlErrName
         return opts[:default] unless opts[:default] == :__not_provided
-        raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{File.basename(workbook.stored_filename).inspect rescue nil}"
+        raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{File.basename(workbook.stored_filename).inspect rescue nil}\n#{$!.message}"
       end
       return opts[:default] unless (opts[:default] == :__not_provided) || value.nil?
       value
@@ -85,7 +85,7 @@ module RobustExcelOle
         end
         value
       rescue #WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException
-        raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.inspect}"
+        raise RangeNotEvaluatable, "cannot assign value to range named #{name.inspect} in #{self.inspect}\n#{$!.message}"
       end
     end
 
@@ -128,7 +128,7 @@ module RobustExcelOle
       begin       
         self.Names.Add(name, nil, true, nil, nil, nil, nil, nil, nil, '=' + address_tool.as_r1c1(addr))
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException
-        raise RangeNotEvaluatable, "cannot add name #{name.inspect} to range #{addr.inspect}"
+        raise RangeNotEvaluatable, "cannot add name #{name.inspect} to range #{addr.inspect}\n#{$!.message}"
       end
       name
     end
@@ -144,12 +144,12 @@ module RobustExcelOle
       begin
         item = self.Names.Item(name)
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
-        raise NameNotFound, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"
+        raise NameNotFound, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}\n#{$!.message}"
       end
       begin
         item.Name = new_name
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
-        raise UnexpectedREOError, "name error in #{File.basename(self.stored_filename).inspect}"
+        raise UnexpectedREOError, "name error with name #{name.inspect} in #{File.basename(self.stored_filename).inspect}\n#{$!.message}"
       end
     end
 
@@ -160,12 +160,12 @@ module RobustExcelOle
       begin
         item = self.Names.Item(name)
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException
-        raise NameNotFound, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}"
+        raise NameNotFound, "name #{name.inspect} not in #{File.basename(self.stored_filename).inspect}\n#{$!.message}"
       end
       begin
         item.Delete
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException
-        raise UnexpectedREOError, "name error in #{File.basename(self.stored_filename).inspect}"
+        raise UnexpectedREOError, "name error with name #{name.inspect} in #{File.basename(self.stored_filename).inspect}\n#{$!.message}"
       end
     end   
 
@@ -177,7 +177,7 @@ module RobustExcelOle
       begin
         self.Parent.Names.Item(name)
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException
-        raise RobustExcelOle::NameNotFound, "name #{name.inspect} not in #{self.inspect}"
+        raise RobustExcelOle::NameNotFound, "name #{name.inspect} not in #{self.inspect}\n#{$!.message}"
       end
     end
 

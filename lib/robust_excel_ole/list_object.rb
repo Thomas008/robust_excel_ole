@@ -55,7 +55,7 @@ module RobustExcelOle
           @ole_table.Name = table_name_or_number
           @ole_table.HeaderRowRange.Value = [column_names] unless column_names.empty?
         rescue WIN32OLERuntimeError => msg # , Java::OrgRacobCom::ComFailException => msg
-          raise TableError, "error #{$!.message}"
+          raise TableError, "#{$!.message}"
         end
       end
 
@@ -138,7 +138,7 @@ module RobustExcelOle
         end
         row_numbers.map{|r| self[r]}        
       rescue
-        raise(TableError, "cannot find row with key #{key_hash}")
+        raise(TableError, "cannot find row with key #{key_hash}\n#{$!.message}")
       end
     end
 
@@ -160,7 +160,7 @@ module RobustExcelOle
       begin
         @ole_table.HeaderRowRange.Value.first.map{|v| v.encode('utf-8')}
       rescue WIN32OLERuntimeError
-        raise TableError, "could not determine column names"
+        raise TableError, "could not determine column names\n#{$!.message}"
       end
     end
 
@@ -172,7 +172,7 @@ module RobustExcelOle
         @ole_table.ListRows.Add(position)
         set_row_values(position, contents) if contents
       rescue WIN32OLERuntimeError
-        raise TableError, ("could not add row" + (" at position #{position.inspect}" if position))
+        raise TableError, ("could not add row" + (" at position #{position.inspect}" if position) + "\n#{$!.message}")
       end
     end
 
@@ -186,7 +186,7 @@ module RobustExcelOle
         new_column.Name = column_name if column_name
         set_column_values(column_name, contents) if contents
       rescue WIN32OLERuntimeError, TableError
-        raise TableError, ("could not add column"+ ("at position #{position.inspect} with name #{column_name.inspect}" if position))
+        raise TableError, ("could not add column"+ ("at position #{position.inspect} with name #{column_name.inspect}" if position) + "\n#{$!.message}")
       end
     end
 
@@ -196,7 +196,7 @@ module RobustExcelOle
       begin
         @ole_table.ListRows.Item(row_number).Delete
       rescue WIN32OLERuntimeError
-        raise TableError, "could not delete row #{row_number.inspect}"
+        raise TableError, "could not delete row #{row_number.inspect}\n#{$!.message}"
       end
     end
 
@@ -206,7 +206,7 @@ module RobustExcelOle
       begin
         @ole_table.ListColumns.Item(column_number_or_name).Delete
       rescue WIN32OLERuntimeError
-        raise TableError, "could not delete column #{column_number_or_name.inspect}"
+        raise TableError, "could not delete column #{column_number_or_name.inspect}\n#{$!.message}"
       end
     end
 
@@ -217,7 +217,7 @@ module RobustExcelOle
         @ole_table.ListRows.Item(row_number).Range.Value = [[].fill(nil,0..(@ole_table.ListColumns.Count-1))]
         nil
       rescue WIN32OLERuntimeError
-        raise TableError, "could not delete contents of row #{row_number.inspect}"
+        raise TableError, "could not delete contents of row #{row_number.inspect}\n#{$!.message}"
       end
     end
 
@@ -229,7 +229,7 @@ module RobustExcelOle
         @ole_table.ListColumns.Item(column_number_or_name).Range.Value = [column_name] + [].fill([nil],0..(@ole_table.ListRows.Count-1))
         nil
       rescue WIN32OLERuntimeError
-        raise TableError, "could not delete contents of column #{column_number_or_name.inspect}"
+        raise TableError, "could not delete contents of column #{column_number_or_name.inspect}\n#{$!.message}"
       end
     end
 
@@ -240,7 +240,7 @@ module RobustExcelOle
       begin
         @ole_table.ListColumns.Item(name_or_number).Name = new_name
       rescue
-        raise TableError, "could not rename column #{name_or_number.inspect} to #{new_name.inspect}"
+        raise TableError, "could not rename column #{name_or_number.inspect} to #{new_name.inspect}\n#{$!.message}"
       end
     end
 
@@ -251,7 +251,7 @@ module RobustExcelOle
       begin
         @ole_table.ListRows.Item(row_number).Range.Value.first
       rescue WIN32OLERuntimeError
-        raise TableError, "could not read the values of row #{row_number.inspect}"
+        raise TableError, "could not read the values of row #{row_number.inspect}\n#{$!.message}"
       end
     end
 
@@ -265,7 +265,7 @@ module RobustExcelOle
         @ole_table.ListRows.Item(row_number).Range.Value = [updated_values]
         values
       rescue WIN32OLERuntimeError
-        raise TableError, "could not set the values of row #{row_number.inspect}"
+        raise TableError, "could not set the values of row #{row_number.inspect}\n#{$!.message}"
       end
     end
 
@@ -274,7 +274,7 @@ module RobustExcelOle
       begin
         @ole_table.ListColumns.Item(column_number_or_name).Range.Value[1,@ole_table.ListRows.Count].flatten
       rescue WIN32OLERuntimeError
-        raise TableError, "could not read the values of column #{column_number_or_name.inspect}"
+        raise TableError, "could not read the values of column #{column_number_or_name.inspect}\n#{$!.message}"
       end
     end
 
@@ -289,7 +289,7 @@ module RobustExcelOle
         @ole_table.ListColumns.Item(column_number_or_name).Range.Value = column_name + updated_values.map{|v| [v]}
         values
       rescue WIN32OLERuntimeError
-        raise TableError, "could not read the values of column #{column_number_or_name.inspect}"
+        raise TableError, "could not read the values of column #{column_number_or_name.inspect}\n#{$!.message}"
       end
     end
 

@@ -205,6 +205,8 @@ describe ListObject do
     end
 
     it "should access listrows containing umlauts" do
+      #@table1[1].values = [1, "Sören", 20.0, 0.1, 40]
+      #@table1[{"Number" => 1, "Person" => "Sören"}].values.encode_value.should == [1, "Sören", 20.0, 0.1, 40]
       @table1.add_column("Straße", 3, ["ä","ö","ü","ß","²","³","g","h","i","j","k","l","m"])
       @table1[1].values = [1, "Sören", "Lösung", 20.0, 0.1, 40]
       @table1[1].values.should == [1, "Sören", "Lösung", 20.0, 0.1, 40]

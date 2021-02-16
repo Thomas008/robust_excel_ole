@@ -100,7 +100,7 @@ module RobustExcelOle
         matching_listrows = []
         @ole_table.ListRows.each do |ole_listrow|
           def encode_utf8(val); val.respond_to?(:gsub) ? val.encode('utf-8') : val; end
-          if key_hash.map{|key,val| encode_utf8(ole_listrow.Range.Value.first[column_names.map{|v| encode_utf8(v)}.index(key)])==val}.inject(true,:&)
+          if key_hash.map{|key,val| encode_utf8(ole_listrow.Range.Value.first[column_names.index(key)])==val}.inject(true,:&)
             matching_listrows << @row_class.new(ole_listrow) 
           end
           break if matching_listrows.count == limit
@@ -158,7 +158,7 @@ module RobustExcelOle
     # @return [Array] a list of column names
     def column_names
       begin
-        @ole_table.HeaderRowRange.Value.first
+        @ole_table.HeaderRowRange.Value.first.map{|v| v.encode('utf-8')}
       rescue WIN32OLERuntimeError
         raise TableError, "could not determine column names"
       end

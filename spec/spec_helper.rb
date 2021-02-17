@@ -11,7 +11,7 @@ class Object
       encode('utf-8')
     elsif self.respond_to?(:keys)
       transform_values!{ |value| value.respond_to?(:gsub) ? value.encode('utf-8') : value}
-    elsif self.respond_to?(:first)
+    elsif self.respond_to?(:pop)
       map{|v| v.respond_to?(:gsub) ? v.encode('utf-8') : v}
     end
   end

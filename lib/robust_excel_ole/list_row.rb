@@ -49,9 +49,9 @@ module RobustExcelOle
       begin
         value = @ole_tablerow.Range.Value
         return value if value==[nil]
-        value = if !value.respond_to?(:first)
+        value = if !value.respond_to?(:pop)
           [value]
-        elsif value.first.respond_to?(:first)
+        elsif value.first.respond_to?(:pop)
           value.first
         end
         value.map{|v| v.respond_to?(:gsub) ? v.encode('utf-8') : v}

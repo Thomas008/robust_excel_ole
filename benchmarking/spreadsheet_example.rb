@@ -11,7 +11,7 @@ start_time = Time.now
 workbook = Spreadsheet.open './sample_excel_files/xls_25000_rows.xls'
 
 worksheets = workbook.worksheets
-puts "Found #{worksheets.count} worksheets"
+puts "Found #{worksheets.size} worksheets"
 
 
 worksheets.each do |worksheet|

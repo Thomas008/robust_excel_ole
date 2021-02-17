@@ -164,7 +164,7 @@ module RobustExcelOle
           row, col = address_tool.as_integer_ranges(address_r1c1)
           row.each_with_index do |r,i|
             col.each_with_index do |c,j|
-              ole_range.Cells(i+1,j+1).Value = (value.respond_to?(:first) ? value[i][j] : value)
+              ole_range.Cells(i+1,j+1).Value = (value.respond_to?(:pop) ? value[i][j] : value)
             end
           end
         end

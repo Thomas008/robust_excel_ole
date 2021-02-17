@@ -9,7 +9,7 @@ start_time = Time.now
 workbook = Roo::Spreadsheet.open './sample_excel_files/xlsx_500_rows.xlsx'
 
 worksheets = workbook.sheets
-puts "Found #{worksheets.count} worksheets"
+puts "Found #{worksheets.size} worksheets"
 
 worksheets.each do |worksheet|
   puts "Reading: #{worksheet}"

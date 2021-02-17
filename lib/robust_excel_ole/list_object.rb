@@ -99,8 +99,8 @@ module RobustExcelOle
       begin      
         matching_listrows = []
         @ole_table.ListRows.each do |ole_listrow|
-          def encode_utf8(val); val.respond_to?(:gsub) ? val.encode('utf-8') : val; end
-          if key_hash.map{|key,val| encode_utf8(ole_listrow.Range.Value.first[column_names.index(key)])==val}.inject(true,:&)
+          encode_utf8 = ->(val) {val.respond_to?(:gsub) ? val.encode('utf-8') : val}
+          if key_hash.map{|key,val| encode_utf8.call(ole_listrow.Range.Value.first[column_names.index(key)])==val}.inject(true,:&)
             matching_listrows << @row_class.new(ole_listrow) 
           end
           break if matching_listrows.count == limit

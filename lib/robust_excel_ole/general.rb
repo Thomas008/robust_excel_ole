@@ -79,11 +79,11 @@ module StringRefinement
     end
     
     def replace_umlauts
-      TRANSLATION_TABLE = {
+      translation_table = {
       'ä' => 'ae', 'ö' => 'oe', 'ü' => 'ue', 'Ä' => 'Ae', 'Ö' => 'Oe', 'Ü' => 'Ue',
       'ß' => 'ss', '²' => '2', '³' => '3'
       }
-      TRANSLATION_TABLE.inject(self.encode('utf-8')) { |word,transl| word.gsub(transl.first, transl.last) }
+      translation_table.inject(self.encode('utf-8')) { |word,transl| word.gsub(transl.first, transl.last) }
     end
 
     # taken from http://apidock.com/rails/ActiveSupport/Inflector/underscore

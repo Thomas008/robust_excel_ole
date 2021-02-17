@@ -85,7 +85,7 @@ module RobustExcelOle
     def [] (key_hash_or_number, limit = :first)
       return @row_class.new(key_hash_or_number) if key_hash_or_number.respond_to?(:succ)
       key_hash = key_hash_or_number
-      matching_listrows = if @ole_table.ListRows.Count < 28
+      matching_listrows = if @ole_table.ListRows.Count < 0 #< 28
         listrows_via_traversing_listrows(key_hash, limit)
       else
         listrows_via_advanced_filter(key_hash, limit)
@@ -99,8 +99,8 @@ module RobustExcelOle
       begin      
         matching_listrows = []
         @ole_table.ListRows.each do |ole_listrow|
-          encode_utf8 = ->(val) {val.respond_to?(:gsub) ? val.encode('utf-8') : val}
-          if key_hash.map{|key,val| encode_utf8.call(ole_listrow.Range.Value.first[column_names.index(key)])==val}.inject(true,:&)
+          def encode_utf8(val); val.respond_to?(:gsub) ? val.encode('utf-8') : val; end
+          if key_hash.map{|key,val| encode_utf8(ole_listrow.Range.Value.first[column_names.index(key)])==val}.inject(true,:&)
             matching_listrows << @row_class.new(ole_listrow) 
           end
           break if matching_listrows.count == limit
@@ -118,13 +118,17 @@ module RobustExcelOle
         row_numbers = []
         ole_workbook.retain_saved do
           added_ole_worksheet = ole_workbook.Worksheets.Add
-          criteria = Table.new(added_ole_worksheet, "criteria", [1,1], 2, key_hash.keys)
+          criteria = Table.new(added_ole_worksheet, "criteria", [2,1], 2, key_hash.keys)
           criteria[1].values = key_hash.values
           self.Range.AdvancedFilter({
             'Action' => XlFilterInPlace, 
-            'CriteriaRange' => added_ole_worksheet.range([1..2,1..key_hash.length]).ole_range, 'Unique' => false})
+            'CriteriaRange' => added_ole_worksheet.range([2..3,1..key_hash.length]).ole_range, 'Unique' => false})
+          filtered_ole_range = self.DataBodyRange.SpecialCells(XlCellTypeVisible) rescue nil 
+          # clear filter such that the original colouring of the table is being preserved
+          self.Range.AdvancedFilter({'Action' => XlFilterInPlace, 
+                                   'CriteriaRange' => added_ole_worksheet.range([1,1]).ole_range})          
+          #ole_worksheet.ShowAllData
           ole_workbook.Parent.with_displayalerts(false){added_ole_worksheet.Delete}
-          filtered_ole_range = self.DataBodyRange.SpecialCells(XlCellTypeVisible) rescue nil
           if filtered_ole_range
             filtered_ole_range.Areas.each do |area|
               break if area.Rows.each do |row|
@@ -132,8 +136,7 @@ module RobustExcelOle
                 break true if row_numbers.count == limit
               end
             end
-          end
-          ole_worksheet.ShowAllData
+          end          
           @ole_table = ole_worksheet.table(self.Name)
         end
         row_numbers.map{|r| self[r]}        
@@ -142,19 +145,9 @@ module RobustExcelOle
       end
     end
 
+
   public
-
-    # resets filter such that the original highlighting is visible
-    def reset_filter
-      ole_workbook = self.Parent.Parent
-      added_ole_worksheet = ole_workbook.Worksheets.Add
-      ole_workbook.retain_saved do
-        self.Range.AdvancedFilter({'Action' => XlFilterInPlace, 
-                                   'CriteriaRange' => added_ole_worksheet.range([1,1]).ole_range})
-        ole_workbook.Parent.with_displayalerts(false){added_ole_worksheet.Delete}
-      end      
-    end
-
+    
     # @return [Array] a list of column names
     def column_names
       begin

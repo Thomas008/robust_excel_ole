@@ -14,7 +14,7 @@ module RobustExcelOle
     # @param  [Hash]        opts      the options
     # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
     # @return [Variant] the contents of a range with given name
-    def namevalue_global(name, opts = { :default => :__not_provided })
+    def namevalue_global(name, opts = { default: :__not_provided })
       name_obj = begin
         name_object(name)
       rescue NameNotFound => msg
@@ -90,7 +90,7 @@ module RobustExcelOle
     end
 
     # @private
-    def nameval(name, opts = { :default => :__not_provided })   # :deprecated: #
+    def nameval(name, opts = { default: :__not_provided })   # :deprecated: #
       namevalue_global(name, opts)
     end
 
@@ -100,7 +100,7 @@ module RobustExcelOle
     end
 
     # @private
-    def rangeval(name, opts = { :default => :__not_provided })  # :deprecated: #
+    def rangeval(name, opts = { default: :__not_provided })  # :deprecated: #
       namevalue(name, opts)
     end
 

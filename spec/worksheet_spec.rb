@@ -198,7 +198,7 @@ describe Worksheet do
     it "should raise error for bad ranges" do
       expect{
         @sheet[0,0]
-      }.to raise_error(RangeNotEvaluatable, "cannot read cell (0,0)")
+      }.to raise_error(RangeNotEvaluatable, /cannot read cell/)
       expect{
         @sheet[0,0] = "foo"
       }.to raise_error(RangeNotEvaluatable, /cannot assign value/)
@@ -274,7 +274,7 @@ describe Worksheet do
         table = @sheet.table(1)
         table.Name.should == "table3"
         table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Price"]
-        table.ListRows.Count.should == 6
+        table.ListRows.Count.should == 13
         @sheet[3,4].Value.should == "Number"
       end
 
@@ -282,7 +282,7 @@ describe Worksheet do
         table = @sheet.table("table3")
         table.Name.should == "table3"
         table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Price"]
-        table.ListRows.Count.should == 6
+        table.ListRows.Count.should == 13
         @sheet[3,4].Value.should == "Number"
       end
 

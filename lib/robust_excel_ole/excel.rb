@@ -34,7 +34,7 @@ module RobustExcelOle
     # @option options [Boolean] :screenupdating
     # @return [Excel] a new Excel instance
     def self.create(options = {})
-      new(options.merge(:reuse => false))
+      new(options.merge(reuse: false))
     end
 
     # connects to the current (first opened) Excel instance, if such a running Excel instance exists
@@ -45,7 +45,7 @@ module RobustExcelOle
     # @option options [Boolean] :screenupdating
     # @return [Excel] an Excel instance
     def self.current(options = {})
-      new(options.merge(:reuse => true))
+      new(options.merge(reuse: true))
     end
 
     # returns an Excel instance
@@ -71,7 +71,7 @@ module RobustExcelOle
         win32ole_excel = nil
       end
       ole_xl = win32ole_excel unless win32ole_excel.nil?
-      options = { :reuse => true }.merge(options)
+      options = { reuse: true }.merge(options)
       if options[:reuse] == true && ole_xl.nil?
         ole_xl = current_ole_excel
       end
@@ -91,7 +91,7 @@ module RobustExcelOle
       begin
         reused = options[:reuse] && stored && stored.alive? 
         unless reused || connected
-          options = { :displayalerts => :if_visible, :visible => false, :screenupdating => true }.merge(options)
+          options = { displayalerts: :if_visible, visible: false, screenupdating: true }.merge(options)
         end
         result.set_options(options)        
       end
@@ -111,8 +111,8 @@ module RobustExcelOle
     # @return [Excel] an Excel instance
     def recreate(opts = {})
       unless alive?
-        opts = {:visible => false, :displayalerts => :if_visible}.merge(
-               {:visible => @properties[:visible], :displayalerts => @properties[:displayalerts]}).merge(opts)        
+        opts = {visible: false, displayalerts: :if_visible}.merge(
+               {visible: @properties[:visible], displayalerts: @properties[:displayalerts]}).merge(opts)        
         @ole_excel = WIN32OLE.new('Excel.Application')
         set_options(opts)
         if opts[:reopen_workbooks]
@@ -185,7 +185,7 @@ module RobustExcelOle
     #                      :save            -> saves the workbooks before closing
     #                      :alert           -> let Excel do it
     # @private
-    def close_workbooks(options = { :if_unsaved => :raise })
+    def close_workbooks(options = { if_unsaved: :raise })
       return unless alive?
 
       weak_wkbks = @ole_excel.Workbooks
@@ -235,7 +235,7 @@ module RobustExcelOle
     #                      :forget          -> closes the excel instance without saving the workbooks
     #                      :alert           -> give control to Excel
     # @option options [Proc] block
-    def self.close_all(options = { :if_unsaved => :raise }, &blk)
+    def self.close_all(options = { if_unsaved: :raise }, &blk)
       options[:if_unsaved] = blk if blk
       finished_number = error_number = overall_number = 0
       first_error = nil
@@ -243,7 +243,7 @@ module RobustExcelOle
         if excel
           begin
             overall_number += 1
-            finished_number += excel.close(:if_unsaved => options[:if_unsaved])
+            finished_number += excel.close(if_unsaved: options[:if_unsaved])
           rescue
             first_error = $!
             #trace "error when finishing #{$!}"
@@ -294,7 +294,7 @@ module RobustExcelOle
     #                      :save            -> saves the workbooks before closing
     #                      :forget          -> closes the Excel instance without saving the workbooks
     #                      :alert           -> Excel takes over    
-    def close(options = { :if_unsaved => :raise })
+    def close(options = { if_unsaved: :raise })
       finishing_living_excel = alive?
       if finishing_living_excel
         hwnd = (begin
@@ -302,7 +302,7 @@ module RobustExcelOle
                 rescue
                   nil
                 end)
-        close_workbooks(:if_unsaved => options[:if_unsaved])
+        close_workbooks(if_unsaved: options[:if_unsaved])
         @ole_excel.Quit
         if false && defined?(weak_wkbks) && weak_wkbks.weakref_alive?
           weak_wkbks.ole_free
@@ -540,7 +540,7 @@ module RobustExcelOle
 
     # @private
     def generate_workbook file_name  # :deprecated: #
-      workbook_class.open(file_name, :if_absent => :create, :force => {:excel => self})
+      workbook_class.open(file_name, if_absent: :create, force: {excel: self})
     end
 
     # sets DisplayAlerts in a block

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 module RobustExcelOle
 
   using ToReoRefinement
@@ -76,19 +75,20 @@ module RobustExcelOle
 
     # accesses a table row object
     # @param [Variant]  a hash of key (key column: value) or a row number (>= 1) 
-    # @param [Variant]  maximal number of matching list rows to return
-    # @return [Variant] a list row object, if limit == :first
+    # @param [Integer]  maximal number of matching list rows to return (default :first)
+    # @param [Boolean]  when applying Excel's advanced filter and clearing filter, reset the original colors of the table (default: false)
+    # @return [Variant] a listrow, if limit == :first
     #                   an array of listrows, with maximal number=limit, if list rows were found and limit is not :first
     #                   nil, if no list object was found
     # note: when applying the advanced filter (for long tables), then
     #       if there are more than one match, then only the last match is being returned
-    def [] (key_hash_or_number, limit = :first)
+    def [] (key_hash_or_number, limit = :first, reset_colors = false)
       return @row_class.new(key_hash_or_number) if key_hash_or_number.respond_to?(:succ)
       key_hash = key_hash_or_number
-      matching_listrows = if @ole_table.ListRows.Count < 0 #< 28
+      matching_listrows = if @ole_table.ListRows.Count > 0 # < 28
         listrows_via_traversing_listrows(key_hash, limit)
       else
-        listrows_via_advanced_filter(key_hash, limit)
+        listrows_via_advanced_filter(key_hash, limit, reset_colors)
       end
       limit == :first ? matching_listrows.first : matching_listrows
     end
@@ -96,22 +96,22 @@ module RobustExcelOle
   private
 
     def listrows_via_traversing_listrows(key_hash, limit)
-      begin      
-        matching_listrows = []
-        @ole_table.ListRows.each do |ole_listrow|
-          def encode_utf8(val); val.respond_to?(:gsub) ? val.encode('utf-8') : val; end
-          if key_hash.map{|key,val| encode_utf8(ole_listrow.Range.Value.first[column_names.index(key)])==val}.inject(true,:&)
-            matching_listrows << @row_class.new(ole_listrow) 
-          end
-          break if matching_listrows.count == limit
+      begin
+        encode_utf8 = ->(val) {val.respond_to?(:gsub) ? val.encode('utf-8') : val}
+        cn = column_names_to_index
+        matching_rows = []
+        @ole_table.ListRows.each do |listrow|
+          rowvalues = listrow.Range.Value.first
+          matching_rows << @row_class.new(listrow) if key_hash.all?{|key,val| encode_utf8.call(rowvalues[cn[key]])==val}
+          break if matching_rows.count == limit
         end
-        matching_listrows
+        matching_rows
       rescue
         raise(TableError, "cannot find row with key #{key_hash}")
       end
     end
 
-    def listrows_via_advanced_filter(key_hash, limit)
+    def listrows_via_advanced_filter(key_hash, limit, reset_colors)
       begin      
         ole_worksheet = self.Parent
         ole_workbook =  ole_worksheet.Parent
@@ -121,13 +121,15 @@ module RobustExcelOle
           criteria = Table.new(added_ole_worksheet, "criteria", [2,1], 2, key_hash.keys)
           criteria[1].values = key_hash.values
           self.Range.AdvancedFilter({
-            'Action' => XlFilterInPlace, 
-            'CriteriaRange' => added_ole_worksheet.range([2..3,1..key_hash.length]).ole_range, 'Unique' => false})
+            'Action': XlFilterInPlace, 
+            'CriteriaRange': added_ole_worksheet.range([2..3,1..key_hash.length]).ole_range, 'Unique': false})
           filtered_ole_range = self.DataBodyRange.SpecialCells(XlCellTypeVisible) rescue nil 
-          # clear filter such that the original colouring of the table is being preserved
-          self.Range.AdvancedFilter({'Action' => XlFilterInPlace, 
-                                   'CriteriaRange' => added_ole_worksheet.range([1,1]).ole_range})          
-          #ole_worksheet.ShowAllData
+          if reset_colors
+            self.Range.AdvancedFilter({'Action': XlFilterInPlace, 
+                                       'CriteriaRange': added_ole_worksheet.range([1,1]).ole_range})          
+          else
+            ole_worksheet.ShowAllData
+          end
           ole_workbook.Parent.with_displayalerts(false){added_ole_worksheet.Delete}
           if filtered_ole_range
             filtered_ole_range.Areas.each do |area|
@@ -147,11 +149,35 @@ module RobustExcelOle
 
 
   public
+
+    # clear filter such that the original colors of the table are being visible 
+    def clear_filter
+      ole_workbook = self.Parent.Parent
+      ole_workbook.retain_saved do
+        added_ole_worksheet = ole_workbook.Worksheets.Add
+        begin
+          self.Range.AdvancedFilter({'Action': XlFilterInPlace, 
+                                     'CriteriaRange': added_ole_worksheet.range([1,1]).ole_range})
+        ensure
+          ole_workbook.Parent.with_displayalerts(false){added_ole_worksheet.Delete}
+        end
+      end      
+    end
     
     # @return [Array] a list of column names
     def column_names
       begin
         @ole_table.HeaderRowRange.Value.first.map{|v| v.encode('utf-8')}
+      rescue WIN32OLERuntimeError
+        raise TableError, "could not determine column names\n#{$!.message}"
+      end
+    end
+
+    # @return [Hash] pairs of column names and index
+    def column_names_to_index
+      begin
+        header_row_values = @ole_table.HeaderRowRange.Value.first
+        header_row_values.map{|v| v.encode('utf-8')}.zip(0..header_row_values.size-1).to_h
       rescue WIN32OLERuntimeError
         raise TableError, "could not determine column names\n#{$!.message}"
       end

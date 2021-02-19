@@ -176,7 +176,7 @@ module RobustExcelOle
           else
             if options[:transpose]
               added_sheet = @worksheet.workbook.add_sheet
-              self.copy(dest_address, added_sheet, :transpose => true)
+              self.copy(dest_address, added_sheet, transpose: true)
               added_sheet.range(dest_range_address).copy(dest_address,dest_sheet)
               @worksheet.workbook.excel.with_displayalerts(false) {added_sheet.Delete}
             else
@@ -214,7 +214,7 @@ module RobustExcelOle
 
     # @private
     def to_s
-      "#<REO::Range: " + "#{@ole_range.Address('External' => true).gsub(/\$/,'')} " + ">"
+      "#<REO::Range: " + "#{@ole_range.Address('External': true).gsub(/\$/,'')} " + ">"
     end
 
     # @private

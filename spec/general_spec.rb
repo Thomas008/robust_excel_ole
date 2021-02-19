@@ -82,7 +82,7 @@ module RobustExcelOle
         table = Table.new(ole_table)
         table.Name.should == "table3"
         table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Price"]
-        table.ListRows.Count.should == 6
+        table.ListRows.Count.should == 13
         worksheet[3,4].Value.should == "Number"
       end
 

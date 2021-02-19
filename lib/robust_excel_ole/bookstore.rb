@@ -29,7 +29,7 @@ module RobustExcelOle
     #                             otherwise returns the workbook according to the preference order mentioned above
     #          :prefer_excel      returns the workbook in the given Excel instance, if it exists,
     #                             otherwise proceeds according to prefer_writable
-    def fetch(filename, options = { :prefer_writable => true })
+    def fetch(filename, options = { prefer_writable: true })
       return nil unless filename
       filename = General.absolute_path(filename)
       filename_key = General.canonize(filename).downcase

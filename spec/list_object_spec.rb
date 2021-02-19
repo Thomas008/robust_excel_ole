@@ -165,11 +165,11 @@ describe ListObject do
 
     it "should yield nil if there is no match" do
       @table1[{"Number" => 5, "Person" => "Angel"}].should == nil
-      @table1[{"Number" => 5, "Person" => "Angel"}, :first].should == nil
+      @table1[{"Number" => 5, "Person" => "Angel"}, limit: :first].should == nil
     end
 
     it "should yield nil if there is no match" do
-      @table1[{"Number" => 5, "Person" => "Angel"},1].should == []
+      @table1[{"Number" => 5, "Person" => "Angel"}, limit: 1].should == []
     end
 
     #it "should raise an error if the key contains no existing columns" do
@@ -179,24 +179,24 @@ describe ListObject do
      #end
 
     it "should access one matching listrow" do
-      @table1[{"Number" => 3}, :first].values.should == [3.0, "John", 50.0, 0.5, 30]
+      @table1[{"Number" => 3}, limit: :first].values.should == [3.0, "John", 50.0, 0.5, 30]
     end
 
     it "should access one matching listrow" do
-      @table1[{"Number" => 3}, 1].map{|l| l.values}.should == [[3.0, "John", 50.0, 0.5, 30]]
+      @table1[{"Number" => 3}, limit: 1].map{|l| l.values}.should == [[3.0, "John", 50.0, 0.5, 30]]
     end
  
     it "should access two matching listrows" do
-      @table1[{"Number" => 3}, 2].map{|l| l.values}.should == [[3.0, "John", 50.0, 0.5, 30],[3.0, "Angel", 100, 0.6666666666666666, 60]]
+      @table1[{"Number" => 3}, limit: 2].map{|l| l.values}.should == [[3.0, "John", 50.0, 0.5, 30],[3.0, "Angel", 100, 0.6666666666666666, 60]]
     end
 
     it "should access four matching listrows" do
-      @table1[{"Number" => 3}, 4].map{|l| l.values}.should == [[3.0, "John", 50.0, 0.5, 30],[3.0, "Angel", 100, 0.6666666666666666, 60],
+      @table1[{"Number" => 3}, limit: 4].map{|l| l.values}.should == [[3.0, "John", 50.0, 0.5, 30],[3.0, "Angel", 100, 0.6666666666666666, 60],
                                                                [3.0, "Eiffel", 50.0, 0.5, 30], [3.0, "Berta", nil, 0.5416666666666666, 40]]
     end
 
     it "should access all matching listrows" do
-      @table1[{"Number" => 3}, nil].map{|l| l.values}.should == [[3.0, "John", 50.0, 0.5, 30],
+      @table1[{"Number" => 3}, limit: nil].map{|l| l.values}.should == [[3.0, "John", 50.0, 0.5, 30],
                                                                  [3.0, "Angel", 100, 0.6666666666666666, 60],
                                                                  [3.0, "Eiffel", 50.0, 0.5, 30], 
                                                                  [3.0, "Berta", nil, 0.5416666666666666, 40],

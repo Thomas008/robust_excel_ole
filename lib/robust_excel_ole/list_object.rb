@@ -75,27 +75,28 @@ module RobustExcelOle
 
     # accesses a table row object
     # @param [Variant]  a hash of key (key column: value) or a row number (>= 1) 
-    # @param [Integer]  maximal number of matching list rows to return (default :first)
-    # @param [Boolean]  when applying Excel's advanced filter and clearing filter, reset the original colors of the table (default: false)
+    # @option opts [Variant] limit: maximal number of matching table rows to return, or return the first matching table row (default :first)
+    # @option opts [Symbol]  reset_colors: reset to the original colors of the table rows, after applying advanced filter
     # @return [Variant] a listrow, if limit == :first
     #                   an array of listrows, with maximal number=limit, if list rows were found and limit is not :first
     #                   nil, if no list object was found
     # note: when applying the advanced filter (for long tables), then
     #       if there are more than one match, then only the last match is being returned
-    def [] (key_hash_or_number, limit = :first, reset_colors = false)
+    #def [] (key_hash_or_number, opts = {limit: :first, reset_colors: false})
+    def [] (key_hash_or_number, opts = {:limit => :first, :reset_colors => false})
       return @row_class.new(key_hash_or_number) if key_hash_or_number.respond_to?(:succ)
       key_hash = key_hash_or_number
-      matching_listrows = if @ole_table.ListRows.Count > 0 # < 28
-        listrows_via_traversing_listrows(key_hash, limit)
+      matching_listrows = if @ole_table.ListRows.Count < 28
+        listrows_via_traversing_listrows(key_hash, opts)
       else
-        listrows_via_advanced_filter(key_hash, limit, reset_colors)
+        listrows_via_advanced_filter(key_hash, opts)
       end
-      limit == :first ? matching_listrows.first : matching_listrows
+      opts[:limit] == :first ? matching_listrows.first : matching_listrows
     end
 
-  private
+    private
 
-    def listrows_via_traversing_listrows(key_hash, limit)
+    def listrows_via_traversing_listrows(key_hash, opts)
       begin
         encode_utf8 = ->(val) {val.respond_to?(:gsub) ? val.encode('utf-8') : val}
         cn = column_names_to_index
@@ -103,7 +104,7 @@ module RobustExcelOle
         @ole_table.ListRows.each do |listrow|
           rowvalues = listrow.Range.Value.first
           matching_rows << @row_class.new(listrow) if key_hash.all?{|key,val| encode_utf8.call(rowvalues[cn[key]])==val}
-          break if matching_rows.count == limit
+          break if matching_rows.count == opts[:limit]
         end
         matching_rows
       rescue
@@ -111,7 +112,7 @@ module RobustExcelOle
       end
     end
 
-    def listrows_via_advanced_filter(key_hash, limit, reset_colors)
+    def listrows_via_advanced_filter(key_hash, opts)
       begin      
         ole_worksheet = self.Parent
         ole_workbook =  ole_worksheet.Parent
@@ -124,7 +125,7 @@ module RobustExcelOle
             'Action': XlFilterInPlace, 
             'CriteriaRange': added_ole_worksheet.range([2..3,1..key_hash.length]).ole_range, 'Unique': false})
           filtered_ole_range = self.DataBodyRange.SpecialCells(XlCellTypeVisible) rescue nil 
-          if reset_colors
+          if opts[:reset_colors]
             self.Range.AdvancedFilter({'Action': XlFilterInPlace, 
                                        'CriteriaRange': added_ole_worksheet.range([1,1]).ole_range})          
           else
@@ -135,7 +136,7 @@ module RobustExcelOle
             filtered_ole_range.Areas.each do |area|
               break if area.Rows.each do |row|
                 row_numbers << row.Row-position.first
-                break true if row_numbers.count == limit
+                break true if row_numbers.count == opts[:limit]
               end
             end
           end          
@@ -147,11 +148,10 @@ module RobustExcelOle
       end
     end
 
-
   public
 
     # clear filter such that the original colors of the table are being visible 
-    def clear_filter
+    def reset_colors
       ole_workbook = self.Parent.Parent
       ole_workbook.retain_saved do
         added_ole_worksheet = ole_workbook.Worksheets.Add

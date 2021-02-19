@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [1.32] 2021-14-02
 
 ### Added
-  - ListObject#[], position, clear_filter
+  - ListObject#[] with options, position
   - ListRow#to_h, to_a, values=, keys_values
 
 ## [1.31] 2021-14-01

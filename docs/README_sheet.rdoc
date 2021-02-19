@@ -6,7 +6,7 @@ Worksheets are represented by Worksheet objects.
 
 Assume you have opened a workbook
 
-  workbook = Workbook.open('spec/data/workbook.xls', :visible => true)
+  workbook = Workbook.open('spec/data/workbook.xls', visible: true)
 
 === Accessing a worksheet.
 
@@ -53,11 +53,11 @@ You can add (append) an empty worksheet using
 
 Additionally you can name it.
 
-  workbook.add_empty_sheet(:as => 'sheet_name')
+  workbook.add_empty_sheet(as: 'sheet_name')
 
 You can specify the position of the added empty worksheet.
 
-  workbook.add_empty_sheet(:as => 'new_name', :before => another_sheet)
+  workbook.add_empty_sheet(as: 'new_name', before: another_sheet)
 
 You can copy a worksheet and add it.
 
@@ -65,13 +65,13 @@ You can copy a worksheet and add it.
 
 Additionally you can specify a name and a position.
 
-  workbook.copy_sheet(sheet, :as => 'new_name', :after => another_sheet)
+  workbook.copy_sheet(sheet, as: 'new_name', after: another_sheet)
 
 If you want to copy a worksheet, if a worksheet +sheet+ is given, and add an empty worksheet, if no worksheet is given, then use
 
   workbook.add_or_copy_sheet
 
-  workbook.add_or_copy_sheet(sheet, :as => 'new_name', :after => another_sheet)  
+  workbook.add_or_copy_sheet(sheet, as: 'new_name', after: another_sheet)  
 
 Note, that running in jruby, due to some restrictions of jruby, there is a workaround when adding or copy a worksheet at the end (appending): the last worksheet is being copied and deleted afterwards, in order to serve as a dummy worksheet. This may cause a different behaviour.
 

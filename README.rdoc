@@ -123,7 +123,7 @@ RobustExcelOle allows unobtrusively reading and modifying workbooks, i.e. access
 
 We can also create a new, empty workbook. 
 
-  Workbook.create('spec/data/new_workbook.xls', :visible => true)
+  Workbook.create('spec/data/new_workbook.xls', visible: true)
 
 Moreover, we can open the workbook using a block, similar to, e.g., +File.open+. 
 
@@ -133,15 +133,15 @@ Moreover, we can open the workbook using a block, similar to, e.g., +File.open+.
 
 Once we have a workbook, we can set some options, e.g.
 
-  workbook.for_this_workbook(:visible => true, :read_only => false)
+  workbook.for_this_workbook(visible: true, read_only: false)
 
 We can also open the workbook and provide the options in one step, e.g.
 
-  workbook = Workbook.open('spec/data/workbook.xls', :visible => true)
+  workbook = Workbook.open('spec/data/workbook.xls', visible: true)
 
 or, using abbreviations,
 
-  workbook = Workbook.open('spec/data/workbook.xls', :v => true)
+  workbook = Workbook.open('spec/data/workbook.xls', v: true)
 
 Note that +Workbook.open+ can also connect to workbooks which were not opened via RobustExcelOle (but had been opened before by some user).
 
@@ -161,7 +161,7 @@ Finally we can close the workbook
 
 or save and close the workbook in one step.
 
-  workbook.close(:if_unsaved => :save)
+  workbook.close(if_unsaved: :save)
 
 For more details about saving and closing workbooks see
 {README_save_close}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_save_close.rdoc]
@@ -175,7 +175,7 @@ We can start a new Excel instance with
 
 or
 
-  excel1 = Excel.new(:reuse => false)
+  excel1 = Excel.new(reuse: false)
 
 We can also obtain an Excel object by connecting to the already running Excel instance.
 
@@ -183,7 +183,7 @@ We can also obtain an Excel object by connecting to the already running Excel in
 
 or 
 
-  excel2 = Excel.new(:reuse => true)  
+  excel2 = Excel.new(reuse: true)  
 
 We close the Excel instance using
 
@@ -191,11 +191,11 @@ We close the Excel instance using
 
 Closed Excel instances can be reopened.
 
-  excel1.recreate(:reopen_workbooks => true, :visible => true)
+  excel1.recreate(reopen_workbooks: true, visible: true)
 
 Closing all Excel instances is done by
 
-  Excel.close_all(:if_unsaved => :forget)
+  Excel.close_all(if_unsaved: :forget)
 
 For hard terminating all Excel processes we can use
 
@@ -214,12 +214,12 @@ For example, suppose we want to open a workbook.
 
 Now we want to open another workbook in a different Excel instance.
 
-  workbook2 = Workbook.open('spec/data/different_workbook.xls', :excel => :new)
+  workbook2 = Workbook.open('spec/data/different_workbook.xls', excel: :new)
 
 We can also create a third Excel instance and open another workbook in this instance.
 
   excel1 = Excel.create
-  workbook3 = Workbook.open('spec/data/another_workbook.xls', :excel => excel1)
+  workbook3 = Workbook.open('spec/data/another_workbook.xls', excel: excel1)
 
 A workbook is opened by default in the Excel instance where it was open before most recently.
 
@@ -228,11 +228,11 @@ A workbook is opened by default in the Excel instance where it was open before m
 
 If this Excel instance is damaged or closed, then options control whether the workbook shall be opened in the current (active), a new or a given Excel instance.
 
-  workbook1 = Workbook.open('spec/data/workbook.xls', :default => {:excel => :new})
+  workbook1 = Workbook.open('spec/data/workbook.xls', default: {excel: new})
 
 Without the option +:default+, the workbook can be forced to be opened in the current, new or given Excel instance, no matter if and where it was opened before, e.g.
 
-  workbook2 = Workbook.open('spec/data/workbook.xls', :excel => excel1)
+  workbook2 = Workbook.open('spec/data/workbook.xls', excel: excel1)
 
 === Managing conflicts with unsaved and blocking workbooks
 
@@ -240,13 +240,13 @@ RobustExcelOle enables processing workbooks, while still supporting user's inter
 
 For example, suppose we want to process a list of workbooks. RobustExcelOle allows to rapidly open, manipulate, close and save these workbooks. Now assume, the workbook "workbook.xls" is being processed, while the user has already opened this workbook, has modified but not saved it yet. Excel would prompt a message and ask the user what to do. RobustExcelOle solves this conflict by using an option that states whether the changes of the user should be saved (accepted) or discarded (forgotten) before opening the workbook, e.g.
 
-  workbook = Workbook.open('workbook.xls', :if_unsaved => :accept)
+  workbook = Workbook.open('workbook.xls', if_unsaved: :accept)
 
 Similarly, if the user has opened a workbook that has the same name but a different path, the conflict can be solved via an option.
 
   workbook1 = Workbook.open('spec/data/workbook.xls')
   # do something
-  workbook2 = Workbook.open('spec/data/more/workbook.xls', :if_blocked => :forget)
+  workbook2 = Workbook.open('spec/data/more/workbook.xls', if_blocked: :forget)
 
 For more details about opening and closing workbooks in Excel instances see {README_open}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_open.rdoc]
 
@@ -277,7 +277,7 @@ We can read and change the worksheet name.
 
 We can copy the first worksheet, name it and add it before the third worksheet.
 
-  workbook.add_or_copy_sheet(sheet, :as => "copied_name, :before => workbook.last_sheet)
+  workbook.add_or_copy_sheet(sheet, as: "copied_name, before: workbook.last_sheet)
 
 For more details about processing worksheets see {README_sheet}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_sheet.rdoc]
 
@@ -336,12 +336,12 @@ A list row can be accessed by providing either the row number or a key, i.e. has
 
   row1 = table[1]
 
-  row1 = table[{"Number" => 1, "Person" => "John"}]
+  row1 = table[{"Number": 1, "Person": "John"}]
 
 You can get all or a maximal number of list rows matching the key.
 
-  rows = table[{"Number" => 1}, 2]
-  rows = table[{"Number" => 1}, nil]
+  rows = table[{"Number": 1}, limit: 2]
+  rows = table[{"Number": 1}, limit: nil]
 
 Now we can set value of a cell of the table with help of methods that are equal to or are underscored variants of the column names, e.g.
 
@@ -357,7 +357,7 @@ Similarly you can get the values. We can also read all values in a row.
   # => ["John", 40]
 
   table[1].to_h
-  # => {"Person" => "John", "AmountSales" => 40}
+  # => {"Person": "John", "AmountSales": 40}
 
 We can set the values in a whole row.
 

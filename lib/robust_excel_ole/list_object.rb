@@ -76,17 +76,17 @@ module RobustExcelOle
     # accesses a table row object
     # @param [Variant]  a hash of key (key column: value) or a row number (>= 1) 
     # @option opts [Variant] limit: maximal number of matching table rows to return, or return the first matching table row (default :first)
-    # @option opts [Symbol]  reset_colors: reset to the original colors of the table rows, after applying advanced filter
+    # @option opts [Boolean]  reset_colors: reset to the original colors of the table rows, after applying advanced filter
     # @return [Variant] a listrow, if limit == :first
     #                   an array of listrows, with maximal number=limit, if list rows were found and limit is not :first
     #                   nil, if no list object was found
     # note: when applying the advanced filter (for long tables), then
     #       if there are more than one match, then only the last match is being returned
-    #def [] (key_hash_or_number, opts = {limit: :first, reset_colors: false})
-    def [] (key_hash_or_number, opts = {:limit => :first, :reset_colors => false})
+    def [] (key_hash_or_number, opts = { })
       return @row_class.new(key_hash_or_number) if key_hash_or_number.respond_to?(:succ)
+      opts = {limit: :first, reset_colors: false}.merge(opts)   
       key_hash = key_hash_or_number
-      matching_listrows = if @ole_table.ListRows.Count < 28
+      matching_listrows = if @ole_table.ListRows.Count < 100
         listrows_via_traversing_listrows(key_hash, opts)
       else
         listrows_via_advanced_filter(key_hash, opts)

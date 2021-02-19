@@ -6,7 +6,7 @@
 
 Imagine, you have opened a workbook with
 
-  workbook = Workbook.open('spec/data/workbook.xls', :visible => true)
+  workbook = Workbook.open('spec/data/workbook.xls', visible: true)
 
 and have modified it.
 
@@ -33,13 +33,13 @@ If a workbook with the file name already exists, then
   
 For example, you want to save a workbook and overwrite the file if it exists before, then use
 
-  workbook.save_as('another_workbook.xls', :if_exists => :overwrite) 
+  workbook.save_as('another_workbook.xls', if_exists: :overwrite) 
 
 If a workbook blocks the workbook that should be saved, then the former one can be saved and closed before.
 
   workbook = Workbook.open('spec/data/workbook.xls')
   workbook2 = Workbook.open('spec/data/another_workbook.xls')
-  workbook2.save_as('dir/workbook.xls', :if_exists => :overwrite, :if_obstructed => :save)  
+  workbook2.save_as('dir/workbook.xls', if_exists: :overwrite, if_obstructed: :save)  
 
 === Closing a workbook.
 

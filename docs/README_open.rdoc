@@ -85,7 +85,7 @@ Here are a few examples:
 
 If you want to open a workbook that was not opened before, or reopen a workbook that was open in an Excel instance that is now closed, in the current (active) Excel instance, then use
 
-  workbook = Workbook.open('spec/data/workbook.xls', :default => {:excel => :current})
+  workbook = Workbook.open('spec/data/workbook.xls', default: {excel: :current})
 
 or
   
@@ -93,41 +93,41 @@ or
 
 In case you want to open such a workbook in a new Excel instance, then use
 
-  workbook = Workbook.open('spec/data/workbook.xls', :default => {:excel => :new})
+  workbook = Workbook.open('spec/data/workbook.xls', default: {excel: :new})
 
 If you want to open a workbook in a new Excel instance, no matter if it was opened before, you can write
 
-  workbook = Workbook.open('spec/data/workbook.xls', :force => {:excel => :new})
+  workbook = Workbook.open('spec/data/workbook.xls', force: {excel: :new})
 
 For simplicity, you can also leave out the +:force+ option (but not the +:default+ option).
 
-  workbook = Workbook.open('spec/data/workbook.xls', :excel => :new)
+  workbook = Workbook.open('spec/data/workbook.xls', excel: :new)
 
 You can also specify an Excel instance
 
   excel1 = Excel.create
-  workbook = Workbook.open('spec/data/workbook.xls', :excel => excel1)
+  workbook = Workbook.open('spec/data/workbook.xls', excel: excel1)
 
 If you want to open the workbook and make its window visible, then use
 
-  book = Workbook.open('spec/data/workbook.xls', :visible => true)
+  book = Workbook.open('spec/data/workbook.xls', visible: true)
 
 Notice, that when the workbook is visible, the DisplayAlerts of the respective Excel instance is true, if not explicitely DisplayAlerts is set to false in this Excel instance.
 You can combine options, e.g. 
 
-  workbook = Workbook.open('spec/data/workbook.xls', :visible => true, :default => {:excel => excel1})
+  workbook = Workbook.open('spec/data/workbook.xls', visible: true, default: {excel: excel1})
 
 You can use the abbreviations, e.g. in this case
 
-  workbook = Workbook.open('spec/data/workbook.xls', :v => true, :d => {:e => excel1})  
+  workbook = Workbook.open('spec/data/workbook.xls', v: true, d => {e => excel1})  
 
 If a workbook contains unsaved changes and a workbook with the same filename shall be opened, then the option +:if_unsaved+ manages this conflict. For example, if the workbook with the unsaved changes shall remain open, you can use
 
-  workbook = Workbook.open('spec/data/workbook.xls', :if_unsaved => :accept)
+  workbook = Workbook.open('spec/data/workbook.xls', if_unsaved: :accept)
 
 If a workbook is open and a workbook with the same name but in different path shall be opened, i.e. the first workbook blocks opening the other workbook, then the option +:if_blocked+ handles this situation, e.g.
 
-  workbook = Workbook.open('path/workbook.xls', :if_blocked => :forget)
+  workbook = Workbook.open('path/workbook.xls', if_blocked: :forget)
 
 Remarks:
 
@@ -170,11 +170,11 @@ The method +to_reo+ uses the method +new+. You can apply the method +new+ direct
 
 You can supply options, e.g. +:visible+.
 
-   workbook = Workbook.new(win32ole_workbook, :visible => true) 
+   workbook = Workbook.new(win32ole_workbook, visible: true) 
 
 You can also supply a workbook and options, e.g.
 
-   new_workbook = Workbook.new(workbook, :visible => true)
+   new_workbook = Workbook.new(workbook, visible: true)
 
 === Identity transperence ===
 

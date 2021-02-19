@@ -10,7 +10,7 @@ include General
 describe ListObject do
  
   before(:all) do
-    excel = Excel.new(:reuse => true)
+    excel = Excel.new(reuse: true)
     open_books = excel == nil ? 0 : excel.Workbooks.Count
     puts "*** open books *** : #{open_books}" if open_books > 0
     Excel.kill_all
@@ -19,12 +19,12 @@ describe ListObject do
   before do
     @dir = create_tmpdir
     @listobject_file = @dir + '/workbook_listobjects.xlsx'
-    @book = Workbook.open(@listobject_file, :visible => true)
+    @book = Workbook.open(@listobject_file, visible: true)
     @sheet = @book.sheet(3)
   end
 
   after do
-    @book.close(:if_unsaved => :forget)
+    @book.close(if_unsaved: :forget)
     Excel.kill_all
     rm_tmp(@dir)
   end
@@ -131,7 +131,7 @@ describe ListObject do
   describe "benchmarking for accessing a listrow" do
 
     it "should access the last row" do
-      rows =  100
+      rows =  10
       table = Table.new(@sheet.ole_worksheet, "table_name", [20,1], rows, ["Index","Person", "Time", "Price", "Sales", "Length", "Size", "Width", "Weight", "Income", "Outcome", "Holiday", "Gender", "Sex", "Tallness", "Kindness", "Music", "Activity", "Goal", "Need"])
       (1..rows).each do |row|
         table[row].values = [12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason"]
@@ -139,12 +139,11 @@ describe ListObject do
       table[rows].values = [12345123, "Peterson", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason", 12345678, "Johnason"]
       sleep 1
       start_time = Time.now
-      listrow = table[{"Index" => 12345123, "Person" => "Peterson"}]
+      listrow = table[{"Index" => 12345123, "Person" => "Peterson"}, reset_colors: false]
       end_time = Time.now
       duration = end_time - start_time
       puts "duration: #{duration}"
-      #puts "listrow: #{listrow}"
-      #puts "listrow.values: #{listrow.values}"
+      puts "listrow.values: #{listrow.values}"
     end
 
   end

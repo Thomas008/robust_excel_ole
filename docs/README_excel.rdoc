@@ -12,7 +12,7 @@ You can create a new Excel instance by
 
 or 
 
-  excel1 = Excel.new(:reuse => false)  
+  excel1 = Excel.new(reuse: false)  
 
 In case you want to reuse an already running Excel instance, write
 
@@ -20,7 +20,7 @@ In case you want to reuse an already running Excel instance, write
 
 or 
 
-  excel2 = Excel.new(:reuse => true)  
+  excel2 = Excel.new(reuse: true)  
 
 Options of the methods +create+ and +new+ are +:reuse+ (+true+, +false+), +:visible+ (+true+, +false+), +:displayalerts+ (+true+, +false+, +:if_visible+), +:calculation+ (+:manual+, +:automatic+, +nil+) and +:screenupdating+ (+true+, +false+).
 
@@ -28,7 +28,7 @@ The option +:calculation+ specifies, whether the calculation mode is being force
 
 You can also type-lift an Excel instance represented as WIN32OLE object to an Excel object.
 
-  excel = Excel.new(win32ole_object, :visible => true)
+  excel = Excel.new(win32ole_object, visible: true)
 
 Once you have got an Excel object, you can apply all VBA methods that you would apply to a VBA Application object
 (see https://docs.microsoft.com/en-us/office/vba/api/excel.application(object)#methods).
@@ -40,17 +40,17 @@ You can set all options in a given Excel instance
 
   excel = Excel.current
 
-  excel.for_this_instance(:visible => true, :displayalerts => true, :calculation => :manual)
+  excel.for_this_instance(visible: true, displayalerts: true, calculation: :manual)
 
 === Making an Excel visible or invisible
 
 You can create a new Excel instance and make it visible.
 
-  excel1 = Excel.create(:visible => true)
+  excel1 = Excel.create(visible: true)
 
 or
 
-  excel1 = Excel.new(:reuse => false, :visible => true)  
+  excel1 = Excel.new(reuse: false, visible: true)  
 
 or 
 
@@ -62,7 +62,7 @@ or
 
 You can enable DisplayAlerts with, e.g. 
 
-  excel1 = Excel.new(:reuse => true, :displayalerts => true)
+  excel1 = Excel.new(reuse: true, displayalerts: true)
 
 or 
 
@@ -99,7 +99,7 @@ You can do it in a block:
 
 You can set options for all workbooks of an Excel instance.
 
-  excel.for_all_workooks(:visible => true, :read_only => true)
+  excel.for_all_workooks(visible: true, read_only: true)
 
 
 === Showing and traversing through all workbooks
@@ -118,11 +118,11 @@ and
 
 With help of these methods you can also supply options, e.g. without a block,
 
-  excel.each_workbook(:visible => true) 
+  excel.each_workbook(visible: true) 
 
 or, with a block,
 
-  excel.each_workbook(:visible => true) {|w| puts w}
+  excel.each_workbook(visible: true) {|w| puts w}
 
 === Accessing the active workbook
 
@@ -143,7 +143,7 @@ The method +close has the option +:if_unsaved+ with the values +:raise+, +:save+
 
 For example, if you want to close an Excel instance and save unsaved workbooks, use
 
-  excel.close(:if_unsaved => :save)
+  excel.close(if_unsaved: :save)
 
 === Recreating an Excel instance    
 
@@ -154,7 +154,7 @@ Closed Excel instances can also be reopened. This includes reopening all workboo
 
 The options are +:reopen_workbooks+, +:visible+ and +:displayalerts+.
 
-  excel.recreate(:reopen_workbooks => true, :visible => true, :displayalerts => true)
+  excel.recreate(reopen_workbooks: true, visible: true, displayalerts: true)
 
 === Providing Excel instances
 
@@ -168,7 +168,7 @@ Providing all Excel instances (opened via RobustExcelOle) as objects of the clas
 
 This method has the option +:if_unsaved+ as described above. For example, if you want to close all Excel instances containing saved workbooks and raise an error for Excel instances with unsaved workbooks, use
 
-  Excel.close_all(:if_unsaved => :raise)   
+  Excel.close_all(if_unsaved: :raise)   
 
 === Terminating all Excel processes
 

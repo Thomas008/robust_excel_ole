@@ -8,7 +8,7 @@ RobustExcelOle enables to read and write the contents of ranges and cells in wor
 
 Suppose you have opened a workbook.
 
-  workbook = Workbook.open('spec/data/workbook.xls', :visible => true)
+  workbook = Workbook.open('spec/data/workbook.xls', visible: true)
 
 We access the first worksheet:
   
@@ -79,11 +79,11 @@ or
 
 You can color the range when setting the contents of a range.
 
-  range.set_value([[1,2,3,4],[5,6,7,8],[9,10,11,12]], :color => 42)
+  range.set_value([[1,2,3,4],[5,6,7,8],[9,10,11,12]], color: 42)
 
 Now we copy the range. With help of VBA methods you would do
 
-  range.Copy(:destination => sheet.range([4,5]).ole_range)
+  range.Copy(destination: sheet.range([4,5]).ole_range)
 
 or with help of RobustExcelOle
 
@@ -91,7 +91,7 @@ or with help of RobustExcelOle
 
 You can also copy a range into another worksheet in another workbook.
 
-  workbook2 = Workbook.open('spec/data/another_workbook.xls', :excel => :new, :visible => true)
+  workbook2 = Workbook.open('spec/data/another_workbook.xls', excel: :new, visible: true)
   range.copy([4,5],book2.sheet(3))
 
 Now we define a name that refers to a range consisting of only the first cell, i.e. the 1st row and 1st column. Using VBA methods, you can use
@@ -250,7 +250,7 @@ You can copy the range into another worksheet of the same or another workbook, e
 
 Moreover, you can state, whether you want to copy the values only, and whether you want to transpose the destination range.
 
-  range.copy([3,6], destination_range, :values_only => true, :transpose => true)
+  range.copy([3,6], destination_range, values_only: true, transpose: true)
   
 Note that when you don't copy the values only but all formating as well, and you either copy into another Excel instance or transpose the range, the clipboard is being used. 
 
@@ -306,7 +306,7 @@ You can do the same for an worksheet or Excel object.
 
 Assume you have opened a workbook:
  
-  workbook = Workbook.open('spec/data/workbook.xls', :visible => true)
+  workbook = Workbook.open('spec/data/workbook.xls', visible: true)
 
 You can get the contents of a range with a defined name with help of the method [] or +namevalue_glob+.
 
@@ -320,7 +320,7 @@ or
 
 Using +namevalue_glob+, via the option +:default+ you can provide a value that is returned when the name cannot be found or some other error would occur.
 
-  workbook.namvalue_glob("name", :default => "default_value")
+  workbook.namvalue_glob("name", default: "default_value")
 
 You can set the contents of a range with
 
@@ -332,7 +332,7 @@ or
 
 You can color the range when setting the contents of a range.
 
-  workbook.set_namevalue_glob("name", "new_value", :color => 4)
+  workbook.set_namevalue_glob("name", "new_value", color: 4)
 
 Similarly, the contents of a named range can be read and modified in a worksheet
 
@@ -375,7 +375,7 @@ or
 
 Similarly to namevalue, you can provide a default value that is returned when ocurring an error.
 
-  worksheet.namevalue("name", :default => "default_value")
+  worksheet.namevalue("name", default: "default_value")
 
 === Accessing a cell
 

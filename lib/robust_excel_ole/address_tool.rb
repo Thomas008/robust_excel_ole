@@ -55,8 +55,7 @@ module RobustExcelOle
         end
         address_comp1 = address_comp1..address_comp1 if (address_comp1.is_a?(Integer) || address_comp1.is_a?(String) || address_comp1.is_a?(Array))
         address_comp2 = address_comp2..address_comp2 if (address_comp2.is_a?(Integer) || address_comp2.is_a?(String) || address_comp2.is_a?(Array)) 
-        #raise unless address_comp1.nil? || address_comp1.begin.to_i!=0 || address_comp1.begin.empty?
-        rows = unless address_comp1.nil? || address_comp1.begin == 0 # || address_comp1.begin.to_i==0          
+        rows = unless address_comp1.nil? || address_comp1.begin == 0         
           address_comp1.begin..address_comp1.end
         end
         columns = unless address_comp2.nil?

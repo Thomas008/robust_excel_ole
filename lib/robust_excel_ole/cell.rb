@@ -30,7 +30,7 @@ module RobustExcelOle
 
     # @private
     def to_s    
-      "#<Cell:" + " (#{@ole_range.Row},#{@ole_range.Column})" + ">"
+      "#<Cell: (#{@ole_range.Row},#{@ole_range.Column})>"
     end
 
     # @private
@@ -42,24 +42,19 @@ module RobustExcelOle
 
     # @private
     def method_missing(name, *args) 
-      if name.to_s[0,1] =~ /[A-Z]/
-        if ::ERRORMESSAGE_JRUBY_BUG
-          begin
-            #@ole_cell.send(name, *args)
-            @ole_range.send(name, *args)
-          rescue Java::OrgRacobCom::ComFailException 
-            raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
-          end
-        else
-          begin
-            #@ole_cell.send(name, *args)
-            @ole_range.send(name, *args)
-          rescue NoMethodError 
-            raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
-          end
+      super unless name.to_s[0,1] =~ /[A-Z]/
+      if ::ERRORMESSAGE_JRUBY_BUG
+        begin
+          @ole_range.send(name, *args)
+        rescue Java::OrgRacobCom::ComFailException 
+          raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
         end
       else
-        super
+        begin
+          @ole_range.send(name, *args)
+        rescue NoMethodError 
+          raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
+        end
       end
     end
   end

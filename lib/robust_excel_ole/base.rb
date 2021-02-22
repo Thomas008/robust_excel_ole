@@ -69,7 +69,7 @@ module RobustExcelOle
 
     # @private
     def own_methods
-      (self.methods - Object.methods).sort
+      (methods - Object.methods).sort
     end
 
     # @private

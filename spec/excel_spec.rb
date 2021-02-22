@@ -1969,6 +1969,23 @@ module RobustExcelOle
       end
 =end
     end
+
+    describe "set_options" do
+
+      before do
+        workbook = Workbook.open(@simple_file1, visible: false)
+        @excel1 = workbook.excel
+      end
+
+      it "should set options" do
+        @excel1.DisplayAlerts.should be false
+        @excel1.Visible.should be false
+        @excel1.set_options(displayalerts: true, visible: true)
+        @excel1.DisplayAlerts.should be true
+        @excel1.Visible.should be true
+      end
+
+    end
     
     describe "generate workbook" do
 

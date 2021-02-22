@@ -74,41 +74,36 @@ module RobustExcelOle
     # returns flat array of the values of a given range
     # @returns [Array] values of the range (as a nested array)    
     def value
-      begin
-        if !::RANGES_JRUBY_BUG
-          self.Value
-        else
-          values = []
-          rows.each do |r|
-            values_col = []
-            columns.each{ |c| values_col << worksheet.Cells(r,c).Value}
-            values << values_col
-          end
-          values
+      if !::RANGES_JRUBY_BUG
+        self.Value
+      else
+        values = []
+        rows.each do |r|
+          values_col = []
+          columns.each{ |c| values_col << worksheet.Cells(r,c).Value}
+          values << values_col
         end
-      rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
-        raise RangeNotEvaluatable, "cannot read value\n#{$!.message}"
-      end 
-
-    end
+        values
+      end
+    rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
+      raise RangeNotEvaluatable, "cannot read value\n#{$!.message}"
+    end 
 
     # sets the values if the range
     # @param [Variant] value
     def value=(value)
-      begin
-        if !::RANGES_JRUBY_BUG
-          ole_range.Value = value
-        else
-          rows.each_with_index do |r,i|
-            columns.each_with_index do |c,j|
-              ole_range.Cells(i+1,j+1).Value = (value.respond_to?(:pop) ? value[i][j] : value)
-            end
+      if !::RANGES_JRUBY_BUG
+        ole_range.Value = value
+      else
+        rows.each_with_index do |r,i|
+          columns.each_with_index do |c,j|
+            ole_range.Cells(i+1,j+1).Value = (value.respond_to?(:pop) ? value[i][j] : value)
           end
         end
-        value
-      rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg  
-        raise RangeNotEvaluatable, "cannot assign value to range #{self.inspect}\n#{$!.message}"
       end
+      value
+    rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg  
+      raise RangeNotEvaluatable, "cannot assign value to range #{self.inspect}\n#{$!.message}"
     end
 
     alias_method :v, :value
@@ -118,21 +113,19 @@ module RobustExcelOle
     # @param [Variant] value
     # @option opts [Symbol] :color the color of the cell when set
     def set_value(value, opts = { })
-      begin
-        if !::RANGES_JRUBY_BUG
-          ole_range.Value = value
-        else
-          rows.each_with_index do |r,i|
-            columns.each_with_index do |c,j|
-              ole_range.Cells(i+1,j+1).Value = (value.respond_to?(:pop) ? value[i][j] : value)
-            end
+      if !::RANGES_JRUBY_BUG
+        ole_range.Value = value
+      else
+        rows.each_with_index do |r,i|
+          columns.each_with_index do |c,j|
+            ole_range.Cells(i+1,j+1).Value = (value.respond_to?(:pop) ? value[i][j] : value)
           end
         end
-        ole_range.Interior.ColorIndex = opts[:color] unless opts[:color].nil?
-        value
-      rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg  
-        raise RangeNotEvaluatable, "cannot assign value to range #{self.inspect}\n#{$!.message}"
       end
+      ole_range.Interior.ColorIndex = opts[:color] unless opts[:color].nil?
+      value
+    rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg  
+      raise RangeNotEvaluatable, "cannot assign value to range #{self.inspect}\n#{$!.message}"
     end
 
     # copies a range
@@ -176,7 +169,7 @@ module RobustExcelOle
           else
             if options[:transpose]
               added_sheet = @worksheet.workbook.add_sheet
-              self.copy(dest_address, added_sheet, transpose: true)
+              copy(dest_address, added_sheet, transpose: true)
               added_sheet.range(dest_range_address).copy(dest_address,dest_sheet)
               @worksheet.workbook.excel.with_displayalerts(false) {added_sheet.Delete}
             else
@@ -245,22 +238,19 @@ module RobustExcelOle
   private
 
     def method_missing(name, *args) 
-      if name.to_s[0,1] =~ /[A-Z]/
-        if ::ERRORMESSAGE_JRUBY_BUG
-          begin
-            @ole_range.send(name, *args)
-          rescue Java::OrgRacobCom::ComFailException 
-            raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
-          end
-        else
-          begin
-            @ole_range.send(name, *args)
-          rescue NoMethodError 
-            raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
-          end
+      super unless name.to_s[0,1] =~ /[A-Z]/
+      if ::ERRORMESSAGE_JRUBY_BUG
+        begin
+          @ole_range.send(name, *args)
+        rescue Java::OrgRacobCom::ComFailException 
+          raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
         end
       else
-        super
+        begin
+          @ole_range.send(name, *args)
+        rescue NoMethodError 
+          raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
+        end
       end
     end
   end

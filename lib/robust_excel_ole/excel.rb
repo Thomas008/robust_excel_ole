@@ -159,24 +159,13 @@ module RobustExcelOle
   public
 
     # @private
+    # returns unsaved workbooks (win32ole objects)
     def self.contains_unsaved_workbooks?
       !Excel.current.unsaved_workbooks.empty?
     end
 
-    # returns unsaved workbooks (win32ole objects)
     # @private
-=begin    
-    def unsaved_workbooks
-      unsaved_workbooks = []
-      begin
-        @ole_excel.Workbooks.each { |w| unsaved_workbooks << w unless w.Saved || w.ReadOnly }
-      rescue RuntimeError => msg
-        raise ExcelDamaged, "Excel instance not alive or damaged\n#{$!.message}" if msg.message =~ /failed to get Dispatch Interface/
-      end
-      unsaved_workbooks
-    end
-=end
-
+    # returns unsaved workbooks (win32ole objects)   
     def unsaved_workbooks
       @ole_excel.Workbooks.reject { |w| w.Saved || w.ReadOnly }
     rescue RuntimeError => msg
@@ -214,6 +203,7 @@ module RobustExcelOle
           "\nHint: Valid values are :raise, :forget, :save and :alert"
         end
       end
+
       begin
         @ole_excel.Workbooks.Close
       rescue
@@ -653,7 +643,7 @@ module RobustExcelOle
       @properties ||= { }
       PROPERTIES.each do |property|
         method = (property.to_s + '=').to_sym
-        self.send(method, options[property]) 
+        send(method, options[property]) 
       end
     end
   
@@ -748,23 +738,20 @@ module RobustExcelOle
   private
 
     def method_missing(name, *args) 
-      if name.to_s[0,1] =~ /[A-Z]/
-        raise ObjectNotAlive, 'method missing: Excel not alive' unless alive?
-        if ::ERRORMESSAGE_JRUBY_BUG
-          begin
-            @ole_excel.send(name, *args)
-          rescue Java::OrgRacobCom::ComFailException => msg
-            raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
-          end
-        else
-          begin
-            @ole_excel.send(name, *args)
-          rescue NoMethodError
-            raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
-          end
+      super unless name.to_s[0,1] =~ /[A-Z]/
+      raise ObjectNotAlive, 'method missing: Excel not alive' unless alive?
+      if ::ERRORMESSAGE_JRUBY_BUG
+        begin
+          @ole_excel.send(name, *args)
+        rescue Java::OrgRacobCom::ComFailException => msg
+          raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
         end
       else
-        super
+        begin
+          @ole_excel.send(name, *args)
+        rescue NoMethodError
+          raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
+        end
       end
     end
   end

@@ -20,14 +20,12 @@ module RobustExcelOle
     # @param [Variant]  column number or column name
     # @return [Variant] value of the cell 
     def [] column_number_or_name
-      begin
-        ole_cell = ole_table.Application.Intersect(
-          @ole_tablerow.Range, ole_table.ListColumns.Item(column_number_or_name).Range)
-        value = ole_cell.Value
-        value.respond_to?(:gsub) ? value.encode('utf-8') : value
-      rescue WIN32OLERuntimeError
-        raise TableRowError, "could not determine the value at column #{column_number_or_name}\n#{$!.message}"
-      end
+      ole_cell = ole_table.Application.Intersect(
+        @ole_tablerow.Range, ole_table.ListColumns.Item(column_number_or_name).Range)
+      value = ole_cell.Value
+      value.respond_to?(:gsub) ? value.encode('utf-8') : value
+    rescue WIN32OLERuntimeError
+      raise TableRowError, "could not determine the value at column #{column_number_or_name}\n#{$!.message}"
     end
 
     # sets the value of the cell with given column name or number
@@ -46,35 +44,27 @@ module RobustExcelOle
     # values of the row
     # @return [Array] values of the row
     def values
-      begin
-        value = @ole_tablerow.Range.Value
-        return value if value==[nil]
-        value = if !value.respond_to?(:pop)
-          [value]
-        elsif value.first.respond_to?(:pop)
-          value.first
-        end
-        value.map{|v| v.respond_to?(:gsub) ? v.encode('utf-8') : v}
-      rescue WIN32OLERuntimeError
-        raise TableError, "could not read values\n#{$!.message}"
+      value = @ole_tablerow.Range.Value
+      return value if value==[nil]
+      value = if !value.respond_to?(:pop)
+        [value]
+      elsif value.first.respond_to?(:pop)
+        value.first
       end
-    end
-
-    def values= values
-      set_values values
+      value.map{|v| v.respond_to?(:gsub) ? v.encode('utf-8') : v}
+    rescue WIN32OLERuntimeError
+      raise TableError, "could not read values\n#{$!.message}"
     end
 
     # sets the values of the row
     # @param [Array] values of the row
-    def set_values values
-      begin
-        updated_values = self.values
-        updated_values[0,values.length] = values
-        @ole_tablerow.Range.Value = [updated_values]
-        values
-      rescue WIN32OLERuntimeError
-        raise TableError, "could not set values #{values.inspect}\n#{$!.message}"
-      end
+    def values= values
+      updated_values = self.values
+      updated_values[0,values.length] = values
+      @ole_tablerow.Range.Value = [updated_values]
+      values
+    rescue WIN32OLERuntimeError
+      raise TableError, "could not set values #{values.inspect}\n#{$!.message}"
     end
 
     # key-value pairs of the row
@@ -83,23 +73,17 @@ module RobustExcelOle
       ole_table.column_names.zip(values).to_h
     end
 
-    def to_a
-      values
-    end
-
-    def to_h
-      keys_values
-    end
+    alias_method :set_values, :values=
+    alias_method :to_a, :values
+    alias_method :to_h, :keys_values
 
     # deletes the values of the row
     def delete_values
-      begin
-        @ole_tablerow.Range.Value = [[].fill(nil,0..(ole_table.ListColumns.Count)-1)]
-        nil
-      rescue WIN32OLERuntimeError
-        raise TableError, "could not delete values\n#{$!.message}"
-      end
-    end        
+      @ole_tablerow.Range.Value = [[].fill(nil,0..(ole_table.ListColumns.Count)-1)]
+      nil
+    rescue WIN32OLERuntimeError
+      raise TableError, "could not delete values\n#{$!.message}"
+    end
 
     def method_missing(name, *args)
       name_str = name.to_s
@@ -129,7 +113,7 @@ module RobustExcelOle
 
     # @private
     def inspect    
-      "#<ListRow: " + "index:#{@ole_tablerow.Index}" + " size:#{ole_table.ListColumns.Count}" + " #{ole_table.Name}" + ">"
+      "#<ListRow: index:#{@ole_tablerow.Index} size:#{ole_table.ListColumns.Count} #{ole_table.Name}>"
     end
 
   private

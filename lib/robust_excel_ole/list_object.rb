@@ -97,55 +97,51 @@ module RobustExcelOle
     private
 
     def listrows_via_traversing_listrows(key_hash, opts)
-      begin
-        encode_utf8 = ->(val) {val.respond_to?(:gsub) ? val.encode('utf-8') : val}
-        cn = column_names_to_index
-        matching_rows = []
-        @ole_table.ListRows.each do |listrow|
-          rowvalues = listrow.Range.Value.first
-          matching_rows << @row_class.new(listrow) if key_hash.all?{|key,val| encode_utf8.call(rowvalues[cn[key]])==val}
-          break if matching_rows.count == opts[:limit]
-        end
-        matching_rows
-      rescue
-        raise(TableError, "cannot find row with key #{key_hash}")
+      encode_utf8 = ->(val) {val.respond_to?(:gsub) ? val.encode('utf-8') : val}
+      cn = column_names_to_index
+      matching_rows = []
+      @ole_table.ListRows.each do |listrow|
+        rowvalues = listrow.Range.Value.first
+        matching_rows << @row_class.new(listrow) if key_hash.all?{|key,val| encode_utf8.call(rowvalues[cn[key]])==val}
+        break if matching_rows.count == opts[:limit]
       end
+      matching_rows
+    rescue
+      raise(TableError, "cannot find row with key #{key_hash}")
     end
 
     def listrows_via_advanced_filter(key_hash, opts)
-      begin      
-        ole_worksheet = self.Parent
-        ole_workbook =  ole_worksheet.Parent
-        row_numbers = []
-        ole_workbook.retain_saved do
-          added_ole_worksheet = ole_workbook.Worksheets.Add
-          criteria = Table.new(added_ole_worksheet, "criteria", [2,1], 2, key_hash.keys)
-          criteria[1].values = key_hash.values
-          self.Range.AdvancedFilter({
-            'Action': XlFilterInPlace, 
-            'CriteriaRange': added_ole_worksheet.range([2..3,1..key_hash.length]).ole_range, 'Unique': false})
-          filtered_ole_range = self.DataBodyRange.SpecialCells(XlCellTypeVisible) rescue nil 
-          if opts[:reset_colors]
-            self.Range.AdvancedFilter({'Action': XlFilterInPlace, 
-                                       'CriteriaRange': added_ole_worksheet.range([1,1]).ole_range})          
-          else
-            ole_worksheet.ShowAllData
-          end
-          ole_workbook.Parent.with_displayalerts(false){added_ole_worksheet.Delete}
-          if filtered_ole_range
-            filtered_ole_range.Areas.each do |area|
-              break if area.Rows.each do |row|
-                row_numbers << row.Row-position.first
-                break true if row_numbers.count == opts[:limit]
-              end
-            end
-          end          
-          @ole_table = ole_worksheet.table(self.Name)
+      ole_worksheet = self.Parent
+      ole_workbook =  ole_worksheet.Parent
+      row_numbers = []
+      ole_workbook.retain_saved do
+        added_ole_worksheet = ole_workbook.Worksheets.Add
+        criteria = Table.new(added_ole_worksheet, "criteria", [2,1], 2, key_hash.keys)
+        criteria[1].values = key_hash.values
+        self.Range.AdvancedFilter({
+          'Action': XlFilterInPlace, 
+          'CriteriaRange': added_ole_worksheet.range([2..3,1..key_hash.length]).ole_range, 'Unique': false})
+        filtered_ole_range = self.DataBodyRange.SpecialCells(XlCellTypeVisible) rescue nil 
+        if opts[:reset_colors]
+          self.Range.AdvancedFilter({'Action': XlFilterInPlace, 
+                                     'CriteriaRange': added_ole_worksheet.range([1,1]).ole_range})          
+        else
+          ole_worksheet.ShowAllData
         end
-        row_numbers.map{|r| self[r]}        
-      rescue
-        raise(TableError, "cannot find row with key #{key_hash}\n#{$!.message}")
+        ole_workbook.Parent.with_displayalerts(false){added_ole_worksheet.Delete}
+        if filtered_ole_range
+          filtered_ole_range.Areas.each do |area|
+            break if area.Rows.each do |row|
+              row_numbers << row.Row-position.first
+              break true if row_numbers.count == opts[:limit]
+            end
+          end
+        end          
+        @ole_table = ole_worksheet.table(self.Name)
       end
+      row_numbers.map{|r| self[r]}        
+    rescue
+      raise(TableError, "cannot find row with key #{key_hash}\n#{$!.message}")
     end
 
   public
@@ -166,33 +162,27 @@ module RobustExcelOle
     
     # @return [Array] a list of column names
     def column_names
-      begin
-        @ole_table.HeaderRowRange.Value.first.map{|v| v.encode('utf-8')}
-      rescue WIN32OLERuntimeError
-        raise TableError, "could not determine column names\n#{$!.message}"
-      end
+      @ole_table.HeaderRowRange.Value.first.map{|v| v.encode('utf-8')}
+    rescue WIN32OLERuntimeError
+      raise TableError, "could not determine column names\n#{$!.message}"
     end
 
     # @return [Hash] pairs of column names and index
     def column_names_to_index
-      begin
-        header_row_values = @ole_table.HeaderRowRange.Value.first
-        header_row_values.map{|v| v.encode('utf-8')}.zip(0..header_row_values.size-1).to_h
-      rescue WIN32OLERuntimeError
-        raise TableError, "could not determine column names\n#{$!.message}"
-      end
+      header_row_values = @ole_table.HeaderRowRange.Value.first
+      header_row_values.map{|v| v.encode('utf-8')}.zip(0..header_row_values.size-1).to_h
+    rescue WIN32OLERuntimeError
+      raise TableError, "could not determine column names\n#{$!.message}"
     end
 
     # adds a row
     # @param [Integer] position of the new row
     # @param [Array]   values of the column
     def add_row(position = nil, contents = nil)
-      begin
-        @ole_table.ListRows.Add(position)
-        set_row_values(position, contents) if contents
-      rescue WIN32OLERuntimeError
-        raise TableError, ("could not add row" + (" at position #{position.inspect}" if position) + "\n#{$!.message}")
-      end
+      @ole_table.ListRows.Add(position)
+      set_row_values(position, contents) if contents
+    rescue WIN32OLERuntimeError
+      raise TableError, ("could not add row" + (" at position #{position.inspect}" if position) + "\n#{$!.message}")
     end
 
     # adds a column    
@@ -200,116 +190,96 @@ module RobustExcelOle
     # @param [Integer] position of the new column
     # @param [Array]   values of the column
     def add_column(column_name = nil, position = nil, contents = nil)
-      begin
-        new_column = @ole_table.ListColumns.Add(position)
-        new_column.Name = column_name if column_name
-        set_column_values(column_name, contents) if contents
-      rescue WIN32OLERuntimeError, TableError
-        raise TableError, ("could not add column"+ ("at position #{position.inspect} with name #{column_name.inspect}" if position) + "\n#{$!.message}")
-      end
+      new_column = @ole_table.ListColumns.Add(position)
+      new_column.Name = column_name if column_name
+      set_column_values(column_name, contents) if contents
+    rescue WIN32OLERuntimeError, TableError
+      raise TableError, ("could not add column"+ ("at position #{position.inspect} with name #{column_name.inspect}" if position) + "\n#{$!.message}")
     end
 
     # deletes a row
     # @param [Integer] position of the old row
     def delete_row(row_number)                          # :nodoc: #
-      begin
-        @ole_table.ListRows.Item(row_number).Delete
-      rescue WIN32OLERuntimeError
-        raise TableError, "could not delete row #{row_number.inspect}\n#{$!.message}"
-      end
+      @ole_table.ListRows.Item(row_number).Delete
+    rescue WIN32OLERuntimeError
+      raise TableError, "could not delete row #{row_number.inspect}\n#{$!.message}"
     end
 
     # deletes a column
     # @param [Variant] column number or column name
     def delete_column(column_number_or_name)              # :nodoc: #
-      begin
-        @ole_table.ListColumns.Item(column_number_or_name).Delete
-      rescue WIN32OLERuntimeError
-        raise TableError, "could not delete column #{column_number_or_name.inspect}\n#{$!.message}"
-      end
+      @ole_table.ListColumns.Item(column_number_or_name).Delete
+    rescue WIN32OLERuntimeError
+      raise TableError, "could not delete column #{column_number_or_name.inspect}\n#{$!.message}"
     end
 
     # deletes the contents of a row
     # @param [Integer] row number
     def delete_row_values(row_number)
-      begin
-        @ole_table.ListRows.Item(row_number).Range.Value = [[].fill(nil,0..(@ole_table.ListColumns.Count-1))]
-        nil
-      rescue WIN32OLERuntimeError
-        raise TableError, "could not delete contents of row #{row_number.inspect}\n#{$!.message}"
-      end
+      @ole_table.ListRows.Item(row_number).Range.Value = [[].fill(nil,0..(@ole_table.ListColumns.Count-1))]
+      nil
+    rescue WIN32OLERuntimeError
+      raise TableError, "could not delete contents of row #{row_number.inspect}\n#{$!.message}"
     end
 
     # deletes the contents of a column
     # @param [Variant] column number or column name
     def delete_column_values(column_number_or_name)
-      begin
-        column_name = @ole_table.ListColumns.Item(column_number_or_name).Range.Value.first
-        @ole_table.ListColumns.Item(column_number_or_name).Range.Value = [column_name] + [].fill([nil],0..(@ole_table.ListRows.Count-1))
-        nil
-      rescue WIN32OLERuntimeError
-        raise TableError, "could not delete contents of column #{column_number_or_name.inspect}\n#{$!.message}"
-      end
+      column_name = @ole_table.ListColumns.Item(column_number_or_name).Range.Value.first
+      @ole_table.ListColumns.Item(column_number_or_name).Range.Value = [column_name] + [].fill([nil],0..(@ole_table.ListRows.Count-1))
+      nil
+    rescue WIN32OLERuntimeError
+      raise TableError, "could not delete contents of column #{column_number_or_name.inspect}\n#{$!.message}"
     end
 
     # renames a row
     # @param [String] previous name or number of the column
     # @param [String] new name of the column   
     def rename_column(name_or_number, new_name)              # :nodoc: #
-      begin
-        @ole_table.ListColumns.Item(name_or_number).Name = new_name
-      rescue
-        raise TableError, "could not rename column #{name_or_number.inspect} to #{new_name.inspect}\n#{$!.message}"
-      end
+      @ole_table.ListColumns.Item(name_or_number).Name = new_name
+    rescue
+      raise TableError, "could not rename column #{name_or_number.inspect} to #{new_name.inspect}\n#{$!.message}"
     end
 
     # contents of a row
     # @param [Integer] row number
     # @return [Array] contents of a row
     def row_values(row_number)
-      begin
-        @ole_table.ListRows.Item(row_number).Range.Value.first
-      rescue WIN32OLERuntimeError
-        raise TableError, "could not read the values of row #{row_number.inspect}\n#{$!.message}"
-      end
+      @ole_table.ListRows.Item(row_number).Range.Value.first
+    rescue WIN32OLERuntimeError
+      raise TableError, "could not read the values of row #{row_number.inspect}\n#{$!.message}"
     end
 
     # sets the contents of a row
     # @param [Integer] row number
     # @param [Array]   values of the row
     def set_row_values(row_number, values)
-      begin
-        updated_values = row_values(row_number)
-        updated_values[0,values.length] = values
-        @ole_table.ListRows.Item(row_number).Range.Value = [updated_values]
-        values
-      rescue WIN32OLERuntimeError
-        raise TableError, "could not set the values of row #{row_number.inspect}\n#{$!.message}"
-      end
+      updated_values = row_values(row_number)
+      updated_values[0,values.length] = values
+      @ole_table.ListRows.Item(row_number).Range.Value = [updated_values]
+      values
+    rescue WIN32OLERuntimeError
+      raise TableError, "could not set the values of row #{row_number.inspect}\n#{$!.message}"
     end
 
     # @return [Array] contents of a column
     def column_values(column_number_or_name)
-      begin
-        @ole_table.ListColumns.Item(column_number_or_name).Range.Value[1,@ole_table.ListRows.Count].flatten
-      rescue WIN32OLERuntimeError
-        raise TableError, "could not read the values of column #{column_number_or_name.inspect}\n#{$!.message}"
-      end
+      @ole_table.ListColumns.Item(column_number_or_name).Range.Value[1,@ole_table.ListRows.Count].flatten
+    rescue WIN32OLERuntimeError
+      raise TableError, "could not read the values of column #{column_number_or_name.inspect}\n#{$!.message}"
     end
 
     # sets the contents of a column
     # @param [Integer] column name or column number
     # @param [Array]   contents of the column
     def set_column_values(column_number_or_name, values)
-      begin
-        updated_values = column_values(column_number_or_name)
-        updated_values[0,values.length] = values
-        column_name = @ole_table.ListColumns.Item(column_number_or_name).Range.Value.first
-        @ole_table.ListColumns.Item(column_number_or_name).Range.Value = column_name + updated_values.map{|v| [v]}
-        values
-      rescue WIN32OLERuntimeError
-        raise TableError, "could not read the values of column #{column_number_or_name.inspect}\n#{$!.message}"
-      end
+      updated_values = column_values(column_number_or_name)
+      updated_values[0,values.length] = values
+      column_name = @ole_table.ListColumns.Item(column_number_or_name).Range.Value.first
+      @ole_table.ListColumns.Item(column_number_or_name).Range.Value = column_name + updated_values.map{|v| [v]}
+      values
+    rescue WIN32OLERuntimeError
+      raise TableError, "could not read the values of column #{column_number_or_name.inspect}\n#{$!.message}"
     end
 
     # deletes rows that have an empty contents
@@ -402,22 +372,19 @@ module RobustExcelOle
   private
 
     def method_missing(name, *args) 
-      if name.to_s[0,1] =~ /[A-Z]/
-        if ::ERRORMESSAGE_JRUBY_BUG
-          begin
-            @ole_table.send(name, *args)
-          rescue Java::OrgRacobCom::ComFailException 
-            raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
-          end
-        else
-          begin
-            @ole_table.send(name, *args)
-          rescue NoMethodError 
-            raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
-          end
+      super unless name.to_s[0,1] =~ /[A-Z]/
+      if ::ERRORMESSAGE_JRUBY_BUG
+        begin
+          @ole_table.send(name, *args)
+        rescue Java::OrgRacobCom::ComFailException 
+          raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
         end
       else
-        super
+        begin
+          @ole_table.send(name, *args)
+        rescue NoMethodError 
+          raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
+        end
       end
     end
   end

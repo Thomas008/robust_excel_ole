@@ -544,7 +544,6 @@ module RobustExcelOle
   private
 
     def close_workbook
-      #@ole_workbook.Close if alive?
       if alive?
         begin
           @ole_workbook.Close 
@@ -629,7 +628,6 @@ module RobustExcelOle
         was_saved = book.saved
         was_check_compatibility = book.check_compatibility
         was_calculation = book.excel.properties[:calculation]
-        #opts[:read_only] = !opts[:writable] unless (opts[:writable].nil? || open_opts[:was_open])
         opts[:read_only] = !opts[:writable] unless (!opts[:read_only].nil? || opts[:writable].nil? || open_opts[:was_open])
         book.send :apply_options, file, opts
         yield book
@@ -1098,23 +1096,20 @@ module RobustExcelOle
   private
 
     def method_missing(name, *args) 
-      if name.to_s[0,1] =~ /[A-Z]/
-        raise ObjectNotAlive, 'method missing: workbook not alive' unless alive?
-        if ::ERRORMESSAGE_JRUBY_BUG 
-          begin
-            @ole_workbook.send(name, *args)
-          rescue Java::OrgRacobCom::ComFailException 
-            raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
-          end
-        else
-          begin
-            @ole_workbook.send(name, *args)
-          rescue NoMethodError 
-            raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
-          end
+      super unless name.to_s[0,1] =~ /[A-Z]/
+      raise ObjectNotAlive, 'method missing: workbook not alive' unless alive?
+      if ::ERRORMESSAGE_JRUBY_BUG 
+        begin
+          @ole_workbook.send(name, *args)
+        rescue Java::OrgRacobCom::ComFailException 
+          raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
         end
       else
-        super
+        begin
+          @ole_workbook.send(name, *args)
+        rescue NoMethodError 
+          raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
+        end
       end
     end
 

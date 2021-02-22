@@ -178,11 +178,9 @@ module RobustExcelOle
     # @params row and column
     # @returns value of the cell
     def cellval(x,y)
-      begin
-        @ole_worksheet.Cells.Item(x, y).Value
-      rescue
-        raise RangeNotEvaluatable, "cannot read cell (#{x.inspect},#{y.inspect})\n#{$!.message}"
-      end
+      @ole_worksheet.Cells.Item(x, y).Value
+    rescue
+      raise RangeNotEvaluatable, "cannot read cell (#{x.inspect},#{y.inspect})\n#{$!.message}"
     end
 
     # sets the value of a cell, if row, column and color of the cell are given
@@ -312,12 +310,9 @@ module RobustExcelOle
     # @params [Variant] table (listobject) name or number 
     # @return [ListObject] a table (listobject)
     def table(number_or_name)
-      begin
-        ole_listobject = @ole_worksheet.ListObjects.Item(number_or_name)
-      rescue
-        raise WorksheetREOError, "table #{number_or_name} not found\n#{$!.message}"
-      end
-      ListObject.new(ole_listobject)
+      listobject_class.new(@ole_worksheet.ListObjects.Item(number_or_name))
+    rescue
+      raise WorksheetREOError, "table #{number_or_name} not found\n#{$!.message}"
     end
 
     # @private
@@ -349,6 +344,21 @@ module RobustExcelOle
     end
 
     # @private
+    def self.listobject_class  
+      @listobject_class ||= begin
+        module_name = self.parent_name
+        "#{module_name}::ListObject".constantize        
+      rescue NameError => e
+        ListObject
+      end
+    end
+
+    # @private
+    def listobject_class        
+      self.class.listobject_class
+    end
+
+    # @private
     def to_s    
       '#<Worksheet: ' + (workbook.nil? ? 'not alive ' : (name + ' ' + File.basename(workbook.stored_filename)).to_s) + ">"
     end
@@ -363,22 +373,19 @@ module RobustExcelOle
   private
 
     def method_missing(name, *args)
-      if name.to_s[0,1] =~ /[A-Z]/
-        if ::ERRORMESSAGE_JRUBY_BUG 
-          begin
-            @ole_worksheet.send(name, *args)
-          rescue Java::OrgRacobCom::ComFailException 
-            raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
-          end
-        else
-          begin
-            @ole_worksheet.send(name, *args)
-          rescue NoMethodError 
-            raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
-          end
+      super unless name.to_s[0,1] =~ /[A-Z]/
+      if ::ERRORMESSAGE_JRUBY_BUG 
+        begin
+          @ole_worksheet.send(name, *args)
+        rescue Java::OrgRacobCom::ComFailException 
+          raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
         end
       else
-        super
+        begin
+          @ole_worksheet.send(name, *args)
+        rescue NoMethodError 
+          raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
+        end
       end
     end
 

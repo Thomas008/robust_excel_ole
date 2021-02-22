@@ -62,19 +62,13 @@ module StringRefinement
   refine String do
 
     def / path_part
-      if empty?
-        path_part
-      else
-        if path_part.nil? || path_part.empty?
-          self
-        else
-          begin
-            path_part = path_part.strip
-            (path_part  =~ /^(\/|([A-Z]:\/))/i) ? path_part : (self.chomp('/') + '/' + path_part)
-          rescue TypeError
-            raise TypeError, "Only strings can be parts of paths (given: #{path_part.inspect} of class #{path_part.class})"
-          end
-        end
+      return path_part if empty?
+      return self if path_part.nil? || path_part.empty?
+      begin
+        path_part = path_part.strip
+        (path_part  =~ /^(\/|([A-Z]:\/))/i) ? path_part : (chomp('/') + '/' + path_part)
+      rescue TypeError
+        raise TypeError, "Only strings can be parts of paths (given: #{path_part.inspect} of class #{path_part.class})"
       end
     end
     
@@ -83,7 +77,7 @@ module StringRefinement
       'ä' => 'ae', 'ö' => 'oe', 'ü' => 'ue', 'Ä' => 'Ae', 'Ö' => 'Oe', 'Ü' => 'Ue',
       'ß' => 'ss', '²' => '2', '³' => '3'
       }
-      translation_table.inject(self.encode('utf-8')) { |word,transl| word.gsub(transl.first, transl.last) }
+      translation_table.inject(encode('utf-8')) { |word,transl| word.gsub(transl.first, transl.last) }
     end
 
     # taken from http://apidock.com/rails/ActiveSupport/Inflector/underscore
@@ -270,7 +264,7 @@ module General
       meths = (classname.instance_methods(false) - WIN32OLE.instance_methods(false) - Object.methods - Enumerable.instance_methods(false) - [:Calculation=])
       meths.each do |inst_method|
         WIN32OLE.send(:define_method, inst_method) do |*args, &blk|  
-          self.to_reo.send(inst_method, *args, &blk) 
+          to_reo.send(inst_method, *args, &blk) 
         end
       end
     end

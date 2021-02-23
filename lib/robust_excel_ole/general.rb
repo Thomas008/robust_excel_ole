@@ -152,7 +152,6 @@ class Integer
   alias old_spaceship <=>
 
   def <=> other
-    # p other
     if other.is_a? Array
       self <=> other.first
     else

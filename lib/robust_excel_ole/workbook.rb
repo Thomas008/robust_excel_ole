@@ -518,26 +518,23 @@ module RobustExcelOle
     # @raise WorkbookNotSaved if the option :if_unsaved is :raise and the workbook is unsaved
     # @raise OptionInvalid if the options is invalid
     def close(opts = {if_unsaved: :raise})
-      if alive? && !@ole_workbook.Saved && writable
-        case opts[:if_unsaved]
-        when :raise
-          raise WorkbookNotSaved, "workbook is unsaved: #{File.basename(self.stored_filename).inspect}" +
-          "\nHint: Use option :save or :forget to close the workbook with or without saving"
-        when :save
-          save
-          close_workbook
-        when :forget
-          @excel.with_displayalerts(false) { close_workbook }
-        when :keep_open
-          # nothing
-        when :alert, :excel
-          @excel.with_displayalerts(true) { close_workbook }
-        else
-          raise OptionInvalid, ":if_unsaved: invalid option: #{opts[:if_unsaved].inspect}" +
-          "\nHint: Valid values are :raise, :save, :keep_open, :alert, :excel"
-        end
-      else
+      close_workbook unless alive? && !@ole_workbook.Saved && writable
+      case opts[:if_unsaved]
+      when :raise
+        raise WorkbookNotSaved, "workbook is unsaved: #{File.basename(self.stored_filename).inspect}" +
+        "\nHint: Use option :save or :forget to close the workbook with or without saving"
+      when :save
+        save
         close_workbook
+      when :forget
+        @excel.with_displayalerts(false) { close_workbook }
+      when :keep_open
+        # nothing
+      when :alert, :excel
+        @excel.with_displayalerts(true) { close_workbook }
+      else
+        raise OptionInvalid, ":if_unsaved: invalid option: #{opts[:if_unsaved].inspect}" +
+        "\nHint: Valid values are :raise, :save, :keep_open, :alert, :excel"
       end
     end
 
@@ -854,6 +851,7 @@ module RobustExcelOle
         opts = sheet
         sheet = nil
       end
+
       begin
         sheet = sheet.to_reo unless sheet.nil?
         new_sheet_name = opts.delete(:as)
@@ -878,6 +876,7 @@ module RobustExcelOle
       rescue # WIN32OLERuntimeError, NameNotFound, Java::OrgRacobCom::ComFailException
         raise WorksheetREOError, "could not add given worksheet #{sheet.inspect}\n#{$!.message}"
       end
+      
       new_sheet = worksheet_class.new(ole_workbook.Activesheet)
       new_sheet.name = new_sheet_name if new_sheet_name
       new_sheet

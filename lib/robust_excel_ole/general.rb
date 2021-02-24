@@ -73,7 +73,18 @@ module StringRefinement
         raise TypeError, "Only strings can be parts of paths (given: #{path_part.inspect} of class #{path_part.class})"
       end
     end
-    
+
+=begin
+    TRANSLATION_TABLE = {
+      'ä' => 'ae', 'ö' => 'oe', 'ü' => 'ue', 'Ä' => 'Ae', 'Ö' => 'Oe', 'Ü' => 'Ue',
+      'ß' => 'ss', '²' => '2', '³' => '3'
+    }
+
+    def replace_umlauts
+      TRANSLATION_TABLE.inject(encode('utf-8')) { |word,transl| word.gsub(transl.first, transl.last) }
+    end
+=end    
+
     def replace_umlauts
       translation_table = {
       'ä' => 'ae', 'ö' => 'oe', 'ü' => 'ue', 'Ä' => 'Ae', 'Ö' => 'Oe', 'Ü' => 'Ue',

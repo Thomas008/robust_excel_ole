@@ -97,11 +97,11 @@ module RobustExcelOle
 
     def listrows_via_traversing(key_hash, opts)
       encode_utf8 = ->(val) {val.respond_to?(:gsub) ? val.encode('utf-8') : val}
-      cn = column_names_to_index
+      cn2i = column_names_to_index
       matching_rows = []
       @ole_table.ListRows.each do |listrow|
         rowvalues = listrow.Range.Value.first
-        matching_rows << @row_class.new(listrow) if key_hash.all?{|key,val| encode_utf8.call(rowvalues[cn[key]])==val}
+        matching_rows << @row_class.new(listrow) if key_hash.all?{|key,val| encode_utf8.(rowvalues[cn2i[key]])==val}
         break if matching_rows.count == opts[:limit]
       end
       matching_rows

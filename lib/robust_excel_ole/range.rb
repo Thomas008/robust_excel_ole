@@ -71,26 +71,8 @@ module RobustExcelOle
       end
     end
 
-    # returns flat array of the values of a given range
+    # returns values of a given range
     # @returns [Array] values of the range (as a nested array)    
-=begin    
-    def value
-      if !::RANGES_JRUBY_BUG
-        self.Value
-      else
-        values = []
-        rows.each do |r|
-          values_col = []
-          columns.each{ |c| values_col << worksheet.Cells(r,c).Value}
-          values << values_col
-        end
-        values
-      end
-    rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
-      raise RangeNotEvaluatable, "cannot read value\n#{$!.message}"
-    end 
-=end
-
     def value
       if !::RANGES_JRUBY_BUG
         self.Value

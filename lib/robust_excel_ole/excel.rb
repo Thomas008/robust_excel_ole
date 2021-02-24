@@ -70,6 +70,7 @@ module RobustExcelOle
         options = win32ole_excel
         win32ole_excel = nil
       end
+
       ole_xl = win32ole_excel unless win32ole_excel.nil?
       options = { reuse: true }.merge(options)
       if options[:reuse] == true && ole_xl.nil?
@@ -116,10 +117,7 @@ module RobustExcelOle
         @ole_excel = WIN32OLE.new('Excel.Application')
         set_options(opts)
         if opts[:reopen_workbooks]
-          books = workbook_class.books
-          books.each do |book|
-            book.reopen if !book.alive? && book.excel.alive? && book.excel == self
-          end
+          workbook_class.books.each{ |book| book.reopen if !book.alive? && book.excel.alive? && book.excel == self }
         end
       end
       self
@@ -521,13 +519,9 @@ module RobustExcelOle
     # returns unsaved workbooks in known (not opened by user) Excel instances
     # @private
     def self.unsaved_known_workbooks 
-      result = []
-      @@hwnd2excel.each do |_hwnd,wr_excel|
-        excel = wr_excel.__getobj__ if wr_excel.weakref_alive?
-        result << excel.unsaved_workbooks
-      end
-      result
+      @@hwnd2excel.values.inject([]){|res,wk_exl| res << wk_exl.__getobj__.unsaved_workbooks if wk_exl.weakref_alive?}
     end
+
 
     # @private
     def print_workbooks
@@ -598,15 +592,9 @@ module RobustExcelOle
             trace e.backtrace
             # continue on errors here, failing would usually disrupt too much
           end
-          saved = []
-          @ole_excel.Workbooks.each { |w| saved << w.Saved }
           @ole_excel.CalculateBeforeSave = false
-          @ole_excel.Calculation =
-            calculation_mode == :automatic ? XlCalculationAutomatic : XlCalculationManual
-          saved = []
-          @ole_excel.Workbooks.each { |w| saved << w.Saved }
+          @ole_excel.Calculation = calculation_mode == :automatic ? XlCalculationAutomatic : XlCalculationManual
         end
-        #(1..@ole_excel.Workbooks.Count).each { |i| @ole_excel.Workbooks(i).Saved = true if saved[i - 1] }
       end
     end
 
@@ -743,7 +731,7 @@ module RobustExcelOle
       if ::ERRORMESSAGE_JRUBY_BUG
         begin
           @ole_excel.send(name, *args)
-        rescue Java::OrgRacobCom::ComFailException => msg
+        rescue Java::OrgRacobCom::ComFailException
           raise VBAMethodMissingError, "unknown VBA property or method #{name.inspect}"
         end
       else

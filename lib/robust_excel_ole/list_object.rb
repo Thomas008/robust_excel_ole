@@ -86,16 +86,16 @@ module RobustExcelOle
       opts = {limit: :first}.merge(opts)   
       key_hash = key_hash_or_number
       matching_listrows = if @ole_table.ListRows.Count < 150
-        listrows_via_traversing_listrows(key_hash, opts)
+        listrows_via_traversing(key_hash, opts)
       else
-        listrows_via_advanced_filter(key_hash, opts)
+        listrows_via_filter(key_hash, opts)
       end
       opts[:limit] == :first ? matching_listrows.first : matching_listrows
     end
 
     private
 
-    def listrows_via_traversing_listrows(key_hash, opts)
+    def listrows_via_traversing(key_hash, opts)
       encode_utf8 = ->(val) {val.respond_to?(:gsub) ? val.encode('utf-8') : val}
       cn = column_names_to_index
       matching_rows = []
@@ -109,7 +109,7 @@ module RobustExcelOle
       raise(TableError, "cannot find row with key #{key_hash}")
     end
 
-    def listrows_via_advanced_filter(key_hash, opts)
+    def listrows_via_filter(key_hash, opts)
       ole_worksheet = self.Parent
       ole_workbook =  ole_worksheet.Parent
       row_numbers = []

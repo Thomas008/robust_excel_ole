@@ -408,17 +408,37 @@ describe ListObject do
 
   describe "find all cells of a given value" do
 
-    before do
-      ole_table = @sheet.ListObjects.Item(1)
-      @table = Table.new(ole_table)
+    context "with standard" do
+
+      before do
+        ole_table = @sheet.ListObjects.Item(1)
+        @table = Table.new(ole_table)
+      end
+
+      it "should find all cells" do
+        cells = @table.find_cells(40)
+        cells[0].Row.should == 5
+        cells[0].Column.should == 8
+        cells[1].Row.should == 9
+        cells[1].Column.should == 6
+      end
+
     end
 
-    it "should find all cells" do
-      cells = @table.find_cells(40)
-      cells[0].Row.should == 5
-      cells[0].Column.should == 8
-      cells[1].Row.should == 9
-      cells[1].Column.should == 6
+    context "with umlauts" do
+
+      before do
+        @table = Table.new(@sheet, "lösung", [1,1], 3, ["Verkäufer","Straße"])
+      end
+
+      it "should find all cells" do
+        cells = @table.find_cells(40)
+        cells[0].Row.should == 5
+        cells[0].Column.should == 8
+        cells[1].Row.should == 9
+        cells[1].Column.should == 6
+      end
+
     end
   
   end

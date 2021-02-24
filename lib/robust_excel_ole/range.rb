@@ -100,8 +100,8 @@ module RobustExcelOle
       raise RangeNotEvaluatable, "cannot assign value to range #{self.inspect}\n#{$!.message}"
     end
 
-    alias_method :v, :value
-    alias_method :v=, :value=
+    alias v value
+    alias v= value=
 
     # sets the values if the range with a given color
     # @param [Variant] value

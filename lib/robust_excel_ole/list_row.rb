@@ -73,9 +73,9 @@ module RobustExcelOle
       ole_table.column_names.zip(values).to_h
     end
 
-    alias_method :set_values, :values=
-    alias_method :to_a, :values
-    alias_method :to_h, :keys_values
+    alias set_values values=
+    alias to_a values
+    alias to_h keys_values
 
     # deletes the values of the row
     def delete_values

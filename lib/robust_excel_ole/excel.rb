@@ -675,7 +675,7 @@ module RobustExcelOle
       @workbook ||= workbook_class.new(@ole_excel.ActiveWorkbook) if @ole_excel.Workbooks.Count > 0
     end    
 
-    alias_method :active_workbook, :workbook
+    alias active_workbook workbook
 
     # @private
     def to_s            

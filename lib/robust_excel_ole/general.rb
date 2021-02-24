@@ -41,6 +41,8 @@ module FindAllIndicesRefinement
   refine Array do
 
     def find_all_indices elem
+      elem = elem.encode('utf-8') if elem.respond_to?(:gsub)
+      self.map{|a| a.respond_to?(:gsub) ? a.encode('utf-8') : a}
       found, index, result = -1, -1, []
       while found
         found = self[index+1..-1].index(elem)

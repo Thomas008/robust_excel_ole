@@ -20,8 +20,8 @@ module RobustExcelOle
       self.Value = value
     end
 
-    alias_method :v, :value
-    alias_method :v=, :value=
+    alias v value
+    alias v= value=
 
     # @private
     def ole_cell

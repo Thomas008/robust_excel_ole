@@ -429,14 +429,19 @@ describe ListObject do
 
       before do
         @table = Table.new(@sheet, "lösung", [1,1], 3, ["Verkäufer","Straße"])
+        @table[1].values = ["sören", "stück"]
+        @table[2].values = ["stück", "glück"]
+        @table[3].values = ["soße",  "stück"]
       end
 
       it "should find all cells" do
-        cells = @table.find_cells(40)
-        cells[0].Row.should == 5
-        cells[0].Column.should == 8
-        cells[1].Row.should == 9
-        cells[1].Column.should == 6
+        cells = @table.find_cells("stück")
+        cells[0].Row.should == 2
+        cells[0].Column.should == 2
+        cells[1].Row.should == 3
+        cells[1].Column.should == 1
+        cells[2].Row.should == 4
+        cells[2].Column.should == 2
       end
 
     end

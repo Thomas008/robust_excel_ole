@@ -85,7 +85,7 @@ module RobustExcelOle
       return @row_class.new(key_hash_or_number) if key_hash_or_number.respond_to?(:succ)
       opts = {limit: :first}.merge(opts)   
       key_hash = key_hash_or_number
-      matching_listrows = if @ole_table.ListRows.Count < 150
+      matching_listrows = if @ole_table.ListRows.Count < 0 # < 150
         listrows_via_traversing(key_hash, opts)
       else
         listrows_via_filter(key_hash, opts)
@@ -118,12 +118,12 @@ module RobustExcelOle
         criteria = Table.new(added_ole_worksheet, "criteria", [2,1], 2, key_hash.keys)
         criteria[1].values = key_hash.values
         self.Range.AdvancedFilter({
-          'Action': XlFilterInPlace, 
-          'CriteriaRange': added_ole_worksheet.range([2..3,1..key_hash.length]).ole_range, 'Unique': false})
+          Action: XlFilterInPlace, 
+          CriteriaRange: added_ole_worksheet.range([2..3,1..key_hash.length]).ole_range, Unique: false})
         filtered_ole_range = self.DataBodyRange.SpecialCells(XlCellTypeVisible) rescue nil         
         ole_worksheet.ShowAllData        
-        self.Range.AdvancedFilter({'Action': XlFilterInPlace, 
-                                   'CriteriaRange': added_ole_worksheet.range([1,1]).ole_range, 'Unique': false})          
+        self.Range.AdvancedFilter({Action: XlFilterInPlace, 
+                                   CriteriaRange: added_ole_worksheet.range([1,1]).ole_range, Unique: false})          
         ole_workbook.Parent.with_displayalerts(false){added_ole_worksheet.Delete}
         if filtered_ole_range
           filtered_ole_range.Areas.each do |area|

@@ -206,7 +206,7 @@ module RobustExcelOle
         @ole_excel.Workbooks.Close
       rescue
         if $!.message =~ /kann nicht zugeordnet werden/ or $!.message =~ /800A03EC/
-          raise ExcelREOError, 'user canceled or runtime error'
+          raise ExcelREOError, "user canceled or runtime error"
         else
           raise UnexpectedREOError, "unknown WIN32OLERuntimeError: #{msg.message}"
         end
@@ -679,7 +679,7 @@ module RobustExcelOle
 
     # @private
     def to_s            
-      '#<Excel: ' + hwnd.to_s + ('not alive' unless alive?).to_s + '>'
+      "#<Excel: " + hwnd.to_s + ("not alive" unless alive?).to_s + '>'
     end
 
     # @private

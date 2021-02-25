@@ -360,7 +360,7 @@ module RobustExcelOle
 
     # @private
     def to_s    
-      '#<Worksheet: ' + (workbook.nil? ? 'not alive ' : (name + ' ' + File.basename(workbook.stored_filename)).to_s) + ">"
+      "#<Worksheet: " + (workbook.nil? ? "not alive " : (name + ' ' + File.basename(workbook.stored_filename)).to_s) + ">"
     end
 
     # @private

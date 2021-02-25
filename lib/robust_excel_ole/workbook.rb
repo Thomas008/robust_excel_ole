@@ -89,7 +89,7 @@ module RobustExcelOle
       process_options(opts)
       case file_or_workbook
       when NilClass
-        raise FileNameNotGiven, 'filename is nil' 
+        raise FileNameNotGiven, "filename is nil"
       when WIN32OLE
         file = file_or_workbook.Fullname.tr('\\','/') 
       when Workbook
@@ -101,7 +101,7 @@ module RobustExcelOle
         file = file_or_workbook.to_path
         raise FileNotFound, "file #{General.absolute_path(file).inspect} is a directory" if File.directory?(file)
       else
-        raise TypeREOError, 'given object is neither a filename, a Win32ole, nor a Workbook object'
+        raise TypeREOError, "given object is neither a filename, a Win32ole, nor a Workbook object"
       end
       # try to fetch the workbook from the bookstore
       set_was_open opts, file_or_workbook.is_a?(WIN32OLE)
@@ -631,7 +631,7 @@ module RobustExcelOle
     def self.unobtrusively_opening(file, opts, book_is_alive, &block)
       process_options(opts)
       opts = {if_closed: :current, keep_open: false}.merge(opts)    
-      raise OptionInvalid, 'contradicting options' if opts[:writable] && opts[:read_only] 
+      raise OptionInvalid, "contradicting options" if opts[:writable] && opts[:read_only] 
       if book_is_alive.nil?
         prefer_writable = ((!(opts[:read_only]) || opts[:writable] == true) &&
                            !(opts[:read_only].nil? && opts[:writable] == false))
@@ -687,13 +687,13 @@ module RobustExcelOle
     # simple save of a workbook.
     # @return [Boolean] true, if successfully saved, nil otherwise
     def save(opts = { })  # option opts is deprecated #
-      raise ObjectNotAlive, 'workbook is not alive' unless alive?
-      raise WorkbookReadOnly, 'Not opened for writing (opened with :read_only option)' if @ole_workbook.ReadOnly   
+      raise ObjectNotAlive, "workbook is not alive" unless alive?
+      raise WorkbookReadOnly, "Not opened for writing (opened with :read_only option)" if @ole_workbook.ReadOnly   
       begin
         @ole_workbook.Save
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
         if msg.message =~ /SaveAs/ && msg.message =~ /Workbook/
-          raise WorkbookNotSaved, 'workbook not saved'
+          raise WorkbookNotSaved, "workbook not saved"
         else
           raise UnexpectedREOError, "unknown WIN32OLERuntimeError:\n#{msg.message}"
         end
@@ -719,9 +719,9 @@ module RobustExcelOle
     #                                          otherwise raises an exception   
     # @return [Workbook], the book itself, if successfully saved, raises an exception otherwise
     def save_as(file, options = { })
-      raise FileNameNotGiven, 'filename is nil' if file.nil?
-      raise ObjectNotAlive, 'workbook is not alive' unless alive?
-      raise WorkbookReadOnly, 'Not opened for writing (opened with :read_only option)' if @ole_workbook.ReadOnly
+      raise FileNameNotGiven, "filename is nil" if file.nil?
+      raise ObjectNotAlive, "workbook is not alive" unless alive?
+      raise WorkbookReadOnly, "Not opened for writing (opened with :read_only option)" if @ole_workbook.ReadOnly
       raise(FileNotFound, "file #{General.absolute_path(file).inspect} is a directory") if File.directory?(file)
       self.class.process_options(options)      
       if File.exist?(file)
@@ -734,7 +734,7 @@ module RobustExcelOle
             begin
               File.delete(file)
             rescue Errno::EACCES
-              raise WorkbookBeingUsed, 'workbook is open and being used in an Excel instance'
+              raise WorkbookBeingUsed, "workbook is open and being used in an Excel instance"
             end
           end
         when :alert, :excel
@@ -1077,7 +1077,7 @@ module RobustExcelOle
 
     # @private
     def inspect    
-      '#<Workbook: ' + ('not alive ' unless alive?).to_s + (File.basename(self.filename) if alive?).to_s + " #{@excel}" + '>'
+      "#<Workbook: " + ("not alive " unless alive?).to_s + (File.basename(self.filename) if alive?).to_s + " #{@excel}>"
     end
 
     using ParentRefinement

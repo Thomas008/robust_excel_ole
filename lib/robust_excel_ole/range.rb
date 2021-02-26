@@ -77,7 +77,7 @@ module RobustExcelOle
       if !::RANGES_JRUBY_BUG
         self.Value
       else
-        rows.inject([]) { |values,r| values << columns.inject([]) { |vc,c| vc << worksheet.Cells(r,c).Value} }
+        rows.map{|r| columns.map {|c| worksheet.Cells(r,c).Value} }
       end
     rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
       raise RangeNotEvaluatable, "cannot read value\n#{$!.message}"

@@ -806,7 +806,7 @@ describe Workbook do
       @book1.namevalue_global("five").should == [[1,2],[3,4]]
       expect {
         @book1.rename_range("four","five")
-      }.to raise_error(NameNotFound, /name "four" not in "another_workbook.xls"/)
+      }.to raise_error(NameNotFound, /name "four" not in/)
     end
   end
 

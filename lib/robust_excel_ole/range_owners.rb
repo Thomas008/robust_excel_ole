@@ -137,6 +137,8 @@ module RobustExcelOle
     def rename_range(name, new_name)
       item = name_object(name)
       item.Name = new_name
+    rescue RobustExcelOle::NameNotFound
+      raise
     rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
       raise UnexpectedREOError, "name error with name #{name.inspect} in #{File.basename(self.stored_filename).inspect}\n#{$!.message}"
     end

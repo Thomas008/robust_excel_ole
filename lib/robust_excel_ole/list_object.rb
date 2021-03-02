@@ -227,7 +227,7 @@ module RobustExcelOle
     # @param [Integer] row number
     # @return [Array] contents of a row
     def row_values(row_number)
-      @ole_table.ListRows.Item(row_number).Range.Value.first
+      @ole_table.ListRows.Item(row_number).Range.Value.first.map{|v| v.respond_to?(:gsub) ? v.encode('utf-8') : v}
     rescue WIN32OLERuntimeError
       raise TableError, "could not read the values of row #{row_number.inspect}\n#{$!.message}"
     end
@@ -246,7 +246,7 @@ module RobustExcelOle
 
     # @return [Array] contents of a column
     def column_values(column_number_or_name)
-      @ole_table.ListColumns.Item(column_number_or_name).Range.Value[1,@ole_table.ListRows.Count].flatten
+      @ole_table.ListColumns.Item(column_number_or_name).Range.Value[1,@ole_table.ListRows.Count].flatten.map{|v| v.respond_to?(:gsub) ? v.encode('utf-8') : v}
     rescue WIN32OLERuntimeError
       raise TableError, "could not read the values of column #{column_number_or_name.inspect}\n#{$!.message}"
     end
@@ -300,14 +300,14 @@ module RobustExcelOle
     def find_cells(value)
       listrows = @ole_table.ListRows      
       result = []
-      (1..listrows.Count).each do |row_number|
-        row_values(row_number).find_all_indices(value).each do |col_number|
-          result << @ole_table.Application.Intersect(listrows.Item(row_number).Range, 
-                                                     @ole_table.ListColumns.Item(col_number+1).Range).to_reo
+      listrows.each do |listrow|
+        listrow.Range.Value.first.map{|v| v.respond_to?(:gsub) ? v.encode('utf-8') : v}.find_all_indices(value).each do |col_number|
+          result << @ole_table.Application.Intersect(listrow.Range, @ole_table.ListColumns.Item(col_number+1).Range).to_reo
         end
       end
       result
     end
+    
 
     # sorts the rows of the list object according to the given column
     # @param [Variant] column number or name

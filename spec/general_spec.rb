@@ -11,6 +11,7 @@ module RobustExcelOle
 
   using StringRefinement
   using ToReoRefinement
+  using FindAllIndicesRefinement
 
   describe General do
 
@@ -43,6 +44,21 @@ module RobustExcelOle
     after do
       Excel.kill_all
       rm_tmp(@dir)
+    end
+
+    describe "find_all_indices" do
+
+      it "should find all occurrences" do
+        [1,2,3,1].find_all_indices(1).should == [0,3]
+        [1,2,3,1].find_all_indices(4).should be_empty
+        ["a","b","c","a"].find_all_indices("a").should == [0,3]
+        ["a","b","c","a"].find_all_indices("d").should be_empty
+        ["a","ö","ß","a"].find_all_indices("a").should == [0,3]
+        ["a","b","c","d"].find_all_indices("ä").should be_empty
+        ["ä","ö","ß","ä"].find_all_indices("ä").should == [0,3]
+        ["stück","öl","straße","stück"].find_all_indices("stück").should == [0,3]
+      end
+
     end
 
     describe "relace_umlauts, underscore" do

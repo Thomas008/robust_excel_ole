@@ -74,24 +74,15 @@ module StringRefinement
       end
     end
 
-=begin
     TRANSLATION_TABLE = {
       'ä' => 'ae', 'ö' => 'oe', 'ü' => 'ue', 'Ä' => 'Ae', 'Ö' => 'Oe', 'Ü' => 'Ue',
       'ß' => 'ss', '²' => '2', '³' => '3'
     }
 
     def replace_umlauts
-      TRANSLATION_TABLE.inject(encode('utf-8')) { |word,transl| word.gsub(transl.first, transl.last) }
+      TRANSLATION_TABLE.inject(encode('utf-8')) { |word,(umlaut, replacement)| word.gsub(umlaut, replacement) }
     end
-=end    
 
-    def replace_umlauts
-      translation_table = {
-      'ä' => 'ae', 'ö' => 'oe', 'ü' => 'ue', 'Ä' => 'Ae', 'Ö' => 'Oe', 'Ü' => 'Ue',
-      'ß' => 'ss', '²' => '2', '³' => '3'
-      }
-      translation_table.inject(encode('utf-8')) { |word,transl| word.gsub(transl.first, transl.last) }
-    end
 
     # taken from http://apidock.com/rails/ActiveSupport/Inflector/underscore
     def underscore

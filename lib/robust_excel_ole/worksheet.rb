@@ -288,7 +288,7 @@ module RobustExcelOle
     def range(name_or_address, address2 = :__not_provided)
       if name_or_address.respond_to?(:gsub) && address2 == :__not_provided
         name = name_or_address
-        range = RobustExcelOle::Range.new(name_object(name).RefersToRange, self) rescue nil
+        range = RobustExcelOle::Range.new(get_name_object(name).RefersToRange, self) rescue nil
       end
       unless range
         address = name_or_address
@@ -296,7 +296,7 @@ module RobustExcelOle
         workbook.retain_saved do
           begin
             self.Names.Add('__dummy001',nil,true,nil,nil,nil,nil,nil,nil,'=' + address_tool.as_r1c1(address))          
-            range = RobustExcelOle::Range.new(name_object('__dummy001').RefersToRange, self)
+            range = RobustExcelOle::Range.new(get_name_object('__dummy001').RefersToRange, self)
             self.Names.Item('__dummy001').Delete
           rescue
             address2_string = address2.nil? ? "" : ", #{address2.inspect}"

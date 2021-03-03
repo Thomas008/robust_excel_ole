@@ -67,7 +67,7 @@ value = book["name"]
 puts 'value of range "name": #{value}'
 # renaming a range
 puts 'renaming range from "name" to "new_name"'
-book.rename_range("name", "new_name")
+book.rename_name("name", "new_name")
 # deleting the name of a range
 puts 'deleting name "new_name"'
 book.delete_name("new_name")

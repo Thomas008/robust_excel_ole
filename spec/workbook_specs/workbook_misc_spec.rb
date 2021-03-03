@@ -791,7 +791,7 @@ describe Workbook do
 
   end
 
-  describe "rename_range" do
+  describe "rename_name" do
     
     before do
       @book1 = Workbook.open(@another_simple_file)
@@ -802,10 +802,10 @@ describe Workbook do
     end
 
     it "should rename a range" do
-      @book1.rename_range("four","five")
+      @book1.rename_name("four","five")
       @book1.namevalue_global("five").should == [[1,2],[3,4]]
       expect {
-        @book1.rename_range("four","five")
+        @book1.rename_name("four","five")
       }.to raise_error(NameNotFound, /name "four" not in/)
     end
   end

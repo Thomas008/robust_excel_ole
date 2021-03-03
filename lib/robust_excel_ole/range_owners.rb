@@ -16,7 +16,7 @@ module RobustExcelOle
     # @return [Variant] the contents of a range with given name
     def namevalue_global(name, opts = { default: :__not_provided })
       name_obj = begin
-        name_object(name)
+        get_name_object(name)
       rescue NameNotFound => msg
         return opts[:default] unless opts[:default] == :__not_provided
         raise
@@ -24,7 +24,6 @@ module RobustExcelOle
       ole_range = name_obj.RefersToRange
       worksheet = self if self.is_a?(Worksheet)
       value = begin
-        #name_obj.RefersToRange.Value
         if !::RANGES_JRUBY_BUG       
           ole_range.Value
         else
@@ -37,7 +36,6 @@ module RobustExcelOle
                 elsif self.is_a?(Excel) then self.workbook.sheet(1)
         end
         begin
-          #sheet.Evaluate(name_obj.Name).Value
           # does it result in a range?
           ole_range = sheet.Evaluate(name_obj.Name)
           if !::RANGES_JRUBY_BUG
@@ -65,11 +63,11 @@ module RobustExcelOle
     # @option opts [Symbol] :color the color of the range when set
     def set_namevalue_global(name, value, opts = { }) 
       name_obj = begin
-        name_object(name)
+        get_name_object(name)
       rescue NameNotFound => msg
         raise
       end        
-      ole_range = name_object(name).RefersToRange
+      ole_range = name_obj.RefersToRange
       ole_range.Interior.ColorIndex = opts[:color] unless opts[:color].nil?
       if !::RANGES_JRUBY_BUG
         ole_range.Value = value
@@ -131,23 +129,24 @@ module RobustExcelOle
 
     alias set_name add_name  # :deprecated :#
 
-    # renames a range
-    # @param [String] name     the previous range name
-    # @param [String] new_name the new range name
-    def rename_range(name, new_name)
-      item = name_object(name)
+    # renames an Excel object
+    # @param [String] old_name the previous name of the Excel object
+    # @param [String] new_name the new name of the Excel object
+    def rename_name(old_name, new_name)
+      item = get_name_object(old_name)
       item.Name = new_name
     rescue RobustExcelOle::NameNotFound
       raise
     rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
-      raise UnexpectedREOError, "name error with name #{name.inspect} in #{File.basename(self.stored_filename).inspect}\n#{$!.message}"
+      raise UnexpectedREOError, "name error with name #{old_name.inspect} in #{File.basename(self.stored_filename).inspect}\n#{$!.message}"
     end
 
-    # deletes a name of a range
-    # @param [String] name     the previous range name
-    # @param [String] new_name the new range name
+    alias rename_range rename_name  # :deprecated :#
+
+    # deletes a name of an Excel object
+    # @param [String] name    the name of the Excel object
     def delete_name(name)
-      item = name_object(name)
+      item = get_name_object(name)
       item.Delete
     rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException
       raise UnexpectedREOError, "name error with name #{name.inspect} in #{File.basename(self.stored_filename).inspect}\n#{$!.message}"
@@ -155,7 +154,7 @@ module RobustExcelOle
 
   private
 
-    def name_object(name)
+    def get_name_object(name)
       self.Names.Item(name)
     rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException, VBAMethodMissingError
       begin

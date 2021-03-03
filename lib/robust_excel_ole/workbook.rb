@@ -517,32 +517,6 @@ module RobustExcelOle
     #                      :alert or :excel -> gives control to excel
     # @raise WorkbookNotSaved if the option :if_unsaved is :raise and the workbook is unsaved
     # @raise OptionInvalid if the options is invalid
-=begin
-    def close(opts = {if_unsaved: :raise})
-      if alive? && !@ole_workbook.Saved && writable
-        case opts[:if_unsaved]
-        when :raise
-          raise WorkbookNotSaved, "workbook is unsaved: #{File.basename(self.stored_filename).inspect}" +
-          "\nHint: Use option :save or :forget to close the workbook with or without saving"
-        when :save
-          save
-          close_workbook
-        when :forget
-          @excel.with_displayalerts(false) { close_workbook }
-        when :keep_open
-          # nothing
-        when :alert, :excel
-          @excel.with_displayalerts(true) { close_workbook }
-        else
-          raise OptionInvalid, ":if_unsaved: invalid option: #{opts[:if_unsaved].inspect}" +
-          "\nHint: Valid values are :raise, :save, :keep_open, :alert, :excel"
-        end
-      else
-        close_workbook
-      end
-    end
-=end
-
     def close(opts = {if_unsaved: :raise})
       return close_workbook unless (alive? && !@ole_workbook.Saved && writable)
       case opts[:if_unsaved]
@@ -943,7 +917,7 @@ module RobustExcelOle
     def range(name_or_worksheet, name_or_address = :__not_provided, address2 = :__not_provided)
       if name_or_worksheet.respond_to?(:gsub)
         name = name_or_worksheet
-        RobustExcelOle::Range.new(name_object(name).RefersToRange)
+        RobustExcelOle::Range.new(get_name_object(name).RefersToRange)
       else 
         begin 
           worksheet = name_or_worksheet.to_reo

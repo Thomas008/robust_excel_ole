@@ -131,7 +131,7 @@ Finally we can rename a range, and delete the name of a range. With help of VBA 
 
 Using RobustExcelOle, we write
 
-  workbook.rename_range("name", "new_name")
+  workbook.rename_name("name", "new_name")
   workbook.delete_name("name")
 
 Now we can read the value of cell simply by providing the row and the column

@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file.
   - ListObject#[] with options, position
   - ListRow#to_h, to_a, values=, keys_values
 
+### Changed
+  - RangeOwners#rename_range renamed to RangeOwners#rename_name
+
 ## [1.31] 2021-14-01
 
 ### Added

@@ -298,16 +298,15 @@ module RobustExcelOle
     # @param[Variant] value to find
     # @return [Array] win32ole cells containing the given value
     def find_cells(value)
-      listrows = @ole_table.ListRows      
-      result = []
-      listrows.each do |listrow|
-        listrow.Range.Value.first.map{|v| v.respond_to?(:gsub) ? v.encode('utf-8') : v}.find_all_indices(value).each do |col_number|
-          result << @ole_table.Application.Intersect(listrow.Range, @ole_table.ListColumns.Item(col_number+1).Range).to_reo
+      encode_utf8 = ->(val) {val.respond_to?(:gsub) ? val.encode('utf-8') : val}   
+      listrows = @ole_table.ListRows   
+      listrows.map { |listrow|
+        listrow_range = listrow.Range
+        listrow_range.Value.first.map{ |v| encode_utf8.(v) }.find_all_indices(value).map do |col_number| 
+          listrow_range.Cells(1,col_number+1).to_reo 
         end
-      end
-      result
+      }.flatten
     end
-    
 
     # sorts the rows of the list object according to the given column
     # @param [Variant] column number or name

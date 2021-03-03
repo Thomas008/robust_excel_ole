@@ -834,7 +834,7 @@ describe Worksheet do
 
     end
 
-    describe "add_name, delete_name, rename_range" do
+    describe "add_name, delete_name, rename_name" do
 
       context "adding, renaming, deleting the name of a range" do
 
@@ -878,13 +878,13 @@ describe Worksheet do
 
         it "should rename a range" do
           @sheet1.add_name("foo",[1,1])
-          @sheet1.rename_range("foo","bar")
+          @sheet1.rename_name("foo","bar")
           @sheet1.namevalue_global("bar").should == "foo"
         end
 
         it "should rename a range with umlauts" do
           @sheet1.add_name("lösung",[1,1])
-          @sheet1.rename_range("lösung","bär")
+          @sheet1.rename_name("lösung","bär")
           @sheet1.namevalue_global("bär").should == "foo"
         end
 

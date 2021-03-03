@@ -518,8 +518,8 @@ module RobustExcelOle
 
     # returns unsaved workbooks in known (not opened by user) Excel instances
     # @private
-    def self.unsaved_known_workbooks 
-      @@hwnd2excel.values.inject([]){|res,wk_exl| res << wk_exl.__getobj__.unsaved_workbooks if wk_exl.weakref_alive?}
+    def self.unsaved_known_workbooks       
+      @@hwnd2excel.values.map{ |wk_exl| wk_exl.__getobj__.unsaved_workbooks if wk_exl.weakref_alive? }.compact.flatten
     end
 
 

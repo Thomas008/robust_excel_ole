@@ -1124,7 +1124,7 @@ module RobustExcelOle
 
       it "should return empty list for first Excel instance" do
         book = Workbook.open(@simple_file)
-        Excel.unsaved_known_workbooks.should == [[]]
+        Excel.unsaved_known_workbooks.should be_empty
         book.close
       end
        
@@ -1132,24 +1132,16 @@ module RobustExcelOle
         book = Workbook.open(@simple_file)
         sheet = book.sheet(1)
         sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
-        # Excel.unsaved_known_workbooks.should == [[book.ole_workbook]]
         unsaved_known_wbs = Excel.unsaved_known_workbooks
         unsaved_known_wbs.size.should == 1
-        unsaved_known_wbs.each do |ole_wb_list|
-          ole_wb_list.size.should == 1
-          ole_wb_list.each do |ole_workbook|
-            ole_workbook.Fullname.tr('\\','/').should == @simple_file  
-          end
+        unsaved_known_wbs.each do |ole_wb|
+          ole_wb.Fullname.tr('\\','/').should == @simple_file  
         end
         book2 = Workbook.open(@another_simple_file)
-        # Excel.unsaved_known_workbooks.should == [[book.ole_workbook]]
         unsaved_known_wbs = Excel.unsaved_known_workbooks
         unsaved_known_wbs.size.should == 1
-        unsaved_known_wbs.each do |ole_wb_list|
-          ole_wb_list.size.should == 1
-          ole_wb_list.each do |ole_workbook|
-            ole_workbook.Fullname.tr('\\','/').should == @simple_file  
-          end
+        unsaved_known_wbs.each do |ole_wb|
+          ole_wb.Fullname.tr('\\','/').should == @simple_file  
         end        
         book2.close
         book.close(:if_unsaved => :forget)
@@ -1162,14 +1154,11 @@ module RobustExcelOle
         book2 = Workbook.open(@another_simple_file)
         sheet2 = book2.sheet(1)
         sheet2[1,1] = sheet2[1,1].Value == "foo" ? "bar" : "foo"
-        #Excel.unsaved_known_workbooks.should == [[book.ole_workbook, book2.ole_workbook]]
         unsaved_known_wbs = Excel.unsaved_known_workbooks
-        unsaved_known_wbs.size.should == 1
-        unsaved_known_wbs.each do |ole_wb_list|
-          ole_wb_list.size.should == 2
-          ole_workbook1, ole_workbook2 = ole_wb_list
-          ole_workbook1.Fullname.tr('\\','/').should == @simple_file  
-          ole_workbook2.Fullname.tr('\\','/').should == @another_simple_file  
+        unsaved_known_wbs.size.should == 2
+        unsaved_known_wbs.each_with_index do |ole_wb, ind|
+          ole_wb.Fullname.tr('\\','/').should == @simple_file if ind == 0 
+          ole_wb.Fullname.tr('\\','/').should == @another_simple_file  if ind == 1
         end        
         book2.close(:if_unsaved => :forget)
         book.close(:if_unsaved => :forget)
@@ -1184,7 +1173,6 @@ module RobustExcelOle
             sheet = wb.sheet(1)
             sheet[1,1] = (sheet[1,1].Value == "foo") ? "bar" : "foo"
           end 
-        #Excel.unsaved_known_workbooks.should == [[book.ole_workbook], [book2.ole_workbook]]
           unsaved_known_wbs = Excel.unsaved_known_workbooks
           unsaved_known_wbs.size.should == 2
           unsaved_known_wbs.flatten.map{|ole_wb| ole_wb.Fullname.tr('\\','/') }.sort.should == open_books.map{|b| b.filename}.sort

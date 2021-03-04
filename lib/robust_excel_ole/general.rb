@@ -57,6 +57,10 @@ module FindAllIndicesRefinement
 
 end
 
+TRANSLATION_TABLE = {
+      'ä' => 'ae', 'ö' => 'oe', 'ü' => 'ue', 'Ä' => 'Ae', 'Ö' => 'Oe', 'Ü' => 'Ue',
+      'ß' => 'ss', '²' => '2', '³' => '3'
+    }
 
 # @private
 module StringRefinement
@@ -72,12 +76,7 @@ module StringRefinement
       rescue TypeError
         raise TypeError, "Only strings can be parts of paths (given: #{path_part.inspect} of class #{path_part.class})"
       end
-    end
-
-    TRANSLATION_TABLE = {
-      'ä' => 'ae', 'ö' => 'oe', 'ü' => 'ue', 'Ä' => 'Ae', 'Ö' => 'Oe', 'Ü' => 'Ue',
-      'ß' => 'ss', '²' => '2', '³' => '3'
-    }
+    end    
 
     def replace_umlauts
       TRANSLATION_TABLE.inject(encode('utf-8')) { |word,(umlaut, replacement)| word.gsub(umlaut, replacement) }

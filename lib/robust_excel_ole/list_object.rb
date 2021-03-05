@@ -85,7 +85,7 @@ module RobustExcelOle
       return @row_class.new(key_hash_or_number) if key_hash_or_number.respond_to?(:succ)
       opts = {limit: :first}.merge(opts)   
       key_hash = key_hash_or_number
-      matching_listrows = if @ole_table.ListRows.Count < 0 # < 150
+      matching_listrows = if @ole_table.ListRows.Count < 150
         listrows_via_traversing(key_hash, opts)
       else
         listrows_via_filter(key_hash, opts)
@@ -343,9 +343,9 @@ module RobustExcelOle
 
     # @private
     def inspect    
-      "#<ListObject:" + "#{@ole_table.Name}" + 
+      "#<ListObject:#{@ole_table.Name}" + 
       " #{@ole_table.ListRows.Count}x#{@ole_table.ListColumns.Count}" +
-      " #{@ole_table.Parent.Name}" + " #{@ole_table.Parent.Parent.Name}" + ">"
+      " #{@ole_table.Parent.Name} #{@ole_table.Parent.Parent.Name}>"
     end
 
     include MethodHelpers

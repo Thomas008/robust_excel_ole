@@ -91,9 +91,7 @@ module RobustExcelOle
 
       begin
         reused = options[:reuse] && stored && stored.alive? 
-        unless reused || connected
-          options = { displayalerts: :if_visible, visible: false, screenupdating: true }.merge(options)
-        end
+        options = { displayalerts: :if_visible, visible: false, screenupdating: true }.merge(options) unless reused || connected
         result.set_options(options)        
       end
       result
@@ -378,8 +376,7 @@ module RobustExcelOle
     end
 
     def self.excels_number
-      processes = WIN32OLE.connect('winmgmts:\\\\.').InstancesOf('win32_process')
-      processes.select { |p| p.Name == 'EXCEL.EXE' }.size
+      WIN32OLE.connect('winmgmts:\\\\.').InstancesOf('win32_process').select { |p| p.Name == 'EXCEL.EXE' }.size
     end
 
     def self.known_excels_number
@@ -457,7 +454,6 @@ module RobustExcelOle
       pid2excel = {}
       @@hwnd2excel.each do |hwnd,wr_excel|
         next unless wr_excel.weakref_alive?
-
         excel = wr_excel.__getobj__
         process_id = Win32API.new('user32', 'GetWindowThreadProcessId', %w[I P], 'I')
         pid_puffer = ' ' * 32
@@ -465,20 +461,8 @@ module RobustExcelOle
         pid = pid_puffer.unpack('L')[0]
         pid2excel[pid] = excel
       end
-      processes = WIN32OLE.connect('winmgmts:\\\\.').InstancesOf('win32_process')
-      processes.select { |p| Excel.new(pid2excel[p.ProcessId]) if p.Name == 'EXCEL.EXE' && pid2excel.include?(p.ProcessId) }
-      result = []
-      processes.each do |p|
-        next unless p.Name == 'EXCEL.EXE'
-
-        if pid2excel.include?(p.ProcessId)
-          excel = pid2excel[p.ProcessId]
-          result << excel
-        end
-        # how to connect to an (interactively opened) Excel instance and get a WIN32OLE object?
-        # after that, lift it to an Excel object
-      end
-      result
+      processes = WIN32OLE.connect('winmgmts:\\\\.').InstancesOf('win32_process')     
+      processes.map{ |p| pid2excel[p.ProcessId] if p.Name == 'EXCEL.EXE'}.compact
     end
 
     # @private
@@ -570,31 +554,30 @@ module RobustExcelOle
       return if calculation_mode.nil?
       @properties[:calculation] = calculation_mode
       calc_mode_changable = @ole_excel.Workbooks.Count > 0 && @ole_excel.Calculation.is_a?(Integer)
-      if calc_mode_changable
-        retain_saved_workbooks do
-          begin
-            best_wb_to_make_visible = @ole_excel.Workbooks.sort_by {|wb|
-              score =
-                (wb.Saved    ? 0 : 40) +  # an unsaved workbooks is most likely the main workbook
-                (wb.ReadOnly ? 0 : 20) +  # the main wb is usually writable
-                case wb.Name.split(".").last.downcase
-                  when "xlsm" then 10  # the main workbook is more likely to have macros
-                  when "xls"  then  8
-                  when "xlsx" then  4
-                  when "xlam" then -2  # libraries are not normally the main workbook
-                  else 0
-                end
-              score
-            }.last
-            best_wb_to_make_visible.Windows(1).Visible = true
-          rescue => e
-            trace "error setting calculation=#{calculation_mode} msg: " + e.message
-            trace e.backtrace
-            # continue on errors here, failing would usually disrupt too much
-          end
-          @ole_excel.CalculateBeforeSave = false
-          @ole_excel.Calculation = calculation_mode == :automatic ? XlCalculationAutomatic : XlCalculationManual
+      return unless calc_mode_changable
+      retain_saved_workbooks do
+        begin
+          best_wb_to_make_visible = @ole_excel.Workbooks.sort_by {|wb|
+            score =
+              (wb.Saved    ? 0 : 40) +  # an unsaved workbooks is most likely the main workbook
+              (wb.ReadOnly ? 0 : 20) +  # the main wb is usually writable
+              case wb.Name.split(".").last.downcase
+                when "xlsm" then 10  # the main workbook is more likely to have macros
+                when "xls"  then  8
+                when "xlsx" then  4
+                when "xlam" then -2  # libraries are not normally the main workbook
+                else 0
+              end
+            score
+          }.last
+          best_wb_to_make_visible.Windows(1).Visible = true
+        rescue => e
+          trace "error setting calculation=#{calculation_mode} msg: " + e.message
+          trace e.backtrace
+          # continue on errors here, failing would usually disrupt too much
         end
+        @ole_excel.CalculateBeforeSave = false
+        @ole_excel.Calculation = calculation_mode == :automatic ? XlCalculationAutomatic : XlCalculationManual
       end
     end
 
@@ -612,7 +595,6 @@ module RobustExcelOle
     # sets calculation mode in a block
     def with_calculation(calculation_mode)
       return unless calculation_mode
-
       old_calculation_mode = @ole_excel.Calculation
       begin
         self.calculation = calculation_mode
@@ -679,7 +661,7 @@ module RobustExcelOle
 
     # @private
     def to_s            
-      "#<Excel: " + hwnd.to_s + ("not alive" unless alive?).to_s + '>'
+      "#<Excel: #{hwnd}" + ("not alive" unless alive?).to_s + '>'
     end
 
     # @private

@@ -35,7 +35,7 @@ module RobustExcelOle
 
     # @private
     def inspect 
-      self.to_s[0..-2] + " #{@ole_range.Parent.Name}" + ">" 
+      to_s[0..-2] + " #{@ole_range.Parent.Name}>" 
     end
 
   private

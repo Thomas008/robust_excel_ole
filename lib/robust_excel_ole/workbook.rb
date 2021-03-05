@@ -824,12 +824,6 @@ module RobustExcelOle
       end
     end
 
-    def worksheets
-      result = []
-      each { |worksheet| result << worksheet }   
-      result
-    end
-
     def each_with_index(offset = 0)
       i = offset
       @ole_workbook.Worksheets.each do |sheet|

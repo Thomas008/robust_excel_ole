@@ -199,12 +199,8 @@ module General
     def self.get_all_drives
       network = WIN32OLE.new('WScript.Network')
       drives = network.enumnetworkdrives
-      ndrives = []
       count = drives.Count
-      (0..(count - 1)).step(2) do |i|
-        ndrives << NetworkDrive.new( drives.Item(i), drives.Item(i + 1).tr('\\','/'))
-      end
-      ndrives
+      (0..(count - 1)).step(2).map{ |i| NetworkDrive.new( drives.Item(i), drives.Item(i + 1).tr('\\','/')) }
     end
   end
 

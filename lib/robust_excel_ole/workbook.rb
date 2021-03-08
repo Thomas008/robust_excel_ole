@@ -697,60 +697,68 @@ module RobustExcelOle
       raise ObjectNotAlive, "workbook is not alive" unless alive?
       raise WorkbookReadOnly, "Not opened for writing (opened with :read_only option)" if @ole_workbook.ReadOnly
       raise(FileNotFound, "file #{General.absolute_path(file).inspect} is a directory") if File.directory?(file)
-      self.class.process_options(options)      
-      if File.exist?(file)
-        case options[:if_exists]
-        when :overwrite
-          if file == self.filename
-            save
-            return self
-          else
-            begin
-              File.delete(file)
-            rescue Errno::EACCES
-              raise WorkbookBeingUsed, "workbook is open and being used in an Excel instance"
-            end
-          end
-        when :alert, :excel
-          @excel.with_displayalerts true do
-            save_as_workbook(file, options)
-          end
-          return self
-        when :raise
-          raise FileAlreadyExists, "file already exists: #{File.basename(file).inspect}" +
-          "\nHint: Use option if_exists: :overwrite, if you want to overwrite the file" 
-        else
-          raise OptionInvalid, ":if_exists: invalid option: #{options[:if_exists].inspect}" +
-          "\nHint: Valid values are :raise, :overwrite, :alert, :excel"
-        end
+      self.class.process_options(options)
+      begin  
+        save_as_manage_if_exists(file, options)
+        save_as_manage_if_blocked(file, options)
+        save_as_workbook(file, options)
+      rescue AlreadyManaged
+        nil
       end
-      other_workbook = @excel.Workbooks.Item(File.basename(file)) rescue nil
-      if other_workbook && self.filename != other_workbook.Fullname.tr('\\','/')
-        case options[:if_obstructed]
-        when :raise
-          raise WorkbookBlocked, "blocked by another workbook: #{other_workbook.Fullname.tr('\\','/')}" +
-          "\nHint: Use the option :if_blocked with values :forget or :save to
-           close or save and close the blocking workbook"
-        when :forget
-          # nothing
-        when :save
-          other_workbook.Save
-        when :close_if_saved
-          unless other_workbook.Saved
-            raise WorkbookBlocked, "blocking workbook is unsaved: #{File.basename(file).inspect}" +
-            "\nHint: Use option if_blocked: :save to save the blocking workbooks"
-          end
-        else
-          raise OptionInvalid, "if_blocked: invalid option: #{options[:if_obstructed].inspect}" +
-          "\nHint: Valid values are :raise, :forget, :save, :close_if_saved"
-        end
-        other_workbook.Close
-      end
-      save_as_workbook(file, options)
       self
-    end    
+    end
 
   private
+
+    def save_as_manage_if_exists(file, options)
+      return unless File.exist?(file)
+      case options[:if_exists]
+      when :overwrite
+        if file == self.filename
+          save
+          raise AlreadyManaged, "already_managed"
+        else
+          begin
+            File.delete(file)
+          rescue Errno::EACCES
+            raise WorkbookBeingUsed, "workbook is open and being used in an Excel instance"
+          end
+        end
+      when :alert, :excel
+        @excel.with_displayalerts(true){ save_as_workbook(file, options) }
+        raise AlreadyManaged, "already_managed"
+      when :raise
+        raise FileAlreadyExists, "file already exists: #{File.basename(file).inspect}" +
+        "\nHint: Use option if_exists: :overwrite, if you want to overwrite the file" 
+      else
+        raise OptionInvalid, ":if_exists: invalid option: #{options[:if_exists].inspect}" +
+        "\nHint: Valid values are :raise, :overwrite, :alert, :excel"
+      end
+    end
+
+    def save_as_manage_if_blocked(file, options)
+      other_workbook = @excel.Workbooks.Item(File.basename(file)) rescue nil
+      return unless other_workbook && self.filename != other_workbook.Fullname.tr('\\','/')
+      case options[:if_obstructed]
+      when :raise
+        raise WorkbookBlocked, "blocked by another workbook: #{other_workbook.Fullname.tr('\\','/')}" +
+        "\nHint: Use the option :if_blocked with values :forget or :save to
+         close or save and close the blocking workbook"
+      when :forget
+        # nothing
+      when :save
+        other_workbook.Save
+      when :close_if_saved
+        unless other_workbook.Saved
+          raise WorkbookBlocked, "blocking workbook is unsaved: #{File.basename(file).inspect}" +
+          "\nHint: Use option if_blocked: :save to save the blocking workbooks"
+        end
+      else
+        raise OptionInvalid, "if_blocked: invalid option: #{options[:if_obstructed].inspect}" +
+        "\nHint: Valid values are :raise, :forget, :save, :close_if_saved"
+      end
+      other_workbook.Close
+    end
 
     def save_as_workbook(file, options)  
       dirname, basename = File.split(file)
@@ -769,6 +777,9 @@ module RobustExcelOle
       else
         raise UnexpectedREOError, "unknown WIN32OELERuntimeError:\n#{msg.message}"
       end
+    end
+
+    class AlreadyManaged < Exception
     end
 
     def store_myself

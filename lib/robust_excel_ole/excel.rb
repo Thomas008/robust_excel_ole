@@ -70,11 +70,11 @@ module RobustExcelOle
         options = win32ole_excel
         win32ole_excel = nil
       end
-
-      ole_xl = win32ole_excel unless win32ole_excel.nil?
       options = { reuse: true }.merge(options)
-      if options[:reuse] == true && ole_xl.nil?
-        ole_xl = current_ole_excel
+      ole_xl = if !win32ole_excel.nil? 
+        win32ole_excel
+      elsif options[:reuse] == true
+        current_ole_excel
       end
       connected = (not ole_xl.nil?) && win32ole_excel.nil?
       ole_xl ||= WIN32OLE.new('Excel.Application')
@@ -88,12 +88,9 @@ module RobustExcelOle
         WIN32OLE.const_load(ole_xl, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
         @@hwnd2excel[hwnd] = WeakRef.new(result)
       end
-
-      begin
-        reused = options[:reuse] && stored && stored.alive? 
-        options = { displayalerts: :if_visible, visible: false, screenupdating: true }.merge(options) unless reused || connected
-        result.set_options(options)        
-      end
+      reused = options[:reuse] && stored && stored.alive? 
+      options = { displayalerts: :if_visible, visible: false, screenupdating: true }.merge(options) unless reused || connected
+      result.set_options(options)        
       result
     end    
 
@@ -238,7 +235,6 @@ module RobustExcelOle
             finished_number += excel.close(if_unsaved: options[:if_unsaved])
           rescue
             first_error = $!
-            #trace "error when finishing #{$!}"
             error_number += 1
           end
         end
@@ -261,19 +257,13 @@ module RobustExcelOle
       old_error_number = error_number
       9.times do |_index|
         sleep 0.1
-        excel = begin
-                  new(WIN32OLE.connect('Excel.Application'))
-                rescue
-                  nil
-                end
+        excel = new(WIN32OLE.connect('Excel.Application')) rescue nil
         finishing_action.call(excel) if excel
         free_all_ole_objects unless (error_number > 0) && (options[:if_unsaved] == :raise)
         break unless excel
         break if error_number > old_error_number # + 3
       end
-
       raise first_error if ((options[:if_unsaved] == :raise) && first_error) || (first_error.class == OptionInvalid)
-
       [finished_number, error_number]
     end
 
@@ -289,16 +279,10 @@ module RobustExcelOle
     def close(options = { if_unsaved: :raise })
       finishing_living_excel = alive?
       if finishing_living_excel
-        hwnd = (begin
-                  @ole_excel.Hwnd
-                rescue
-                  nil
-                end)
+        hwnd = @ole_excel.Hwnd rescue nil
         close_workbooks(if_unsaved: options[:if_unsaved])
         @ole_excel.Quit
-        if false && defined?(weak_wkbks) && weak_wkbks.weakref_alive?
-          weak_wkbks.ole_free
-        end
+        weak_wkbks.ole_free if false && defined?(weak_wkbks) && weak_wkbks.weakref_alive?
         weak_xl = WeakRef.new(@ole_excel)
       else
         weak_xl = nil
@@ -312,21 +296,10 @@ module RobustExcelOle
           pid_puffer = ' ' * 32
           process_id.call(hwnd, pid_puffer)
           pid = pid_puffer.unpack('L')[0]
-          begin
-            Process.kill('KILL', pid)
-          rescue
-            # trace "kill_error: #{$!}"
-          end
+          Process.kill('KILL', pid) rescue nil
         end
         @@hwnd2excel.delete(hwnd)
-        if weak_xl.weakref_alive?
-          # if WIN32OLE.ole_reference_count(weak_xlapp) > 0
-          begin
-            weak_xl.ole_free
-          rescue
-            # trace "weakref_probl_olefree"
-          end
-        end
+        weak_xl.ole_free if weak_xl.weakref_alive?
       end
       weak_xl ? 1 : 0
     end
@@ -419,7 +392,8 @@ module RobustExcelOle
       result
     end
 
-    # returns an Excel instance
+
+    # returns an Excel instance opened with RobustExcelOle
     def self.known_excel_instance
       @@hwnd2excel.each do |hwnd, wr_excel|
         if wr_excel.weakref_alive?
@@ -661,7 +635,7 @@ module RobustExcelOle
 
     # @private
     def to_s            
-      "#<Excel: #{hwnd}" + ("not alive" unless alive?).to_s + '>'
+      "#<Excel: #{hwnd}#{ ("not alive" unless alive?)}>"
     end
 
     # @private

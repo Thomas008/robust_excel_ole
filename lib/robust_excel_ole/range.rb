@@ -201,7 +201,7 @@ module RobustExcelOle
 
     # @private
     def to_s
-      "#<REO::Range: " + "#{@ole_range.Address(External: true).gsub(/\$/,'')} " + ">"
+      "#<REO::Range: #{@ole_range.Address(External: true).gsub(/\$/,'')} >"
     end
 
     # @private

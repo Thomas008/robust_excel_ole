@@ -32,8 +32,8 @@ module RobustExcelOle
         end
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException 
         sheet = if self.is_a?(Worksheet) then self
-                elsif self.is_a?(Workbook) then self.sheet(1)
-                elsif self.is_a?(Excel) then self.workbook.sheet(1)
+        elsif self.is_a?(Workbook) then self.sheet(1)
+        elsif self.is_a?(Excel) then self.workbook.sheet(1)
         end
         begin
           # does it result in a range?

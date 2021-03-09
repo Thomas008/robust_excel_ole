@@ -1056,7 +1056,7 @@ module RobustExcelOle
 
     # @private
     def inspect    
-      "#<Workbook: " + ("not alive " unless alive?).to_s + (File.basename(self.filename) if alive?).to_s + " #{@excel}>"
+      "#<Workbook: #{("not alive " unless alive?)} #{(File.basename(self.filename) if alive?)} #{@excel}>"
     end
 
     using ParentRefinement

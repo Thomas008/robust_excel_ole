@@ -79,8 +79,6 @@ module RobustExcelOle
     # @return [Variant] a listrow, if limit == :first
     #                   an array of listrows, with maximal number=limit, if list rows were found and limit is not :first
     #                   nil, if no list object was found
-    # note: when applying the advanced filter (for long tables), then
-    #       if there are more than one match, then only the last match is being returned
     def [] (key_hash_or_number, opts = { })
       return @row_class.new(key_hash_or_number) if key_hash_or_number.respond_to?(:succ)
       opts = {limit: :first}.merge(opts)   
@@ -93,7 +91,7 @@ module RobustExcelOle
       opts[:limit] == :first ? matching_listrows.first : matching_listrows
     end
 
-    private
+  private
 
     def listrows_via_traversing(key_hash, opts)
       encode_utf8 = ->(val) {val.respond_to?(:gsub) ? val.encode('utf-8') : val}

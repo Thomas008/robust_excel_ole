@@ -560,8 +560,7 @@ describe Bookstore do
     end
 
     it "should show books" do
-      expect{
-        @bookstore.books}.to_not raise_error
+      @bookstore.books.should == [@book, @book2]
     end
 
   end

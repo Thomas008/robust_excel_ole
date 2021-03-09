@@ -35,13 +35,11 @@ module RobustExcelOle
       filename_key = General.canonize(filename).downcase
       weakref_books = @filename2books[filename_key]
       return nil if weakref_books.nil? || weakref_books.empty?
-
       result = open_book = closed_book = nil
       weakref_books = weakref_books.map { |wr_book| wr_book if wr_book.weakref_alive? }.compact
       @filename2books[filename_key] = weakref_books
       weakref_books.each do |wr_book|
         if !wr_book.weakref_alive?
-          # trace "warn: this should never happen"
           begin
             @filename2books[filename_key].delete(wr_book)
           rescue
@@ -50,7 +48,6 @@ module RobustExcelOle
         else
           book = wr_book.__getobj__
           next if book.excel == try_hidden_excel
-
           if options[:prefer_excel] && book.excel == options[:prefer_excel]
             result = book
             break
@@ -64,7 +61,6 @@ module RobustExcelOle
         end
       end
       result ||= (open_book || closed_book)
-      result
     end
 
     # stores a workbook
@@ -90,17 +86,7 @@ module RobustExcelOle
 
     # returns all stored books
     def books
-      result = []
-      if @filename2books
-        @filename2books.each do |_filename,books|
-          next if books.empty?
-
-          books.each do |wr_book|
-            result << wr_book.__getobj__ if wr_book.weakref_alive?
-          end
-        end
-      end
-      result
+      @filename2books.map{ |_fn,books| books.map{ |wr_bk| wr_bk.__getobj__ if wr_bk.weakref_alive?}.compact}.flatten
     end
 
   private

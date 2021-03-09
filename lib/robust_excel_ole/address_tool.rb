@@ -16,7 +16,6 @@ module RobustExcelOle
     #   integer_ranges-fromat: e.g. [3,1], [3,"A"], [3..5,1..2], [3..5, "A".."B"], 
     #                               [3..4, nil], [nil, 2..4], [2,nil], [nil,4]
     #   a1-format: e.g. "A3", "A3:B5", "A:B", "3:5", "A", "3"
-
     def as_r1c1(address)
       transform_address(address,:r1c1)
     end

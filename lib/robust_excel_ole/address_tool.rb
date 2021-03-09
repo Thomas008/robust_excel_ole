@@ -33,6 +33,7 @@ module RobustExcelOle
 
   private
 
+=begin
     def transform_address(address, format)
       address = address.is_a?(Array) ? address : [address]
       raise AddressInvalid, "address #{address.inspect} has more than two components" if address.size > 2
@@ -78,7 +79,64 @@ module RobustExcelOle
         raise NotImplementedREOError, "not implemented"
       end
     end  
+=end
 
+    def transform_address(address, format)
+      address = address.is_a?(Array) ? address : [address]
+      raise AddressInvalid, "address #{address.inspect} has more than two components" if address.size > 2
+      rows, columns = begin
+        rows_and_columns(address, format)
+      rescue AddressInvalid
+        raise
+      rescue AddressAlreadyInRightFormat
+        return address[0].gsub('[','(').gsub(']',')') 
+      end
+      if format == :int_range
+        [rows,columns]
+      elsif format == :r1c1
+        r1c1_string(@row_letter,rows,:min) + r1c1_string(@col_letter,columns,:min) + ":" + 
+        r1c1_string(@row_letter,rows,:max) + r1c1_string(@col_letter,columns,:max)
+      else
+        raise NotImplementedREOError, "not implemented"
+      end
+    end
+
+    def rows_and_columns(address, format)
+      if address.size != 1
+        address_comp1, address_comp2 = address      
+      else
+        comp1, comp2 = address[0].split(':')
+        a1_expr = /^(([A-Z]+[0-9]+)|([A-Z]+$)|([0-9]+))$/
+        is_a1 = comp1 =~ a1_expr && (comp2.nil? || comp2 =~ a1_expr)
+        r1c1_expr = /^(([A-Z]\[?-?[0-9]+\]?[A-Z]\[?-?[0-9]+\]?)|([A-Z]\[?-?[0-9]+\]?)|([A-Z]\[?-?[0-9]+\]?))$/
+        is_r1c1 = comp1 =~ r1c1_expr && (comp2.nil? || comp2 =~ r1c1_expr) && (not is_a1) 
+        raise AddressInvalid, "address #{address.inspect} not in A1- or r1c1-format" unless (is_a1 || is_r1c1)
+        raise AddressAlreadyInRightFormat if (is_a1 && format==:a1) || (is_r1c1 && format==:r1c1)   
+        given_format = (is_a1) ? :a1 : :r1c1
+        row_comp1, col_comp1 = analyze(comp1,given_format)
+        row_comp2, col_comp2 = analyze(comp2,given_format) unless comp2.nil?
+        address_comp1 = comp2 && (not row_comp1.nil?) ? (row_comp1 .. row_comp2) : row_comp1
+        address_comp2 = comp2 && (not col_comp1.nil?) ? (col_comp1 .. col_comp2) : col_comp1          
+      end
+      address_comp1 = address_comp1..address_comp1 if (address_comp1.is_a?(Integer) || address_comp1.is_a?(String) || address_comp1.is_a?(Array))
+      address_comp2 = address_comp2..address_comp2 if (address_comp2.is_a?(Integer) || address_comp2.is_a?(String) || address_comp2.is_a?(Array))  
+      rows = address_comp1.begin..address_comp1.end unless address_comp1.nil? || address_comp1.begin == 0         
+      columns = unless address_comp2.nil?
+        if address_comp2.begin.is_a?(String) #address_comp2.begin.to_i == 0
+          col_range = str2num(address_comp2.begin)..str2num(address_comp2.end)
+          col_range==(0..0) ? nil : col_range
+        else
+          address_comp2.begin..address_comp2.end
+        end          
+      end
+      [rows, columns]
+    rescue
+      raise AddressInvalid, "address (#{address.inspect}) format not correct"
+    end
+
+    class AddressAlreadyInRightFormat < Exception
+    end
+    
     def r1c1_string(letter,int_range,type)
       return "" if int_range.nil? || int_range.begin.nil?
       parameter = type == :min ? int_range.begin : int_range.end
@@ -106,6 +164,7 @@ module RobustExcelOle
     end
 
   end
+
 
   # @private
   class AddressInvalid < REOError                  

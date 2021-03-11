@@ -699,8 +699,8 @@ module RobustExcelOle
       raise(FileNotFound, "file #{General.absolute_path(file).inspect} is a directory") if File.directory?(file)
       self.class.process_options(options)
       begin  
-        save_as_manage_if_exists(file, options)
-        save_as_manage_if_blocked(file, options)
+        saveas_manage_if_exists(file, options)
+        saveas_manage_if_blocked(file, options)
         save_as_workbook(file, options)
       rescue AlreadyManaged
         nil
@@ -710,7 +710,7 @@ module RobustExcelOle
 
   private
 
-    def save_as_manage_if_exists(file, options)
+    def saveas_manage_if_exists(file, options)
       return unless File.exist?(file)
       case options[:if_exists]
       when :overwrite
@@ -736,7 +736,7 @@ module RobustExcelOle
       end
     end
 
-    def save_as_manage_if_blocked(file, options)
+    def saveas_manage_if_blocked(file, options)
       other_workbook = @excel.Workbooks.Item(File.basename(file)) rescue nil
       return unless other_workbook && self.filename != other_workbook.Fullname.tr('\\','/')
       case options[:if_obstructed]

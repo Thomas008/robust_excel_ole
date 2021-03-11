@@ -1,14 +1,18 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [1.32] 2021-14-02
+## [1.32] 2021-15-03
 
 ### Added
   - ListObject#[] with options, position
   - ListRow#to_h, to_a, values=, keys_values
 
 ### Changed
-  - RangeOwners#rename_range renamed to RangeOwners#rename_name
+  - RangeOwners#rename_range renamed to rename_name
+  - Excel#excels_number renamed to instance_count
+  - Excel#known_excels_number renamed to known_instance_count
+  - Excel#known_excel_instance renamed to known_instance
+  - Excel#known_excel_instances renamed to known_running_instances
 
 ## [1.31] 2021-14-01
 

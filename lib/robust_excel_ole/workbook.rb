@@ -716,7 +716,7 @@ module RobustExcelOle
       when :overwrite
         if file == self.filename
           save
-          raise AlreadyManaged, "already_managed"
+          raise AlreadyManaged
         else
           begin
             File.delete(file)
@@ -726,7 +726,7 @@ module RobustExcelOle
         end
       when :alert, :excel
         @excel.with_displayalerts(true){ save_as_workbook(file, options) }
-        raise AlreadyManaged, "already_managed"
+        raise AlreadyManaged
       when :raise
         raise FileAlreadyExists, "file already exists: #{File.basename(file).inspect}" +
         "\nHint: Use option if_exists: :overwrite, if you want to overwrite the file" 

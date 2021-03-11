@@ -384,10 +384,12 @@ module RobustExcelOle
       processes.map{ |p| pid2excel[p.ProcessId] if p.Name == 'EXCEL.EXE'}.compact
     end
 
-    alias excels_number instance_count                  # :deprecated :#
-    alias known_excels_number known_instance_count      # :deprecated :#
-    alias known_excel_instance known_instance           # :deprecated :#
-    alias known_excel_instances known_running_instances # :deprecated :#
+    class << self
+      alias excels_number instance_count                  # :deprecated :#
+      alias known_excels_number known_instance_count      # :deprecated :#
+      alias known_excel_instance known_instance           # :deprecated :#
+      alias known_excel_instances known_running_instances # :deprecated :#
+    end
 
   private
 

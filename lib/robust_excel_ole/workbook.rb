@@ -281,7 +281,7 @@ module RobustExcelOle
 
     # connects to an unknown workbook
     def connect(filename, options)   
-      workbooks_number = excel_class.excels_number==0 ? 0 : excel_class.current.Workbooks.Count
+      workbooks_number = excel_class.instance_count==0 ? 0 : excel_class.current.Workbooks.Count
       @ole_workbook = begin
         WIN32OLE.connect(General.absolute_path(filename))
       rescue

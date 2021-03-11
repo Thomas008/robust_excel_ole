@@ -396,7 +396,7 @@ module RobustExcelOle
     # if this Excel instance is being closed, then Excel creates a new Excel instance
     def self.current_ole_excel   
       if ::CONNECT_EXCEL_JRUBY_BUG
-        result = known_excel_instance
+        result = known_instance
         if result.nil?
           if excels_number > 0
             dummy_ole_workbook = WIN32OLE.connect(General.absolute_path('___dummy_workbook.xls')) rescue nil

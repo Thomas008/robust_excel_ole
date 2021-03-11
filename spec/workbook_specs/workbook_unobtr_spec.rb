@@ -588,7 +588,7 @@ describe Workbook do
         it "should connect" do
           Workbook.unobtrusively(@simple_file1) do |book|
             book.excel.Workbooks.Count.should == 1
-            Excel.excels_number.should == 1
+            Excel.instance_count.should == 1
             book.FullName.should == General.absolute_path(@simple_file1)
             book.saved.should be true
             book.visible.should be false
@@ -998,7 +998,7 @@ describe Workbook do
 
       it "should open one excel instance and workbook should be closed" do
         Workbook.unobtrusively(@simple_file1){ |book| nil }
-        Excel.excels_number.should == 1
+        Excel.instance_count.should == 1
       end
 
     end

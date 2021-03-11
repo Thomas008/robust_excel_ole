@@ -154,7 +154,7 @@ module RobustExcelOle
         excel1.should_not be_alive
         excel2.should be_alive
         excel2.ole_excel.Hwnd.should == @ole_excel1.Hwnd
-        Excel.excels_number.should == 2
+        Excel.instance_count.should == 2
       end
 
       it "should make the Excel instance not alive if the Excel that was connected with was closed" do
@@ -219,7 +219,7 @@ module RobustExcelOle
         excel1.should be_alive
         excel1.ole_excel.Hwnd.should_not == @ole_excel1.Hwnd
         excel1.ole_excel.Hwnd.should_not == @ole_excel2.Hwnd
-        Excel.excels_number.should == 3
+        Excel.instance_count.should == 3
       end
 
     end
@@ -378,7 +378,7 @@ module RobustExcelOle
         excel2 = Excel.current
         excel1.should_not be_alive
         excel2.should be_alive
-        Excel.excels_number.should == 1
+        Excel.instance_count.should == 1
       end
 
       it "should make the Excel instance not alive if the Excel that was connected with was closed" do
@@ -389,7 +389,7 @@ module RobustExcelOle
         excel1.should_not be_alive
         excel2.should_not be_alive
         sleep 0.2
-        Excel.excels_number.should == 0
+        Excel.instance_count.should == 0
       end
 
       it "should reuse the first opened Excel instance if not the first opened Excel instance was closed" do
@@ -417,11 +417,11 @@ module RobustExcelOle
       it "should return right number of excel instances" do
         Excel.kill_all
         sleep 0.2
-        n1 = Excel.excels_number
+        n1 = Excel.instance_count
         e1 = Excel.create
-        Excel.excels_number.should == n1 + 1
+        Excel.instance_count.should == n1 + 1
         e2 = Excel.create
-        Excel.excels_number.should == n1 + 2
+        Excel.instance_count.should == n1 + 2
       end
     end
 
@@ -1874,29 +1874,29 @@ module RobustExcelOle
 
     end
 
-    describe "known_excel_instances" do
+    describe "known_running_instances" do
 
       it "should return empty list" do
-        Excel.known_excel_instances.should be_empty
+        Excel.known_running_instances.should be_empty
       end
 
       it "should return list of one Excel process" do
         excel = Excel.new
-        Excel.known_excel_instances.should == [excel]
+        Excel.known_running_instances.should == [excel]
         excel.close
       end
 
       it "should return list of two Excel processes" do
         excel1 = Excel.create
         excel2 = Excel.create
-        Excel.known_excel_instances.should == [excel1,excel2]
+        Excel.known_running_instances.should == [excel1,excel2]
       end
 
       it "should return list of two Excel processes" do
         excel1 = Excel.new
         excel2 = Excel.current
         excel3 = Excel.create
-        Excel.known_excel_instances.should == [excel1,excel3]
+        Excel.known_running_instances.should == [excel1,excel3]
       end
 
     end

@@ -138,7 +138,7 @@ describe Workbook do
           book.should be_alive
           book.should be_a Workbook
           book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
-          Excel.excels_number.should == 1
+          Excel.instance_count.should == 1
         end
       end
     end
@@ -234,7 +234,7 @@ describe Workbook do
           book.should be_alive
           book.should be_a Workbook
           book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
-          Excel.excels_number.should == 1
+          Excel.instance_count.should == 1
         end
       end
     end
@@ -451,7 +451,7 @@ describe Workbook do
           book.filename.should == @simple_file_network_path1
           book.Fullname.should == @ole_wb.Fullname
           book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
-          Excel.excels_number.should == 1
+          Excel.instance_count.should == 1
           book.excel.Workbooks.Count.should == 1
         end
       end
@@ -467,7 +467,7 @@ describe Workbook do
           book.filename.should == @simple_file_hostname_share_path1.downcase
           book.Fullname.should == @ole_wb.Fullname
           book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
-          Excel.excels_number.should == 1
+          Excel.instance_count.should == 1
           book.excel.Workbooks.Count.should == 1
         end
       end
@@ -523,7 +523,7 @@ describe Workbook do
           book.filename.should == @simple_file_network_path1
           book.Fullname.should == @ole_wb.Fullname
           book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
-          Excel.excels_number.should == 1
+          Excel.instance_count.should == 1
           book.excel.Workbooks.Count.should == 1
         end
       end
@@ -539,7 +539,7 @@ describe Workbook do
           book.filename.should == @simple_file_hostname_share_path1.downcase
           book.Fullname.should == @ole_wb.Fullname
           book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
-          Excel.excels_number.should == 1
+          Excel.instance_count.should == 1
           book.excel.Workbooks.Count.should == 1
         end
       end      
@@ -641,7 +641,7 @@ describe Workbook do
           book.should be_alive
           book.should be_a Workbook
           book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
-          Excel.excels_number.should == 1
+          Excel.instance_count.should == 1
           book.excel.Workbooks.Count.should == 1
         end
       end
@@ -660,7 +660,7 @@ describe Workbook do
         book1 = Workbook.open(@simple_file1)
         book1.should be_alive
         book1.should be_a Workbook
-        Excel.excels_number.should == 1
+        Excel.instance_count.should == 1
         book1.ReadOnly.should be false
         book1.excel.Visible.should be false
         book1.CheckCompatibility.should be true
@@ -679,7 +679,7 @@ describe Workbook do
         book1.should be_alive
         book1.should be_a Workbook
         book1.excel.should == excel1
-        Excel.excels_number.should == 1        
+        Excel.instance_count.should == 1        
         book1.excel.Visible.should be false
       end
 
@@ -689,7 +689,7 @@ describe Workbook do
         book1.should be_alive
         book1.should be_a Workbook
         book1.excel.should == excel1
-        Excel.excels_number.should == 1        
+        Excel.instance_count.should == 1        
         book1.excel.Visible.should be true
       end
 
@@ -699,7 +699,7 @@ describe Workbook do
         book1.should be_alive
         book1.should be_a Workbook
         book1.excel.should_not == excel1
-        Excel.excels_number.should == 2        
+        Excel.instance_count.should == 2        
       end
 
       it "should set the options in a given known Excel" do
@@ -714,7 +714,7 @@ describe Workbook do
         book1 = Workbook.open(@simple_file1)
         book1.should be_alive
         book1.should be_a Workbook
-        Excel.excels_number.should == 1
+        Excel.instance_count.should == 1
         book1.excel.ole_excel.Hwnd.should == ole_excel1.Hwnd
       end
 
@@ -735,7 +735,7 @@ describe Workbook do
           book.should be_alive
           book.should be_a Workbook
           book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
-          Excel.excels_number.should == 1
+          Excel.instance_count.should == 1
         end
       end
 
@@ -815,7 +815,7 @@ describe Workbook do
         Workbook.open(@simple_file1) do |book|
           book.filename.should == @simple_file1
           book.excel.ole_excel.Hwnd.should == @ole_wb1.Application.Hwnd
-          Excel.excels_number.should == 2
+          Excel.instance_count.should == 2
         end
       end
 
@@ -823,7 +823,7 @@ describe Workbook do
         Workbook.open(@different_file1) do |book|
           book.filename.should == @different_file1
           book.excel.ole_excel.Hwnd.should == @ole_wb2.Application.Hwnd
-          Excel.excels_number.should == 2
+          Excel.instance_count.should == 2
         end
       end
 

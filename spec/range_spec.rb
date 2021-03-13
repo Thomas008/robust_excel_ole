@@ -53,6 +53,24 @@ describe RobustExcelOle::Range do
       end
     end
 
+    it "should access each cell" do
+      cells = []
+      @range2.each do |cell|
+        cells << cell
+      end
+      cells.should == [@range2[0], @range2[1], @range2[2], @range2[3], @range2[4], @range2[5]]
+    end
+
+    it "should map" do
+      @range2.map{|c| c}.should == [@range2[0], @range2[1], @range2[2], @range2[3], @range2[4], @range2[5]]
+    end
+
+    it "should concatenate" do
+      values = []
+      @range2.each.with_index{|c,i| values << [c.v, i]}
+      values.should == [["simple", 0], ["file", 1], ["sheet2", 2], [nil, 3], [nil, 4], [nil, 5]]
+    end
+
     it "should work with [] doing cashing synchonized, from #[] to #each" do
       i = 0
       @range2.each do |cell|
@@ -162,7 +180,7 @@ describe RobustExcelOle::Range do
         @range[2].v.should eq 'sheet2'
       end
     end
-  end
+  end  
 
   describe "#value" do
 

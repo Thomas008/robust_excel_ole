@@ -832,8 +832,12 @@ module RobustExcelOle
     end
 
     def each
-      @ole_workbook.Worksheets.each do |sheet|
-        yield worksheet_class.new(sheet)
+      if block_given?
+        @ole_workbook.Worksheets.each do |sheet|
+          yield worksheet_class.new(sheet)
+        end
+      else
+        to_enum(:each)
       end
     end
 

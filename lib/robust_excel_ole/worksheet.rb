@@ -203,10 +203,14 @@ module RobustExcelOle
 
     # enumerator for accessing cells
     def each
-      each_row do |row_range|
-        row_range.each do |cell|
-          yield cell
+      if block_given?
+        each_row do |row_range|
+          row_range.each do |cell|
+            yield cell
+          end
         end
+      else
+        to_enum(:each)
       end
     end
 

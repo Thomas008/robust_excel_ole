@@ -11,6 +11,8 @@ module RobustExcelOle
 
   class Workbook < RangeOwners
 
+    include Enumerable
+
     attr_reader :ole_workbook
     attr_reader :excel
     attr_reader :stored_filename

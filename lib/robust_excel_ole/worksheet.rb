@@ -11,6 +11,8 @@ module RobustExcelOle
   # worksheet: see https://github.com/Thomas008/robust_excel_ole/blob/master/lib/robust_excel_ole/worksheet.rb
   class Worksheet < RangeOwners
 
+    include Enumerable
+
     using ToReoRefinement
 
     attr_reader :ole_worksheet

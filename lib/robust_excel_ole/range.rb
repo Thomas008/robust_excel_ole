@@ -37,7 +37,7 @@ module RobustExcelOle
           yield cell(index){ole_cell}
         end
       else
-        to_enum(:each)
+        to_enum(:each).lazy
       end
     end
 

@@ -210,7 +210,7 @@ module RobustExcelOle
           end
         end
       else
-        to_enum(:each)
+        to_enum(:each).lazy
       end
     end
 

@@ -837,7 +837,7 @@ module RobustExcelOle
           yield worksheet_class.new(sheet)
         end
       else
-        to_enum(:each)
+        to_enum(:each).lazy
       end
     end
 

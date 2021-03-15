@@ -9,8 +9,6 @@ module RobustExcelOle
 
   class Range < VbaObjects
 
-    include Enumerable
-    
     attr_reader :ole_range
     attr_reader :worksheet
 
@@ -33,7 +31,7 @@ module RobustExcelOle
 
     def each
       if block_given?
-        @ole_range.each_with_index do |ole_cell, index|
+        @ole_range.lazy.each_with_index do |ole_cell, index|
           yield cell(index){ole_cell}
         end
       else

@@ -27,7 +27,7 @@ begin
   sheet_enum = proc do |enum_method|     # put each cell, each row or each column 
     i = 0
     sheet.send(enum_method) do |item|
-      i = i + 1
+      i += 1
       item_name = 
         case enum_method
         when :each        then "cell"

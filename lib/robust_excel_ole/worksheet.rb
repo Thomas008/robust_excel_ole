@@ -11,6 +11,8 @@ module RobustExcelOle
   # worksheet: see https://github.com/Thomas008/robust_excel_ole/blob/master/lib/robust_excel_ole/worksheet.rb
   class Worksheet < RangeOwners
 
+    include Enumerable
+
     using ToReoRefinement
 
     attr_reader :ole_worksheet
@@ -214,8 +216,8 @@ module RobustExcelOle
 
     def each_with_index(offset = 0)
       i = offset
-      each_row.lazy do |row_range|
-        row_range.lazy.each do |cell|
+      each_row do |row_range|
+        row_range.each do |cell|
           yield cell, i
           i += 1
         end
@@ -225,7 +227,7 @@ module RobustExcelOle
     # enumerator for accessing rows
     def each_row(offset = 0)
       offset += 1
-      1.upto(@end_row).lazy do |row|
+      1.upto(@end_row) do |row|
         next if row < offset
         yield RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(row, 1), @ole_worksheet.Cells(row, @end_column)), self)
       end

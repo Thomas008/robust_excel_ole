@@ -272,7 +272,7 @@ module RobustExcelOle
         if row.Range.Value == nil_array
           row.Delete
         else
-          i = i+1
+          i += 1
         end
       end
     end
@@ -287,7 +287,7 @@ module RobustExcelOle
         if column.Range.Value[1..-1] == nil_array
           column.Delete
         else
-          i = i+1
+          i += 1
         end
       end
     end

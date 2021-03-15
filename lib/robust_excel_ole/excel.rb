@@ -356,19 +356,20 @@ module RobustExcelOle
       @@hwnd2excel.size
     end
 
-    # returns an Excel instance opened with RobustExcelOle
-    def self.known_instance
-      @@hwnd2excel.each do |hwnd, wr_excel|
-        if wr_excel.weakref_alive?
-          excel = wr_excel.__getobj__
-          return excel if excel.alive?
-        end
-      end
-      nil
-      #self.known_instances.first
+    # returns a running Excel instance opened with RobustExcelOle
+    def self.known_running_instance
+      #@@hwnd2excel.each do |hwnd, wr_excel|
+      #  if wr_excel.weakref_alive?
+      #    excel = wr_excel.__getobj__
+      #    return excel if excel.alive?
+      #  end
+      #end
+      #nil
+      self.known_running_instances.first
     end
 
     # returns all Excel objects for all running Excel instances opened with RobustExcelOle
+=begin    
     def self.known_running_instances
       pid2excel = {}
       @@hwnd2excel.each do |hwnd,wr_excel|
@@ -383,11 +384,30 @@ module RobustExcelOle
       processes = WIN32OLE.connect('winmgmts:\\\\.').InstancesOf('win32_process')     
       processes.map{ |p| pid2excel[p.ProcessId] if p.Name == 'EXCEL.EXE'}.compact
     end
+=end    
+
+    # @return [Enumerator] known running Excel instances
+    def self.known_running_instances
+      pid2excel = {}
+      @@hwnd2excel.each do |hwnd,wr_excel|
+        next unless wr_excel.weakref_alive?
+        excel = wr_excel.__getobj__
+        process_id = Win32API.new('user32', 'GetWindowThreadProcessId', %w[I P], 'I')
+        pid_puffer = ' ' * 32
+        process_id.call(hwnd, pid_puffer)
+        pid = pid_puffer.unpack('L')[0]
+        pid2excel[pid] = excel
+      end
+      processes = WIN32OLE.connect('winmgmts:\\\\.').InstancesOf('win32_process')     
+      processes.map{ |p| pid2excel[p.ProcessId] if p.Name == 'EXCEL.EXE'}.compact.lazy.each
+      #Enumerator::Lazy.new(known_running_instances) do |yielder, instance|
+      #end
+    end
 
     class << self
       alias excels_number instance_count                  # :deprecated :#
       alias known_excels_number known_instance_count      # :deprecated :#
-      alias known_excel_instance known_instance           # :deprecated :#
+      alias known_excel_instance known_running_instance   # :deprecated :#
       alias known_excel_instances known_running_instances # :deprecated :#
     end
 
@@ -398,7 +418,7 @@ module RobustExcelOle
     # if this Excel instance is being closed, then Excel creates a new Excel instance
     def self.current_ole_excel   
       if ::CONNECT_EXCEL_JRUBY_BUG
-        result = known_instance
+        result = known_running_instance
         if result.nil?
           if excels_number > 0
             dummy_ole_workbook = WIN32OLE.connect(General.absolute_path('___dummy_workbook.xls')) rescue nil

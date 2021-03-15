@@ -1874,29 +1874,46 @@ module RobustExcelOle
 
     end
 
+    describe "known_running_instance" do
+
+      before do
+        @excel1 = Excel.create
+        @excel2 = Excel.create
+      end
+
+      it "should yield an Excel instance" do
+        Excel.known_running_instance.should == @excel1
+      end
+
+    end
+
     describe "known_running_instances" do
 
       it "should return empty list" do
-        Excel.known_running_instances.should be_empty
+        Excel.known_running_instances.size.should == 0
       end
 
       it "should return list of one Excel process" do
         excel = Excel.new
-        Excel.known_running_instances.should == [excel]
-        excel.close
+        excel_instances = Excel.known_running_instances
+        excel_instances.size.should == 1
+        excel_instances.first.should == excel
+        excel_instances.to_a.should == [excel]
+        res = []
+        excel_instances.each.with_index{|e,i| res << [e,i]}
+        res.should == [[excel,0]]
       end
 
       it "should return list of two Excel processes" do
         excel1 = Excel.create
         excel2 = Excel.create
-        Excel.known_running_instances.should == [excel1,excel2]
-      end
-
-      it "should return list of two Excel processes" do
-        excel1 = Excel.new
-        excel2 = Excel.current
-        excel3 = Excel.create
-        Excel.known_running_instances.should == [excel1,excel3]
+        excel_instances = Excel.known_running_instances
+        excel_instances.size.should == 2
+        excel_instances.first.should == excel1
+        excel_instances.to_a.should == [excel1, excel2]
+        res = []
+        excel_instances.each.with_index{|e,i| res << [e,i]}
+        res.should == [[excel1,0],[excel2,1]]
       end
 
     end

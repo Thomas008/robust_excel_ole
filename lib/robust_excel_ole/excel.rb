@@ -357,34 +357,11 @@ module RobustExcelOle
     end
 
     # returns a running Excel instance opened with RobustExcelOle
-    def self.known_running_instance
-      #@@hwnd2excel.each do |hwnd, wr_excel|
-      #  if wr_excel.weakref_alive?
-      #    excel = wr_excel.__getobj__
-      #    return excel if excel.alive?
-      #  end
-      #end
-      #nil
+    def self.known_running_instance     
       self.known_running_instances.first
     end
 
-    # returns all Excel objects for all running Excel instances opened with RobustExcelOle
-=begin    
-    def self.known_running_instances
-      pid2excel = {}
-      @@hwnd2excel.each do |hwnd,wr_excel|
-        next unless wr_excel.weakref_alive?
-        excel = wr_excel.__getobj__
-        process_id = Win32API.new('user32', 'GetWindowThreadProcessId', %w[I P], 'I')
-        pid_puffer = ' ' * 32
-        process_id.call(hwnd, pid_puffer)
-        pid = pid_puffer.unpack('L')[0]
-        pid2excel[pid] = excel
-      end
-      processes = WIN32OLE.connect('winmgmts:\\\\.').InstancesOf('win32_process')     
-      processes.map{ |p| pid2excel[p.ProcessId] if p.Name == 'EXCEL.EXE'}.compact
-    end
-=end    
+ 
 
     # @return [Enumerator] known running Excel instances
     def self.known_running_instances
@@ -400,8 +377,6 @@ module RobustExcelOle
       end
       processes = WIN32OLE.connect('winmgmts:\\\\.').InstancesOf('win32_process')     
       processes.map{ |p| pid2excel[p.ProcessId] if p.Name == 'EXCEL.EXE'}.compact.lazy.each
-      #Enumerator::Lazy.new(known_running_instances) do |yielder, instance|
-      #end
     end
 
     class << self

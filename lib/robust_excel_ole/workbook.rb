@@ -11,8 +11,6 @@ module RobustExcelOle
 
   class Workbook < RangeOwners
 
-    include Enumerable
-
     attr_reader :ole_workbook
     attr_reader :excel
     attr_reader :stored_filename
@@ -833,7 +831,7 @@ module RobustExcelOle
 
     def each
       if block_given?
-        @ole_workbook.Worksheets.each do |sheet|
+        @ole_workbook.Worksheets.lazy.each do |sheet|
           yield worksheet_class.new(sheet)
         end
       else
@@ -843,7 +841,7 @@ module RobustExcelOle
 
     def each_with_index(offset = 0)
       i = offset
-      @ole_workbook.Worksheets.each do |sheet|
+      @ole_workbook.Worksheets.lazy.each do |sheet|
         yield worksheet_class.new(sheet), i
         i += 1
       end

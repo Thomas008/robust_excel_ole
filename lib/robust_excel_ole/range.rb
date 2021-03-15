@@ -9,6 +9,8 @@ module RobustExcelOle
 
   class Range < VbaObjects
 
+    include Enumerable
+    
     attr_reader :ole_range
     attr_reader :worksheet
 

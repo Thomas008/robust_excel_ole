@@ -40,7 +40,7 @@ You can set all options in a given Excel instance
 
   excel = Excel.current
 
-  excel.for_this_instance(visible: true, displayalerts: true, calculation: :manual)
+  excel.set_options(visible: true, displayalerts: true, calculation: :manual)
 
 === Making an Excel visible or invisible
 
@@ -99,7 +99,7 @@ You can do it in a block:
 
 You can set options for all workbooks of an Excel instance.
 
-  excel.for_all_workooks(visible: true, read_only: true)
+  excel.each_workook(visible: true, read_only: true)
 
 
 === Showing and traversing through all workbooks

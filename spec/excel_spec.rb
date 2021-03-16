@@ -1797,7 +1797,7 @@ module RobustExcelOle
 
     end
 
-    describe "for_this_instance" do
+    describe "set_options" do
 
       before do
         @excel = Excel.new(:reuse => false)
@@ -1807,7 +1807,7 @@ module RobustExcelOle
       end
 
       it "should set options in the Excel instance" do
-        @excel.for_this_instance(:displayalerts => true, :visible => true, :screenupdating => true, :calculation => :manual)
+        @excel.set_options(:displayalerts => true, :visible => true, :screenupdating => true, :calculation => :manual)
         @excel.DisplayAlerts.should be true
         @excel.Visible.should be true
         @excel.ScreenUpdating.should be true
@@ -1820,25 +1820,25 @@ module RobustExcelOle
 
     end
 
-    context "for_all_workbooks" do
+    context "each_workbook" do
 
       it "should not raise an error for an empty Excel instance" do
         excel = Excel.create
         expect{
-          excel.for_all_workbooks(:visible => true, :read_only => true, :check_compatibility => true)
+          excel.each_workbook(:visible => true, :read_only => true, :check_compatibility => true)
         }.to_not raise_error
       end
 
       it "should set options to true for a workbook" do
         book1 = Workbook.open(@simple_file1)
         excel1 = book1.excel
-        excel1.for_all_workbooks(:visible => true, :read_only => true, :check_compatibility => true)
+        excel1.each_workbook(:visible => true, :read_only => true, :check_compatibility => true)
         excel1.Visible.should be true
         ole_workbook1 = book1.ole_workbook
         ole_workbook1.Windows(ole_workbook1.Name).Visible.should be true
         ole_workbook1.ReadOnly.should be true
         ole_workbook1.CheckCompatibility.should be true
-        excel1.for_all_workbooks(:visible => false, :read_only => false, :check_compatibility => false)
+        excel1.each_workbook(:visible => false, :read_only => false, :check_compatibility => false)
         excel1.Visible.should be true
         ole_workbook1 = book1.ole_workbook
         ole_workbook1.Windows(ole_workbook1.Name).Visible.should be false
@@ -1850,7 +1850,7 @@ module RobustExcelOle
         book1 = Workbook.open(@simple_file1)
         book2 = Workbook.open(@different_file1)
         excel = book1.excel
-        excel.for_all_workbooks(:visible => true, :check_compatibility => true, :read_only => true)
+        excel.each_workbook(:visible => true, :check_compatibility => true, :read_only => true)
         excel.Visible.should be true
         ole_workbook1 = book1.ole_workbook
         ole_workbook2 = book2.ole_workbook
@@ -1860,7 +1860,7 @@ module RobustExcelOle
         ole_workbook2.CheckCompatibility.should be true
         ole_workbook1.ReadOnly.should be true
         ole_workbook2.ReadOnly.should be true    
-        excel.for_all_workbooks(:visible => false, :check_compatibility => false, :read_only => false)
+        excel.each_workbook(:visible => false, :check_compatibility => false, :read_only => false)
         excel.Visible.should be true
         ole_workbook1 = book1.ole_workbook
         ole_workbook2 = book2.ole_workbook

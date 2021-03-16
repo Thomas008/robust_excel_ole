@@ -361,8 +361,6 @@ module RobustExcelOle
       self.known_running_instances.first
     end
 
- 
-
     # @return [Enumerator] known running Excel instances
     def self.known_running_instances
       pid2excel = {}
@@ -440,8 +438,6 @@ module RobustExcelOle
     end
 
   public
-
-    
 
     # @private
     def excel
@@ -583,10 +579,6 @@ module RobustExcelOle
     end
 
     # set options in this Excel instance
-    def for_this_instance(options)
-      set_options(options)
-    end
-
     def set_options(options)      
       @properties ||= { }
       PROPERTIES.each do |property|
@@ -594,11 +586,8 @@ module RobustExcelOle
         send(method, options[property]) 
       end
     end
-  
-    # set options in all workbooks
-    def for_all_workbooks(options)
-      each_workbook(options)
-    end
+
+    alias for_this_instance set_options  # :deprecated: #
 
     def workbooks
       ole_workbooks.map {|ole_workbook| workbook_class.new(ole_workbook) }
@@ -611,6 +600,8 @@ module RobustExcelOle
         block_given? ? (yield wb) : wb
       end
     end
+
+    alias for_all_workbooks each_workbook   # :deprecated: #
 
     def each_workbook_with_index(opts = { }, offset = 0)
       i = offset

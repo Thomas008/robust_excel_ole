@@ -591,10 +591,6 @@ module RobustExcelOle
 
     alias for_this_instance set_options  # :deprecated: #    
 
-    #def each
-    #  ole_workbooks.map{ |ole_workbook| workbook_class.new(ole_workbook) }.to_enum(:each)
-    #end
-
     # @return [Enumerator] traversing all workbook objects
     def each
       if block_given?

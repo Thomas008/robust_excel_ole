@@ -11,6 +11,8 @@ module RobustExcelOle
 
   class ListObject < VbaObjects
 
+    include Enumerable
+
     attr_reader :ole_table
 
     alias ole_object ole_table
@@ -72,6 +74,16 @@ module RobustExcelOle
 
     end
 
+    # @return [Enumerator] traversing all list row objects
+    def each
+      if block_given?
+        @ole_table.ListRows.lazy.each do |ole_listrow|
+          yield @row_class.new(ole_listrow)
+        end
+      else
+        to_enum(:each).lazy
+      end
+    end
 
     # accesses a table row object
     # @param [Variant]  a hash of key (key column: value) or a row number (>= 1) 
@@ -93,6 +105,7 @@ module RobustExcelOle
 
   private
 
+=begin
     def listrows_via_traversing(key_hash, opts)
       encode_utf8 = ->(val) {val.respond_to?(:gsub) ? val.encode('utf-8') : val}
       cn2i = column_names_to_index
@@ -103,6 +116,17 @@ module RobustExcelOle
         break if matching_rows.count == opts[:limit]
       end
       matching_rows
+    rescue
+      raise(TableError, "cannot find row with key #{key_hash}")
+    end
+=end
+
+    def listrows_via_traversing(key_hash, opts)
+      encode_utf8 = ->(val) {val.respond_to?(:gsub) ? val.encode('utf-8') : val}
+      matching_rows = @ole_table.select do |listrow| 
+        key_hash.all?{|key,val| encode_utf8.(rowvalues[column_names_to_index[key]])==val }
+      end
+      opts[:limit] ? matching_rows.take(opts[:limit]) : matching_rows
     rescue
       raise(TableError, "cannot find row with key #{key_hash}")
     end

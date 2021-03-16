@@ -128,6 +128,22 @@ describe ListObject do
 
   end
 
+  describe "each" do
+
+    before do
+      @table1 = @sheet.table(1)
+    end
+
+    it "should traverse through list rows" do
+      @table1.each.with_index do |listrow, i|
+        listrow.values.should == [3.0, "John", 50.0, 0.5, 30] if i == 0        
+        listrow.values.should == [2.0, "Fred", nil, 0.5416666666666666, 40] if i == 1
+        listrow.values.should == [nil, nil, nil, nil, nil] if i == 2
+      end
+    end
+
+  end
+
   describe "benchmarking for accessing a listrow" do
 
     it "should access the last row" do

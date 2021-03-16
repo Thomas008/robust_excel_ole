@@ -831,10 +831,11 @@ module RobustExcelOle
       @ole_workbook.Worksheets.Count
     end
 
+    # @return [Enumerator] traversing all worksheet objects
     def each
       if block_given?
-        @ole_workbook.Worksheets.lazy.each do |sheet|
-          yield worksheet_class.new(sheet)
+        @ole_workbook.Worksheets.lazy.each do |ole_worksheet|
+          yield worksheet_class.new(ole_worksheet)
         end
       else
         to_enum(:each).lazy
@@ -1063,7 +1064,7 @@ module RobustExcelOle
     # @private
     def inspect    
       #{}"#<Workbook: #{("not alive " unless alive?)} #{(File.basename(self.filename) if alive?)} #{@excel}>"
-      "#<Workbook: #{(alive? ? File.basename(self.filename) : "not alive")} #{@excel}>"
+      "#<Workbook: #{(alive? ? File.basename(self.filename) : "not alive")} #{@excel} >"
     end
 
     using ParentRefinement

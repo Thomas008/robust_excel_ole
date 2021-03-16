@@ -1393,7 +1393,7 @@ describe Workbook do
 
   describe "each" do
 
-     before do
+    before do
       @book = Workbook.open(@simple_file)
     end
 

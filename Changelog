@@ -1,11 +1,12 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [1.32] 2021-15-03
+## [1.32] 2021-16-03
 
 ### Added
   - ListObject#[] with options, position
   - ListRow#to_h, to_a, values=, keys_values
+  - Excel#each
 
 ### Changed
   - RangeOwners#rename_range renamed to rename_name

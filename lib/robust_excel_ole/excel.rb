@@ -16,6 +16,8 @@ module RobustExcelOle
 
   class Excel < VbaObjects
 
+    include Enumerable
+
     attr_reader :ole_excel
     attr_reader :properties
     attr_reader :address_tool
@@ -587,21 +589,35 @@ module RobustExcelOle
       end
     end
 
-    alias for_this_instance set_options  # :deprecated: #
+    alias for_this_instance set_options  # :deprecated: #    
 
-    def workbooks
-      ole_workbooks.map {|ole_workbook| workbook_class.new(ole_workbook) }
-    end
+    #def each
+    #  ole_workbooks.map{ |ole_workbook| workbook_class.new(ole_workbook) }.to_enum(:each)
+    #end
 
-    # traverses over all workbooks and sets options if provided
-    def each_workbook(opts = { })
-      ole_workbooks.each do |ow|
-        wb = workbook_class.new(ow, opts)
-        block_given? ? (yield wb) : wb
+    # @return [Enumerator] traversing all workbook objects
+    def each
+      if block_given?
+        ole_workbooks.lazy.each do |ole_workbook|
+          yield workbook_class.new(ole_workbook)
+        end
+      else
+        to_enum(:each).lazy
       end
     end
 
-    alias for_all_workbooks each_workbook   # :deprecated: #
+    # @return [Array] all workbook objects
+    def workbooks
+      to_a
+    end
+
+    # traverses all workbooks and sets options if provided
+    def each_workbook(opts = { })
+      ole_workbooks.lazy.each do |ow|
+        wb = workbook_class.new(ow, opts)
+        block_given? ? (yield wb) : wb
+      end
+    end    
 
     def each_workbook_with_index(opts = { }, offset = 0)
       i = offset
@@ -610,6 +626,8 @@ module RobustExcelOle
         i += 1
       end
     end
+
+    alias for_all_workbooks each_workbook   # :deprecated: #
 
     def focus
       self.visible = true

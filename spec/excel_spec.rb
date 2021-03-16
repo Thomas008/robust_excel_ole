@@ -1060,20 +1060,39 @@ module RobustExcelOle
       end
     end
 
-    describe "workbooks, each, each_with_index" do
+    describe "each, each_with_index, workbooks" do
 
-      before do
+       before do
         @excel = Excel.create
-        @book1 = Workbook.open(@simple_file)
-        @book2 = Workbook.open(@different_file)
+      end
+
+      it "should yield empty list" do
+        @excel.count.should == 0
+        @excel.workbooks.should be_empty
       end
 
       it "should list workbooks" do
+        @book1 = Workbook.open(@simple_file)
+        @book2 = Workbook.open(@different_file)
         workbooks = @excel.workbooks
         workbooks.should == [@book1,@book2]
       end
 
+      it "should concatenate" do
+        @book1 = Workbook.open(@simple_file)
+        @book2 = Workbook.open(@different_file)
+        i = 0
+        @excel.each.with_index do |workbook,i|
+          workbook.should be_alive
+          workbook.should be_a Workbook
+          workbook.filename.should == @simple_file if i == 0
+          workbook.filename.should == @different_file if i == 1
+        end
+      end
+
       it "should each_workbook" do
+        @book1 = Workbook.open(@simple_file)
+        @book2 = Workbook.open(@different_file)
         i = 0
         @excel.each_workbook do |workbook|
           workbook.should be_alive
@@ -1085,6 +1104,9 @@ module RobustExcelOle
       end
 
       it "should each_workbook_with_index" do
+        @book1 = Workbook.open(@simple_file)
+        @book2 = Workbook.open(@different_file)
+        i = 0
         @excel.each_workbook_with_index do |workbook,i|
           workbook.should be_alive
           workbook.should be_a Workbook
@@ -1094,6 +1116,8 @@ module RobustExcelOle
       end
 
       it "should each_workbook with options" do
+        @book1 = Workbook.open(@simple_file)
+        @book2 = Workbook.open(@different_file)
         i = 0
         @excel.each_workbook(:visible => true) do |workbook|
           workbook.should be_alive
@@ -1112,7 +1136,6 @@ module RobustExcelOle
           ole_workbook.Windows(ole_workbook.Name).Visible.should be true
         end
       end
-
 
     end
 

@@ -102,27 +102,19 @@ You can set options for all workbooks of an Excel instance.
   excel.each_workook(visible: true, read_only: true)
 
 
-=== Showing and traversing through all workbooks
+=== Showing and traversing all workbooks
 
-You can yield an array of all Workbook objects of an Excel instance.
+The method +each+ provides an enumerator traversing all workbook objects. You can yield an array of all Workbook objects of an Excel instance, by applying +to_a+ or
 
   excel.workbooks
 
-You can access all Workbook objects by using the methods Excel#each_workbook and Excel#each_workbook_with_index. Here are some examples:
+You can access all Workbook objects supplying options by using the methods Excel#each_workbook and Excel#each_workbook_with_index. Here are some examples:
   
-  excel.each_workbook {|w| puts w.filename}
+  excel.each_workbook(displayalerts: true) {|w| puts w.filename}
 
 and
 
-  excel.each_workbook.with_index {|w,i| puts w,i }
-
-With help of these methods you can also supply options, e.g. without a block,
-
-  excel.each_workbook(visible: true) 
-
-or, with a block,
-
-  excel.each_workbook(visible: true) {|w| puts w}
+  excel.each_workbook.with_index(displayalerts: true) {|w,i| puts w,i }
 
 === Accessing the active workbook
 

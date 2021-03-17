@@ -300,7 +300,15 @@ or
 
   workbook.add_name("name", [1..[2],[1]..4])
 
-You can do the same for an worksheet or Excel object.
+You can do the same for an worksheet.
+You get all names defined in the workbook or worksheet using the method +names+.
+
+  worksheet.names
+  # => ["Sheet1!name"]
+
+  workbook.names
+  # => ["Sheet1!name", "four"]
+
 
 === Reading and writing the contents of a named range in a workbook.
 

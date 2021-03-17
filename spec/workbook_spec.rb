@@ -1391,6 +1391,20 @@ describe Workbook do
     end
   end
 
+  describe "#names" do
+
+    before do
+      @book1 = Workbook.open(@another_simple_file)
+    end
+
+    it "should yield defined names" do
+      @book1.names.should == ["another", "Sheet1!another_formula", "empty", "Sheet1!firstcell", 
+                              "firstrow", "formula", "four", "Sheet1!localname", "Sheet2!localname", 
+                              "named_formula", "new", "one", "Sheet1!simple"]
+    end
+      
+  end
+
   describe "each" do
 
     before do

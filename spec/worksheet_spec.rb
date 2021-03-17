@@ -363,6 +363,19 @@ describe Worksheet do
 
     end
 
+    describe "#names" do
+
+      before do
+        @book1 = Workbook.open(@dir + '/another_workbook.xls')
+        @sheet1 = @book1.sheet(1)
+      end
+
+      it "should yield defined names" do
+        @sheet1.names.should == ["Sheet1!another_formula", "Sheet1!firstcell", "Sheet1!localname", "Sheet1!simple"]
+      end
+      
+    end
+
     describe "#each_rowvalue" do
 
       it "should yield arrays" do
@@ -613,6 +626,7 @@ describe Worksheet do
     end
 
     describe "[], []=" do
+
       before do
         @book1 = Workbook.open(@dir + '/another_workbook.xls')
         @sheet1 = @book1.sheet(1)

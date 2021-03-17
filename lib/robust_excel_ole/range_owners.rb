@@ -152,6 +152,11 @@ module RobustExcelOle
       raise UnexpectedREOError, "name error with name #{name.inspect} in #{File.basename(self.stored_filename).inspect}\n#{$!.message}"
     end
 
+    # @return [Array] defined names
+    def names
+      self.Names.to_a.map(&:name)
+    end
+
   private
 
     def get_name_object(name)

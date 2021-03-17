@@ -77,19 +77,25 @@ Note, that running in jruby, due to some restrictions of jruby, there is a worka
 
 === Accessing rows and columns
 
-The methods Worksheet#each_cell, Worksheet#each_row and Worksheet#each_column enable to access each cell, row and column, respectively.
+The methods Worksheet#each returns an enumerator traversing the rows in the used range of the worksheet.  The methods +each_row+ and +each_column traverse the rows and columns, respectively, using an optional offset.
+The methods +each_cell+ enables to access each cell.
+
+
+  worksheet.each do |row
+    # do somethingg with row
+  end
+
+  worksheet.each_row(2) do |row|
+    # do something with row beginning with 2nd row
+  end
+
+  worksheet.each_column(3) do |column|
+    # do something with column beginning with 3rd column
+  end
 
   worksheet.each_cell do |cell|
     # do something with cell
     # read every row, every column
-  end
-
-  worksheet.each_row do |row|
-    # do something with row
-  end
-
-  worksheet.each_column do |column|
-    # do something with column
   end
 
 The method Worksheet#values yields a 2-dimensional array that contains the values in each row, e.g.

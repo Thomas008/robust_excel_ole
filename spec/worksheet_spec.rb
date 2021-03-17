@@ -376,6 +376,22 @@ describe Worksheet do
       
     end
 
+    describe "#each" do
+
+      it "should yield rows" do
+        @sheet.each.with_index do |row, i|
+          row.value.should == [["foo", "workbook", "sheet1"]] if i == 0
+          row.value.should == [["foo", nil, "foobaaa"]] if i == 1
+          row.value.should == [["matz", "is", "nice"]] if i == 2
+        end
+      end
+
+      it "should do map" do
+        @sheet.map{|r| r.values}.should == [["foo", "workbook", "sheet1"], ["foo", nil, "foobaaa"], ["matz", "is", "nice"]]
+      end
+
+    end
+
     describe "#each_rowvalue" do
 
       it "should yield arrays" do

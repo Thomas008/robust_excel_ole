@@ -201,7 +201,18 @@ module RobustExcelOle
       @ole_worksheet.UsedRange.Value
     end
 
-    # enumerator for accessing cells
+    # @return [Enumerator] traversing rows
+    def each
+      if block_given?
+        @ole_worksheet.UsedRange.Rows.lazy.each do |ole_row|
+          yield ole_row.to_reo
+        end
+      else
+        to_enum(:each).lazy
+      end
+    end
+
+    # accessing cells
     def each_cell
       each_row do |row_range|
         row_range.lazy.each do |cell|
@@ -220,7 +231,7 @@ module RobustExcelOle
       end
     end
 
-    # enumerator for accessing rows
+    # accessing rows
     def each_row(offset = 0)
       offset += 1
       1.upto(@end_row) do |row|
@@ -235,7 +246,7 @@ module RobustExcelOle
       end
     end
 
-    # enumerator for accessing columns
+    # accessing columns
     def each_column(offset = 0)
       offset += 1
       1.upto(@end_column) do |column|

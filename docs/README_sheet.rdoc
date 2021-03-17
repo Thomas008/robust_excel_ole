@@ -77,9 +77,9 @@ Note, that running in jruby, due to some restrictions of jruby, there is a worka
 
 === Accessing rows and columns
 
-The methods Worksheet#each, Worksheet#each_row and Worksheet#each_column enable to access each cell, row and column, respectively.
+The methods Worksheet#each_cell, Worksheet#each_row and Worksheet#each_column enable to access each cell, row and column, respectively.
 
-  worksheet.each do |cell|
+  worksheet.each_cell do |cell|
     # do something with cell
     # read every row, every column
   end

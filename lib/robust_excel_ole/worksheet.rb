@@ -196,25 +196,21 @@ module RobustExcelOle
       raise RangeNotEvaluatable, "cannot assign value #{value.inspect} to cell (#{y.inspect},#{x.inspect})\n#{$!.message}"
     end
 
-    # provides a 2-dimensional array that contains the values in each row
+    # @return [Array] a 2-dimensional array that contains the values in each row of the used range
     def values
       @ole_worksheet.UsedRange.Value
     end
 
     # enumerator for accessing cells
-    def each
-      if block_given?
-        each_row do |row_range|
-          row_range.lazy.each do |cell|
-            yield cell
-          end
+    def each_cell
+      each_row do |row_range|
+        row_range.lazy.each do |cell|
+          yield cell
         end
-      else
-        to_enum(:each).lazy
       end
     end
 
-    def each_with_index(offset = 0)
+    def each_cell_with_index(offset = 0)
       i = offset
       each_row do |row_range|
         row_range.each do |cell|

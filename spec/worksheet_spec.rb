@@ -301,10 +301,10 @@ describe Worksheet do
 
     end
 
-    describe '#each' do
+    describe '#each_cell' do
 
       it "should sort line in order of column" do
-        @sheet.each_with_index do |cell, i|
+        @sheet.each_cell_with_index do |cell, i|
           case i
           when 0
             cell.Value.should eq 'foo'
@@ -326,7 +326,7 @@ describe Worksheet do
         include_context "sheet 'open book with blank'"
 
         it 'should get from ["A1"]' do
-          @sheet_with_blank.each_with_index do |cell, i|
+          @sheet_with_blank.each_cell_with_index do |cell, i|
             case i
             when 5
               cell.Value.should be_nil
@@ -345,29 +345,13 @@ describe Worksheet do
 
       it "should access each cell" do
         cells = []
-        @sheet.each do |cell|
+        @sheet.each_cell do |cell|
           cells << cell
         end
         cells.should == [@sheet[1,1], @sheet[1,2], @sheet[1,3],
                          @sheet[2,1], @sheet[2,2], @sheet[2,3],
                          @sheet[3,1], @sheet[3,2], @sheet[3,3]]
       end
-
-      it "should map" do
-        @sheet.map{|c| c}.should == [@sheet[1,1], @sheet[1,2], @sheet[1,3],
-                                     @sheet[2,1], @sheet[2,2], @sheet[2,3],
-                                     @sheet[3,1], @sheet[3,2], @sheet[3,3]]
-      end
-
-      it "should concatenate" do
-        values = []
-        @sheet.each.with_index{|c,i| values << [c.v, i]}
-        values.should == [["foo", 0], ["workbook", 1], ["sheet1", 2],
-                          ["foo", 3], [nil, 4], ["foobaaa", 5],
-                          ["matz", 6], ["is", 7], ["nice", 8]]
-      end
-
-
 
     end
 

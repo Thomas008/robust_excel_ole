@@ -9,12 +9,13 @@ All notable changes to this project will be documented in this file.
   - Excel#each
   - ListObject#each
 
-### Changed
-  - RangeOwners#rename_range renamed to rename_name
+### Changed  
   - Excel#excels_number renamed to instance_count
   - Excel#known_excels_number renamed to known_instance_count
   - Excel#known_excel_instance renamed to known_running_instance
   - Excel#known_excel_instances renamed to known_running_instances
+  - RangeOwners#rename_range renamed to rename_name
+  - Worksheet#each, #each_with_index renamed to each_cell, each_cell_with_index
 
 ## [1.31] 2021-14-01
 

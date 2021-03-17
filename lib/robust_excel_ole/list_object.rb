@@ -105,28 +105,14 @@ module RobustExcelOle
 
   private
 
-=begin
     def listrows_via_traversing(key_hash, opts)
       encode_utf8 = ->(val) {val.respond_to?(:gsub) ? val.encode('utf-8') : val}
       cn2i = column_names_to_index
-      matching_rows = []
-      @ole_table.ListRows.each do |listrow|
+      matching_rows = @ole_table.ListRows.select do |listrow| 
         rowvalues = listrow.Range.Value.first
-        matching_rows << @row_class.new(listrow) if key_hash.all?{|key,val| encode_utf8.(rowvalues[cn2i[key]])==val}
-        break if matching_rows.count == opts[:limit]
+        key_hash.all?{ |key,val| encode_utf8.(rowvalues[cn2i[key]])==val }
       end
-      matching_rows
-    rescue
-      raise(TableError, "cannot find row with key #{key_hash}")
-    end
-=end
-
-    def listrows_via_traversing(key_hash, opts)
-      encode_utf8 = ->(val) {val.respond_to?(:gsub) ? val.encode('utf-8') : val}
-      matching_rows = @ole_table.select do |listrow| 
-        key_hash.all?{|key,val| encode_utf8.(rowvalues[column_names_to_index[key]])==val }
-      end
-      opts[:limit] ? matching_rows.take(opts[:limit]) : matching_rows
+      opts[:limit] ? matching_rows.take(opts[:limit] == :first ? 1 : opts[:limit]) : matching_rows
     rescue
       raise(TableError, "cannot find row with key #{key_hash}")
     end

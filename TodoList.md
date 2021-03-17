@@ -1,13 +1,22 @@
 
 ### immediately
 
+- remove Worksheet#each
+
 ### quick
 
 ### short-term
 
 ### mid-term
 
+- Worksheet#each: traverse rows (instead cells)
+- Worksheet#[]: extend to numbers
+- Address: extend: numbers -> rows
+
 ### long-term
+
+- error messages: - explore, where the "causes by" comes from
+                  - VBA error messages for unexpected cases only
 
 ### done
 

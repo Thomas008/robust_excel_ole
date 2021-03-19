@@ -12,10 +12,12 @@ module ToReoRefinement
         method = element.first.last
         begin
           self.send(method)
-          if classname == RobustExcelOle::Range && self.Rows.Count == 1 && self.Columns.Count == 1
+          if classname != RobustExcelOle::Range
+            return classname.new(self)
+          elsif self.Rows.Count == 1 && self.Columns.Count == 1
             return Cell.new(self, self.Parent)
           else
-            return classname.new(self)
+            return RobustExcelOle::Range.new(self, self.Parent)
           end
         rescue
           next
@@ -246,10 +248,10 @@ module General
 
   # @private
   def class2method
-    [{RobustExcelOle::Excel => :Hwnd},
+    [{RobustExcelOle::Range => :Row},
+     {RobustExcelOle::Excel => :Hwnd},
      {RobustExcelOle::Workbook => :FullName},
      {RobustExcelOle::Worksheet => :UsedRange},
-     {RobustExcelOle::Range => :Row},
      {RobustExcelOle::ListObject => :ListRows},
      {RobustExcelOle::ListRow => :Creator}]
   end

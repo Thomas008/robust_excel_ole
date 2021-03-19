@@ -17,19 +17,19 @@ module RobustExcelOle
     #                               [3..4, nil], [nil, 2..4], [2,nil], [nil,4]
     #   a1-format: e.g. "A3", "A3:B5", "A:B", "3:5", "A", "3"
     def as_r1c1(address)
-      transform_address(address,:r1c1)
+      transform_address(address, :r1c1)
     end
 
     def as_a1(address)
-      transform_address(address,:a1)
+      transform_address(address, :a1)
     end
 
     # valid address formats: e.g. [3,1], [3,"A"], [3..5,1..2], [3..5, "A".."B"], 
     #                             [3..4, nil], [nil, 2..4], [2,nil], [nil,4]
     def as_integer_ranges(address)
-      transform_address(address,:int_range)
+      transform_address(address, :int_range)
     end
-
+   
   private
 
     def transform_address(address, format)
@@ -88,7 +88,7 @@ module RobustExcelOle
     class AddressAlreadyInRightFormat < Exception
     end
     
-    def r1c1_string(letter,int_range,type)
+    def r1c1_string(letter, int_range,type)
       return "" if int_range.nil? || int_range.begin.nil?
       parameter = type == :min ? int_range.begin : int_range.end
       is_relative = parameter.is_a?(Array)
@@ -96,7 +96,7 @@ module RobustExcelOle
       letter + (is_relative ? "(" : "") + parameter.to_s + (is_relative ? ")" : "")       
     end 
 
-    def analyze(comp,format)
+    def analyze(comp, format)
       row_comp, col_comp = if format==:a1 
         [comp.gsub(/[A-Z]/,''), comp.gsub(/[0-9]/,'')]
       else

@@ -68,6 +68,7 @@ module RobustExcelOle
       end
     end
 
+=begin
     # returns a cell given the defined name or row and column
     # @params row, column, or name
     # @returns cell, if row and column are given
@@ -90,6 +91,7 @@ module RobustExcelOle
         end
       end
     end
+=end
 
     # sets the value of a cell
     # @params row and column, or defined name
@@ -298,18 +300,19 @@ module RobustExcelOle
     # creates a range from a given defined name or address
     # @params [Variant] defined name or address
     # @return [Range] a range
-    def range(name_or_address, address2 = :__not_provided)
+    def [](name_or_address, address2 = :__not_provided)
       if name_or_address.respond_to?(:gsub) && address2 == :__not_provided
         name = name_or_address
-        range = RobustExcelOle::Range.new(get_name_object(name).RefersToRange, self) rescue nil
+        range = get_name_object(name).RefersToRange.to_reo rescue nil
       end
       unless range
         address = name_or_address
-        address = [name_or_address,address2] unless address2 == :__not_provided         
+        address = [address,address2] unless address2 == :__not_provided     
+        address = [address, 1..last_column] if address.is_a?(Integer)         
         workbook.retain_saved do
           begin
             self.Names.Add('__dummy001',nil,true,nil,nil,nil,nil,nil,nil,'=' + address_tool.as_r1c1(address))          
-            range = RobustExcelOle::Range.new(get_name_object('__dummy001').RefersToRange, self)
+            range = get_name_object('__dummy001').RefersToRange.to_reo
             self.Names.Item('__dummy001').Delete
           rescue
             address2_string = address2.nil? ? "" : ", #{address2.inspect}"
@@ -319,6 +322,8 @@ module RobustExcelOle
       end
       range
     end
+
+    alias range []
 
     # @params [Variant] table (listobject) name or number 
     # @return [ListObject] a table (listobject)

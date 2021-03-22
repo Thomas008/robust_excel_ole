@@ -80,7 +80,6 @@ Note, that running in jruby, due to some restrictions of jruby, there is a worka
 The methods Worksheet#each returns an enumerator traversing the rows in the used range of the worksheet.  The methods +each_row+ and +each_column traverse the rows and columns, respectively, using an optional offset.
 The methods +each_cell+ enables to access each cell.
 
-
   worksheet.each do |row
     # do somethingg with row
   end

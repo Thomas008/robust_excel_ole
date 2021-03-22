@@ -89,7 +89,6 @@ module RobustExcelOle
         type_lifted_listrow = listrow.ole_tablerow.to_reo
         type_lifted_listrow.should be_a ListRow
         type_lifted_listrow.values.should == [3.0, "John", 50.0, 0.5, 30.0]
-
       end
 
       it "should type-lift an ListObject" do

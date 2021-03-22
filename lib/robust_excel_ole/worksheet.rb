@@ -68,31 +68,6 @@ module RobustExcelOle
       end
     end
 
-=begin
-    # returns a cell given the defined name or row and column
-    # @params row, column, or name
-    # @returns cell, if row and column are given
-    def [] p1, p2 = :__not_provided
-      if p2 != :__not_provided
-        x, y = p1, p2
-        xy = "#{x}_#{y}"
-        @cells = { }
-        begin
-          @cells[xy] = RobustExcelOle::Cell.new(@ole_worksheet.Cells.Item(x, y), @worksheet)
-        rescue
-          raise RangeNotEvaluatable, "cannot read cell (#{x.inspect},#{y.inspect})\n#{$!.message}"
-        end
-      else
-        name = p1
-        begin
-          namevalue_global(name)
-        rescue REOError
-          namevalue(name)
-        end
-      end
-    end
-=end
-
     # sets the value of a cell
     # @params row and column, or defined name
     def []= (p1, p2, p3 = :__not_provided)
@@ -315,7 +290,7 @@ module RobustExcelOle
             range = get_name_object('__dummy001').RefersToRange.to_reo
             self.Names.Item('__dummy001').Delete
           rescue
-            address2_string = address2.nil? ? "" : ", #{address2.inspect}"
+            address2_string = (address2.nil? || address2 == :__not_provided) ? "" : ", #{address2.inspect}"
             raise RangeNotCreated, "cannot create range (#{name_or_address.inspect}#{address2_string})\n#{$!.message}"
           end
         end

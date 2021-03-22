@@ -70,8 +70,9 @@ module RobustExcelOle
         address_comp2 = comp2 && (not col_comp1.nil?) ? (col_comp1 .. col_comp2) : col_comp1          
       end
       address_comp1 = address_comp1..address_comp1 if (address_comp1.is_a?(Integer) || address_comp1.is_a?(String) || address_comp1.is_a?(Array))
-      address_comp2 = address_comp2..address_comp2 if (address_comp2.is_a?(Integer) || address_comp2.is_a?(String) || address_comp2.is_a?(Array))  
-      rows = address_comp1.begin..address_comp1.end unless address_comp1.nil? || address_comp1.begin == 0         
+      address_comp2 = address_comp2..address_comp2 if (address_comp2.is_a?(Integer) || address_comp2.is_a?(String) || address_comp2.is_a?(Array))
+      raise AddressInvalid, "address contains row 0" if !address_comp1.nil? && address_comp1.begin == 0
+      rows = address_comp1.begin..address_comp1.end unless address_comp1.nil? || address_comp1.begin == 0
       columns = unless address_comp2.nil?
         if address_comp2.begin.is_a?(String) #address_comp2.begin.to_i == 0
           col_range = str2num(address_comp2.begin)..str2num(address_comp2.end)

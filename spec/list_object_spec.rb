@@ -178,6 +178,13 @@ describe ListObject do
       @table1[{"Number" => 3, "Person" => "Angel"}].values.should == [3.0, "Angel", 100, 0.6666666666666666, 60]
     end
 
+    it "should access a listrow with key not case-sensitive or symbol" do
+      @table1[{"Person" => "Angel"}].values.should == [3.0, "Angel", 100, 0.6666666666666666, 60]
+      @table1[{"PERSON" => "Angel"}].values.should == [3.0, "Angel", 100, 0.6666666666666666, 60]
+      @table1[{"person" => "Angel"}].values.should == [3.0, "Angel", 100, 0.6666666666666666, 60]
+      @table1[{:person => "Angel"}].values.should == [3.0, "Angel", 100, 0.6666666666666666, 60]
+    end
+
     it "should yield nil if there is no match" do
       @table1[{"Number" => 5, "Person" => "Angel"}].should == nil
       @table1[{"Number" => 5, "Person" => "Angel"}, limit: :first].should == nil

@@ -105,12 +105,26 @@ module RobustExcelOle
 
   private
 
+=begin
     def listrows_via_traversing(key_hash, opts)
       encode_utf8 = ->(val) {val.respond_to?(:gsub) ? val.encode('utf-8') : val}
       cn2i = column_names_to_index
       matching_rows = @ole_table.ListRows.select do |listrow| 
         rowvalues = listrow.Range.Value.first
         key_hash.all?{ |key,val| encode_utf8.(rowvalues[cn2i[key]])==val }
+      end
+      opts[:limit] ? matching_rows.take(opts[:limit] == :first ? 1 : opts[:limit]) : matching_rows
+    rescue
+      raise(TableError, "cannot find row with key #{key_hash}")
+    end
+=end
+
+    def listrows_via_traversing(key_hash, opts)
+      encode_utf8 = ->(val) {val.respond_to?(:gsub) ? val.encode('utf-8') : val}
+      cn2i = column_names_to_index
+      matching_rows = @ole_table.ListRows.select do |listrow| 
+        rowvalues = listrow.Range.Value.first
+        key_hash.all?{ |key,val| encode_utf8.(rowvalues[cn2i[key.downcase.to_sym]])==val}
       end
       opts[:limit] ? matching_rows.take(opts[:limit] == :first ? 1 : opts[:limit]) : matching_rows
     rescue
@@ -158,12 +172,21 @@ module RobustExcelOle
     end
 
     # @return [Hash] pairs of column names and index
+=begin    
     def column_names_to_index
       header_row_values = @ole_table.HeaderRowRange.Value.first
       header_row_values.map{|v| v.encode('utf-8')}.zip(0..header_row_values.size-1).to_h
     rescue WIN32OLERuntimeError
       raise TableError, "could not determine column names\n#{$!.message}"
     end
+=end
+    def column_names_to_index
+      header_row_values = @ole_table.HeaderRowRange.Value.first
+      header_row_values.map{|v| v.encode('utf-8').downcase.to_sym}.zip(0..header_row_values.size-1).to_h
+    rescue WIN32OLERuntimeError
+      raise TableError, "could not determine column names\n#{$!.message}"
+    end
+
 
     # adds a row
     # @param [Integer] position of the new row

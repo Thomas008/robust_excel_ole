@@ -62,7 +62,7 @@ module RobustExcelOle
       @ole_worksheet.Name = new_name
     rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
       if msg.message =~ /800A03EC/ || msg.message =~ /Visual Basic/
-        raise NameAlreadyExists, "sheet name #{new_name.inspect} already exists\n#{$!.message}"
+        raise NameAlreadyExists, "sheet name #{new_name.inspect} already exists"
       else
         raise UnexpectedREOError, "unexpected WIN32OLERuntimeError: #{msg.message}"
       end
@@ -101,7 +101,7 @@ module RobustExcelOle
         ole_range = self.Range(name)
       rescue # WIN32OLERuntimeError, VBAMethodMissingError, Java::OrgRacobCom::ComFailException 
         return opts[:default] unless opts[:default] == :__not_provided
-        raise NameNotFound, "name #{name.inspect} not in #{self.inspect}\n#{$!.message}"
+        raise NameNotFound, "name #{name.inspect} not in #{self.inspect}"
       end
       begin
         worksheet = self if self.is_a?(Worksheet)
@@ -132,7 +132,7 @@ module RobustExcelOle
       begin
         ole_range = self.Range(name)
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException, VBAMethodMissingError
-        raise NameNotFound, "name #{name.inspect} not in #{self.inspect}\n#{$!.message}"
+        raise NameNotFound, "name #{name.inspect} not in #{self.inspect}"
       end
       begin
         ole_range.Interior.ColorIndex = opts[:color] unless opts[:color].nil?
@@ -305,7 +305,7 @@ module RobustExcelOle
     def table(number_or_name)
       listobject_class.new(@ole_worksheet.ListObjects.Item(number_or_name))
     rescue
-      raise WorksheetREOError, "table #{number_or_name} not found\n#{$!.message}"
+      raise WorksheetREOError, "table #{number_or_name} not found"
     end
 
     # @private

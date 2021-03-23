@@ -145,7 +145,7 @@ module RobustExcelOle
       end
       row_numbers.map{|r| self[r]}        
     rescue
-      raise(TableError, "cannot find row with key #{key_hash}\n#{$!.message}")
+      raise(TableError, "cannot find row with key #{key_hash}")
     end
 
   public    

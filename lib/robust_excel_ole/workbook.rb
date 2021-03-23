@@ -288,7 +288,7 @@ module RobustExcelOle
         WIN32OLE.connect(General.absolute_path(filename))
       rescue
         if $!.message =~ /moniker/
-          raise WorkbookConnectingBlockingError, "some workbook is blocking when connecting\n#{$!.message}"
+          raise WorkbookConnectingBlockingError, "some workbook is blocking when connecting"
         else 
           raise WorkbookConnectingUnknownError, "unknown error when connecting to a workbook\n#{$!.message}"
         end
@@ -297,7 +297,7 @@ module RobustExcelOle
         @ole_workbook.Application     
       rescue 
         if $!.message =~ /dispid/
-          raise WorkbookConnectingUnsavedError, "workbook is unsaved when connecting\n#{$!.message}"
+          raise WorkbookConnectingUnsavedError, "workbook is unsaved when connecting"
         else 
           raise WorkbookConnectingUnknownError, "unknown error when connecting to a workbook\n#{$!.message}"
         end
@@ -316,7 +316,7 @@ module RobustExcelOle
         begin
           empty_ole_workbook.SaveAs(abs_filename)
         rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
-          raise FileNotFound, "could not save workbook with filename #{filename.inspect}\n#{$!.message}"
+          raise FileNotFound, "could not save workbook with filename #{filename.inspect}"
         end
       else
         raise FileNotFound, "file #{abs_filename.inspect} not found" +
@@ -419,53 +419,42 @@ module RobustExcelOle
         # 'This workbook is currently referenced by another workbook and cannot be closed'
         # 'Diese Arbeitsmappe wird momentan von einer anderen Arbeitsmappe verwendet und kann nicht geschlossen werden.'
         if want_change_readonly==true
-          raise WorkbookLinked, "read-only mode of this workbook cannot be changed, because it is being used by another workbook\n#{$!.message}"
+          raise WorkbookLinked, "read-only mode of this workbook cannot be changed, because it is being used by another workbook"
         elsif want_change_readonly.nil?
-          raise WorkbookLinked, "workbook is being used by another workbook\n#{$!.message}"
-        else
-          raise UnexpectedREOError, "unknown WIN32OLERuntimeError:\n#{msg.message}"
+          raise WorkbookLinked, "workbook is being used by another workbook"
         end
-      else
+      end
+      if msg.message !~ /800A03EC/ || msg.message !~ /0x80020009/ || want_change_readonly==false
         raise UnexpectedREOError, "unknown WIN32OLERuntimeError:\n#{msg.message}"
       end
     end
 
     def open_or_create_workbook(filename, options)
       return if @ole_workbook && options[:if_unsaved] != :alert && options[:if_unsaved] != :excel &&
-        (options[:read_only].nil? || options[:read_only]==@ole_workbook.ReadOnly )
-      begin
-        abs_filename = General.absolute_path(filename)
-        begin
-          workbooks = @excel.Workbooks
-        rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
-          raise UnexpectedREOError, "cannot access workbooks: #{msg.message} #{msg.backtrace}"
-        end
-        begin
-          with_workaround_linked_workbooks_excel2007(options) do
-            # temporary workaround until jruby-win32ole implements named parameters (Java::JavaLang::RuntimeException (createVariant() not implemented for class org.jruby.RubyHash)
-            workbooks.Open(abs_filename, 
-                                      updatelinks_vba(options[:update_links]), 
-                                      options[:read_only] )
-          end
-        rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
-          # for Excel2007: for option :if_unsaved => :alert and user cancels: this error appears?
-          # if yes: distinguish these events
-          want_change_readonly = !options[:read_only].nil? && (options[:read_only] != @ole_workbook.ReadOnly)
-          explore_workbook_error(msg, want_change_readonly)
-        end
-        begin
-          # workaround for bug in Excel 2010: workbook.Open does not always return the workbook when given file name
-          begin
-            @ole_workbook = workbooks.Item(File.basename(filename))
-          rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
-            raise UnexpectedREOError, "WIN32OLERuntimeError: #{msg.message}"
-          end
-        rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
-          raise UnexpectedREOError, "WIN32OLERuntimeError: #{msg.message} #{msg.backtrace}"
-        end
+                (options[:read_only].nil? || options[:read_only]==@ole_workbook.ReadOnly )
+      abs_filename = General.absolute_path(filename)
+      workbooks = begin 
+        @excel.Workbooks
+      rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
+        raise UnexpectedREOError, "cannot access workbooks: #{msg.message} #{msg.backtrace}"
       end
-    end    
-           
+      begin
+        with_workaround_linked_workbooks_excel2007(options) do
+          # temporary workaround until jruby-win32ole implements named parameters (Java::JavaLang::RuntimeException (createVariant() not implemented for class org.jruby.RubyHash)
+          workbooks.Open(abs_filename, updatelinks_vba(options[:update_links]), options[:read_only] )
+        end
+      rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
+        # for Excel2007: for option :if_unsaved => :alert and user cancels: this error appears?; distinguish these events
+        want_change_readonly = !options[:read_only].nil? && (options[:read_only] != @ole_workbook.ReadOnly)
+      end
+      # workaround for bug in Excel 2010: workbook.Open does not always return the workbook when given file name
+      @ole_workbook = begin
+        workbooks.Item(File.basename(filename))
+      rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
+        raise UnexpectedREOError, "WIN32OLERuntimeError: #{msg.message}"
+      end
+    end  
+
     # translating the option UpdateLinks from REO to VBA
     # setting UpdateLinks works only if calculation mode is automatic,
     # parameter 'UpdateLinks' has no effect
@@ -656,7 +645,7 @@ module RobustExcelOle
     # @options options
     def reopen(options = { })
       book = self.class.open(@stored_filename, options)
-      raise WorkbookREOError("cannot reopen book\n#{$!.message}") unless book && book.alive?
+      raise WorkbookREOError("cannot reopen workbook\n#{$!.message}") unless book && book.alive?
       book
     end
 
@@ -824,7 +813,7 @@ module RobustExcelOle
     def sheet(name)
       worksheet_class.new(@ole_workbook.Worksheets.Item(name))
     rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
-      raise NameNotFound, "could not return a sheet with name #{name.inspect}\n#{$!.message}"
+      raise NameNotFound, "could not return a sheet with name #{name.inspect}"
     end
 
     def worksheets_count

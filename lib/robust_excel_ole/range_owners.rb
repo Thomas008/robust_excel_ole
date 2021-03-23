@@ -18,7 +18,6 @@ module RobustExcelOle
       name_obj = begin
         get_name_object(name)
       rescue NameNotFound => msg
-        return opts[:default] unless opts[:default] == :__not_provided
         raise
       end
       ole_range = name_obj.RefersToRange
@@ -33,7 +32,6 @@ module RobustExcelOle
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException 
         sheet = if self.is_a?(Worksheet) then self
         elsif self.is_a?(Workbook) then self.sheet(1)
-        elsif self.is_a?(Excel) then self.workbook.sheet(1)
         end
         begin
           # does it result in a range?
@@ -46,12 +44,12 @@ module RobustExcelOle
           end
         rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException 
           return opts[:default] unless opts[:default] == :__not_provided
-          raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{self}\n#{$!.message}"
+          raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{self}"
         end
       end
       if value == -2146828288 + RobustExcelOle::XlErrName
         return opts[:default] unless opts[:default] == :__not_provided
-        raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{File.basename(workbook.stored_filename).inspect rescue nil}\n#{$!.message}"
+        raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{File.basename(workbook.stored_filename).inspect rescue nil}"
       end
       return opts[:default] unless (opts[:default] == :__not_provided) || value.nil?
       value
@@ -165,7 +163,7 @@ module RobustExcelOle
       begin
         self.Parent.Names.Item(name)
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException
-        raise RobustExcelOle::NameNotFound, "name #{name.inspect} not in #{self.inspect}\n#{$!.message}"
+        raise RobustExcelOle::NameNotFound, "name #{name.inspect} not in #{self.inspect}"
       end
     end
 

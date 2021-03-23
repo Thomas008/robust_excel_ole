@@ -2667,10 +2667,11 @@ describe Workbook do
           @key_sender.puts "{right}{enter}"
           @key_sender.puts "{right}{enter}"
           @key_sender.puts "{right}{enter}"
-          expect{
+          #expect{
             Workbook.open(@simple_file, :if_unsaved => :alert)    
-            }.to raise_error(UnexpectedREOError)
+          #  }.to raise_error(UnexpectedREOError)
           @book.should be_alive
+          @book.Saved.should be false
         end
 
         it "should not open the new book and not close the unsaved book, if user answers 'no'" do
@@ -2679,10 +2680,11 @@ describe Workbook do
           @key_sender.puts "{right}{enter}"
           @key_sender.puts "{right}{enter}"
           @key_sender.puts "{right}{enter}"
-          expect{
+          #expect{
             Workbook.open(@simple_file, :if_unsaved => :excel)
-          }.to raise_error(UnexpectedREOError)
+          #}.to raise_error(UnexpectedREOError)
           @book.should be_alive
+          @book.should be false
         end
 
       end

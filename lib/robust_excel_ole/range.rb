@@ -20,7 +20,7 @@ module RobustExcelOle
 
     def initialize(win32_range, worksheet = nil)
       @ole_range = win32_range
-      @worksheet = worksheet ? worksheet.to_reo : worksheet_class.new(self.Parent)
+      @worksheet = (worksheet ? worksheet : self.Parent).to_reo
     end
 
     def rows

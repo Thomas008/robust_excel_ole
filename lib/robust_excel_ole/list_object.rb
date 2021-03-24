@@ -95,7 +95,7 @@ module RobustExcelOle
       return @row_class.new(key_hash_or_number) if key_hash_or_number.respond_to?(:succ)
       opts = {limit: :first}.merge(opts)   
       key_hash = key_hash_or_number.transform_keys{|k| k.downcase.to_sym}
-      matching_listrows = if @ole_table.ListRows.Count < 120
+      matching_listrows = if @ole_table.ListRows.Count <0 #< 120
         listrows_via_traversing(key_hash, opts)
       else
         listrows_via_filter(key_hash, opts)
@@ -123,7 +123,7 @@ module RobustExcelOle
       row_numbers = []
       ole_workbook.retain_saved do
         added_ole_worksheet = ole_workbook.Worksheets.Add
-        criteria = Table.new(added_ole_worksheet, "criteria", [2,1], 2, key_hash.keys)
+        criteria = Table.new(added_ole_worksheet, "criteria", [2,1], 2, key_hash.keys.map{|s| s.to_s})
         criteria[1].values = key_hash.values
         self.Range.AdvancedFilter({
           Action: XlFilterInPlace, 

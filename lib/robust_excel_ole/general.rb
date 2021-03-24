@@ -258,6 +258,7 @@ module General
 
   # @private
   # enable RobustExcelOle methods to Win32Ole objects
+=begin  
   def init_reo_for_win32ole
     class2method.each do |element|
       classname = element.first.first
@@ -265,6 +266,58 @@ module General
       meths.each do |inst_method|
         WIN32OLE.send(:define_method, inst_method) do |*args, &blk|  
           to_reo.send(inst_method, *args, &blk) 
+        end
+      end
+    end
+    nil
+  end
+=end
+
+=begin
+  def init_reo_for_win32ole
+    class2method.each do |element|
+      classname = element.first.first
+      meths = (classname.instance_methods(false) - WIN32OLE.instance_methods(false) - Object.methods - Enumerable.instance_methods(false) - [:Calculation=])
+      meths.each do |inst_method|
+        if method_defined?(inst_method)
+          WIN32OLE.send(:define_method, inst_method) do |*args, &blk|  
+            begin 
+              obj = to_reo                        
+            rescue
+              return self.send(inst_method.capitalize, *args, &blk)
+            end
+            obj.send(inst_method, *args, &blk)
+          end
+        else
+          WIN32OLE.send(:define_method, inst_method) do |*args, &blk|  
+            #to_reo.send(inst_method, *args, &blk)
+            begin 
+              obj = classname.constantize.new(self)           
+            rescue
+              return self.send(inst_method.capitalize, *args, &blk)
+            end
+            obj.send(inst_method, *args, &blk) 
+          end
+        end
+      end
+      end
+    end
+    nil
+  end
+=end
+
+  def init_reo_for_win32ole
+    class2method.each do |element|
+      classname = element.first.first
+      meths = (classname.instance_methods(false) - WIN32OLE.instance_methods(false) - Object.methods - Enumerable.instance_methods(false) - [:Calculation=])
+      meths.each do |inst_method|
+        WIN32OLE.send(:define_method, inst_method) do |*args, &blk|  
+          begin 
+            obj = classname.method_defined?(inst_method) ? to_reo : classname.constantize.new(self)
+          rescue
+            return self.send(inst_method.capitalize, *args, &blk)
+          end
+          obj.send(inst_method, *args, &blk)
         end
       end
     end

@@ -94,7 +94,7 @@ module RobustExcelOle
     def [] (key_hash_or_number, opts = { })
       return @row_class.new(key_hash_or_number) if key_hash_or_number.respond_to?(:succ)
       opts = {limit: :first}.merge(opts)   
-      key_hash = key_hash_or_number
+      key_hash = key_hash_or_number.transform_keys{|k| k.downcase.to_sym}
       matching_listrows = if @ole_table.ListRows.Count < 120
         listrows_via_traversing(key_hash, opts)
       else
@@ -105,26 +105,12 @@ module RobustExcelOle
 
   private
 
-=begin
-    def listrows_via_traversing(key_hash, opts)
+    def listrows_via_traversing(key_hash, opts)      
       encode_utf8 = ->(val) {val.respond_to?(:gsub) ? val.encode('utf-8') : val}
       cn2i = column_names_to_index
       matching_rows = @ole_table.ListRows.select do |listrow| 
         rowvalues = listrow.Range.Value.first
-        key_hash.all?{ |key,val| encode_utf8.(rowvalues[cn2i[key]])==val }
-      end
-      opts[:limit] ? matching_rows.take(opts[:limit] == :first ? 1 : opts[:limit]) : matching_rows
-    rescue
-      raise(TableError, "cannot find row with key #{key_hash}")
-    end
-=end
-
-    def listrows_via_traversing(key_hash, opts)
-      encode_utf8 = ->(val) {val.respond_to?(:gsub) ? val.encode('utf-8') : val}
-      cn2i = column_names_to_index
-      matching_rows = @ole_table.ListRows.select do |listrow| 
-        rowvalues = listrow.Range.Value.first
-        key_hash.all?{ |key,val| encode_utf8.(rowvalues[cn2i[key.downcase.to_sym]])==val}
+        key_hash.all?{ |key,val| encode_utf8.(rowvalues[cn2i[key]])==val}
       end
       opts[:limit] ? matching_rows.take(opts[:limit] == :first ? 1 : opts[:limit]) : matching_rows
     rescue

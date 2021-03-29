@@ -7,11 +7,9 @@ module ToReoRefinement
 
     # type-lifting WIN32OLE objects to RobustExcelOle objects
     def to_reo
-      General.class2method.each do |element|
-        classname = element.first.first
-        method = element.first.last
+      General.class2method.each do |classname, recognising_method|
         begin
-          self.send(method)
+          self.send(recognising_method)
           if classname != RobustExcelOle::Range
             return classname.new(self)
           elsif self.Rows.Count == 1 && self.Columns.Count == 1
@@ -246,7 +244,7 @@ module General
     Pry.change_current_binding(current_object)
   end
 
-  # @private
+=begin  
   def class2method
     [{RobustExcelOle::Range => :Row},
      {RobustExcelOle::Excel => :Hwnd},
@@ -255,12 +253,22 @@ module General
      {RobustExcelOle::ListObject => :ListRows},
      {RobustExcelOle::ListRow => :Creator}]
   end
+=end
+
+  # @private
+  def class2method
+    {RobustExcelOle::Range => :Row,
+     RobustExcelOle::Excel => :Hwnd,
+     RobustExcelOle::Workbook => :FullName,
+     RobustExcelOle::Worksheet => :UsedRange,
+     RobustExcelOle::ListObject => :ListRows,
+     RobustExcelOle::ListRow => :Creator}
+  end
 
   # @private
   # enable RobustExcelOle methods to Win32Ole objects
   def init_reo_for_win32ole
-    class2method.each do |element|
-      classname = element.first.first
+    class2method.each_key do |classname|
       meths = (classname.instance_methods(false) - WIN32OLE.instance_methods(false) - Object.methods - Enumerable.instance_methods(false) - [:Calculation=])
       meths.each do |inst_method|
         WIN32OLE.send(:define_method, inst_method) do |*args, &blk|  

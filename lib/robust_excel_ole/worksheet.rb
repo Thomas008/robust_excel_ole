@@ -191,14 +191,18 @@ module RobustExcelOle
 
     # accessing cells
     def each_cell
-      each_row do |row_range|
-        row_range.lazy.each do |cell|
-          yield cell
+      if block_given?
+        each_row do |row_range|
+          row_range.lazy.each do |cell|
+            yield cell
+          end
         end
+      else
+        to_enum(:each_cell).lazy
       end
     end
 
-    def each_cell_with_index(offset = 0)
+    def each_cell_with_index(offset = 0)   # :nodoc: #  # :deprecated :#
       i = offset
       each_row do |row_range|
         row_range.each do |cell|
@@ -210,14 +214,18 @@ module RobustExcelOle
 
     # accessing rows
     def each_row(offset = 0)
-      offset += 1
-      1.upto(@end_row) do |row|
-        next if row < offset
-        yield RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(row, 1), @ole_worksheet.Cells(row, @end_column)), self)
+      if block_given?
+        offset += 1
+        1.upto(@end_row) do |row|
+          next if row < offset
+          yield RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(row, 1), @ole_worksheet.Cells(row, @end_column)), self)
+        end
+      else
+        to_enum(:each_row).lazy
       end
     end
 
-    def each_row_with_index(offset = 0)
+    def each_row_with_index(offset = 0)    # :nodoc: #   # :deprecated :#
       each_row(offset) do |row_range|
         yield RobustExcelOle::Range.new(row_range, self), (row_range.Row - 1 - offset)
       end
@@ -225,14 +233,18 @@ module RobustExcelOle
 
     # accessing columns
     def each_column(offset = 0)
-      offset += 1
-      1.upto(@end_column) do |column|
-        next if column < offset
-        yield RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(1, column), @ole_worksheet.Cells(@end_row, column)), self)
+      if block_given?
+        offset += 1
+        1.upto(@end_column) do |column|
+          next if column < offset
+          yield RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(1, column), @ole_worksheet.Cells(@end_row, column)), self)
+        end
+      else
+        to_enum(:each_column).lazy
       end
     end
 
-    def each_column_with_index(offset = 0)
+    def each_column_with_index(offset = 0)    # :nodoc: #    # :deprecated :#
       each_column(offset) do |column_range|
         yield RobustExcelOle::Range.new(column_range, self), (column_range.Column - 1 - offset)
       end

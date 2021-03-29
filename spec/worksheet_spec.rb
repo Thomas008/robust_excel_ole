@@ -392,7 +392,7 @@ describe Worksheet do
     describe '#each_cell' do
 
       it "should sort line in order of column" do
-        @sheet.each_cell_with_index do |cell, i|
+        @sheet.each_cell.with_index do |cell, i|
           case i
           when 0
             cell.Value.should eq 'foo'
@@ -414,7 +414,7 @@ describe Worksheet do
         include_context "sheet 'open book with blank'"
 
         it 'should get from ["A1"]' do
-          @sheet_with_blank.each_cell_with_index do |cell, i|
+          @sheet_with_blank.each_cell.with_index do |cell, i|
             case i
             when 5
               cell.Value.should be_nil
@@ -557,9 +557,9 @@ describe Worksheet do
 
     end
 
-    describe "#each_row_with_index" do
+    describe "#each_row.with_index" do
       it "should read with index" do
-        @sheet.each_row_with_index do |rows, idx|
+        @sheet.each_row.with_index do |rows, idx|
           case idx
           when 0
             rows.values.should eq ['foo', 'workbook', 'sheet1']
@@ -571,22 +571,10 @@ describe Worksheet do
         end
       end
 
-      context "with argument 1" do
-        it "should read from second row, index is started 0" do
-          @sheet.each_row_with_index(1) do |rows, idx|
-            case idx
-            when 0
-              rows.values.should eq ['foo', nil, 'foobaaa']
-            when 1
-              rows.values.should eq ['matz', 'is', 'nice']
-            end
-          end
-        end
-      end
-
     end
 
     describe "#each_column" do
+
       it "items should RobustExcelOle::Range" do
         @sheet.each_column do |columns|
           columns.should be_kind_of RobustExcelOle::Range
@@ -653,8 +641,9 @@ describe Worksheet do
     end
 
     describe "#each_column_with_index" do
+   
       it "should read with index" do
-        @sheet.each_column_with_index do |columns, idx|
+        @sheet.each_column.with_index do |columns, idx|
           case idx
           when 0
             columns.values.should eq ['foo', 'foo', 'matz']
@@ -662,19 +651,6 @@ describe Worksheet do
             columns.values.should eq ['workbook', nil, 'is']
           when 2
             columns.values.should eq ['sheet1', 'foobaaa', 'nice']
-          end
-        end
-      end
-
-      context "with argument 1" do
-        it "should read from second column, index is started 0" do
-          @sheet.each_column_with_index(1) do |column_range, idx|
-            case idx
-            when 0
-              column_range.values.should eq ['workbook', nil, 'is']
-            when 1
-              column_range.values.should eq ['sheet1', 'foobaaa', 'nice']
-            end
           end
         end
       end

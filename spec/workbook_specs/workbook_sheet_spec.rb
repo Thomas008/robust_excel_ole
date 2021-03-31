@@ -207,9 +207,9 @@ describe Workbook do
 
     it "should copy the second sheet, append it and leave the references so far" do
       @book2.add_sheet(@book2.sheet(2), :after => @book2.sheet(3))
-      @book2.sheet(1)[2,1].Value.should == "x"
-      @book2.sheet(1)[2,2].Value.should == "y"
-      @book2.sheet(1)[2,3].Value.should == "z"
+      @book2.sheet(1)[2,1].should == "x"
+      @book2.sheet(1)[2,2].should == "y"
+      @book2.sheet(1)[2,3].should == "z"
     end
 
     it "should copy and append a given sheet" do

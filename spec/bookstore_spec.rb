@@ -419,7 +419,7 @@ describe Bookstore do
         @bookstore.store(@book2)
         @bookstore.store(@book3)
         sheet = @book3.sheet(1)
-        sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+        sheet[1,1] = sheet[1,1] == "foo" ? "bar" : "foo"
         @book.ReadOnly.should be true
         @book2.ReadOnly.should be false
         @book3.ReadOnly.should be true

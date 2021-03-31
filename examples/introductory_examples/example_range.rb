@@ -72,7 +72,7 @@ book.rename_name("name", "new_name")
 puts 'deleting name "new_name"'
 book.delete_name("new_name")
 # reading the value of a cell
-cell_value = sheet[1,1].Value
+cell_value = sheet[1,1]
 puts "value of 1st cell: #{cell_value}"
 # writing the value of a cell
 puts 'writing the value "bar" into 1st cell'

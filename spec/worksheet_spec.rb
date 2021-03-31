@@ -153,91 +153,51 @@ describe Worksheet do
 
   describe "#[]" do
 
-    it "should access a rectangular range [1..2,1..3]" do
-      range1 = @sheet[1..2,1..3]
-      range1.should be_kind_of RobustExcelOle::Range
-      range1.Address.should == "$A$1:$C$2"
-      range1.Value.should == [["foo", "workbook", "sheet1"], ["foo", nil, "foobaaa"]]
-      range2 = @sheet[1..2, "A".."C"]
-      range2.Address.should == range1.Address
-      range3 = @sheet["A1:C2"]
-      range3.Address.should == range1.Address
-      range4 = @sheet["Z1S1:Z2S3"]
-      range4.Address.should == range1.Address
+    it "should yield values of a rectangular range [1..2,1..3]" do
+      value1 = @sheet[1..2,1..3]
+      value1.should == [["foo", "workbook", "sheet1"], ["foo", nil, "foobaaa"]]
+      @sheet[1..2, "A".."C"].should == value1
+      @sheet["A1:C2"].should == value1
+      @sheet["Z1S1:Z2S3"].should == value1
     end
 
-    it "should access a range [1,1..3]" do
-      range1 = @sheet[1,1..3]
-      range1.should be_kind_of RobustExcelOle::Range
-      range1.Address.should == "$A$1:$C$1"
-      range1.Value.should == [["foo", "workbook", "sheet1"]]
+    it "should yield values of a range [1,1..3]" do
+      @sheet[1,1..3].should == [["foo", "workbook", "sheet1"]]
     end
 
-    it "should access a range [1..2,1]" do
-      range1 = @sheet[1..2,1]
-      range1.should be_kind_of RobustExcelOle::Range
-      range1.Address.should == "$A$1:$A$2"
-      range1.Value.should == [["foo"], ["foo"]]
+    it "should yield values of range [1..2,1]" do
+      @sheet[1..2,1].should == [["foo"], ["foo"]]
     end
 
-    it "should access a row 1" do
-      range1 = @sheet[1]
-      range1.should be_kind_of RobustExcelOle::Range
-      range1.Address.should == "$A$1:$C$1"
-      range1.Value.should == [["foo", "workbook", "sheet1"]]
+    it "should yield values of row 1" do
+      @sheet[1].should == [["foo", "workbook", "sheet1"]]
     end
 
-    it "should access a cell [1,2]" do
-      cell1 = @sheet[1,2]
-      cell1.should be_kind_of Cell
-      cell1.Address.should == "$B$1"
-      cell1.Value.should == "workbook"
-      cell2 = @sheet["B1"]
-      cell1.should be_kind_of Cell
-      cell2.Address.should == cell1.Address
-      cell3 = @sheet["Z1S2"]
-      cell1.should be_kind_of Cell
-      cell3.Address.should == cell1.Address
+    it "should yield value of a cell [1,2]" do
+      @sheet[1,2].should == "workbook"
+      @sheet["Z1S2"].should == @sheet[1,2]
+      @sheet["B1"].should == @sheet[1,2]
     end
 
     it "should a range with relative r1c1-reference" do
-      @sheet[1,1].Select
-      @sheet["Z1S[3]:Z[2]S8"].Address.should == "$D$1:$H$3"
-      @sheet["Z1S3:Z2S8"].Address.should == "$C$1:$H$2"
+      @sheet.range([1,1]).Select
+      @sheet["Z1S[3]:Z[2]S8"].should == @sheet["Z1S3:Z2S8"]
     end
 
     it "should a range with relative integer-range-reference" do
-      @sheet[1,1].Select
-      @sheet[1..[2],[3]..8].Address.should == "$D$1:$H$3"
-    end
-
-    it "should create infinite ranges" do
-      @sheet[1..3,nil].Address.should == "$1:$3"
-      @sheet[nil,"B".."D"].Address.should == "$B:$D"
-      @sheet["1:3"].Address.should == "$1:$3"
-      @sheet["B:D"].Address.should == "$B:$D"
-    end
-
-    it "should raise an error" do
-      expect{
-        @sheet[0,0]
-      }.to raise_error(RangeNotCreated, /cannot create/)
-      expect{
-        @sheet[0..3,4]
-      }.to raise_error(RangeNotCreated, /cannot create/)
+      @sheet.range([1,1]).Select
+      @sheet[1..[2],[3]..8].should == @sheet["$D$1:$H$3"]
     end
 
     it "should return value of a defined name" do
       @book2 = Workbook.open(@dir + '/another_workbook.xls')
       @sheet2 = @book2.sheet(1)
-      range1 = @sheet2["firstcell"]
-      range1.should be_kind_of Cell
-      range1.Value.should == "foo"
-      @sheet2["new"].Value.should == "foo"         
-      @sheet2["one"].Value.should == 1.0    
-      @sheet2["four"].Value.should == [[1,2],[3,4]]
-      @sheet2["firstrow"].Value.should == [[1,2]]
-      @sheet2["another"].Value.should == nil
+      @sheet2["firstcell"].should == "foo"
+      @sheet2["new"].should == "foo"         
+      @sheet2["one"].should == 1.0    
+      @sheet2["four"].should == [[1,2],[3,4]]
+      @sheet2["firstrow"].should == [[1,2]]
+      @sheet2["another"].should == nil
       expect {
         @sheet2["foo"]
       }.to raise_error(RangeNotCreated)  
@@ -246,21 +206,20 @@ describe Worksheet do
 
   end
 
-  describe 'access cell' do
+  describe 'access values of cells' do
 
     describe "#[,]" do      
 
-      context "access [1,1]" do
+      context "access values of [1,1]" do
 
-        it { @sheet[1, 1].should be_kind_of Cell }
-        it { @sheet[1, 1].Value.should eq 'foo' }
+        it { @sheet[1, 1].should eq 'foo' }
       end
 
-      context "access [1, 1], [1, 2], [3, 1]" do
+      context "access values of [1, 1], [1, 2], [3, 1]" do
         it "should get every values" do
-          @sheet[1, 1].Value.should eq 'foo'
-          @sheet[1, 2].Value.should eq 'workbook'
-          @sheet[3, 1].Value.should eq 'matz'
+          @sheet[1, 1].should eq 'foo'
+          @sheet[1, 2].should eq 'workbook'
+          @sheet[3, 1].should eq 'matz'
         end
       end
 
@@ -275,18 +234,18 @@ describe Worksheet do
 
     it "change a cell to 'bar'" do
       @sheet[1, 1] = 'bar'
-      @sheet[1, 1].Value.should eq 'bar'
+      @sheet[1, 1].should eq 'bar'
     end
 
     it "should change a cell to nil" do
       @sheet[1, 1] = nil
-      @sheet[1, 1].Value.should eq nil
+      @sheet[1, 1].should eq nil
     end
 
     it "should raise error for bad ranges" do
       expect{
         @sheet[0,0]
-      }.to raise_error(RangeNotEvaluatable, /cannot read cell/)
+      }.to raise_error(RangeNotCreated, /cannot find name or address 0, 0/)
       expect{
         @sheet[0,0] = "foo"
       }.to raise_error(RangeNotEvaluatable, /cannot assign value/)
@@ -297,16 +256,75 @@ describe Worksheet do
       it "should set color" do
         @sheet.set_cellval(1,1,"foo",:color => 42)
         @sheet.cellval(1,1).should == "foo"
-        @sheet[1,1].Interior.ColorIndex.should == 42
+        @sheet.range([1,1]).Interior.ColorIndex.should == 42
       end
     end
 
-    describe "range" do
+    describe "#range" do
+
+      it "should access a rectangular range [1..2,1..3]" do
+        range1 = @sheet.range(1..2,1..3)
+        range1.should be_kind_of RobustExcelOle::Range
+        range1.Address.should == "$A$1:$C$2"
+        range1.Value.should == [["foo", "workbook", "sheet1"], ["foo", nil, "foobaaa"]]
+        range2 = @sheet.range(1..2, "A".."C")
+        range2.Address.should == range1.Address
+        range3 = @sheet.range("A1:C2")
+        range3.Address.should == range1.Address
+        range4 = @sheet.range("Z1S1:Z2S3")
+        range4.Address.should == range1.Address
+        range5 = @sheet.range([1..2,1..3])
+        range5.should be_kind_of RobustExcelOle::Range
+        range5.Address.should == "$A$1:$C$2"
+        range5.Value.should == [["foo", "workbook", "sheet1"], ["foo", nil, "foobaaa"]]
+        range6 = @sheet.range([1..2, "A".."C"])
+        range6.Address.should == range1.Address
+      end
+
+      it "should access a range [1,1..3]" do
+        range1 = @sheet.range(1,1..3)
+        range1.should be_kind_of RobustExcelOle::Range
+        range1.Address.should == "$A$1:$C$1"
+        range1.Value.should == [["foo", "workbook", "sheet1"]]
+        range2 = @sheet.range([1,1..3])
+        range2.Address.should == range1.Address
+      end
+
+      it "should access a range [1..2,1]" do
+        range1 = @sheet.range(1..2,1)
+        range1.should be_kind_of RobustExcelOle::Range
+        range1.Address.should == "$A$1:$A$2"
+        range1.Value.should == [["foo"], ["foo"]]
+        range2 = @sheet.range([1..2,1])
+        range2.Address.should == range1.Address
+      end
+
+      it "should access a row 1" do
+        range1 = @sheet.range(1)
+        range1.should be_kind_of RobustExcelOle::Range
+        range1.Address.should == "$A$1:$C$1"
+        range1.Value.should == [["foo", "workbook", "sheet1"]]
+        range2 = @sheet.range([1])
+        range2.Address.should == range1.Address
+      end
+
+      it "should access a cell [1,2]" do
+        cell1 = @sheet.range(1,2)
+        cell1.should be_kind_of Cell
+        cell1.Address.should == "$B$1"
+        cell1.Value.should == "workbook"
+        cell2 = @sheet.range("B1")
+        cell1.should be_kind_of Cell
+        cell2.Address.should == cell1.Address
+        cell3 = @sheet.range("Z1S2")
+        cell1.should be_kind_of Cell
+        cell3.Address.should == cell1.Address
+      end
 
       it "should a range with relative r1c1-reference" do
         @sheet.range([1,1]).Select
-        @sheet.range(["Z1S[3]:Z[2]S8"]).Address.should == "$D$1:$H$3"
-        @sheet.range(["Z1S3:Z2S8"]).Address.should == "$C$1:$H$2"
+        @sheet.range("Z1S[3]:Z[2]S8").Address.should == "$D$1:$H$3"
+        @sheet.range("Z1S3:Z2S8").Address.should == "$C$1:$H$2"
       end
 
       it "should a range with relative integer-range-reference" do
@@ -314,12 +332,37 @@ describe Worksheet do
         @sheet.range([1..[2],[3]..8]).Address.should == "$D$1:$H$3"
       end
 
-      it "should create a range of one cell" do
-        @sheet.range([1,2]).values.should == ["workbook"]
-        @sheet.range(["B1"]).values.should == ["workbook"]
-        @sheet.range("B1").values.should == ["workbook"]
-        @sheet.range(["Z1S2"]).values.should == ["workbook"]
-        @sheet.range("Z1S2").values.should == ["workbook"]
+      it "should create infinite ranges" do
+        @sheet.range([1..3,nil]).Address.should == "$1:$3"
+        @sheet.range([nil,"B".."D"]).Address.should == "$B:$D"
+        @sheet.range(["1:3"]).Address.should == "$1:$3"
+        @sheet.range(["B:D"]).Address.should == "$B:$D"
+      end
+
+      it "should raise an error" do
+        expect{
+          @sheet.range([0,0])
+        }.to raise_error(RangeNotCreated, /cannot create/)
+        expect{
+          @sheet.range([0..3,4])
+        }.to raise_error(RangeNotCreated, /cannot create/)
+      end
+
+      it "should return value of a defined name" do
+        @book2 = Workbook.open(@dir + '/another_workbook.xls')
+        @sheet2 = @book2.sheet(1)
+        range1 = @sheet2.range("firstcell")
+        range1.should be_kind_of Cell
+        range1.Value.should == "foo"
+        @sheet2.range("new").Value.should == "foo"         
+        @sheet2.range("one").Value.should == 1.0    
+        @sheet2.range("four").Value.should == [[1,2],[3,4]]
+        @sheet2.range("firstrow").Value.should == [[1,2]]
+        @sheet2.range("another").Value.should == nil
+        expect {
+          @sheet2.range("foo")
+        }.to raise_error(RangeNotCreated)  
+        @book2.close(:if_unsaved => :forget)
       end
 
       it "should create a rectangular range" do
@@ -336,19 +379,6 @@ describe Worksheet do
         @sheet.range(1..3, "B".."D").values.should == ["workbook", "sheet1", nil, nil, "foobaaa", nil, "is", "nice", nil]     
       end
 
-      it "should create infinite ranges" do
-        @sheet.range([1..3,nil]).Address.should == "$1:$3"
-        @sheet.range(nil,"B".."D").Address.should == "$B:$D"
-        @sheet.range("1:3").Address.should == "$1:$3"
-        @sheet.range("B:D").Address.should == "$B:$D"
-      end
-
-      it "should raise an error" do
-        expect{
-          @sheet.range([0,0])
-          }.to raise_error(RangeNotCreated, /cannot create/)
-      end
-
     end
 
     describe "table" do
@@ -363,7 +393,7 @@ describe Worksheet do
         table.Name.should == "table3"
         table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Price"]
         table.ListRows.Count.should == 13
-        @sheet[3,4].Value.should == "Number"
+        @sheet[3,4].should == "Number"
       end
 
       it "should yield table given name" do
@@ -371,7 +401,7 @@ describe Worksheet do
         table.Name.should == "table3"
         table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Price"]
         table.ListRows.Count.should == 13
-        @sheet[3,4].Value.should == "Number"
+        @sheet[3,4].should == "Number"
       end
 
       it "should yield table given name with umlauts" do
@@ -436,9 +466,9 @@ describe Worksheet do
         @sheet.each_cell do |cell|
           cells << cell
         end
-        cells.should == [@sheet[1,1], @sheet[1,2], @sheet[1,3],
-                         @sheet[2,1], @sheet[2,2], @sheet[2,3],
-                         @sheet[3,1], @sheet[3,2], @sheet[3,3]]
+        cells.should == [@sheet.range(1,1), @sheet.range(1,2), @sheet.range(1,3),
+                         @sheet.range(2,1), @sheet.range(2,2), @sheet.range(2,3),
+                         @sheet.range(3,1), @sheet.range(3,2), @sheet.range(3,3)]
       end
 
     end
@@ -468,14 +498,14 @@ describe Worksheet do
 
       it "should yield rows" do
         @sheet.each.with_index do |row, i|
-          row.value.should == [["foo", "workbook", "sheet1"]] if i == 0
-          row.value.should == [["foo", nil, "foobaaa"]] if i == 1
-          row.value.should == [["matz", "is", "nice"]] if i == 2
+          row.should == ["foo", "workbook", "sheet1"] if i == 0
+          row.should == ["foo", nil, "foobaaa"] if i == 1
+          row.should == ["matz", "is", "nice"] if i == 2
         end
       end
 
       it "should do map" do
-        @sheet.map{|r| r.values}.should == [["foo", "workbook", "sheet1"], ["foo", nil, "foobaaa"], ["matz", "is", "nice"]]
+        @sheet.map{|r| r}.should == [["foo", "workbook", "sheet1"], ["foo", nil, "foobaaa"], ["matz", "is", "nice"]]
       end
 
     end
@@ -746,13 +776,13 @@ describe Worksheet do
       it "should raise an error if name not defined" do
         expect {
           @sheet1["foo"]
-        }.to raise_error(NameNotFound, /name "foo" not in #<Worksheet: Sheet1/)        
+        }.to raise_error(RangeNotCreated, /cannot find name or address "foo"/)        
       end
 
       it "should set a range to a value" do
-        @sheet1[1,1].Value.should == "foo"
+        @sheet1[1,1].should == "foo"
         @sheet1["firstcell"] = "bar"
-        @sheet1[1,1].Value.should == "bar"
+        @sheet1[1,1].should == "bar"
         @sheet1["new"] = "bar"
         @sheet1["new"].should == "bar"
       end
@@ -760,7 +790,7 @@ describe Worksheet do
       it "should raise an error if name cannot be evaluated" do
         expect{
           @sheet1["foo"] = 1
-          }.to raise_error(NameNotFound, /name "foo" not in #<Worksheet: Sheet1/)
+          }.to raise_error(RangeNotEvaluatable, /cannot assign value to range with name or address "foo"/)
       end
     end
 
@@ -801,10 +831,10 @@ describe Worksheet do
 
       it "should set a range to a value" do
         @sheet1.namevalue_global("firstcell").should == "foo"
-        @sheet1[1,1].Value.should == "foo"
+        @sheet1[1,1].should == "foo"
         @sheet1.set_namevalue_global("firstcell","bar")
         @sheet1.namevalue_global("firstcell").should == "bar"
-        @sheet1[1,1].Value.should == "bar"
+        @sheet1[1,1].should == "bar"
       end
 
       it "should raise an error if name cannot be evaluated" do
@@ -830,10 +860,10 @@ describe Worksheet do
       it "should set a range to a value with umlauts" do
         @sheet1.add_name("lösung", [1,1])
         @sheet1.namevalue_global("lösung").should == "foo"
-        @sheet1[1,1].Value.should == "foo"
+        @sheet1[1,1].should == "foo"
         @sheet1.set_namevalue_global("lösung","bar")
         @sheet1.namevalue_global("lösung").should == "bar"
-        @sheet1[1,1].Value.should == "bar"  
+        @sheet1[1,1].should == "bar"  
       end
 
     end
@@ -887,19 +917,19 @@ describe Worksheet do
     
       it "should set a range to a value" do
         @sheet1.namevalue("firstcell").should == "foo"
-        @sheet1[1,1].Value.should == "foo"
+        @sheet1[1,1].should == "foo"
         @sheet1.set_namevalue("firstcell","bar")
         @sheet1.namevalue("firstcell").should == "bar"
-        @sheet1[1,1].Value.should == "bar"          
+        @sheet1[1,1].should == "bar"          
       end
 
       it "should set a range to a value with umlauts" do
         @sheet1.add_name("lösung", [1,1])
         @sheet1.namevalue("lösung").should == "foo"
-        @sheet1[1,1].Value.should == "foo"
+        @sheet1[1,1].should == "foo"
         @sheet1.set_namevalue("lösung","bar")
         @sheet1.namevalue("lösung").should == "bar"
-        @sheet1[1,1].Value.should == "bar"  
+        @sheet1[1,1].should == "bar"  
       end
 
       it "should raise an error if name cannot be evaluated" do
@@ -970,7 +1000,7 @@ describe Worksheet do
         end
 
         it "should rename an already named range with a giving address" do
-          @sheet1[1,1].Name.Name.should == "Sheet1!firstcell"
+          @sheet1.range([1,1]).Name.Name.should == "Sheet1!firstcell"
           @sheet1.add_name("foo",[1..2,3..4])
           @sheet1.Range("foo").Address.should == "$C$1:$D$2"
         end

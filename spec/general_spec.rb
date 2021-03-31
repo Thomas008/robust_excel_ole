@@ -98,7 +98,7 @@ module RobustExcelOle
         table.Name.should == "table3"
         table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Price"]
         table.ListRows.Count.should == 13
-        worksheet[3,4].Value.should == "Number"
+        worksheet[3,4].should == "Number"
       end
 
       it "should type-lift an Excel" do

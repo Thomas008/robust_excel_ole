@@ -297,7 +297,7 @@ and the third column
 
 We can read the first cell, using
 
-  worksheet[1,1].value    # => "foo"
+  worksheet[1,1].    # => "foo"
 
 or
 

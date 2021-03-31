@@ -20,7 +20,7 @@ begin
 
   Workbook.unobtrusively(extended_file_name) do |book|
     book.each do |sheet|
-      sheet.each do |cell|
+      sheet.each_cell do |cell|
         name = cell.Name.Name rescue nil
         if name
           cell.Value = cell.Value.to_s + cell.Offset(0,1).Value.to_s

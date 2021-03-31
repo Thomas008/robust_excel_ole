@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [1.32] 2021-16-03
+## [1.32] 2021-31-03
 
 ### Added
   - Excel#each  
@@ -17,8 +17,9 @@ All notable changes to this project will be documented in this file.
   - Excel#known_excel_instance renamed to #known_running_instance
   - Excel#known_excel_instances renamed to #known_running_instances
   - RangeOwners#rename_range renamed to #rename_name
-  - Worksheet#each renamed to #each_cell
+  - Worksheet#each renamed to #each_cell, #each traversing row values instead of cells
   - Worksheet#each_with_index renamed to #each_cell_with_index
+  - Worksheet#[]: returning range values (instead of cells)
 
 ## [1.31] 2021-14-01
 

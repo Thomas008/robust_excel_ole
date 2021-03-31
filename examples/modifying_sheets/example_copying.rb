@@ -26,7 +26,7 @@ begin
     book.each do |sheet|
       new_sheet = book.add_sheet 
       contains_named_cells = false
-      sheet.each do |cell|
+      sheet.each_cell do |cell|
         full_name = cell.Name.Name rescue nil
         if full_name
           sheet_name, short_name = full_name.split("!") 

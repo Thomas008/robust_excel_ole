@@ -99,48 +99,48 @@ describe ListRow do
           @table_row1.person1.should be nil
           @table_row1.person1 = "John"
           @table_row1.person1.should == "John"
-          @sheet[23,1].Value.should == "John"
+          @sheet[23,1].should == "John"
           @table_row1.Person1 = "Herbert"
           @table_row1.Person1.should == "Herbert"
-          @sheet[23,1].Value.should == "Herbert"
+          @sheet[23,1].should == "Herbert"
           @table_row1.win_sales.should be nil
           @table_row1.win_sales = 42
           @table_row1.win_sales.should == 42
-          @sheet[23,2].Value.should == 42
+          @sheet[23,2].should == 42
           @table_row1.Win_Sales = 80
           @table_row1.Win_Sales.should == 80
-          @sheet[23,2].Value.should == 80
+          @sheet[23,2].should == 80
           @table_row1.xiq_xs.should == nil
           @table_row1.xiq_xs = 90
           @table_row1.xiq_xs.should == 90
-          @sheet[23,3].Value.should == 90
+          @sheet[23,3].should == 90
           @table_row1.xiq_Xs = 100
           @table_row1.xiq_Xs.should == 100
-          @sheet[23,3].Value.should == 100
+          @sheet[23,3].should == 100
           @table_row1.order_id.should == nil
           @table_row1.order_id = 1
           @table_row1.order_id.should == 1
-          @sheet[23,4].Value.should == 1
+          @sheet[23,4].should == 1
           @table_row1.OrderID = 2
           @table_row1.OrderID.should == 2
-          @sheet[23,4].Value.should == 2
+          @sheet[23,4].should == 2
           @table_row1.year = 1984
           @table_row1.year.should == 1984
-          @sheet[23,5].Value.should == 1984
+          @sheet[23,5].should == 1984
           @table_row1.YEAR = 2020
           @table_row1.YEAR.should == 2020
-          @sheet[23,5].Value.should == 2020
+          @sheet[23,5].should == 2020
           @table_row1.length_in_m.should == nil
           @table_row1.length_in_m = 20
           @table_row1.length_in_m.should == 20
-          @sheet[23,6].Value.should == 20
+          @sheet[23,6].should == 20
           @table_row1.length_in_m = 40
           @table_row1.length_in_m.should == 40
-          @sheet[23,6].Value.should == 40
+          @sheet[23,6].should == 40
           @table_row1.amo_unt_sal___es.should == nil
           @table_row1.amo_unt_sal___es = 80
           @table_row1.amo_unt_sal___es.should == 80
-          @sheet[23,7].Value.should == 80
+          @sheet[23,7].should == 80
         end
 
       end
@@ -156,21 +156,21 @@ describe ListRow do
           @table_row1.verkaeufer.should be nil
           @table_row1.verkaeufer = "John"
           @table_row1.verkaeufer.should == "John"
-          @sheet[2,1].Value.should == "John"
+          @sheet[2,1].should == "John"
           @table_row1.Verkaeufer = "Herbert"
           @table_row1.Verkaeufer.should == "Herbert"
-          @sheet[2,1].Value.should == "Herbert"
+          @sheet[2,1].should == "Herbert"
           @table_row1.strasse.should be nil
           @table_row1.strasse = 42
           @table_row1.strasse.should == 42
-          @sheet[2,2].Value.should == 42
+          @sheet[2,2].should == 42
           @table_row1.Strasse = 80
           @table_row1.Strasse.should == 80
-          @sheet[2,2].Value.should == 80
+          @sheet[2,2].should == 80
           @table_row1.area_in_m2.should be nil
           @table_row1.area_in_m2 = 10
           @table_row1.area_in_m2.should == 10
-          @sheet[2,3].Value.should == 10
+          @sheet[2,3].should == 10
         end
 
       end
@@ -189,11 +189,11 @@ describe ListRow do
         @table_row1.number.should == 3
         @table_row1.number = 1
         @table_row1.number.should == 1
-        @sheet[4,4].Value.should == 1
+        @sheet[4,4].should == 1
         @table_row1.person.should == "John"
         @table_row1.person = "Herbert"
         @table_row1.person.should == "Herbert"
-        @sheet[4,5].Value.should == "Herbert"
+        @sheet[4,5].should == "Herbert"
       end
     end
 

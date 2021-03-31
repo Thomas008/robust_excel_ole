@@ -912,9 +912,9 @@ describe Workbook do
       before do
         @book = Workbook.open(@simple_file1, :if_unsaved => :accept)
         sheet = @book.sheet(1)
-        @old_value = sheet[1,1].Value
-        sheet[1,1] = (sheet[1,1].Value == "foo" ? "bar" : "foo")
-        @new_value = sheet[1,1].Value
+        @old_value = sheet[1,1]
+        sheet[1,1] = (sheet[1,1] == "foo" ? "bar" : "foo")
+        @new_value = sheet[1,1]
         @book.Saved.should be false
       end
 
@@ -928,7 +928,7 @@ describe Workbook do
         new_book.should be_alive
         new_book.Saved.should be false      
         @book.Saved.should be false  
-        new_book.sheet(1)[1,1].Value.should == @new_value
+        new_book.sheet(1)[1,1].should == @new_value
         new_book.should == @book
       end
 
@@ -2599,7 +2599,7 @@ describe Workbook do
 
     it "should new_excel" do
       book = Workbook.open(@simple_file1)
-      book.sheet(1)[1,1].Value = "foo"
+      book.sheet(1)[1,1] = "foo"
       book.Saved.should be false
       book2 = Workbook.open(@simple_file1, :if_unsaved => :new_excel)
     end
@@ -2706,9 +2706,9 @@ describe Workbook do
             #@sheet_count = @book.ole_workbook.Worksheets.Count
             sheet = @book.sheet(1)
             #@book.add_sheet(@sheet, :as => 'a_name')
-            @old_value = sheet[1,1].Value
-            sheet[1,1] = (sheet[1,1].Value == "foo" ? "bar" : "foo")
-            @new_value = sheet[1,1].Value
+            @old_value = sheet[1,1]
+            sheet[1,1] = (sheet[1,1] == "foo" ? "bar" : "foo")
+            @new_value = sheet[1,1]
             @book.Saved.should be false
           end
 
@@ -2729,7 +2729,7 @@ describe Workbook do
             new_book.should be_alive
             new_book.filename.downcase.should == @simple_file.downcase
             old_book = Workbook.open(@simple_file_other_path1, :if_obstructed => :forget)
-            old_book.sheet(1)[1,1].Value.should == @old_value
+            old_book.sheet(1)[1,1].should == @old_value
           end
 
           it "should save the old book, close it, and open the new book, if :if_obstructed is :save" do
@@ -2738,7 +2738,7 @@ describe Workbook do
             new_book.should be_alive
             new_book.filename.downcase.should == @simple_file1.downcase
             old_book = Workbook.open(@simple_file_other_path1, :if_obstructed => :forget)
-            old_book.sheet(1)[1,1].Value.should == @new_value
+            old_book.sheet(1)[1,1].should == @new_value
             #old_book.ole_workbook.Worksheets.Count.should ==  @sheet_count + 1
             old_book.close
           end
@@ -2754,7 +2754,7 @@ describe Workbook do
             new_book.should be_alive
             new_book.filename.downcase.should == @simple_file1.downcase
             old_book = Workbook.open(@simple_file_other_path1, :if_obstructed => :forget)
-            old_book.sheet(1)[1,1].Value.should == @new_value
+            old_book.sheet(1)[1,1].should == @new_value
             #old_book.ole_workbook.Worksheets.Count.should ==  @sheet_count + 1
             old_book.close
           end
@@ -2769,11 +2769,11 @@ describe Workbook do
             new_book = Workbook.open(@simple_file1, :if_obstructed => :new_excel)
             @book.should be_alive
             @book.Saved.should be false
-            @book.sheet(1)[1,1].Value.should == @new_value
+            @book.sheet(1)[1,1].should == @new_value
             new_book.should be_alive
             new_book.filename.should_not == @book.filename
             new_book.excel.should_not == @book.excel
-            new_book.sheet(1)[1,1].Value.should == @book.sheet(1)[1,1].Value
+            new_book.sheet(1)[1,1].should == @book.sheet(1)[1,1]
           end
 
           it "should raise an error, if :if_obstructed is default" do
@@ -2919,8 +2919,8 @@ describe Workbook do
         book.ReadOnly.should be true
         book.should be_alive
         sheet = book.sheet(1)
-        old_cell_value = sheet[1,1].Value
-        sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+        old_cell_value = sheet[1,1]
+        sheet[1,1] = sheet[1,1] == "foo" ? "bar" : "foo"
         book.Saved.should be false
         expect{
           new_book = Workbook.open(@simple_file1, :read_only => false, :if_unsaved => :accept)
@@ -2932,8 +2932,8 @@ describe Workbook do
         book.ReadOnly.should be false
         book.should be_alive
         sheet = book.sheet(1)
-        old_cell_value = sheet[1,1].Value
-        sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+        old_cell_value = sheet[1,1]
+        sheet[1,1] = sheet[1,1] == "foo" ? "bar" : "foo"
         book.Saved.should be false
         expect{
           new_book = Workbook.open(@simple_file1, :read_only => true, :if_unsaved => :accept)
@@ -2945,8 +2945,8 @@ describe Workbook do
         book.ReadOnly.should be true
         book.should be_alive
         sheet = book.sheet(1)
-        old_cell_value = sheet[1,1].Value
-        sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+        old_cell_value = sheet[1,1]
+        sheet[1,1] = sheet[1,1] == "foo" ? "bar" : "foo"
         book.Saved.should be false
         new_book = Workbook.open(@simple_file1, :read_only => false, :if_unsaved => :forget)
         new_book.ReadOnly.should be false 
@@ -2954,7 +2954,7 @@ describe Workbook do
         book.should_not be_alive   
         new_book.should_not == book 
         new_sheet = new_book.sheet(1)
-        new_cell_value = new_sheet[1,1].Value
+        new_cell_value = new_sheet[1,1]
         new_cell_value.should == old_cell_value
       end
 
@@ -2963,8 +2963,8 @@ describe Workbook do
         book.ReadOnly.should be false
         book.should be_alive
         sheet = book.sheet(1)
-        old_cell_value = sheet[1,1].Value        
-        sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+        old_cell_value = sheet[1,1]        
+        sheet[1,1] = sheet[1,1] == "foo" ? "bar" : "foo"
         book.Saved.should be false
         expect{
           Workbook.open(@simple_file1, :read_only => true, :if_unsaved => :accept)
@@ -2976,13 +2976,13 @@ describe Workbook do
         book.ReadOnly.should be false
         book.should be_alive
         sheet = book.sheet(1)
-        old_cell_value = sheet[1,1].Value        
-        sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+        old_cell_value = sheet[1,1]        
+        sheet[1,1] = sheet[1,1] == "foo" ? "bar" : "foo"
         book.Saved.should be false
         new_book = Workbook.open(@simple_file1, :read_only => true, :if_unsaved => :save)
         new_book.ReadOnly.should be true
         new_sheet = new_book.sheet(1)
-        new_cell_value = new_sheet[1,1].Value
+        new_cell_value = new_sheet[1,1]
         new_cell_value.should_not == old_cell_value
       end
 

@@ -76,22 +76,22 @@ describe Cell do
     end
 
     it "merged cell get same value" do
-      @sheet[1, 1].Value.should be_nil
-      @sheet[2, 1].Value.should eq 'first merged'
+      @sheet[1, 1].should be_nil
+      @sheet[2, 1].should eq 'first merged'
     end
 
     it "set merged cell" do
-      @sheet[2, 1].Value = "set merge cell"
-      @sheet[2, 1].Value.should eq "set merge cell"
-      @sheet[2, 2].Value.should eq "set merge cell"
+      @sheet[2, 1] = "set merge cell"
+      @sheet[2, 1].should eq "set merge cell"
+      @sheet[2, 2].should eq "set merge cell"
     end
   end
 
   describe "==" do
 
     it "should check equality of cells" do
-      @cell.should == @sheet[1,1]
-      @cell.should_not == @sheet[1,2]
+      @cell.should == @sheet.range([1,1])
+      @cell.should_not == @sheet.range([1,2])
     end
 
   end

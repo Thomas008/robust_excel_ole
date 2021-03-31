@@ -68,25 +68,111 @@ module RobustExcelOle
       end
     end
 
-    # sets the value of a cell
-    # @params row and column, or defined name
-    def []= (p1, p2, p3 = :__not_provided)
-      if p3 != :__not_provided
-        x, y, value = p1, p2, p3
-        set_cellval(x,y,value)
-      else
-        name, value = p1, p2
+    # value of a range given its defined name or address
+    # @params [Variant] defined name or address
+    # @returns [Variant] value (contents) of the range
+    def [](name_or_address, address2 = :__not_provided)
+      range = range(name_or_address, address2) 
+      value = begin
+        if !::RANGES_JRUBY_BUG       
+          range.Value
+        else
+          values = range.value
+          (values.size==1 && values.first.size==1) ? values.first.first : values
+        end
+      rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException 
         begin
-          set_namevalue_global(name, value)
-        rescue REOError
-          begin
-            workbook.set_namevalue_global(name, value)
-          rescue REOError
-            set_namevalue(name, value)
+          range = self.Evaluate(name_obj.Name).to_reo
+          if !::RANGES_JRUBY_BUG
+            range.Value
+          else
+            values = range.value
+            (values.size==1 && values.first.size==1) ? values.first.first : values
+          end
+        rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException 
+          raise RangeNotEvaluatable, "cannot evaluate range with name or address #{name_or_address.inspect}\n#{$!.message}"
+        end
+      end
+      if value == -2146828288 + RobustExcelOle::XlErrName
+        raise RangeNotEvaluatable, "cannot evaluate range with name or address #{name_or_address.inspect}\n#{$!.message}"
+      end
+      value
+    end
+    
+    # sets the value of a range given its defined name or address, and the value
+    # @params [Variant] defined name or address of the range
+    # @params [Variant] value (contents) of the range
+    # @returns [Variant] value (contents) of the range
+    def []=(name_or_address, value_or_address2, remaining_arg = :__not_provided) 
+      if remaining_arg != :__not_provided
+        name_or_address, value = [name_or_address, value_or_address2], remaining_arg
+      else
+        value = value_or_address2
+      end
+      range = range(name_or_address)
+      if !::RANGES_JRUBY_BUG
+        range.Value = value
+      else
+        address_r1c1 = range.AddressLocal(true,true,XlR1C1)
+        row, col = address_tool.as_integer_ranges(address_r1c1)
+        row.each_with_index do |r,i|
+          col.each_with_index do |c,j|
+            range.Cells(i+1,j+1).Value = (value.respond_to?(:pop) ? value[i][j] : value )
           end
         end
       end
+      value
+    rescue #WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException
+      raise RangeNotEvaluatable, "cannot assign value to range with name or address #{name_or_address.inspect}\n#{$!.message}"
     end
+
+=begin    
+    def []=(name_or_address, value) 
+      range = range(name_or_address)
+      if !::RANGES_JRUBY_BUG
+        range.Value = value
+      else
+        address_r1c1 = range.AddressLocal(true,true,XlR1C1)
+        row, col = address_tool.as_integer_ranges(address_r1c1)
+        row.each_with_index do |r,i|
+          col.each_with_index do |c,j|
+            range.Cells(i+1,j+1).Value = (value.respond_to?(:pop) ? value[i][j] : value )
+          end
+        end
+      end
+      value
+    rescue #WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException
+      raise RangeNotEvaluatable, "cannot assign value to range with name or address #{name_or_address.inspect}\n#{$!.message}"
+    end
+=end
+
+    # a range given a defined name or address
+    # @params [Variant] defined name or address
+    # @return [Range] a range
+    def range(name_or_address, address2 = :__not_provided)
+      if name_or_address.respond_to?(:gsub) && address2 == :__not_provided
+        name = name_or_address
+        range = get_name_object(name).RefersToRange rescue nil
+      end
+      unless range
+        address = name_or_address
+        address = [address,address2] unless address2 == :__not_provided     
+        address = [address, 1..last_column] if address.is_a?(Integer)   
+        address = [address.first, 1..last_column] if address.is_a?(Array) && address.size == 1
+        workbook.retain_saved do
+          begin
+            self.Names.Add('__dummy001',nil,true,nil,nil,nil,nil,nil,nil,'=' + address_tool.as_r1c1(address))          
+            range = get_name_object('__dummy001').RefersToRange
+            self.Names.Item('__dummy001').Delete
+          rescue
+            address2_string = (address2.nil? || address2 == :__not_provided) ? "" : ", #{address2.inspect}"
+            raise RangeNotCreated, "cannot find name or address #{name_or_address.inspect}#{address2_string})"
+          end
+        end
+      end
+      range.to_reo
+    end
+
 
     # returns the contents of a range with a locally defined name
     # evaluates the formula if the contents is a formula
@@ -156,7 +242,7 @@ module RobustExcelOle
     # value of a cell, if row and column are given
     # @params row and column
     # @returns value of the cell
-    def cellval(x,y)
+    def cellval(x,y)                         # :deprecated :#
       @ole_worksheet.Cells.Item(x, y).Value
     rescue
       raise RangeNotEvaluatable, "cannot read cell (#{x.inspect},#{y.inspect})\n#{$!.message}"
@@ -178,18 +264,56 @@ module RobustExcelOle
       @ole_worksheet.UsedRange.Value
     end
 
-    # @return [Enumerator] traversing rows
+    # @return [Enumerator] traversing the rows values
     def each
       if block_given?
         @ole_worksheet.UsedRange.Rows.lazy.each do |ole_row|
-          yield ole_row.to_reo
+          yield ole_row.Value.first
         end
       else
         to_enum(:each).lazy
       end
     end
 
-    # accessing cells
+    # @return [Enumerator] traversing the rows
+    def each_row(offset = 0)
+      if block_given?
+        offset += 1
+        1.upto(@end_row) do |row|
+          next if row < offset
+          yield RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(row, 1), @ole_worksheet.Cells(row, @end_column)), self)
+        end
+      else
+        to_enum(:each_row).lazy
+      end
+    end
+
+    def each_row_with_index(offset = 0)    # :nodoc: #   # :deprecated :#
+      each_row(offset) do |row_range|
+        yield RobustExcelOle::Range.new(row_range, self), (row_range.Row - 1 - offset)
+      end
+    end
+
+    # @return [Enumerator] traversing the columns
+    def each_column(offset = 0)
+      if block_given?
+        offset += 1
+        1.upto(@end_column) do |column|
+          next if column < offset
+          yield RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(1, column), @ole_worksheet.Cells(@end_row, column)), self)
+        end
+      else
+        to_enum(:each_column).lazy
+      end
+    end
+
+    def each_column_with_index(offset = 0)    # :nodoc: #    # :deprecated :#
+      each_column(offset) do |column_range|
+        yield RobustExcelOle::Range.new(column_range, self), (column_range.Column - 1 - offset)
+      end
+    end
+
+    # @return [Enumerator] traversing the cells
     def each_cell
       if block_given?
         each_row do |row_range|
@@ -212,52 +336,10 @@ module RobustExcelOle
       end
     end
 
-    # accessing rows
-    def each_row(offset = 0)
-      if block_given?
-        offset += 1
-        1.upto(@end_row) do |row|
-          next if row < offset
-          yield RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(row, 1), @ole_worksheet.Cells(row, @end_column)), self)
-        end
-      else
-        to_enum(:each_row).lazy
-      end
-    end
-
-    def each_row_with_index(offset = 0)    # :nodoc: #   # :deprecated :#
-      each_row(offset) do |row_range|
-        yield RobustExcelOle::Range.new(row_range, self), (row_range.Row - 1 - offset)
-      end
-    end
-
-    # accessing columns
-    def each_column(offset = 0)
-      if block_given?
-        offset += 1
-        1.upto(@end_column) do |column|
-          next if column < offset
-          yield RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(1, column), @ole_worksheet.Cells(@end_row, column)), self)
-        end
-      else
-        to_enum(:each_column).lazy
-      end
-    end
-
-    def each_column_with_index(offset = 0)    # :nodoc: #    # :deprecated :#
-      each_column(offset) do |column_range|
-        yield RobustExcelOle::Range.new(column_range, self), (column_range.Column - 1 - offset)
-      end
-    end
-
     def each_rowvalue  # :deprecated: #
       values.each do |row_values|
         yield row_values
       end
-    end
-
-    def each_value   # :deprecated: #
-      each_rowvalue
     end
 
     def each_rowvalue_with_index(offset = 0)    # :deprecated: #
@@ -268,6 +350,8 @@ module RobustExcelOle
       end
     end
 
+    alias each_value each_rowvalue   # :deprecated: #
+     
     def row_range(row, integer_range = nil)
       integer_range ||= 1..@end_column
       RobustExcelOle::Range.new(@ole_worksheet.Range(@ole_worksheet.Cells(row, integer_range.min), @ole_worksheet.Cells(row, integer_range.max)), self)
@@ -280,38 +364,11 @@ module RobustExcelOle
 
     def == other_worksheet
       other_worksheet.is_a?(Worksheet) && 
-        self.workbook == other_worksheet.workbook &&
-        self.Name == other_worksheet.Name
+      self.workbook == other_worksheet.workbook &&
+      self.Name == other_worksheet.Name
     end
 
-    # creates a range from a given defined name or address
-    # @params [Variant] defined name or address
-    # @return [Range] a range
-    def [](name_or_address, address2 = :__not_provided)
-      if name_or_address.respond_to?(:gsub) && address2 == :__not_provided
-        name = name_or_address
-        range = get_name_object(name).RefersToRange.to_reo rescue nil
-      end
-      unless range
-        address = name_or_address
-        address = [address,address2] unless address2 == :__not_provided     
-        address = [address, 1..last_column] if address.is_a?(Integer)         
-        workbook.retain_saved do
-          begin
-            self.Names.Add('__dummy001',nil,true,nil,nil,nil,nil,nil,nil,'=' + address_tool.as_r1c1(address))          
-            range = get_name_object('__dummy001').RefersToRange.to_reo
-            self.Names.Item('__dummy001').Delete
-          rescue
-            address2_string = (address2.nil? || address2 == :__not_provided) ? "" : ", #{address2.inspect}"
-            raise RangeNotCreated, "cannot create range (#{name_or_address.inspect}#{address2_string})\n#{$!.message}"
-          end
-        end
-      end
-      range
-    end
-
-    alias range []
-
+    
     # @params [Variant] table (listobject) name or number 
     # @return [ListObject] a table (listobject)
     def table(number_or_name)

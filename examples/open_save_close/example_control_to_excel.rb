@@ -14,7 +14,7 @@ begin
   book = Workbook.open(file_name, :visible => true)          # open a book
   sleep 1
   sheet = book.sheet(1)                                                        # access a worksheet
-  sheet[1,1] = sheet[1,1].Value == "simple" ? "complex" : "simple"       # change a cell
+  sheet[1,1] = sheet[1,1] == "simple" ? "complex" : "simple"       # change a cell
   sleep 1
   begin
     new_book = Workbook.open(file_name, :visible => true, :if_unsaved => :alert) # open another workbook with the same file name 

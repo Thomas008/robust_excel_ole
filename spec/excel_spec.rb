@@ -611,8 +611,8 @@ module RobustExcelOle
             book1 = Workbook.open(@simple_file1, :visible => true)
             @excel1 = book1.excel
             sheet1 = book1.sheet(1)
-            @old_cell_value1 = sheet1[1,1].Value
-            sheet1[1,1] = sheet1[1,1].Value == "foo" ? "bar" : "foo"
+            @old_cell_value1 = sheet1[1,1]
+            sheet1[1,1] = sheet1[1,1] == "foo" ? "bar" : "foo"
             book1.Saved.should be false
           end
 
@@ -622,7 +622,7 @@ module RobustExcelOle
             @excel1.should_not be_alive
             new_book1 = Workbook.open(@simple_file1)
             new_sheet1 = new_book1.sheet(1)
-            new_sheet1[1,1].Value.should_not == @old_cell_value1
+            new_sheet1[1,1].should_not == @old_cell_value1
             new_book1.close
             result.should == [1,0]
           end
@@ -633,7 +633,7 @@ module RobustExcelOle
             @excel1.should_not be_alive
             new_book1 = Workbook.open(@simple_file1)
             new_sheet1 = new_book1.sheet(1)
-            new_sheet1[1,1].Value.should == @old_cell_value1
+            new_sheet1[1,1].should == @old_cell_value1
             new_book1.close
             result.should == [1,0]
           end
@@ -647,8 +647,8 @@ module RobustExcelOle
             @excel1 = book1.excel
             @excel2 = book2.excel
             sheet2 = book2.sheet(1)
-            @old_cell_value2 = sheet2[1,1].Value
-            sheet2[1,1] = sheet2[1,1].Value == "foo" ? "bar" : "foo"            
+            @old_cell_value2 = sheet2[1,1]
+            sheet2[1,1] = sheet2[1,1] == "foo" ? "bar" : "foo"            
           end
 
           it "should close the first Excel without unsaved workbooks and then raise an error" do
@@ -684,7 +684,7 @@ module RobustExcelOle
             @excel2.should_not be_alive
             new_book2 = Workbook.open(@different_file1)
             new_sheet2 = new_book2.sheet(1)
-            new_sheet2[1,1].Value.should_not == @old_cell_value2
+            new_sheet2[1,1].should_not == @old_cell_value2
             new_book2.close
             result.should == [2,0]
           end
@@ -696,7 +696,7 @@ module RobustExcelOle
             @excel2.should_not be_alive
             new_book2 = Workbook.open(@different_file1)
             new_sheet2 = new_book2.sheet(1)
-            new_sheet2[1,1].Value.should == @old_cell_value2
+            new_sheet2[1,1].should == @old_cell_value2
             new_book2.close
             result.should == [2,0]
           end       
@@ -714,7 +714,7 @@ module RobustExcelOle
             @book1 = Workbook.open(@simple_file1, :force_excel => :new)
             @book2 = Workbook.open(@another_simple_file, :force_excel => :new) 
             @book3 = Workbook.open(@different_file, :force_excel => :new)
-            old_cell_value1 = @book2.sheet(1)[1,1].Value                 
+            old_cell_value1 = @book2.sheet(1)[1,1]              
             @book2.sheet(1)[1,1] = old_cell_value1 == "foo" ? "bar" : "foo"
           end
 
@@ -739,7 +739,7 @@ module RobustExcelOle
             @book1 = Workbook.open(@simple_file1, :force_excel => :new)
             @book2 = Workbook.open(@another_simple_file, :force_excel => :new) 
             @book3 = Workbook.open(@different_file, :force_excel => :new)
-            old_cell_value1 = @book2.sheet(1)[1,1].Value                 
+            old_cell_value1 = @book2.sheet(1)[1,1]                
             @book2.sheet(1)[1,1] = old_cell_value1 == "foo" ? "bar" : "foo"
           end
 
@@ -808,12 +808,12 @@ module RobustExcelOle
           @excel = Excel.create
           @book = Workbook.open(@simple_file)
           sheet = @book.sheet(1)
-          @old_cell_value = sheet[1,1].Value
-          sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+          @old_cell_value = sheet[1,1]
+          sheet[1,1] = sheet[1,1] == "foo" ? "bar" : "foo"
           @book2 = Workbook.open(@another_simple_file)
           sheet2 = @book2.sheet(1)
-          @old_cell_value2 = sheet2[1,1].Value
-          sheet2[1,1] = sheet2[1,1].Value == "foo" ? "bar" : "foo"
+          @old_cell_value2 = sheet2[1,1]
+          sheet2[1,1] = sheet2[1,1] == "foo" ? "bar" : "foo"
           @excel.should be_alive
           @book.should be_alive
           @book.saved.should be false
@@ -840,7 +840,7 @@ module RobustExcelOle
           result.should == 1
           new_book = Workbook.open(@simple_file)
           new_sheet = new_book.sheet(1)
-          new_sheet[1,1].Value.should == @old_cell_value
+          new_sheet[1,1].should == @old_cell_value
           new_book.close          
         end
         
@@ -854,7 +854,7 @@ module RobustExcelOle
           @excel.should_not be_alive
           new_book = Workbook.open(@simple_file)
           new_sheet = new_book.sheet(1)
-          new_sheet[1,1].Value.should == @old_cell_value
+          new_sheet[1,1].should == @old_cell_value
           new_book.close          
         end
 
@@ -866,7 +866,7 @@ module RobustExcelOle
           @excel.should_not be_alive
           new_book = Workbook.open(@simple_file)
           new_sheet = new_book.sheet(1)
-          new_sheet[1,1].Value.should_not == @old_cell_value
+          new_sheet[1,1].should_not == @old_cell_value
           new_book.close          
         end
 
@@ -884,8 +884,8 @@ module RobustExcelOle
           @excel = Excel.create(:visible => true)
           @book = Workbook.open(@simple_file, :visible => true)
           sheet = @book.sheet(1)
-          @old_cell_value = sheet[1,1].Value
-          sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+          @old_cell_value = sheet[1,1]
+          sheet[1,1] = sheet[1,1] == "foo" ? "bar" : "foo"
         end
 
         after do
@@ -903,7 +903,7 @@ module RobustExcelOle
           result.should == 1
           new_book = Workbook.open(@simple_file)
           new_sheet = new_book.sheet(1)
-          new_sheet[1,1].Value.should_not == @old_cell_value
+          new_sheet[1,1].should_not == @old_cell_value
           new_book.close   
         end
 
@@ -918,7 +918,7 @@ module RobustExcelOle
           @book.should_not be_alive
           new_book = Workbook.open(@simple_file)
           new_sheet = new_book.sheet(1)
-          new_sheet[1,1].Value.should == @old_cell_value
+          new_sheet[1,1].should == @old_cell_value
           new_book.close     
         end
 
@@ -944,11 +944,11 @@ module RobustExcelOle
         before do
           @book = Workbook.open(@simple_file)
           sheet = @book.sheet(1)
-          @old_cell_value = sheet[1,1].Value
-          sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"          
+          @old_cell_value = sheet[1,1]
+          sheet[1,1] = sheet[1,1] == "foo" ? "bar" : "foo"          
           @book3 = Workbook.open(@different_file, :read_only => true)
           sheet3 = @book3.sheet(1)
-          sheet3[1,1] = sheet3[1,1].Value == "foo" ? "bar" : "foo"
+          sheet3[1,1] = sheet3[1,1] == "foo" ? "bar" : "foo"
           @excel = @book.excel
           @book2 = Workbook.open(@another_simple_file, :force_excel => :new)
         end
@@ -978,7 +978,7 @@ module RobustExcelOle
           @excel.Workbooks.Count.should == 0          
           new_book = Workbook.open(@simple_file)
           new_sheet = new_book.sheet(1)
-          new_sheet[1,1].Value.should == @old_cell_value
+          new_sheet[1,1].should == @old_cell_value
           new_book.close          
         end
 
@@ -989,7 +989,7 @@ module RobustExcelOle
           @excel.Workbooks.Count.should == 0          
           new_book = Workbook.open(@simple_file)
           new_sheet = new_book.sheet(1)
-          new_sheet[1,1].Value.should_not == @old_cell_value
+          new_sheet[1,1].should_not == @old_cell_value
           new_book.close          
         end
 
@@ -1038,10 +1038,10 @@ module RobustExcelOle
         before do
           @book = Workbook.open(@simple_file)
           sheet = @book.sheet(1)
-          sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"          
+          sheet[1,1] = sheet[1,1] == "foo" ? "bar" : "foo"          
           @book3 = Workbook.open(@different_file, :read_only => true)
           sheet3 = @book3.sheet(1)
-          sheet3[1,1] = sheet3[1,1].Value == "foo" ? "bar" : "foo"
+          sheet3[1,1] = sheet3[1,1] == "foo" ? "bar" : "foo"
           @book.Saved.should be false
           @book3.Saved.should be false
         end
@@ -1154,7 +1154,7 @@ module RobustExcelOle
       it "should return one unsaved book" do
         book = Workbook.open(@simple_file)
         sheet = book.sheet(1)
-        sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+        sheet[1,1] = sheet[1,1] == "foo" ? "bar" : "foo"
         unsaved_known_wbs = Excel.unsaved_known_workbooks
         unsaved_known_wbs.size.should == 1
         unsaved_known_wbs.each do |ole_wb|
@@ -1173,10 +1173,10 @@ module RobustExcelOle
       it "should return two unsaved books" do
         book = Workbook.open(@simple_file)
         sheet = book.sheet(1)
-        sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+        sheet[1,1] = sheet[1,1] == "foo" ? "bar" : "foo"
         book2 = Workbook.open(@another_simple_file)
         sheet2 = book2.sheet(1)
-        sheet2[1,1] = sheet2[1,1].Value == "foo" ? "bar" : "foo"
+        sheet2[1,1] = sheet2[1,1] == "foo" ? "bar" : "foo"
         unsaved_known_wbs = Excel.unsaved_known_workbooks
         unsaved_known_wbs.size.should == 2
         unsaved_known_wbs.each_with_index do |ole_wb, ind|
@@ -1194,7 +1194,7 @@ module RobustExcelOle
         begin 
           open_books.each do |wb|
             sheet = wb.sheet(1)
-            sheet[1,1] = (sheet[1,1].Value == "foo") ? "bar" : "foo"
+            sheet[1,1] = (sheet[1,1] == "foo") ? "bar" : "foo"
           end 
           unsaved_known_wbs = Excel.unsaved_known_workbooks
           unsaved_known_wbs.size.should == 2

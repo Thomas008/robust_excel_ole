@@ -52,7 +52,7 @@ describe ListObject do
         table.Name.should == "table_name"
         table.HeaderRowRange.Value.first.should == ["Person","Amount"]
         table.ListRows.Count.should == 3
-        @sheet[1,1].Value.should == "Person"
+        @sheet[1,1].should == "Person"
       end
 
       it "should create a new table with umlauts" do
@@ -60,7 +60,7 @@ describe ListObject do
         table.Name.encode_value.should == "lösung"
         table.HeaderRowRange.Value.first.encode_value.should == ["Verkäufer","Straße"]
         table.ListRows.Count.should == 3
-        @sheet[1,1].Value.encode_value.should == "Verkäufer"
+        @sheet[1,1].encode_value.should == "Verkäufer"
       end
 
       it "should do the idempotence" do
@@ -76,7 +76,7 @@ describe ListObject do
         table.Name.should == "table3"
         table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Price"]
         table.ListRows.Count.should == 13
-        @sheet[3,4].Value.should == "Number"
+        @sheet[3,4].should == "Number"
         table.position.should == [3,4]
       end
 
@@ -86,7 +86,7 @@ describe ListObject do
         table.Name.should == "table3"
         table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Price"]
         table.ListRows.Count.should == 13
-        @sheet[3,4].Value.should == "Number"
+        @sheet[3,4].should == "Number"
       end
 
       it "should type-lift a Win32ole list object into a RobustExcelOle list object with item number" do
@@ -95,7 +95,7 @@ describe ListObject do
         table.Name.should == "table3"
         table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Price"]
         table.ListRows.Count.should == 13
-        @sheet[3,4].Value.should == "Number"
+        @sheet[3,4].should == "Number"
       end
 
       it "should simply create a new table from a ole-worksheet" do
@@ -103,7 +103,7 @@ describe ListObject do
         table.Name.should == "table_name"
         table.HeaderRowRange.Value.first.should == ["Person","Amount"]
         table.ListRows.Count.should == 3
-        @sheet[1,1].Value.should == "Person"
+        @sheet[1,1].should == "Person"
       end
 
       it "should type-lift a Win32ole list object into a RobustExcelOle list object with table name" do
@@ -112,7 +112,7 @@ describe ListObject do
         table.Name.should == "table3"
         table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Price"]
         table.ListRows.Count.should == 13
-        @sheet[3,4].Value.should == "Number"
+        @sheet[3,4].should == "Number"
       end
 
       it "should type-lift a Win32ole list object into a RobustExcelOle list object with item number" do
@@ -121,7 +121,7 @@ describe ListObject do
         table.Name.should == "table3"
         table.HeaderRowRange.Value.first.should == ["Number","Person","Amount","Time","Price"]
         table.ListRows.Count.should == 13
-        @sheet[3,4].Value.should == "Number"
+        @sheet[3,4].should == "Number"
       end
 
     end

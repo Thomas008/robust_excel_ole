@@ -98,14 +98,14 @@ describe Workbook do
           book.Saved.should be true  
           sheet = book.sheet(1)
           cell = sheet[1,1]
-          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
-          @new_cell_value = sheet[1,1].Value
+          sheet[1,1] = cell == "foo" ? "bar" : "foo"
+          @new_cell_value = sheet[1,1]
           book.Saved.should be false
         end
         Excel.kill_all
         new_book = Workbook.open(@simple_file1)
         sheet = new_book.sheet(1)
-        sheet[1,1].Value.should_not == @new_cell_value
+        sheet[1,1].should_not == @new_cell_value
       end
 
       it "should change the value" do
@@ -116,14 +116,14 @@ describe Workbook do
           book.Saved.should be true  
           sheet = book.sheet(1)
           cell = sheet[1,1]
-          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
-          @new_cell_value = sheet[1,1].Value
+          sheet[1,1] = cell == "foo" ? "bar" : "foo"
+          @new_cell_value = sheet[1,1]
           book.Saved.should be false
         end
         Excel.kill_all
         new_book = Workbook.open(@simple_file1)
         sheet = new_book.sheet(1)
-        sheet[1,1].Value.should == @new_cell_value
+        sheet[1,1].should == @new_cell_value
       end
 
     end
@@ -133,7 +133,7 @@ describe Workbook do
       before do
         @book = Workbook.open(@simple_file1)
         sheet = @book.sheet(1)
-        @old_cell_value = sheet[1,1].Value
+        @old_cell_value = sheet[1,1]
         @book.close
       end
 
@@ -145,14 +145,14 @@ describe Workbook do
           book.Saved.should be true  
           sheet = book.sheet(1)
           cell = sheet[1,1]
-          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
+          sheet[1,1] = cell == "foo" ? "bar" : "foo"
           book.Saved.should be false
           book.excel.should == @book.excel
         end
         Excel.kill_all
         new_book = Workbook.open(@simple_file1)
         sheet = new_book.sheet(1)
-        sheet[1,1].Value.should == @old_cell_value
+        sheet[1,1].should == @old_cell_value
       end
 
       it "should not change the value and use a given Excel" do
@@ -161,13 +161,13 @@ describe Workbook do
         Workbook.for_reading(@simple_file1, :if_closed => another_excel) do |book|
           sheet = book.sheet(1)
           cell = sheet[1,1]
-          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
+          sheet[1,1] = cell == "foo" ? "bar" : "foo"
           book.excel.should == another_excel
         end
         Excel.kill_all
         new_book = Workbook.open(@simple_file1)
         sheet = new_book.sheet(1)
-        sheet[1,1].Value.should == @old_cell_value
+        sheet[1,1].should == @old_cell_value
       end
 
       it "should not change the value and use the new Excel instance" do
@@ -175,7 +175,7 @@ describe Workbook do
         Workbook.for_reading(@simple_file1, :if_closed => :new) do |book|
           sheet = book.sheet(1)
           cell = sheet[1,1]
-          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
+          sheet[1,1] = cell == "foo" ? "bar" : "foo"
           book.excel.should_not == @book.excel
           book.excel.should_not == new_excel
           book.excel.properties[:visible].should be false
@@ -184,19 +184,19 @@ describe Workbook do
         Excel.kill_all
         new_book = Workbook.open(@simple_file1)
         sheet = new_book.sheet(1)
-        sheet[1,1].Value.should == @old_cell_value
+        sheet[1,1].should == @old_cell_value
       end
 
       it "should change the value" do
         Workbook.for_modifying(@simple_file1) do |book|
           sheet = book.sheet(1)
           cell = sheet[1,1]
-          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
+          sheet[1,1] = cell == "foo" ? "bar" : "foo"
           book.excel.should == @book.excel
         end
         new_book = Workbook.open(@simple_file, :visible => true)
         sheet = new_book.sheet(1)
-        sheet[1,1].Value.should_not == @old_cell_value
+        sheet[1,1].should_not == @old_cell_value
       end
 
       it "should change the value and use a given Excel" do
@@ -206,12 +206,12 @@ describe Workbook do
         Workbook.for_modifying(@simple_file1, :if_closed => another_excel) do |book|
           sheet = book.sheet(1)
           cell = sheet[1,1]
-          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
+          sheet[1,1] = cell == "foo" ? "bar" : "foo"
           book.excel.should == another_excel
         end
         new_book = Workbook.open(@simple_file1, :visible => true)
         sheet = new_book.sheet(1)
-        sheet[1,1].Value.should_not == @old_cell_value
+        sheet[1,1].should_not == @old_cell_value
       end
 
       it "should change the value and use the new Excel instance" do
@@ -219,7 +219,7 @@ describe Workbook do
         Workbook.for_modifying(@simple_file1, :if_closed => :new) do |book|
           sheet = book.sheet(1)
           cell = sheet[1,1]
-          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
+          sheet[1,1] = cell == "foo" ? "bar" : "foo"
           book.excel.should_not == @book.excel
           book.excel.should_not == new_excel
           book.excel.properties[:visible].should be false
@@ -227,7 +227,7 @@ describe Workbook do
         end
         new_book = Workbook.open(@simple_file1, :visible => true)
         sheet = new_book.sheet(1)
-        sheet[1,1].Value.should_not == @old_cell_value
+        sheet[1,1].should_not == @old_cell_value
       end
     end
   end
@@ -238,7 +238,7 @@ describe Workbook do
 
       before do
         @book = Workbook.open(@simple_file1)
-        @old_value = @book.sheet(1)[1,1].Value
+        @old_value = @book.sheet(1)[1,1]
       end
 
       after do
@@ -251,12 +251,12 @@ describe Workbook do
           book.should be_alive
           book.ReadOnly.should be false
           book.Saved.should be true  
-          book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           book.Saved.should be false
         end
         @book.close(:if_unsaved => :forget)
         new_book = Workbook.open(@simple_file1)
-        new_book.sheet(1)[1,1].Value.should == @old_value
+        new_book.sheet(1)[1,1].should == @old_value
       end
 
       it "should change the value" do
@@ -264,12 +264,12 @@ describe Workbook do
           book.should be_a Workbook
           book.should be_alive
           book.Saved.should be true  
-          book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           book.Saved.should be false
         end
         @book.close(:if_unsaved => :forget)
         new_book = Workbook.open(@simple_file1)
-        new_book.sheet(1)[1,1].Value.should_not == @old_value
+        new_book.sheet(1)[1,1].should_not == @old_value
       end
 
       it "should not change the value and make visible" do
@@ -278,12 +278,12 @@ describe Workbook do
           book.should be_alive
           book.visible.should be true
           book.Saved.should be true  
-          book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           book.Saved.should be false
         end
         @book.close(:if_unsaved => :forget)
         new_book = Workbook.open(@simple_file1)
-        new_book.sheet(1)[1,1].Value.should == @old_value
+        new_book.sheet(1)[1,1].should == @old_value
       end
 
       it "should change the value and make visible" do
@@ -292,12 +292,12 @@ describe Workbook do
           book.should be_alive
           book.visible.should be true
           book.Saved.should be true  
-          book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           book.Saved.should be false
         end
         @book.close(:if_unsaved => :forget)
         new_book = Workbook.open(@simple_file1)
-        new_book.sheet(1)[1,1].Value.should_not == @old_value
+        new_book.sheet(1)[1,1].should_not == @old_value
       end
 
     end
@@ -329,8 +329,8 @@ describe Workbook do
         Workbook.unobtrusively(@sub_file, :writable => false) do |book|            
           book.ReadOnly.should be true
           book.filename.should == @sub_file
-          @old_value = book.sheet(1)[1,1].Value
-          book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+          @old_value = book.sheet(1)[1,1]
+          book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo" 
         end
         Excel.current.workbooks.should == [] 
       end
@@ -339,8 +339,8 @@ describe Workbook do
         Workbook.unobtrusively(@main_file, :writable => false) do |book|            
           book.ReadOnly.should be true
           book.filename.should == @main_file
-          @old_value = book.sheet(1)[1,1].Value
-          book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+          @old_value = book.sheet(1)[1,1]
+          book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo" 
         end
         Excel.current.workbooks.map{|b| b.filename}.should == [@sub_file] 
       end
@@ -374,7 +374,7 @@ describe Workbook do
 
       before do
         @book = Workbook.open(@simple_file1, :visible => true)
-        @old_value = @book.sheet(1)[1,1].Value
+        @old_value = @book.sheet(1)[1,1]
       end
 
       after do
@@ -386,41 +386,41 @@ describe Workbook do
           book.saved.should be true
           book.visible.should be true
           book.writable.should be true
-          book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
         end
         @book.saved.should be true
         @book.visible.should be true
         @book.writable.should be true
-        @book.sheet(1)[1,1].Value.should_not == @old_value
+        @book.sheet(1)[1,1].should_not == @old_value
         @book.close
         new_book = Workbook.open(@simple_file1)
-        new_book.sheet(1)[1,1].Value.should_not == @old_value
+        new_book.sheet(1)[1,1].should_not == @old_value
       end
 
       it "should unobtrusively open, modify, and not save the changes" do
         @book.unobtrusively(:writable => false) do |book|
-          book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
         end
         @book.saved.should be true
         @book.visible.should be true
         @book.writable.should be true
-        @book.sheet(1)[1,1].Value.should_not == @old_value
+        @book.sheet(1)[1,1].should_not == @old_value
         @book.close
         new_book = Workbook.open(@simple_file1)
-        new_book.sheet(1)[1,1].Value.should == @old_value
+        new_book.sheet(1)[1,1].should == @old_value
       end
 
       it "should unobtrusively open, modify, and save the changes" do
         @book.unobtrusively(:writable => true) do |book|
-          book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
         end
         @book.saved.should be true
         @book.visible.should be true
         @book.writable.should be true
-        @book.sheet(1)[1,1].Value.should_not == @old_value
+        @book.sheet(1)[1,1].should_not == @old_value
         @book.close
         new_book = Workbook.open(@simple_file1)
-        new_book.sheet(1)[1,1].Value.should_not == @old_value
+        new_book.sheet(1)[1,1].should_not == @old_value
       end
 
     end
@@ -429,9 +429,9 @@ describe Workbook do
 
       before do
         @book = Workbook.open(@simple_file1, :visible => true)
-        @old_value = @book.sheet(1)[1,1].Value
+        @old_value = @book.sheet(1)[1,1]
         sheet = @book.sheet(1)
-        sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+        sheet[1,1] = sheet[1,1] == "foo" ? "bar" : "foo"
       end
 
       after do
@@ -443,15 +443,15 @@ describe Workbook do
           book.saved.should be false
           book.visible.should be true
           book.writable.should be true
-          book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
         end
         @book.saved.should be false
         @book.visible.should be true
         @book.writable.should be true
-        @book.sheet(1)[1,1].Value.should == @old_value
+        @book.sheet(1)[1,1].should == @old_value
         @book.close(:if_unsaved => :forget)
         @book = Workbook.open(@simple_file1)
-        @book.sheet(1)[1,1].Value.should == @old_value
+        @book.sheet(1)[1,1].should == @old_value
       end
 
       it "should unobtrusively open, modify, and not save the changes" do
@@ -461,23 +461,23 @@ describe Workbook do
         @book.saved.should be false
         @book.visible.should be true
         @book.writable.should be true
-        @book.sheet(1)[1,1].Value.should == "bla"
+        @book.sheet(1)[1,1].should == "bla"
         @book.close(:if_unsaved => :forget)
         new_book = Workbook.open(@simple_file1)
-        new_book.sheet(1)[1,1].Value.should == @old_value
+        new_book.sheet(1)[1,1].should == @old_value
       end
 
       it "should unobtrusively open, modify, and save the changes" do
         @book.unobtrusively(:writable => true) do |book|
-          book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
         end
         @book.saved.should be false
         @book.visible.should be true
         @book.writable.should be true
-        @book.sheet(1)[1,1].Value.should == @old_value
+        @book.sheet(1)[1,1].should == @old_value
         @book.close(:if_unsaved => :forget)
         new_book = Workbook.open(@simple_file1)
-        new_book.sheet(1)[1,1].Value.should == @old_value
+        new_book.sheet(1)[1,1].should == @old_value
       end
 
     end
@@ -486,7 +486,7 @@ describe Workbook do
 
       before do
         @book = Workbook.open(@simple_file1, :visible => true)
-        @old_value = @book.sheet(1)[1,1].Value
+        @old_value = @book.sheet(1)[1,1]
         @book.close
       end
 
@@ -500,11 +500,11 @@ describe Workbook do
           book.saved.should be true
           book.visible.should be true
           book.writable.should be true
-          book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
         end
         @book.should_not be_alive
         new_book = Workbook.open(@simple_file1)
-        new_book.sheet(1)[1,1].Value.should_not == @old_value
+        new_book.sheet(1)[1,1].should_not == @old_value
       end
 
       it "should unobtrusively open and and not close the workbook" do
@@ -513,16 +513,16 @@ describe Workbook do
           book.saved.should be true
           book.visible.should be true
           book.writable.should be true
-          book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+          book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
         end
         @book.should be_alive
         @book.saved.should be true
         @book.visible.should be true
         @book.writable.should be true
-        @book.sheet(1)[1,1].Value.should_not == @old_value
+        @book.sheet(1)[1,1].should_not == @old_value
         @book.close
         new_book = Workbook.open(@simple_file1)
-        new_book.sheet(1)[1,1].Value.should_not == @old_value
+        new_book.sheet(1)[1,1].should_not == @old_value
       end
 
     end
@@ -536,7 +536,7 @@ describe Workbook do
       Workbook.unobtrusively(@simple_file) do |book|
         book.should be_a Workbook
         sheet = book.sheet(1)
-        sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+        sheet[1,1] = sheet[1,1] == "foo" ? "bar" : "foo"
         book.should be_alive
         book.Saved.should be false
       end
@@ -582,7 +582,7 @@ describe Workbook do
           ws = @ole_e1.Workbooks
           @abs_filename = General.absolute_path(@simple_file1)
           @ole_wb = ws.Open(@abs_filename)
-          @old_value = @ole_wb.Worksheets.Item(1).Cells.Item(1,1).Value
+          @old_value = @ole_wb.Worksheets.Item(1).Cells.Item(1,1)
         end
 
         it "should connect" do
@@ -645,8 +645,8 @@ describe Workbook do
             book.saved.should be true
             book.visible.should be false
             book.writable.should be true
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
-            @new_value = book.sheet(1)[1,1].Value
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
+            @new_value = book.sheet(1)[1,1]
             book.Saved.should be false
           end
           ole_wb = WIN32OLE.connect(@abs_filename)
@@ -655,8 +655,8 @@ describe Workbook do
           ole_wb.ReadOnly.should be false
           ole_wb.Close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should_not == @old_value
-          book2.sheet(1)[1,1].Value.should == @new_value
+          book2.sheet(1)[1,1].should_not == @old_value
+          book2.sheet(1)[1,1].should == @new_value
         end
 
         it "should modify and remain saved-status and not save the new value when writable => false" do
@@ -664,8 +664,8 @@ describe Workbook do
             book.saved.should be true
             book.visible.should be false
             book.writable.should be true
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
-            @new_value = book.sheet(1)[1,1].Value
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
+            @new_value = book.sheet(1)[1,1]
             book.Saved.should be false
           end
           ole_wb = WIN32OLE.connect(@abs_filename)
@@ -674,8 +674,8 @@ describe Workbook do
           ole_wb.ReadOnly.should be false
           ole_wb.Close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should == @old_value
-          book2.sheet(1)[1,1].Value.should_not == @new_value
+          book2.sheet(1)[1,1].should == @old_value
+          book2.sheet(1)[1,1].should_not == @new_value
         end
 
       end
@@ -726,9 +726,9 @@ describe Workbook do
           @ole_wb = ws.Open(@abs_filename)
           @ole_e1.Visible = true
           @ole_wb.Windows(@ole_wb.Name).Visible = true
-          @old_value = @ole_wb.Worksheets.Item(1).Cells.Item(1,1).Value
-          @ole_wb.Worksheets.Item(1).Cells.Item(1,1).Value = @old_value = "foo" #== "foo" ? "bar" : "foo"
-          @new_value = @ole_wb.Worksheets.Item(1).Cells.Item(1,1).Value
+          @old_value = @ole_wb.Worksheets.Item(1).Cells.Item(1,1)
+          @ole_wb.Worksheets.Item(1).Cells.Item(1,1) = @old_value = "foo" #== "foo" ? "bar" : "foo"
+          @new_value = @ole_wb.Worksheets.Item(1).Cells.Item(1,1)
           @ole_wb.Saved.should be false
         end
 
@@ -768,8 +768,8 @@ describe Workbook do
 
         it "should remain unsaved when modifying" do
           Workbook.unobtrusively(@simple_file1) do |book|
-            book.sheet(1)[1,1] = "bar" #book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
-            @new_value = book.sheet(1)[1,1].Value
+            book.sheet(1)[1,1] = "bar" #book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
+            @new_value = book.sheet(1)[1,1]
             book.saved.should be false
             book.visible.should be true
             book.writable.should be true
@@ -780,17 +780,17 @@ describe Workbook do
           ole_wb.ReadOnly.should be false
           Excel.kill_all
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should_not == @old_value
-          book2.sheet(1)[1,1].Value.should == @new_value
+          book2.sheet(1)[1,1].should_not == @old_value
+          book2.sheet(1)[1,1].should == @new_value
         end
 
         it "should not write with :writable => false" do
-          @ole_wb.Worksheets.Item(1).Cells.Item(1,1).Value = @old_value = "foo" 
+          @ole_wb.Worksheets.Item(1).Cells.Item(1,1) = @old_value = "foo" 
           @ole_wb.Save
-          @ole_wb.Worksheets.Item(1).Cells.Item(1,1).Value = @old_value = "foo" 
+          @ole_wb.Worksheets.Item(1).Cells.Item(1,1) = @old_value = "foo" 
           Workbook.unobtrusively(@simple_file1, :writable => false) do |book|
-            book.sheet(1)[1,1] = "bar" #book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
-            @new_value = book.sheet(1)[1,1].Value
+            book.sheet(1)[1,1] = "bar" #book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
+            @new_value = book.sheet(1)[1,1]
             book.saved.should be false
             book.visible.should be true
             book.writable.should be true
@@ -801,8 +801,8 @@ describe Workbook do
           ole_wb.ReadOnly.should be false
           Excel.kill_all
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should == @old_value
-          book2.sheet(1)[1,1].Value.should_not == @new_value
+          book2.sheet(1)[1,1].should == @old_value
+          book2.sheet(1)[1,1].should_not == @new_value
         end
 
       end
@@ -846,8 +846,8 @@ describe Workbook do
 
         it "should remain read-only when modifying" do
           Workbook.unobtrusively(@simple_file1) do |book|
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
-            @new_value = book.sheet(1)[1,1].Value
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
+            @new_value = book.sheet(1)[1,1]
             book.saved.should be false
             book.visible.should be true
             book.writable.should be false
@@ -858,14 +858,14 @@ describe Workbook do
           ole_wb.ReadOnly.should be true
           ole_wb.Close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should == @old_value
-          book2.sheet(1)[1,1].Value.should_not == @new_value
+          book2.sheet(1)[1,1].should == @old_value
+          book2.sheet(1)[1,1].should_not == @new_value
         end
 
         it "should remain read-only when modifying" do
           Workbook.unobtrusively(@simple_file1, :read_only => false) do |book|
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
-            @new_value = book.sheet(1)[1,1].Value
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
+            @new_value = book.sheet(1)[1,1]
             book.saved.should be false
             book.visible.should be true
             book.writable.should be true
@@ -876,14 +876,14 @@ describe Workbook do
           ole_wb.ReadOnly.should be true
           ole_wb.Close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should_not == @old_value
-          book2.sheet(1)[1,1].Value.should == @new_value
+          book2.sheet(1)[1,1].should_not == @old_value
+          book2.sheet(1)[1,1].should == @new_value
         end
 
         it "should remain read-only when modifying" do
           Workbook.unobtrusively(@simple_file1, :read_only => false, :writable => true) do |book|
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
-            @new_value = book.sheet(1)[1,1].Value
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
+            @new_value = book.sheet(1)[1,1]
             book.saved.should be false
             book.visible.should be true
             book.writable.should be true
@@ -894,14 +894,14 @@ describe Workbook do
           ole_wb.ReadOnly.should be true
           ole_wb.Close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should_not == @old_value
-          book2.sheet(1)[1,1].Value.should == @new_value
+          book2.sheet(1)[1,1].should_not == @old_value
+          book2.sheet(1)[1,1].should == @new_value
         end
 
         it "should remain read-only when modifying and not save changes, when :writable => false" do
           Workbook.unobtrusively(@simple_file1, :writable => false, :read_only => false) do |book|
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
-            @new_value = book.sheet(1)[1,1].Value
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
+            @new_value = book.sheet(1)[1,1]
             book.saved.should be false
             book.visible.should be true
             book.writable.should be true
@@ -912,14 +912,14 @@ describe Workbook do
           ole_wb.ReadOnly.should be true
           ole_wb.Close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should == @old_value
-          book2.sheet(1)[1,1].Value.should_not == @new_value
+          book2.sheet(1)[1,1].should == @old_value
+          book2.sheet(1)[1,1].should_not == @new_value
         end
 
         it "should remain read-only when modifying and not save changes, when :writable => false" do
           Workbook.unobtrusively(@simple_file1, :read_only => false, :writable => false) do |book|
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
-            @new_value = book.sheet(1)[1,1].Value
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
+            @new_value = book.sheet(1)[1,1]
             book.saved.should be false
             book.visible.should be true
             book.writable.should be true
@@ -930,15 +930,15 @@ describe Workbook do
           ole_wb.ReadOnly.should be true
           ole_wb.Close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should == @old_value
-          book2.sheet(1)[1,1].Value.should_not == @new_value
+          book2.sheet(1)[1,1].should == @old_value
+          book2.sheet(1)[1,1].should_not == @new_value
         end
 
 
         it "should remain read-only when modifying and not save changes, when :writable => false" do
           Workbook.unobtrusively(@simple_file1, :writable => false, :read_only => false) do |book|
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
-            @new_value = book.sheet(1)[1,1].Value
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
+            @new_value = book.sheet(1)[1,1]
             book.saved.should be false
             book.visible.should be true
             book.writable.should be true
@@ -949,14 +949,14 @@ describe Workbook do
           ole_wb.ReadOnly.should be true
           ole_wb.Close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should == @old_value
-          book2.sheet(1)[1,1].Value.should_not == @new_value
+          book2.sheet(1)[1,1].should == @old_value
+          book2.sheet(1)[1,1].should_not == @new_value
         end
 
         it "should remain read-only when modifying and not save changes, even if :writable => true" do
           Workbook.unobtrusively(@simple_file1, :writable => true) do |book|
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
-            @new_value = book.sheet(1)[1,1].Value
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
+            @new_value = book.sheet(1)[1,1]
             book.saved.should be false
             book.visible.should be true
             book.writable.should be false
@@ -967,14 +967,14 @@ describe Workbook do
           ole_wb.ReadOnly.should be true
           ole_wb.Close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should == @old_value
-          book2.sheet(1)[1,1].Value.should_not == @new_value
+          book2.sheet(1)[1,1].should == @old_value
+          book2.sheet(1)[1,1].should_not == @new_value
         end
 
         it "should remain read-only when modifying and not save changes, when :writable => false" do
           Workbook.unobtrusively(@simple_file1, :writable => false) do |book|
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
-            @new_value = book.sheet(1)[1,1].Value
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
+            @new_value = book.sheet(1)[1,1]
             book.saved.should be false
             book.visible.should be true
             book.writable.should be false
@@ -985,8 +985,8 @@ describe Workbook do
           ole_wb.ReadOnly.should be true
           Excel.kill_all
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should == @old_value
-          book2.sheet(1)[1,1].Value.should_not == @new_value
+          book2.sheet(1)[1,1].should == @old_value
+          book2.sheet(1)[1,1].should_not == @new_value
         end
 
 
@@ -1019,97 +1019,97 @@ describe Workbook do
         it "should open read-write" do
           Workbook.unobtrusively(@simple_file1) do |book|            
             book.ReadOnly.should be false
-            @old_value = book.sheet(1)[1,1].Value
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            @old_value = book.sheet(1)[1,1]
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
             book.Saved.should be false
           end          
           Excel.current.Workbooks.Count.should == 0
           b1 = Workbook.open(@simple_file1)
-          b1.sheet(1)[1,1].Value.should_not == @old_value
+          b1.sheet(1)[1,1].should_not == @old_value
         end
 
         it "should open as read-write" do
           Workbook.unobtrusively(@simple_file, :read_only => false) do |book|
             book.ReadOnly.should be false
-            @old_value = book.sheet(1)[1,1].Value
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            @old_value = book.sheet(1)[1,1]
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
             book.Saved.should be false
           end
           Excel.current.Workbooks.Count.should == 0
           b1 = Workbook.open(@simple_file1)
-          b1.sheet(1)[1,1].Value.should_not == @old_value
+          b1.sheet(1)[1,1].should_not == @old_value
         end
 
         it "should open as read-write but not save changes" do
           Workbook.unobtrusively(@simple_file, :read_only => false, :writable => false) do |book|
             book.ReadOnly.should be false
-            @old_value = book.sheet(1)[1,1].Value
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            @old_value = book.sheet(1)[1,1]
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
             book.Saved.should be false
           end
           Excel.current.Workbooks.Count.should == 0
           b1 = Workbook.open(@simple_file1)
-          b1.sheet(1)[1,1].Value.should == @old_value
+          b1.sheet(1)[1,1].should == @old_value
         end
 
         it "should open as read-write" do
           Workbook.unobtrusively(@simple_file, :writable => true) do |book|
             book.ReadOnly.should be false
-            @old_value = book.sheet(1)[1,1].Value
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            @old_value = book.sheet(1)[1,1]
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
             book.Saved.should be false
           end
           Excel.current.Workbooks.Count.should == 0
           b1 = Workbook.open(@simple_file1)
-          b1.sheet(1)[1,1].Value.should_not == @old_value
+          b1.sheet(1)[1,1].should_not == @old_value
         end
 
         it "should open as read-write" do
           Workbook.unobtrusively(@simple_file, :writable => true, :read_only => false) do |book|
             book.ReadOnly.should be false
-            @old_value = book.sheet(1)[1,1].Value
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            @old_value = book.sheet(1)[1,1]
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
             book.Saved.should be false
           end
           Excel.current.Workbooks.Count.should == 0
           b1 = Workbook.open(@simple_file1)
-          b1.sheet(1)[1,1].Value.should_not == @old_value
+          b1.sheet(1)[1,1].should_not == @old_value
         end
 
         it "should open read-only" do
           Workbook.unobtrusively(@simple_file, :read_only => true) do |book|            
             book.ReadOnly.should be true
-            @old_value = book.sheet(1)[1,1].Value
-            #book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            @old_value = book.sheet(1)[1,1]
+            #book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
             #book.Saved.should be false
           end
           Excel.current.Workbooks.Count.should == 0
           b1 = Workbook.open(@simple_file1)
-          b1.sheet(1)[1,1].Value.should == @old_value
+          b1.sheet(1)[1,1].should == @old_value
         end
 
         it "should open read-only" do
           Workbook.unobtrusively(@simple_file, :read_only => true, :writable => false) do |book|            
             book.ReadOnly.should be true
-            @old_value = book.sheet(1)[1,1].Value
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            @old_value = book.sheet(1)[1,1]
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
             book.Saved.should be false
           end
           Excel.current.Workbooks.Count.should == 0
           b1 = Workbook.open(@simple_file1)
-          b1.sheet(1)[1,1].Value.should == @old_value
+          b1.sheet(1)[1,1].should == @old_value
         end
 
         it "should open not writable and read-only" do
           Workbook.unobtrusively(@simple_file, :writable => false) do |book|
             book.ReadOnly.should be true
-            @old_value = book.sheet(1)[1,1].Value
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            @old_value = book.sheet(1)[1,1]
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
             book.Saved.should be false            
           end
           Excel.current.Workbooks.Count.should == 0          
           b1 = Workbook.open(@simple_file1)
-          b1.sheet(1)[1,1].Value.should == @old_value
+          b1.sheet(1)[1,1].should == @old_value
         end
 
         it "should raise error if both options are true" do          
@@ -1123,7 +1123,7 @@ describe Workbook do
 
         before do
            @book = Workbook.open(@simple_file1)
-           @old_value = @book.sheet(1)[1,1].Value
+           @old_value = @book.sheet(1)[1,1]
         end
 
         it "should open as read-write by default" do
@@ -1132,11 +1132,11 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           end
           @book.close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should_not == @old_value
+          book2.sheet(1)[1,1].should_not == @old_value
         end
 
         it "should open as read-write" do
@@ -1145,11 +1145,11 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           end
           @book.close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should_not == @old_value
+          book2.sheet(1)[1,1].should_not == @old_value
         end
 
         it "should open as read-write" do
@@ -1158,11 +1158,11 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           end
           @book.close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should == @old_value
+          book2.sheet(1)[1,1].should == @old_value
         end
 
         it "should open as read-write" do
@@ -1171,11 +1171,11 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           end
           @book.close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should_not == @old_value
+          book2.sheet(1)[1,1].should_not == @old_value
         end
 
         it "should open as read-write" do          
@@ -1184,11 +1184,11 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           end
           @book.close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should_not == @old_value
+          book2.sheet(1)[1,1].should_not == @old_value
         end
 
         it "should force to read-only" do
@@ -1198,7 +1198,7 @@ describe Workbook do
               book.should == @book
               book.filename.should == @book.filename
               book.excel.should == @book.excel
-              book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+              book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo" 
             end
             }.to raise_error(WorkbookReadOnly)
         end
@@ -1212,11 +1212,11 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo" 
           end
           @book.close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should == @old_value
+          book2.sheet(1)[1,1].should == @old_value
         end
 
         it "should open not writable" do
@@ -1225,11 +1225,11 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           end
           @book.close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should == @old_value
+          book2.sheet(1)[1,1].should == @old_value
         end
       end
 
@@ -1237,23 +1237,23 @@ describe Workbook do
 
         before do
           @book = Workbook.open(@simple_file1, :read_only => true)
-          @old_value = @book.sheet(1)[1,1].Value 
+          @old_value = @book.sheet(1)[1,1] 
         end
 
         it "should not write" do
           Workbook.unobtrusively(@simple_file1, :writable => false) do |book|
             book.Readonly.should be true
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
-            book.sheet(1)[1,1].Value.should_not == @old_value
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1].should_not == @old_value
           end
           @book.ReadOnly.should be true
           @book.close
           Workbook.unobtrusively(@simple_file1, :writable => false) do |book|
-            book.sheet(1)[1,1].Value.should == @old_value
+            book.sheet(1)[1,1].should == @old_value
           end
           #@book.close
           #book2 = Workbook.open(@simple_file1)
-          #book2.sheet(1)[1,1].Value.should == @old_value
+          #book2.sheet(1)[1,1].should == @old_value
         end
 
         it "should not change the read_only mode" do
@@ -1262,12 +1262,12 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           end
           @book.ReadOnly.should be true
           @book.close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should == @old_value
+          book2.sheet(1)[1,1].should == @old_value
         end
 
         it "should open as read-write" do
@@ -1276,11 +1276,11 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           end
           @book.close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should_not == @old_value
+          book2.sheet(1)[1,1].should_not == @old_value
         end
 
         it "should open as read-write" do
@@ -1289,11 +1289,11 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           end
           @book.close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should == @old_value
+          book2.sheet(1)[1,1].should == @old_value
         end
 
         it "should remain read-only even if writeble => true" do
@@ -1302,11 +1302,11 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           end
           @book.close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should == @old_value
+          book2.sheet(1)[1,1].should == @old_value
         end
 
         it "should force to read-write" do
@@ -1315,11 +1315,11 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           end
           @book.close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should_not == @old_value
+          book2.sheet(1)[1,1].should_not == @old_value
         end
 
 =begin
@@ -1329,11 +1329,11 @@ describe Workbook do
             book.Readonly.should be false
             book.filename.should == @book.filename
             book.excel.should == e1
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           end
           @book.close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should_not == @old_value
+          book2.sheet(1)[1,1].should_not == @old_value
         end
 
         it "should force to read-write" do
@@ -1342,11 +1342,11 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           end
           @book.close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should_not == @old_value
+          book2.sheet(1)[1,1].should_not == @old_value
         end
 
         it "should force to read-write" do
@@ -1354,11 +1354,11 @@ describe Workbook do
             book.Readonly.should be false
             book.filename.should == @book.filename
             book.excel.should_not == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           end
           @book.close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should_not == @old_value
+          book2.sheet(1)[1,1].should_not == @old_value
         end
 =end
 
@@ -1368,11 +1368,11 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           end
           @book.close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should_not == @old_value
+          book2.sheet(1)[1,1].should_not == @old_value
         end
 
         it "should force to read-only" do
@@ -1381,11 +1381,11 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo" 
           end
           @book.close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should == @old_value
+          book2.sheet(1)[1,1].should == @old_value
         end
 
         it "should force to read-only" do
@@ -1394,11 +1394,11 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo" 
           end
           @book.close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should == @old_value
+          book2.sheet(1)[1,1].should == @old_value
         end
 
         it "should open not writable" do
@@ -1407,11 +1407,11 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           end
           @book.close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should == @old_value
+          book2.sheet(1)[1,1].should == @old_value
         end
       end
 
@@ -1419,8 +1419,8 @@ describe Workbook do
 
         before do
            @book = Workbook.open(@simple_file1)           
-           @book.sheet(1)[1,1] = @book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"           
-           @old_value = @book.sheet(1)[1,1].Value
+           @book.sheet(1)[1,1] = @book.sheet(1)[1,1] == "foo" ? "bar" : "foo"           
+           @old_value = @book.sheet(1)[1,1]
         end
 
         it "should open as read-write by default" do
@@ -1429,10 +1429,10 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           end
           @book.Saved.should be false
-          @book.sheet(1)[1,1].Value.should_not == @old_value
+          @book.sheet(1)[1,1].should_not == @old_value
         end
 
         it "should open as read-write" do
@@ -1441,10 +1441,10 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           end
           @book.Saved.should be false
-          @book.sheet(1)[1,1].Value.should_not == @old_value
+          @book.sheet(1)[1,1].should_not == @old_value
         end
 
         it "should open as read-write" do
@@ -1453,10 +1453,10 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           end
           @book.Saved.should be false
-          @book.sheet(1)[1,1].Value.should_not == @old_value
+          @book.sheet(1)[1,1].should_not == @old_value
         end
 
         it "should force to read-write" do
@@ -1465,10 +1465,10 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           end
           @book.Saved.should be false
-          @book.sheet(1)[1,1].Value.should_not == @old_value
+          @book.sheet(1)[1,1].should_not == @old_value
         end
 
         it "should force to read-write" do          
@@ -1477,10 +1477,10 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           end
           @book.Saved.should be false
-          @book.sheet(1)[1,1].Value.should_not == @old_value
+          @book.sheet(1)[1,1].should_not == @old_value
         end
 
         it "should force to read-only" do
@@ -1489,7 +1489,7 @@ describe Workbook do
           end
           @book.Saved.should be false
           @book.ReadOnly.should be false
-          @book.sheet(1)[1,1].Value.should == @old_value
+          @book.sheet(1)[1,1].should == @old_value
         end
 
         it "should force to read-only with writable false" do
@@ -1498,7 +1498,7 @@ describe Workbook do
           end
           @book.Saved.should be false
           @book.ReadOnly.should be false
-          @book.sheet(1)[1,1].Value.should == @old_value
+          @book.sheet(1)[1,1].should == @old_value
         end
 
         it "should open not writable" do
@@ -1507,13 +1507,13 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           end
           @book.Saved.should be false
-          @book.sheet(1)[1,1].Value.should_not == @old_value
+          @book.sheet(1)[1,1].should_not == @old_value
           @book.close(:if_unsaved => :forget)
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should_not == @old_value
+          book2.sheet(1)[1,1].should_not == @old_value
         end
       end
 
@@ -1521,8 +1521,8 @@ describe Workbook do
 
         before do
           @book = Workbook.open(@simple_file1, :read_only => true)          
-          @book.sheet(1)[1,1] = @book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
-          @old_value = @book.sheet(1)[1,1].Value
+          @book.sheet(1)[1,1] = @book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
+          @old_value = @book.sheet(1)[1,1]
         end
 
         it "should open as read-only by default" do
@@ -1531,14 +1531,14 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           end
           @book.Saved.should be false
           @book.ReadOnly.should be true
-          @book.sheet(1)[1,1].Value.should_not == @old_value
+          @book.sheet(1)[1,1].should_not == @old_value
           @book.close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should_not == @old_value
+          book2.sheet(1)[1,1].should_not == @old_value
         end
 
         it "should open as read-only" do
@@ -1551,13 +1551,13 @@ describe Workbook do
           Workbook.unobtrusively(@simple_file1, :writable => true) do |book|
             book.Readonly.should be true
             book.Saved.should be false
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           end
           @book.ReadOnly.should be true
-          @book.sheet(1)[1,1].Value.should_not == @old_value
+          @book.sheet(1)[1,1].should_not == @old_value
           @book.close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should_not == @old_value
+          book2.sheet(1)[1,1].should_not == @old_value
         end
 
         it "should force to read-only" do
@@ -1566,14 +1566,14 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo" 
           end
           @book.Saved.should be false
           @book.ReadOnly.should be true
-          @book.sheet(1)[1,1].Value.should_not == @old_value
+          @book.sheet(1)[1,1].should_not == @old_value
           @book.close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should_not == @old_value
+          book2.sheet(1)[1,1].should_not == @old_value
         end
 
         it "should force to read-only" do
@@ -1582,14 +1582,14 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo" 
           end
           @book.Saved.should be false
           @book.ReadOnly.should be true
-          @book.sheet(1)[1,1].Value.should_not == @old_value
+          @book.sheet(1)[1,1].should_not == @old_value
           @book.close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should_not == @old_value
+          book2.sheet(1)[1,1].should_not == @old_value
         end
 
         it "should open not writable" do
@@ -1598,14 +1598,14 @@ describe Workbook do
             book.should == @book
             book.filename.should == @book.filename
             book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo"
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
           end
           @book.Saved.should be false
           @book.ReadOnly.should be true
-          @book.sheet(1)[1,1].Value.should_not == @old_value
+          @book.sheet(1)[1,1].should_not == @old_value
           @book.close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should_not == @old_value
+          book2.sheet(1)[1,1].should_not == @old_value
         end
       end
 
@@ -1639,94 +1639,94 @@ describe Workbook do
 
         it "should write in the outer and inner block" do
           Workbook.unobtrusively(@simple_file1) do |book|
-            @old_value = book.sheet(1)[1,1].Value
+            @old_value = book.sheet(1)[1,1]
             book.ReadOnly.should be false
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo" 
             book.Saved.should be false
-            book.sheet(1)[1,1].Value.should_not == @old_value
+            book.sheet(1)[1,1].should_not == @old_value
             Workbook.unobtrusively(@simple_file1) do |book2|
               book2.should == book
               book2.ReadOnly.should be false
               book2.Saved.should be false
-              book2.sheet(1)[1,1].Value.should_not == @old_value
-              book2.sheet(1)[1,1] = book2.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
-              book2.sheet(1)[1,1].Value.should == @old_value
+              book2.sheet(1)[1,1].should_not == @old_value
+              book2.sheet(1)[1,1] = book2.sheet(1)[1,1] == "foo" ? "bar" : "foo" 
+              book2.sheet(1)[1,1].should == @old_value
             end
             book.should be_alive
             book.Saved.should be false
-            book.sheet(1)[1,1].Value.should == @old_value            
+            book.sheet(1)[1,1].should == @old_value            
           end
           book = Workbook.open(@simple_file1)
-          book.sheet(1)[1,1].Value.should == @old_value 
+          book.sheet(1)[1,1].should == @old_value 
         end
 =begin  
         it "should write in the outer and not in the inner block" do
           Workbook.unobtrusively(@simple_file1, :if_unsaved => :forget) do |book|
-            @old_value = book.sheet(1)[1,1].Value
+            @old_value = book.sheet(1)[1,1]
             book.ReadOnly.should be false
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo" 
             book.Saved.should be false
-            book.sheet(1)[1,1].Value.should_not == @old_value
+            book.sheet(1)[1,1].should_not == @old_value
             Workbook.unobtrusively(@simple_file1, :if_unsaved => :forget, :read_only => true) do |book2|
               book2.should == book
               book2.ReadOnly.should be true
               book2.Saved.should be true
-              book2.sheet(1)[1,1] = book2.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
-              #book2.sheet(1)[1,1].Value.should_not == @old_value
+              book2.sheet(1)[1,1] = book2.sheet(1)[1,1] == "foo" ? "bar" : "foo" 
+              #book2.sheet(1)[1,1].should_not == @old_value
             end
             book.should be_alive
             book.Saved.should be false
-            book.sheet(1)[1,1].Value.should_not == @old_value            
+            book.sheet(1)[1,1].should_not == @old_value            
           end
           book = Workbook.open(@simple_file1)
-          book.sheet(1)[1,1].Value.should_not == @old_value
+          book.sheet(1)[1,1].should_not == @old_value
         end
 =end        
         it "should write in the outer and not in the inner block" do
           Workbook.unobtrusively(@simple_file1) do |book|
-            @old_value = book.sheet(1)[1,1].Value
+            @old_value = book.sheet(1)[1,1]
             book.ReadOnly.should be false
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo" 
             book.Saved.should be false
-            book.sheet(1)[1,1].Value.should_not == @old_value
+            book.sheet(1)[1,1].should_not == @old_value
             Workbook.unobtrusively(@simple_file1, :writable => false) do |book2|
               book2.should == book
               book2.ReadOnly.should be false
               book2.Saved.should be false
-              book2.sheet(1)[1,1].Value.should_not == @old_value
-              book2.sheet(1)[1,1] = book2.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
-              book2.sheet(1)[1,1].Value.should == @old_value
+              book2.sheet(1)[1,1].should_not == @old_value
+              book2.sheet(1)[1,1] = book2.sheet(1)[1,1] == "foo" ? "bar" : "foo" 
+              book2.sheet(1)[1,1].should == @old_value
             end
             book.should be_alive
             book.Saved.should be false
-            book.sheet(1)[1,1].Value.should == @old_value            
+            book.sheet(1)[1,1].should == @old_value            
           end
           book = Workbook.open(@simple_file1)
-          book.sheet(1)[1,1].Value.should == @old_value
+          book.sheet(1)[1,1].should == @old_value
         end
 =begin
         it "should be read-only in the outer and write in the inner block" do
           Workbook.unobtrusively(@simple_file1, :read_only => true, :if_unsaved => :save) do |book|
-            @old_value = book.sheet(1)[1,1].Value
+            @old_value = book.sheet(1)[1,1]
             book.ReadOnly.should be true
-            book.sheet(1)[1,1] = book.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
+            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo" 
             book.Saved.should be false
-            book.sheet(1)[1,1].Value.should_not == @old_value
+            book.sheet(1)[1,1].should_not == @old_value
             Workbook.unobtrusively(@simple_file1, :if_unsaved => :save) do |book2|
               book2.should == book
               book2.ReadOnly.should be true
               book2.Saved.should be false
-              book2.sheet(1)[1,1].Value.should_not == @old_value
-              book2.sheet(1)[1,1] = book2.sheet(1)[1,1].Value == "foo" ? "bar" : "foo" 
-              book2.sheet(1)[1,1].Value.should == @old_value
+              book2.sheet(1)[1,1].should_not == @old_value
+              book2.sheet(1)[1,1] = book2.sheet(1)[1,1] == "foo" ? "bar" : "foo" 
+              book2.sheet(1)[1,1].should == @old_value
             end
             book.should be_alive
             book.Saved.should be false
             book.ReadOnly.should be true
-            book.sheet(1)[1,1].Value.should == @old_value            
+            book.sheet(1)[1,1].should == @old_value            
           end
           book = Workbook.open(@simple_file1)
-          book.sheet(1)[1,1].Value.should == @old_value
+          book.sheet(1)[1,1].should == @old_value
         end
 =end
       end
@@ -1772,31 +1772,31 @@ describe Workbook do
 
         it "should write and remain read_only and open the workbook in another Excel" do
           book1 = Workbook.open(@simple_file1, :read_only => true)
-          old_value = book1.sheet(1)[1,1].Value
+          old_value = book1.sheet(1)[1,1]
           Workbook.unobtrusively(@simple_file1) do |book|
             sheet = book.sheet(1)
-            sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+            sheet[1,1] = sheet[1,1] == "foo" ? "bar" : "foo"
             book.excel.should == book1.excel
           end
           book1.ReadOnly.should be true
           book1.close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should == old_value
+          book2.sheet(1)[1,1].should == old_value
         end
 
         it "should write and remain read_only and open the workbook in the same Excel" do
           book1 = Workbook.open(@simple_file1, :read_only => true)
-          old_value = book1.sheet(1)[1,1].Value
+          old_value = book1.sheet(1)[1,1]
           Workbook.unobtrusively(@simple_file1, :writable => true) do |book|
             book.ReadOnly.should be true
             sheet = book.sheet(1)
-            sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+            sheet[1,1] = sheet[1,1] == "foo" ? "bar" : "foo"
             book.excel.should == book1.excel
           end
           book1.ReadOnly.should be true
           book1.close
           book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].Value.should == old_value
+          book2.sheet(1)[1,1].should == old_value
         end
 
       end
@@ -1995,18 +1995,18 @@ describe Workbook do
         @book.Saved.should be true
         @book.should be_alive
         sheet = @book.sheet(1)
-        old_cell_value = sheet[1,1].Value
+        old_cell_value = sheet[1,1]
         unobtrusively_ok?
         @book.Saved.should be true
         @book.should be_alive
         sheet = @book.sheet(1)
-        sheet[1,1].Value.should_not == old_cell_value
+        sheet[1,1].should_not == old_cell_value
       end
 
      it "should let the unsaved book unsaved" do
         sheet = @book.sheet(1)
-        sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
-        old_cell_value = sheet[1,1].Value
+        sheet[1,1] = sheet[1,1] == "foo" ? "bar" : "foo"
+        old_cell_value = sheet[1,1]
         @book.Saved.should be false
         unobtrusively_ok?
         @book.should be_alive
@@ -2014,7 +2014,7 @@ describe Workbook do
         @book.close(:if_unsaved => :forget)
         @book2 = Workbook.open(@simple_file1)
         sheet2 = @book2.sheet(1)
-        sheet2[1,1].Value.should_not == old_cell_value
+        sheet2[1,1].should_not == old_cell_value
       end
 
       it "should modify unobtrusively the second, writable book" do
@@ -2022,8 +2022,8 @@ describe Workbook do
         @book.ReadOnly.should be false
         @book2.ReadOnly.should be true
         sheet = @book2.sheet(1)
-        old_cell_value = sheet[1,1].Value
-        sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+        old_cell_value = sheet[1,1]
+        sheet[1,1] = sheet[1,1] == "foo" ? "bar" : "foo"
         unobtrusively_ok?
         @book2.should be_alive
         @book2.Saved.should be false
@@ -2031,7 +2031,7 @@ describe Workbook do
         @book.close
         new_book = Workbook.open(@simple_file1)
         sheet2 = new_book.sheet(1)
-        sheet2[1,1].Value.should_not == old_cell_value
+        sheet2[1,1].should_not == old_cell_value
       end    
     end
 
@@ -2048,21 +2048,21 @@ describe Workbook do
 
       it "should let the closed book closed by default" do
         sheet = @book.sheet(1)
-        old_cell_value = sheet[1,1].Value
+        old_cell_value = sheet[1,1]
         @book.close
         @book.should_not be_alive
         unobtrusively_ok?
         @book.should_not be_alive
         new_book = Workbook.open(@simple_file1)
         sheet = new_book.sheet(1)
-        sheet[1,1].Value.should_not == old_cell_value
+        sheet[1,1].should_not == old_cell_value
       end
 
       # The bold reanimation of the @book
       it "should use the excel of the book and keep open the book" do
         excel = Excel.new(:reuse => false)
         sheet = @book.sheet(1)
-        old_cell_value = sheet[1,1].Value
+        old_cell_value = sheet[1,1]
         @book.close
         @book.should_not be_alive
         Workbook.unobtrusively(@simple_file, :keep_open => true) do |book|
@@ -2071,21 +2071,21 @@ describe Workbook do
           book.excel.should_not == excel
           sheet = book.sheet(1)
           cell = sheet[1,1]
-          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
+          sheet[1,1] = cell == "foo" ? "bar" : "foo"
           book.Saved.should be false
         end
         @book.should be_alive
         @book.close
         new_book = Workbook.open(@simple_file1)
         sheet = new_book.sheet(1)
-        sheet[1,1].Value.should_not == old_cell_value
+        sheet[1,1].should_not == old_cell_value
       end
 
       # book shall be reanimated
       it "should use the excel of the book and keep open the book" do
         excel = Excel.new(:reuse => false)
         sheet = @book.sheet(1)
-        old_cell_value = sheet[1,1].Value
+        old_cell_value = sheet[1,1]
         @book.close
         @book.should_not be_alive
         Workbook.unobtrusively(@simple_file, :if_closed => :new) do |book|
@@ -2095,38 +2095,38 @@ describe Workbook do
           book.excel.should_not == excel
           sheet = book.sheet(1)
           cell = sheet[1,1]
-          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
+          sheet[1,1] = cell == "foo" ? "bar" : "foo"
           book.Saved.should be false
         end
         @book.should_not be_alive
         new_book = Workbook.open(@simple_file1)
         sheet = new_book.sheet(1)
-        sheet[1,1].Value.should_not == old_cell_value
+        sheet[1,1].should_not == old_cell_value
       end
 
       it "should use another excel if the Excels are closed" do
         sheet = @book.sheet(1)
-        old_cell_value = sheet[1,1].Value
+        old_cell_value = sheet[1,1]
         @book.close
         @book.should_not be_alive
         Workbook.unobtrusively(@simple_file, :keep_open => true) do |book|
           book.should be_a Workbook
           sheet = book.sheet(1)
           cell = sheet[1,1]
-          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
+          sheet[1,1] = cell == "foo" ? "bar" : "foo"
           book.Saved.should be false
         end
         @book.should be_alive
         @book.close
         new_book = Workbook.open(@simple_file1)
         sheet = new_book.sheet(1)
-        sheet[1,1].Value.should_not == old_cell_value
+        sheet[1,1].should_not == old_cell_value
       end
 
       it "should use another excel if the Excels are closed" do
         excel = Excel.new(:reuse => false)
         sheet = @book.sheet(1)
-        old_cell_value = sheet[1,1].Value
+        old_cell_value = sheet[1,1]
         @book.close
         @book.should_not be_alive
         Excel.kill_all
@@ -2136,33 +2136,33 @@ describe Workbook do
           book.excel.should_not == excel
           sheet = book.sheet(1)
           cell = sheet[1,1]
-          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
+          sheet[1,1] = cell == "foo" ? "bar" : "foo"
           book.Saved.should be false
         end
         @book.should_not be_alive
         new_book = Workbook.open(@simple_file1)
         sheet = new_book.sheet(1)
-        sheet[1,1].Value.should_not == old_cell_value
+        sheet[1,1].should_not == old_cell_value
       end      
 
       it "should modify unobtrusively the copied file" do
         sheet = @book.sheet(1)
-        old_cell_value = sheet[1,1].Value
+        old_cell_value = sheet[1,1]
         File.delete simple_save_file rescue nil
         @book.save_as(@simple_save_file)
         @book.close
         Workbook.unobtrusively(@simple_save_file) do |book|
           sheet = book.sheet(1)
           cell = sheet[1,1]
-          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
+          sheet[1,1] = cell == "foo" ? "bar" : "foo"
         end
         old_book = Workbook.open(@simple_file1)
         old_sheet = old_book.sheet(1)
-        old_sheet[1,1].Value.should == old_cell_value
+        old_sheet[1,1].should == old_cell_value
         old_book.close
         new_book = Workbook.open(@simple_save_file)
         new_sheet = new_book.sheet(1)
-        new_sheet[1,1].Value.should_not == old_cell_value
+        new_sheet[1,1].should_not == old_cell_value
         new_book.close
       end
     end
@@ -2259,7 +2259,7 @@ describe Workbook do
         @book.ReadOnly.should be true
         @book.Saved.should be true
         sheet = @book.sheet(1)
-        old_cell_value = sheet[1,1].Value
+        old_cell_value = sheet[1,1]
         unobtrusively_ok?
         @book.should be_alive
         @book.Saved.should be true
@@ -2267,20 +2267,20 @@ describe Workbook do
         @book.close
         book2 = Workbook.open(@simple_file1)
         sheet2 = book2.sheet(1)
-        sheet2[1,1].Value.should == old_cell_value
+        sheet2[1,1].should == old_cell_value
       end
 
       it "should let the unsaved book unsaved" do
         @book.ReadOnly.should be true
         sheet = @book.sheet(1)
-        sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo" 
+        sheet[1,1] = sheet[1,1] == "foo" ? "bar" : "foo" 
         @book.Saved.should be false
         @book.should be_alive
         Workbook.unobtrusively(@simple_file1) do |book|
           book.should be_a Workbook
           sheet = book.sheet(1)
-          sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
-          @cell_value = sheet[1,1].Value
+          sheet[1,1] = sheet[1,1] == "foo" ? "bar" : "foo"
+          @cell_value = sheet[1,1]
           book.should be_alive
           book.Saved.should be false
         end
@@ -2291,7 +2291,7 @@ describe Workbook do
         book2 = Workbook.open(@simple_file1)
         sheet2 = book2.sheet(1)
         # modifies unobtrusively the saved version, not the unsaved version
-        sheet2[1,1].Value.should == @cell_value        
+        sheet2[1,1].should == @cell_value        
       end
 
       it "should open unobtrusively by default the writable book" do
@@ -2299,13 +2299,13 @@ describe Workbook do
         @book.ReadOnly.should be true
         book2.Readonly.should be false
         sheet = @book.sheet(1)
-        cell_value = sheet[1,1].Value
+        cell_value = sheet[1,1]
         Workbook.unobtrusively(@simple_file1, :if_closed => :new) do |book|
           book.should be_a Workbook
           book.excel.should == book2.excel
           book.excel.should_not == @book.excel
           sheet = book.sheet(1)
-          sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+          sheet[1,1] = sheet[1,1] == "foo" ? "bar" : "foo"
           book.should be_alive
           book.Saved.should be false          
         end  
@@ -2315,7 +2315,7 @@ describe Workbook do
         book2.close
         book3 = Workbook.open(@simple_file1)
         new_sheet = book3.sheet(1)
-        new_sheet[1,1].Value.should_not == cell_value
+        new_sheet[1,1].should_not == cell_value
         book3.close
       end
 
@@ -2327,7 +2327,7 @@ describe Workbook do
         @book.ReadOnly.should be true
         book2.Readonly.should be true
         sheet = @book.sheet(1)
-        cell_value = sheet[1,1].Value
+        cell_value = sheet[1,1]
         Workbook.unobtrusively(@simple_file1, :writable => true, :if_closed => :new, :rw_change_excel => :new) do |book|
           book.should be_a Workbook
           book.ReadOnly.should be false
@@ -2336,7 +2336,7 @@ describe Workbook do
           book.excel.should_not == excel1
           book.excel.should_not == excel2
           sheet = book.sheet(1)
-          sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+          sheet[1,1] = sheet[1,1] == "foo" ? "bar" : "foo"
           book.should be_alive
           book.Saved.should be false          
         end  
@@ -2346,7 +2346,7 @@ describe Workbook do
         book2.close
         book3 = Workbook.open(@simple_file1)
         new_sheet = book3.sheet(1)
-        new_sheet[1,1].Value.should_not == cell_value
+        new_sheet[1,1].should_not == cell_value
         book3.close
       end
 
@@ -2357,13 +2357,13 @@ describe Workbook do
         @book.ReadOnly.should be true
         book2.Readonly.should be true
         sheet = @book.sheet(1)
-        cell_value = sheet[1,1].Value
+        cell_value = sheet[1,1]
         Workbook.unobtrusively(@simple_file1, :writable => true, :if_closed => :new, :rw_change_excel => :current) do |book|
           book.should be_a Workbook
           book.excel.should == book2.excel
           book.ReadOnly.should be false
           sheet = book.sheet(1)
-          sheet[1,1] = sheet[1,1].Value == "foo" ? "bar" : "foo"
+          sheet[1,1] = sheet[1,1] == "foo" ? "bar" : "foo"
           book.should be_alive
           book.Saved.should be false          
         end  
@@ -2373,7 +2373,7 @@ describe Workbook do
         book2.close
         book3 = Workbook.open(@simple_file1)
         new_sheet = book3.sheet(1)
-        new_sheet[1,1].Value.should_not == cell_value
+        new_sheet[1,1].should_not == cell_value
         book3.close
       end
 =end
@@ -2383,7 +2383,7 @@ describe Workbook do
         @book.ReadOnly.should be true
         book2.Readonly.should be true
         sheet = @book.sheet(1)
-        cell_value = sheet[1,1].Value
+        cell_value = sheet[1,1]
         Workbook.unobtrusively(@simple_file1, :if_closed => :new, :read_only => true) do |book|
           book.should be_a Workbook
           book.excel.should == book2.excel
@@ -2439,7 +2439,7 @@ describe Workbook do
           book.Saved.should be true  
           sheet = book.sheet(1)
           cell = sheet[1,1]
-          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
+          sheet[1,1] = cell == "foo" ? "bar" : "foo"
           @book1.Saved.should be false
           book.Saved.should be false
           sleep 1
@@ -2487,11 +2487,11 @@ describe Workbook do
 
       it "should yield the block result with an unmodified book" do
         sheet1 = @book1.sheet(1)
-        cell1 = sheet1[1,1].Value
+        cell1 = sheet1[1,1]
         result = 
           Workbook.unobtrusively(@simple_file1) do |book| 
             sheet = book.sheet(1)
-            cell = sheet[1,1].Value
+            cell = sheet[1,1]
           end
         result.should == cell1
       end
@@ -2519,7 +2519,7 @@ describe Workbook do
         @book1.Readonly.should == false
         @book2.Readonly.should == true
         old_sheet = @book1.sheet(1)
-        @old_cell_value = old_sheet[1,1].Value
+        @old_cell_value = old_sheet[1,1]
         @book1.close
         @book2.close
         @book1.should_not be_alive
@@ -2533,12 +2533,12 @@ describe Workbook do
           book.ReadOnly.should == false
           sheet = book.sheet(1)
           cell = sheet[1,1]
-          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
+          sheet[1,1] = cell == "foo" ? "bar" : "foo"
           book.Saved.should be false
         end
         new_book = Workbook.open(@simple_file1)
         sheet = new_book.sheet(1)
-        sheet[1,1].Value.should_not == @old_cell_value
+        sheet[1,1].should_not == @old_cell_value
       end
 
       it "should open unobtrusively the closed book in the new Excel" do
@@ -2548,12 +2548,12 @@ describe Workbook do
           book.ReadOnly.should == false
           sheet = book.sheet(1)
           cell = sheet[1,1]
-          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
+          sheet[1,1] = cell == "foo" ? "bar" : "foo"
           book.Saved.should be false
         end
         new_book = Workbook.open(@simple_file1)
         sheet = new_book.sheet(1)
-        sheet[1,1].Value.should_not == @old_cell_value
+        sheet[1,1].should_not == @old_cell_value
       end
 
       it "should open unobtrusively the closed book in a new Excel if the Excel is not alive anymore" do
@@ -2564,12 +2564,12 @@ describe Workbook do
           book.excel.should_not == @book2.excel
           sheet = book.sheet(1)
           cell = sheet[1,1]
-          sheet[1,1] = cell.Value == "foo" ? "bar" : "foo"
+          sheet[1,1] = cell == "foo" ? "bar" : "foo"
           book.Saved.should be false
         end
         new_book = Workbook.open(@simple_file1)
         sheet = new_book.sheet(1)
-        sheet[1,1].Value.should_not == @old_cell_value
+        sheet[1,1].should_not == @old_cell_value
       end
     end
   end

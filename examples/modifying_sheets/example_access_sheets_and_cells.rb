@@ -15,12 +15,12 @@ begin
   File.delete simple_save_file rescue nil
   book = Workbook.open(simple_file, :visible => true)      # open a book
   sheet = book.sheet(1)                    # access a sheet via integer 
-  cell = sheet[1,1]                  # access the first cell
+  cell = sheet.range([1,1])                  # access the first cell
   puts "1st cell: #{cell.Value}"     # put the value of the first cell
   sheet[1,1] = "complex"             # write a value into a cell
-  puts "new cell: #{sheet[1,1].Value}"
+  puts "new cell: #{sheet[1,1]}"
   puts "all cells:"
-  sheet.each do |cell|               # access all cells
+  sheet.each_cell do |cell|               # access all cells
     puts "#{cell.Value}"             #   for each row: for every column: put the value of the cells
   end
   
@@ -30,7 +30,7 @@ begin
       i += 1
       item_name = 
         case enum_method
-        when :each        then "cell"
+        when :each_cell   then "cell"
         when :each_row    then "row"
         when :each_column then "column"
         end 
@@ -38,7 +38,7 @@ begin
     end
   end
 
-  sheet_enum[:each]        # put cells
+  sheet_enum[:each_cell]   # put cells
   sheet_enum[:each_row]    # put rows
   sheet_enum[:each_column] # put columns
 

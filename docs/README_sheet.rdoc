@@ -77,11 +77,11 @@ Note, that running in jruby, due to some restrictions of jruby, there is a worka
 
 === Accessing rows and columns
 
-The methods Worksheet#each returns an enumerator traversing the rows in the used range of the worksheet.  The methods +each_row+ and +each_column traverse the rows and columns, respectively, using an optional offset.
-The methods +each_cell+ enables to access each cell.
+The methods Worksheet#each returns an enumerator traversing the rows (more specific: the row values) in the used range of the worksheet.  The methods +each_row+ and +each_column traverse the values in the rows and columns, respectively, using an optional offset.
+The methods +each_cell+ enables to access the values of each cell.
 
-  worksheet.each do |row
-    # do somethingg with row
+  worksheet.each do |row_values|
+    # do something with the row_values
   end
 
   worksheet.each_row(2) do |row|

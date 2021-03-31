@@ -130,60 +130,6 @@ module RobustExcelOle
     # @params [Address or Address-Array] address or upper left position of the destination range
     # @options [Worksheet] the destination worksheet
     # @options [Hash] options: :transpose, :values_only
-=begin    
-    def copy(dest_address, *remaining_args)
-      dest_sheet = @worksheet
-      options = { }
-      remaining_args.each do |arg|
-        case arg
-        when Object::Range, Integer then dest_address = [dest_address,arg]
-        when Worksheet, WIN32OLE    then dest_sheet = arg.to_reo
-        when Hash                   then options = arg
-        else raise RangeNotCopied, "cannot copy range: argument error: #{remaining_args.inspect}"
-        end
-      end
-      begin
-        rows, columns = address_tool.as_integer_ranges(dest_address)
-        dest_address_is_position = (rows.min == rows.max && columns.min == columns.max)
-        dest_range_address = if (not dest_address_is_position) 
-          [rows.min..rows.max,columns.min..columns.max]
-        else
-          if (not options[:transpose])
-            [rows.min..rows.min+self.Rows.Count-1, columns.min..columns.min+self.Columns.Count-1]
-          else
-            [rows.min..rows.min+self.Columns.Count-1, columns.min..columns.min+self.Rows.Count-1]
-          end
-        end
-        dest_range = dest_sheet.range(dest_range_address)
-        if options[:values_only]
-          dest_range.v = options[:transpose] ? self.v.transpose : self.v
-        else
-          if dest_range.worksheet.workbook.excel == @worksheet.workbook.excel 
-            if options[:transpose]
-              self.Copy              
-              dest_range.PasteSpecial(XlPasteAll,XlPasteSpecialOperationNone,false,true)
-            else
-              self.Copy(dest_range.ole_range)
-            end            
-          else
-            if options[:transpose]
-              added_sheet = @worksheet.workbook.add_sheet
-              copy(dest_address, added_sheet, transpose: true)
-              added_sheet.range(dest_range_address).copy(dest_address,dest_sheet)
-              @worksheet.workbook.excel.with_displayalerts(false) {added_sheet.Delete}
-            else
-              self.Copy
-              dest_sheet.Paste(dest_range.ole_range)
-            end
-          end
-        end
-        dest_range
-      rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
-        raise RangeNotCopied, "cannot copy range\n#{$!.message}"
-      end
-    end
-=end
-
     def copy(dest_address, *remaining_args)
       dest_sheet = @worksheet
       options = { }

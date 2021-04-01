@@ -126,26 +126,6 @@ module RobustExcelOle
       raise RangeNotEvaluatable, "cannot assign value to range with name or address #{name_or_address.inspect}\n#{$!.message}"
     end
 
-=begin    
-    def []=(name_or_address, value) 
-      range = range(name_or_address)
-      if !::RANGES_JRUBY_BUG
-        range.Value = value
-      else
-        address_r1c1 = range.AddressLocal(true,true,XlR1C1)
-        row, col = address_tool.as_integer_ranges(address_r1c1)
-        row.each_with_index do |r,i|
-          col.each_with_index do |c,j|
-            range.Cells(i+1,j+1).Value = (value.respond_to?(:pop) ? value[i][j] : value )
-          end
-        end
-      end
-      value
-    rescue #WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException
-      raise RangeNotEvaluatable, "cannot assign value to range with name or address #{name_or_address.inspect}\n#{$!.message}"
-    end
-=end
-
     # a range given a defined name or address
     # @params [Variant] defined name or address
     # @return [Range] a range

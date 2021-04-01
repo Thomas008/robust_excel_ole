@@ -335,8 +335,8 @@ describe Worksheet do
       it "should create infinite ranges" do
         @sheet.range([1..3,nil]).Address.should == "$1:$3"
         @sheet.range([nil,"B".."D"]).Address.should == "$B:$D"
-        @sheet.range(["1:3"]).Address.should == "$1:$3"
-        @sheet.range(["B:D"]).Address.should == "$B:$D"
+        @sheet.range("1:3").Address.should == "$1:$3"
+        @sheet.range("B:D").Address.should == "$B:$D"
       end
 
       it "should raise an error" do

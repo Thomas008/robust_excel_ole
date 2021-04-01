@@ -137,8 +137,8 @@ module RobustExcelOle
       unless range
         address = name_or_address
         address = [address,address2] unless address2 == :__not_provided     
-        address = [address, 1..last_column] if address.is_a?(Integer)   
-        address = [address.first, 1..last_column] if address.is_a?(Array) && address.size == 1
+        address = [address, 1..last_column] if address.is_a?(Integer) || address.is_a?(Object::Range)
+        address = [address.first, 1..last_column] if address.is_a?(Array) && address.size == 1 
         workbook.retain_saved do
           begin
             self.Names.Add('__dummy001',nil,true,nil,nil,nil,nil,nil,nil,'=' + address_tool.as_r1c1(address))          

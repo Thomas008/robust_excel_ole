@@ -19,6 +19,7 @@ describe RobustExcelOle::Range do
     @sheet = @book.sheet(2)
     @range = RobustExcelOle::Range.new(@sheet.ole_worksheet.UsedRange.Rows(1))
     @range2 = @sheet.range([1..2,1..3])
+    @sheet1 = @book.sheet(1)
   end
 
   after do
@@ -89,6 +90,18 @@ describe RobustExcelOle::Range do
         cell.v.should == 'simple' if i == 2
         i += 1
       end
+    end
+
+  end
+
+  describe "#value" do
+   
+    it "should yield values" do
+      @sheet1.range([1..2,1..3]).value.should == [["foo", "workbook", "sheet1"], ["foo", nil, "foobaaa"]]
+      @sheet1.range([1,1..3]).value.should == [["foo", "workbook", "sheet1"]]
+      @sheet1.range([1..2,1]).value.should == [["foo"], ["foo"]]
+      @sheet1.range([1]).value.should == [["foo", "workbook", "sheet1"]]
+      @sheet1.range([1,2]).value.should == "workbook"
     end
 
   end

@@ -193,21 +193,22 @@ or using the R1C1-format
 
   range = worksheet.range(["Z1S1:Z3S4"])
 
-Ranges containing rows or columns within the whole used range of a worksheet are defined, e.g., by setting the other parameter (columns or row) to +nil+:
+Ranges containing rows or columns within the whole used range of a worksheet are defined, e.g., by setting the other parameter (columns or row) to +nil+: For example, the rows 1 to 3 you get by
 
   range = worksheet.range([1..3,nil])
+
+The columns "A" to "C" you get with help of 
+  
   range = worksheet.range([nil,"A".."B"])
 
-A row you can get by providing the row number, e.g.
+You can yield a row also simply by providing the row number, e.g.
   
   range = worksheet.range([1])
 
-Using the A1-format you write
+If you want infinite rows or columns, not restricted to the used range, then provide the A1-Formt, e.g.
 
   range = worksheet.range(["1:3"])
   range = worksheet.range(["A:B"])
-
-You can get a row with help of   
 
 You can also apply relative references by using brackets, e.g.
 
@@ -217,13 +218,29 @@ or
 
   range = worksheet.range([[1]..3,2..[4]])
 
-You get the values of the range as flat array with help of
-
-  range.values
-
 You can access a range via its defined name with
 
   range = worksheet.range("name")
+
+You get the value of a range with help of #[] by providing the address of the range, or apply #value on a range, e.g.
+
+  worksheet["name"]
+
+or
+
+  worksheet[1..2,3..4]
+
+or
+
+  worksheet.range("name").value
+
+or
+
+  worksheet.range([1..2,3..4]).value
+
+If you want the values of the range as flat array, then use #values, e.g.
+
+  range.values
 
 === Copying a range
 
@@ -309,7 +326,7 @@ You get all names defined in the workbook or worksheet using the method +names+.
   # => ["Sheet1!name", "four"]
 
 
-=== Reading and writing the contents of a named range in a workbook.
+=== Reading and writing the contents of a range
 
 Assume you have opened a workbook:
  
@@ -393,7 +410,6 @@ Similarly, you can write a cell.
 or
 
   worksheet.set_cellval(1,1,"new_value")
-
 
 
 == Code

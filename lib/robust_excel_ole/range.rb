@@ -78,14 +78,21 @@ module RobustExcelOle
     # returns values of a given range
     # @returns [Array] values of the range (as a nested array)    
     def value
-      if !::RANGES_JRUBY_BUG
-        self.Value
-      else
-        rows.map{|r| columns.map {|c| worksheet.Cells(r,c).Value} }
+      value = begin
+        if !::RANGES_JRUBY_BUG       
+          self.Value
+        else
+          values = rows.map{|r| columns.map {|c| worksheet.Cells(r,c).Value} }
+          (values.size==1 && values.first.size==1) ? values.first.first : values
+        end
+      rescue
+        raise RangeNotEvaluatable, "cannot evaluate range #{self.inspect}\n#{$!.message}"
       end
-    rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
-      raise RangeNotEvaluatable, "cannot read value\n#{$!.message}"
-    end 
+      if value == -2146828288 + RobustExcelOle::XlErrName
+        raise RangeNotEvaluatable, "cannot evaluate range #{self.inspect}"
+      end
+      value
+    end
 
     # sets the values if the range
     # @param [Variant] value

@@ -71,6 +71,7 @@ module RobustExcelOle
     # value of a range given its defined name or address
     # @params [Variant] defined name or address
     # @returns [Variant] value (contents) of the range
+=begin
     def [](name_or_address, address2 = :__not_provided)
       range = range(name_or_address, address2) 
       value = begin
@@ -98,7 +99,12 @@ module RobustExcelOle
       end
       value
     end
-    
+=end
+
+    def [](name_or_address, address2 = :__not_provided)
+      range(name_or_address, address2).value
+    end
+
     # sets the value of a range given its defined name or address, and the value
     # @params [Variant] defined name or address of the range
     # @params [Variant] value (contents) of the range

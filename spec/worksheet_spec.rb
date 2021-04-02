@@ -154,8 +154,8 @@ describe Worksheet do
   describe "#[]" do
 
     it "should yield values of a rectangular range [1..2,1..3]" do
-      value1 = @sheet[1..2,1..3]
-      value1.should == [["foo", "workbook", "sheet1"], ["foo", nil, "foobaaa"]]
+      value1 = [["foo", "workbook", "sheet1"], ["foo", nil, "foobaaa"]] 
+      @sheet[1..2,1..3].should == value1
       @sheet[1..2, "A".."C"].should == value1
       @sheet["A1:C2"].should == value1
       @sheet["Z1S1:Z2S3"].should == value1
@@ -206,6 +206,74 @@ describe Worksheet do
 
   end
 
+  describe "#[]=" do
+
+      before do
+        @book1 = Workbook.open(@dir + '/another_workbook.xls')
+        @sheet1 = @book1.sheet(1)
+      end
+
+      after do
+        @book1.close(:if_unsaved => :forget)
+      end   
+
+      it "should set value of a defined name" do
+        @sheet1["firstcell"].should == "foo"
+        @sheet1["firstcell"] = "bar"
+        @sheet1["firstcell"].should == "bar"
+      end
+
+      it "should set value of a defined name with several values" do
+        @sheet1["four"].should == [[1,2],[3,4]]
+        @sheet1["four"] = [[4,3],[2,1]]
+        @sheet1["four"].should == [[4,3],[2,1]]
+      end  
+
+      it "should set value of a defined name with one value" do
+        @sheet1["four"].should == [[1,2],[3,4]]
+        @sheet1["four"] = 2
+        @sheet1["four"].should == [[2,2],[2,2]]
+      end
+
+      it "should set value given an address" do
+        @sheet1[1..2,1..3].should == [["foo", "workbook", "sheet1"], ["foo", 1.0, 2.0]]
+        @sheet1[1..2,1..3] = [["foo", 1.0, 2.0], ["foo", "workbook", "sheet1"]]
+        @sheet1[1..2,1..3].should == [["foo", 1.0, 2.0], ["foo", "workbook", "sheet1"]]
+      end  
+
+      it "should return nil for a range with empty contents" do
+        @sheet1["another"].should == nil
+      end 
+
+      #it "should evaluate named formula" do
+      #  @sheet1["named_formula"].should == 4
+      #end                
+
+      #it "should evaluate a formula" do
+      #  @sheet1["another_formula"].should == 5
+      #end      
+
+      it "should raise an error if name not defined" do
+        expect {
+          @sheet1["foo"]
+        }.to raise_error(RangeNotCreated, /cannot find name or address "foo"/)        
+      end
+
+      it "should set a range to a value" do
+        @sheet1[1,1].should == "foo"
+        @sheet1["firstcell"] = "bar"
+        @sheet1[1,1].should == "bar"
+        @sheet1["new"] = "bar"
+        @sheet1["new"].should == "bar"
+      end
+
+      it "should raise an error if name cannot be evaluated" do
+        expect{
+          @sheet1["foo"] = 1
+          }.to raise_error(RangeNotEvaluatable, /cannot assign value to range with name or address "foo"/)
+      end
+    end
+
   describe 'access values of cells' do
 
     describe "#[,]" do      
@@ -221,6 +289,181 @@ describe Worksheet do
           @sheet[1, 2].should eq 'workbook'
           @sheet[3, 1].should eq 'matz'
         end
+      end
+
+    end
+
+    describe "namevalue_global, set_namevalue_global" do
+
+      before do
+        @book1 = Workbook.open(@dir + '/another_workbook.xls')
+        @sheet1 = @book1.sheet(1)
+      end
+
+      after do
+        @book1.close(:if_unsaved => :forget)
+      end   
+
+      it "should return value of a defined name" do
+        @sheet1.namevalue_global("firstcell").should == "foo"
+      end
+
+      #it "should evaluate a formula" do
+      #  @sheet1.namevalue_global("another_formula").should == 5
+      #end      
+
+      it "should raise an error if name not defined" do
+        expect {
+          @sheet1.namevalue_global("foo")
+        }.to raise_error(NameNotFound, /name "foo" not in/)
+      end
+
+      it "should raise an error of coordinates are given instead of a defined name" do
+        expect {
+          @sheet1.namevalue_global("A1")
+        }.to raise_error(NameNotFound, /name "A1" not in/)
+      end
+
+      it "should return default value for a range with empty contents" do
+        @sheet1.namevalue_global("another", :default => 2) == 2
+      end 
+
+      it "should set a range to a value" do
+        @sheet1.namevalue_global("firstcell").should == "foo"
+        @sheet1[1,1].should == "foo"
+        @sheet1.set_namevalue_global("firstcell","bar")
+        @sheet1.namevalue_global("firstcell").should == "bar"
+        @sheet1[1,1].should == "bar"
+      end
+
+      it "should raise an error if name cannot be evaluated" do
+        expect{
+          @sheet1.set_namevalue_global("foo", 1)
+        }.to raise_error(RangeNotEvaluatable, /cannot assign value/)
+      end
+
+      it "should color the cell (deprecated)" do
+        @sheet1.set_namevalue_global("new", "bar")
+        @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
+        @sheet1.set_namevalue_global("new", "bar", :color => 4)
+        @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
+      end
+
+      it "should color the cell" do
+        @sheet1.set_namevalue_global("new", "bar")
+        @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
+        @sheet1.set_namevalue_global("new", "bar", :color => 4)
+        @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
+      end
+
+      it "should set a range to a value with umlauts" do
+        @sheet1.add_name("lösung", [1,1])
+        @sheet1.namevalue_global("lösung").should == "foo"
+        @sheet1[1,1].should == "foo"
+        @sheet1.set_namevalue_global("lösung","bar")
+        @sheet1.namevalue_global("lösung").should == "bar"
+        @sheet1[1,1].should == "bar"  
+      end
+
+    end
+
+    describe "namevalue, set_namevalue" do
+      
+      before do
+        @book1 = Workbook.open(@dir + '/another_workbook.xls')
+        @sheet1 = @book1.sheet(1)
+        @sheet2 = @book1.sheet(2)
+      end
+
+      after do
+        @book1.close(:if_unsaved => :forget)
+      end   
+
+      it "should return value of a locally defined name" do
+        @sheet1.namevalue("firstcell").should == "foo"          
+      end        
+
+      it "should return value of a name with coordinates" do
+        @sheet1.namevalue("A1").should == "foo"         
+      end  
+
+      it "should return nil for a range with empty contents" do
+        @sheet1.namevalue("another").should == nil
+      end 
+
+      it "should return value of a defined name" do
+        @sheet1.namevalue("new").should == "foo"         
+        @sheet1.namevalue("one").should == 1.0    
+        @sheet1.namevalue("four").should == [[1,2],[3,4]]
+        @sheet1.namevalue("firstrow").should == [[1,2]]
+      end    
+
+      it "should return default value if name not defined and default value is given" do
+        @sheet1.namevalue("foo", :default => 2).should == 2
+      end
+
+      it "should raise an error if name not defined for the sheet" do
+        expect {
+          @sheet1.namevalue("foo")
+          }.to raise_error(NameNotFound, /name "foo" not in #<Worksheet: Sheet1/)
+        expect {
+          @sheet1.namevalue("named_formula")
+          }.to raise_error(NameNotFound, /name "named_formula" not in #<Worksheet: Sheet1/)
+        expect {
+          @sheet2.namevalue("firstcell")
+          }.to raise_error(NameNotFound, /name "firstcell" not in #<Worksheet: Sheet2/)
+      end
+    
+      it "should set a range to a value" do
+        @sheet1.namevalue("firstcell").should == "foo"
+        @sheet1[1,1].should == "foo"
+        @sheet1.set_namevalue("firstcell","bar")
+        @sheet1.namevalue("firstcell").should == "bar"
+        @sheet1[1,1].should == "bar"          
+      end
+
+      it "should set a range to a value with umlauts" do
+        @sheet1.add_name("lösung", [1,1])
+        @sheet1.namevalue("lösung").should == "foo"
+        @sheet1[1,1].should == "foo"
+        @sheet1.set_namevalue("lösung","bar")
+        @sheet1.namevalue("lösung").should == "bar"
+        @sheet1[1,1].should == "bar"  
+      end
+
+      it "should raise an error if name cannot be evaluated" do
+        expect{
+          @sheet1.set_namevalue_global("foo", 1)
+        }.to raise_error(RangeNotEvaluatable, /cannot assign value/)
+      end
+
+      it "should raise an error if name not defined and default value is not provided" do
+        expect {
+          @sheet1.namevalue("foo", :default => nil)
+        }.to_not raise_error
+        expect {
+          @sheet1.namevalue("foo", :default => :__not_provided)
+        }.to raise_error(NameNotFound, /name "foo" not in #<Worksheet: Sheet1/)
+        expect {
+          @sheet1.namevalue("foo")
+        }.to raise_error(NameNotFound, /name "foo" not in #<Worksheet: Sheet1/)
+        @sheet1.namevalue("foo", :default => nil).should be_nil
+        @sheet1.namevalue("foo", :default => 1).should == 1
+        @sheet1.namevalue_global("empty", :default => 1).should be_nil
+      end
+
+      it "should color the cell (depracated)" do
+        @sheet1.set_namevalue("new", "bar")
+        @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
+        @sheet1.set_namevalue("new", "bar", :color => 4)
+        @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
+      end
+
+      it "should color the cell" do
+        @sheet1.set_namevalue("new", "bar")
+        @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
+        @sheet1.set_namevalue("new", "bar", :color => 4)
+        @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
       end
 
     end
@@ -743,240 +986,6 @@ describe Worksheet do
           @col_range.values.should eq ['workbook', nil, 'is']
         end
       end
-    end
-
-    describe "[], []=" do
-
-      before do
-        @book1 = Workbook.open(@dir + '/another_workbook.xls')
-        @sheet1 = @book1.sheet(1)
-      end
-
-      after do
-        @book1.close(:if_unsaved => :forget)
-      end   
-
-      it "should return value of a defined name" do
-        @sheet1["firstcell"].should == "foo"
-      end
-
-      it "should return value of a defined name" do
-        @sheet1["new"].should == "foo"         
-        @sheet1["one"].should == 1.0    
-        @sheet1["four"].should == [[1,2],[3,4]]
-        @sheet1["firstrow"].should == [[1,2]]
-      end  
-
-      it "should return value of a name with coordinates" do
-        @sheet1["A1"].should == "foo"         
-      end  
-
-      it "should return nil for a range with empty contents" do
-        @sheet1["another"].should == nil
-      end 
-
-      #it "should evaluate named formula" do
-      #  @sheet1["named_formula"].should == 4
-      #end                
-
-      #it "should evaluate a formula" do
-      #  @sheet1["another_formula"].should == 5
-      #end      
-
-      it "should raise an error if name not defined" do
-        expect {
-          @sheet1["foo"]
-        }.to raise_error(RangeNotCreated, /cannot find name or address "foo"/)        
-      end
-
-      it "should set a range to a value" do
-        @sheet1[1,1].should == "foo"
-        @sheet1["firstcell"] = "bar"
-        @sheet1[1,1].should == "bar"
-        @sheet1["new"] = "bar"
-        @sheet1["new"].should == "bar"
-      end
-
-      it "should raise an error if name cannot be evaluated" do
-        expect{
-          @sheet1["foo"] = 1
-          }.to raise_error(RangeNotEvaluatable, /cannot assign value to range with name or address "foo"/)
-      end
-    end
-
-    describe "namevalue_global, set_namevalue_global" do
-
-      before do
-        @book1 = Workbook.open(@dir + '/another_workbook.xls')
-        @sheet1 = @book1.sheet(1)
-      end
-
-      after do
-        @book1.close(:if_unsaved => :forget)
-      end   
-
-      it "should return value of a defined name" do
-        @sheet1.namevalue_global("firstcell").should == "foo"
-      end
-
-      #it "should evaluate a formula" do
-      #  @sheet1.namevalue_global("another_formula").should == 5
-      #end      
-
-      it "should raise an error if name not defined" do
-        expect {
-          @sheet1.namevalue_global("foo")
-        }.to raise_error(NameNotFound, /name "foo" not in/)
-      end
-
-      it "should raise an error of coordinates are given instead of a defined name" do
-        expect {
-          @sheet1.namevalue_global("A1")
-        }.to raise_error(NameNotFound, /name "A1" not in/)
-      end
-
-      it "should return default value for a range with empty contents" do
-        @sheet1.namevalue_global("another", :default => 2) == 2
-      end 
-
-      it "should set a range to a value" do
-        @sheet1.namevalue_global("firstcell").should == "foo"
-        @sheet1[1,1].should == "foo"
-        @sheet1.set_namevalue_global("firstcell","bar")
-        @sheet1.namevalue_global("firstcell").should == "bar"
-        @sheet1[1,1].should == "bar"
-      end
-
-      it "should raise an error if name cannot be evaluated" do
-        expect{
-          @sheet1.set_namevalue_global("foo", 1)
-        }.to raise_error(RangeNotEvaluatable, /cannot assign value/)
-      end
-
-      it "should color the cell (deprecated)" do
-        @sheet1.set_namevalue_global("new", "bar")
-        @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
-        @sheet1.set_namevalue_global("new", "bar", :color => 4)
-        @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
-      end
-
-      it "should color the cell" do
-        @sheet1.set_namevalue_global("new", "bar")
-        @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
-        @sheet1.set_namevalue_global("new", "bar", :color => 4)
-        @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
-      end
-
-      it "should set a range to a value with umlauts" do
-        @sheet1.add_name("lösung", [1,1])
-        @sheet1.namevalue_global("lösung").should == "foo"
-        @sheet1[1,1].should == "foo"
-        @sheet1.set_namevalue_global("lösung","bar")
-        @sheet1.namevalue_global("lösung").should == "bar"
-        @sheet1[1,1].should == "bar"  
-      end
-
-    end
-
-    describe "namevalue, set_namevalue" do
-      
-      before do
-        @book1 = Workbook.open(@dir + '/another_workbook.xls')
-        @sheet1 = @book1.sheet(1)
-        @sheet2 = @book1.sheet(2)
-      end
-
-      after do
-        @book1.close(:if_unsaved => :forget)
-      end   
-
-      it "should return value of a locally defined name" do
-        @sheet1.namevalue("firstcell").should == "foo"          
-      end        
-
-      it "should return value of a name with coordinates" do
-        @sheet1.namevalue("A1").should == "foo"         
-      end  
-
-      it "should return nil for a range with empty contents" do
-        @sheet1.namevalue("another").should == nil
-      end 
-
-      it "should return value of a defined name" do
-        @sheet1.namevalue("new").should == "foo"         
-        @sheet1.namevalue("one").should == 1.0    
-        @sheet1.namevalue("four").should == [[1,2],[3,4]]
-        @sheet1.namevalue("firstrow").should == [[1,2]]
-      end    
-
-      it "should return default value if name not defined and default value is given" do
-        @sheet1.namevalue("foo", :default => 2).should == 2
-      end
-
-      it "should raise an error if name not defined for the sheet" do
-        expect {
-          @sheet1.namevalue("foo")
-          }.to raise_error(NameNotFound, /name "foo" not in #<Worksheet: Sheet1/)
-        expect {
-          @sheet1.namevalue("named_formula")
-          }.to raise_error(NameNotFound, /name "named_formula" not in #<Worksheet: Sheet1/)
-        expect {
-          @sheet2.namevalue("firstcell")
-          }.to raise_error(NameNotFound, /name "firstcell" not in #<Worksheet: Sheet2/)
-      end
-    
-      it "should set a range to a value" do
-        @sheet1.namevalue("firstcell").should == "foo"
-        @sheet1[1,1].should == "foo"
-        @sheet1.set_namevalue("firstcell","bar")
-        @sheet1.namevalue("firstcell").should == "bar"
-        @sheet1[1,1].should == "bar"          
-      end
-
-      it "should set a range to a value with umlauts" do
-        @sheet1.add_name("lösung", [1,1])
-        @sheet1.namevalue("lösung").should == "foo"
-        @sheet1[1,1].should == "foo"
-        @sheet1.set_namevalue("lösung","bar")
-        @sheet1.namevalue("lösung").should == "bar"
-        @sheet1[1,1].should == "bar"  
-      end
-
-      it "should raise an error if name cannot be evaluated" do
-        expect{
-          @sheet1.set_namevalue_global("foo", 1)
-        }.to raise_error(RangeNotEvaluatable, /cannot assign value/)
-      end
-
-      it "should raise an error if name not defined and default value is not provided" do
-        expect {
-          @sheet1.namevalue("foo", :default => nil)
-        }.to_not raise_error
-        expect {
-          @sheet1.namevalue("foo", :default => :__not_provided)
-        }.to raise_error(NameNotFound, /name "foo" not in #<Worksheet: Sheet1/)
-        expect {
-          @sheet1.namevalue("foo")
-        }.to raise_error(NameNotFound, /name "foo" not in #<Worksheet: Sheet1/)
-        @sheet1.namevalue("foo", :default => nil).should be_nil
-        @sheet1.namevalue("foo", :default => 1).should == 1
-        @sheet1.namevalue_global("empty", :default => 1).should be_nil
-      end
-
-      it "should color the cell (depracated)" do
-        @sheet1.set_namevalue("new", "bar")
-        @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
-        @sheet1.set_namevalue("new", "bar", :color => 4)
-        @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
-      end
-
-      it "should color the cell" do
-        @sheet1.set_namevalue("new", "bar")
-        @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
-        @sheet1.set_namevalue("new", "bar", :color => 4)
-        @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
-      end
-
     end
 
     describe "add_name, delete_name, rename_name" do

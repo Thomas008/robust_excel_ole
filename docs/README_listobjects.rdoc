@@ -1,0 +1,170 @@
+= RobustExcelOle
+
+== List Objects
+
+=== Creating List Objects
+
+We can define a list object (or table) from scratch.
+
+  table = ListObject.new(worksheet, "table 1", [1,1], 3, ["Person","AmountSales"])
+
+This command creates a list object in worksheet named "table 1", with upper left corner at position [1,1] (first cell), with 3 rows and the columns "Person" and "AmountSales". Please note, that creating a table this way does work for more than one rows only.
+
+Likewise we can get a given list object in a worksheet by providing its table number or name.
+
+  table = worksheet.table(1)
+
+or
+
+  table = worksheet.table("table1")
+  
+Now we have a RobustExcelOle ListObject that wraps a WIN32OLE ListObject. So we can send any WIN32OLE (VBA) method to it. See 
+https://docs.microsoft.com/en-us/office/vba/api/excel.listobject#methods.
+
+=== Accessing List Rows
+
+A row in this table (list row object) can be accessed with help of #[], given either the row number or a key. The key is a hash of the key column names and the values.
+
+  row1 = table[1]
+
+  row1 = table[{"Number" => 1, "Person" => "John"}]
+
+If you want to get more than one table row objects that match the key, then you can supply the maximal number of matches. If you want to get all matches, then you state +nil+.
+
+  rows = table[{"Number" => 1}, limit: 2]
+  rows = table[{"Number" => 1}, limit: nil]
+
+Additionally the enumerator method +each+ is being provided. So you can also traverse through the listrows.
+
+ table.each{ |listrow| puts listrow }
+
+So we get a RobustExcelOle ListRow objects that wraps a WIN32OLE ListRow. Now we can send any WIN32OLE (VBA) method to it. See 
+https://docs.microsoft.com/en-us/office/vba/api/excel.listrow#methods.
+
+=== Reading and setting values
+
+Now we can set value of a cell of the table with help of methods that are equal to or are underscored variants of the column names, e.g.
+
+  row1.AmountSales = 40
+
+or
+
+  row1.amount_sales = 40
+
+or
+
+  row1["AmountSales"] = 40
+  
+Similarly you can get the values.
+
+  row1.AmountSales
+  # => 40
+
+or
+
+  row1.amount_sales
+  # => 40
+
+or
+
+  row1["AmountSales"]
+  # => 40
+
+We can also read the values in a whole row.
+
+  table[1].to_a
+  # => ["John", 40]
+
+or
+
+  table[1].values
+  # => ["John", 40]
+
+or
+
+  table.row_values(1)
+  # => ["John", 40]
+  
+You can get the column name-value pairs by
+
+  table[1].to_h
+  # => {"Person" => "John", "AmountSales" => 40}
+
+We can set the values in a whole row.
+
+  table[1].values = ["Herber", 80]
+
+or
+
+  table[1].set_values(["Herbert", 80])
+
+or
+
+  table.set_row_values(1, ["Herbert", 80])
+  
+If the number of given values is less than the number of cells in the row, only the first values are written. The remaining values keep their value.  
+
+Similarly, we can read and set the values in a whole column, e.g.
+
+  table.column_values("Person")
+  # => ["John", "Peter"]
+
+and 
+
+  table.set_column_values(1, ["Herbert","Paul"])
+
+The column names we can get with help of
+
+  table.column_names
+
+A column can be renamed.
+
+  table.rename_column("Person", "Enterprise")
+
+or 
+
+  table.rename_column(1, "Enterprise")
+
+=== Adding and Deleting rows and columns
+
+We can add rows and columns, supplying optionally their name, the position and contents. 
+
+  table.add_column("column_name")
+  table.add_column("column_name", 3)
+  table.add_column("column_name", 3, ["John", "Paul"])
+  
+  table.add_row(3)
+  table.add_row(3, ["John", 40, 2, 2004])
+
+We can delete only the contents of a column
+
+  table.delete_column_values("column_name")
+
+Similarly can delete only the contents of a row.
+
+  table.delete_row_values(2)
+
+or 
+
+  table[2].delete_values
+
+Finally we can delete empty rows and columns.
+
+  table.delete_empty_rows
+  table.delete_empty_columns
+
+=== Finding values and sorting 
+
+You can find all cells containing a given value, e.g.
+
+  table.find_value(value)
+  #=> [#<Cell: (5,8)>#, #<Cell: (9,6)>#]
+
+You can sort a table according to a given column and sort order, e.g.
+
+  table.sort("Person", :ascending)
+
+== Code
+
+listobjects.rb[https://github.com/Thomas008/robust_excel_ole/blob/master/lib/robust_excel_ole/listobjects.rb]
+

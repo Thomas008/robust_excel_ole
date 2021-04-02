@@ -1,13 +1,13 @@
 = News
 
-== New Interface of Worksheet#[]
+== New Interface of #[]
 
 Worksheet#[] now returns a value instead of a range, e.g.
 
   worksheet[1,1]
   # => "foo"
 
-Transformation: to yield the range, write range() instead of (). For example,
+Transformation: To yield the range, write range() instead of (). For example,
 
   worksheet.range(1,1)
 
@@ -15,9 +15,9 @@ Transformation: to yield the range, write range() instead of (). For example,
 
   worksheet.range([1,1])
 
-returns the range of cell with address 1,1.
+This returns the range of cell with address 1,1.
 
-With this new interface, we want to be compatible with other known Excel libraries, e.g. +roo+.
+With this new interface, we want to be compatible with the standard syntax of other known Excel libraries, e.g. +spreadsheet+ or +axlsx+.
 
 == Using own WIN32OLE objects
 

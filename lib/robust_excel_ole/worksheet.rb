@@ -71,36 +71,6 @@ module RobustExcelOle
     # value of a range given its defined name or address
     # @params [Variant] defined name or address
     # @returns [Variant] value (contents) of the range
-=begin
-    def [](name_or_address, address2 = :__not_provided)
-      range = range(name_or_address, address2) 
-      value = begin
-        if !::RANGES_JRUBY_BUG       
-          range.Value
-        else
-          values = range.value
-          (values.size==1 && values.first.size==1) ? values.first.first : values
-        end
-      rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException 
-        begin
-          range = self.Evaluate(name_obj.Name).to_reo
-          if !::RANGES_JRUBY_BUG
-            range.Value
-          else
-            values = range.value
-            (values.size==1 && values.first.size==1) ? values.first.first : values
-          end
-        rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException 
-          raise RangeNotEvaluatable, "cannot evaluate range with name or address #{name_or_address.inspect}\n#{$!.message}"
-        end
-      end
-      if value == -2146828288 + RobustExcelOle::XlErrName
-        raise RangeNotEvaluatable, "cannot evaluate range with name or address #{name_or_address.inspect}\n#{$!.message}"
-      end
-      value
-    end
-=end
-
     def [](name_or_address, address2 = :__not_provided)
       range(name_or_address, address2).value
     end
@@ -109,6 +79,7 @@ module RobustExcelOle
     # @params [Variant] defined name or address of the range
     # @params [Variant] value (contents) of the range
     # @returns [Variant] value (contents) of the range
+=begin
     def []=(name_or_address, value_or_address2, remaining_arg = :__not_provided) 
       if remaining_arg != :__not_provided
         name_or_address, value = [name_or_address, value_or_address2], remaining_arg
@@ -130,6 +101,20 @@ module RobustExcelOle
       value
     rescue #WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException
       raise RangeNotEvaluatable, "cannot assign value to range with name or address #{name_or_address.inspect}\n#{$!.message}"
+    end
+=end
+
+    def []=(name_or_address, value_or_address2, remaining_arg = :__not_provided) 
+      if remaining_arg != :__not_provided
+        name_or_address, value = [name_or_address, value_or_address2], remaining_arg
+      else
+        value = value_or_address2
+      end
+      begin
+        range(name_or_address).value = value
+      rescue #WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException
+        raise RangeNotEvaluatable, "cannot assign value to range with name or address #{name_or_address.inspect}\n#{$!.message}"
+      end
     end
 
     # a range given a defined name or address

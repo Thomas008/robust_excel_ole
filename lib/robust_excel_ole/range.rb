@@ -80,7 +80,7 @@ module RobustExcelOle
     def value
       value = begin
         if !::RANGES_JRUBY_BUG       
-          self.Value
+          ole_range.Value
         else
           values = rows.map{|r| columns.map {|c| worksheet.Cells(r,c).Value} }
           (values.size==1 && values.first.size==1) ? values.first.first : values

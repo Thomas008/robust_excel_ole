@@ -106,6 +106,16 @@ describe RobustExcelOle::Range do
 
   end
 
+  describe "#value=" do
+
+    it "should set value" do
+      @sheet1.range([1..2,1..3]).value.should == [["foo", "workbook", "sheet1"], ["foo", nil, "foobaaa"]]
+      @sheet1.range([1..2,1..3]).value = [["foo", nil, "foobaaa"], ["foo", "workbook", "sheet1"]] 
+      @sheet1.range([1..2,1..3]).value.should == [["foo", nil, "foobaaa"], ["foo", "workbook", "sheet1"]] 
+    end
+
+  end
+
   describe "#values" do
     context "with (0..2)" do
       it { @range.values(0..2).should eq ['simple', 'file', 'sheet2'] }

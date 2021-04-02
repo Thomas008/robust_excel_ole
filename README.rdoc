@@ -438,6 +438,10 @@ Likewise it is possible to convert ("type-lift") Win32Ole objects into the corre
 
   range = sheet.Names.Item("firstcell").to_reo
 
+=== Design issues
+
+We don't consider active worksheets or workbooks in our implementation, because this has been proven to be very error-prone.
+
 === Examples
 
 You can run the examples included in the directory +examples+, e.g.

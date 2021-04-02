@@ -135,10 +135,7 @@ module RobustExcelOle
         range = get_name_object(name).RefersToRange rescue nil
       end
       unless range
-        address = name_or_address
-        address = [address,address2] unless address2 == :__not_provided     
-        address = [address, 1..last_column] if address.is_a?(Integer) || address.is_a?(Object::Range)
-        address = [address.first, 1..last_column] if address.is_a?(Array) && address.size == 1 
+        address = normalize_address(name_or_address, address2)
         workbook.retain_saved do
           begin
             self.Names.Add('__dummy001',nil,true,nil,nil,nil,nil,nil,nil,'=' + address_tool.as_r1c1(address))          
@@ -152,8 +149,32 @@ module RobustExcelOle
       end
       range.to_reo
     end
+  
+  private
 
+    def normalize_address(address, address2)
+      address = [address,address2] unless address2 == :__not_provided     
+      address = if address.is_a?(Integer) || address.is_a?(Object::Range)
+        [address, 1..last_column]
+      elsif address.is_a?(Array)
+        if address.size == 1 
+          [address.first, 1..last_column]
+        else
+          if address.last.nil?
+            [address.first, 1..last_column]
+          elsif address.first.nil?
+            [1..last_row, address.last]
+          else
+            address
+          end
+        end
+      else
+        address
+      end
+    end
 
+  public
+    
     # returns the contents of a range with a locally defined name
     # evaluates the formula if the contents is a formula
     # if the name could not be found or the range or value could not be determined,

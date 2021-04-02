@@ -1,3 +1,29 @@
+= News
+
+== New Interface of Worksheet#[]
+
+Worksheet#[] now returns a value instead of a range, e.g.
+
+  worksheet[1,1]
+  # => "foo"
+
+Transformation: to yield the range, write range() instead of (). For example,
+
+  worksheet.range(1,1)
+
+ or
+
+  worksheet.range([1,1])
+
+returns the range of cell with address 1,1.
+
+With this new interface, we want to be compatible with other known Excel libraries, e.g. +roo+.
+
+== Using own WIN32OLE objects
+
+If you use WIN32OLE objects and define your own methods, please use upper-case method names. 
+The reason is that we extend the class WIN32OLE such that RobustExcelOle methods can be applied to WIN32OLE objects, such the RobustExcelOle objects and their wrapped WIN32OLE objects are interchangeable. We want to develop a refinement such that the name space is not being desturbed.
+
 = RobustExcelOle
 
 RobustExcelOle helps controlling Excel. 
@@ -402,7 +428,7 @@ or
 However, this command also starts another pry repl (with another binding). Moreover, local variables in the previous binding are forgotten.
 
 
-2. The class Win32Ole is being extended such that RobustExcelOle methods can be applied to Win32Ole objects. As mentioned above, the RobustExcelOle objects are wrapper of corresponding WIN32OLE objects. So the RobustExcelOle objects and their wrapped Win32Ole objects are interchangeable. One example would be
+2. The class Win32Ole is being extended such that RobustExcelOle methods can be applied to WIN32OLE objects. As mentioned above, the RobustExcelOle objects are wrapper of corresponding WIN32OLE objects. So the RobustExcelOle objects and their wrapped WIN32OLE objects are interchangeable. One example would be
 
   range.ole_range.copy([4,3])
 

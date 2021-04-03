@@ -95,7 +95,7 @@ module RobustExcelOle
       return @row_class.new(key_hash_or_number) if key_hash_or_number.respond_to?(:succ)
       opts = {limit: :first}.merge(opts)   
       key_hash = key_hash_or_number.transform_keys{|k| k.downcase.to_sym}
-      matching_listrows = if @ole_table.ListRows.Count <0 #< 120
+      matching_listrows = if @ole_table.ListRows.Count < 120
         listrows_via_traversing(key_hash, opts)
       else
         listrows_via_filter(key_hash, opts)

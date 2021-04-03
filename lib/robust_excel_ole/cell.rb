@@ -7,7 +7,7 @@ module RobustExcelOle
   class Cell < Range
     #attr_reader :ole_cell    
 
-    def initialize(win32_cell, worksheet)      
+    def initialize(win32_cell, worksheet)
       super
       ole_cell
     end

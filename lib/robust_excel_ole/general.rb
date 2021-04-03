@@ -13,12 +13,15 @@ module ToReoRefinement
           if classname != RobustExcelOle::Range
             return classname.new(self)
           elsif self.Rows.Count == 1 && self.Columns.Count == 1
-            return Cell.new(self, self.Parent)
+            return RobustExcelOle::Cell.new(self, self.Parent)
           else
             return RobustExcelOle::Range.new(self, self.Parent)
           end
-        rescue
-          next
+        rescue NoMethodError
+          if $!.message =~ /undefined method/ && 
+            main_classes_and_recognising_methods.values.any?{ |recognising_method| $!.message.include?(recognising_method.to_s) }
+            next
+          end 
         end
       end
       raise TypeREOError, "given object cannot be type-lifted to a RobustExcelOle object"
@@ -272,6 +275,20 @@ module General
     end
     nil
   end
+
+=begin
+  def init_reo_for_win32ole
+    main_classes_and_recognising_methods.each_key do |classname|
+      meths = (classname.instance_methods(false) - WIN32OLE.instance_methods(false) - Object.methods - Enumerable.instance_methods(false) - [:Calculation=])
+      meths.each do |inst_method|
+        WIN32OLE.send(:define_method, inst_method) do |*args, &blk|  
+          to_reo.send(inst_method, *args, &blk) 
+        end
+      end
+    end
+    nil
+  end
+=end
 
   module_function :absolute_path, :canonize, :normalize, :change_current_binding, :main_classes_and_recognising_methods, 
                   :init_reo_for_win32ole, :hostnameshare2networkpath, :test

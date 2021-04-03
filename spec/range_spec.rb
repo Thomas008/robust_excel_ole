@@ -227,7 +227,7 @@ describe RobustExcelOle::Range do
         @sheet1[2,3].should == "foobaaa"
         @sheet1[2,3] = "bar"
         @sheet1[2,3].should == "bar"
-        @sheet1.range([2,3]).should == "bar"
+        @sheet1.range([2,3]).Value.should == "bar"
       end
 
       it "should set value and return value of a rectangular range" do
@@ -250,7 +250,7 @@ describe RobustExcelOle::Range do
       @book1 = Workbook.open(@dir + '/workbook.xls')
       @sheet1 = @book1.sheet(1)
       @range1 = @sheet1.range([1..2,1..3])
-      @sheet1[1,1].Interior.ColorIndex = 4
+      @sheet1.range([1,1]).Interior.ColorIndex = 4
       @book2 = Workbook.open(@dir + '/different_workbook.xls')
       @sheet2 = @book2.sheet(2)
       @book3 = Workbook.open(@dir + '/another_workbook.xls', :force => {:excel => :new})
@@ -330,7 +330,7 @@ describe RobustExcelOle::Range do
       @book1 = Workbook.open(@dir + '/workbook.xls')
       @sheet1 = @book1.sheet(1)
       @range1 = @sheet1.range([1..2,1..3])
-      @sheet1[1,1].Interior.ColorIndex = 4
+      @sheet1.range([1,1]).Interior.ColorIndex = 4
       @book2 = Workbook.open(@dir + '/different_workbook.xls')
       @sheet2 = @book2.sheet(2)
       @book3 = Workbook.open(@dir + '/another_workbook.xls', :force => {:excel => :new})

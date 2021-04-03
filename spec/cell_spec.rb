@@ -19,7 +19,7 @@ describe Cell do
     @merge_cells_file = @dir + '/merge_cells.xls'
     @book = Workbook.open(@simple_file)
     @sheet = @book.sheet(1)
-    @cell = @sheet[1, 1]
+    @cell = @sheet.range([1, 1])
   end
 
   after do
@@ -55,7 +55,7 @@ describe Cell do
     before do
       @book1 = Workbook.open(@dir + '/workbook.xls')
       @sheet1 = @book1.sheet(1)
-      @cell1 = @sheet1[1,1]
+      @cell1 = @sheet1.range([1,1])
     end
 
     after do

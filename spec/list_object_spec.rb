@@ -471,6 +471,18 @@ describe ListObject do
   
   end
 
+  describe "==" do
+
+    it "should yield true" do
+      (@sheet.table(1) == @sheet.table(1)).should be true
+    end
+
+    it "should yield false" do
+      table2 = Table.new(@sheet, "lösung", [1,1], 3, ["Verkäufer","Straße"])
+      (table2 == @sheet.table(1)).should be false
+    end
+  end
+
   describe "sort the table" do
 
     before do

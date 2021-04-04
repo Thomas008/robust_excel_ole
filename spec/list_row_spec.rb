@@ -29,6 +29,22 @@ describe ListRow do
     rm_tmp(@dir)
   end
 
+  describe "==" do
+
+    before do
+      @table1 = @sheet.table(1)
+    end
+
+    it "should yield true" do
+      (@table1[1] == @table1[1]).should be true
+    end
+
+    it "should yield true" do
+      (@table1[1] == @table1[2]).should be false
+    end
+
+  end
+
   describe "promote" do
 
      it "should promote a win32ole tablerow" do

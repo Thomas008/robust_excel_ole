@@ -4,9 +4,11 @@ module RobustExcelOle
 
   using StringRefinement
 
-  class ListRow    
+  class ListRow < VbaObjects
 
     attr_reader :ole_tablerow
+
+    alias ole_object ole_tablerow
 
     def initialize(rownumber_or_oletablerow)
       @ole_tablerow = if !rownumber_or_oletablerow.respond_to?(:succ)
@@ -83,6 +85,10 @@ module RobustExcelOle
       nil
     rescue WIN32OLERuntimeError
       raise TableError, "could not delete values\n#{$!.message}"
+    end
+
+    def == other_listrow
+      other_listrow.is_a?(ListRow) && other_listrow.values == self.values
     end
 
     def method_missing(name, *args)

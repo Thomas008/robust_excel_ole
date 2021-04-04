@@ -38,11 +38,10 @@ module ToReoRefinement
               return RobustExcelOle::Range.new(self, self.Parent)
             end
           rescue Java::OrgRacobCom::ComFailException => msg # NoMethodError
-            puts "next"
-            if $!.message =~ /undefined method/ && 
-              main_classes_ole_types_and_recognising_methods.any?{ |_c, _o, recognising_method| $!.message.include?(recognising_method.to_s) }
+            #if $!.message =~ /undefined method/ && 
+            #  main_classes_ole_types_and_recognising_methods.any?{ |_c, _o, recognising_method| $!.message.include?(recognising_method.to_s) }
               next
-            end 
+            #end 
           end
         end
       end

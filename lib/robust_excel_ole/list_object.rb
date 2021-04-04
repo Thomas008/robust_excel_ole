@@ -158,14 +158,6 @@ module RobustExcelOle
     end
 
     # @return [Hash] pairs of column names and index
-=begin    
-    def column_names_to_index
-      header_row_values = @ole_table.HeaderRowRange.Value.first
-      header_row_values.map{|v| v.encode('utf-8')}.zip(0..header_row_values.size-1).to_h
-    rescue WIN32OLERuntimeError
-      raise TableError, "could not determine column names\n#{$!.message}"
-    end
-=end
     def column_names_to_index
       header_row_values = @ole_table.HeaderRowRange.Value.first
       header_row_values.map{|v| v.encode('utf-8').downcase.to_sym}.zip(0..header_row_values.size-1).to_h
@@ -340,6 +332,12 @@ module RobustExcelOle
     def position
       first_cell = self.Range.Cells(1,1)
       @position = [first_cell.Row, first_cell.Column]
+    end
+
+    def == other_table
+      other_table.is_a?(ListObject) && 
+      self.HeaderRowRange.Value == other_table.HeaderRowRange.Value &&
+      self.DataBodyRange.Value == other_table.DataBodyRange.Value
     end
 
 

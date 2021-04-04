@@ -101,7 +101,7 @@ module RobustExcelOle
         worksheet[3,4].should == "Number"
       end
 
-      it "should type-lift an Excel" do
+      it "should type be-lift an Excel" do
         excel = @book1.excel.ole_excel.to_reo
         excel.class.should == RobustExcelOle::Excel
         excel.should be_alive
@@ -136,6 +136,15 @@ module RobustExcelOle
         @book1.sheet(1).to_reo.should == @book1.sheet(1)
         @book1.excel.to_reo.should == @book1.excel
         @book1.sheet(1).range([1,1]).to_reo.should == @book1.sheet(1).range([1,1])
+        @book2.sheet(3).table(1).to_reo.should == @book2.sheet(3).table(1)
+        @book2.sheet(3).table(1).should == @book2.sheet(3).table(1)
+        @book2.sheet(3).table(1)[1].to_reo.should == @book2.sheet(3).table(1)[1]
+      end
+
+      it "should raise error" do
+        expect{
+          WIN32OLE.new('WScript.Network').to_reo
+        }.to raise_error(TypeREOError)
       end
 
     end

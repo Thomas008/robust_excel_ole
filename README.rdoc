@@ -411,6 +411,9 @@ We can add and delete rows and columns, supplying optionally their name, the pos
   table.delete_empty_rows
   table.delete_empty_columns
 
+For more details about using and processing list objects see {README_listobjects}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_listobjects.rdoc]
+ 
+
 === More features
 
 1. The method +General.change_current_binding+ allows to change the value of self within the current binding, while preserving the local variables, without starting another repl. Assume, +object+ shall be the self, then you would put

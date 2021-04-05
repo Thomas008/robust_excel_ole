@@ -1130,6 +1130,8 @@ module RobustExcelOle
       end
 
       it "should set options" do
+        @book1 = Workbook.open(@simple_file)
+        @book2 = Workbook.open(@different_file)
         @excel.each_workbook(:visible => true)
         [1,2].each do |i|
           ole_workbook = @excel.Workbooks.Item(i) 

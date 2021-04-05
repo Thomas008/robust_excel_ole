@@ -514,14 +514,16 @@ describe Worksheet do
         range2.Address.should == range1.Address
         range3 = @sheet.range("A1:C2")
         range3.Address.should == range1.Address
-        range4 = @sheet.range("Z1S1:Z2S3")
+        range4 = @sheet.range(["A1:C2"])
         range4.Address.should == range1.Address
-        range5 = @sheet.range([1..2,1..3])
-        range5.should be_kind_of RobustExcelOle::Range
-        range5.Address.should == "$A$1:$C$2"
-        range5.Value.should == [["foo", "workbook", "sheet1"], ["foo", nil, "foobaaa"]]
-        range6 = @sheet.range([1..2, "A".."C"])
-        range6.Address.should == range1.Address
+        range5 = @sheet.range("Z1S1:Z2S3")
+        range5.Address.should == range1.Address
+        range6 = @sheet.range([1..2,1..3])
+        range6.should be_kind_of RobustExcelOle::Range
+        range6.Address.should == "$A$1:$C$2"
+        range6.Value.should == [["foo", "workbook", "sheet1"], ["foo", nil, "foobaaa"]]
+        range7 = @sheet.range([1..2, "A".."C"])
+        range7.Address.should == range1.Address
       end
 
       it "should access a range [1,1..3]" do

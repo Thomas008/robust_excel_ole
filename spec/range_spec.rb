@@ -7,6 +7,7 @@ include General
 describe RobustExcelOle::Range do
 
   before(:all) do
+    
     excel = Excel.new(:reuse => true)
     open_books = excel == nil ? 0 : excel.Workbooks.Count
     puts "*** open books *** : #{open_books}" if open_books > 0

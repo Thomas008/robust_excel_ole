@@ -283,7 +283,6 @@ module General
     Pry.change_current_binding(current_object)
   end
 
-  # @private
 =begin
   def main_classes_and_recognising_methods
     {RobustExcelOle::Range      => :Row,
@@ -295,6 +294,7 @@ module General
   end
 =end
 
+  # @private
   def main_classes_ole_types_and_recognising_methods
     [[RobustExcelOle::Range     , 'Range'       , :Row],
      [RobustExcelOle::Worksheet , '_Worksheet'  , :UsedRange],

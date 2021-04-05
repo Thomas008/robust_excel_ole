@@ -637,7 +637,7 @@ describe Workbook do
 
       it "should connect to an unknown hostname share path workbook" do
         Workbook.open(@simple_file_hostname_share_path1) do |book|
-          book.filename.should == @simple_file_hostname_share_path1.downcase
+          book.filename.should == @simple_file_network_path1
           book.should be_alive
           book.should be_a Workbook
           book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
@@ -2684,7 +2684,7 @@ describe Workbook do
             Workbook.open(@simple_file, :if_unsaved => :excel)
           #}.to raise_error(UnexpectedREOError)
           @book.should be_alive
-          @book.should be false
+          @book.Saved.should be false
         end
 
       end

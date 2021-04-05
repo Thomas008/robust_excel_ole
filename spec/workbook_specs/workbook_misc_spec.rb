@@ -724,7 +724,7 @@ describe Workbook do
 
     it "should raise an error if name not defined and default value is not provided" do
       expect {
-        @book1.namevalue_global("foo", :default => nil)
+        @book1.namevalue_global("foo", :default => 1)
       }.to_not raise_error
       expect {
         @book1.namevalue_global("foo", :default => :__not_provided)
@@ -1072,20 +1072,20 @@ describe Workbook do
       it "should bring a book to focus" do
         sheet = @book.sheet(2)
         sheet.Activate
-        sheet[2,3].Activate
+        sheet.range([2,3]).Activate
         sheet2 = @book2.sheet(2)
         sheet2.Activate
-        sheet2[3,2].Activate
+        sheet2.range([3,2]).Activate
         Excel.current.should == @book.excel
         @book2.focus
         @key_sender.puts "{a}{enter}"
         sleep 1
-        #sheet2[3,2].Value.should == "a"
+        #sheet2.range([3,2]).Value.should == "a"
         #Excel.current.should == @book2.excel
         @book.focus
         @key_sender.puts "{a}{enter}"
         sleep 1
-        #sheet[2,3].Value.should == "a"
+        #sheet.range([2,3]).Value.should == "a"
         Excel.current.should == @book.excel
       end
     end

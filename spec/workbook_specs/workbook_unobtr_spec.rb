@@ -582,7 +582,7 @@ describe Workbook do
           ws = @ole_e1.Workbooks
           @abs_filename = General.absolute_path(@simple_file1)
           @ole_wb = ws.Open(@abs_filename)
-          @old_value = @ole_wb.Worksheets.Item(1).Cells.Item(1,1)
+          @old_value = @ole_wb.Worksheets.Item(1).Cells.Item(1,1).Value
         end
 
         it "should connect" do
@@ -727,7 +727,7 @@ describe Workbook do
           @ole_e1.Visible = true
           @ole_wb.Windows(@ole_wb.Name).Visible = true
           @old_value = @ole_wb.Worksheets.Item(1).Cells.Item(1,1)
-          @ole_wb.Worksheets.Item(1).Cells.Item(1,1) = @old_value = "foo" #== "foo" ? "bar" : "foo"
+          @ole_wb.Worksheets.Item(1).Cells.Item(1,1).Value = @old_value = "foo" #== "foo" ? "bar" : "foo"
           @new_value = @ole_wb.Worksheets.Item(1).Cells.Item(1,1)
           @ole_wb.Saved.should be false
         end
@@ -785,9 +785,9 @@ describe Workbook do
         end
 
         it "should not write with :writable => false" do
-          @ole_wb.Worksheets.Item(1).Cells.Item(1,1) = @old_value = "foo" 
+          @ole_wb.Worksheets.Item(1).Cells.Item(1,1).Value = @old_value = "foo" 
           @ole_wb.Save
-          @ole_wb.Worksheets.Item(1).Cells.Item(1,1) = @old_value = "foo" 
+          @ole_wb.Worksheets.Item(1).Cells.Item(1,1).Value = @old_value = "foo" 
           Workbook.unobtrusively(@simple_file1, :writable => false) do |book|
             book.sheet(1)[1,1] = "bar" #book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
             @new_value = book.sheet(1)[1,1]

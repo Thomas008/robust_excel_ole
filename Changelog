@@ -1,26 +1,25 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [1.32] 2021-31-03
+## [1.32] 2021-06-04
 
 ### Added
   - Excel#each  
   - ListObject#each
-  - ListObject#[] with options, position
-  - ListRow#to_h, to_a, values=, keys_values  
+  - ListObject#[] with options, position, ==
+  - ListRow#to_h, to_a, values=, keys_values, ==  
   - RangeOwners#names
-  - Worksheet#each
+  - Worksheet#each_cell
 
 ### Changed  
+  - Worksheet#[]: returning range values given address or defined name (instead of returning a cell when giving address)
+  - Worksheet#each traversing row values instead of cells
   - Excel#excels_number renamed to #instance_count
   - Excel#known_excels_number renamed to #known_instance_count
   - Excel#known_excel_instance renamed to #known_running_instance
   - Excel#known_excel_instances renamed to #known_running_instances
   - RangeOwners#rename_range renamed to #rename_name
-  - Worksheet#each renamed to #each_cell, #each traversing row values instead of cells
-  - Worksheet#each_with_index renamed to #each_cell_with_index
-  - Worksheet#[]: returning range values (instead of cells)
-
+  
 ## [1.31] 2021-14-01
 
 ### Added

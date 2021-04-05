@@ -101,7 +101,7 @@ module RobustExcelOle
         worksheet[3,4].should == "Number"
       end
 
-      it "should type be-lift an Excel" do
+      it "should type-lift an Excel" do
         excel = @book1.excel.ole_excel.to_reo
         excel.class.should == RobustExcelOle::Excel
         excel.should be_alive

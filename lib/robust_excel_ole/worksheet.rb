@@ -149,7 +149,7 @@ module RobustExcelOle
         [address, 1..last_column]
       elsif address.is_a?(Array)
         if address.size == 1 
-          if address.first.is_a?(Integer) 
+          if address.first.is_a?(Integer) || address.first.is_a?(Object::Range)
             [address.first, 1..last_column]
           else 
             address

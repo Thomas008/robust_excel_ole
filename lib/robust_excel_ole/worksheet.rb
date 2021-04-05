@@ -264,7 +264,10 @@ module RobustExcelOle
     def each
       if block_given?
         @ole_worksheet.UsedRange.Rows.lazy.each do |ole_row|
-          yield ole_row.Value.first
+          puts "ole_row: #{ole_row.inspect}"
+          puts "ole_row: #{ole_row.Value.inspect}"
+          row_value = ole_row.Value
+          yield (row_value.nil? ? [] : ole_row.Value.first)  
         end
       else
         to_enum(:each).lazy

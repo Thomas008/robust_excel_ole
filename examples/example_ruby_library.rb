@@ -14,8 +14,8 @@ workbook.each do |worksheet|
   puts "Reading: #{worksheet.name}"
   num_rows = 0
 
-  worksheet.each do |row|
-    row_cells = row.map{ |cell| cell.value }
+  worksheet.each do |row_values|
+    a = row_values.map{ |cell| cell }
     num_rows += 1
 
     # uncomment to print out row values

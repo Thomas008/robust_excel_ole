@@ -33,7 +33,7 @@ begin
   values2 = listrow2.values
   puts "values: #{values2}"
 
-  listrows3 = table[{"Number" => 3}, 2]  # access maximal 2 listrows matching the key
+  listrows3 = table[{"Number" => 3}, limit: 2]  # access maximal 2 listrows matching the key
 
   puts "listrows3: #{listrows3}"
   puts "values:"

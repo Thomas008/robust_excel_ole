@@ -38,7 +38,7 @@ begin
       colnr = idx+1
       puts "colnr: #{colnr}"
       sheet[1,colnr] = nam
-      puts "sheet[1,colnr]: #{sheet[1,colnr].Value}"
+      puts "sheet[1,colnr]: #{sheet[1,colnr]}"
       sheet.add_name(nam,[nil,colnr])
       puts "sheet.Range().Address: #{sheet.Range(nam).Address}"
     end

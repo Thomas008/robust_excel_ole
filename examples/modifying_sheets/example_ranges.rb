@@ -24,7 +24,7 @@ begin
   
   i = 0
   row_r.values.each do |value|          # access the values of the first row 
-    i = += 1
+    i += 1
     puts "cell #{i} of the range of the 1st row: #{value}"
   end
  

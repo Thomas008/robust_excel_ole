@@ -15,7 +15,7 @@ begin
   book = Workbook.open(file_name, :visible => true)  # open a workbook, make Excel visible
   sleep 1
   sheet = book.sheet(1)
-  first_cell = sheet[1,1].Value                                   # access a worksheet
+  first_cell = sheet[1,1]                                   # access a worksheet
   sheet[1,1] = first_cell == "simple" ? "complex" : "simple"      # change a cell
   sleep 1
   begin

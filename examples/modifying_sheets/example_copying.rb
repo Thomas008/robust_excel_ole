@@ -32,7 +32,7 @@ begin
           sheet_name, short_name = full_name.split("!") 
           cell_name = short_name ? short_name : sheet_name
           contains_named_cells = true
-          new_sheet[cell.Row, cell.Column].Value = cell.Value
+          new_sheet[cell.Row, cell.Column] = cell.Value
           new_sheet.add_name(cell_name, [cell.Row,cell.Column])
         end
       end

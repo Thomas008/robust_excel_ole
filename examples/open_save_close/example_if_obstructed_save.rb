@@ -23,11 +23,11 @@ begin
   old_book = Workbook.open(file_name, :if_obstructed => :forget ,:visible => true) # open the old book    
   sleep 1
   old_sheet = old_book.sheet(1)
-  old_first_cell = old_sheet[1,1].Value
+  old_first_cell = old_sheet[1,1]
   puts "the old book was saved" unless old_first_cell == first_cell 
   new_book.close                                 # close the workbooks                      
   old_book.close
 ensure
   Excel.kill_all                         # close all workbooks, quit Excel application
-  rm_tmp(dir)
+  #rm_tmp(dir)
 end

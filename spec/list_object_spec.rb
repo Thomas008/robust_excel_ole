@@ -171,11 +171,15 @@ describe ListObject do
     end
 
     it "should access a listrow given its number" do
-      @table1[2].values.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
+      listrow = @table1[2]
+      listrow.should be_a ListRow
+      listrow.values.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
     end   
 
     it "should access a listrow via a multiple-column key" do
-      @table1[{"Number" => 3, "Person" => "Angel"}].values.should == [3.0, "Angel", 100, 0.6666666666666666, 60]
+      listrow = @table1[{"Number" => 3, "Person" => "Angel"}]
+      listrow.should be_a ListRow
+      listrow.values.should == [3.0, "Angel", 100, 0.6666666666666666, 60]
     end
 
     it "should access a listrow with key not case-sensitive or symbol" do

@@ -112,7 +112,8 @@ module RobustExcelOle
         rowvalues = listrow.Range.Value.first
         key_hash.all?{ |key,val| encode_utf8.(rowvalues[cn2i[key]])==val}
       end
-      opts[:limit] ? matching_rows.take(opts[:limit] == :first ? 1 : opts[:limit]) : matching_rows
+      matching_listrows = matching_rows.map{ |r| r.to_reo }    
+      opts[:limit] ? matching_listrows.take(opts[:limit] == :first ? 1 : opts[:limit]) : matching_listrows
     rescue
       raise(TableError, "cannot find row with key #{key_hash}")
     end
@@ -143,6 +144,7 @@ module RobustExcelOle
         end          
         @ole_table = ole_worksheet.table(self.Name)
       end
+      puts "rows_numbers: #{row_numbers.inspect}"
       row_numbers.map{|r| self[r]}        
     rescue
       raise(TableError, "cannot find row with key #{key_hash}")

@@ -145,11 +145,11 @@ module RobustExcelOle
 
     def normalize_address(address, address2)
       address = [address,address2] unless address2 == :__not_provided     
-      address = if address.is_a?(Integer) || address.is_a?(Object::Range)
+      address = if address.is_a?(Integer) || address.is_a?(::Range)
         [address, 1..last_column]
       elsif address.is_a?(Array)
         if address.size == 1 
-          if address.first.is_a?(Integer) || address.first.is_a?(Object::Range)
+          if address.first.is_a?(Integer) || address.first.is_a?(::Range)
             [address.first, 1..last_column]
           else 
             address
@@ -265,7 +265,7 @@ module RobustExcelOle
       if block_given?
         @ole_worksheet.UsedRange.Rows.lazy.each do |ole_row|
           row_value = ole_row.Value
-          yield (row_value.nil? ? [] : ole_row.Value.first)  
+          yield (row_value.nil? ? [] : row_value.first)  
         end
       else
         to_enum(:each).lazy

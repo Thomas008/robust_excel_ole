@@ -93,7 +93,7 @@ module RobustExcelOle
 
     def method_missing(name, *args)
       name_str = name.to_s
-      core_name = name_str[-1]!='=' ? name_str : name_str[0..-2]
+      core_name = name_str.chomp('=')
       column_names = ole_table.HeaderRowRange.Value.first
       column_name = column_names.find do |c|
         c == core_name ||
@@ -104,9 +104,7 @@ module RobustExcelOle
         c.replace_umlauts.underscore.gsub(/\W/,'_') == core_name 
       end         
       if column_name
-        appended_eq = (name_str[-1]!='=' ? "" : "=")
-        method_name = core_name.replace_umlauts.underscore + appended_eq 
-        define_and_call_method(column_name,method_name,*args)
+        define_and_call_method(column_name, name, *args)
       else
         super(name, *args)
       end

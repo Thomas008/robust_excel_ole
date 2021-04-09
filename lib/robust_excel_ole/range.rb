@@ -142,7 +142,7 @@ module RobustExcelOle
       options = { }
       remaining_args.each do |arg|
         case arg
-        when Object::Range, Integer then dest_address = [dest_address,arg]
+        when ::Range, Integer then dest_address = [dest_address,arg]
         when Worksheet, WIN32OLE    then dest_sheet = arg.to_reo
         when Hash                   then options = arg
         else raise RangeNotCopied, "cannot copy range: argument error: #{remaining_args.inspect}"

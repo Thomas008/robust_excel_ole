@@ -55,10 +55,12 @@ end
  # working for ruby
  def to_reo
   case ole_type.name
-    when 'Range' then RobustExcelOle::Range.new(self)
-    when '_Worksheet' then RobustExcelOle::Worksheet.new(self)
-    when '_Workbook' then RobustExcelOle::Workbook.new(self)
+    when 'Range'        then RobustExcelOle::Range.new(self)
+    when '_Worksheet'   then RobustExcelOle::Worksheet.new(self)
+    when '_Workbook'    then RobustExcelOle::Workbook.new(self)
     when '_Application' then RobustExcelOle::Excel.new(self)
+    when 'ListObject'   then RobustExcelOle::ListObject.new(self)
+    when 'ListRow'      then RobustExcelOle::ListRow.new(self)
     else
       self
     end

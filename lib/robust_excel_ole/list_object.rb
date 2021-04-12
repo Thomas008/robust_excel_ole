@@ -95,30 +95,31 @@ module RobustExcelOle
       return @row_class.new(key_hash_or_number) if key_hash_or_number.respond_to?(:succ)
       opts = {limit: :first}.merge(opts)   
       key_hash = key_hash_or_number.transform_keys{|k| k.downcase.to_sym}
-      matching_listrows = if @ole_table.ListRows.Count < 120
-        listrows_via_traversing(key_hash, opts)
+      matching = if @ole_table.ListRows.Count < 120
+        matching_via_traversing(key_hash, opts)
       else
-        listrows_via_filter(key_hash, opts)
+        matching_via_filter(key_hash, opts)
       end
+      matching_listrows = matching.map{ |r| @row_class.new(r) }
       opts[:limit] == :first ? matching_listrows.first : matching_listrows
     end
 
   private
 
-    def listrows_via_traversing(key_hash, opts)      
+    def matching_via_traversing(key_hash, opts)      
       encode_utf8 = ->(val) {val.respond_to?(:gsub) ? val.encode('utf-8') : val}
       cn2i = column_names_to_index
+      limit = opts[:limit] == :first ? 1 : opts[:limit]
       matching_rows = @ole_table.ListRows.select do |listrow| 
         rowvalues = listrow.Range.Value.first
         key_hash.all?{ |key,val| encode_utf8.(rowvalues[cn2i[key]])==val}
       end
-      matching_listrows = matching_rows.map{ |r| r.to_reo }    
-      opts[:limit] ? matching_listrows.take(opts[:limit] == :first ? 1 : opts[:limit]) : matching_listrows
+      opts[:limit] ? matching_rows.take(limit) : matching_rows
     rescue
       raise(TableError, "cannot find row with key #{key_hash}")
     end
 
-    def listrows_via_filter(key_hash, opts)
+    def matching_via_filter(key_hash, opts)
       ole_worksheet = self.Parent
       ole_workbook =  ole_worksheet.Parent
       row_numbers = []
@@ -143,9 +144,8 @@ module RobustExcelOle
           end
         end          
         @ole_table = ole_worksheet.table(self.Name)
-      end
-      puts "rows_numbers: #{row_numbers.inspect}"
-      row_numbers.map{|r| self[r]}        
+      end   
+      row_numbers
     rescue
       raise(TableError, "cannot find row with key #{key_hash}")
     end

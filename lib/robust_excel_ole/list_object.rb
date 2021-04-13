@@ -151,6 +151,16 @@ module RobustExcelOle
     end
 
   public    
+
+    # @return [Integer] number of rows
+    def rows_number
+      @ole_table.ListRows.Count
+    end
+
+    # @return [Array] values of the table
+    def value
+      [column_names] + self.DataBodyRange.Value
+    end
     
     # @return [Array] a list of column names
     def column_names

@@ -242,6 +242,33 @@ describe ListObject do
 
   end
 
+  describe "#value" do
+
+    before do
+      @table1 = @sheet.table(1)
+    end
+
+    it "should return values" do
+      table_value = [
+        ["Number", "Person", "Amount", "Time", "Price"],
+        [3.0, "John", 50.0, 0.5, 30.0],
+        [2.0, "Fred", nil, 0.5416666666666666, 40.0],
+        [nil, nil, nil, nil, nil],
+        [3.0, "Angel", 100.0, 0.6666666666666666, 60.0],
+        [nil, nil, nil, nil, nil],
+        [1.0, "Werner", 40.0, 0.5, 80.0],
+        [3.0, "Eiffel", 50.0, 0.5, 30.0],
+        [3.0, "Berta", nil, 0.5416666666666666, 40.0],
+        [nil, nil, nil, nil, nil],
+        [nil, nil, nil, nil, nil],
+        [3.0, "Martha", nil, nil, nil],
+        [3.0, "Paul", 40.0, 0.5, 80.0],
+        [1.0, "Napoli", 20.0, 0.4166666666666667, 70.0]]
+      @table1.value.should == table_value
+    end
+
+  end
+
   describe "reading and setting contents of rows and columns" do
 
     before do

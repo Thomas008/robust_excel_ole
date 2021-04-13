@@ -5,8 +5,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
   - Excel#each  
-  - ListObject#each
-  - ListObject#[] with options, position, ==
+  - ListObject#each, value, rows_number, position, ==
+  - ListObject#[] extended with options
   - ListRow#to_h, to_a, values=, keys_values, ==  
   - RangeOwners#names
   - Worksheet#each_cell

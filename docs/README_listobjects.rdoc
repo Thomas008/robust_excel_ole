@@ -125,6 +125,12 @@ or
 
   table.rename_column(1, "Enterprise")
 
+=== Table values   
+
+We can get the values of the table with help of the method +value+: 
+  
+  table.value
+  
 === Adding and Deleting rows and columns
 
 We can add rows and columns, supplying optionally their name, the position and contents. 

@@ -51,23 +51,6 @@ module ToReoRefinement
   end
 end
 
-=begin
- # working for ruby
- def to_reo
-  case ole_type.name
-    when 'Range'        then RobustExcelOle::Range.new(self)
-    when '_Worksheet'   then RobustExcelOle::Worksheet.new(self)
-    when '_Workbook'    then RobustExcelOle::Workbook.new(self)
-    when '_Application' then RobustExcelOle::Excel.new(self)
-    when 'ListObject'   then RobustExcelOle::ListObject.new(self)
-    when 'ListRow'      then RobustExcelOle::ListRow.new(self)
-    else
-      self
-    end
-  end
-end
-=end
-
 # @private
 class WIN32OLE
 
@@ -285,17 +268,6 @@ module General
     Pry.change_current_binding(current_object)
   end
 
-=begin
-  def main_classes_and_recognising_methods
-    {RobustExcelOle::Range      => :Row,
-     RobustExcelOle::Worksheet  => :UsedRange,
-     RobustExcelOle::Workbook   => :FullName,
-     RobustExcelOle::Excel      => :Hwnd,
-     RobustExcelOle::ListObject => :ListRows,
-     RobustExcelOle::ListRow    => [:Creator, :no_method => :Row]}
-  end
-=end
-
   # @private
   def main_classes_ole_types_and_recognising_methods
     [[RobustExcelOle::Range     , 'Range'       , :Row],
@@ -324,6 +296,31 @@ module General
     end
     nil
   end
+
+=begin
+  meths.each do |inst_method|
+    if method_defined?(inst_method)
+      WIN32OLE.send(:define_method, inst_method) do |*args, &blk|  
+        begin 
+          obj = to_reo                        
+        rescue
+          return self.send(inst_method.capitalize, *args, &blk]
+        end
+        obj.send(inst_method, *args, &blk)
+      end
+    else
+      WIN32OLE.send(:define_method, inst_method) do |*args, &blk|  
+        #to_reo.send(inst_method, *args, &blk)
+        begin 
+          obj = classname.constantize.new(self)           
+        rescue
+          return self.send(inst_method.capitalize, *args, &blk]
+        end
+        obj.send(inst_method, *args, &blk) 
+      end
+    end
+  end
+=end
 
   module_function :absolute_path, :canonize, :normalize, :change_current_binding, 
                   :main_classes_ole_types_and_recognising_methods, 

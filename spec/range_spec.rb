@@ -102,6 +102,9 @@ describe RobustExcelOle::Range do
       @sheet1.range([1,1..3]).value.should == [["foo", "workbook", "sheet1"]]
       @sheet1.range([1..2,1]).value.should == [["foo"], ["foo"]]
       @sheet1.range([1]).value.should == [["foo", "workbook", "sheet1"]]
+      @sheet1.range([1..2]).value.should == [["foo", "workbook", "sheet1"], ["foo", nil, "foobaaa"]]
+      @sheet1.range([1..60]).value.should == [["foo", "workbook", "sheet1"], ["foo", nil, "foobaaa"], ["matz", "is", "nice"]]
+      @sheet1.range([nil,2..3]).value.should == [["workbook", "sheet1"], [nil, "foobaaa"], ["is", "nice"]]
       @sheet1.range([1,2]).value.should == "workbook"
     end
 

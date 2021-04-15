@@ -146,24 +146,10 @@ module RobustExcelOle
     def normalize_address(address, address2)
       address = [address,address2] unless address2 == :__not_provided     
       address = if address.is_a?(Integer) || address.is_a?(::Range)
-        [address, 1..last_column]
-      elsif address.is_a?(Array)
-        if address.size == 1 
-          if address.first.is_a?(Integer) || address.first.is_a?(::Range)
-            [address.first, 1..last_column]
-          else 
-            address
-          end
-        else
-          if address.last.nil?
-            [address.first, 1..last_column]
-          elsif address.first.nil?
-            [1..last_row, address.last]
-          else
-            address
-          end
-        end
-      else
+        [address, nil]
+      elsif address.is_a?(Array) && address.size == 1 && (address.first.is_a?(Integer) || address.first.is_a?(::Range))
+        [address.first, nil]
+      else 
         address
       end
     end
@@ -384,6 +370,20 @@ module RobustExcelOle
       false
     end
 
+    # @private
+    def last_row
+      special_last_row = @ole_worksheet.UsedRange.SpecialCells(RobustExcelOle::XlLastCell).Row
+      used_last_row = @ole_worksheet.UsedRange.Rows.Count
+      special_last_row && special_last_row >= used_last_row ? special_last_row : used_last_row
+    end
+
+    # @private
+    def last_column
+      special_last_column = @ole_worksheet.UsedRange.SpecialCells(RobustExcelOle::XlLastCell).Column
+      used_last_column = @ole_worksheet.UsedRange.Columns.Count
+      special_last_column >= used_last_column ? special_last_column : used_last_column
+    end
+
     using ParentRefinement
     using StringRefinement
 
@@ -447,22 +447,7 @@ module RobustExcelOle
         end
       end
     end
-
-    def last_row
-      special_last_row = @ole_worksheet.UsedRange.SpecialCells(RobustExcelOle::XlLastCell).Row
-      used_last_row = @ole_worksheet.UsedRange.Rows.Count
-
-      special_last_row && special_last_row >= used_last_row ? special_last_row : used_last_row
-
-    end
-
-    def last_column
-      special_last_column = @ole_worksheet.UsedRange.SpecialCells(RobustExcelOle::XlLastCell).Column
-      used_last_column = @ole_worksheet.UsedRange.Columns.Count
-
-      special_last_column >= used_last_column ? special_last_column : used_last_column
-    end
-
+    
   end
 
   public

@@ -547,24 +547,25 @@ describe Worksheet do
       it "should access a row 1" do
         range1 = @sheet.range(1)
         range1.should be_kind_of RobustExcelOle::Range
-        range1.Address.should == "$A$1:$C$1"
-        range1.Value.should == [["foo", "workbook", "sheet1"]]
+        range1.Address.should == "$1:$1"
+        range1.Value.first.size.should == 256
+        range1.value.should == [["foo", "workbook", "sheet1"]]
         range2 = @sheet.range([1])
         range2.Address.should == range1.Address
       end
 
       it "should access several rows" do
-        @sheet.range([1..3]).Address.should == "$A$1:$C$3"
-        @sheet.range(1..3).Address.should == "$A$1:$C$3"
-        @sheet.range([1..3,nil]).Address.should == "$A$1:$C$3"
-        @sheet.range(1..3,nil).Address.should == "$A$1:$C$3"
+        @sheet.range([1..3]).Address.should == "$1:$3"
+        @sheet.range(1..3).Address.should == "$1:$3"
+        @sheet.range([1..3,nil]).Address.should == "$1:$3"
+        @sheet.range(1..3,nil).Address.should == "$1:$3"
       end
 
       it "should access several columns" do
-        @sheet.range([nil,2..4]).Address.should == "$B$1:$D$3"
-        @sheet.range(nil,2..4).Address.should == "$B$1:$D$3"
-        @sheet.range([nil,"B".."D"]).Address.should == "$B$1:$D$3"
-        @sheet.range(nil,"B".."D").Address.should == "$B$1:$D$3"
+        @sheet.range([nil,2..4]).Address.should == "$B:$D"
+        @sheet.range(nil,2..4).Address.should == "$B:$D"
+        @sheet.range([nil,"B".."D"]).Address.should == "$B:$D"
+        @sheet.range(nil,"B".."D").Address.should == "$B:$D"
       end
 
       it "should create infinite ranges" do

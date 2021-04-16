@@ -401,10 +401,6 @@ module RobustExcelOle
   class TableError < WorksheetREOError
   end
 
-  # @private
-  class TableRowError < WorksheetREOError
-  end
-
   Table = ListObject
 
 end

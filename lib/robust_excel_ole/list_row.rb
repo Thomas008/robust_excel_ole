@@ -92,6 +92,7 @@ module RobustExcelOle
     end
 
     def method_missing(name, *args)
+      raise(TableRowError, "ole_table not defined") unless self.class.method_defined?(:ole_table)
       name_str = name.to_s
       core_name = name_str.chomp('=')
       column_names = ole_table.HeaderRowRange.Value.first
@@ -142,6 +143,10 @@ module RobustExcelOle
       end
     end
 
+  end
+
+  # @private
+  class TableRowError < WorksheetREOError
   end
   
   TableRow = ListRow

@@ -370,6 +370,15 @@ module RobustExcelOle
       false
     end
 
+    # last_row, last_column:
+    # the last row and last column in a worksheet can be determined with help of
+    # UsedRange.SpecialCells and UsedRange.Rows/Columns
+    # both values can differ in certain cases:
+    # - if the worksheet contains a table, then UsedRange starts at the table, not in the first cell
+    #   therefore we use SpecialCells.
+    # - if the worksheet contains merged cells, then SpecialCells considers the merged cells only,
+    #   therefor we use UsedRange here.
+
     # @private
     def last_row
       special_last_row = @ole_worksheet.UsedRange.SpecialCells(RobustExcelOle::XlLastCell).Row

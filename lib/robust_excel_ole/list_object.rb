@@ -111,7 +111,7 @@ module RobustExcelOle
    def matching_via_traversing(key_hash, opts)      
       encode_utf8 = ->(val) {val.respond_to?(:gsub) ? val.encode('utf-8') : val}
       cn2i = column_names_to_index
-      max_matching_num = opts[:limit].nil? ? 65536 : opts[:limit]
+      max_matching_num = opts[:limit] || 65536     
       matching_rows = @ole_table.ListRows.lazy.select { |listrow|
         rowvalues = listrow.Range.Value.first
         key_hash.all?{ |key,val| encode_utf8.(rowvalues[cn2i[key]])==val}

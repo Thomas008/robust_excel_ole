@@ -155,6 +155,14 @@ module RobustExcelOle
         @book1 = Workbook.open(@simple_file, :visible => true)
       end
 
+      it "should not overwrite methods" do
+        RobustExcelOle::Excel.define_method(:ComputerName){ "computer" }
+        network = WIN32OLE.new('WScript.Network')
+        computername = network.ComputerName
+        General.init_reo_for_win32ole
+        network.ComputerName.should == computername
+      end
+
       it "should apply reo-methods to win32ole objects" do
         ole_book1 = @book1.ole_workbook
         sheet1 = ole_book1.sheet(1)
@@ -300,13 +308,6 @@ module RobustExcelOle
           canonize("/this/is/../the/path").should == "/this/the/path"
           canonize("this../.i.s/.../..the/..../pa.th/").should == "this../.i.s/.../..the/..../pa.th"
         end
-
-=begin
-        it "should downcase" do
-          canonize("/This/IS/tHe/path").should == "/this/is/the/path"
-          canonize("///THIS/.///./////iS//the/../PatH/////").should == "/this/is/path"
-        end
-=end
 
         it "should raise an error for no strings" do
           expect{

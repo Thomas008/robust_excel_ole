@@ -374,14 +374,14 @@ module RobustExcelOle
     def last_row
       special_last_row = @ole_worksheet.UsedRange.SpecialCells(RobustExcelOle::XlLastCell).Row
       used_last_row = @ole_worksheet.UsedRange.Rows.Count
-      special_last_row && special_last_row >= used_last_row ? special_last_row : used_last_row
+      [special_last_row, used_last_row].max
     end
 
     # @private
     def last_column
       special_last_column = @ole_worksheet.UsedRange.SpecialCells(RobustExcelOle::XlLastCell).Column
       used_last_column = @ole_worksheet.UsedRange.Columns.Count
-      special_last_column >= used_last_column ? special_last_column : used_last_column
+      [special_last_column, used_last_column].max
     end
 
     using ParentRefinement

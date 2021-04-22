@@ -91,9 +91,11 @@ module RobustExcelOle
     # @return [Variant] a listrow, if limit == :first
     #                   an array of listrows, with maximal number=limit, if list rows were found and limit is not :first
     #                   nil, if no list object was found
-    def [] (key_hash_or_number, opts = { })
+    def [] (key_hash_or_number, options = { })
       return @row_class.new(key_hash_or_number) if key_hash_or_number.respond_to?(:succ)
-      opts = {limit: :first}.merge(opts)   
+      options = {limit: :first}.merge(options)   
+      opts = options.dup
+      opts[:limit] = 1 if options[:limit] == :first
       key_hash = key_hash_or_number.transform_keys{|k| k.downcase.to_sym}
       matching = if @ole_table.ListRows.Count < 120
         matching_via_traversing(key_hash, opts)
@@ -101,20 +103,19 @@ module RobustExcelOle
         matching_via_filter(key_hash, opts)
       end
       matching_listrows = matching.map{ |r| @row_class.new(r) }
-      opts[:limit] == :first ? matching_listrows.first : matching_listrows
+      options[:limit] == :first ? matching_listrows.first : matching_listrows
     end
 
   private
 
-    def matching_via_traversing(key_hash, opts)      
+   def matching_via_traversing(key_hash, opts)      
       encode_utf8 = ->(val) {val.respond_to?(:gsub) ? val.encode('utf-8') : val}
       cn2i = column_names_to_index
-      limit = opts[:limit] == :first ? 1 : opts[:limit]
-      matching_rows = @ole_table.ListRows.select do |listrow| 
+      max_matching_num = opts[:limit].nil? ? 65536 : opts[:limit]
+      matching_rows = @ole_table.ListRows.lazy.select { |listrow|
         rowvalues = listrow.Range.Value.first
         key_hash.all?{ |key,val| encode_utf8.(rowvalues[cn2i[key]])==val}
-      end
-      opts[:limit] ? matching_rows.take(limit) : matching_rows
+      }.take(max_matching_num).to_a
     rescue
       raise(TableError, "cannot find row with key #{key_hash}")
     end

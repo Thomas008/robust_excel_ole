@@ -45,7 +45,7 @@ module ToReoRefinement
           end
         end
       end
-      raise TypeREOError, "given object cannot be type-lifted to a RobustExcelOle object"
+      raise RobustExcelOle::TypeREOError, "given object cannot be type-lifted to a RobustExcelOle object"
     end
 
   end
@@ -284,43 +284,28 @@ module General
     main_classes_ole_types_and_recognising_methods.each do |classname, _ole_type, _recognising_method|
       meths = (classname.instance_methods(false) - WIN32OLE.instance_methods(false) - Object.methods - Enumerable.instance_methods(false) - [:Calculation=])
       meths.each do |inst_method|
-        WIN32OLE.send(:define_method, inst_method) do |*args, &blk|  
-          begin 
-            obj = classname.method_defined?(inst_method) ? to_reo : classname.constantize.new(self)
-          rescue
-            return self.send(inst_method.capitalize, *args, &blk)
+        if classname.method_defined?(inst_method)
+          WIN32OLE.send(:define_method, inst_method) do |*args, &blk|  
+            begin 
+              obj = to_reo                        
+            rescue
+              return self.send(inst_method.capitalize, *args, &blk)
+            end
+            obj.send(inst_method, *args, &blk)
           end
-          obj.send(inst_method, *args, &blk)
+        else
+          WIN32OLE.send(:define_method, inst_method) do |*args, &blk|  
+            begin 
+              obj = classname.constantize.new(self)       
+            rescue
+              return self.send(inst_method.capitalize, *args, &blk)
+            end
+            obj.send(inst_method, *args, &blk) 
+          end
         end
       end
     end
-    nil
   end
-
-=begin
-  meths.each do |inst_method|
-    if method_defined?(inst_method)
-      WIN32OLE.send(:define_method, inst_method) do |*args, &blk|  
-        begin 
-          obj = to_reo                        
-        rescue
-          return self.send(inst_method.capitalize, *args, &blk]
-        end
-        obj.send(inst_method, *args, &blk)
-      end
-    else
-      WIN32OLE.send(:define_method, inst_method) do |*args, &blk|  
-        #to_reo.send(inst_method, *args, &blk)
-        begin 
-          obj = classname.constantize.new(self)           
-        rescue
-          return self.send(inst_method.capitalize, *args, &blk]
-        end
-        obj.send(inst_method, *args, &blk) 
-      end
-    end
-  end
-=end
 
   module_function :absolute_path, :canonize, :normalize, :change_current_binding, 
                   :main_classes_ole_types_and_recognising_methods, 

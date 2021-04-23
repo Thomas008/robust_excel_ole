@@ -193,7 +193,7 @@ or using the R1C1-format
 
   range = worksheet.range(["Z1S1:Z3S4"])
 
-Ranges containing rows or columns within the whole used range of a worksheet are defined, e.g., by setting the other parameter (columns or row) to +nil+: For example, the rows 1 to 3 you get by
+Ranges containing infinite rows or columns can be defined, e.g., by setting the other parameter (columns or row) to +nil+: For example, the rows 1 to 3 you get by
 
   range = worksheet.range([1..3,nil])
 
@@ -203,9 +203,9 @@ The columns "A" to "C" you get with help of
 
 You can yield a row also simply by providing the row number, e.g.
   
-  range = worksheet.range([1])
+  range = worksheet.range(1)
 
-If you want infinite rows or columns, not restricted to the used range, then provide the A1-Formt, e.g.
+You can also use the A1-format, e.g.
 
   range = worksheet.range(["1:3"])
   range = worksheet.range(["A:B"])
@@ -222,6 +222,8 @@ You can access a range via its defined name with
 
   range = worksheet.range("name")
 
+=== Getting and setting the value of a range
+
 You get the value of a range with help of #[] by providing the address of the range, or apply #value on a range, e.g.
 
   worksheet["name"]
@@ -237,6 +239,8 @@ or
 or
 
   worksheet.range([1..2,3..4]).value
+
+The value is being restricted to the used range.
 
 If you want the values of the range as flat array, then use #values, e.g.
 

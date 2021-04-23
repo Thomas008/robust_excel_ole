@@ -77,6 +77,7 @@ module RobustExcelOle
 
     # returns values of a given range
     # @returns [Array] values of the range (as a nested array)    
+=begin  
     def value
       value = begin
         if !::RANGES_JRUBY_BUG    
@@ -84,6 +85,7 @@ module RobustExcelOle
             res << (!row.nil? ? row[0,[ole_range.Columns.Count,worksheet.last_column].min] : nil)
           end
         else
+          # optimization is possible here
           rows_used_range = [rows, last_row].min
           columns_used_rage = [columns, last_column].min
           values = rows_used_range.map{|r| columns_used_range.map {|c| worksheet.Cells(r,c).Value} }
@@ -97,7 +99,28 @@ module RobustExcelOle
       end
       value
     end
+=end
 
+    def value
+      value = begin
+        if !::RANGES_JRUBY_BUG    
+          ole_range.Application.Intersect(ole_range, worksheet.Range(
+            worksheet.Cells(1,1),worksheet.Cells(worksheet.last_row,worksheet.last_column))).Value
+        else
+          # optimization is possible here
+          rows_used_range = [rows, last_row].min
+          columns_used_rage = [columns, last_column].min
+          values = rows_used_range.map{|r| columns_used_range.map {|c| worksheet.Cells(r,c).Value} }
+          (values.size==1 && values.first.size==1) ? values.first.first : values
+        end
+      rescue
+        raise RangeNotEvaluatable, "cannot evaluate range #{self.inspect}\n#{$!.message}"
+      end
+      if value == -2146828288 + RobustExcelOle::XlErrName
+        raise RangeNotEvaluatable, "cannot evaluate range #{self.inspect}"
+      end
+      value
+    end
 
     # sets the values if the range
     # @param [Variant] value

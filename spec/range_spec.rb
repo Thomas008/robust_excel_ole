@@ -97,9 +97,11 @@ describe RobustExcelOle::Range do
 
   describe "#value" do
    
-    it "should yield values" do
+    it "should yield the right values" do
       @sheet1.range([1..2,1..3]).value.should == [["foo", "workbook", "sheet1"], ["foo", nil, "foobaaa"]]
       @sheet1.range([1,1..3]).value.should == [["foo", "workbook", "sheet1"]]
+      @sheet1.range([1,1..5]).value.should == [["foo", "workbook", "sheet1"]]
+      @sheet1.range([1..5,1..5]).value.should == [["foo", "workbook", "sheet1"], ["foo", nil, "foobaaa"],["matz", "is", "nice"]]
       @sheet1.range([1..2,1]).value.should == [["foo"], ["foo"]]
       @sheet1.range([1]).value.should == [["foo", "workbook", "sheet1"]]
       @sheet1.range([1..2]).value.should == [["foo", "workbook", "sheet1"], ["foo", nil, "foobaaa"]]

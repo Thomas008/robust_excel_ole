@@ -97,7 +97,7 @@ module RobustExcelOle
       opts = options.dup
       opts[:limit] = 1 if options[:limit] == :first
       key_hash = key_hash_or_number.transform_keys{|k| k.downcase.to_sym}
-      matching = if @ole_table.ListRows.Count < 120
+      matching = if @ole_table.ListRows.Count < 150
         matching_via_traversing(key_hash, opts)
       else
         matching_via_filter(key_hash, opts)

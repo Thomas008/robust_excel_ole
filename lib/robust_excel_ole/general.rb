@@ -280,6 +280,7 @@ module General
 
   # @private
   # enable RobustExcelOle methods to Win32Ole objects
+=begin  
   def init_reo_for_win32ole
     main_classes_ole_types_and_recognising_methods.each do |classname, _ole_type, _recognising_method|
       meths = (classname.instance_methods(false) - WIN32OLE.instance_methods(false) - Object.methods - Enumerable.instance_methods(false) - [:Calculation=])
@@ -302,6 +303,45 @@ module General
             end
             obj.send(inst_method, *args, &blk) 
           end
+        end
+      end
+    end
+  end
+=end
+
+  def init_reo_for_win32ole
+    method_occurrences = {}
+    main_classes_ole_types_and_recognising_methods.each do |classname, _ole_type, _recognising_method|
+      meths = (classname.instance_methods(false) - WIN32OLE.instance_methods(false) - Object.methods - Enumerable.instance_methods(false) - [:Calculation=])
+      meths.each do |inst_method|
+        method_occurrences[inst_method] = method_occurrences[inst_method] ? :several_classes : classname
+      end
+    end
+    method_occurrences.each_key do |inst_method|
+      if WIN32OLE.method_defined?(inst_method)
+        aliased_method = "#{inst_method}_after_alias}".to_sym
+        WIn32OLE.send(:alias_method, aliased_method, inst_method)
+      end
+      if method_occurrences[inst_method] == :several_classes
+        WIN32OLE.send(:define_method, inst_method) do |*args, &blk|  
+          begin 
+            obj = to_reo                        
+          rescue     
+            sending_method = aliased_method ? aliased_method : inst_method.capitalize
+            return self.send(sending_method, *args, &blk)
+          end
+          obj.send(inst_method, *args, &blk)
+        end
+      else       
+        WIN32OLE.send(:define_method, inst_method) do |*args, &blk|  
+          begin 
+            #obj = method_occurrences[inst_method].constantize.new(self)   
+            obj = method_occurrences[inst_method].new(self)     
+          rescue
+             sending_method = aliased_method ? aliased_method : inst_method.capitalize
+            return self.send(sending_method, *args, &blk)
+          end
+          obj.send(inst_method, *args, &blk) 
         end
       end
     end

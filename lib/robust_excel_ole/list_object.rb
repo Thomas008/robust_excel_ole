@@ -350,7 +350,10 @@ module RobustExcelOle
     def == other_table
       other_table.is_a?(ListObject) && 
       self.HeaderRowRange.Value == other_table.HeaderRowRange.Value &&
-      self.DataBodyRange.Value == other_table.DataBodyRange.Value
+      self.DataBodyRange.Value == other_table.DataBodyRange.Value &&
+      self.Name == other_table.Name &&
+      self.Parent.to_reo == other_table.Parent.to_reo
+
     end
 
 

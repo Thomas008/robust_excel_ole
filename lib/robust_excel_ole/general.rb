@@ -318,6 +318,7 @@ module General
       end
     end
     method_occurrences.each_key do |inst_method|
+      # this will never happen
       if WIN32OLE.method_defined?(inst_method)
         aliased_method = "#{inst_method}_after_alias}".to_sym
         WIn32OLE.send(:alias_method, aliased_method, inst_method)

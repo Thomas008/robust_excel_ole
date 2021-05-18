@@ -171,11 +171,11 @@ module RobustExcelOle
         ole_sheet1 = sheet1.ole_worksheet
         range1 = ole_sheet1.range([1..2,3..4])
         range1.should be_a RobustExcelOle::Range
-        range1.value.should == [["sheet1",nil],["foobaaa",nil]]
+        range1.value.should == [["sheet1"],["foobaaa"]]
         ole_range1 = range1.ole_range
         ole_range1.copy([6,6])
         range2 = sheet1.range([6..7,6..7])
-        range2.value.should == [["sheet1",nil],["foobaaa",nil]]
+        range2.value.should == [["sheet1"],["foobaaa"]]
         excel1 = @book1.excel
         ole_excel1 = excel1.ole_excel
         ole_excel1.close(:if_unsaved => :forget)

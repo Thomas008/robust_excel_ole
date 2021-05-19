@@ -10,26 +10,27 @@ module RobustExcelOle
       @col_letter = r1c1_letters[1..1]
     end
 
-    # address formats that are valid:
+    # valid address formats are:
     #   r1c1-format: e.g. "Z3S1", "Z3S1:Z5S2", "Z[3]S1", "Z3S[-1]:Z[5]S1", "Z[3]", "S[-2]"
     #                      infinite ranges are not possible, e.g. "Z3:Z5", "S2:S5", "Z2", "S3", "Z[2]" 
-    #   integer_ranges-fromat: e.g. [3,1], [3,"A"], [3..5,1..2], [3..5, "A".."B"], 
+    #   integer_ranges-fromat: e.g. [3,1], [3,"A"], [3..5,1..2], [1..[2],[3]..8], [3..5, "A".."B"], 
     #                               [3..4, nil], [nil, 2..4], [2,nil], [nil,4]
     #   a1-format: e.g. "A3", "A3:B5", "A:B", "3:5", "A", "3"
+    
+
     def as_r1c1(address)
       transform_address(address, :r1c1)
     end
 
+    # transformation from integer-range or r1c1.format to a1-format not implemented
     def as_a1(address)
       transform_address(address, :a1)
     end
 
-    # valid address formats: e.g. [3,1], [3,"A"], [3..5,1..2], [3..5, "A".."B"], 
-    #                             [3..4, nil], [nil, 2..4], [2,nil], [nil,4]
     def as_integer_ranges(address)
       transform_address(address, :int_range)
     end
-   
+
   private
 
     def transform_address(address, format)

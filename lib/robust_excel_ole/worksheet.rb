@@ -104,9 +104,14 @@ module RobustExcelOle
         address = normalize_address(name_or_address, address2)
         workbook.retain_saved do
           begin
-            self.Names.Add('__dummy001',nil,true,nil,nil,nil,nil,nil,nil,'=' + address_tool.as_r1c1(address))          
-            range = get_name_object('__dummy001').RefersToRange
-            self.Names.Item('__dummy001').Delete
+            a1_address = address_tool.as_a1(address) rescue nil
+            if a1_address
+              range = self.Range(a1_address)              
+            else
+              self.Names.Add('__dummy001',nil,true,nil,nil,nil,nil,nil,nil,'=' + address_tool.as_r1c1(address))
+              range = get_name_object('__dummy001').RefersToRange
+              self.Names.Item('__dummy001').Delete
+            end
           rescue
             address2_string = (address2.nil? || address2 == :__not_provided) ? "" : ", #{address2.inspect}"
             raise RangeNotCreated, "cannot find name or address #{name_or_address.inspect}#{address2_string})"
@@ -115,7 +120,7 @@ module RobustExcelOle
       end
       range.to_reo
     end
-  
+
   private
 
     def normalize_address(address, address2)

@@ -1,5 +1,15 @@
 # -*- coding: utf-8 -*-
 
+require 'win32ole'
+
+class WIN32OLE
+  def save
+    "save"
+  end
+end
+
+NETWORK = WIN32OLE.new('WScript.Network')
+
 require_relative 'spec_helper'
 
 $VERBOSE = nil
@@ -44,6 +54,58 @@ module RobustExcelOle
     after do
       Excel.kill_all
       rm_tmp(@dir)
+    end
+
+    describe "General.init_reo_for_win32ole" do
+
+      before do
+        @book1 = Workbook.open(@simple_file, :visible => true)
+      end
+
+      it "should preserve the instance method of a win32ole object via calling an aliased method" do
+        NETWORK.save.should == "save"
+      end
+
+      it "should preserve the instance methods of a win32ole object " do
+        RobustExcelOle::Excel.define_method(:ComputerName){ "computer" }
+        network = WIN32OLE.new('WScript.Network')
+        computername = network.ComputerName
+        General.init_reo_for_win32ole
+        network.ComputerName.should == computername
+      end
+
+      it "should call a capitalized method for an instance method occurring in one classes" do
+        expect{
+          NETWORK.delete_empty_columns
+        }.to raise_error(NoMethodError, /Delete_empty_columns/)
+      end
+
+
+      it "should call a capitalized method for an instance method occurring in several classes" do
+        expect{
+          NETWORK.focus
+        }.to raise_error(NoMethodError, /Focus/)
+      end
+
+      it "should apply reo-methods to win32ole objects" do
+        ole_book1 = @book1.ole_workbook
+        sheet1 = ole_book1.sheet(1)
+        sheet1.should be_a Worksheet
+        sheet1.name.should == "Sheet1"
+        ole_sheet1 = sheet1.ole_worksheet
+        range1 = ole_sheet1.range([1..2,3..4])
+        range1.should be_a RobustExcelOle::Range
+        range1.value.should == [["sheet1"],["foobaaa"]]
+        ole_range1 = range1.ole_range
+        ole_range1.copy([6,6])
+        range2 = sheet1.range([6..7,6..7])
+        range2.value.should == [["sheet1"],["foobaaa"]]
+        excel1 = @book1.excel
+        ole_excel1 = excel1.ole_excel
+        ole_excel1.close(:if_unsaved => :forget)
+        Excel.kill_all
+      end
+
     end
 
     describe "find_all_indices" do
@@ -145,41 +207,6 @@ module RobustExcelOle
         expect{
           WIN32OLE.new('WScript.Network').to_reo
         }.to raise_error(TypeREOError)
-      end
-
-    end
-
-    describe "General.init_reo_for_win32ole" do
-
-      before do
-        @book1 = Workbook.open(@simple_file, :visible => true)
-      end
-
-      it "should not overwrite methods" do
-        RobustExcelOle::Excel.define_method(:ComputerName){ "computer" }
-        network = WIN32OLE.new('WScript.Network')
-        computername = network.ComputerName
-        General.init_reo_for_win32ole
-        network.ComputerName.should == computername
-      end
-
-      it "should apply reo-methods to win32ole objects" do
-        ole_book1 = @book1.ole_workbook
-        sheet1 = ole_book1.sheet(1)
-        sheet1.should be_a Worksheet
-        sheet1.name.should == "Sheet1"
-        ole_sheet1 = sheet1.ole_worksheet
-        range1 = ole_sheet1.range([1..2,3..4])
-        range1.should be_a RobustExcelOle::Range
-        range1.value.should == [["sheet1"],["foobaaa"]]
-        ole_range1 = range1.ole_range
-        ole_range1.copy([6,6])
-        range2 = sheet1.range([6..7,6..7])
-        range2.value.should == [["sheet1"],["foobaaa"]]
-        excel1 = @book1.excel
-        ole_excel1 = excel1.ole_excel
-        ole_excel1.close(:if_unsaved => :forget)
-        Excel.kill_all
       end
 
     end

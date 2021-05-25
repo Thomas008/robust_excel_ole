@@ -278,52 +278,30 @@ module General
      [RobustExcelOle::ListRow   , 'ListRow'    , [:Creator, :no_method => :Row]]]
   end
 
+  WIN32OLE_instance_methods = [
+    :ole_methods, :ole_free, :ole_get_methods, :ole_put_methods, :ole_func_methods, :ole_method, :ole_method_help,
+    :ole_activex_initialize, :ole_type, :ole_obj_help, :ole_typelib, :ole_query_interface, :ole_respond_to?, 
+    :invoke, :_invoke, :_getproperty, :_setproperty, :setproperty, :[], :[]=, :methods, :method_missing, :each
+  ]
+
   # @private
   # enable RobustExcelOle methods to Win32Ole objects
-=begin  
-  def init_reo_for_win32ole
-    main_classes_ole_types_and_recognising_methods.each do |classname, _ole_type, _recognising_method|
-      meths = (classname.instance_methods(false) - WIN32OLE.instance_methods(false) - Object.methods - Enumerable.instance_methods(false) - [:Calculation=])
-      meths.each do |inst_method|
-        if classname.method_defined?(inst_method)
-          WIN32OLE.send(:define_method, inst_method) do |*args, &blk|  
-            begin 
-              obj = to_reo                        
-            rescue
-              return self.send(inst_method.capitalize, *args, &blk)
-            end
-            obj.send(inst_method, *args, &blk)
-          end
-        else
-          WIN32OLE.send(:define_method, inst_method) do |*args, &blk|  
-            begin 
-              obj = classname.constantize.new(self)       
-            rescue
-              return self.send(inst_method.capitalize, *args, &blk)
-            end
-            obj.send(inst_method, *args, &blk) 
-          end
-        end
-      end
-    end
-  end
-=end
-
   def init_reo_for_win32ole
     method_occurrences = {}
     main_classes_ole_types_and_recognising_methods.each do |classname, _ole_type, _recognising_method|
-      meths = (classname.instance_methods(false) - WIN32OLE.instance_methods(false) - Object.methods - Enumerable.instance_methods(false) - [:Calculation=])
+      meths = (classname.instance_methods(false) - WIN32OLE_instance_methods - Object.methods - Enumerable.instance_methods(false) - [:Calculation=])
       meths.each do |inst_method|
         method_occurrences[inst_method] = method_occurrences[inst_method] ? :several_classes : classname
       end
     end
-    method_occurrences.each_key do |inst_method|
-      # this will never happen
+    method_occurrences.each do |inst_method, class_name|
       if WIN32OLE.method_defined?(inst_method)
-        aliased_method = "#{inst_method}_after_alias}".to_sym
-        WIn32OLE.send(:alias_method, aliased_method, inst_method)
+        aliased_method = "#{inst_method}_after_init".to_s.to_sym
+        WIN32OLE.send(:alias_method, aliased_method, inst_method)
+      else
+        aliased_method = nil
       end
-      if method_occurrences[inst_method] == :several_classes
+      if aliased_method || class_name == :several_classes
         WIN32OLE.send(:define_method, inst_method) do |*args, &blk|  
           begin 
             obj = to_reo                        
@@ -336,8 +314,7 @@ module General
       else       
         WIN32OLE.send(:define_method, inst_method) do |*args, &blk|  
           begin 
-            #obj = method_occurrences[inst_method].constantize.new(self)   
-            obj = method_occurrences[inst_method].new(self)     
+            obj = class_name.new(self)     
           rescue
              sending_method = aliased_method ? aliased_method : inst_method.capitalize
             return self.send(sending_method, *args, &blk)

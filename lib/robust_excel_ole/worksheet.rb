@@ -108,9 +108,13 @@ module RobustExcelOle
             if a1_address
               range = self.Range(a1_address)              
             else
-              self.Names.Add('__dummy001',nil,true,nil,nil,nil,nil,nil,nil,'=' + address_tool.as_r1c1(address))
-              range = get_name_object('__dummy001').RefersToRange
-              self.Names.Item('__dummy001').Delete
+              begin
+                self.Names.Add('__dummy_name_object_001__',nil,true,nil,nil,nil,nil,nil,nil,'=' + address_tool.as_r1c1(address))
+                range = get_name_object('__dummy_name_object_001__').RefersToRange
+                self.Names.Item('__dummy_name_object_001__').Delete
+              rescue
+                raise
+              end
             end
           rescue
             address2_string = (address2.nil? || address2 == :__not_provided) ? "" : ", #{address2.inspect}"

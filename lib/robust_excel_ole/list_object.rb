@@ -349,7 +349,7 @@ module RobustExcelOle
 
     def == other_table
       other_table.is_a?(ListObject) && 
-        self.Range.Address == other_tabl.Range.Address
+        self.Range.Address == other_table.Range.Address &&
         self.Parent.to_reo == other_table.Parent.to_reo
     end
 

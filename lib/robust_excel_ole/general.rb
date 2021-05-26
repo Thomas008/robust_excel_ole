@@ -278,7 +278,7 @@ module General
      [RobustExcelOle::ListRow   , 'ListRow'    , [:Creator, :no_method => :Row]]]
   end
 
-  WIN32OLE_instance_methods = [
+  WIN32OLE_INSTANCE_METHODS = [
     :ole_methods, :ole_free, :ole_get_methods, :ole_put_methods, :ole_func_methods, :ole_method, :ole_method_help,
     :ole_activex_initialize, :ole_type, :ole_obj_help, :ole_typelib, :ole_query_interface, :ole_respond_to?, 
     :invoke, :_invoke, :_getproperty, :_setproperty, :setproperty, :[], :[]=, :methods, :method_missing, :each
@@ -289,14 +289,14 @@ module General
   def init_reo_for_win32ole
     method_occurrences = {}
     main_classes_ole_types_and_recognising_methods.each do |classname, _ole_type, _recognising_method|
-      meths = (classname.instance_methods(false) - WIN32OLE_instance_methods - Object.methods - Enumerable.instance_methods(false) - [:Calculation=])
+      meths = (classname.instance_methods(false) - WIN32OLE_INSTANCE_METHODS - Object.methods - Enumerable.instance_methods(false) - [:Calculation=])
       meths.each do |inst_method|
         method_occurrences[inst_method] = method_occurrences[inst_method] ? :several_classes : classname
       end
     end
     method_occurrences.each do |inst_method, class_name|
       if WIN32OLE.method_defined?(inst_method)
-        aliased_method = "#{inst_method}_after_init".to_s.to_sym
+        aliased_method = "#{inst_method}_after_reo".to_s.to_sym
         WIN32OLE.send(:alias_method, aliased_method, inst_method)
       else
         aliased_method = nil

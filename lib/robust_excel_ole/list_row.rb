@@ -11,10 +11,15 @@ module RobustExcelOle
     alias ole_object ole_tablerow
 
     def initialize(rownumber_or_oletablerow)
-      @ole_tablerow = if !rownumber_or_oletablerow.respond_to?(:succ)
-        rownumber_or_oletablerow       
+      @ole_tablerow = if rownumber_or_oletablerow.is_a?(ListRow)
+        rownumber_or_oletablerow.ole_tablerow
       else
-        ole_table.ListRows.Item(rownumber_or_oletablerow)
+        begin
+          rownumber_or_oletablerow.Parent.send(:ListRows)
+          rownumber_or_oletablerow
+        rescue
+          ole_table.ListRows.Item(rownumber_or_oletablerow)
+        end
       end
     end
 

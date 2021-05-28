@@ -49,8 +49,10 @@ describe ListRow do
 
      it "should promote a win32ole tablerow" do
       table1 = @sheet.table(1)
-      ole_tablerow = table1[2].ole_tablerow
-      ListRow.new(ole_tablerow).values.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
+      tablerow1 = table1[2]
+      ole_tablerow1 = tablerow1.ole_tablerow
+      ListRow.new(ole_tablerow1).values.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
+      ListRow.new(tablerow1).values.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
     end 
   end
 

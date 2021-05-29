@@ -19,7 +19,7 @@ module RobustExcelOle
     using ToReoRefinement
 
     def initialize(win32_range, worksheet = nil)
-      @ole_range = win32_range
+      @ole_range = win32_range if win32_range.Areas
       @worksheet = (worksheet ? worksheet : self.Parent).to_reo
     end
 

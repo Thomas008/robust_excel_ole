@@ -19,7 +19,12 @@ module RobustExcelOle
     using ToReoRefinement
 
     def initialize(win32_range, worksheet = nil)
-      @ole_range = win32_range if win32_range.Areas
+      @ole_range = begin
+        win32_range.send(:Areas)
+        win32_range
+      rescue
+        raise TypeREOError, "given win32ole object is not a range"
+      end
       @worksheet = (worksheet ? worksheet : self.Parent).to_reo
     end
 

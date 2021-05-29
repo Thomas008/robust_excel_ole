@@ -93,7 +93,12 @@ module RobustExcelOle
       when NilClass
         raise FileNameNotGiven, "filename is nil"
       when WIN32OLE
-        file = file_or_workbook.Fullname.tr('\\','/') 
+        begin
+          file_or_workbook.send(:LinkSources)
+          file = file_or_workbook.Fullname.tr('\\','/')
+        rescue
+          raise TypeREOError, "given win32ol object is not a workbook"
+        end
       when Workbook
         file = file_or_workbook.Fullname.tr('\\','/')
       when String

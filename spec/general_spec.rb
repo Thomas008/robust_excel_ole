@@ -44,11 +44,12 @@ module RobustExcelOle
       @simple_file_xlsm = @dir + '/workbook.xls'
       @simple_file_xlsx = @dir + '/workbook.xlsx'
       @network_path = "N:/data/workbook.xls"
-      @hostname_share_path = "//DESKTOP-A3C5CJ6/spec/data/workbook.xls"
-      @network_path_downcase = "n:/data/workbook.xls"
-      @hostname_share_path_downcase = "//desktop-a3c5cj6/spec/data/workbook.xls"
+      computer_name = NETWORK.ComputerName
+      #@hostname_share_path = "//#{computer_name}/spec/data/workbook.xls"
+      @hostname_share_path = "//#{computer_name}/c$/gim/ats/aSrc/gems/robust_exceL_ole/spec/data/workbook.xls"
+      @network_path_downcase = @network_path.downcase
+      @hostname_share_path_downcase = @hostname_share_path.downcase
       @simple_file_extern = "D:/data/workbook.xls"
-      @hostname_share_path = "//DESKTOP-A3C5CJ6/spec/data/workbook.xls"
     end
 
     after do
@@ -73,6 +74,14 @@ module RobustExcelOle
         General.init_reo_for_win32ole
         network.ComputerName.should == computername
       end
+
+      #it "should preserve the lower-case instance methods of a win32ole object " do
+      #  RobustExcelOle::Excel.define_method(:computername){ "computer" }
+      #  network = WIN32OLE.new('WScript.Network')
+      #  computername = network.computername
+      #  General.init_reo_for_win32ole
+      #  network.computername.should == computername
+      #end
 
       it "should call a capitalized method for an instance method occurring in one classes" do
         expect{

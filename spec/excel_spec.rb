@@ -1925,7 +1925,7 @@ module RobustExcelOle
         excel_instances.first.should == excel
         excel_instances.to_a.should == [excel]
         res = []
-        excel_instances.each_with_index{|e,i| res << [e,i]}
+        excel_instances.each.with_index{|e,i| res << [e,i]}.to_a
         res.should == [[excel,0]]
       end
 
@@ -1937,7 +1937,7 @@ module RobustExcelOle
         excel_instances.first.should == excel1
         excel_instances.to_a.should == [excel1, excel2]
         res = []
-        excel_instances.each_with_index{|e,i| res << [e,i]}
+        excel_instances.each.with_index{|e,i| res << [e,i]}.to_a
         res.should == [[excel1,0],[excel2,1]]
       end
 

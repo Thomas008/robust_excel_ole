@@ -61,7 +61,7 @@ describe Bookstore do
     network = WIN32OLE.new('WScript.Network')
     computer_name = network.ComputerName
     #@hostname_share_path = "DESKTOP-A3C5CJ6/spec/data/workbook.xls"
-    @hostname_share_path = "//#{computer_name}/c$/gim/ats/aSrc/gems/robust_exceL_ole/spec/data/workbook.xls"
+    @hostname_share_path = "//#{computer_name}/#{absolute_path('spec/data/workbook.xls').tr('\\','/').gsub('C:','c$')}"
     @network_path_not_existing = "M:/data/workbook.xls"
     @hostname_not_existing_share_path = "//DESKTOP_not_existing/spec/data/workbook.xls"
     @hostname_share_not_existing_path = "//#{computer_name}/c$/gim/ats/aSrc/gems/robust_excel_ole/spec_not_existing/data/workbook.xls"

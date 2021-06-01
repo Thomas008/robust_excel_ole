@@ -505,6 +505,14 @@ describe Worksheet do
 
     describe "#range" do
 
+      it "should delete range, if it was defined before" do
+        @sheet.add_name("__dummy_name_object_001__", [1,1])
+        range = @sheet.range([2,2])
+        expect{
+          @sheet.Names.Item("__dummy_name_object_001__")
+        }.to raise_error
+      end
+
       it "should access a rectangular range [1..2,1..3]" do
         range1 = @sheet.range(1..2,1..3)
         range1.should be_kind_of RobustExcelOle::Range

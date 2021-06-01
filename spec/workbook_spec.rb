@@ -1425,7 +1425,7 @@ describe Workbook do
 
     it "should concatenate" do
       names = ""
-      @book.each.with_index{|s,i| names << "#{s.name} #{i} " }
+      @book.each.with_index{|s,i| names << "#{s.name} #{i} " }.to_a
       names.should == "Sheet1 0 Sheet2 1 Sheet3 2 "
     end
 

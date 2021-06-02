@@ -237,7 +237,7 @@ describe RobustExcelOle::Range do
       end
 
       it "should set value and return value of a rectangular range" do
-        @sheet1.range([1..2,3..5]).v.should == [["sheet1",nil,nil],["foobaaa",nil,nil]]
+        @sheet1.range([1..2,3..5]).v.should == [["sheet1"], ["foobaaa"]]
         @sheet1.range([1..2,3..5]).v = [[1,2,3],[4,5,6]]
         @sheet1.range([1..2,3..5]).v.should == [[1,2,3],[4,5,6]]
       end

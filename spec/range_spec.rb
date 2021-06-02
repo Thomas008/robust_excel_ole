@@ -69,7 +69,7 @@ describe RobustExcelOle::Range do
 
     it "should concatenate" do
       values = []
-      @range2.each.with_index{|c,i| values << [c.v, i]}
+      @range2.each.with_index{|c,i| values << [c.v, i]}.to_a
       values.should == [["simple", 0], ["file", 1], ["sheet2", 2], [nil, 3], [nil, 4], [nil, 5]]
     end
 
@@ -225,7 +225,7 @@ describe RobustExcelOle::Range do
 
       it "should return value" do
         @sheet[1,1].should == 'simple'
-        @sheet.range(1..2,3..4).v.should == [["sheet2", nil], [nil, nil]] 
+        @sheet.range(1..2,3..4).v.should == "sheet2"
       end 
 
       it "should set value of a cell and return its value" do

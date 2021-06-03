@@ -2775,7 +2775,7 @@ describe Workbook do
             new_book.should be_alive
             new_book.filename.should_not == @book.filename
             new_book.excel.should_not == @book.excel
-            new_book.sheet(1)[1,1].should == @book.sheet(1)[1,1]
+            new_book.sheet(1)[1,1].should == @old_value
           end
 
           it "should raise an error, if :if_obstructed is default" do

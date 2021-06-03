@@ -466,7 +466,7 @@ describe Workbook do
         Workbook.open(@simple_file_network_path1) do |book|
           book.should be_alive
           book.should be_a Workbook
-          book.filename.should == @simple_file_hostname_share_path1.downcase
+          book.filename.should == @simple_file_network_path1 #@simple_file_hostname_share_path1.downcase
           book.Fullname.should == @ole_wb.Fullname
           book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
           Excel.instance_count.should == 1
@@ -538,7 +538,7 @@ describe Workbook do
         Workbook.open(@simple_file_hostname_share_path1) do |book|
           book.should be_alive
           book.should be_a Workbook
-          book.filename.should == @simple_file_hostname_share_path1.downcase
+          book.filename.should == @simple_file_network_path1 # @simple_file_hostname_share_path1.downcase
           book.Fullname.should == @ole_wb.Fullname
           book.excel.ole_excel.Hwnd.should == @ole_wb.Application.Hwnd
           Excel.instance_count.should == 1

@@ -278,6 +278,7 @@ module RobustExcelOle
       # changing read-only mode      
       if (!options[:read_only].nil?) && options[:read_only] != @ole_workbook.ReadOnly
         ensure_workbook(filename, options) 
+        raise WorkbookReadOnly, "could not change read-only mode" if options[:read_only] != @ole_workbook.ReadOnly
       end
       retain_saved do
         self.visible = options[:force][:visible].nil? ? @excel.Visible : options[:force][:visible]

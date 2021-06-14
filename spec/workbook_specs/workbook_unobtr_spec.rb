@@ -363,7 +363,7 @@ describe Workbook do
         expect{
           Workbook.unobtrusively(@sub_file, :read_only => true) do
           end
-        }.to raise_error(WorkbookLinked)
+        }.to raise_error(WorkbookReadOnly)
       end
     end
   end

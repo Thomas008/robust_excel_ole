@@ -1,24 +1,3 @@
-= News
-
-== New Interface of #[]
-
-Worksheet#[] now returns a value instead of a range, e.g.
-
-  worksheet[1,1]
-  # => "foo"
-
-Transformation: To yield the range, write range() instead of (). For example,
-
-  worksheet.range(1,1)
-
- or
-
-  worksheet.range([1,1])
-
-This returns the range of cell with address 1,1.
-
-With this new interface, we want to be compatible with the standard syntax of other known Excel libraries, e.g. +spreadsheet+ or +axlsx+.
-
 = RobustExcelOle
 
 RobustExcelOle helps controlling Excel. 
@@ -126,7 +105,7 @@ Then we'll save the workbook.
 
   workbook.save
 
-=== More features when opening, modifying, creating, saving and closing workbooks
+=== Unobtrusively opening workbooks
 
 RobustExcelOle allows unobtrusively reading and modifying workbooks, i.e. accessing workbooks without changing their "status". The status comprises whether the workbook is open or closed, saved or unsaved, read-only or writable, visible or invisible, whether the calculation mode is manual or automatic, and checking compatibility is done or not done.
 
@@ -142,7 +121,9 @@ RobustExcelOle allows unobtrusively reading and modifying workbooks, i.e. access
     # do something
   end
 
-We can also create a new, empty workbook. 
+=== More featrues about creating, opening, modifying, saving and closing workbooks 
+
+We can create a new, empty workbook. 
 
   Workbook.create('spec/data/new_workbook.xls', visible: true)
 

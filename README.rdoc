@@ -121,7 +121,7 @@ RobustExcelOle allows unobtrusively reading and modifying workbooks, i.e. access
     # do something
   end
 
-=== More featrues about creating, opening, modifying, saving and closing workbooks 
+=== More featrues about creating, opening, saving and closing workbooks 
 
 We can create a new, empty workbook. 
 
@@ -159,7 +159,7 @@ or save the workbook under a different name.
 
 Finally we can close the workbook
 
-  workbook.save
+  workbook.close
 
 or save and close the workbook in one step.
 
@@ -191,10 +191,6 @@ We close the Excel instance using
 
   excel1.close
 
-Closed Excel instances can be reopened.
-
-  excel1.recreate(reopen_workbooks: true, visible: true)
-
 Closing all Excel instances is done by
 
   Excel.close_all(if_unsaved: :forget)
@@ -218,17 +214,12 @@ Now we want to open another workbook in a different Excel instance.
 
   workbook2 = Workbook.open('spec/data/different_workbook.xls', excel: :new)
 
-We can also create a third Excel instance and open another workbook in this instance.
-
-  excel1 = Excel.create
-  workbook3 = Workbook.open('spec/data/another_workbook.xls', excel: excel1)
-
 A workbook is opened by default in the Excel instance where it was open before most recently.
 
    workbook1.close
    workbook1 = Workbook.open('spec/data/workbook.xls') 
 
-If this Excel instance is damaged or closed, then options control whether the workbook shall be opened in the current (active), a new or a given Excel instance.
+If the Excel instance is damaged or closed, then options control whether the workbook shall be opened in the current (active), a new or a given Excel instance.
 
   workbook1 = Workbook.open('spec/data/workbook.xls', default: {excel: new})
 
@@ -238,7 +229,7 @@ Without the option +:default+, the workbook can be forced to be opened in the cu
 
 === Managing conflicts with unsaved and blocking workbooks
 
-RobustExcelOle enables processing workbooks, while still supporting user's interactions: The commands enable to open, close, reopen, read, modify, write and save Excel workbooks, without the need of the user's interaction, and even without the user noticing. Thus, while running a script containing RobustExcelOle commands, the user can open and process workbooks in any Excel instances at any time. RobustExcelOle manages the complex cases of conflicts that might occur such that the user does not need to interfere and the script can continue.
+RobustExcelOle enables processing workbooks, while supporting user's interactions: The commands enable to open, close, reopen, read, modify, write and save Excel workbooks, without the need of the user's interaction, and even without the user noticing. Thus, while running a script containing RobustExcelOle commands, the user can open and process workbooks in any Excel instances at any time. RobustExcelOle manages the complex cases of conflicts that might occur such that the user does not need to interfere and the script can continue.
 
 For example, suppose we want to process a list of workbooks. RobustExcelOle allows to rapidly open, manipulate, close and save these workbooks. Now assume, the workbook "workbook.xls" is being processed, while the user has already opened this workbook, has modified but not saved it yet. Excel would prompt a message and ask the user what to do. RobustExcelOle solves this conflict by using an option that states whether the changes of the user should be saved (accepted) or discarded (forgotten) before opening the workbook, e.g.
 
@@ -289,21 +280,9 @@ We can define a rectangular range by providing the top left and the bottum down 
 
   worksheet.range([1..3,1..4])
 
-We can read the first three cells of the first row
-
-  worksheet.row_range(1, 1..3).values   # => ["foo","workbook","sheet1"]
-
-and the third column
-
-  worksheet.col_range(3).values   # => ["sheet1", 2.0, 4.0]
-
 We can read the first cell, using
 
   worksheet[1,1].    # => "foo"
-
-or
-
-  worksheet.row_range(1)[0].value    # => "foo"
 
 Then we modify it.
 
@@ -319,7 +298,6 @@ and set another value to that range.
 
 For more details about reading and writing contents of cells and ranges see {README_ranges}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_ranges.rdoc]
 
-
 === List Objects (Tables)
 
 We can define a list object (or table) from scratch
@@ -330,10 +308,6 @@ or get a given list object in a worksheet given its table number or name.
 
   table = worksheet.table(1) 
 
-or
-
-  table = worksheet.table("table1")
-
 A list row can be accessed by providing either the row number or a key, i.e. hash of column name - value pairs, e.g.
 
   row1 = table[1]
@@ -342,8 +316,8 @@ A list row can be accessed by providing either the row number or a key, i.e. has
 
 You can get all or a maximal number of list rows matching the key.
 
-  rows = table[{"Number": 1}, limit: 2]
   rows = table[{"Number": 1}, limit: nil]
+  rows = table[{"Number": 1}, limit: 2]
 
 Now we can set value of a cell of the table with help of methods that are equal to or are underscored variants of the column names, e.g.
 
@@ -374,25 +348,21 @@ and
 
   table.set_column_values(1, ["Herbert","Paul"])
 
-We can add and delete rows and columns, supplying optionally their name, the position and contents. 
-
-  table.add_column("column_name", 3, ["John", "Paul"])
-  table.add_row(3, ["John", 40, 2, 2004])
-
-  table.delete_column_values("column_name")
-  table[2].delete_values
-
- Finally we can delete empty rows and columns.
-
-  table.delete_empty_rows
-  table.delete_empty_columns
-
 For more details about using and processing list objects see {README_listobjects}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_listobjects.rdoc]
- 
 
 === More features
 
-1. The method +General.change_current_binding+ allows to change the value of self within the current binding, while preserving the local variables, without starting another repl. Assume, +object+ shall be the self, then you would put
+1. The class WIN32OLE is being extended such that RobustExcelOle methods can be applied to WIN32OLE objects. As mentioned above, the RobustExcelOle objects are wrapper of corresponding WIN32OLE objects. So now the RobustExcelOle objects and their wrapped WIN32OLE objects are interchangeable. One example would be
+
+  range.ole_range.copy([4,3])
+
+Likewise it is possible to convert ("type-lift") WIN32OLE objects into the corresponding RobustExcelOle object, using the method +to_reo+. It is a refinement of the class WIN32OLE. So you can write
+
+  using ToReoRefinement
+
+  range = sheet.Names.Item("firstcell").to_reo
+
+2. The method +General.change_current_binding+ allows to change the value of self within the current binding, while preserving the local variables, without starting another repl. Assume, +object+ shall be the self, then you would put
 
   General.change_current_binding(object)
 
@@ -405,17 +375,6 @@ or
   cd object
 
 However, this command also starts another pry repl (with another binding). Moreover, local variables in the previous binding are forgotten.
-
-
-2. The class Win32Ole is being extended such that RobustExcelOle methods can be applied to WIN32OLE objects. As mentioned above, the RobustExcelOle objects are wrapper of corresponding WIN32OLE objects. So the RobustExcelOle objects and their wrapped WIN32OLE objects are interchangeable. One example would be
-
-  range.ole_range.copy([4,3])
-
-Likewise it is possible to convert ("type-lift") Win32Ole objects into the corresponding RobustExcelOle object, using the method +to_reo+. It is a refinement of the class WIN32OLE. So you can write
-
-  using ToReoRefinement
-
-  range = sheet.Names.Item("firstcell").to_reo
 
 === Design issues
 

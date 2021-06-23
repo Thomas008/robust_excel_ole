@@ -174,6 +174,7 @@ describe ListRow do
           @table_row1.verkaeufer.should be nil
           @table_row1.verkaeufer = "John"
           @table_row1.verkaeufer.should == "John"
+          @table_row1.verkäufer.should == "John"
           @sheet[2,1].should == "John"
           @table_row1.Verkaeufer = "Herbert"
           @table_row1.Verkaeufer.should == "Herbert"

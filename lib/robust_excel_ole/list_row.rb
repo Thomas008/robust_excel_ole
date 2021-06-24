@@ -130,13 +130,7 @@ module RobustExcelOle
   private
 
     def define_and_call_method(column_name,method_name,*args)
-      puts "define_and_call_method:"
-      puts "column_name: #{column_name} #{column_name.inspect}"
       #column_name = column_name.force_encoding('cp850')
-      puts "after force_encoding: column_name: #{column_name} #{column_name.inspect}"
-      puts "ole_table.ListColumns: #{ole_table.ListColumns.inspect}"
-      column1 = ole_table.ListColumns.Item(column_name)
-      puts "column1: #{column1.inspect}"
       ole_cell = ole_table.Application.Intersect(
           @ole_tablerow.Range, ole_table.ListColumns.Item(column_name).Range)
       define_getting_setting_method(ole_cell,method_name)            

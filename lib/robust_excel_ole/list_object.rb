@@ -60,6 +60,8 @@ module RobustExcelOle
         end
       end
 
+=begin
+
       ole_table = @ole_table
 
       @row_class = Class.new(ListRow) do
@@ -71,6 +73,37 @@ module RobustExcelOle
         end
       
       end      
+
+    end
+
+=end
+
+    ole_table = @ole_table
+
+      @row_class = Class.new(ListRow) do
+
+        @ole_table = ole_table
+
+        #def ole_table
+        #  self.class.instance_variable_get(:ole_table)
+        #end
+
+        def ole_table
+          self.class.ole_table
+
+        end
+
+        def self.ole_table
+          @ole_table
+        end
+
+        def self.ole_table= tab
+          @ole_table = tab
+        end
+      
+      end      
+
+      @row_class.ole_table = @ole_table
 
     end
 

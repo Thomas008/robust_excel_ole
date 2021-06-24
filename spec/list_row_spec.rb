@@ -45,6 +45,19 @@ describe ListRow do
 
   end
 
+  describe "accessing several tables" do
+
+    it "should preserve the table when accessing table rows in several tables" do
+      table1 = @sheet.table(1)
+      values1 = table1[1].values
+      table2 = Table.new(@sheet, "table_name", [1,1], 3, ["Person","Amount"])
+      values2 = table2[1].values
+      table1[1].values.should == values1
+      table1[1].values.should_not == values2
+    end
+
+  end
+
   describe "promote" do
 
      it "should promote a win32ole tablerow" do

@@ -28,7 +28,7 @@ module RobustExcelOle
     # @return [Variant] value of the cell 
     def [] column_number_or_name
       ole_cell = ole_table.Application.Intersect(
-        @ole_tablerow.Range, ole_table.ListColumns.Item(column_number_or_name).Range)
+        @ole_tablerow.Range, ole_table.ListColumns.Item(column_number_or_name.to_s).Range)
       value = ole_cell.Value
       value.respond_to?(:gsub) ? value.encode('utf-8') : value
     rescue WIN32OLERuntimeError
@@ -41,7 +41,7 @@ module RobustExcelOle
     def []=(column_number_or_name, value)
       begin
         ole_cell = ole_table.Application.Intersect(
-          @ole_tablerow.Range, ole_table.ListColumns.Item(column_number_or_name).Range)
+          @ole_tablerow.Range, ole_table.ListColumns.Item(column_number_or_name.to_s).Range)
         ole_cell.Value = value
       rescue WIN32OLERuntimeError
         raise TableRowError, "could not assign value #{value.inspect} to cell at column #{column_number_or_name}\n#{$!.message}"

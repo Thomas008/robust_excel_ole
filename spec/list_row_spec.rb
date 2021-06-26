@@ -104,6 +104,8 @@ describe ListRow do
     it "should read value in column" do
       @table_row1[2].should == "John"
       @table_row1["Person"].should == "John"
+      @table_row1[:Person].should == "John"
+      @table_row1[:person].should == "John"
     end
 
     it "should read value in column with umlauts" do

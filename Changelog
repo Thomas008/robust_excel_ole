@@ -1,6 +1,18 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.36] 
+
+### Added
+  - ListRow#methods, respond_to?
+  - Range#workbook, ListObject#workbook, ListRow#workbook
+
+## [1.35] 2021-24-07
+
+## [1.34] 2021-21-06
+
+## [1.34] 2021-15-06
+
 ## [1.33] 2021-01-06
 
 ## [1.32] 2021-23-04

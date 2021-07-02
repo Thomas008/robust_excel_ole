@@ -386,6 +386,10 @@ module RobustExcelOle
         self.Parent.to_reo == other_table.Parent.to_reo
     end
 
+    # @private
+    def workbook
+      @workbook ||= ole_table.Parent.Parent.to_reo
+    end
 
     # @private
     # returns true, if the list object responds to VBA methods, false otherwise

@@ -224,6 +224,11 @@ module RobustExcelOle
     end
 
     # @private
+    def workbook
+      @workbook ||= @worksheet.workbook
+    end
+
+    # @private
     # returns true, if the Range object responds to VBA methods, false otherwise
     def alive?
       @ole_range.Row
@@ -231,7 +236,7 @@ module RobustExcelOle
     rescue
       # trace $!.message
       false
-    end
+    end    
 
     # @private
     def to_s

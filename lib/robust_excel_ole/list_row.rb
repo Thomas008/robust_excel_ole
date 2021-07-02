@@ -27,8 +27,9 @@ module RobustExcelOle
     # @param [Variant]  column number or column name
     # @return [Variant] value of the cell 
     def [] column_number_or_name
+      column_number_or_name = column_number_or_name.to_s if column_number_or_name.is_a?(Symbol)
       ole_cell = ole_table.Application.Intersect(
-        @ole_tablerow.Range, ole_table.ListColumns.Item(column_number_or_name.to_s).Range)
+        @ole_tablerow.Range, ole_table.ListColumns.Item(column_number_or_name).Range)
       value = ole_cell.Value
       value.respond_to?(:gsub) ? value.encode('utf-8') : value
     rescue WIN32OLERuntimeError
@@ -40,8 +41,9 @@ module RobustExcelOle
     # @param [Variant] value of the cell
     def []=(column_number_or_name, value)
       begin
+        column_number_or_name = column_number_or_name.to_s if column_number_or_name.is_a?(Symbol)
         ole_cell = ole_table.Application.Intersect(
-          @ole_tablerow.Range, ole_table.ListColumns.Item(column_number_or_name.to_s).Range)
+          @ole_tablerow.Range, ole_table.ListColumns.Item(column_number_or_name).Range)
         ole_cell.Value = value
       rescue WIN32OLERuntimeError
         raise TableRowError, "could not assign value #{value.inspect} to cell at column #{column_number_or_name}\n#{$!.message}"
@@ -96,6 +98,54 @@ module RobustExcelOle
       other_listrow.is_a?(ListRow) && other_listrow.values == self.values
     end
 
+    # @private
+    def workbook
+      @workbook ||= workbook_class.new(ole_table.Parent.Parent)
+    end
+
+    # @private
+    def self.workbook_class  
+      @workbook_class ||= begin
+        module_name = parent_name
+        "#{module_name}::Workbook".constantize
+      rescue NameError => e
+        Workbook
+      end
+    end
+
+    # @private
+    def workbook_class       
+      self.class.workbook_class
+    end
+
+    # @private
+    def column_names
+      ole_table.HeaderRowRange.Value.first
+    end
+
+    # @private
+    def methods
+      @methods ||= begin
+        arr = column_names.map { |c|
+          [c,
+            c.gsub(/\W/,'_'),
+            c.underscore,
+            c.underscore.gsub(/\W/,'_'),
+            c.replace_umlauts.gsub(/\W/,'_'),
+            c.replace_umlauts.underscore.gsub(/\W/,'_')
+          ].uniq
+        }.flatten
+        # add methods with =
+        # transform methods to symbols
+      end
+    end
+
+    # @private
+    def respond_to?(meth_name)
+      methods.include?(meth_name)
+    end
+
+=begin
     def method_missing(name, *args)
       # this should not happen:
       raise(TableRowError, "internal error: ole_table not defined") unless self.class.method_defined?(:ole_table)
@@ -116,6 +166,7 @@ module RobustExcelOle
         super(name, *args)
       end
     end
+=end
 
     # @private
     def to_s    
@@ -128,6 +179,16 @@ module RobustExcelOle
     end
 
   private
+
+    def method_missing(meth_name, *args)
+      # this should not happen:
+      raise(TableRowError, "internal error: ole_table not defined") unless self.class.method_defined?(:ole_table)
+      if respond_to?(meth_name)
+        define_and_call_method(meth_name, name, *args)
+      else
+        super(name, *args)
+      end
+    end
 
     def define_and_call_method(column_name,method_name,*args)
       #column_name = column_name.force_encoding('cp850')

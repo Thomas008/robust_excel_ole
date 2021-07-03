@@ -123,18 +123,25 @@ module RobustExcelOle
       ole_table.HeaderRowRange.Value.first
     end
 
+  private
+
+    def valid_similar_names meth_name
+      [
+        meth_name,
+        meth_name.gsub(/\W/,'_'),
+        meth_name.underscore,
+        meth_name.underscore.gsub(/\W/,'_'),
+        meth_name.replace_umlauts.gsub(/\W/,'_'),
+        meth_name.replace_umlauts.underscore.gsub(/\W/,'_')
+      ].uniq
+    end
+
+  public
+
     # @private
     def methods
       @methods ||= begin
-        arr = column_names.map { |c|
-          [c,
-            c.gsub(/\W/,'_'),
-            c.underscore,
-            c.underscore.gsub(/\W/,'_'),
-            c.replace_umlauts.gsub(/\W/,'_'),
-            c.replace_umlauts.underscore.gsub(/\W/,'_')
-          ].uniq
-        }.flatten
+        arr = column_names.map{ |c| valid_similar_names(c) }.flatten
         (arr + arr.map{|m| m + '='}).map{|m| m.to_sym} + super
       end
     end
@@ -143,29 +150,6 @@ module RobustExcelOle
     def respond_to?(meth_name)
       methods.include?(meth_name)
     end
-
-=begin
-    def method_missing(name, *args)
-      # this should not happen:
-      raise(TableRowError, "internal error: ole_table not defined") unless self.class.method_defined?(:ole_table)
-      name_str = name.to_s
-      core_name = name_str.chomp('=')
-      column_names = ole_table.HeaderRowRange.Value.first
-      column_name = column_names.find do |c|
-        c == core_name ||
-        c.gsub(/\W/,'_') == core_name ||
-        c.underscore == core_name ||
-        c.underscore.gsub(/\W/,'_') == core_name ||
-        c.replace_umlauts.gsub(/\W/,'_') == core_name ||
-        c.replace_umlauts.underscore.gsub(/\W/,'_') == core_name 
-      end         
-      if column_name
-        define_and_call_method(column_name, name, *args)
-      else
-        super(name, *args)
-      end
-    end
-=end
 
     # @private
     def to_s    
@@ -183,13 +167,15 @@ module RobustExcelOle
       # this should not happen:
       raise(TableRowError, "internal error: ole_table not defined") unless self.class.method_defined?(:ole_table)
       if respond_to?(meth_name)
-        define_and_call_method(meth_name, name, *args)
+        core_name = meth_name.to_s.chomp('=')
+        column_name = column_names.find{ |c| valid_similar_names(c).include?(core_name) }
+        define_and_call_method(column_name, meth_name, *args) if column_name
       else
-        super(name, *args)
+        super(meth_name, *args)
       end
     end
 
-    def define_and_call_method(column_name,method_name,*args)
+    def define_and_call_method(column_name, method_name, *args)
       #column_name = column_name.force_encoding('cp850')
       ole_cell = ole_table.Application.Intersect(
           @ole_tablerow.Range, ole_table.ListColumns.Item(column_name).Range)

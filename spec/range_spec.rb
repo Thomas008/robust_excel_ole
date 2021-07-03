@@ -47,6 +47,15 @@ describe RobustExcelOle::Range do
     end
   end
 
+  describe "#workbook, worksheet" do
+
+    it "should access workbook" do
+      @range2.worksheet.should == @sheet
+      @range2.workbook.should == @book
+    end
+
+  end
+
   describe "#each" do
   
     it "items is RobustExcelOle::Cell" do

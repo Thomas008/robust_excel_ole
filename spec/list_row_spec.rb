@@ -29,6 +29,15 @@ describe ListRow do
     rm_tmp(@dir)
   end
 
+  describe "#workbook" do
+
+    it "should access workbook" do
+      table1 = @sheet.table(1)
+      table1.workbook.should == @book
+    end
+
+  end
+
   describe "==" do
 
     before do
@@ -113,6 +122,7 @@ describe ListRow do
       table_row2 = @table1[1]
       @table_row1[1].should == "Sören"
       @table_row1["Straße"].should == "Sören"
+      @table_row1[:Straße].should == "Sören"
     end
 
   end

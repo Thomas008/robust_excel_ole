@@ -128,6 +128,15 @@ describe ListObject do
 
   end
 
+  describe "workbook" do
+
+    it "should access the workbook" do
+      table = @sheet.table(1)
+      table.workbook.should == @book
+    end
+
+  end
+
   describe "each" do
 
     before do

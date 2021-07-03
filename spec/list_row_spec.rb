@@ -29,13 +29,32 @@ describe ListRow do
     rm_tmp(@dir)
   end
 
-  describe "#workbook" do
+  describe "accessing several tables" do
 
-    it "should access workbook" do
+    it "should preserve ole_table" do
       table1 = @sheet.table(1)
-      table1.workbook.should == @book
+      table1[1].values.should == [3.0, "John", 50.0, 0.5, 30.0]
+      table2 = Table.new(@sheet, "table_name", [1,1], 3, ["Person","Amount"])
+      table2[1].values.should == [nil, nil]
+      table1[1].values.should == [3.0, "John", 50.0, 0.5, 30.0]
     end
 
+  end
+
+  describe "#methods, #respond_to?" do
+
+    before do
+      @table1 = @sheet.table(1)
+      @tablerow1 = @table1[2]
+    end
+
+    it "should contain column name as methods" do
+      column_names_both_cases = @table1.column_names + @table1.column_names.map{|c| c.downcase}
+      column_names_both_cases.map{|c| c.to_sym}.each do |column_name_method|
+        @tablerow1.methods.include?(column_name_method).should be true
+        @tablerow1.respond_to?(column_name_method)
+      end
+    end
   end
 
   describe "==" do
@@ -50,19 +69,6 @@ describe ListRow do
 
     it "should yield true" do
       (@table1[1] == @table1[2]).should be false
-    end
-
-  end
-
-  describe "accessing several tables" do
-
-    it "should preserve the table when accessing table rows in several tables" do
-      table1 = @sheet.table(1)
-      values1 = table1[1].values
-      table2 = Table.new(@sheet, "table_name", [1,1], 3, ["Person","Amount"])
-      values2 = table2[1].values
-      table1[1].values.should == values1
-      table1[1].values.should_not == values2
     end
 
   end
@@ -113,8 +119,6 @@ describe ListRow do
     it "should read value in column" do
       @table_row1[2].should == "John"
       @table_row1["Person"].should == "John"
-      @table_row1[:Person].should == "John"
-      @table_row1[:person].should == "John"
     end
 
     it "should read value in column with umlauts" do
@@ -122,7 +126,6 @@ describe ListRow do
       table_row2 = @table1[1]
       @table_row1[1].should == "Sören"
       @table_row1["Straße"].should == "Sören"
-      @table_row1[:Straße].should == "Sören"
     end
 
   end
@@ -199,7 +202,6 @@ describe ListRow do
           @table_row1.verkaeufer.should be nil
           @table_row1.verkaeufer = "John"
           @table_row1.verkaeufer.should == "John"
-          @table_row1.verkäufer.should == "John"
           @sheet[2,1].should == "John"
           @table_row1.Verkaeufer = "Herbert"
           @table_row1.Verkaeufer.should == "Herbert"

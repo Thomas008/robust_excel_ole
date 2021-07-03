@@ -60,23 +60,6 @@ module RobustExcelOle
         end
       end
 
-=begin
-
-      ole_table = @ole_table
-
-      @row_class = Class.new(ListRow) do
-
-        @@ole_table = ole_table
-
-        def ole_table
-          @@ole_table
-        end
-      
-      end      
-
-    end
-
-=end
 
     ole_table = @ole_table
 

@@ -135,8 +135,7 @@ module RobustExcelOle
             c.replace_umlauts.underscore.gsub(/\W/,'_')
           ].uniq
         }.flatten
-        # add methods with =
-        # transform methods to symbols
+        (arr + arr.map{|m| m + '='}).map{|m| m.to_sym} + super
       end
     end
 

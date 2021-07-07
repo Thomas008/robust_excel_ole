@@ -148,7 +148,7 @@ module RobustExcelOle
 
     # @private
     def respond_to?(meth_name)
-      methods.include?(meth_name)
+      methods.include?(meth_name.to_sym)
     end
 
     # @private

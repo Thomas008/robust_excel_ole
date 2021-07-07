@@ -2,14 +2,13 @@
 
 RobustExcelOle helps controlling Excel. 
 This obviously includes standard tasks like reading and writing Excel workbooks.
+RobustExcel objects, like workbooks, worksheets and ranges, wrap the corresponding WIN32OLE objects and are extended by convenient methods for complex tasks.
 The gem is designed to manage simultaneously running Excel instances, even with simultanously happening user interactions. 
 
 RobustExcelOle deals with various cases of Excel (and user) behaviour, and
 supplies workarounds for some Excel and JRuby bugs. 
 
 It supports handling workbooks across Excel instances by keeping track of workbooks and instances. Conflicts are managed before Excel notices.
-
-Library references are supported.
 
 RobustExcelOle works by sending VBA methods via WIN32OlE. 
 Therefore, it runs on Windows only.
@@ -109,16 +108,12 @@ Then we'll save the workbook.
 
 RobustExcelOle allows unobtrusively reading and modifying workbooks, i.e. accessing workbooks without changing their "status". The status comprises whether the workbook is open or closed, saved or unsaved, read-only or writable, visible or invisible, whether the calculation mode is manual or automatic, and checking compatibility is done or not done.
 
-  Workbook.unobtrusively('spec/data/workbook.xls') do |workbook|
-    # do something
-  end
-
   Workbook.for_modifying('spec/data/workbook.xls') do |workbook|
-    # do something
+    workbook.sheet(1)[1,1] = "bar"
   end
 
   Workbook.for_reading('spec/data/workbook.xls') do |workbook|
-    # do something
+    value = workbook.sheet(1)[1,1]
   end
 
 === More features about creating, opening, saving and closing workbooks 
@@ -133,41 +128,26 @@ Moreover, we can open the workbook using a block, similar to, e.g., +File.open+.
     # do something
   end
 
-Once we have a workbook, we can set some options, e.g.
-
-  workbook.for_this_workbook(visible: true, read_only: false)
-
-We can also open the workbook and provide the options in one step, e.g.
-
-  workbook = Workbook.open('spec/data/workbook.xls', visible: true)
-
-or, using abbreviations,
-
-  workbook = Workbook.open('spec/data/workbook.xls', v: true)
-
 Note that +Workbook.open+ can also connect to workbooks which were not opened via RobustExcelOle (but had been opened before by some user).
 
 For more details about opening workbooks see {README_open}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_open.rdoc]
  
-We can do a simple save
-
-  workbook.save
-
-or save the workbook under a different name.
-
-  workbook.save_as('spec/data/new_workbook.xls')
-
-Finally we can close the workbook
-
-  workbook.close
-
-or save and close the workbook in one step.
-
-  workbook.close(if_unsaved: :save)
-
-For more details about saving and closing workbooks see
+For saving and closing workbooks see
 {README_save_close}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_save_close.rdoc]
 
+=== Managing conflicts with unsaved and blocking workbooks
+
+RobustExcelOle enables processing workbooks, while supporting user's interactions: The commands enable to open, close, reopen, read, modify, write and save Excel workbooks, without the need of the user's interaction, and even without the user noticing. Thus, while running a script containing RobustExcelOle commands, the user can open and process workbooks in any Excel instances at any time. RobustExcelOle manages the complex cases of conflicts that might occur such that the user does not need to interfere and the script can continue.
+
+For example, suppose we want to process a list of workbooks. RobustExcelOle allows to rapidly open, manipulate, close and save these workbooks. Now assume, the workbook "workbook.xls" is being processed, while the user has already opened this workbook, has modified but not saved it yet. Excel would prompt a message and ask the user what to do. RobustExcelOle solves this conflict by using an option that states whether the changes of the user should be saved (accepted) or discarded (forgotten) before opening the workbook, e.g.
+
+  workbook = Workbook.open('workbook.xls', if_unsaved: :accept)
+
+Similarly, if the user has opened a workbook that has the same name but a different path, the conflict can be solved via an option.
+
+  workbook1 = Workbook.open('spec/data/workbook.xls')
+  # do something
+  workbook2 = Workbook.open('spec/data/more/workbook.xls', if_blocked: :forget)
 
 === Using Excel instances
 
@@ -226,22 +206,6 @@ If the Excel instance is damaged or closed, then options control whether the wor
 Without the option +:default+, the workbook can be forced to be opened in the current, new or given Excel instance, no matter if and where it was opened before, e.g.
 
   workbook2 = Workbook.open('spec/data/workbook.xls', excel: new)
-
-=== Managing conflicts with unsaved and blocking workbooks
-
-RobustExcelOle enables processing workbooks, while supporting user's interactions: The commands enable to open, close, reopen, read, modify, write and save Excel workbooks, without the need of the user's interaction, and even without the user noticing. Thus, while running a script containing RobustExcelOle commands, the user can open and process workbooks in any Excel instances at any time. RobustExcelOle manages the complex cases of conflicts that might occur such that the user does not need to interfere and the script can continue.
-
-For example, suppose we want to process a list of workbooks. RobustExcelOle allows to rapidly open, manipulate, close and save these workbooks. Now assume, the workbook "workbook.xls" is being processed, while the user has already opened this workbook, has modified but not saved it yet. Excel would prompt a message and ask the user what to do. RobustExcelOle solves this conflict by using an option that states whether the changes of the user should be saved (accepted) or discarded (forgotten) before opening the workbook, e.g.
-
-  workbook = Workbook.open('workbook.xls', if_unsaved: :accept)
-
-Similarly, if the user has opened a workbook that has the same name but a different path, the conflict can be solved via an option.
-
-  workbook1 = Workbook.open('spec/data/workbook.xls')
-  # do something
-  workbook2 = Workbook.open('spec/data/more/workbook.xls', if_blocked: :forget)
-
-For more details about opening and closing workbooks in Excel instances see {README_open}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_open.rdoc]
 
 === Operating on worksheets
 

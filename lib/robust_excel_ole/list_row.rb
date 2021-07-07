@@ -142,7 +142,7 @@ module RobustExcelOle
     def methods
       @methods ||= begin
         arr = column_names.map{ |c| valid_similar_names(c) }.flatten
-        (arr + arr.map{|m| m + '='}).map{|m| m.to_sym} + super
+        (arr + arr.map{|m| m + '='}).map(&:to_sym) + super
       end
     end
 

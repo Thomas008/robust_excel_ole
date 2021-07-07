@@ -137,6 +137,11 @@ Opening linked workbooks for EXCEL 2007 is supported
 
 Doing updating links seems to be dependent on calculation mode: updates happen, if the calcultion mode is automatic, and does not happen, if calculation mode is manual.
 
+Once we have a workbook, we can set some options, e.g.
+
+  workbook.for_this_workbook(visible: true, read_only: false)
+
+
 === Reopening a workbook.
 
 A special feature of RobustExcelOle is that it allows to reopen workbooks after closing them.

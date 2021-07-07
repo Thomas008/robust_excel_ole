@@ -54,20 +54,14 @@ or
 or
 
   row1["AmountSales"] = 40
-  
-Similarly you can get the values.
-
-  row1.AmountSales
-  # => 40
 
 or
+
+  row1[:AmountSales] = 40
+  
+Similarly you can get the values, e.g.
 
   row1.amount_sales
-  # => 40
-
-or
-
-  row1["AmountSales"]
   # => 40
 
 We can also read the values in a whole row.

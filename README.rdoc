@@ -121,7 +121,7 @@ RobustExcelOle allows unobtrusively reading and modifying workbooks, i.e. access
     # do something
   end
 
-=== More featrues about creating, opening, saving and closing workbooks 
+=== More features about creating, opening, saving and closing workbooks 
 
 We can create a new, empty workbook. 
 

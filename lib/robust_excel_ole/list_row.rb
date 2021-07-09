@@ -123,6 +123,15 @@ module RobustExcelOle
       ole_table.HeaderRowRange.Value.first
     end
 
+     # returns true, if the listrow reacts to methods, false otherwise
+    def alive?
+      @ole_tablerow.Parent
+      true
+    rescue
+      @ole_tablerow = nil  # dead object won't be alive again
+      false
+    end
+
   private
 
     def valid_similar_names meth_name

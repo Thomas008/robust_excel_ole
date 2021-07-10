@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 ## [1.36] 
 
 ### Added
-  - ListRow#methods, respond_to?
+  - ListRow#methods, respond_to?, alive?
   - Range#workbook, ListObject#workbook, ListRow#workbook
 
 ## [1.35] 2021-24-07

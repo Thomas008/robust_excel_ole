@@ -2,7 +2,9 @@
 
 RobustExcelOle helps controlling Excel. 
 This obviously includes standard tasks like reading and writing Excel workbooks.
-RobustExcel objects wrap WIN32OLE objects, like workbooks, worksheets and ranges. For those objects all VBA methods applying the corresponding VBA object are available, and are extended by convenient methods for more complex tasks.
+
+RobustExcel objects wrap WIN32OLE objects, like workbooks, worksheets and ranges. 
+All applicable VBA methods are available for those objects, and are extended by convenient methods for complex tasks.
 
 The gem is designed to manage simultaneously running Excel instances, even with simultanously happening user interactions. 
 
@@ -101,9 +103,10 @@ Now we want to write a new value into this cell.
 
   workbook['firstcell'] = "new"
 
-Then we'll save the workbook.
+Then we'll save and close the workbook.
 
   workbook.save
+  workbook.close
 
 === Unobtrusively opening workbooks
 
@@ -117,7 +120,7 @@ RobustExcelOle allows unobtrusively reading and modifying workbooks, i.e. access
     value = workbook.sheet(1)[1,1]
   end
 
-=== More features about creating, opening, saving and closing workbooks 
+=== More features about creating and opening workbooks 
 
 We can create a new, empty workbook. 
 
@@ -131,10 +134,9 @@ Moreover, we can open the workbook using a block, similar to, e.g., +File.open+.
 
 Note that +Workbook.open+ can also connect to workbooks which were not opened via RobustExcelOle (but had been opened before by some user).
 
-For more details about opening workbooks see {README_open}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_open.rdoc]
- 
+For more details about opening workbooks see {README_open}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_open.rdoc].
 For saving and closing workbooks see
-{README_save_close}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_save_close.rdoc]
+{README_save_close}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_save_close.rdoc].
 
 === Managing conflicts with unsaved and blocking workbooks
 
@@ -149,38 +151,6 @@ Similarly, if the user has opened a workbook that has the same name but a differ
   workbook1 = Workbook.open('spec/data/workbook.xls')
   # do something
   workbook2 = Workbook.open('spec/data/more/workbook.xls', if_blocked: :forget)
-
-=== Using Excel instances
-
-We can start a new Excel instance with
-
-  excel1 = Excel.create
-
-or
-
-  excel1 = Excel.new(reuse: false)
-
-We can also obtain an Excel object by connecting to the already running Excel instance.
-
-  excel2 = Excel.current
-
-or 
-
-  excel2 = Excel.new(reuse: true)  
-
-We close the Excel instance using
-
-  excel1.close
-
-Closing all Excel instances is done by
-
-  Excel.close_all(if_unsaved: :forget)
-
-For hard terminating all Excel processes we can use
-
-  Excel.kill_all
-
-For more details about opening Excel instances see {README_excel}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_excel.rdoc]
 
 
 === Opening workbooks in several Excel instances
@@ -208,6 +178,8 @@ Without the option +:default+, the workbook can be forced to be opened in the cu
 
   workbook2 = Workbook.open('spec/data/workbook.xls', excel: new)
 
+For more details about opening Excel instances see {README_open}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_open.rdoc] and {README_excel}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_excel.rdoc]. 
+
 === Operating on worksheets
 
 Assume we have opened a workbook
@@ -229,7 +201,7 @@ We can copy the first worksheet, name it and add it before the third worksheet.
 
   workbook.add_or_copy_sheet(sheet, as: "copied_name, before: workbook.last_sheet)
 
-For more details about processing worksheets see {README_sheet}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_sheet.rdoc]
+For more details about processing worksheets see {README_sheet}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_sheet.rdoc].
 
 === Reading and writing ranges in worksheets
 
@@ -255,13 +227,13 @@ For more details about reading and writing contents of cells and ranges see {REA
 
 === List Objects (Tables)
 
-We can define a list object (or table) from scratch
-
-  table = ListObject.new(worksheet, "table 1", [1,1], 3, ["Person","AmountSales"])
-
-or get a given list object in a worksheet given its table number or name.
+We obtain a given list object in a worksheet given its table number or name.
 
   table = worksheet.table(1) 
+
+We can also define a list object from scratch
+
+  table = ListObject.new(worksheet, "table 1", [1,1], 3, ["Person","AmountSales"])
 
 A list row can be accessed by providing either the row number or a key, i.e. hash of column name - value pairs, e.g.
 
@@ -290,7 +262,7 @@ We can also read all values in a row.
   table[1].to_h
   # => {"Person": "John", "AmountSales": 40}
 
-For more details about using and processing list objects see {README_listobjects}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_listobjects.rdoc]
+For more details about using and processing list objects see {README_listobjects}[https://github.com/Thomas008/robust_excel_ole/blob/master/docs/README_listobjects.rdoc].
 
 === More features
 

@@ -900,12 +900,12 @@ module RobustExcelOle
   public
 
     # for compatibility to older versions
-    def add_sheet(sheet = nil, opts = { })
+    def add_sheet(sheet = nil, opts = { })  # :deprecated: #
       add_or_copy_sheet(sheet, opts)
     end
 
-    # for compatibility to older versions
-    def copy_sheet(sheet, opts = { })
+    # for compatibility to older versions    
+    def copy_sheet(sheet, opts = { })       # :deprecated: #
       add_or_copy_sheet(sheet, opts)
     end
 

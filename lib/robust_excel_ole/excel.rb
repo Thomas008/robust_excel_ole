@@ -380,10 +380,10 @@ module RobustExcelOle
     end
 
     class << self
-      alias excels_number instance_count                  # :deprecated :#
-      alias known_excels_number known_instance_count      # :deprecated :#
-      alias known_excel_instance known_running_instance   # :deprecated :#
-      alias known_excel_instances known_running_instances # :deprecated :#
+      alias excels_number instance_count                  # :deprecated: #
+      alias known_excels_number known_instance_count      # :deprecated: #
+      alias known_excel_instance known_running_instance   # :deprecated: #
+      alias known_excel_instances known_running_instances # :deprecated: #
     end
 
   private

@@ -3,8 +3,9 @@
 RobustExcelOle helps controlling Excel. 
 This obviously includes standard tasks like reading and writing Excel workbooks.
 
-RobustExcel objects wrap WIN32OLE objects, like workbooks, worksheets and ranges. 
-All applicable VBA methods are available for those objects, and are extended by convenient methods for complex tasks.
+RobustExcelOle objects wrap WIN32OLE objects, like workbooks, worksheets and ranges. 
+All applicable VBA methods can be sent to those objects. 
+For solving complex tasks, convient methods are added.
 
 The gem is designed to manage simultaneously running Excel instances, even with simultanously happening user interactions. 
 
@@ -13,8 +14,7 @@ supplies workarounds for some Excel and JRuby bugs.
 
 It supports handling workbooks across Excel instances by keeping track of workbooks and instances. Conflicts are managed before Excel notices.
 
-RobustExcelOle works by sending VBA methods via WIN32OlE. 
-Therefore, it runs on Windows only.
+Because it uses VBA methods, RobustExcelOle runs on Windows only.
 
 == Features
 
@@ -174,7 +174,7 @@ If the Excel instance is damaged or closed, then options control whether the wor
 
   workbook1 = Workbook.open('spec/data/workbook.xls', default: {excel: new})
 
-Without the option +:default+, the workbook can be forced to be opened in the current, new or given Excel instance, no matter if and where it was opened before, e.g.
+Without the option +:default+, the workbook can be forced to be opened in the current, a new or a given Excel instance, no matter if and where it was opened before, e.g.
 
   workbook2 = Workbook.open('spec/data/workbook.xls', excel: new)
 

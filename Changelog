@@ -1,7 +1,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [1.36] 
+## [1.36] 2021-15-08
+
+### Added
+  - Workbook#open: option if_blocked: :accept
 
 ### Added
   - ListRow#methods, respond_to?, alive?

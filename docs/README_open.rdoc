@@ -70,6 +70,7 @@ If a workbook is open and a new workbook with same name and a different path is 
 
 +:raise+::          Raise an exception. Don't open the workbook.
 +:forget+::         Close the old workbook, open the new workbook.
++:accept+::         Let the old workbook open.
 +:save+::           Save the old workbook, close it, open the new workbook
 +:close_if_saved+:: Close the old workbook and open the new workbook, if the old workbook is saved, otherwise raise an exception.
 +:new_excel+::      Open the new workbook in a new Excel instance.

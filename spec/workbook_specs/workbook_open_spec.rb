@@ -2734,6 +2734,15 @@ describe Workbook do
             old_book.sheet(1)[1,1].should == @old_value
           end
 
+          it "should let the old book open, if :if_obstructed is :accept" do
+            new_book = Workbook.open(@simple_file1, :if_obstructed => :accept)
+            @book.should be_alive
+            new_book.should be_alive
+            new_book.filename.downcase.should == @simple_file_other_path1.downcase
+            old_book = Workbook.open(@simple_file_other_path1, :if_unsaved => :forget)
+            old_book.sheet(1)[1,1].should == @old_value
+          end
+
           it "should save the old book, close it, and open the new book, if :if_obstructed is :save" do
             new_book = Workbook.open(@simple_file1, :if_obstructed => :save)
             @book.should_not be_alive

@@ -76,6 +76,7 @@ module RobustExcelOle
     # :if_obstructed  if a workbook with the same name in a different path is open, then
     # or               :raise               -> raises an exception
     # :if_blocked      :forget              -> closes the old workbook, open the new workbook
+    #                  :accept              -> lets the old (blocked) workbook open
     #                  :save                -> saves the old workbook, close it, open the new workbook
     #                  :close_if_saved      -> closes the old workbook and open the new workbook, if the old workbook is saved,
     #                                          otherwise raises an exception.
@@ -358,6 +359,8 @@ module RobustExcelOle
          before the new workbook is being opened."
       when :forget
         manage_forgetting_workbook(filename, options)       
+      when :accept
+        # do nothing
       when :save
         manage_saving_workbook(filename, options)        
       when :close_if_saved

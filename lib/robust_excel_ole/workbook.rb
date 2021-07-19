@@ -68,23 +68,23 @@ module RobustExcelOle
     #  :visible true, false, or nil (default)
     #  alternatives: :default_excel, :force_excel, :visible, :d, :f, :e, :v
     # :if_unsaved     if an unsaved workbook with the same name is open, then
-    #                  :raise               -> raises an exception
-    #                  :forget              -> close the unsaved workbook, open the new workbook
-    #                  :accept              -> lets the unsaved workbook open
-    #                  :alert or :excel     -> gives control to Excel
-    #                  :new_excel           -> opens the new workbook in a new Excel instance
+    #                  :raise               -> raise an exception
+    #                  :forget              -> close the unsaved workbook, re-open the workbook
+    #                  :accept              -> let the unsaved workbook open
+    #                  :alert or :excel     -> give control to Excel
+    #                  :new_excel           -> open the workbook in a new Excel instance
     # :if_obstructed  if a workbook with the same name in a different path is open, then
-    # or               :raise               -> raises an exception
-    # :if_blocked      :forget              -> closes the old workbook, open the new workbook
-    #                  :accept              -> lets the old (blocked) workbook open
-    #                  :save                -> saves the old workbook, close it, open the new workbook
-    #                  :close_if_saved      -> closes the old workbook and open the new workbook, if the old workbook is saved,
-    #                                          otherwise raises an exception.
-    #                  :new_excel           -> opens the new workbook in a new Excel instance
-    # :if_absent       :raise               -> raises an exception     , if the file does not exists
-    #                  :create              -> creates a new Excel file, if it does not exists
-    # :read_only            true -> opens in read-only mode
-    # :visible              true -> makes the workbook visible
+    # or               :raise               -> raise an exception
+    # :if_blocked      :forget              -> close the workbook, re-open the workbook
+    #                  :accept              -> let the blocked workbook open
+    #                  :save                -> save the blocked workbook, close it, re-open the workbook
+    #                  :close_if_saved      -> close the blocked workbook and re-open the workbook, if the blocked workbook is saved,
+    #                                          otherwise raise an exception.
+    #                  :new_excel           -> open the workbook in a new Excel instance
+    # :if_absent       :raise               -> raise an exception     , if the file does not exists
+    #                  :create              -> create a new Excel file, if it does not exists
+    # :read_only            true -> open in read-only mode
+    # :visible              true -> make the workbook visible
     # :check_compatibility  true -> check compatibility when saving
     # :update_links         true -> user is being asked how to update links, false -> links are never updated
     # @return [Workbook] a representation of a workbook   
@@ -355,8 +355,8 @@ module RobustExcelOle
         raise WorkbookBlocked, "can't open workbook #{filename},
         because it is being blocked by #{blocked_filename.call} with the same name in a different path." +
         "\nHint: Use the option :if_blocked with values :forget or :save,
-         to allow automatic closing of the old workbook (without or with saving before, respectively),
-         before the new workbook is being opened."
+         to allow automatic closing of the blocking workbook (without or with saving before, respectively),
+         before reopening the workbook."
       when :forget
         manage_forgetting_workbook(filename, options)       
       when :accept
@@ -510,11 +510,11 @@ module RobustExcelOle
     # @option opts [Symbol] :if_unsaved :raise (default), :save, :forget, :keep_open, or :alert
     # options:
     #  :if_unsaved    if the workbook is unsaved
-    #                      :raise           -> raises an exception
-    #                      :save            -> saves the workbook before it is closed
-    #                      :forget          -> closes the workbook
+    #                      :raise           -> raise an exception
+    #                      :save            -> save the workbook before it is closed
+    #                      :forget          -> close the workbook
     #                      :keep_open       -> keep the workbook open
-    #                      :alert or :excel -> gives control to excel
+    #                      :alert or :excel -> give control to excel
     # @raise WorkbookNotSaved if the option :if_unsaved is :raise and the workbook is unsaved
     # @raise OptionInvalid if the options is invalid
     def close(opts = {if_unsaved: :raise})
@@ -686,10 +686,10 @@ module RobustExcelOle
     #               :overwrite -> writes the file, delete the old file
     #               :alert or :excel -> gives control to Excel
     #  :if_obstructed   if a workbook with the same name and different path is already open and blocks the saving, then
-    #  or              :raise               -> raises an exception
-    #  :if_blocked     :forget              -> closes the blocking workbook
-    #                  :save                -> saves the blocking workbook and closes it
-    #                  :close_if_saved      -> closes the blocking workbook, if it is saved,
+    #  or              :raise               -> raise an exception
+    #  :if_blocked     :forget              -> close the blocking workbook
+    #                  :save                -> save the blocking workbook and close it
+    #                  :close_if_saved      -> close the blocking workbook, if it is saved,
     #                                          otherwise raises an exception   
     # @return [Workbook], the book itself, if successfully saved, raises an exception otherwise
     def save_as(file, options = { })

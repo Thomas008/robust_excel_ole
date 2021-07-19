@@ -55,24 +55,24 @@ Valid values are : +:current+ (or +:active+ or +:reuse+), +:new+, or a given Exc
 
 The option +:if_unsaved+  : 
 
-If a workbook contains unsaved changes and a new workbook with the same file name shall be opened, then
+If a workbook contains unsaved changes and the workbook shall be re-opened, then
 
 +:raise+::   Raise an exeption. Don't open the workbook.
 +:accept+::  Let the unsaved workbook open.
 +:forget+::  Discard any changes and reopen the workbook.
 +:save+::    Save any changes and reopen the workbook
-+:new_excel+:: Open the new workbook in a new Excel instance
++:new_excel+:: Open the workbook in a new Excel instance
 +:alert+::   Give control to Excel.
 
 The option +:if_blocked+ : 
 
-If a workbook is open and a new workbook with same name and a different path is open, then
+If a workbook is open and a workbook with same name but in a different path shall be opened, then the first workbook blocks opening the latter one. In this case:
 
 +:raise+::          Raise an exception. Don't open the workbook.
-+:forget+::         Close the old workbook, open the new workbook.
-+:accept+::         Let the old workbook open.
-+:save+::           Save the old workbook, close it, open the new workbook
-+:close_if_saved+:: Close the old workbook and open the new workbook, if the old workbook is saved, otherwise raise an exception.
++:forget+::         Close the blocking workbook, open the new workbook.
++:accept+::         Let the blocking workbook open.
++:save+::           Save the blocking workbook, close it, open the new workbook
++:close_if_saved+:: Close the blocking workbook and open the new workbook, if the blocking workbook is saved, otherwise raise an exception.
 +:new_excel+::      Open the new workbook in a new Excel instance.
 
 The option +:if_absent  :

@@ -457,6 +457,10 @@ describe Workbook do
       it "should unobtrusively open, modify, and not save the changes" do
         @book.unobtrusively(:writable => false) do |book|
           book.sheet(1)[1,1] = "bla"
+          book.ReadOnly.should be false
+          book.visible.should be true
+          book.writable.should be true
+          book.saved.should be false
         end
         @book.saved.should be false
         @book.visible.should be true
@@ -1321,46 +1325,6 @@ describe Workbook do
           book2 = Workbook.open(@simple_file1)
           book2.sheet(1)[1,1].should_not == @old_value
         end
-
-=begin
-        it "should force to read-write" do
-          e1 = Excel.create
-          Workbook.unobtrusively(@simple_file1, :writable => true, :rw_change_excel => e1) do |book|
-            book.Readonly.should be false
-            book.filename.should == @book.filename
-            book.excel.should == e1
-            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
-          end
-          @book.close
-          book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].should_not == @old_value
-        end
-
-        it "should force to read-write" do
-          Workbook.unobtrusively(@simple_file1, :writable => true, :rw_change_excel => :current) do |book|
-            book.Readonly.should be false
-            book.should == @book
-            book.filename.should == @book.filename
-            book.excel.should == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
-          end
-          @book.close
-          book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].should_not == @old_value
-        end
-
-        it "should force to read-write" do
-          Workbook.unobtrusively(@simple_file1, :writable => true, :rw_change_excel => :new) do |book|
-            book.Readonly.should be false
-            book.filename.should == @book.filename
-            book.excel.should_not == @book.excel
-            book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo"
-          end
-          @book.close
-          book2 = Workbook.open(@simple_file1)
-          book2.sheet(1)[1,1].should_not == @old_value
-        end
-=end
 
         it "should force to read-write" do
           Workbook.unobtrusively(@simple_file1, :writable => true, :read_only => false) do |book|

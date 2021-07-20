@@ -625,7 +625,10 @@ module RobustExcelOle
         was_saved = book.saved
         was_check_compatibility = book.check_compatibility
         was_calculation = book.excel.properties[:calculation]
-        opts[:read_only] = !opts[:writable] unless (!opts[:read_only].nil? || opts[:writable].nil? || open_opts[:was_open])
+        #opts[:read_only] = !opts[:writable] unless (!opts[:read_only].nil? || opts[:writable].nil? || open_opts[:was_open])
+        if (opts[:read_only].nil? && !opts[:writable].nil? && !open_opts[:was_open] && (was_saved || opts[:if_unsaved]==:save))
+          opts[:read_only] = !opts[:writable]
+        end
         book.send :apply_options, file, opts
         yield book
       ensure

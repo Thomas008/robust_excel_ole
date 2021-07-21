@@ -736,6 +736,18 @@ describe Workbook do
           @ole_wb.Saved.should be false
         end
 
+        it "should keep the read-only status" do
+          Workbook.unobtrusively(@simple_file1, :writable => false) do |book|
+            book.saved.should be false
+            book.visible.should be true
+            book.writable.should be true
+          end
+          ole_wb = WIN32OLE.connect(@abs_filename)
+          ole_wb.Saved.should be false
+          @ole_e1.Visible.should be true
+          ole_wb.ReadOnly.should be false
+        end
+
         it "should connect and remain unsaved" do
           Workbook.unobtrusively(@simple_file1) do |book|
             book.saved.should be false

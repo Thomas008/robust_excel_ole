@@ -146,7 +146,7 @@ describe ListObject do
     it "should traverse through list rows" do
       @table1.each.with_index do |listrow, i|
         listrow.values.should == [3.0, "John", 50.0, 0.5, 30] if i == 0        
-        listrow.values.should == [2.0, "Fred", nil, 0.5416666666666666, 40] if i == 1
+        listrow.values.should == [2.0, "Fred", 0.0, 0.5416666666666666, 40] if i == 1
         listrow.values.should == [nil, nil, nil, nil, nil] if i == 2
       end
     end
@@ -182,7 +182,7 @@ describe ListObject do
     it "should access a listrow given its number" do
       listrow = @table1[2]
       listrow.should be_a ListRow
-      listrow.values.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
+      listrow.values.should == [2.0, "Fred", 0.0, 0.5416666666666666, 40]
     end   
 
     it "should access a listrow via a multiple-column key" do
@@ -196,6 +196,14 @@ describe ListObject do
       @table1[{"PERSON" => "Angel"}].values.should == [3.0, "Angel", 100, 0.6666666666666666, 60]
       @table1[{"person" => "Angel"}].values.should == [3.0, "Angel", 100, 0.6666666666666666, 60]
       @table1[{:person => "Angel"}].values.should == [3.0, "Angel", 100, 0.6666666666666666, 60]
+    end
+
+    it "should access a listrow with key value which constitutes a number, type-independent" do
+      @table1[{"Number" => 3}].values.should == [3.0, "Angel", 100, 0.6666666666666666, 60]
+      @table1[{"Number" => "3"}].values.should == [3.0, "Angel", 100, 0.6666666666666666, 60]
+      @table1[{"Amount" => 0}].values.should == [2.0, "Fred", 0, 0.5416666666666666, 40.0]
+      @table1[{"Amount" => "0"}].values.should == [2.0, "Fred", 0, 0.5416666666666666, 40.0]
+      @table1[{"Amount" => "hello"}].values.should == nil
     end
 
     it "should yield nil if there is no match" do
@@ -261,7 +269,7 @@ describe ListObject do
       table_value = [
         ["Number", "Person", "Amount", "Time", "Price"],
         [3.0, "John", 50.0, 0.5, 30.0],
-        [2.0, "Fred", nil, 0.5416666666666666, 40.0],
+        [2.0, "Fred", 0.0, 0.5416666666666666, 40.0],
         [nil, nil, nil, nil, nil],
         [3.0, "Angel", 100.0, 0.6666666666666666, 60.0],
         [nil, nil, nil, nil, nil],
@@ -396,7 +404,7 @@ describe ListObject do
       listrows = @table.ListRows
       listrows.Item(1).Range.Value.first.should == [3.0, "John", 50.0, 0.5, 30]
       listrows.Item(2).Range.Value.first.should == [nil,nil,nil,nil,nil]
-      listrows.Item(3).Range.Value.first.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
+      listrows.Item(3).Range.Value.first.should == [2.0, "Fred", 0.0, 0.5416666666666666, 40]
       expect{
         @table.add_row(16)
       }.to raise_error(TableError)
@@ -407,7 +415,7 @@ describe ListObject do
       listrows = @table.ListRows
       listrows.Item(1).Range.Value.first.should == [3.0, "John", 50.0, 0.5, 30]
       listrows.Item(2).Range.Value.first.should == [2.0, "Herbert", 30.0, 0.25, 40]
-      listrows.Item(3).Range.Value.first.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
+      listrows.Item(3).Range.Value.first.should == [2.0, "Fred", 0.0, 0.5416666666666666, 40]
     end
 
     it "should add a row with contents with umlauts" do
@@ -439,7 +447,7 @@ describe ListObject do
     end
 
     it "should delete the contents of a row" do
-      @table.ListRows.Item(2).Range.Value.first.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
+      @table.ListRows.Item(2).Range.Value.first.should == [2.0, "Fred", 0.0, 0.5416666666666666, 40]
       @table.delete_row_values(2)
       @table.ListRows.Item(2).Range.Value.first.should == [nil,nil,nil,nil,nil]
       @table.ListRows.Item(1).Range.Value.first.should == [3.0, "John", 50.0, 0.5, 30]
@@ -454,7 +462,7 @@ describe ListObject do
       @table.delete_empty_rows
       @table.ListRows.Count.should == 9
       @table.ListRows.Item(1).Range.Value.first.should == [3.0, "John", 50.0, 0.5, 30]
-      @table.ListRows.Item(2).Range.Value.first.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
+      @table.ListRows.Item(2).Range.Value.first.should == [2.0, "Fred", 0.0, 0.5416666666666666, 40]
       @table.ListRows.Item(3).Range.Value.first.should == [3, "Angel", 100, 0.6666666666666666, 60]
       @table.ListRows.Item(4).Range.Value.first.should == [1,"Werner",40,0.5, 80]
     end
@@ -534,7 +542,7 @@ describe ListObject do
       @table.sort("Number")
       @table.ListRows.Item(1).Range.Value.first.should == [1, "Werner",40,0.5, 80]
       @table.ListRows.Item(2).Range.Value.first.should == [1, "Napoli", 20.0, 0.4166666666666667, 70.0]
-      @table.ListRows.Item(3).Range.Value.first.should == [2, "Fred", nil, 0.5416666666666666, 40]     
+      @table.ListRows.Item(3).Range.Value.first.should == [2, "Fred", 0.0, 0.5416666666666666, 40]     
       @table.ListRows.Item(4).Range.Value.first.should == [3, "John", 50.0, 0.5, 30]
       @table.ListRows.Item(5).Range.Value.first.should == [3, "Angel", 100, 0.6666666666666666, 60]
       @table.ListRows.Item(6).Range.Value.first.should == [3, "Eiffel", 50.0, 0.5, 30]

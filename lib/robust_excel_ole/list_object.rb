@@ -124,16 +124,17 @@ module RobustExcelOle
 
   private
 
-   def matching_via_traversing(key_hash, opts) 
+    def matching_via_traversing(key_hash, opts) 
       encode_utf8 = ->(val) {val.respond_to?(:gsub) ? val.encode('utf-8') : val}
       cn2i = column_names_to_index
       max_matching_num = opts[:limit] || 65536     
       matching_rows = @ole_table.ListRows.lazy.select { |listrow|
         rowvalues = listrow.Range.Value.first
-        # key_hash.all?{ |key,val| encode_utf8.(rowvalues[cn2i[key]])==val}
         key_hash.all?{|key,val| 
           rowvalue = encode_utf8.(rowvalues[cn2i[key]])
-          rowvalue == val || (rowvalue.respond_to?(:abs) && rowvalue == val.to_i)
+          rowvalue == val || 
+          (val == "0" && rowvalue == 0) ||
+          (rowvalue.respond_to?(:abs) && val.to_i != 0 && rowvalue == val.to_i)
         }
       }.take(max_matching_num).to_a
     rescue

@@ -199,11 +199,11 @@ describe ListObject do
     end
 
     it "should access a listrow with key value which constitutes a number, type-independent" do
-      @table1[{"Number" => 3}].values.should == [3.0, "Angel", 100, 0.6666666666666666, 60]
-      @table1[{"Number" => "3"}].values.should == [3.0, "Angel", 100, 0.6666666666666666, 60]
+      @table1[{"Amount" => 100}].values.should == [3.0, "Angel", 100, 0.6666666666666666, 60]
+      @table1[{"Amount" => "100"}].values.should == [3.0, "Angel", 100, 0.6666666666666666, 60]
       @table1[{"Amount" => 0}].values.should == [2.0, "Fred", 0, 0.5416666666666666, 40.0]
       @table1[{"Amount" => "0"}].values.should == [2.0, "Fred", 0, 0.5416666666666666, 40.0]
-      @table1[{"Amount" => "hello"}].values.should == nil
+      @table1[{"Amount" => "hello"}].should == nil
     end
 
     it "should yield nil if there is no match" do
@@ -434,7 +434,7 @@ describe ListObject do
     end
 
     it "should delete the contents of a column" do
-      @table.ListColumns.Item(3).Range.Value.should == [["Amount"],[50],[nil],[nil],[100],[nil],[40],[50],[nil],[nil],[nil],[nil],[40],[20]]
+      @table.ListColumns.Item(3).Range.Value.should == [["Amount"],[50],[0],[nil],[100],[nil],[40],[50],[nil],[nil],[nil],[nil],[40],[20]]
       @table.delete_column_values(3)
       @table.HeaderRowRange.Value.first.should == ["Number","Person", "Amount", "Time","Price"]
       @table.ListColumns.Item(3).Range.Value.should == [["Amount"],[nil],[nil],[nil],[nil],[nil],[nil],[nil],[nil],[nil],[nil],[nil],[nil],[nil]]

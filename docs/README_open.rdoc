@@ -36,12 +36,12 @@ The options are the following:
 
 +:if_unsaved+::        specifies behaviour if the workbook was unsaved (default: +:raise+)
 
-+:if_blocked::         specifies behaviour if the workbook is blocked by another book (default: +:raise+)
++:if_blocked+::         specifies behaviour if the workbook is blocked by another book (default: +:raise+)
 
 
 +:read_only+::          opens in read-only mode (default: +false+)
 
-+:check_compatibility:: checks compatibility when saving
++:check_compatibility+:: checks compatibility when saving
 
 +:calculation+::        forces the calculation mode to be manual (:manual) or automatic (:automatic)
 
@@ -57,8 +57,8 @@ The option +:if_unsaved+  :
 
 If a workbook contains unsaved changes and the workbook shall be re-opened, then
 
-+:raise+::   Raise an exeption. Don't open the workbook.
-+:accept+::  Let the unsaved workbook open.
++:raise+::   Raise an exeption. Leave the unsaved workbook open.
++:accept+::  Leave the unsaved workbook open.
 +:forget+::  Discard any changes and reopen the workbook.
 +:save+::    Save any changes and reopen the workbook
 +:new_excel+:: Open the workbook in a new Excel instance
@@ -66,16 +66,16 @@ If a workbook contains unsaved changes and the workbook shall be re-opened, then
 
 The option +:if_blocked+ : 
 
-If a workbook is open and a workbook with same name but in a different path shall be opened, then the first workbook blocks opening the latter one. In this case:
+If a workbook is open and a workbook with same base name but in a different path shall be opened, then the first workbook blocks opening the latter one. In this case:
 
-+:raise+::          Raise an exception. Don't open the workbook.
++:raise+::          Raise an exception. Don't open the workbook. Leave the blocking workbook open.
 +:forget+::         Close the blocking workbook, open the new workbook.
-+:accept+::         Let the blocking workbook open.
++:accept+::         Leave the blocking workbook open.
 +:save+::           Save the blocking workbook, close it, open the new workbook
 +:close_if_saved+:: Close the blocking workbook and open the new workbook, if the blocking workbook is saved, otherwise raise an exception.
 +:new_excel+::      Open the new workbook in a new Excel instance.
 
-The option +:if_absent  :
+The option +:if_absent+ :
 
 If the Excel file does not exists, then
 

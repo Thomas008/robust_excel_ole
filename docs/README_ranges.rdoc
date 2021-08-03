@@ -4,6 +4,12 @@
 
 RobustExcelOle enables to read and write the contents of ranges and cells in workbooks. This can be done from a Worksheet, a Workbook or an Excel object representing a Worksheet, Workbook, or Application object, respectively. You can use VBA methods or methods provided by RobustExcelOle.
 
+== Documentation
+
+Range[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Range]
+
+Worksheet[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Worksheet]
+
 === Introducing Example
 
 Suppose you have opened a workbook.
@@ -416,8 +422,4 @@ or
   worksheet.set_cellval(1,1,"new_value")
 
 
-== Documentation
 
-Range[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Range]
-
-Worksheet[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Worksheet]

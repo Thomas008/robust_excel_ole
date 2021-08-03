@@ -2,6 +2,10 @@
 
 == Accessing and processing worksheets
 
+== Documentation
+
+Worksheet[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Worksheet]
+
 Worksheets are represented by Worksheet objects.
 
 Assume you have opened a workbook
@@ -147,6 +151,3 @@ Here are some examples:
   row1.VerticalAlignment = XlVAlignCenter
   row1.HorizontalAlignment = XlHAlignLeft
 
-== Documentation
-
-Worksheet[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Worksheet]

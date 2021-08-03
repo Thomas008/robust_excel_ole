@@ -2,6 +2,10 @@
 
 == Saving and closing workbooks
 
+== Documentation
+
+Workbook[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Workbook]
+
 === Saving a workbook.
 
 Imagine, you have opened a workbook with
@@ -76,6 +80,3 @@ Finally the workbook can be closed with a given filename.
 
   Workbook.close('spec/data/workbook.xls')
 
-== Documentation
-
-Workbook[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Workbook]

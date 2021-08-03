@@ -2,6 +2,10 @@
 
 == List Objects
 
+== Documentation
+
+ListObject[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/ListObject]
+
 === Creating List Objects
 
 We can define a list object (or table) from scratch.
@@ -164,7 +168,4 @@ You can sort a table according to a given column and sort order, e.g.
 
   table.sort("Person", :ascending)
 
-== Documentation
-
-ListObject[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/ListObject]
 

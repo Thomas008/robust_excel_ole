@@ -1,5 +1,9 @@
 = RobustExcelOle
 
+== Documentation
+
+Workbook[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Workbook]
+
 === Opening a workbook.
 
 If you want to open a workbook, you can use the methods +open+ or +new+.
@@ -258,6 +262,4 @@ The method +alive?+ finds out whether the Excel workbook that is referenced by t
   workbook.alive?
   # => true
 
-== Documentation
 
-Workbook[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Workbook]

@@ -1,5 +1,9 @@
 = RobustExcelOle
 
+== Documentation
+
+Excel[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Excel]
+
 == Creating, using and closing Excel instances
 
 RobustExcelOle enables simultanously running Excel instances. An Excel application is represented by an Excel object.
@@ -168,6 +172,4 @@ This method has the option +:if_unsaved+ as described above. For example, if you
 
 This method kills all Excel instances no matter whether they contain unsaved workbooks.  
 
-== Documentation
 
-Excel[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Excel]

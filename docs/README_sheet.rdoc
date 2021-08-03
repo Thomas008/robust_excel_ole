@@ -147,6 +147,6 @@ Here are some examples:
   row1.VerticalAlignment = XlVAlignCenter
   row1.HorizontalAlignment = XlHAlignLeft
 
-== Code
+== Documentation
 
-worksheet.rb[https://github.com/Thomas008/robust_excel_ole/blob/master/lib/robust_excel_ole/worksheet.rb]
+Worksheet[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Worksheet]

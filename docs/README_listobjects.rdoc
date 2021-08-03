@@ -164,7 +164,7 @@ You can sort a table according to a given column and sort order, e.g.
 
   table.sort("Person", :ascending)
 
-== Code
+== Documentation
 
-listobjects.rb[https://github.com/Thomas008/robust_excel_ole/blob/master/lib/robust_excel_ole/listobjects.rb]
+ListObject[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/ListObject]
 

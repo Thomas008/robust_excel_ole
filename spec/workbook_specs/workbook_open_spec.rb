@@ -902,7 +902,7 @@ describe Workbook do
         book2 = book1
         book1.close(:if_unsaved => :forget)
         book1.should_not be_alive
-        book1.reopen
+        book1.open
         book1.should be_a Workbook
         book1.should be_alive
         book1.should === book2
@@ -3091,7 +3091,7 @@ describe Workbook do
         book1 = @book
         @book.close
         @book.should_not be_alive
-        @book.reopen
+        @book.open
         @book.should be_a Workbook
         @book.should be_alive
         @book.should === book1

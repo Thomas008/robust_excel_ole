@@ -46,7 +46,7 @@ puts "close the first workbook"
 book.close
 # reopen the workbook
 puts "reopen the workbook"
-book4 = book.reopen
+book4 = book.open
 puts "book4: #{book4}"
 # unobtrusively opening a workbook
 puts "unobtrusively opening the workbook"

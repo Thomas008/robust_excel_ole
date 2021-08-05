@@ -29,7 +29,7 @@ puts "close the workbook"
 workbook.close
 # reopening the workbook
 puts "reopen the workbook"
-workbook.reopen
+workbook.open
 # further operations
 workbook['firstcell'] = "another_value"
 # saved status of the workbook

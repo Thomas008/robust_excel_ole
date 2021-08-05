@@ -675,7 +675,7 @@ describe Workbook do
         book1 = @book
         @book.close
         @book.should_not be_alive
-        @book.reopen
+        @book.open
         @book.should be_a Workbook
         @book.should be_alive
         @book.should === book1
@@ -826,7 +826,7 @@ describe Workbook do
         book2 = Workbook.open(@different_file, :force => {:excel => :new})
         @book.close
         book2.close
-        @book.reopen
+        @book.open
         Workbook.unobtrusively(@simple_file1) do |book|
           book.should be_a Workbook
           book.should be_alive

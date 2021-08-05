@@ -457,7 +457,7 @@ module RobustExcelOle
           @excel1.Visible.should be false
           @excel1.DisplayAlerts.should be false
           @book1.should_not be_alive
-          @book1.reopen
+          @book1.open
           @book1.should be_alive
           @excel1.close
           @excel1.should_not be_alive        
@@ -473,7 +473,7 @@ module RobustExcelOle
           @excel1.should be_alive
           @excel1.Visible.should be true
           @excel1.DisplayAlerts.should be true
-          @book1.reopen
+          @book1.open
           @book1.should be_alive
           @excel1.close
           @excel1.should_not be_alive
@@ -487,7 +487,7 @@ module RobustExcelOle
           @excel1.should be_alive
           @excel1.Visible.should be true
           @excel1.DisplayAlerts.should be true
-          @book1.reopen
+          @book1.open
           @book1.should be_alive
           @excel1.close
           @excel1.should_not be_alive
@@ -539,7 +539,7 @@ module RobustExcelOle
           @excel3.should be_a Excel
           @excel3.Visible.should be true
           @excel3.DisplayAlerts.should be true
-          @book3.reopen
+          @book3.open
           @book3.should be_alive
           @book3.excel.should == @excel3
           @excel1.close(:if_unsaved => :forget)

@@ -655,11 +655,13 @@ module RobustExcelOle
 
     # reopens a closed workbook
     # @options options
-    def reopen(options = { })
+    def open(options = { })
       book = self.class.open(@stored_filename, options)
       raise WorkbookREOError("cannot reopen workbook\n#{$!.message}") unless book && book.alive?
       book
     end
+
+    alias reopen open   #: deprecated :#
 
     # simple save of a workbook.
     # @return [Boolean] true, if successfully saved, nil otherwise

@@ -114,7 +114,7 @@ module RobustExcelOle
         @ole_excel = WIN32OLE.new('Excel.Application')
         set_options(opts)
         if opts[:reopen_workbooks]
-          workbook_class.books.each{ |book| book.reopen if !book.alive? && book.excel.alive? && book.excel == self }
+          workbook_class.books.each{ |book| book.open if !book.alive? && book.excel.alive? && book.excel == self }
         end
       end
       self

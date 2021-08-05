@@ -1933,7 +1933,7 @@ describe Workbook do
 
       it "should let an open Workbook open if it has been closed and opened again" do
         @book.close
-        @book.reopen
+        @book.open
         Workbook.unobtrusively(@simple_file1) do |book|
           book.should be_a Workbook
           book.should be_alive
@@ -1947,7 +1947,7 @@ describe Workbook do
         book2 = Workbook.open(@different_file, :force_excel => :new)
         @book.close
         book2.close
-        @book.reopen
+        @book.open
         Workbook.unobtrusively(@simple_file1) do |book|
           book.should be_a Workbook
           book.should be_alive

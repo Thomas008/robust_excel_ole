@@ -661,7 +661,7 @@ module RobustExcelOle
       book
     end
 
-    alias reopen open   #: deprecated :#
+    alias reopen open   # :deprecated: #
 
     # simple save of a workbook.
     # @return [Boolean] true, if successfully saved, nil otherwise

@@ -4,11 +4,13 @@ All notable changes to this project will be documented in this file.
 ## [1.36] 2021-15-08
 
 ### Added
-  - Workbook#open: option if_blocked: :accept
-
-### Added
+  - Workbook.open: option if_blocked: :accept
   - ListRow#methods, respond_to?, alive?
   - Range#workbook, ListObject#workbook, ListRow#workbook
+
+### Changed
+  - Workbook#open instead of Workbook#reopen
+
 
 ## [1.35] 2021-24-07
 
@@ -140,14 +142,14 @@ All notable changes to this project will be documented in this file.
    - Workbook#save, save_as: removed parameter :discoloring
    - RangeOwners#set_namevalue, set_namevalue_glob, Worksheet#set_cellval: 
      removed optional parameter for color 
-   - Workbook#open: removed option :excel => :reserved_new  
+   - Workbook.open: removed option :excel => :reserved_new  
 
 
 ## [1.11]
 
 ### Added
   - Range#==, Worksheet#== 
-  - Workbook#open: options :if_blocked is synonym to :if_obstructed
+  - Workbook.open: options :if_blocked is synonym to :if_obstructed
   - Simplified Code
 
 ## [1.10]

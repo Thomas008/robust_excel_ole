@@ -1,18 +1,13 @@
-= RobustExcelOle
+== Opening and modifying worksheets
 
-== Accessing and processing worksheets
-
-== Documentation
-
+Details are essentially covered in the ruby documentation of the class
 Worksheet[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Worksheet]
 
-Worksheets are represented by Worksheet objects.
+=== Accessing a worksheet.
 
 Assume you have opened a workbook
 
   workbook = Workbook.open('spec/data/workbook.xls', visible: true)
-
-=== Accessing a worksheet.
 
 You can access a worksheet by giving the number
 

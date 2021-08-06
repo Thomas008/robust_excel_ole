@@ -1,10 +1,9 @@
-= RobustExcelOle
+== Opening workbooks
 
-== Documentation
+The details are essentially covered in the ruby documentation of the 
+class Workbook[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Workbook]
 
-Workbook[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Workbook]
-
-=== Opening a workbook.
+=== How to open a workbook
 
 If you want to open a workbook, you can use the methods +open+ or +new+.
   
@@ -53,11 +52,11 @@ The options are the following:
 
 You can use the following abbreviations or synonyms: +:f+ for  +:force+, +:d+ for +:default+, +:e+ for +:excel+, and +:v+ for +:visible+, +:if_obstructed+ for +:if_blocked+. Finally you can leave out the option +:force+ or +:f+.
 
-The option +:excel+ :
+=== The option +:excel+ :
 
 Valid values are : +:current+ (or +:active+ or +:reuse+), +:new+, or a given Excel instance (default: +:current).
 
-The option +:if_unsaved+  : 
+=== The option +:if_unsaved+  : 
 
 If a workbook contains unsaved changes and the workbook shall be re-opened, then
 
@@ -68,7 +67,7 @@ If a workbook contains unsaved changes and the workbook shall be re-opened, then
 +:new_excel+:: Open the workbook in a new Excel instance
 +:alert+::   Give control to Excel.
 
-The option +:if_blocked+ : 
+=== The option +:if_blocked+ : 
 
 If a workbook is open and a workbook with same base name but in a different path shall be opened, then the first workbook blocks opening the latter one. In this case:
 
@@ -79,14 +78,14 @@ If a workbook is open and a workbook with same base name but in a different path
 +:close_if_saved+:: Close the blocking workbook and open the new workbook, if the blocking workbook is saved, otherwise raise an exception.
 +:new_excel+::      Open the new workbook in a new Excel instance.
 
-The option +:if_absent+ :
+=== The option +:if_absent+ :
 
 If the Excel file does not exists, then
 
 +:create+::   Create a new Excel file
 +:raise+::    Raise an exception.
   
-Here are a few examples:
+=== Examples:
 
 If you want to open a workbook that was not opened before, or reopen a workbook that was open in an Excel instance that is now closed, in the current (active) Excel instance, then use
 
@@ -134,7 +133,7 @@ If a workbook is open and a workbook with the same name but in different path sh
 
   workbook = Workbook.open('path/workbook.xls', if_blocked: :forget)
 
-Remarks:
+=== Remarks
 
 The methods +open+ and +new+ connect to workbooks opened outside of RobustExcelOle as well.
 
@@ -147,13 +146,13 @@ Once we have a workbook, we can set some options, e.g.
   workbook.for_this_workbook(visible: true, read_only: false)
 
 
-=== Reopening a workbook.
+=== Reopening a workbook
 
 A special feature of RobustExcelOle is that it allows to reopen workbooks after closing them.
 
   workbook = Workbook.open('spec/data/workbook.xls')
   workbook.close
-  workbook.reopen
+  workbook.open
 
 The closed workbook is now alive again, i.e. is open and responds to Excel methods.
 
@@ -186,7 +185,7 @@ You can also supply a workbook and options, e.g.
 
    new_workbook = Workbook.new(workbook, visible: true)
 
-=== Identity transperence ===
+=== Identity transperence
 
 A RobustExcelOle Workbook object is a proxy of an Excel WIN32OLE workbook. A Workbook object is defined by the full workbook name and the Excel instance in which it is opened. RobustExcelOle ensures identity transparency which means that identical Workbook objects refer to identical Excel workbooks, and vice versa. Identity transperence ensures that, no matter how a Workbook object was created - by filename or by type-lifting an Excel workbook - two Workbook objects are identical, if and only if the Excel workbooks, they are referring to, are identical. 
 
@@ -255,7 +254,7 @@ This method ensures keeping the save status of the workbook
     # some reading or modifying
   end
 
-=== Checking whether the workbook is alive.
+=== Checking whether the workbook is alive
 
 The method +alive?+ finds out whether the Excel workbook that is referenced by the Workbook object responds to methods. For example
 

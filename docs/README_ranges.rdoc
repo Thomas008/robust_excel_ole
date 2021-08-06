@@ -1,12 +1,8 @@
-= RobustExcelOle
-
-== Reading and writing the contents of ranges and cells
+== Ranges and cells
 
 RobustExcelOle enables to read and write the contents of ranges and cells in workbooks. This can be done from a Worksheet, a Workbook or an Excel object representing a Worksheet, Workbook, or Application object, respectively. You can use VBA methods or methods provided by RobustExcelOle.
 
-== Documentation
-
-Range[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Range]
+The details are essentially covered in ruby documentation of the class Range[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Range]
 
 Worksheet[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Worksheet]
 
@@ -31,6 +27,9 @@ or using RobustExcelOle
 or, using the A1-format,
 
   range = worksheet.range("B1")
+
+Once you have got an Range object, you can apply all VBA methods that you would apply to a VBA Range object
+(see https://docs.microsoft.com/en-us/office/vba/api/excel.range#methods).
 
 Similarly you can access a rectangular range. Using VBA methods we provide the row and column of the top left cell and the row and column of the bottum right cell. 
 
@@ -420,6 +419,3 @@ Similarly, you can write a cell.
 or
 
   worksheet.set_cellval(1,1,"new_value")
-
-
-

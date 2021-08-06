@@ -1,14 +1,11 @@
-= RobustExcelOle
+== Managing Excel instances
 
-== Documentation
-
+Details are essentially covered in the ruby documentation of the class
 Excel[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Excel]
 
-== Creating, using and closing Excel instances
+=== Creating, using and closing Excel instances
 
 RobustExcelOle enables simultanously running Excel instances. An Excel application is represented by an Excel object.
-
-=== Creating and reusing an Excel instance.
 
 You can create a new Excel instance by
 

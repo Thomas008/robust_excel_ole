@@ -1,7 +1,7 @@
 == Managing Excel instances
 
 Details are essentially covered in the ruby documentation of the class
-Excel[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Excel]
+Excel[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Excel].
 
 === Creating, using and closing Excel instances
 

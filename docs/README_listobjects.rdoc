@@ -2,7 +2,7 @@
 
 A List object in a worksheet represents a table.
 The details are essentially covered in the ruby docmentation of the class
-ListObject[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/ListObject]
+ListObject[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/ListObject].
 
 === Creating List Objects
 

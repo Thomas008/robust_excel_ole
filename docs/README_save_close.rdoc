@@ -2,7 +2,7 @@
 
 RobustExcelOle helps to control the saving and the closing of workbooks.
 The details are essentially covered in the ruby documentation of the class
-Workbook[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Workbook]
+Workbook[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Workbook].
 
 === Saving a workbook.
 

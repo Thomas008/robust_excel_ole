@@ -1,7 +1,7 @@
 == Opening and modifying worksheets
 
 Details are essentially covered in the ruby documentation of the class
-Worksheet[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Worksheet]
+Worksheet[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Worksheet].
 
 === Accessing a worksheet.
 

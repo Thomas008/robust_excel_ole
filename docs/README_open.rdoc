@@ -1,7 +1,7 @@
 == Opening workbooks
 
 The details are essentially covered in the ruby documentation of the 
-class Workbook[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Workbook]
+class Workbook[https://www.rubydoc.info/gems/robust_excel_ole/RobustExcelOle/Workbook].
 
 === How to open a workbook
 

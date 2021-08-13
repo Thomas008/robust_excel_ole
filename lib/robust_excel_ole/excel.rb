@@ -358,6 +358,35 @@ module RobustExcelOle
       @@hwnd2excel.size
     end
 
+    # returns running Excel instances
+    # currently restricted to visible Excel instances with at least one workbook
+    def self.known_running_instances
+      find_windows_method = Win32API.new('user32', 'FindWindowExA', %w[I I P P P], 'I')
+      #acc_obj_fr_window = Win32API.new('oleacc', 'AccessibleObjectFromWindow', %w[I I I P P], 'I')
+      acc_obj_fr_window = Win32API.new('oleacc', 'AccessibleObjectFromWindow', %w[I P P P P], 'I')
+      acc_obj_addr = nil
+      win32ole_excel_instances = []
+      loop do
+        hwnd_puffer = ' ' * 32
+        find_windows_method.call(0, 0, "XLMAIN", "", hwnd_puffer)
+        hwnd = hwnd_puffer.unpack('L')[0]
+        break if hwnd == 0
+        hwnd2_puffer = ' ' * 32
+        find_windows_method.call(hwnd, 0, "XLDESK", "", hwnd2_puffer)
+        hwnd2 = hwnd2_puffer.unpack('L')[0]
+        hwnd3_puffer = ' ' * 32
+        find_windows_method.call(hwnd2, 0, "EXCEL7", "", hwnd3_puffer)
+        hwnd3 = hwnd3_puffer.unpack('L')[0]
+        status_puffer = ' ' * 32
+        #acc_obj_fr_window.call(hwnd3, '&HFFFFFFF0', '&H20400', acc_obj_addr, status_puffer)
+        acc_obj_fr_window.call(hwnd3, 0xFFFFFFF0, 0x20400, acc_obj_addr, status_puffer)
+        status = status_puffer.unpack('L')
+        acc_obj = acc_obj_addr.unpack('L')[0]
+        win32ole_excel_instances << acc_obj.Application if status == 0   # == '&H0'
+      end
+      win32ole_excel_instances.map{|w| w.to_reo}
+    end
+
     # returns a running Excel instance opened with RobustExcelOle
     def self.known_running_instance     
       self.known_running_instances.first

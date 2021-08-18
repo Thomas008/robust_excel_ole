@@ -1,10 +1,55 @@
 # -*- coding: utf-8 -*-
 
 require 'weakref'
+require 'fiddle'
 require 'Win32API'
 
 def ka
   Excel.kill_all
+end
+
+module User32
+  # Extend this module to an importer
+  extend Fiddle::Importer
+  # Load 'user32' dynamic library into this importer
+  dlload 'user32'
+  # Set C aliases to this importer for further understanding of function signatures
+  typealias 'HWND', 'HANDLE'
+  typealias 'HANDLE', 'void*'
+  typealias 'LPCSTR', 'const char*'
+  typealias 'LPCWSTR', 'const wchar_t*'
+  typealias 'UINT', 'unsigned int'
+  typealias 'HANDLE', 'void*'
+  typealias 'ppvObject', 'void**'
+  typealias 'DWORD', 'unsigned long'
+  typealias 'LPDWORD', 'DWORD*'
+  typealias 'REFIID', 'GUID&'
+  typealias 'GUID&', 'struct _GUID {unsigned long, unsigned short, unsigned short, unsigned *char}'
+  # Import C functions from loaded libraries and set them as module functions
+  extern 'DWORD GetWindowThreadProcessId(HWND, LPDWORD)'
+  extern 'HWND FindWindowExA(HWND, HWND, LPCSTR, LPCSTR)'
+  #extern 'int AccessibleObjectFromWindow(HWND, DWORD, REFIID, ppvObject)'
+end
+
+module Oleacc
+  # Extend this module to an importer
+  extend Fiddle::Importer
+  # Load 'oleacc' dynamic library into this importer
+  dlload 'oleacc'
+  # Set C aliases to this importer for further understanding of function signatures
+  typealias 'HWND', 'HANDLE'
+  typealias 'HANDLE', 'void*'
+  typealias 'LPCSTR', 'const char*'
+  typealias 'LPCWSTR', 'const wchar_t*'
+  typealias 'UINT', 'unsigned int'
+  typealias 'HANDLE', 'void*'
+  typealias 'ppvObject', 'void**'
+  typealias 'DWORD', 'unsigned long'
+  typealias 'HRESULT', 'long'
+  typealias 'REFIID', 'GUID&'
+  typealias 'GUID&', 'struct _GUID {unsigned long, unsigned short, unsigned short, unsigned *char}'
+  # Import C functions from loaded libraries and set them as module functions
+  extern 'HRESULT AccessibleObjectFromWindow(HWND, DWORD, REFIID, ppvObject)'
 end
 
 module RobustExcelOle
@@ -294,9 +339,8 @@ module RobustExcelOle
       sleep 0.1
       if finishing_living_excel
         if hwnd
-          process_id = Win32API.new('user32', 'GetWindowThreadProcessId', %w[I P], 'I')
           pid_puffer = ' ' * 32
-          process_id.call(hwnd, pid_puffer)
+          User32::GetWindowThreadProcessId(hwnd, pid_puffer)         
           pid = pid_puffer.unpack('L')[0]
           Process.kill('KILL', pid) rescue nil
         end
@@ -360,15 +404,17 @@ module RobustExcelOle
 
     # returns running Excel instances
     # currently restricted to visible Excel instances with at least one workbook
+=begin
     def self.known_running_instances
       find_windows_method = Win32API.new('user32', 'FindWindowExA', %w[I I P P P], 'I')
       #acc_obj_fr_window = Win32API.new('oleacc', 'AccessibleObjectFromWindow', %w[I I I P P], 'I')
       acc_obj_fr_window = Win32API.new('oleacc', 'AccessibleObjectFromWindow', %w[I P P P P], 'I')
       acc_obj_addr = nil
+      hwnd = 0
       win32ole_excel_instances = []
       loop do
         hwnd_puffer = ' ' * 32
-        find_windows_method.call(0, 0, "XLMAIN", "", hwnd_puffer)
+        find_windows_method.call(0, hwnd, "XLMAIN", "", hwnd_puffer)
         hwnd = hwnd_puffer.unpack('L')[0]
         break if hwnd == 0
         hwnd2_puffer = ' ' * 32
@@ -378,6 +424,35 @@ module RobustExcelOle
         find_windows_method.call(hwnd2, 0, "EXCEL7", "", hwnd3_puffer)
         hwnd3 = hwnd3_puffer.unpack('L')[0]
         status_puffer = ' ' * 32
+        #acc_obj_fr_window.call(hwnd3, '&HFFFFFFF0', '&H20400', acc_obj_addr, status_puffer)
+        acc_obj_fr_window.call(hwnd3, 0xFFFFFFF0, 0x20400, acc_obj_addr, status_puffer)
+        status = status_puffer.unpack('L')
+        acc_obj = acc_obj_addr.unpack('L')[0]
+        win32ole_excel_instances << acc_obj.Application if status == 0   # == '&H0'
+      end
+      win32ole_excel_instances.map{|w| w.to_reo}
+    end
+=end
+
+    def self.known_running_instances
+      acc_obj_addr = nil
+      hwnd = 0
+      win32ole_excel_instances = []
+      loop do
+        #hwnd_puffer = ' ' * 32
+        #find_windows_method.call(0, hwnd, "XLMAIN", "", hwnd_puffer)
+        #hwnd = hwnd_puffer.unpack('L')[0]
+        hwnd = User32::FindWindowExA(0, hwnd, "XLMAIN", "")
+        break if hwnd == 0
+        #hwnd2_puffer = ' ' * 32        
+        #find_windows_method.call(hwnd, 0, "XLDESK", "", hwnd2_puffer)
+        #hwnd2 = hwnd2_puffer.unpack('L')[0]
+        hwnd2 = User32::FindWindowExA(hwnd, 0, "XLDESK", "")
+        #hwnd3_puffer = ' ' * 32
+        #find_windows_method.call(hwnd2, 0, "EXCEL7", "", hwnd3_puffer)
+        #hwnd3 = hwnd3_puffer.unpack('L')[0]
+        hwnd3 = User32::FindWindowExA(hwnd2, 0, "XLDESK", "")
+        #status_puffer = ' ' * 32
         #acc_obj_fr_window.call(hwnd3, '&HFFFFFFF0', '&H20400', acc_obj_addr, status_puffer)
         acc_obj_fr_window.call(hwnd3, 0xFFFFFFF0, 0x20400, acc_obj_addr, status_puffer)
         status = status_puffer.unpack('L')
@@ -398,9 +473,8 @@ module RobustExcelOle
       @@hwnd2excel.each do |hwnd,wr_excel|
         next unless wr_excel.weakref_alive?
         excel = wr_excel.__getobj__
-        process_id = Win32API.new('user32', 'GetWindowThreadProcessId', %w[I P], 'I')
         pid_puffer = ' ' * 32
-        process_id.call(hwnd, pid_puffer)
+        User32::GetWindowThreadProcessId(hwnd, pid_puffer)
         pid = pid_puffer.unpack('L')[0]
         pid2excel[pid] = excel
       end

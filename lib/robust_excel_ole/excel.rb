@@ -22,8 +22,6 @@ module User32
   typealias 'ppvObject', 'void**'
   typealias 'DWORD', 'unsigned long'
   typealias 'LPDWORD', 'DWORD*'
-  typealias 'REFIID', 'GUID&'
-  typealias 'GUID&', 'struct _GUID {unsigned long, unsigned short, unsigned short, unsigned *char}'
   # Import C functions from loaded libraries and set them as module functions
   extern 'DWORD GetWindowThreadProcessId(HWND, LPDWORD)'
   extern 'HWND FindWindowExA(HWND, HWND, LPCSTR, LPCSTR)'
@@ -43,19 +41,34 @@ module Oleacc
   typealias 'HANDLE', 'void*'
   typealias 'ppvObject', 'void**'
   typealias 'DWORD', 'unsigned long'
-  typealias 'HRESULT', 'long'
-  #typealias 'REFIID', 'const GUID'
+  typealias 'HRESULT', 'long'  
+  GUID = struct [
+  'unsigned long data1',
+  'unsigned short data2',
+  'unsigned short data3',
+  'unsigned char data4[8]'
+  ]
   #typealias 'REFIID', 'const GUID*'
-  typealias 'REFIID', 'IID*'
-  typealias 'IID', 'GUID'
-  typealias 'GUID', 'struct {unsigned long, unsigned short, unsigned short, unsigned *char}'
+  #typealias 'REFIID', 'struct GUID*'
+  #typealias 'REFIID', 'const GUID'
+  #typealias 'REFIID', 'const struct GUID*'
+  #typealias 'GUID', 'unsigned long data1'
+  #typealias 'REFIID', 'const struct IID*'
+  #typealias 'IID', 'struct GUID'
+
+  #typealias 'IID', 'GUID'
+  #typealias 'REFIID', 'IID*'
+  #typealias 'REFIID', 'struct IID*' 
+  #typealias 'REFIID', 'GUID*'
+  #typealias 'REFIID', 'const struct GUID*'
+  typealias 'REFIID', 'struct GUID*' 
   # Import C functions from loaded libraries and set them as module functions
   #extern 'HRESULT AccessibleObjectFromWindow(HWND, DWORD, REFIID, ppvObject)'
-  extern 'HRESULT AccessibleObjectFromWindow(HWND, DWORD, REFIID, ppvObject)'
+  #extern 'HRESULT AccessibleObjectFromWindow(HWND, DWORD, struct guid*, ppvObject)'
+  #extern 'HRESULT AccessibleObjectFromWindow(HWND, DWORD, struct GUID*, ppvObject)'
+  #extern 'HRESULT AccessibleObjectFromWindow(HWND, DWORD, *void, ppvObject)'
+  extern 'HRESULT AccessibleObjectFromWindow(HWND, DWORD, struct GUID*, ppvObject)'
 end
-
-typedef IID* REFIID;
-     typedef const char* LPCSTR;
 
 module RobustExcelOle
 
@@ -448,7 +461,13 @@ module RobustExcelOle
         hwnd2 = User32::FindWindowExA(hwnd, 0, "XLDESK", nil).to_i
         hwnd3 = User32::FindWindowExA(hwnd2, 0, "EXCEL7", nil).to_i
         acc_obj_addr_puffer = ' ' * 32
-        status = Oleacc::AccessibleObjectFromWindow(hwnd3, 0xFFFFFFF0, 0x20400, acc_obj_addr_puffer)
+        guid = Oleacc::GUID.malloc
+        guid.data1 = 0x20400
+        guid.data2 = 0x0
+        guid.data3 = 0x0
+        guid.data4 = [0xc0,0x0,0x0,0x0,0x0,0x0,0x0,0x46]
+        status = Oleacc::AccessibleObjectFromWindow(hwnd3, 0xFFFFFFF0, guid, acc_obj_addr_puffer)
+        #status = Oleacc::AccessibleObjectFromWindow(hwnd3, 0xFFFFFFF0, guid.data1, acc_obj_addr_puffer)
         if status == 0 # == '&H0'
           acc_obj = acc_obj_addr_puffer.unpack('L')[0]
           win32ole_excel_instances << acc_obj.Application 

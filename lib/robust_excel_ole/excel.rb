@@ -400,43 +400,14 @@ module RobustExcelOle
       WIN32OLE.connect('winmgmts:\\\\.').InstancesOf('win32_process').select { |p| p.Name == 'EXCEL.EXE' }.size
     end
 
-    def self.known_instance_count
+    def self.known_instances_count
       @@hwnd2excel.size
     end
 
     # returns running Excel instances
-    # currently restricted to visible Excel instances with at least one workbook
-=begin
-    def self.known_running_instances
-      find_windows_method = Win32API.new('user32', 'FindWindowExA', %w[I I P P P], 'I')
-      #acc_obj_fr_window = Win32API.new('oleacc', 'AccessibleObjectFromWindow', %w[I I I P P], 'I')
-      acc_obj_fr_window = Win32API.new('oleacc', 'AccessibleObjectFromWindow', %w[I P P P P], 'I')
-      acc_obj_addr = nil
-      hwnd = 0
-      win32ole_excel_instances = []
-      loop do
-        hwnd_puffer = ' ' * 32
-        find_windows_method.call(0, hwnd, "XLMAIN", "", hwnd_puffer)
-        hwnd = hwnd_puffer.unpack('L')[0]
-        break if hwnd == 0
-        hwnd2_puffer = ' ' * 32
-        find_windows_method.call(hwnd, 0, "XLDESK", "", hwnd2_puffer)
-        hwnd2 = hwnd2_puffer.unpack('L')[0]
-        hwnd3_puffer = ' ' * 32
-        find_windows_method.call(hwnd2, 0, "EXCEL7", "", hwnd3_puffer)
-        hwnd3 = hwnd3_puffer.unpack('L')[0]
-        status_puffer = ' ' * 32
-        #acc_obj_fr_window.call(hwnd3, '&HFFFFFFF0', '&H20400', acc_obj_addr, status_puffer)
-        acc_obj_fr_window.call(hwnd3, 0xFFFFFFF0, 0x20400, acc_obj_addr, status_puffer)
-        status = status_puffer.unpack('L')
-        acc_obj = acc_obj_addr.unpack('L')[0]
-        win32ole_excel_instances << acc_obj.Application if status == 0   # == '&H0'
-      end
-      win32ole_excel_instances.map{|w| w.to_reo}
-    end
-=end
-
-    def self.known_running_instances
+    # !!! This is work in progress
+    # the approach is currently restricted to visible Excel instances with at least one workbook
+    def self.running_excel_instances
       win32ole_excel_instances = []
       hwnd = 0
       loop do
@@ -444,17 +415,30 @@ module RobustExcelOle
         break if hwnd == 0
         hwnd2 = User32::FindWindowExA(hwnd, 0, "XLDESK", nil).to_i
         hwnd3 = User32::FindWindowExA(hwnd2, 0, "EXCEL7", nil).to_i
-        acc_obj_addr_buffer = ' ' * 32
+        interface_address_buffer = ' ' * 8
         guid = Oleacc::Guid.malloc
         guid.data1 = 0x20400
         guid.data2 = 0x0
         guid.data3 = 0x0
         guid.data4 = [0xc0,0x0,0x0,0x0,0x0,0x0,0x0,0x46]
-        status = Oleacc::AccessibleObjectFromWindow(hwnd3, 0xFFFFFFF0, guid, acc_obj_addr_buffer)
+        status = Oleacc::AccessibleObjectFromWindow(hwnd3, 0xFFFFFFF0, guid, interface_address_buffer)
+        interface_address = nil
         if status == 0 
-          acc_obj_address = acc_obj_addr_buffer.unpack('L')[0]
-          ole_excel = connect_to_ole_object(acc_obj_address)
+          interface_address = interface_address_buffer.unpack('L')[0]
+        else
+          raise ExcelREOError, "could not determine the addresss of the specified interface of the Excel object"
+        end
+        accessed_object_buffer = ' ' * 8
+        # open issue: is there a dll containing QueryInterface?
+        status = Ole32::QueryInterface(interface_address, guid, accessed_object_buffer)
+        if status == 0
+          accessed_object = accessed_object_buffer.unpack('L')[0]
+          # open issue: a method, similar to create_win32ole in Win32ole creating a win32ole object 
+          # we could use pr-win32ole (seems to be an old ruby gem, needing C to be installed)
+          ole_excel = create_win32ole(accessed_object)
           win32ole_excel_instances << ole_excel.Application 
+        else
+          raise ExcelREOError, "could not determine the Excel object from window"
         end
       end
       win32ole_excel_instances.map{|w| w.to_reo}
@@ -482,7 +466,7 @@ module RobustExcelOle
 
     class << self
       alias excels_number instance_count                  # :deprecated: #
-      alias known_excels_number known_instance_count      # :deprecated: #
+      alias known_excels_number known_instances_count     # :deprecated: #
       alias known_excel_instance known_running_instance   # :deprecated: #
       alias known_excel_instances known_running_instances # :deprecated: #
     end

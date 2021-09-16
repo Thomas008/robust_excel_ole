@@ -9,3 +9,6 @@ doc/*
 *.sublime-workspace
 .yardoc
 TodoList.md
+spec/data/*.xls
+spec/data/*.xls*
+spec/data/workbook_listobjects.xlsx

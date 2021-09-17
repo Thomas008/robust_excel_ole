@@ -31,7 +31,8 @@ module RobustExcelOle
       if_unsaved: :raise,
       if_obstructed: :raise,
       if_absent: :raise,
-      if_exists: :raise
+      if_exists: :raise,
+      save_when_changing_to_readonly: :raise
     }.merge(CORE_DEFAULT_OPEN_OPTS).freeze  
 
     ABBREVIATIONS = [
@@ -278,8 +279,8 @@ module RobustExcelOle
     def apply_options(filename, options)
       # changing read-only mode      
       if (!options[:read_only].nil?) && options[:read_only] != @ole_workbook.ReadOnly
-        ensure_workbook(filename, options) 
-        raise WorkbookReadOnly, "could not change read-only mode" if options[:read_only] != @ole_workbook.ReadOnly
+        #ensure_workbook(filename, options) 
+        manage_changing_readonly_mode(filename, options)
       end
       retain_saved do
         self.visible = options[:force][:visible].nil? ? @excel.Visible : options[:force][:visible]
@@ -311,6 +312,32 @@ module RobustExcelOle
       end
       set_was_open options, (ole_excel.Workbooks.Count == workbooks_number)
       @excel = excel_class.new(ole_excel)
+    end
+
+    def manage_changing_readonly_mode(filename, options)
+      displayalerts = @excel.DisplayAlerts
+      if !@ole_workbook.Saved && options[:read_only]
+        case options[:save_when_changing_to_readonly] 
+        when :raise
+          raise WorkbookReadOnly, "workbook is not saved" +
+           "\nHint: Use the option :save_when_changing_to_readonly with values :forget or :save,
+       to allow automatic changing to ReadOnly mode (without or with saving before, respectively),
+       or option :excel to give control to Excel."
+        when :save 
+          save
+        when :forget
+          @ole_workbook.Saved = true
+        when :alert, :excel
+          displayalerts = true
+        else
+          raise OptionInvalid, ":save_when_changing_to_readonly: invalid option: #{options[:save_when_changing_to_readonly].inspect}" +
+      "\nHint: Valid values are :raise, :forget, :save, :excel"
+        end
+      end
+      @excel.with_displayalerts(displayalerts) { 
+        @ole_workbook.ChangeFileAccess(options[:read_only]) 
+      }
+      # raise WorkbookReadOnly, "could not change read-only mode" if options[:read_only] != @ole_workbook.ReadOnly
     end
 
     def manage_nonexisting_file(filename, options)   

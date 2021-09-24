@@ -254,6 +254,22 @@ This method ensures keeping the save status of the workbook
     # some reading or modifying
   end
 
+=== Changing ReadOnly-mode
+
+When you want to change the read-only mode, you can use the method +writable=+. 
+
+  workbook = Workbook('spec/data/workbook.xls')
+  workbook.writable = false
+  workbook.writable
+  # => false
+  workbook.ReadOnly
+  # => true
+  workbook.writable = true
+
+If the workbook is unsaved, use the option +if_unsaved+ as desribed above.
+
+  workbook.writable = false, {if_unsaved: :forget}
+
 === Checking whether the workbook is alive
 
 The method +alive?+ finds out whether the Excel workbook that is referenced by the Workbook object responds to methods. For example

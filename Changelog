@@ -7,6 +7,7 @@ All notable changes to this project will be documented in this file.
   - Workbook.open: option if_blocked: :accept
   - ListRow#methods, respond_to?, alive?
   - Range#workbook, ListObject#workbook, ListRow#workbook
+  - Workbook#writable=
 
 ### Changed
   - Workbook#open instead of Workbook#reopen

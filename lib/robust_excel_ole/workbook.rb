@@ -31,8 +31,7 @@ module RobustExcelOle
       if_unsaved: :raise,
       if_obstructed: :raise,
       if_absent: :raise,
-      if_exists: :raise,
-      save_when_changing_to_readonly: :raise
+      if_exists: :raise
     }.merge(CORE_DEFAULT_OPEN_OPTS).freeze  
 
     ABBREVIATIONS = [
@@ -261,8 +260,8 @@ module RobustExcelOle
       @ole_workbook = workbooks.Item(File.basename(filename)) rescue nil if @ole_workbook.nil?
       if @ole_workbook && alive?
         set_was_open options, true
+        manage_changing_readonly_mode(options) if (!options[:read_only].nil?) && options[:read_only] != @ole_workbook.ReadOnly
         manage_blocking_or_unsaved_workbook(filename,options)
-        open_or_create_workbook(filename,options) if (!options[:read_only].nil?) && options[:read_only] != @ole_workbook.ReadOnly
       else
         if (excel_option.nil? || excel_option == :current) &&  
           !(::CONNECT_JRUBY_BUG && filename[0] == '/')
@@ -279,8 +278,7 @@ module RobustExcelOle
     def apply_options(filename, options)
       # changing read-only mode      
       if (!options[:read_only].nil?) && options[:read_only] != @ole_workbook.ReadOnly
-        #ensure_workbook(filename, options) 
-        manage_changing_readonly_mode(filename, options)
+        manage_changing_readonly_mode(options)
       end
       retain_saved do
         self.visible = options[:force][:visible].nil? ? @excel.Visible : options[:force][:visible]
@@ -314,30 +312,49 @@ module RobustExcelOle
       @excel = excel_class.new(ole_excel)
     end
 
-    def manage_changing_readonly_mode(filename, options)
+    def manage_changing_readonly_mode(options)
       displayalerts = @excel.DisplayAlerts
-      if !@ole_workbook.Saved && options[:read_only]
-        case options[:save_when_changing_to_readonly] 
-        when :raise
-          raise WorkbookReadOnly, "workbook is not saved" +
-           "\nHint: Use the option :save_when_changing_to_readonly with values :forget or :save,
-       to allow automatic changing to ReadOnly mode (without or with saving before, respectively),
-       or option :excel to give control to Excel."
-        when :save 
-          save
-        when :forget
-          @ole_workbook.Saved = true
-        when :alert, :excel
-          displayalerts = true
+      if @ole_workbook.Saved
+        change_readonly_mode(options,displayalerts)
+      else
+        if  options[:read_only]
+          # change from writable to read-only
+          manage_unsaved_workbook_when_changing_readonly_mode(options)
+          change_readonly_mode(options, displayalerts)
         else
-          raise OptionInvalid, ":save_when_changing_to_readonly: invalid option: #{options[:save_when_changing_to_readonly].inspect}" +
-      "\nHint: Valid values are :raise, :forget, :save, :excel"
+          # change from read-only to writable
+          change_readonly_mode(options, displayalerts)
+          manage_unsaved_workbook_when_changing_readonly_mode(options)
         end
       end
-      @excel.with_displayalerts(displayalerts) { 
-        @ole_workbook.ChangeFileAccess(options[:read_only]) 
+    end
+
+    def change_readonly_mode(options, displayalerts)
+      read_write_value = options[:read_only] ? RobustExcelOle::XlReadOnly : RobustExcelOle::XlReadWrite
+      @excel.with_displayalerts(displayalerts) {
+        @ole_workbook.ChangeFileAccess('Mode' => read_write_value)
       }
-      # raise WorkbookReadOnly, "could not change read-only mode" if options[:read_only] != @ole_workbook.ReadOnly
+    end
+
+    def manage_unsaved_workbook_when_changing_readonly_mode(options)
+      case options[:if_unsaved] 
+      when :raise
+        if options[:read_only]        
+          raise WorkbookNotSaved, "workbook is not saved" +
+          "\nHint: Use the option :if_unsaved with values :forget or :save,
+          to allow automatic changing to ReadOnly mode (without or with saving before, respectively),
+          or option :excel to give control to Excel."
+        end
+      when :save 
+        save
+      when :forget
+        @ole_workbook.Saved = true
+      when :alert, :excel
+        displayalerts = true
+      else
+        raise OptionInvalid, ":if_unsaved: invalid option: #{options[:if_unsaved].inspect}" +
+        "\nHint: Valid values are :raise, :forget, :save, :excel"
+      end
     end
 
     def manage_nonexisting_file(filename, options)   
@@ -408,12 +425,7 @@ module RobustExcelOle
     def manage_unsaved_workbook(filename, options)
       case options[:if_unsaved]
       when :raise
-        msg = if !options[:read_only].nil? && @ole_workbook.ReadOnly != options[:read_only]
-          "cannot change read-only mode of the workbook #{File.basename(filename).inspect}, because it contains unsaved changes"
-        else
-          "workbook is already open but not saved: #{File.basename(filename).inspect}"
-        end
-        raise WorkbookNotSaved, msg +
+        raise WorkbookNotSaved, "workbook is already open but not saved: #{File.basename(filename).inspect}" +
         "\nHint: Use the option :if_unsaved with values :forget to close the unsaved workbook, 
          :accept to let it open, or :save to save it, respectivly"
       when :forget
@@ -1013,9 +1025,31 @@ module RobustExcelOle
       General.canonize(@ole_workbook.Fullname.tr('\\','/')) rescue nil
     end
 
-    # @private
+    # @returns true, if the workbook is not in read-only mode
     def writable   
       !@ole_workbook.ReadOnly if @ole_workbook
+    end
+
+    # sets the writable mode
+    # @param [Bool] writable mode
+    # @options [Symbol] :if_unsaved     if the workbook is unsaved, then
+    #                     :raise               -> raise an exception (default)
+    #                    :forget              -> close the unsaved workbook, re-open the workbook
+    #                    :accept              -> let the unsaved workbook open
+    #                    :alert or :excel     -> give control to Excel
+    def writable=(opts)
+      options = {:if_unsaved => :raise}
+      if @ole_workbook && !opts.nil?
+        if opts.is_a?(Array)
+          options = {:read_only => !opts.first}.merge(opts.last)
+        else
+          options[:read_only] = !opts
+        end
+        if options[:read_only] != @ole_workbook.ReadOnly
+          manage_changing_readonly_mode(options)
+        end
+        opts.is_a?(Array) ? opts.first : opts
+      end
     end
 
     # @private

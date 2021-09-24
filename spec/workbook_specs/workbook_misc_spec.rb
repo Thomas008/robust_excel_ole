@@ -47,6 +47,186 @@ describe Workbook do
     end
   end
 
+    describe "writable=" do
+
+    it "should change from writable to readonly back to writable" do
+      book = Workbook.open(@simple_file1)
+      book.ReadOnly.should be false
+      book.writable = true
+      book.ReadOnly.should be false
+      book.writable = false
+      book.ReadOnly.should be true
+      book.writable = true
+      book.ReadOnly.should be false
+    end
+
+    it "should change from readonly to writable back to readonly" do
+      book = Workbook.open(@simple_file1, read_only: true)
+      book.ReadOnly.should be true
+      book.writable = false
+      book.ReadOnly.should be true
+      book.writable = true
+      book.ReadOnly.should be false
+      book.writable = false
+      book.ReadOnly.should be true
+    end
+
+    it "should change read-only to writable mode for an unsaved workbook" do
+      book = Workbook.open(@simple_file1, read_only: true)
+      book.ReadOnly.should be true
+      sheet = book.sheet(1)
+      old_value = sheet[1,1]
+      sheet[1,1] = (sheet[1,1] == "foo" ? "bar" : "foo")
+      new_value = sheet[1,1]
+      book.writable = false
+      book.ReadOnly.should be true
+      book.writable = true
+      book.ReadOnly.should be false
+      book.Saved.should be false
+      sheet[1,1].should == new_value
+    end
+
+    it "should save changes and change from read-only to writable with option :save" do
+      book = Workbook.open(@simple_file1, read_only: true)
+      book.ReadOnly.should be true
+      sheet = book.sheet(1)
+      old_value = sheet[1,1]
+      sheet[1,1] = (sheet[1,1] == "foo" ? "bar" : "foo")
+      new_value = sheet[1,1]
+      book.writable = true, {if_unsaved: :save}
+      book.ReadOnly.should be false
+      book.Saved.should be true
+      sheet[1,1].should_not == old_value
+      sheet[1,1].should == new_value
+    end
+
+    it "should discard changes and change from read-only to writable with option :forget" do
+      book = Workbook.open(@simple_file1, read_only: true)
+      book.ReadOnly.should be true
+      sheet = book.sheet(1)
+      old_value = sheet[1,1]
+      sheet[1,1] = (sheet[1,1] == "foo" ? "bar" : "foo")
+      new_value = sheet[1,1]
+      book.writable = true, {if_unsaved: :forget}
+      book.ReadOnly.should be false
+      book.close
+      book2 = Workbook.open(@simple_file1)
+      sheet2 = book2.sheet(1)
+      sheet2[1,1].should == old_value
+      sheet2[1,1].should_not == new_value
+    end
+
+    it "should raise error when tying to change writable to read-only mode for an unsaved workbook with option :raise" do
+      book = Workbook.open(@simple_file1, read_only: false)
+      book.ReadOnly.should be false
+      sheet = book.sheet(1)
+      old_value = sheet[1,1]
+      sheet[1,1] = (sheet[1,1] == "foo" ? "bar" : "foo")
+      new_value = sheet[1,1]
+      book.writable = true
+      book.ReadOnly.should be false
+      expect{
+        book.writable = false, {if_unsaved: :raise}
+      }.to raise_error(WorkbookNotSaved)
+    end
+
+    it "should save changes and change from writable to read-only with option :save" do
+      book = Workbook.open(@simple_file1, read_only: false)
+      book.ReadOnly.should be false
+      sheet = book.sheet(1)
+      old_value = sheet[1,1]
+      sheet[1,1] = (sheet[1,1] == "foo" ? "bar" : "foo")
+      new_value = sheet[1,1]
+      book.writable = false, {if_unsaved: :save}
+      book.ReadOnly.should be true
+      sheet[1,1].should_not == old_value
+      sheet[1,1].should == new_value
+    end
+
+    it "should discard changes and change from writable to read-only with option :forget" do
+      book = Workbook.open(@simple_file1, read_only: false)
+      book.ReadOnly.should be false
+      sheet = book.sheet(1)
+      old_value = sheet[1,1]
+      sheet[1,1] = (sheet[1,1] == "foo" ? "bar" : "foo")
+      new_value = sheet[1,1]
+      book.writable = false, {if_unsaved: :forget}
+      book.ReadOnly.should be true
+      book.close
+      book2 = Workbook.open(@simple_file1)
+      sheet2 = book2.sheet(1)
+      sheet2[1,1].should == old_value
+      sheet2[1,1].should_not == new_value
+    end
+
+    context "with :if_unsaved_and_changing_to_readonly => :excel or :alert" do
+     
+      before do
+        @book = Workbook.open(@simple_file1, v: true)
+        @book.ReadOnly.should be false
+        @sheet = @book.sheet(1)
+        @old_value = @sheet[1,1]
+        @sheet[1,1] = (@sheet[1,1] == "foo" ? "bar" : "foo")
+        @new_value = @sheet[1,1] 
+        @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '../helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
+      end
+
+      after do
+        @key_sender.close
+      end
+
+      it "should save changes, if user answers 'yes'" do
+        @key_sender.puts "{enter}"
+        @book.writable = false, {if_unsaved: :excel}
+        @book.ReadOnly.should be true
+        @book.Saved.should be true
+        @sheet[1,1].should == @new_value
+      end
+
+      it "should discard changes, if user answers 'no'" do
+        # "No" is right to "Yes" (the  default). --> language independent
+        # strangely, in the "no" case, the question will sometimes be repeated three times
+        #@book.excel.Visible = true
+        @key_sender.puts "{right}{enter}"
+        @key_sender.puts "{right}{enter}"
+        @key_sender.puts "{right}{enter}"
+        @book.writable = false, {if_unsaved: :excel}
+        @book.ReadOnly.should be true
+        @book.Saved.should be false
+        @book.close(if_unsaved: :forget)
+        book2 = Workbook.open(@simple_file1)
+        sheet2 = book2.sheet(1)
+        sheet2[1,1].should == @old_value
+      end
+
+      it "should save changes, if user answers 'yes'" do
+        @key_sender.puts "{enter}"
+        @book.writable = false, {if_unsaved: :alert}
+        @book.ReadOnly.should be true
+        @book.Saved.should be true
+        @sheet[1,1].should == @new_value
+      end
+
+      it "should discard changes, if user answers 'no'" do
+        # "No" is right to "Yes" (the  default). --> language independent
+        # strangely, in the "no" case, the question will sometimes be repeated three times
+        #@book.excel.Visible = true
+        @key_sender.puts "{right}{enter}"
+        @key_sender.puts "{right}{enter}"
+        @key_sender.puts "{right}{enter}"
+        @book.writable = false, {if_unsaved: :alert}
+        @book.ReadOnly.should be true
+        @book.Saved.should be false
+        @book.close
+        book2 = Workbook.open(@simple_file1)
+        sheet2 = book2.sheet(1)
+        sheet2[1,1].should == @old_value
+      end
+
+    end
+
+  end
+
   describe "for_this_workbook" do
 
     before do

@@ -56,6 +56,212 @@ describe Workbook do
     rm_tmp(@dir)
   end
 
+    describe "changing ReadOnly mode" do
+
+    it "should change from writable to readonly back to writable" do
+      book = Workbook.open(@simple_file1)
+      book.ReadOnly.should be false
+      book2 = Workbook.open(@simple_file1, read_only: true)
+      book2.should == book
+      book2.ReadOnly.should be true
+      book3 = Workbook.open(@simple_file1, read_only: false)
+      book3.should == book
+      book3.ReadOnly.should be false
+      book3.close
+    end
+
+    it "should change from readonly to writable back to readonly" do
+      book = Workbook.open(@simple_file1, read_only: true)
+      book.ReadOnly.should be true
+      book2 = Workbook.open(@simple_file1, read_only: false)
+      book2.should == book
+      book2.ReadOnly.should be false
+      book3 = Workbook.open(@simple_file1, read_only: true)
+      book3.should == book
+      book3.ReadOnly.should be true
+      book3.close
+    end
+
+    it "should raise error when read-only workbook unsaved and trying to reopen workbook writable by default" do
+      book = Workbook.open(@simple_file1, read_only: true)
+      book.ReadOnly.should be true
+      sheet = book.sheet(1)
+      old_value = sheet[1,1]
+      sheet[1,1] = (sheet[1,1] == "foo" ? "bar" : "foo")
+      new_value = sheet[1,1]
+      expect{
+        Workbook.open(@simple_file1, read_only: false)
+      }.to raise_error(WorkbookNotSaved)
+    end
+
+    it "should raise error when read-only workbook unsaved and trying to reopen workbook writable with option :raise" do
+      book = Workbook.open(@simple_file1, read_only: true)
+      book.ReadOnly.should be true
+      sheet = book.sheet(1)
+      old_value = sheet[1,1]
+      sheet[1,1] = (sheet[1,1] == "foo" ? "bar" : "foo")
+      new_value = sheet[1,1]
+      expect{
+        Workbook.open(@simple_file1, read_only: false, if_unsaved: :raise)
+      }.to raise_error(WorkbookNotSaved)
+    end
+
+    it "should save changes and change from read-only to writable with option :save" do
+      book = Workbook.open(@simple_file1, read_only: true)
+      book.ReadOnly.should be true
+      sheet = book.sheet(1)
+      old_value = sheet[1,1]
+      sheet[1,1] = (sheet[1,1] == "foo" ? "bar" : "foo")
+      new_value = sheet[1,1]
+      book2 = Workbook.open(@simple_file1, if_unsaved: :save, read_only: false)
+      book2.should == book
+      book2.ReadOnly.should be false
+      sheet[1,1].should_not == old_value
+      sheet[1,1].should == new_value
+    end
+
+    it "should discard changes and change from read-only to writable with options :forget" do
+      book = Workbook.open(@simple_file1, read_only: true)
+      book.ReadOnly.should be true
+      sheet = book.sheet(1)
+      old_value = sheet[1,1]
+      sheet[1,1] = (sheet[1,1] == "foo" ? "bar" : "foo")
+      new_value = sheet[1,1]
+      book2 = Workbook.open(@simple_file1, if_unsaved: :forget, read_only: false)
+      book2.should == book
+      book2.ReadOnly.should be false
+      book2.close
+      book3 = Workbook.open(@simple_file1)
+      sheet3 = book3.sheet(1)
+      sheet3[1,1].should == old_value
+      sheet3[1,1].should_not == new_value
+    end
+
+    it "should raise error when writable workbook unsaved and trying to reopen workbook read-only by default" do
+      book = Workbook.open(@simple_file1, read_only: false)
+      book.ReadOnly.should be false
+      sheet = book.sheet(1)
+      old_value = sheet[1,1]
+      sheet[1,1] = (sheet[1,1] == "foo" ? "bar" : "foo")
+      new_value = sheet[1,1]
+      expect{
+        Workbook.open(@simple_file1, read_only: true)
+      }.to raise_error(WorkbookNotSaved)
+    end
+
+    it "should raise error when writable workbook unsaved and trying to reopen workbook read-only with option :raise" do
+      book = Workbook.open(@simple_file1, read_only: false)
+      book.ReadOnly.should be false
+      sheet = book.sheet(1)
+      old_value = sheet[1,1]
+      sheet[1,1] = (sheet[1,1] == "foo" ? "bar" : "foo")
+      new_value = sheet[1,1]
+      expect{
+        Workbook.open(@simple_file1, read_only: true, if_unsaved: :raise)
+      }.to raise_error(WorkbookNotSaved)
+    end
+
+    it "should save changes and change from writable to read-only with option :save" do
+      book = Workbook.open(@simple_file1, read_only: false)
+      book.ReadOnly.should be false
+      sheet = book.sheet(1)
+      old_value = sheet[1,1]
+      sheet[1,1] = (sheet[1,1] == "foo" ? "bar" : "foo")
+      new_value = sheet[1,1]
+      book2 = Workbook.open(@simple_file1, if_unsaved: :save, read_only: true)
+      book2.should == book
+      book2.ReadOnly.should be true
+      sheet[1,1].should_not == old_value
+      sheet[1,1].should == new_value
+    end
+
+    it "should discard changes and change from writable to read-only with options :forget" do
+      book = Workbook.open(@simple_file1, read_only: false)
+      book.ReadOnly.should be false
+      sheet = book.sheet(1)
+      old_value = sheet[1,1]
+      sheet[1,1] = (sheet[1,1] == "foo" ? "bar" : "foo")
+      new_value = sheet[1,1]
+      book2 = Workbook.open(@simple_file1, if_unsaved: :forget, read_only: true)
+      book2.should == book
+      book2.ReadOnly.should be true
+      book2.close
+      book3 = Workbook.open(@simple_file1)
+      sheet3 = book3.sheet(1)
+      sheet3[1,1].should == old_value
+      sheet3[1,1].should_not == new_value
+    end
+
+    context "with :if_unsaved_and_changing_to_readonly => :excel or :alert" do
+     
+      before do
+        @book = Workbook.open(@simple_file1, v: true)
+        @book.ReadOnly.should be false
+        @sheet = @book.sheet(1)
+        @old_value = @sheet[1,1]
+        @sheet[1,1] = (@sheet[1,1] == "foo" ? "bar" : "foo")
+        @new_value = @sheet[1,1] 
+        @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '../helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
+      end
+
+      after do
+        @key_sender.close
+      end
+
+      it "should save changes, if user answers 'yes'" do
+        @key_sender.puts "{enter}"
+        book2 = Workbook.open(@simple_file1, read_only: true, if_unsaved: :excel)
+        book2.should == @book
+        book2.ReadOnly.should be true
+        book2.Saved.should be true
+        @sheet[1,1].should == @new_value
+      end
+
+      it "should discard changes, if user answers 'no'" do
+        # "No" is right to "Yes" (the  default). --> language independent
+        # strangely, in the "no" case, the question will sometimes be repeated three times
+        #@book.excel.Visible = true
+        @key_sender.puts "{right}{enter}"
+        @key_sender.puts "{right}{enter}"
+        @key_sender.puts "{right}{enter}"
+        book2 = Workbook.open(@simple_file1, read_only: true, if_unsaved: :excel)
+        book2.ReadOnly.should be true
+        book2.Saved.should be true
+        book2.close
+        book3 = Workbook.open(@simple_file1)
+        sheet3 = book3.sheet(1)
+        sheet3[1,1].should == @old_value
+      end
+
+      it "should save changes, if user answers 'yes'" do
+        @key_sender.puts "{enter}"
+        book2 = Workbook.open(@simple_file1, read_only: true, if_unsaved: :alert)
+        book2.should == @book
+        book2.ReadOnly.should be true
+        book2.Saved.should be true
+        @sheet[1,1].should == @new_value
+      end
+
+      it "should discard changes, if user answers 'no'" do
+        # "No" is right to "Yes" (the  default). --> language independent
+        # strangely, in the "no" case, the question will sometimes be repeated three times
+        #@book.excel.Visible = true
+        @key_sender.puts "{right}{enter}"
+        @key_sender.puts "{right}{enter}"
+        @key_sender.puts "{right}{enter}"
+        book2 = Workbook.open(@simple_file1, read_only: true, if_unsaved: :alert)
+        book2.ReadOnly.should be true
+        book2.Saved.should be true
+        book2.close
+        book3 = Workbook.open(@simple_file1)
+        sheet3 = book3.sheet(1)
+        sheet3[1,1].should == @old_value
+      end
+
+    end
+
+  end
+ 
   describe "linked workbooks" do
 
     context "standard" do

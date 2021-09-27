@@ -25,6 +25,7 @@ module User32
   # Import C functions from loaded libraries and set them as module functions
   extern 'DWORD GetWindowThreadProcessId(HWND, LPDWORD)'
   extern 'HWND FindWindowExA(HWND, HWND, LPCSTR, LPCSTR)'
+  extern 'DWORD SetForegroundWindow(HWND)'
 end
 
 module Oleacc
@@ -713,7 +714,9 @@ module RobustExcelOle
     def focus
       self.visible = true
       # if not Windows10 then
-      Win32API.new('user32','SetForegroundWindow','I','I').call(@ole_excel.Hwnd)
+      status = User32::SetForegroundWindow(@ole_excel.Hwnd)
+      raise ExcelREOError, "could not set Excel window as foreground" unless status == 0
+      #Win32API.new('user32','SetForegroundWindow','I','I').call(@ole_excel.Hwnd)
       # else
       # Win32API.new("user32","SetForegroundWindow","","I").call
       # end

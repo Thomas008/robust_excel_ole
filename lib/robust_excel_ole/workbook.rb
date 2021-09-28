@@ -260,6 +260,7 @@ module RobustExcelOle
       @ole_workbook = workbooks.Item(File.basename(filename)) rescue nil if @ole_workbook.nil?
       if @ole_workbook && alive?
         set_was_open options, true
+        #open_or_create_workbook(filename,options) if (!options[:read_only].nil?) && options[:read_only] 
         manage_changing_readonly_mode(options) if (!options[:read_only].nil?) && options[:read_only] != @ole_workbook.ReadOnly
         manage_blocking_or_unsaved_workbook(filename,options)
       else
@@ -278,6 +279,7 @@ module RobustExcelOle
     def apply_options(filename, options)
       # changing read-only mode      
       if (!options[:read_only].nil?) && options[:read_only] != @ole_workbook.ReadOnly
+        # ensure_workbook(filename, options) 
         manage_changing_readonly_mode(options)
       end
       retain_saved do
@@ -1033,24 +1035,21 @@ module RobustExcelOle
     # sets the writable mode
     # @param [Bool] writable mode
     # @options [Symbol] :if_unsaved     if the workbook is unsaved, then
-    #                     :raise               -> raise an exception (default)
+    #                    :raise               -> raise an exception (default)
     #                    :forget              -> close the unsaved workbook, re-open the workbook
     #                    :accept              -> let the unsaved workbook open
     #                    :alert or :excel     -> give control to Excel
     def writable=(opts)
-      options = {:if_unsaved => :raise}
+      writable_value, unsaved_opts = *opts
       if @ole_workbook && !opts.nil?
-        if opts.is_a?(Array)
-          options = {:read_only => !opts.first}.merge(opts.last)
-        else
-          options[:read_only] = !opts
-        end
-        if options[:read_only] != @ole_workbook.ReadOnly
-          manage_changing_readonly_mode(options)
-        end
-        opts.is_a?(Array) ? opts.first : opts
+        options = {:if_unsaved => :raise}
+        options = options.merge(unsaved_opts) if unsaved_opts
+        options = {:read_only => !writable_value}.merge(options)
+        manage_changing_readonly_mode(options) if options[:read_only] != @ole_workbook.ReadOnly
       end
+      writable_value
     end
+
 
     # @private
     def saved  

@@ -79,8 +79,8 @@ describe ListRow do
       table1 = @sheet.table(1)
       tablerow1 = table1[2]
       ole_tablerow1 = tablerow1.ole_tablerow
-      ListRow.new(ole_tablerow1).values.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
-      ListRow.new(tablerow1).values.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
+      ListRow.new(ole_tablerow1).values.should == [2.0, "Fred", 0, 0.5416666666666666, 40]
+      ListRow.new(tablerow1).values.should == [2.0, "Fred", 0, 0.5416666666666666, 40]
     end 
   end
 
@@ -91,13 +91,13 @@ describe ListRow do
     end
 
     it "should yield values of a row" do
-      @table1[2].to_a.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
-      @table1[2].values.should == [2.0, "Fred", nil, 0.5416666666666666, 40]
+      @table1[2].to_a.should == [2.0, "Fred", 0, 0.5416666666666666, 40]
+      @table1[2].values.should == [2.0, "Fred", 0, 0.5416666666666666, 40]
     end
 
     it "should yield key-value pairs of a row" do
-      @table1[2].to_h.should == {"Number" => 2.0, "Person" => "Fred", "Amount" => nil, "Time" => 0.5416666666666666, "Price" => 40}
-      @table1[2].keys_values.should == {"Number" => 2.0, "Person" => "Fred", "Amount" => nil, "Time" => 0.5416666666666666, "Price" => 40}
+      @table1[2].to_h.should == {"Number" => 2.0, "Person" => "Fred", "Amount" => 0, "Time" => 0.5416666666666666, "Price" => 40}
+      @table1[2].keys_values.should == {"Number" => 2.0, "Person" => "Fred", "Amount" => 0, "Time" => 0.5416666666666666, "Price" => 40}
     end
 
     it "should yield values and key-value pairs of a row with umlauts" do

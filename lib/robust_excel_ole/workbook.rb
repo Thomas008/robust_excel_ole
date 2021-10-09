@@ -1033,15 +1033,15 @@ module RobustExcelOle
     end
 
     # sets the writable mode
-    # @param [Bool] writable mode
+    # @param [Bool] writable mode (true: read-write-mode, false: read-only mode)
     # @options [Symbol] :if_unsaved     if the workbook is unsaved, then
     #                    :raise               -> raise an exception (default)
     #                    :forget              -> close the unsaved workbook, re-open the workbook
     #                    :accept              -> let the unsaved workbook open
     #                    :alert or :excel     -> give control to Excel
-    def writable=(opts)
-      writable_value, unsaved_opts = *opts
-      if @ole_workbook && !opts.nil?
+    def writable=(value_and_opts)
+      writable_value, unsaved_opts = *value_and_opts
+      if @ole_workbook && !value_and_opts.nil?
         options = {:if_unsaved => :raise}
         options = options.merge(unsaved_opts) if unsaved_opts
         options = {:read_only => !writable_value}.merge(options)

@@ -49,7 +49,6 @@ module Oleacc
   extern 'HRESULT AccessibleObjectFromWindow(HWND, DWORD, struct guid*, ppvObject)'
   #typealias 'REFIID', 'struct guid*'
   #extern 'HRESULT AccessibleObjectFromWindow(HWND, DWORD, REFIID, ppvObject)'
-  
   #extern 'HRESULT AccessibleObjectFromWindow(HWND, DWORD, struct GUID*, ppvObject)'
   #extern 'HRESULT AccessibleObjectFromWindow(HWND, DWORD, void*, ppvObject)'
   #extern 'HRESULT AccessibleObjectFromWindow(HWND, DWORD, struct GUID*, ppvObject)'
@@ -713,13 +712,8 @@ module RobustExcelOle
 
     def focus
       self.visible = true
-      # if not Windows10 then
       status = User32::SetForegroundWindow(@ole_excel.Hwnd)
-      raise ExcelREOError, "could not set Excel window as foreground" unless status == 0
-      #Win32API.new('user32','SetForegroundWindow','I','I').call(@ole_excel.Hwnd)
-      # else
-      # Win32API.new("user32","SetForegroundWindow","","I").call
-      # end
+      raise ExcelREOError, "could not set Excel window as foreground" if status == 0     
     end
     
     # @private

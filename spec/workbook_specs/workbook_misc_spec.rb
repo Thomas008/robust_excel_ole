@@ -1031,10 +1031,10 @@ describe Workbook do
       }.to_not raise_error
       expect {
         @book1.namevalue_global("foo", :default => :__not_provided)
-      }.to raise_error(NameNotFound, /name "foo" not in #<Workbook: another_workbook/)
+      }.to raise_error(NameNotFound, /cannot find name "foo"/)
       expect {
         @book1.namevalue_global("foo")
-      }.to raise_error(NameNotFound, /name "foo" not in #<Workbook: another_workbook/)
+      }.to raise_error(NameNotFound, /cannot find name "foo"/)
       @book1.namevalue_global("foo", :default => nil).should be_nil
       @book1.namevalue_global("foo", :default => 1).should == 1
       expect {

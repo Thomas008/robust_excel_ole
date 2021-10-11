@@ -15,22 +15,25 @@ module RobustExcelOle
     # @option opts [Symbol] :default  the default value that is provided if no contents could be returned
     # @return [Variant] the contents of a range with given name
     def namevalue_global(name, opts = { default: :__not_provided })
-      name_obj = begin
-        get_name_object(name)
-      rescue NameNotFound => msg
-        raise
-      end
-      ole_range = name_obj.RefersToRange
-      worksheet = self if self.is_a?(Worksheet)
-      value = begin
-        if !::RANGES_JRUBY_BUG       
-          ole_range.Value
-        else
-          values = RobustExcelOle::Range.new(ole_range, worksheet).v
-          (values.size==1 && values.first.size==1) ? values.first.first : values
+      begin
+        name_obj = begin
+          get_name_object(name)
+        rescue NameNotFound
+          raise
         end
-      rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException 
+        ole_range = name_obj.RefersToRange
+        worksheet = self if self.is_a?(Worksheet)
+        value = begin
+          if !::RANGES_JRUBY_BUG       
+           ole_range.Value
+          else
+            values = RobustExcelOle::Range.new(ole_range, worksheet).v
+            (values.size==1 && values.first.size==1) ? values.first.first : values
+          end
+        end
+      rescue # WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException 
         sheet = if self.is_a?(Worksheet) then self
+        # chooses simply the 1st worksheet?
         elsif self.is_a?(Workbook) then self.sheet(1)
         end
         begin
@@ -42,16 +45,20 @@ module RobustExcelOle
             values = RobustExcelOle::Range.new(ole_range, worksheet).v
             (values.size==1 && values.first.size==1) ? values.first.first : values
           end
-        rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException 
+        rescue # WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException 
           return opts[:default] unless opts[:default] == :__not_provided
-          raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{self}"
+          if name_obj.nil?
+            raise NameNotFound, "cannot find name #{name.inspect}"
+          else
+            raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect}"
+          end
         end
       end
       if value == -2146828288 + RobustExcelOle::XlErrName
         return opts[:default] unless opts[:default] == :__not_provided
         raise RangeNotEvaluatable, "cannot evaluate range named #{name.inspect} in #{File.basename(workbook.stored_filename).inspect rescue nil}"
       end
-      return opts[:default] unless (opts[:default] == :__not_provided) || value.nil?
+      return opts[:default] if opts[:default] != :__not_provided && !value.nil?
       value
     end
 
@@ -155,7 +162,7 @@ module RobustExcelOle
       self.Names.to_a.map(&:name)
     end
 
-  private
+  #private
 
     def get_name_object(name)
       self.Names.Item(name)

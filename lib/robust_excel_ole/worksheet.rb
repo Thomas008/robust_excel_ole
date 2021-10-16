@@ -119,7 +119,7 @@ module RobustExcelOle
             end
           rescue
             address2_string = (address2.nil? || address2 == :__not_provided) ? "" : ", #{address2.inspect}"
-            raise RangeNotCreated, "cannot find name or address #{name_or_address.inspect}#{address2_string})"
+            raise RangeNotCreated, "cannot find name or address #{name_or_address.inspect}#{address2_string}"
           end
         end
       end

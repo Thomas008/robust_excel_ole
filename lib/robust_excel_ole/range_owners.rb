@@ -162,7 +162,7 @@ module RobustExcelOle
       self.Names.to_a.map(&:name)
     end
 
-  #private
+  private
 
     def get_name_object(name)
       self.Names.Item(name)

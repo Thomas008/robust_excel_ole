@@ -47,129 +47,6 @@ describe Workbook do
     end
   end
 
-   describe "namevalue_global, set_namevalue_global, [], []=" do
-  
-    before do
-      @book1 = Workbook.open(@another_simple_file)
-    end
-
-    after do
-      @book1.close(:if_unsaved => :forget)
-    end   
-
-    it "should return value of a range" do
-      @book1.namevalue_global("new").should == "foo"
-      @book1.namevalue_global("one").should == 1
-      @book1.namevalue_global("firstrow").should == [[1,2]]        
-      @book1.namevalue_global("four").should == [[1,2],[3,4]]
-      @book1.namevalue_global("firstrow").should_not == "12"
-      @book1.namevalue_global("firstcell").should == "foo"        
-    end
-
-    it "should return value of a range via []" do
-      @book1["new"].should == "foo"
-      @book1["one"].should == 1
-      @book1["firstrow"] == [[1,2]]        
-      @book1["four"].should == [[1,2],[3,4]]
-      @book1["firstrow"].should_not == "12"
-      @book1["firstcell"].should == "foo"        
-    end
-
-    it "should set value of a range" do
-      @book1.set_namevalue_global("new", "bar")
-      @book1.namevalue_global("new").should == "bar"
-    end
-
-    it "should set a range to a value with umlauts" do
-      @book1.sheet(1).add_name("lösung", [1,1])
-      @book1.namevalue_global("lösung").should == "foo"
-      @book1.set_namevalue_global("lösung","bar")
-      @book1.namevalue_global("lösung").should == "bar"
-    end
-
-    it "should set value of a range via []=" do
-      @book1["new"] = "bar"
-      @book1.namevalue_global("new").should == "bar"
-    end
-
-    #it "should evaluate a formula" do
-    #  @book1.namevalue_global("named_formula").should == 4      
-    #end
-
-    #it "should evaluate a formula via []" do
-    #  @book1["named_formula"].should == 4      
-    #end
-
-    it "should raise an error if name not defined and default value is not provided" do
-      expect {
-        @book1.namevalue_global("foo", :default => 1)
-      }.to_not raise_error
-      expect {
-        @book1.namevalue_global("foo", :default => :__not_provided)
-      }.to raise_error(NameNotFound, /cannot find name "foo"/)
-      expect {
-        @book1.namevalue_global("foo")
-      }.to raise_error(NameNotFound, /cannot find name "foo"/)
-      @book1.namevalue_global("foo", :default => nil).should be_nil
-      @book1.namevalue_global("foo", :default => 1).should == 1
-      expect {
-          @book1.set_namevalue_global("foo","bar")
-      }.to raise_error(RangeNotEvaluatable, /cannot assign value to range named "foo"/)
-      expect {
-          @book1["foo"] = "bar"
-      }.to raise_error(RangeNotEvaluatable, /cannot assign value to range named "foo"/)
-      @book1.namevalue_global("empty", :default => 1).should be_nil
-    end    
-
-    it "should raise an error if name was defined but contents is calcuated" do
-      expect {
-        @book1.set_namevalue_global("named_formula","bar")
-      }.to raise_error(RangeNotEvaluatable, /cannot assign value to range named "named_formula" in #<Workbook: another_workbook/)
-      expect {
-        @book1["named_formula"] = "bar"
-      }.to raise_error(RangeNotEvaluatable, /cannot assign value to range named "named_formula" in #<Workbook: another_workbook/)
-    end
-
-    # Excel Bug: for local names without uqifier: takes the first sheet as default even if another sheet is activated
-    it "should take the first sheet as default even if the second sheet is activated" do
-      @book1.namevalue_global("Sheet1!localname").should == "bar"
-      @book1.namevalue_global("Sheet2!localname").should == "simple"
-      @book1.namevalue_global("localname").should == "bar"
-      @book1.Worksheets.Item(2).Activate
-      @book1.namevalue_global("localname").should == "bar"
-      @book1.Worksheets.Item(1).Delete
-      @book1.namevalue_global("localname").should == "simple"
-    end
-
-    it "should color the cell (deprecated)" do
-      @book1.set_namevalue_global("new", "bar")
-      @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
-      @book1.set_namevalue_global("new", "bar", :color => 4)
-      @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
-      @book1["new"].should == "bar"
-      @book1["new"] = "bar"
-      @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
-      @book1.save
-      @book1.close
-      #book2 = Workbook.open(@simple_file1, :visible =>  true)
-      #book2.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 42
-    end
-
-    it "should color the cell" do
-      @book1.set_namevalue_global("new", "bar")
-      @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == -4142
-      @book1.set_namevalue_global("new", "bar", :color => 4)
-      @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
-      @book1["new"].should == "bar"
-      @book1["new"] = "bar"
-      @book1.Names.Item("new").RefersToRange.Interior.ColorIndex.should == 4
-      @book1.save
-      @book1.close
-    end
-
-  end
-
-
   describe "writable=" do
 
     it "should change from writable to readonly back to writable" do
@@ -282,10 +159,10 @@ describe Workbook do
       sheet2[1,1].should_not == new_value
     end
 
-    context "with :if_unsaved_and_changing_to_readonly => :excel or :alert" do
+    context "with :if_unsaved => :excel or :alert and from read-only to read-write" do
      
       before do
-        @book = Workbook.open(@simple_file1, v: true)
+        @book = Workbook.open(@simple_file1, v: true, readonly: true)
         @book.ReadOnly.should be false
         @sheet = @book.sheet(1)
         @old_value = @sheet[1,1]
@@ -298,52 +175,119 @@ describe Workbook do
         @key_sender.close
       end
 
-      it "should save changes, if user answers 'yes'" do
+      # question to the user, whether the workbook shall be reopened and discard any changes
+
+      it "should discard changes and reopen the workbook, if user answers 'yes'" do
         @key_sender.puts "{enter}"
-        @book.writable = false, {if_unsaved: :excel}
-        @book.ReadOnly.should be true
+        @book.writable = true, {if_unsaved: :excel}
+        @book.ReadOnly.should be false
         @book.Saved.should be true
-        @sheet[1,1].should == @new_value
-      end
-
-      it "should discard changes, if user answers 'no'" do
-        # "No" is right to "Yes" (the  default). --> language independent
-        # strangely, in the "no" case, the question will sometimes be repeated three times
-        #@book.excel.Visible = true
-        @key_sender.puts "{right}{enter}"
-        @key_sender.puts "{right}{enter}"
-        @key_sender.puts "{right}{enter}"
-        @book.writable = false, {if_unsaved: :excel}
-        @book.ReadOnly.should be true
-        @book.Saved.should be false
-        @book.close(if_unsaved: :forget)
-        book2 = Workbook.open(@simple_file1)
-        sheet2 = book2.sheet(1)
-        sheet2[1,1].should == @old_value
-      end
-
-      it "should save changes, if user answers 'yes'" do
-        @key_sender.puts "{enter}"
-        @book.writable = false, {if_unsaved: :alert}
-        @book.ReadOnly.should be true
-        @book.Saved.should be true
-        @sheet[1,1].should == @new_value
-      end
-
-      it "should discard changes, if user answers 'no'" do
-        # "No" is right to "Yes" (the  default). --> language independent
-        # strangely, in the "no" case, the question will sometimes be repeated three times
-        #@book.excel.Visible = true
-        @key_sender.puts "{right}{enter}"
-        @key_sender.puts "{right}{enter}"
-        @key_sender.puts "{right}{enter}"
-        @book.writable = false, {if_unsaved: :alert}
-        @book.ReadOnly.should be true
-        @book.Saved.should be false
+        @sheet[1,1].should == @old_value
         @book.close
-        book2 = Workbook.open(@simple_file1)
-        sheet2 = book2.sheet(1)
-        sheet2[1,1].should == @old_value
+        book1 = Workbook.open(@simple_file1)
+        sheet = book1.sheet(1)
+        sheet[1,1].should == @old_value
+      end
+
+      it "should not discard changes and reopen the workbook, if user answers 'no'" do
+        # "No" is right to "Yes" (the  default). --> language independent
+        # strangely, in the "no" case, the question will sometimes be repeated three times
+        #@book.excel.Visible = true
+        @key_sender.puts "{right}{enter}"
+        @key_sender.puts "{right}{enter}"
+        @key_sender.puts "{right}{enter}"
+        @book.writable = true, {if_unsaved: :excel}
+        @book.ReadOnly.should be false
+        @book.Saved.should be false
+        @sheet[1,1].should == @new_value
+        @book.close(if_unsaved: :forget)
+        book1 = Workbook.open(@simple_file1)
+        sheet = book1.sheet(1)
+        sheet[1,1].should == @old_value
+      end
+     
+    end
+
+    context "with :if_unsaved => :excel or :alert and from writable to read-only" do
+     
+      before do
+        @book = Workbook.open(@simple_file1, v: true, readonly: false)
+        @book.ReadOnly.should be false
+        @sheet = @book.sheet(1)
+        @old_value = @sheet[1,1]
+        @sheet[1,1] = (@sheet[1,1] == "foo" ? "bar" : "foo")
+        @new_value = @sheet[1,1] 
+        @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '../helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
+      end
+
+      after do
+        @key_sender.close
+      end
+
+      # question to the user, whether to save the changes before changing read-only mode
+      it "should save the workbook, if user answers 'no' and 'yes'" do
+        # "No" is right to "Yes" (the  default). --> language independent
+        @key_sender.puts "{right}{enter}"
+        # 2nd question to the user: whether the workbook shall be reopened and discard any changes 
+        # "No" is right to "Yes" (the  default). --> language independent       
+        @key_sender.puts "{right}{enter}"
+        @key_sender.puts "{right}{enter}"
+        @key_sender.puts "{right}{enter}"
+        # 3rd question whether the workbook shall be saved
+        # "Yes"
+        @key_sender.puts "{enter}"
+        book2 = Workbook.open(@simple_file1, read_only: true, if_unsaved: :excel)
+        book2.ReadOnly.should be true
+        book2.Saved.should be false
+        @sheet[1,1].should == @new_value
+        book2.close(if_unsaved: :forget)
+        book3 = Workbook.open(@simple_file1)
+        sheet3 = book3.sheet(1)
+        sheet3[1,1].should == @old_value
+      end
+
+      it "should discard (not save) the workbook, if user answers 'no' and 'no'" do
+        # "No" is right to "Yes" (the  default). --> language independent
+        @key_sender.puts "{right}{enter}"
+        # 2nd question to the user: whether the workbook shall be reopened and discard any changes 
+        # "No" is right to "Yes" (the  default). --> language independent       
+        @key_sender.puts "{right}{enter}"
+        @key_sender.puts "{right}{enter}"
+        @key_sender.puts "{right}{enter}"
+        # 3rd question whether the workbook shall be saved
+        # "No"
+        @key_sender.puts "{right}{enter}"
+        @key_sender.puts "{right}{enter}"
+        book2 = Workbook.open(@simple_file1, read_only: true, if_unsaved: :excel)
+        book2.ReadOnly.should be true
+        book2.Saved.should be false
+        @sheet[1,1].should == @new_value
+        book2.close(if_unsaved: :forget)
+        book3 = Workbook.open(@simple_file1)
+        sheet3 = book3.sheet(1)
+        sheet3[1,1].should == @old_value
+      end
+
+      it "should not save (discard) changes and not reopen the workbook, if user answers 'no' and 'cancel'" do
+        # "No" is right to "Yes" (the  default). --> language independent
+        @key_sender.puts "{right}{enter}"
+        # 2nd question to the user: whether the workbook shall be reopened and discard any changes 
+        # "No" is right to "Yes" (the  default). --> language independent       
+        @key_sender.puts "{right}{enter}"
+        @key_sender.puts "{right}{enter}"
+        @key_sender.puts "{right}{enter}"
+        # 3rd question whether the workbook shall be saved
+        # "Cancel"
+        @key_sender.puts "{right}{right}{enter}"
+        @key_sender.puts "{right}{right}{enter}"
+        book2 = Workbook.open(@simple_file1, read_only: true, if_unsaved: :excel)
+        book2.ReadOnly.should be true
+        book2.Saved.should be false
+        @sheet[1,1].should == @new_value
+        book2.close(if_unsaved: :forget)
+        book3 = Workbook.open(@simple_file1, if_unsaved: :forget)
+        sheet3 = book3.sheet(1)
+        sheet3[1,1].should == @old_value
       end
 
     end

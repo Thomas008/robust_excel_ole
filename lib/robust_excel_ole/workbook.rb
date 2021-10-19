@@ -261,7 +261,7 @@ module RobustExcelOle
       if @ole_workbook && alive?
         set_was_open options, true
         #open_or_create_workbook(filename,options) if (!options[:read_only].nil?) && options[:read_only] 
-        manage_changing_readonly_mode(filename, options) if (!options[:read_only].nil?) && options[:read_only] != @ole_workbook.ReadOnly
+        manage_changing_readonly_mode(options) if (!options[:read_only].nil?) && options[:read_only] != @ole_workbook.ReadOnly
         manage_blocking_or_unsaved_workbook(filename,options)
       else
         if (excel_option.nil? || excel_option == :current) &&  
@@ -280,7 +280,7 @@ module RobustExcelOle
       # changing read-only mode      
       if (!options[:read_only].nil?) && options[:read_only] != @ole_workbook.ReadOnly
         # ensure_workbook(filename, options) 
-        manage_changing_readonly_mode(filename, options)
+        manage_changing_readonly_mode(options)
       end
       retain_saved do
         self.visible = options[:force][:visible].nil? ? @excel.Visible : options[:force][:visible]
@@ -314,23 +314,24 @@ module RobustExcelOle
       @excel = excel_class.new(ole_excel)
     end
 
-    def manage_changing_readonly_mode(filename, options)
-      displayalerts = @excel.DisplayAlerts
+    def manage_changing_readonly_mode(options)
       if !ole_workbook.Saved && options[:read_only]      
-        manage_unsaved_workbook_when_changing_readonly_mode(filename, options) 
+        manage_unsaved_workbook_when_changing_readonly_mode(options) 
       end
-      change_readonly_mode(options, displayalerts)
+      change_readonly_mode(options)
     end
 
-    def change_readonly_mode(options, displayalerts)
+    def change_readonly_mode(options)
       read_write_value = options[:read_only] ? RobustExcelOle::XlReadOnly : RobustExcelOle::XlReadWrite
-
+      give_control_to_excel = !ole_workbook.Saved && options[:read_only] && 
+                              (options[:if_unsaved] == :excel || options[:if_unsaved] == :alert)
+      displayalerts = give_control_to_excel ? true : @excel.Displayalerts
       @excel.with_displayalerts(displayalerts) {
         @ole_workbook.ChangeFileAccess('Mode' => read_write_value)
       }
     end
 
-    def manage_unsaved_workbook_when_changing_readonly_mode(filename, options)
+    def manage_unsaved_workbook_when_changing_readonly_mode(options)
       case options[:if_unsaved] 
       when :raise
         if options[:read_only]        
@@ -344,7 +345,8 @@ module RobustExcelOle
       when :forget
         @ole_workbook.Saved = true
       when :alert, :excel
-        displayalerts = true
+        # displayalerts = true
+        # nothing
       else
         raise OptionInvalid, ":if_unsaved: invalid option: #{options[:if_unsaved].inspect}" +
         "\nHint: Valid values are :raise, :forget, :save, :excel"
@@ -1038,7 +1040,7 @@ module RobustExcelOle
         options = options.merge(unsaved_opts) if unsaved_opts
         options = {:read_only => !writable_value}.merge(options)
         if options[:read_only] != @ole_workbook.ReadOnly
-          manage_changing_readonly_mode(filename, options) 
+          manage_changing_readonly_mode(options) 
           manage_unsaved_workbook(filename,options) if !@ole_workbook.Saved && unsaved_opts
         end
       end

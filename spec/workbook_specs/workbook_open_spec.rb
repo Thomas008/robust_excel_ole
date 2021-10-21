@@ -201,11 +201,9 @@ describe Workbook do
       end
 
       # question to the user, whether the workbook shall be reopened and discard any changes
-
       it "should discard changes and reopen the workbook, if user answers 'yes'" do
         @key_sender.puts "{enter}"
         book2 = Workbook.open(@simple_file1, read_only: false, if_unsaved: :excel)
-        book2.should == @book
         book2.ReadOnly.should be false
         book2.Saved.should be true
         @sheet[1,1].should == @old_value
@@ -235,6 +233,8 @@ describe Workbook do
       context "with :if_unsaved => :excel or :alert and from writable to read-only" do
      
         before do
+          Excel.kill_all
+          sleep 3
           @book = Workbook.open(@simple_file1, v: true, readonly: false)
           @book.ReadOnly.should be false
           @sheet = @book.sheet(1)

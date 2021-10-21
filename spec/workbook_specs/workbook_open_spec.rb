@@ -230,92 +230,111 @@ describe Workbook do
         sheet3[1,1].should == @old_value
       end
 
-      context "with :if_unsaved => :excel or :alert and from writable to read-only" do
+    end
+
+    context "with :if_unsaved => :excel or :alert and from writable to read-only" do
      
-        before do
-          Excel.kill_all
-          sleep 3
-          @book = Workbook.open(@simple_file1, v: true, readonly: false)
-          @book.ReadOnly.should be false
-          @sheet = @book.sheet(1)
-          @old_value = @sheet[1,1]
-          @sheet[1,1] = (@sheet[1,1] == "foo" ? "bar" : "foo")
-          @new_value = @sheet[1,1] 
-          @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '../helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
-        end
-
-        after do
-          @key_sender.close
-        end
-
-        # question to the user, whether to save the changes before changing read-only mode
-        it "should save the workbook, if user answers 'no' and 'yes'" do
-          # "No" is right to "Yes" (the  default). --> language independent
-          @key_sender.puts "{right}{enter}"
-          # 2nd question to the user: whether the workbook shall be reopened and discard any changes 
-          # "No" is right to "Yes" (the  default). --> language independent       
-          @key_sender.puts "{right}{enter}"
-          @key_sender.puts "{right}{enter}"
-          @key_sender.puts "{right}{enter}"
-          # 3rd question whether the workbook shall be saved
-          # "Yes"
-          @key_sender.puts "{enter}"
-          book2 = Workbook.open(@simple_file1, read_only: true, if_unsaved: :excel)
-          book2.ReadOnly.should be true
-          book2.Saved.should be true
-          @sheet[1,1].should == @new_value
-          book2.close(if_unsaved: :forget)
-          book3 = Workbook.open(@simple_file1)
-          sheet3 = book3.sheet(1)
-          sheet3[1,1].should == @old_value
-        end
-
-        it "should discard (not save) the workbook, if user answers 'no' and 'no'" do
-          # "No" is right to "Yes" (the  default). --> language independent
-          @key_sender.puts "{right}{enter}"
-          # 2nd question to the user: whether the workbook shall be reopened and discard any changes 
-          # "No" is right to "Yes" (the  default). --> language independent       
-          @key_sender.puts "{right}{enter}"
-          @key_sender.puts "{right}{enter}"
-          @key_sender.puts "{right}{enter}"
-          # 3rd question whether the workbook shall be saved
-          # "No"
-          @key_sender.puts "{right}{enter}"
-          @key_sender.puts "{right}{enter}"
-          book2 = Workbook.open(@simple_file1, read_only: true, if_unsaved: :excel)
-          book2.ReadOnly.should be true
-          book2.Saved.should be false
-          @sheet[1,1].should == @new_value
-          book2.close(if_unsaved: :forget)
-          book3 = Workbook.open(@simple_file1)
-          sheet3 = book3.sheet(1)
-          sheet3[1,1].should == @old_value
-        end
-
-        it "should not save (discard) changes and not reopen the workbook, if user answers 'no' and 'cancel'" do
-          # "No" is right to "Yes" (the  default). --> language independent
-          @key_sender.puts "{right}{enter}"
-          # 2nd question to the user: whether the workbook shall be reopened and discard any changes 
-          # "No" is right to "Yes" (the  default). --> language independent       
-          @key_sender.puts "{right}{enter}"
-          @key_sender.puts "{right}{enter}"
-          @key_sender.puts "{right}{enter}"
-          # 3rd question whether the workbook shall be saved
-          # "Cancel"
-          @key_sender.puts "{right}{right}{enter}"
-          @key_sender.puts "{right}{right}{enter}"
-          book2 = Workbook.open(@simple_file1, read_only: true, if_unsaved: :excel)
-          book2.ReadOnly.should be true
-          book2.Saved.should be false
-          @sheet[1,1].should == @new_value
-          book2.close(if_unsaved: :forget)
-          book3 = Workbook.open(@simple_file1, if_unsaved: :forget)
-          sheet3 = book3.sheet(1)
-          sheet3[1,1].should == @old_value
-        end
-
+      before do
+        Excel.kill_all
+        sleep 1
+        @book = Workbook.open(@simple_file1, v: true, readonly: false)
+        @book.ReadOnly.should be false
+        @sheet = @book.sheet(1)
+        @old_value = @sheet[1,1]
+        @sheet[1,1] = (@sheet[1,1] == "foo" ? "bar" : "foo")
+        @new_value = @sheet[1,1] 
+        @key_sender = IO.popen  'ruby "' + File.join(File.dirname(__FILE__), '../helpers/key_sender.rb') + '" "Microsoft Excel" '  , "w"
       end
-     
+
+      after do
+        @key_sender.close
+      end
+
+      # question to the user, whether to save the changes before changing read-only mode
+      it "should discard changes and reopen the workbook, if user answers 'yes'" do
+        @key_sender.puts "{enter}"
+        book2 = Workbook.open(@simple_file1, read_only: true, if_unsaved: :excel)
+        book2.ReadOnly.should be true
+        book2.Saved.should be true
+        book2.sheet(1)[1,1].should == @new_value
+        book2.close
+        book3 = Workbook.open(@simple_file1)
+        sheet3 = book3.sheet(1)
+        sheet3[1,1].should == @new_value
+      end
+
+      it "should save the workbook, if user answers 'no' and 'yes'" do
+        # "No" is right to "Yes" (the  default). --> language independent
+        @key_sender.puts "{right}{enter}"
+        # 2nd question to the user: whether the workbook shall be reopened and discard any changes 
+        # "No" is right to "Yes" (the  default). --> language independent       
+        @key_sender.puts "{right}{enter}"
+        @key_sender.puts "{right}{enter}"
+        @key_sender.puts "{right}{enter}"
+        # 3rd question whether the workbook shall be saved
+        # "Yes"
+        @key_sender.puts "{enter}"
+        @key_sender.puts "{enter}"
+        # another question: asking the user to save the workbook as a copy
+        # so far no automatic key response here
+
+        book2 = Workbook.open(@simple_file1, read_only: true, if_unsaved: :excel)
+        book2.ReadOnly.should be true
+        book2.Saved.should be false
+        book2.sheet(1)[1,1].should == @new_value
+        book2.close(if_unsaved: :forget)
+        book3 = Workbook.open(@simple_file1)
+        sheet3 = book3.sheet(1)
+        sheet3[1,1].should == @old_value
+      end
+
+
+      it "should discard (not save) the workbook, if user answers 'no' and 'no'" do
+        # "No" is right to "Yes" (the  default). --> language independent
+        @key_sender.puts "{right}{enter}"
+        # 2nd question to the user: whether the workbook shall be reopened and discard any changes 
+        # "No" is right to "Yes" (the  default). --> language independent       
+        @key_sender.puts "{right}{enter}"
+        @key_sender.puts "{right}{enter}"
+        @key_sender.puts "{right}{enter}"
+        # 3rd question whether the workbook shall be saved
+        # "No"
+        @key_sender.puts "{right}{enter}"
+        @key_sender.puts "{right}{enter}"
+        @key_sender.puts "{right}{enter}"
+        book2 = Workbook.open(@simple_file1, read_only: true, if_unsaved: :excel)
+        book2.ReadOnly.should be true
+        book2.Saved.should be false
+        book2.sheet(1)[1,1].should == @new_value
+        book2.close(if_unsaved: :forget)
+        book3 = Workbook.open(@simple_file1)
+        sheet3 = book3.sheet(1)
+        sheet3[1,1].should == @old_value
+      end
+
+      it "should not save (discard) changes and not reopen the workbook, if user answers 'no' and 'cancel'" do
+        # "No" is right to "Yes" (the  default). --> language independent
+        @key_sender.puts "{right}{enter}"
+        # 2nd question to the user: whether the workbook shall be reopened and discard any changes 
+        # "No" is right to "Yes" (the  default). --> language independent       
+        @key_sender.puts "{right}{enter}"
+        @key_sender.puts "{right}{enter}"
+        @key_sender.puts "{right}{enter}"
+        # 3rd question whether the workbook shall be saved
+        # "Cancel"
+        @key_sender.puts "{right}{right}{enter}"
+        @key_sender.puts "{right}{right}{enter}"
+        @key_sender.puts "{right}{right}{enter}"
+        book2 = Workbook.open(@simple_file1, read_only: true, if_unsaved: :excel)
+        book2.ReadOnly.should be true
+        book2.Saved.should be false
+        book2.sheet(1)[1,1].should == @new_value
+        book2.close(if_unsaved: :forget)
+        book3 = Workbook.open(@simple_file1, if_unsaved: :forget)
+        sheet3 = book3.sheet(1)
+        sheet3[1,1].should == @old_value
+      end
+
     end
 
   end

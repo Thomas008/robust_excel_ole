@@ -206,7 +206,7 @@ describe Workbook do
         book2 = Workbook.open(@simple_file1, read_only: false, if_unsaved: :excel)
         book2.ReadOnly.should be false
         book2.Saved.should be true
-        @sheet[1,1].should == @old_value
+        book2.sheet(1)[1,1].should == @old_value
         book2.close
         book3 = Workbook.open(@simple_file1)
         sheet3 = book3.sheet(1)
@@ -223,7 +223,7 @@ describe Workbook do
         book2 = Workbook.open(@simple_file1, read_only: false, if_unsaved: :excel)
         book2.ReadOnly.should be false
         book2.Saved.should be false
-        @sheet[1,1].should == @new_value
+        book2.sheet(1)[1,1].should == @new_value
         book2.close(if_unsaved: :forget)
         book3 = Workbook.open(@simple_file1)
         sheet3 = book3.sheet(1)
@@ -262,7 +262,7 @@ describe Workbook do
           @key_sender.puts "{enter}"
           book2 = Workbook.open(@simple_file1, read_only: true, if_unsaved: :excel)
           book2.ReadOnly.should be true
-          book2.Saved.should be false
+          book2.Saved.should be true
           @sheet[1,1].should == @new_value
           book2.close(if_unsaved: :forget)
           book3 = Workbook.open(@simple_file1)

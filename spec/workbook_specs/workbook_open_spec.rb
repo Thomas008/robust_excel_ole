@@ -35,9 +35,9 @@ describe Workbook do
     @simple_file_network_path = "N:/data/workbook.xls"
     network = WIN32OLE.new('WScript.Network')
     computer_name = network.ComputerName
-    @simple_file_hostname_share_path = "//#{computer_name}/#{absolute_path('gems/robust_excel_ole/spec/data/workbook.xls').tr('\\','/').gsub('C:','c$')}"
+    @simple_file_hostname_share_path = "//#{computer_name}/spec/data/workbook.xls"
+    @simple_file_hostname_share_other_path = "//#{computer_name}/spec/more_data/workbook.xls"
     @simple_file_network_path_other_path = "N:/data/more_data/workbook.xls"
-    @simple_file_hostname_share_path_other_path = "//#{computer_name}/#{absolute_path('gems/robust_excel_ole/spec/more_data/workbook.xls').tr('\\','/').gsub('C:','c$')}"
     @simple_file_network_path1 = @simple_file_network_path
     @simple_file_hostname_share_path1 = @simple_file_hostname_share_path
     @simple_file_network_path_other_path1 = @simple_file_network_path_other_path

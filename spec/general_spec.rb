@@ -45,8 +45,7 @@ module RobustExcelOle
       @simple_file_xlsx = @dir + '/workbook.xlsx'
       @network_path = "N:/data/workbook.xls"
       computer_name = NETWORK.ComputerName
-      #@hostname_share_path = "//#{computer_name}/spec/data/workbook.xls"
-      @hostname_share_path = "//#{computer_name}/#{absolute_path('gems/robust_excel_ole/spec/data/workbook.xls').tr('\\','/').gsub('C:','c$')}"
+      @hostname_share_path = "//#{computer_name}/spec/data/workbook.xls"
       @network_path_downcase = @network_path.downcase
       @hostname_share_path_downcase = @hostname_share_path.downcase
       @simple_file_extern = "D:/data/workbook.xls"

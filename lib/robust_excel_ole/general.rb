@@ -224,18 +224,30 @@ module General
       network = WIN32OLE.new('WScript.Network')
       drives = network.enumnetworkdrives
       count = drives.Count
-      (0..(count - 1)).step(2).map{ |i| NetworkDrive.new( drives.Item(i), drives.Item(i + 1).tr('\\','/')) }
+      # (0..(count - 1)).step(2).map{ |i| NetworkDrive.new( drives.Item(i), drives.Item(i + 1).tr('\\','/')) }      
+      result = (0..(count - 1)).step(2).map { |i| 
+        NetworkDrive.new( drives.Item(i), drives.Item(i + 1).tr('\\','/')) unless drives.Item(i).empty?
+      }.compact
+      result
     end
   end
 
   # @private
   def hostnameshare2networkpath(filename)
     return filename unless filename[0,2] == "//"
-    NetworkDrive.get_all_drives.inject(filename) do |fn_modified, d| 
-      fn_modified.sub(/#{(Regexp.escape(d.network_name))}/i,d.drive_letter)
-    end    
-  end  
-
+    hostname = filename[0,filename[3,filename.length].index('/')+3]
+    filename_wo_hostname = filename[hostname.length+1,filename.length]
+    abs_filename = absolute_path(filename_wo_hostname).tr('\\','/').tr('C:/','c$/')
+    adapted_filename = hostname + "/" + abs_filename
+    NetworkDrive.get_all_drives.each do |d|
+      new_filename = filename.sub(/#{(Regexp.escape(d.network_name))}/i,d.drive_letter)
+      return new_filename if new_filename != filename
+      new_filename = adapted_filename.sub(/#{(Regexp.escape(d.network_name))}/i,d.drive_letter)
+      return new_filename if new_filename != filename
+    end
+    filename
+  end
+  
   # @private
   def absolute_path(file)
     file = file.to_path if file.respond_to?(:to_path)

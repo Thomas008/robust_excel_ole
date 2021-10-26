@@ -181,9 +181,9 @@ describe Workbook do
         @key_sender.puts "{enter}"
         @book.writable = true, {if_unsaved: :excel}
         @book.ReadOnly.should be false
-        @book.Saved.should be true
-        @sheet[1,1].should == @old_value
-        @book.close
+        @book.Saved.should be false
+        @sheet[1,1].should == @new_value
+        @book.close(if_unsaved: :forget)
         book1 = Workbook.open(@simple_file1)
         sheet = book1.sheet(1)
         sheet[1,1].should == @old_value

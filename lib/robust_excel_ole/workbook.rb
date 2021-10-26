@@ -1018,7 +1018,7 @@ module RobustExcelOle
 
     # returns the full file name of the workbook
     def filename
-      General.canonize(@ole_workbook.Fullname.tr('\\','/')) rescue nil
+      @filename ||= General.canonize(@ole_workbook.Fullname.tr('\\','/')) rescue nil
     end
 
     # @returns true, if the workbook is not in read-only mode

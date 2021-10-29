@@ -237,7 +237,7 @@ module General
     return filename unless filename[0,2] == "//"
     hostname = filename[0,filename[3,filename.length].index('/')+3]
     filename_wo_hostname = filename[hostname.length+1,filename.length]
-    abs_filename = absolute_path(filename_wo_hostname).tr('\\','/').tr('C:/','c$/')
+    abs_filename = absolute_path(filename_wo_hostname).tr('\\','/').sub('C:/','c$/')
     adapted_filename = hostname + "/" + abs_filename
     NetworkDrive.get_all_drives.each do |d|
       new_filename = filename.sub(/#{(Regexp.escape(d.network_name))}/i,d.drive_letter)

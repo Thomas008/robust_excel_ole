@@ -164,12 +164,12 @@ module RobustExcelOle
           raise ExcelREOError, "could not determine the Excel instance\n#{$!.message}"
         end
         @excel = excel_class.new(ole_excel)
-        filename = @ole_workbook.Fullname.tr('\\','/') 
+        file_name = @ole_workbook.Fullname.tr('\\','/') 
       else
-        filename = file_or_workbook
-        ensure_workbook(filename, opts)        
+        file_name = file_or_workbook
+        ensure_workbook(file_name, opts)        
       end      
-      apply_options(filename, opts)
+      apply_options(file_name, opts)
       store_myself
       if block_given?
         begin
@@ -244,7 +244,7 @@ module RobustExcelOle
     end
 
     # @private    
-    def ensure_workbook(filename, options)
+    def ensure_workbook(file_name, options)
       set_was_open options, true
       return if (@ole_workbook && alive? && (options[:read_only].nil? || @ole_workbook.ReadOnly == options[:read_only]))
       set_was_open options, false
@@ -252,34 +252,34 @@ module RobustExcelOle
         ((options[:read_only]==true && self.ReadOnly==false) || (options[:read_only]==false && self.ReadOnly==true))
         raise OptionInvalid, ":if_unsaved:accept and change of read-only mode is not possible"
       end
-      filename = @stored_filename ? @stored_filename : filename 
-      manage_nonexisting_file(filename,options)
+      file_name = @stored_filename ? @stored_filename : file_name 
+      manage_nonexisting_file(file_name,options)
       excel_option = options[:force][:excel].nil? ? options[:default][:excel] : options[:force][:excel]        
       ensure_excel(options)
       workbooks = @excel.Workbooks
-      @ole_workbook = workbooks.Item(File.basename(filename)) rescue nil if @ole_workbook.nil?
+      @ole_workbook = workbooks.Item(File.basename(file_name)) rescue nil if @ole_workbook.nil?
       if @ole_workbook && alive?
         set_was_open options, true
-        #open_or_create_workbook(filename,options) if (!options[:read_only].nil?) && options[:read_only] 
+        #open_or_create_workbook(file_name,options) if (!options[:read_only].nil?) && options[:read_only] 
         manage_changing_readonly_mode(options) if (!options[:read_only].nil?) && options[:read_only] != @ole_workbook.ReadOnly
-        manage_blocking_or_unsaved_workbook(filename,options)
+        manage_blocking_or_unsaved_workbook(file_name,options)
       else
         if (excel_option.nil? || excel_option == :current) &&  
-          !(::CONNECT_JRUBY_BUG && filename[0] == '/')
-          connect(filename,options)
+          !(::CONNECT_JRUBY_BUG && file_name[0] == '/')
+          connect(file_name,options)
         else 
-          open_or_create_workbook(filename,options)
+          open_or_create_workbook(file_name,options)
         end
       end       
     end
 
   private
 
-    # applies options to workbook named with filename
-    def apply_options(filename, options)
+    # applies options to workbook named with file_name
+    def apply_options(file_name, options)
       # changing read-only mode      
       if (!options[:read_only].nil?) && options[:read_only] != @ole_workbook.ReadOnly
-        # ensure_workbook(filename, options) 
+        # ensure_workbook(file_name, options) 
         manage_changing_readonly_mode(options)
       end
       retain_saved do
@@ -290,10 +290,10 @@ module RobustExcelOle
     end
 
     # connects to an unknown workbook
-    def connect(filename, options)   
+    def connect(file_name, options)   
       workbooks_number = excel_class.instance_count==0 ? 0 : excel_class.current.Workbooks.Count
       @ole_workbook = begin
-        WIN32OLE.connect(General.absolute_path(filename))
+        WIN32OLE.connect(General.absolute_path(file_name))
       rescue
         if $!.message =~ /moniker/
           raise WorkbookConnectingBlockingError, "some workbook is blocking when connecting"
@@ -353,9 +353,9 @@ module RobustExcelOle
       end
     end
 
-    def manage_nonexisting_file(filename, options)   
-      return if File.exist?(filename)
-      abs_filename = General.absolute_path(filename)
+    def manage_nonexisting_file(file_name, options)   
+      return if File.exist?(file_name)
+      abs_filename = General.absolute_path(file_name)
       if options[:if_absent] == :create
         ensure_excel(options) unless @excel && @excel.alive?
         @excel.Workbooks.Add
@@ -363,7 +363,7 @@ module RobustExcelOle
         begin
           empty_ole_workbook.SaveAs(abs_filename)
         rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
-          raise FileNotFound, "could not save workbook with filename #{filename.inspect}"
+          raise FileNotFound, "could not save workbook with filename #{file_name.inspect}"
         end
       else
         raise FileNotFound, "file #{abs_filename.inspect} not found" +
@@ -371,90 +371,90 @@ module RobustExcelOle
       end
     end
 
-    def manage_blocking_or_unsaved_workbook(filename, options)
-      filename = General.absolute_path(filename)
-      filename = General.canonize(filename)
+    def manage_blocking_or_unsaved_workbook(file_name, options)
+      file_name = General.absolute_path(file_name)
+      file_name = General.canonize(file_name)
       previous_file = General.canonize(@ole_workbook.Fullname.gsub('\\','/'))
-      obstructed_by_other_book = (File.basename(filename) == File.basename(previous_file)) &&
-                                 (File.dirname(filename) != File.dirname(previous_file)) 
+      obstructed_by_other_book = (File.basename(file_name) == File.basename(previous_file)) &&
+                                 (File.dirname(file_name) != File.dirname(previous_file)) 
       if obstructed_by_other_book
         # workbook is being obstructed by a workbook with same name and different path
-        manage_blocking_workbook(filename,options)        
+        manage_blocking_workbook(file_name,options)        
       else
         unless @ole_workbook.Saved
           # workbook open and writable, not obstructed by another workbook, but not saved
-          manage_unsaved_workbook(filename,options)
+          manage_unsaved_workbook(file_name,options)
         end
       end        
     end
 
-    def manage_blocking_workbook(filename, options)     
+    def manage_blocking_workbook(file_name, options)     
       blocked_filename = -> { General.canonize(@ole_workbook.Fullname.tr('\\','/')) }
       case options[:if_obstructed]
       when :raise
-        raise WorkbookBlocked, "can't open workbook #{filename},
+        raise WorkbookBlocked, "can't open workbook #{file_name},
         because it is being blocked by #{blocked_filename.call} with the same name in a different path." +
         "\nHint: Use the option :if_blocked with values :forget or :save,
          to allow automatic closing of the blocking workbook (without or with saving before, respectively),
          before reopening the workbook."
       when :forget
-        manage_forgetting_workbook(filename, options)       
+        manage_forgetting_workbook(file_name, options)       
       when :accept
         # do nothing
       when :save
-        manage_saving_workbook(filename, options)        
+        manage_saving_workbook(file_name, options)        
       when :close_if_saved
         if !@ole_workbook.Saved
           raise WorkbookBlocked, "workbook with the same name in a different path is unsaved: #{blocked_filename.call}" +
           "\nHint: Use the option if_blocked: :save to save the workbook"
         else
-          manage_forgetting_workbook(filename, options)
+          manage_forgetting_workbook(file_name, options)
         end
       when :new_excel
-        manage_new_excel(filename, options)        
+        manage_new_excel(file_name, options)        
       else
         raise OptionInvalid, ":if_blocked: invalid option: #{options[:if_obstructed].inspect}" +
         "\nHint: Valid values are :raise, :forget, :save, :close_if_saved, :new_excel"
       end
     end
 
-    def manage_unsaved_workbook(filename, options)
+    def manage_unsaved_workbook(file_name, options)
       case options[:if_unsaved]
       when :raise
-        raise WorkbookNotSaved, "workbook is already open but not saved: #{File.basename(filename).inspect}" +
+        raise WorkbookNotSaved, "workbook is already open but not saved: #{File.basename(file_name).inspect}" +
         "\nHint: Use the option :if_unsaved with values :forget to close the unsaved workbook, 
          :accept to let it open, or :save to save it, respectivly"
       when :forget
-        manage_forgetting_workbook(filename, options)
+        manage_forgetting_workbook(file_name, options)
       when :accept
         # do nothing
       when :save
-        manage_saving_workbook(filename, options)
+        manage_saving_workbook(file_name, options)
       when :alert, :excel
-        @excel.with_displayalerts(true) { open_or_create_workbook(filename,options) }
+        @excel.with_displayalerts(true) { open_or_create_workbook(file_name,options) }
       when :new_excel
-        manage_new_excel(filename, options)
+        manage_new_excel(file_name, options)
       else
         raise OptionInvalid, ":if_unsaved: invalid option: #{options[:if_unsaved].inspect}" +
         "\nHint: Valid values are :raise, :forget, :save, :accept, :alert, :excel, :new_excel"
       end
     end
 
-    def manage_forgetting_workbook(filename, options)
+    def manage_forgetting_workbook(file_name, options)
       @excel.with_displayalerts(false) { @ole_workbook.Close }
       @ole_workbook = nil
-      open_or_create_workbook(filename, options)
+      open_or_create_workbook(file_name, options)
     end
 
-    def manage_saving_workbook(filename, options)
+    def manage_saving_workbook(file_name, options)
       save unless @ole_workbook.Saved
-      manage_forgetting_workbook(filename, options) if options[:if_obstructed] == :save
+      manage_forgetting_workbook(file_name, options) if options[:if_obstructed] == :save
     end
 
-    def manage_new_excel(filename, options)
+    def manage_new_excel(file_name, options)
       @excel = excel_class.new(reuse: false)
       @ole_workbook = nil
-      open_or_create_workbook(filename, options)
+      open_or_create_workbook(file_name, options)
     end
 
     def explore_workbook_error(msg, want_change_readonly = nil)
@@ -473,10 +473,10 @@ module RobustExcelOle
       end
     end
 
-    def open_or_create_workbook(filename, options)
+    def open_or_create_workbook(file_name, options)
       return if @ole_workbook && options[:if_unsaved] != :alert && options[:if_unsaved] != :excel &&
                 (options[:read_only].nil? || options[:read_only]==@ole_workbook.ReadOnly )
-      abs_filename = General.absolute_path(filename)
+      abs_filename = General.absolute_path(file_name)
       workbooks = begin 
         @excel.Workbooks
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
@@ -493,7 +493,7 @@ module RobustExcelOle
       end
       # workaround for bug in Excel 2010: workbook.Open does not always return the workbook when given file name
       @ole_workbook = begin
-        workbooks.Item(File.basename(filename))
+        workbooks.Item(File.basename(file_name))
       rescue WIN32OLERuntimeError, Java::OrgRacobCom::ComFailException => msg
         raise UnexpectedREOError, "WIN32OLERuntimeError: #{msg.message}"
       end
@@ -536,8 +536,8 @@ module RobustExcelOle
     # creates, i.e., opens a new, empty workbook, and saves it under a given filename
     # @param [String] filename the filename under which the new workbook should be saved
     # @param [Hash] opts the options as in Workbook::open
-    def self.create(filename, opts = { })
-      open(filename, if_absent: :create)
+    def self.create(file_name, opts = { })
+      open(file_name, if_absent: :create)
     end
 
     # closes the workbook, if it is alive

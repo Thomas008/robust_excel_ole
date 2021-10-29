@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## [1.36] 2021-15-08
+## [1.36] 2021-29-10
 
 ### Added
   - Workbook.open: option if_blocked: :accept

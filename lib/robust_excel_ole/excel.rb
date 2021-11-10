@@ -72,6 +72,7 @@ module RobustExcelOle
     attr_reader :ole_excel
     attr_reader :properties
     attr_reader :address_tool
+    attr_reader :hwnd_stored
 
     alias ole_object ole_excel
 
@@ -132,14 +133,17 @@ module RobustExcelOle
       connected = (not ole_xl.nil?) && win32ole_excel.nil?
       ole_xl ||= WIN32OLE.new('Excel.Application')
       hwnd = ole_xl.Hwnd
-      stored = hwnd2excel(hwnd)
+      @hwnd_stored = ole_xl.Hwnd
+      #stored = hwnd2excel(hwnd)
+      stored = hwnd2excel(@hwnd_stored)
       if stored && stored.alive?
         result = stored
       else
         result = super(options)
         result.instance_variable_set(:@ole_excel, ole_xl)
         WIN32OLE.const_load(ole_xl, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
-        @@hwnd2excel[hwnd] = WeakRef.new(result)
+        #@@hwnd2excel[hwnd] = WeakRef.new(result)
+        @@hwnd2excel[@hwnd_stored] = WeakRef.new(result)
       end
       reused = options[:reuse] && stored && stored.alive? 
       options = { displayalerts: :if_visible, visible: false, screenupdating: true }.merge(options) unless reused || connected
@@ -558,18 +562,22 @@ module RobustExcelOle
 
     # returns true, if the Excel instances responds to VBA methods, false otherwise
     def alive?
-      hwnd = @ole_excel.Hwnd
+      hwnd_local = begin
+        @ole_excel.Hwnd
+      rescue
+        @hwnd_stored
+      end
       msg = 0x2008 
       wparam = 0
       lparam = 0
       flags = 0x0000 # 0x0002
       duration = 5000
       lpdw_result_puffer = ' ' * 32
-      status = User32::SendMessageTimeoutA(hwnd, msg, wparam, lparam, flags, duration, lpdw_result_puffer)
+      status = User32::SendMessageTimeoutA(hwnd_local, msg, wparam, lparam, flags, duration, lpdw_result_puffer)
       result = lpdw_result_puffer.unpack('L')[0]
       status == 1
     end
-    
+
 =begin    
     def alive?
       @ole_excel.Name

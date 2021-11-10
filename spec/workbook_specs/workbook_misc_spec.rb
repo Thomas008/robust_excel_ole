@@ -27,7 +27,9 @@ describe Workbook do
     @another_simple_file = @dir + '/another_workbook.xls'
     @simple_file_xlsm = @dir + '/workbook.xls'
     @simple_file_xlsx = @dir + '/workbook.xlsx'
+    @simple_file_copy = @dir + '/workbook_copy.xls'
     @simple_file1 = @simple_file
+    @simple_file_copy1 = @simple_file_copy
   end
 
   after do
@@ -1083,7 +1085,7 @@ describe Workbook do
     context "with filename" do
 
       before do
-        @book = Workbook.open(@simple_file)
+        @book = Workbook.open(@simple_file1)
       end
 
       after do
@@ -1091,12 +1093,17 @@ describe Workbook do
       end
 
       it "should return full file name" do
-        @book.filename.should == @simple_file
+        @book.filename.should == @simple_file1
       end
 
       it "should return nil for dead book" do
         @book.close
         @book.filename.should == nil
+      end
+
+      it "should return right filename when saved as another file name" do
+        @book.save_as(@simple_file_copy1)
+        @book.filename.should == @simple_file_copy1
       end
 
     end

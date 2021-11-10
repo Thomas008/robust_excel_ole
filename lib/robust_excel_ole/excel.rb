@@ -21,10 +21,15 @@ module User32
   typealias 'ppvObject', 'void**'
   typealias 'DWORD', 'unsigned long'
   typealias 'LPDWORD', 'DWORD*'
+  typealias 'PDWORD_PTR', 'DWORD**'
+  typealias 'WPARAM', 'UINT*'
+  typealias 'LPARAM', 'INT*'
+  typealias 'LRESULT', 'DWORD'
   # Import C functions from loaded libraries and set them as module functions
   extern 'DWORD GetWindowThreadProcessId(HWND, LPDWORD)'
   extern 'HWND FindWindowExA(HWND, HWND, LPCSTR, LPCSTR)'
   extern 'DWORD SetForegroundWindow(HWND)'
+  extern 'LRESULT SendMessageTimeoutA(HWND, UINT, WPARAM, LPARAM, UINT, UINT, PDWORD_PTR)'
 end
 
 module Oleacc
@@ -553,13 +558,29 @@ module RobustExcelOle
 
     # returns true, if the Excel instances responds to VBA methods, false otherwise
     def alive?
+      hwnd = @ole_excel.Hwnd
+      msg = 0x2008 
+      wparam = 0
+      lparam = 0
+      flags = 0x0000 # 0x0002
+      duration = 5000
+      lpdw_result_puffer = ' ' * 32
+      status = User32::SendMessageTimeoutA(hwnd, msg, wparam, lparam, flags, duration, lpdw_result_puffer)
+      result = lpdw_result_puffer.unpack('L')[0]
+      puts "result: #{result.inspect}"
+      puts "status: #{status.inspect}"
+      status == 1
+    end
+    
+=begin    
+    def alive?
       @ole_excel.Name
       true
     rescue
       # trace $!.message
       false
     end
-
+=end
     # returns unsaved workbooks in known (not opened by user) Excel instances
     # @private
     def self.unsaved_known_workbooks       

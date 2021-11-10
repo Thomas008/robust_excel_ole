@@ -567,8 +567,6 @@ module RobustExcelOle
       lpdw_result_puffer = ' ' * 32
       status = User32::SendMessageTimeoutA(hwnd, msg, wparam, lparam, flags, duration, lpdw_result_puffer)
       result = lpdw_result_puffer.unpack('L')[0]
-      puts "result: #{result.inspect}"
-      puts "status: #{status.inspect}"
       status == 1
     end
     

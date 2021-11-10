@@ -75,6 +75,7 @@ module RobustExcelOle
       it "should set visible true" do
         @ole_excel.Visible.should be false
         excel = Excel.current(:visible => true)
+        excel.visible.should be true
         excel.Visible.should be true
       end
 
@@ -88,6 +89,7 @@ module RobustExcelOle
         @ole_excel.Visible.should be true
         excel = Excel.current(:visible => false)
         excel.Visible.should be false
+        excel.visible.should be false
       end
 
       it "should preserve displayalerts true" do
@@ -454,7 +456,9 @@ module RobustExcelOle
           @excel1.recreate
           @excel1.should be_a Excel
           @excel1.should be_alive
+          @excel1.visible.should be false
           @excel1.Visible.should be false
+          @excel1.displayalerts.should be false
           @excel1.DisplayAlerts.should be false
           @book1.should_not be_alive
           @book1.open
@@ -465,14 +469,20 @@ module RobustExcelOle
 
         it "should recreate an Excel instance with old visible and displayalerts values" do
           @excel1.visible = true
+          @excel1.Visible.should be true
+          @excel1.visible.should be true
           @excel1.displayalerts = true
+          @excel1.DisplayAlerts.should be true
+          @excel1.displayalerts.should be true
           @excel1.close
           @excel1.should_not be_alive
           @excel1.recreate
           @excel1.should be_a Excel
           @excel1.should be_alive
           @excel1.Visible.should be true
+          @excel1.visible.should be true
           @excel1.DisplayAlerts.should be true
+          @excel1.displayalerts.should be true
           @book1.open
           @book1.should be_alive
           @excel1.close

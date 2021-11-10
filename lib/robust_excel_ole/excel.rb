@@ -18,7 +18,6 @@ module User32
   typealias 'LPCSTR', 'const char*'
   typealias 'LPCWSTR', 'const wchar_t*'
   typealias 'UINT', 'unsigned int'
-  typealias 'HANDLE', 'void*'
   typealias 'ppvObject', 'void**'
   typealias 'DWORD', 'unsigned long'
   typealias 'LPDWORD', 'DWORD*'
@@ -589,11 +588,21 @@ module RobustExcelOle
       end
     end
 
+    # returns, whether the current Excel instance is visible
+    def visible
+      @ole_excel.Visible
+    end
+
     # makes the current Excel instance visible or invisible
     def visible= visible_value
       return if visible_value.nil?
       @ole_excel.Visible = @properties[:visible] = visible_value
       @ole_excel.DisplayAlerts = @properties[:visible] if @properties[:displayalerts] == :if_visible
+    end
+
+    # returns, wheter DisplayAlerts is enabled
+    def displayalerts
+      @ole_excel.DisplayAlerts
     end
 
     # enables DisplayAlerts in the current Excel instance

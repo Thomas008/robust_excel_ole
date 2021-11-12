@@ -72,7 +72,7 @@ module RobustExcelOle
     attr_reader :ole_excel
     attr_reader :properties
     attr_reader :address_tool
-    attr_reader :hwnd_stored
+    attr_reader :hwnd
 
     alias ole_object ole_excel
 
@@ -132,18 +132,16 @@ module RobustExcelOle
       end
       connected = (not ole_xl.nil?) && win32ole_excel.nil?
       ole_xl ||= WIN32OLE.new('Excel.Application')
-      hwnd = ole_xl.Hwnd
-      @hwnd_stored = ole_xl.Hwnd
-      #stored = hwnd2excel(hwnd)
-      stored = hwnd2excel(@hwnd_stored)
+      hwnd_xl = ole_xl.Hwnd
+      stored = hwnd2excel(hwnd_xl)
       if stored && stored.alive?
         result = stored
       else
         result = super(options)
         result.instance_variable_set(:@ole_excel, ole_xl)
+        result.instance_variable_set(:@hwnd, hwnd_xl)
         WIN32OLE.const_load(ole_xl, RobustExcelOle) unless RobustExcelOle.const_defined?(:CONSTANTS)
-        #@@hwnd2excel[hwnd] = WeakRef.new(result)
-        @@hwnd2excel[@hwnd_stored] = WeakRef.new(result)
+        @@hwnd2excel[hwnd_xl] = WeakRef.new(result)
       end
       reused = options[:reuse] && stored && stored.alive? 
       options = { displayalerts: :if_visible, visible: false, screenupdating: true }.merge(options) unless reused || connected
@@ -167,6 +165,7 @@ module RobustExcelOle
         opts = {visible: false, displayalerts: :if_visible}.merge(
                {visible: @properties[:visible], displayalerts: @properties[:displayalerts]}).merge(opts)        
         @ole_excel = WIN32OLE.new('Excel.Application')
+        @hwnd = @ole_excel.Hwnd
         set_options(opts)
         if opts[:reopen_workbooks]
           workbook_class.books.each{ |book| book.open if !book.alive? && book.excel.alive? && book.excel == self }
@@ -540,13 +539,6 @@ module RobustExcelOle
     end
 
     # @private
-    def hwnd 
-      self.Hwnd
-    rescue
-      nil
-    end
-
-    # @private
     def self.print_hwnd2excel
       @@hwnd2excel.each do |hwnd,wr_excel|
         excel_string = (wr_excel.weakref_alive? ? wr_excel.__getobj__.to_s : 'weakref not alive')
@@ -562,31 +554,17 @@ module RobustExcelOle
 
     # returns true, if the Excel instances responds to VBA methods, false otherwise
     def alive?
-      hwnd_local = begin
-        @ole_excel.Hwnd
-      rescue
-        @hwnd_stored
-      end
       msg = 0x2008 
       wparam = 0
       lparam = 0
       flags = 0x0000 # 0x0002
       duration = 5000
       lpdw_result_puffer = ' ' * 32
-      status = User32::SendMessageTimeoutA(hwnd_local, msg, wparam, lparam, flags, duration, lpdw_result_puffer)
+      status = User32::SendMessageTimeoutA(hwnd, msg, wparam, lparam, flags, duration, lpdw_result_puffer)
       result = lpdw_result_puffer.unpack('L')[0]
-      status == 1
+      status != 0
     end
 
-=begin    
-    def alive?
-      @ole_excel.Name
-      true
-    rescue
-      # trace $!.message
-      false
-    end
-=end
     # returns unsaved workbooks in known (not opened by user) Excel instances
     # @private
     def self.unsaved_known_workbooks       
@@ -762,7 +740,7 @@ module RobustExcelOle
 
     # @private
     def to_s            
-      "#<Excel: #{hwnd}#{ ("not alive" unless alive?)}>"
+      "#<Excel: #{hwnd}#{ (" not alive" unless alive?)}>"
     end
 
     # @private

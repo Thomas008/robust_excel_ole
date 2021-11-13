@@ -9,7 +9,7 @@ include RobustExcelOle
 
 using StringRefinement
 
-Excel.close_all
+Excel.close_all(if_unsaved: :forget)
 begin
   dir = create_tmpdir
   table_file = dir + 'workbook_listobjects.xlsx'
@@ -79,7 +79,7 @@ begin
   book.close(:if_unsaved => :forget)
   
 ensure
-  Excel.close_all
+  Excel.close_all(if_unsaved: forget)
   rm_tmp(dir)
 end
 

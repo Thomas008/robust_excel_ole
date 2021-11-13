@@ -7,7 +7,7 @@ require "fileutils"
 
 include RobustExcelOle
 
-Excel.close_all
+Excel.close_all(if_unsaved: :forget)
 begin
   dir = create_tmpdir
   simple_file = dir + 'workbook.xls'

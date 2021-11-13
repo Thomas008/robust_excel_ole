@@ -26,7 +26,7 @@ begin
 
   def define_columns sheet, columns_ids
     puts "define_columns:"
-    first_column = sheet.range("A")
+    first_column = sheet.range("A:A")
     puts "first_column: #{first_column}"
 
     columns_ids.each_with_index do |id,idx|

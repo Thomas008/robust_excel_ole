@@ -315,13 +315,13 @@ describe Worksheet do
       it "should raise an error if name not defined" do
         expect {
           @sheet1.namevalue_global("foo")
-        }.to raise_error(NameNotFound, /name "foo" not in/)
+        }.to raise_error(NameNotFound, /cannot find name "foo"/)
       end
 
       it "should raise an error of coordinates are given instead of a defined name" do
         expect {
           @sheet1.namevalue_global("A1")
-        }.to raise_error(NameNotFound, /name "A1" not in/)
+        }.to raise_error(NameNotFound, /cannot find name "A1"/)
       end
 
       it "should return default value for a range with empty contents" do

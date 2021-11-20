@@ -370,11 +370,32 @@ describe Workbook do
         }.to raise_error(WorkbookLinked)
       end
 
-      it "should raise error when trying to change the read-only mode of the linked workbook" do
+      it "should change read-only mode of the linked workbook to read-only" do
         book2 = Workbook.open(@sub_file, :read_only => true)
         book2.ReadOnly.should be true
       end
+
+      it "should change read-only mode to read-only" do
+        book1 = Workbook.open(main_file, :read_only => true)
+        book1.ReadOnly.should be true
+      end
+
     end
+
+    # here is error: workbook not alive
+    context "with read-only" do
+
+      before do
+        @book1 = Workbook.open(@main_file, :read_only => true)
+      end
+
+      it "should change read-only mode from read-only to read-write" do
+        expect{
+          Workbook.open(@main_file, :read_only => false)
+        }.to_not raise_error
+      end
+    end
+
   end
 
   describe "basic tests with xlsx-workbooks" do

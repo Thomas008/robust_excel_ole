@@ -329,6 +329,9 @@ module RobustExcelOle
       @excel.with_displayalerts(displayalerts) {
         @ole_workbook.ChangeFileAccess('Mode' => read_write_value)
       }
+      # managing Excel bug:
+      # if the workbook is linked then changing from read-only to read-write does not work
+      self.class.new(stored_filename, options) unless alive?
     end
 
     def manage_unsaved_workbook_when_changing_readonly_mode(options)

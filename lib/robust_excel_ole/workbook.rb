@@ -261,7 +261,7 @@ module RobustExcelOle
       if @ole_workbook && alive?
         set_was_open options, true
         #open_or_create_workbook(file_name,options) if (!options[:read_only].nil?) && options[:read_only] 
-        manage_changing_readonly_mode(options) if (!options[:read_only].nil?) && options[:read_only] != @ole_workbook.ReadOnly
+        manage_changing_readonly_mode(file_name, options) if (!options[:read_only].nil?) && options[:read_only] != @ole_workbook.ReadOnly
         manage_blocking_or_unsaved_workbook(file_name,options)
       else
         if (excel_option.nil? || excel_option == :current) &&  
@@ -280,7 +280,7 @@ module RobustExcelOle
       # changing read-only mode      
       if (!options[:read_only].nil?) && options[:read_only] != @ole_workbook.ReadOnly
         # ensure_workbook(file_name, options) 
-        manage_changing_readonly_mode(options)
+        manage_changing_readonly_mode(file_name, options)
       end
       retain_saved do
         self.visible = options[:force][:visible].nil? ? @excel.Visible : options[:force][:visible]
@@ -314,24 +314,29 @@ module RobustExcelOle
       @excel = excel_class.new(ole_excel)
     end
 
-    def manage_changing_readonly_mode(options)
+    def manage_changing_readonly_mode(file_name, options)
       if !ole_workbook.Saved && options[:read_only]      
         manage_unsaved_workbook_when_changing_readonly_mode(options) 
       end
-      change_readonly_mode(options)
+      change_readonly_mode(file_name, options)
     end
 
-    def change_readonly_mode(options)
+    def change_readonly_mode(file_name, options)
       read_write_value = options[:read_only] ? RobustExcelOle::XlReadOnly : RobustExcelOle::XlReadWrite
       give_control_to_excel = !ole_workbook.Saved && options[:read_only] && 
                               (options[:if_unsaved] == :excel || options[:if_unsaved] == :alert)
       displayalerts = give_control_to_excel ? true : @excel.Displayalerts
+      # managing Excel bug:
+      # applying ChangeFileAccess to a linked unsaved workbook causes a query
+      #if options[:read_only]==false && !@ole_workbook.Saved # && @ole_workbook.LinkSources(RobustExcelOle::XlExcelLinks) # workbook linked
+      #  raise WorkbookNotSaved, "linked workbook cannot be changed to read-write if it is unsaved"
+      #end
       @excel.with_displayalerts(displayalerts) {
         @ole_workbook.ChangeFileAccess('Mode' => read_write_value)
       }
       # managing Excel bug:
-      # if the workbook is linked then changing from read-only to read-write does not work
-      self.class.new(stored_filename, options) unless alive?
+      # if the workbook is linked, then ChangeFileAccess to read-write kills the workbook  
+      open_or_create_workbook(file_name, options) unless alive?
     end
 
     def manage_unsaved_workbook_when_changing_readonly_mode(options)
@@ -1043,7 +1048,7 @@ module RobustExcelOle
         options = options.merge(unsaved_opts) if unsaved_opts
         options = {:read_only => !writable_value}.merge(options)
         if options[:read_only] != @ole_workbook.ReadOnly
-          manage_changing_readonly_mode(options) 
+          manage_changing_readonly_mode(filename, options) 
           manage_unsaved_workbook(filename,options) if !@ole_workbook.Saved && unsaved_opts
         end
       end

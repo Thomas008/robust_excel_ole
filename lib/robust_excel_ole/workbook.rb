@@ -329,6 +329,7 @@ module RobustExcelOle
       # managing Excel bug:
       # applying ChangeFileAccess to a linked unsaved workbook causes a query
       #if options[:read_only]==false && !@ole_workbook.Saved # && @ole_workbook.LinkSources(RobustExcelOle::XlExcelLinks) # workbook linked
+      #  # @ole_workbook.Saved = true
       #  raise WorkbookNotSaved, "linked workbook cannot be changed to read-write if it is unsaved"
       #end
       @excel.with_displayalerts(displayalerts) {
@@ -664,11 +665,10 @@ module RobustExcelOle
         open_opts[:was_open] = nil  
         book = open(file, open_opts)
         was_visible = book.visible
-        was_writable = book.writable
         was_saved = book.saved
         was_check_compatibility = book.check_compatibility
         was_calculation = book.excel.properties[:calculation]
-        #opts[:read_only] = !opts[:writable] unless (!opts[:read_only].nil? || opts[:writable].nil? || open_opts[:was_open])
+        was_writable = book.writable
         if (opts[:read_only].nil? && !opts[:writable].nil? && !open_opts[:was_open] && (was_saved || opts[:if_unsaved]==:save))
           opts[:read_only] = !opts[:writable]
         end
@@ -676,13 +676,14 @@ module RobustExcelOle
         yield book
       ensure
         if book && book.alive?
+          was_open = open_opts[:was_open]
           do_not_write = opts[:read_only] || opts[:writable]==false
           book.save unless book.saved || do_not_write || !book.writable
-          if  ((opts[:read_only] && was_writable) || (!opts[:read_only] && !was_writable))
+          if was_open && ((opts[:read_only] && was_writable) || (!opts[:read_only] && !was_writable))
             book.send :apply_options, file, opts.merge({read_only: !was_writable, 
                                             if_unsaved: (opts[:writable]==false ? :forget : :save)})
           end
-          was_open = open_opts[:was_open]
+          #was_open = open_opts[:was_open]
           if was_open
             book.visible = was_visible    
             book.CheckCompatibility = was_check_compatibility

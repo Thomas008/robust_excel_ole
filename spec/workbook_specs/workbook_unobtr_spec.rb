@@ -313,7 +313,7 @@ describe Workbook do
 
       it "should open the linked workbook" do
         Workbook.unobtrusively(@sub_file, :writable => true) do |book|            
-          book.ReadOnly.should be true
+          book.ReadOnly.should be false
           book.filename.should == @sub_file
         end
         Excel.current.workbooks.should == [] 
@@ -321,7 +321,7 @@ describe Workbook do
 
       it "should open the workbook and its linked workbook" do
         Workbook.unobtrusively(@main_file, :writable => true) do |book|            
-          book.ReadOnly.should be true
+          book.ReadOnly.should be false
           book.filename.should == @main_file
           book.excel.workbooks.map{|b| b.filename}.should == [@main_file, @sub_file]
         end
@@ -348,7 +348,7 @@ describe Workbook do
 
       it "should not write the linked workbook and close it" do
         Workbook.unobtrusively(@sub_file) do |book|            
-          book.ReadOnly.should be true
+          book.ReadOnly.should be false
           book.filename.should == @sub_file
           @old_value = book.sheet(1)[1,1]
           book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo" 
@@ -358,7 +358,7 @@ describe Workbook do
 
       it "should not write the main workbook and close the linked file as well" do
         Workbook.unobtrusively(@main_file) do |book|            
-          book.ReadOnly.should be true
+          book.ReadOnly.should be false
           book.filename.should == @main_file
           @old_value = book.sheet(1)[1,1]
           book.sheet(1)[1,1] = book.sheet(1)[1,1] == "foo" ? "bar" : "foo" 

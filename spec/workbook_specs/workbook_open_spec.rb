@@ -375,9 +375,41 @@ describe Workbook do
         book2.ReadOnly.should be true
       end
 
-      it "should change read-only mode to read-only" do
+      it "should change read-only mode of the main workbook to read-only" do
         book1 = Workbook.open(main_file, :read_only => true)
         book1.ReadOnly.should be true
+      end
+
+    end
+
+    context "with read-only linked workbook" do
+
+      before do
+        @book1 = Workbook.open(@main_file, read_only: true)
+      end
+
+      end
+
+      it "should change read-only mode of the main workbook to read-write" do
+        book2 = Workbook.open(@main_file, :read_only => false)
+        book2.ReadOnly.should be false
+      end
+
+      it "should change read-only mode of the unsaved main workbook to read-write" do
+        book1.sheet(1)[1,1] = "foo"
+        book1 = Workbook.open(main_file, :read_only => false)
+        book1.ReadOnly.should be false
+        book1.Saved.should be false
+      end
+
+      it "should change read-only mode of the main unsaved workbook to read-write" do
+        book2 = Workbook.open(@sub_file, :read_only => false)
+        book2.ReadOnly.should be false
+      end
+
+      it "should change read-only mode of the main workbook to read-write" do
+        book1 = Workbook.open(main_file, :read_only => false)
+        book1.ReadOnly.should be false
       end
 
     end

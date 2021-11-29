@@ -137,7 +137,8 @@ If a workbook is open and a workbook with the same name but in different path sh
 
 The methods +open+ and +new+ connect to workbooks opened outside of RobustExcelOle as well.
 
-Opening linked workbooks for EXCEL 2007 is supported. Changing linked, unsaved workbooks from read-only to read-write is not being controlled (with help of options) yet.
+Opening linked workbooks for EXCEL 2007 is supported. Changing linked, unsaved workbooks from read-only to read-write causes a query whether to save the changes. This case cannot be
+controlled (e.g. with help of some options) so far.
 
 Doing updating links seems to be dependent on calculation mode: updates happen, if the calcultion mode is automatic, and does not happen, if calculation mode is manual.
 

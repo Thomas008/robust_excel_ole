@@ -388,8 +388,6 @@ describe Workbook do
         @book1 = Workbook.open(@main_file, read_only: true)
       end
 
-      end
-
       it "should change read-only mode of the main workbook to read-write" do
         book2 = Workbook.open(@main_file, :read_only => false)
         book2.ReadOnly.should be false
@@ -414,7 +412,6 @@ describe Workbook do
 
     end
 
-    # here is error: workbook not alive
     context "with read-only" do
 
       before do
@@ -3218,9 +3215,11 @@ describe Workbook do
       before do
         @new_book = Workbook.open(@simple_file)
       end
+
       after do
         @new_book.close
       end
+      
       it "should provide the excel instance of the book" do
         excel = @new_book.excel
         excel.class.should == Excel
@@ -3382,6 +3381,7 @@ describe Workbook do
       end
 
       it "should open xlsx file" do
+
         book = Workbook.open(@simple_file_xlsx, :visible => true)
         book.close
       end
@@ -3434,3 +3434,4 @@ describe Workbook do
     end
   end  
 end
+

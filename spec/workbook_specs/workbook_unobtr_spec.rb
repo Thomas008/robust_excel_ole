@@ -380,7 +380,7 @@ describe Workbook do
         end
       end
       
-      it "should force to read-only" do
+      it "should raise error, when forcing the linked workbook to read-only" do
         expect{
           Workbook.unobtrusively(@sub_file, :read_only => true) do
           end

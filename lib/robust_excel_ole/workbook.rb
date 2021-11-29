@@ -334,7 +334,11 @@ module RobustExcelOle
       #  raise WorkbookNotSaved, "linked workbook cannot be changed to read-write if it is unsaved"
       #end
       @excel.with_displayalerts(displayalerts) {
-        @ole_workbook.ChangeFileAccess('Mode' => read_write_value)
+        begin
+          @ole_workbook.ChangeFileAccess('Mode' => read_write_value)
+      rescue WIN32OLERuntimeError
+        raise WorkbookReadOnly, "cannot change read-only mode"
+      end
       }
       # managing Excel bug:
       # if the workbook is linked, then ChangeFileAccess to read-write kills the workbook  

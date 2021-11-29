@@ -326,8 +326,9 @@ module RobustExcelOle
       give_control_to_excel = !ole_workbook.Saved && options[:read_only] && 
                               (options[:if_unsaved] == :excel || options[:if_unsaved] == :alert)
       displayalerts = give_control_to_excel ? true : @excel.Displayalerts
-      # managing Excel bug:
-      # applying ChangeFileAccess to a linked unsaved workbook causes a query
+      # applying ChangeFileAccess to a linked unsaved workbook to change to read-write 
+      # causes a query
+      # how to check whether the workbook contains links?
       #if options[:read_only]==false && !@ole_workbook.Saved # && @ole_workbook.LinkSources(RobustExcelOle::XlExcelLinks) # workbook linked
       #  # @ole_workbook.Saved = true
       #  raise WorkbookNotSaved, "linked workbook cannot be changed to read-write if it is unsaved"
@@ -337,6 +338,8 @@ module RobustExcelOle
       }
       # managing Excel bug:
       # if the workbook is linked, then ChangeFileAccess to read-write kills the workbook  
+      # if the linked workbook is unsaved, then ChangeFileAccess causes a query
+      # this query cannot be avoided or controlled so far (see above)
       open_or_create_workbook(file_name, options) unless alive?
     end
 

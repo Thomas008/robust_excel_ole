@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
 module RobustExcelOle
+ 
   module Cygwin
+
+=begin  
     require 'Win32API'
 
     @conv_to_full_posix_path =
@@ -38,6 +41,15 @@ module RobustExcelOle
       buf.delete!("\0")
       buf
     end
+=end
+
+    require "open3"
+
+    # @private
+    def cygpath(options, path)
+      Open3.popen3("cygpath #{options} #{path}") { |stdin, stdout, stderr| stdout.read }[0..-2]
+    end
+
     module_function :cygpath
   end
 end

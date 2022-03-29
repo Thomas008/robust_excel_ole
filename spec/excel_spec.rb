@@ -1922,6 +1922,7 @@ module RobustExcelOle
 
     end
 
+=begin
     describe "known_running_instances" do
 
       it "should return empty list" do
@@ -1952,7 +1953,7 @@ module RobustExcelOle
       end
 
     end
-
+=end
     context "with hwnd and hwnd2excel" do
       
       before do

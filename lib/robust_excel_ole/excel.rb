@@ -7,6 +7,7 @@ def ka
   Excel.kill_all
 end
 
+=begin
 module User32
   # Extend this module to an importer
   extend Fiddle::Importer
@@ -57,6 +58,7 @@ module Oleacc
   #extern 'HRESULT AccessibleObjectFromWindow(HWND, DWORD, void*, ppvObject)'
   #extern 'HRESULT AccessibleObjectFromWindow(HWND, DWORD, struct GUID*, ppvObject)'
 end
+=end
 
 module RobustExcelOle
 
@@ -347,12 +349,12 @@ module RobustExcelOle
       GC.start
       sleep 0.1
       if finishing_living_excel
-        if hwnd
-          pid_puffer = ' ' * 32
-          User32::GetWindowThreadProcessId(hwnd, pid_puffer)         
-          pid = pid_puffer.unpack('L')[0]
-          Process.kill('KILL', pid) rescue nil
-        end
+      #  if hwnd
+      #    pid_puffer = ' ' * 32
+       #   User32::GetWindowThreadProcessId(hwnd, pid_puffer)         
+       #   pid = pid_puffer.unpack('L')[0]
+       #   Process.kill('KILL', pid) rescue nil
+      #  end
         @@hwnd2excel.delete(hwnd)
         weak_xl.ole_free if weak_xl.weakref_alive?
       end
@@ -414,6 +416,7 @@ module RobustExcelOle
     # returns running Excel instances
     # !!! This is work in progress
     # the approach is currently restricted to visible Excel instances with at least one workbook
+=begin    
     def self.running_excel_instances
       win32ole_excel_instances = []
       hwnd = 0
@@ -477,6 +480,8 @@ module RobustExcelOle
       alias known_excel_instance known_running_instance   # :deprecated: #
       alias known_excel_instances known_running_instances # :deprecated: #
     end
+
+=end
 
   private
 
@@ -552,18 +557,28 @@ module RobustExcelOle
       self.Hwnd == other_excel.Hwnd if other_excel.is_a?(Excel) && alive? && other_excel.alive?
     end
 
+    # def alive?
+      #msg = 0x2008 
+      #wparam = 0
+      #lparam = 0
+      #flags = 0x0000 # 0x0002
+      #duration = 5000
+      #lpdw_result_puffer = ' ' * 32
+      #status = User32::SendMessageTimeoutA(hwnd, msg, wparam, lparam, flags, duration, lpdw_result_puffer)
+      #result = lpdw_result_puffer.unpack('L')[0]
+      #status != 0
+    # end
+
     # returns true, if the Excel instances responds to VBA methods, false otherwise
     def alive?
-      msg = 0x2008 
-      wparam = 0
-      lparam = 0
-      flags = 0x0000 # 0x0002
-      duration = 5000
-      lpdw_result_puffer = ' ' * 32
-      status = User32::SendMessageTimeoutA(hwnd, msg, wparam, lparam, flags, duration, lpdw_result_puffer)
-      result = lpdw_result_puffer.unpack('L')[0]
-      status != 0
+      @ole_excel.Name
+      true
+    rescue
+      # trace $!.message
+      false
     end
+
+
 
     # returns unsaved workbooks in known (not opened by user) Excel instances
     # @private

@@ -7,58 +7,64 @@ def ka
   Excel.kill_all
 end
 
-=begin
 module User32
   # Extend this module to an importer
   extend Fiddle::Importer
-  # Load 'user32' dynamic library into this importer
-  dlload 'user32'
-  # Set C aliases to this importer for further understanding of function signatures
-  typealias 'HWND', 'HANDLE'
-  typealias 'HANDLE', 'void*'
-  typealias 'LPCSTR', 'const char*'
-  typealias 'LPCWSTR', 'const wchar_t*'
-  typealias 'UINT', 'unsigned int'
-  typealias 'ppvObject', 'void**'
-  typealias 'DWORD', 'unsigned long'
-  typealias 'LPDWORD', 'DWORD*'
-  typealias 'PDWORD_PTR', 'DWORD**'
-  typealias 'WPARAM', 'UINT*'
-  typealias 'LPARAM', 'INT*'
-  typealias 'LRESULT', 'DWORD'
-  # Import C functions from loaded libraries and set them as module functions
-  extern 'DWORD GetWindowThreadProcessId(HWND, LPDWORD)'
-  extern 'HWND FindWindowExA(HWND, HWND, LPCSTR, LPCSTR)'
-  extern 'DWORD SetForegroundWindow(HWND)'
-  extern 'LRESULT SendMessageTimeoutA(HWND, UINT, WPARAM, LPARAM, UINT, UINT, PDWORD_PTR)'
+  begin
+    # Load 'user32' dynamic library into this importer
+    dlload 'user32'
+    # Set C aliases to this importer for further understanding of function signatures
+    typealias 'HWND', 'HANDLE'
+    typealias 'HANDLE', 'void*'
+    typealias 'LPCSTR', 'const char*'
+    typealias 'LPCWSTR', 'const wchar_t*'
+    typealias 'UINT', 'unsigned int'
+    typealias 'ppvObject', 'void**'
+    typealias 'DWORD', 'unsigned long'
+    typealias 'LPDWORD', 'DWORD*'
+    typealias 'PDWORD_PTR', 'DWORD**'
+    typealias 'WPARAM', 'UINT*'
+    typealias 'LPARAM', 'INT*'
+    typealias 'LRESULT', 'DWORD'
+    # Import C functions from loaded libraries and set them as module functions
+    extern 'DWORD GetWindowThreadProcessId(HWND, LPDWORD)'
+    extern 'HWND FindWindowExA(HWND, HWND, LPCSTR, LPCSTR)'
+    extern 'DWORD SetForegroundWindow(HWND)'
+    extern 'LRESULT SendMessageTimeoutA(HWND, UINT, WPARAM, LPARAM, UINT, UINT, PDWORD_PTR)'
+  rescue Fiddle::DLError => e
+    #trace "user32.dll not found: #{e}"
+  end
 end
 
 module Oleacc
   # Extend this module to an importer
   extend Fiddle::Importer
-  # Load 'oleacc' dynamic library into this importer
-  dlload 'oleacc'
-  # Set C aliases to this importer for further understanding of function signatures
-  typealias 'HWND', 'HANDLE'
-  typealias 'HANDLE', 'void*'
-  typealias 'ppvObject', 'void**'
-  typealias 'DWORD', 'unsigned long'
-  typealias 'HRESULT', 'long'  
-  Guid = struct [
-  'unsigned long data1',
-  'unsigned short data2',
-  'unsigned short data3',
-  'unsigned char data4[8]'
-  ]
-  # Import C functions from loaded libraries and set them as module functions
-  extern 'HRESULT AccessibleObjectFromWindow(HWND, DWORD, struct guid*, ppvObject)'
-  #typealias 'REFIID', 'struct guid*'
-  #extern 'HRESULT AccessibleObjectFromWindow(HWND, DWORD, REFIID, ppvObject)'
-  #extern 'HRESULT AccessibleObjectFromWindow(HWND, DWORD, struct GUID*, ppvObject)'
-  #extern 'HRESULT AccessibleObjectFromWindow(HWND, DWORD, void*, ppvObject)'
-  #extern 'HRESULT AccessibleObjectFromWindow(HWND, DWORD, struct GUID*, ppvObject)'
+  begin
+    # Load 'oleacc' dynamic library into this importer
+    dlload 'oleacc'
+    # Set C aliases to this importer for further understanding of function signatures
+    typealias 'HWND', 'HANDLE'
+    typealias 'HANDLE', 'void*'
+    typealias 'ppvObject', 'void**'
+    typealias 'DWORD', 'unsigned long'
+    typealias 'HRESULT', 'long'  
+    Guid = struct [
+    'unsigned long data1',
+    'unsigned short data2',
+    'unsigned short data3',
+    'unsigned char data4[8]'
+    ]
+    # Import C functions from loaded libraries and set them as module functions
+    extern 'HRESULT AccessibleObjectFromWindow(HWND, DWORD, struct guid*, ppvObject)'
+    #typealias 'REFIID', 'struct guid*'
+    #extern 'HRESULT AccessibleObjectFromWindow(HWND, DWORD, REFIID, ppvObject)'
+    #extern 'HRESULT AccessibleObjectFromWindow(HWND, DWORD, struct GUID*, ppvObject)'
+    #extern 'HRESULT AccessibleObjectFromWindow(HWND, DWORD, void*, ppvObject)'
+    #extern 'HRESULT AccessibleObjectFromWindow(HWND, DWORD, struct GUID*, ppvObject)'
+  rescue Fiddle::DLError => e
+    #trace "oleacc.dll not found: #{e}"
+  end
 end
-=end
 
 module RobustExcelOle
 
@@ -349,12 +355,16 @@ module RobustExcelOle
       GC.start
       sleep 0.1
       if finishing_living_excel
-      #  if hwnd
-      #    pid_puffer = ' ' * 32
-       #   User32::GetWindowThreadProcessId(hwnd, pid_puffer)         
-       #   pid = pid_puffer.unpack('L')[0]
-       #   Process.kill('KILL', pid) rescue nil
-      #  end
+        if hwnd
+          begin
+            pid_puffer = ' ' * 32
+            User32::GetWindowThreadProcessId(hwnd, pid_puffer)         
+            pid = pid_puffer.unpack('L')[0]
+            Process.kill('KILL', pid) rescue nil
+          rescue NoMethodError => e
+            # trace "#{e}"
+          end
+        end
         @@hwnd2excel.delete(hwnd)
         weak_xl.ole_free if weak_xl.weakref_alive?
       end
@@ -557,28 +567,29 @@ module RobustExcelOle
       self.Hwnd == other_excel.Hwnd if other_excel.is_a?(Excel) && alive? && other_excel.alive?
     end
 
-    # def alive?
-      #msg = 0x2008 
-      #wparam = 0
-      #lparam = 0
-      #flags = 0x0000 # 0x0002
-      #duration = 5000
-      #lpdw_result_puffer = ' ' * 32
-      #status = User32::SendMessageTimeoutA(hwnd, msg, wparam, lparam, flags, duration, lpdw_result_puffer)
-      #result = lpdw_result_puffer.unpack('L')[0]
-      #status != 0
-    # end
-
     # returns true, if the Excel instances responds to VBA methods, false otherwise
     def alive?
-      @ole_excel.Name
-      true
-    rescue
-      # trace $!.message
-      false
+      begin
+        msg = 0x2008 
+        wparam = 0
+        lparam = 0
+        flags = 0x0000 # 0x0002
+        duration = 5000
+        lpdw_result_puffer = ' ' * 32
+        status = User32::SendMessageTimeoutA(hwnd, msg, wparam, lparam, flags, duration, lpdw_result_puffer)
+        result = lpdw_result_puffer.unpack('L')[0]
+        status != 0
+      rescue NoMethodError => e
+        #trace "#{e}"
+        begin
+          @ole_excel.Name
+          true
+        rescue
+          # trace $!.message
+          false
+        end
+      end
     end
-
-
 
     # returns unsaved workbooks in known (not opened by user) Excel instances
     # @private
@@ -741,8 +752,12 @@ module RobustExcelOle
 
     def focus
       self.visible = true
-      status = User32::SetForegroundWindow(@ole_excel.Hwnd)
-      raise ExcelREOError, "could not set Excel window as foreground" if status == 0     
+      begin
+        status = User32::SetForegroundWindow(@ole_excel.Hwnd)
+        raise ExcelREOError, "could not set Excel window as foreground" if status == 0 
+      rescue NoMethodError => e
+        raise ExcelREOError, "could not set Excel window as foreground because user32.dll not found"
+      end
     end
     
     # @private

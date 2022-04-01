@@ -32,7 +32,7 @@ module User32
     extern 'DWORD SetForegroundWindow(HWND)'
     extern 'LRESULT SendMessageTimeoutA(HWND, UINT, WPARAM, LPARAM, UINT, UINT, PDWORD_PTR)'
   rescue Fiddle::DLError => e
-    #trace "user32.dll not found: #{e}"
+    trace "warning: user32.dll not found: #{e}"
   end
 end
 
@@ -62,7 +62,7 @@ module Oleacc
     #extern 'HRESULT AccessibleObjectFromWindow(HWND, DWORD, void*, ppvObject)'
     #extern 'HRESULT AccessibleObjectFromWindow(HWND, DWORD, struct GUID*, ppvObject)'
   rescue Fiddle::DLError => e
-    #trace "oleacc.dll not found: #{e}"
+    trace "warning: oleacc.dll not found: #{e}"
   end
 end
 

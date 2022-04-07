@@ -47,7 +47,7 @@ module RobustExcelOle
 
     # @private
     def cygpath(options, path)
-      Open3.popen3("cygpath #{options} #{path}") { |stdin, stdout, stderr| stdout.read }[0..-2]
+      Open3.popen3("cygpath #{options} #{path}") { |stdin, stdout, stderr| stdout.read }[0..-2].gsub("\n", " ")
     end
 
     module_function :cygpath

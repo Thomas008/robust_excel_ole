@@ -10,6 +10,11 @@ include General
 describe "on cygwin",  :if => RUBY_PLATFORM =~ /cygwin/ do
   describe ".cygpath" do
     context "cygwin path is '/cygdrive/c/Users'" do
+
+      context "with white spaces" do
+        it { RobustExcelOle::Cygwin.cygpath('-w', '/cygdrive/c/Users of all').should eq 'C:\\Users of all' }
+      end
+
       context "with '-w' options" do
         it { RobustExcelOle::Cygwin.cygpath('-w', '/cygdrive/c/Users').should eq 'C:\\Users' }
       end

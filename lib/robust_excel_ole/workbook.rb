@@ -123,7 +123,7 @@ module RobustExcelOle
           raise TypeREOError, "provided Excel option value is neither an Excel object nor a valid option"
         end
         begin
-          book = if File.exists?(file)
+          book = if File.exist?(file)
             bookstore.fetch(file, prefer_writable: !(opts[:read_only]),
                                   prefer_excel: (opts[:read_only] ? forced_excel : nil))
           end
